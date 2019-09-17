@@ -36,7 +36,7 @@ Conda
 ~~~~~
 
 Developing Bokeh requires installing some software packages that are not
-Python packages (e.g. Selenium, nodejs, etc.). To make this more manageable,
+Python packages (e.g. Selenium, NodeJS, etc.). To make this more manageable,
 core developers rely heavily on the `conda package manager`_ for the free
 `Anaconda`_ Python distribution. However, ``conda`` can also install
 non-Python package dependencies, which helps streamline Bokeh development
@@ -138,13 +138,13 @@ command at your command prompt to install all the required packages:
 
     .. code-block:: sh
 
-        conda install $(python scripts/deps.py build run).split() | where {$_}
+        conda install $(python scripts/deps.py build run test).split() | where {$_}
 
-* Winows (DOS Command Prompt)
+* Windows (DOS Command Prompt)
 
     .. code-block:: sh
 
-        for /F "delims=" %i in ('python scripts\deps.py build run') do (conda install %i)
+        for /F "delims=" %i in ('python scripts\deps.py build run test') do (conda install %i)
 
 .. note::
     The ``test`` category has been omitted from the Windows installs above
@@ -186,6 +186,13 @@ to install all of BokehJS JavaScript dependencies:
 
 This command will install the necessary packages into the ``node_modules``
 subdirectory.
+
+PhantomJS
+~~~~~~~~~
+
+PhantomJS is currently required to exercise some capabilities under test. It
+is available via Conda for some platforms. For other platforms, it may be
+installed via npm with: ``npm install -g phantomjs``.
 
 ----
 
@@ -401,7 +408,7 @@ web browser to the appropriate address, the default is ``localhost:5006``.
 If you have any problems with the steps here, please `contact the developers`_.
 
 .. _Anaconda: https://anaconda.com/downloads
-.. _contact the developers: https://bokehplots.com/pages/contact.html
+.. _contact the developers: https://bokeh.org
 .. _conda package manager: https://conda.io/docs/intro.html
 .. _conda documentation: https://conda.io/docs/index.html
 .. _Download conda: https://conda.io/docs/download.html

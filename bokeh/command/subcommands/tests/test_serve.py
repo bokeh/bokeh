@@ -1,22 +1,52 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
 import contextlib
+import os
+from os.path import join, split
 import re
 import socket
 import subprocess
 import sys
 from time import sleep
 
-import pytest
+# External imports
 import requests
 import six
 
+# Bokeh imports
 import bokeh.command.subcommands.serve as scserve
 
 from bokeh.resources import DEFAULT_SERVER_PORT
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_create():
     import argparse
@@ -55,8 +85,8 @@ def test_args():
         ('--log-level', dict(
             metavar = 'LOG-LEVEL',
             action  = 'store',
-            default = 'info',
-            choices = scserve.LOGLEVELS,
+            default = None,
+            choices = scserve.LOGLEVELS + (None,),
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
@@ -74,112 +104,188 @@ def test_args():
             help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
         )),
 
+        ('--use-config', dict(
+            metavar = 'CONFIG',
+            type    = str,
+            help    = "Use a YAML config file for settings",
+            default = None,
+        )),
+
         ('files', dict(
-            metavar='DIRECTORY-OR-SCRIPT',
-            nargs='*',
-            help="The app directories or scripts to serve (serve empty document if not specified)",
-            default=None,
+            metavar = 'DIRECTORY-OR-SCRIPT',
+            nargs   = '*',
+            help    = "The app directories or scripts to serve (serve empty document if not specified)",
+            default = None,
         )),
 
         ('--args', dict(
-            metavar='COMMAND-LINE-ARGS',
-            nargs=argparse.REMAINDER,
-            help="Any command line arguments remaining are passed on to the application handler",
+            metavar = 'COMMAND-LINE-ARGS',
+            nargs   = argparse.REMAINDER,
+            help    = "Command line arguments remaining to passed on to the application handler. "
+                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
+                      "--show, must be placed before the directory or script. ",
+        )),
+
+        ('--dev', dict(
+            metavar ='FILES-TO-WATCH',
+            action  ='store',
+            default = None,
+            type    = str,
+            nargs   = '*',
+            help    = "Enable live reloading during app development. "
+                      "By default it watches all *.py *.html *.css *.yaml files "
+                      "in the app directory tree. Additional files can be passed "
+                      "as arguments. "
+                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
+                      "--show, must be placed before the directory or script. "
+                      "NOTE: This setting only works with a single app. "
+                      "It also restricts the number of processes to 1. "
+                      "NOTE FOR WINDOWS USERS : this option must be invoked using "
+                      "'python -m bokeh'. If not Tornado will fail to restart the "
+                      "server",
         )),
 
         ('--show', dict(
-            action='store_true',
-            help="Open server app(s) in a browser",
+            action = 'store_true',
+            help   = "Open server app(s) in a browser",
         )),
 
         ('--allow-websocket-origin', dict(
-            metavar='HOST[:PORT]',
-            action='append',
-            type=str,
-            help="Public hostnames which may connect to the Bokeh websocket",
+            metavar = 'HOST[:PORT]',
+            action  = 'append',
+            type    = str,
+            help    = "Public hostnames which may connect to the Bokeh websocket",
         )),
 
         ('--prefix', dict(
-            metavar='PREFIX',
-            type=str,
-            help="URL prefix for Bokeh server URLs",
-            default=None,
+            metavar = 'PREFIX',
+            type    = str,
+            help    = "URL prefix for Bokeh server URLs",
+            default = None,
         )),
 
         ('--keep-alive', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to send a keep-alive ping to clients, 0 to disable.",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to send a keep-alive ping to clients, 0 to disable.",
+            default = None,
         )),
 
         ('--check-unused-sessions', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to check for unused sessions",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to check for unused sessions",
+            default = None,
         )),
 
         ('--unused-session-lifetime', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How long unused sessions last",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How long unused sessions last",
+            default = None,
         )),
 
         ('--stats-log-frequency', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to log stats",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to log stats",
+            default = None,
         )),
 
         ('--mem-log-frequency', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to log memory usage information",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to log memory usage information",
+            default = None,
         )),
 
         ('--use-xheaders', dict(
-            action='store_true',
-            help="Prefer X-headers for IP/protocol information",
+            action = 'store_true',
+            help   = "Prefer X-headers for IP/protocol information",
+        )),
+
+        ('--ssl-certfile', dict(
+            metavar = 'CERTFILE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a certificate file for SSL termination',
+        )),
+
+        ('--ssl-keyfile', dict(
+            metavar = 'KEYFILE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a private key file for SSL termination',
         )),
 
         ('--session-ids', dict(
-            metavar='MODE',
+            metavar = 'MODE',
             action  = 'store',
             default = None,
             choices = scserve.SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
         )),
 
+        ('--auth-module', dict(
+            metavar = 'AUTH_MODULE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a Python module that implements auth hooks',
+        )),
+
+        ('--enable-xsrf-cookies', dict(
+            action  = 'store_true',
+            default = False,
+            help    = 'Whether to enable Tornado support for XSRF cookies. All '
+                      'PUT, POST, or DELETE handlers must be properly instrumented '
+                      'when this setting is enabled.'
+        )),
+
+        ('--cookie-secret', dict(
+            metavar = 'COOKIE_SECRET',
+            action  = 'store',
+            default = None,
+            help    = 'Configure to enable getting/setting secure cookies',
+        )),
+
+        ('--index', dict(
+            metavar = 'INDEX',
+            action  = 'store',
+            default = None,
+            help    = 'Path to a template to use for the site index',
+        )),
+
         ('--disable-index', dict(
             action = 'store_true',
-            help    = 'Do not use the default index on the root path',
+            help   = 'Do not use the default index on the root path',
         )),
 
         ('--disable-index-redirect', dict(
             action = 'store_true',
-            help    = 'Do not redirect to running app from root path',
+            help   = 'Do not redirect to running app from root path',
         )),
 
         ('--num-procs', dict(
-             metavar='N',
-             action='store',
-             help="Number of worker processes for an app. Using "
-                  "0 will autodetect number of cores (defaults to 1)",
-             default=1,
-             type=int,
+             metavar = 'N',
+             action  = 'store',
+             help    = "Number of worker processes for an app. Using "
+                       "0 will autodetect number of cores (defaults to 1)",
+             default = 1,
+             type    =int,
          )),
 
          ('--websocket-max-message-size', dict(
-            metavar='BYTES',
-            action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
-            default=20*1024*1024,
-            type=int,
+            metavar = 'BYTES',
+            action  = 'store',
+            help    = "Set the Tornado websocket_max_message_size value (defaults "
+                      "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            default = 20*1024*1024,
+            type    = int,
+        )),
+
+        ('--glob', dict(
+            action='store_true',
+            help='Process all filenames as globs',
         )),
     )
 
@@ -217,7 +323,7 @@ def check_error(args):
     return out
 
 def test_host_not_available():
-    host = "8.8.8.8"
+    host = str("8.8.8.8") # str cast is for Python 2.7 testing
     out = check_error(["--address", host])
     expected = "Cannot start Bokeh server, address %r not available" % host
     assert expected in out
@@ -232,6 +338,40 @@ def test_port_not_available():
         assert expected in out
     finally:
         sock.close()
+
+def test_no_glob_by_default_on_filename_if_wildcard_in_quotes():
+    import os.path
+
+    here = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(here, 'apps', '*.py')
+    out = check_error([path])
+    expected = "ERROR: Path for Bokeh server application does not exist:"
+    assert expected in out
+    assert '*' in out
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_glob_flag_on_filename_if_wildcard_in_quotes():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    import os.path
+
+    pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
+    m = None
+    here = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(here, 'apps', '*.py')
+
+    with run_bokeh_serve(["--port", "0", "--glob", path]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+        if m is None:
+            pytest.fail("no matching log line in process output")
+        port = int(m.group(1))
+        assert port > 0
+        r = requests.get("http://localhost:%d/apply_theme" % (port,))
+        assert r.status_code == 200
 
 @pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_actual_port_printed_out():
@@ -261,3 +401,59 @@ def test_websocket_max_message_size_printed_out():
     m = pat.search(o.decode())
     if m is None:
         pytest.fail("no matching log line in process output")
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_xsrf_printed_option():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'XSRF cookie protection enabled')
+    m = None
+    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_xsrf_printed_envar():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'XSRF cookie protection enabled')
+    m = None
+    os.environ["BOKEH_XSRF_COOKIES"] = "yes"
+    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")
+    os.environ["BOKEH_XSRF_COOKIES"]
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_auth_module_printed():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'User authentication hooks provided \(no default user\)')
+    m = None
+    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        print(o.decode())
+        m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

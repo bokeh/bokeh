@@ -1,16 +1,46 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Encapsulate handling of all Bokeh Protocol messages a Bokeh server may
 receive.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import gen
 
+# Bokeh imports
 from .session import ServerSession
 from ..protocol.exceptions import ProtocolError
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'ProtocolHandler',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class ProtocolHandler(object):
     ''' A Bokeh server may be expected to receive any of the following protocol
@@ -69,11 +99,23 @@ class ProtocolHandler(object):
         try:
             work = yield handler(message, connection)
         except Exception as e:
-            log.error("error handling message %r: %r", message, e)
-            log.debug("  message header %r content %r", message.header, message.content, exc_info=1)
+            log.error("error handling message\n message: %r \n error: %r",
+                      message, e, exc_info=True)
             work = connection.error(message, repr(e))
         raise gen.Return(work)
 
     @gen.coroutine
     def _server_info_req(self, message, connection):
         raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid']))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

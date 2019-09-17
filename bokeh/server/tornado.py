@@ -1,31 +1,53 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provides the Bokeh Server Tornado application.
 
 '''
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 from pprint import pformat
 
+# External imports
 from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
 
+# Bokeh imports
 from ..application import Application
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 
+from .auth_provider import NullAuth
 from .contexts import ApplicationContext
 from .connection import ServerConnection
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 
-# Unfortuntely we can't yet use format_docstring to keep these automatically in sync in
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+# Unfortunately we can't yet use format_docstring to keep these automatically in sync in
 # the class docstring because Python 2 does not allow setting class.__doc__ (works with
 # Bokeh model classes because they are metaclasses)
 DEFAULT_CHECK_UNUSED_MS                  = 17000
@@ -35,6 +57,13 @@ DEFAULT_STATS_LOG_FREQ_MS                = 15000
 DEFAULT_UNUSED_LIFETIME_MS               = 15000
 DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
 
+__all__ = (
+    'BokehTornado',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -110,12 +139,17 @@ class BokehTornado(TornadoApplication):
         mem_log_frequency_milliseconds (int, optional) :
             Number of milliseconds between logging memory information (default: 0)
 
-            Enabling this feature requires the optional depenency ``psutil`` to be
+            Enabling this feature requires the optional dependency ``psutil`` to be
             installed.
 
         use_index (bool, optional) :
             Whether to generate an index of running apps in the ``RootHandler``
             (default: True)
+
+        index (str, optional) :
+            Path to a Jinja2 template to serve as the index for "/" if use_index
+            is True. If None, the basic built in app index template is used.
+            (default: None)
 
         redirect_root (bool, optional) :
             When there is only a single running application, whether to
@@ -130,6 +164,12 @@ class BokehTornado(TornadoApplication):
             (default: 20*1024*1024)
 
             NOTE: This setting has effect ONLY for Tornado>=4.5
+
+        index (str, optional):
+            Path to a Jinja2 template to use for the root URL
+
+        auth_provider (AuthProvider, optional):
+            An AuthProvider instance
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
@@ -150,6 +190,9 @@ class BokehTornado(TornadoApplication):
                  use_index=True,
                  redirect_root=True,
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+                 index=None,
+                 auth_provider=NullAuth(),
+                 xsrf_cookies=False,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -165,6 +208,8 @@ class BokehTornado(TornadoApplication):
             prefix = "/" + prefix
 
         self._prefix = prefix
+
+        self._index = index
 
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
@@ -199,7 +244,7 @@ class BokehTornado(TornadoApplication):
             raise ValueError("mem_log_frequency_milliseconds must be >= 0")
         elif mem_log_frequency_milliseconds > 0:
             if import_optional('psutil') is None:
-                log.warn("Memory logging requested, but is disabled. Optional dependency 'psutil' is missing. "
+                log.warning("Memory logging requested, but is disabled. Optional dependency 'psutil' is missing. "
                          "Try 'pip install psutil' or 'conda install psutil'")
                 mem_log_frequency_milliseconds = 0
             elif mem_log_frequency_milliseconds != DEFAULT_MEM_LOG_FREQ_MS:
@@ -207,11 +252,22 @@ class BokehTornado(TornadoApplication):
         self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
 
         if websocket_max_message_size_bytes <= 0:
-            raise ValueError("websocket_max_message_size_bytes must be postitive")
+            raise ValueError("websocket_max_message_size_bytes must be positive")
         elif websocket_max_message_size_bytes != DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES:
             log.info("Torndado websocket_max_message_size set to %d bytes (%0.2f MB)",
                      websocket_max_message_size_bytes,
                      websocket_max_message_size_bytes/1024.0**2)
+
+        self.auth_provider = auth_provider
+
+        if self.auth_provider.get_user or self.auth_provider.get_user_async:
+            log.info("User authentication hooks provided (no default user)")
+        else:
+            log.info("User authentication hooks NOT provided (default user enabled)")
+
+        kwargs['xsrf_cookies'] = xsrf_cookies
+        if xsrf_cookies:
+            log.info("XSRF cookie protection enabled")
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()
@@ -225,9 +281,11 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v,url=k)
+            self._applications[k] = ApplicationContext(v, url=k, logout_url=self.auth_provider.logout_url)
 
         extra_patterns = extra_patterns or []
+        extra_patterns.extend(self.auth_provider.endpoints)
+
         all_patterns = []
         for key, app in applications.items():
             app_patterns = []
@@ -264,6 +322,7 @@ class BokehTornado(TornadoApplication):
                 if use_index:
                     data = {"applications": self._applications,
                             "prefix": self._prefix,
+                            "index": self._index,
                             "use_redirect": redirect_root}
                     prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
                     all_patterns.append(prefixed_pat)
@@ -315,6 +374,13 @@ class BokehTornado(TornadoApplication):
 
         '''
         return set(self._applications)
+
+    @property
+    def index(self):
+        ''' Path to a Jinja2 template to serve as the index "/"
+
+        '''
+        return self._index
 
     @property
     def io_loop(self):
@@ -374,9 +440,8 @@ class BokehTornado(TornadoApplication):
                 relative URLs are used (default: None)
 
         '''
-        if absolute_url:
-            return Resources(mode="server", root_url=absolute_url + self._prefix, path_versioner=StaticHandler.append_version)
-        return Resources(mode="server", root_url=self._prefix, path_versioner=StaticHandler.append_version)
+        root_url = absolute_url + self._prefix if absolute_url else self._prefix
+        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
 
     def start(self):
         ''' Start the Bokeh Server application.
@@ -512,3 +577,15 @@ class BokehTornado(TornadoApplication):
         log.trace("Running keep alive job")
         for c in self._clients:
             c.send_ping()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,23 +1,22 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {FontSizeSpec, ColorSpec, NumberSpec} from "core/vectorization"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
-import {hide} from "core/dom"
-import * as p from "core/properties"
+import {undisplay} from "core/dom"
+import {Size} from "core/layout"
 import {Text} from "core/visuals"
+import * as mixins from "core/property_mixins"
+import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.visuals.text = new Text(this.model)
   }
 
   protected _get_location(): [number, number] {
-    const panel = this.model.panel!
+    const panel = this.panel!
 
     const hmargin = this.model.offset
     const vmargin = 5
@@ -82,7 +81,7 @@ export class TitleView extends TextAnnotationView {
   render(): void {
     if (!this.model.visible) {
       if (this.model.render_mode == 'css')
-        hide(this.el)
+        undisplay(this.el)
       return
     }
 
@@ -94,59 +93,41 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.model.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel!.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {text} = this.model
     if (text == null || text.length == 0)
-      return 0
+      return {width: 0, height: 0}
     else {
-      const {ctx} = this.plot_view.canvas_view
-      this.visuals.text.set_value(ctx)
-      return ctx.measureText(text).ascent + 10
+      this.visuals.text.set_value(this.ctx)
+      const {width, ascent} = this.ctx.measureText(text)
+      return {width, height: ascent + 10}
     }
   }
 }
 
 export namespace Title {
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends BorderLine, BackgroundFill {}
-
-  export interface Attrs extends TextAnnotation.Attrs, Mixins {
-    text: string
-    text_font: string // XXX: Font
-    text_font_size: FontSizeSpec
-    text_font_style: FontStyle
-    text_color: ColorSpec
-    text_alpha: NumberSpec
-    vertical_align: VerticalAlign
-    align: TextAlign
-    offset: number
-    text_align: TextAlign
-    text_baseline: TextBaseline
-  }
-
-  export interface Props extends TextAnnotation.Props {}
+  export type Props = TextAnnotation.Props & {
+    text: p.Property<string>
+    text_font: p.Property<string> // XXX: Font
+    text_font_size: p.FontSizeSpec
+    text_font_style: p.Property<FontStyle>
+    text_color: p.ColorSpec
+    text_alpha: p.NumberSpec
+    vertical_align: p.Property<VerticalAlign>
+    align: p.Property<TextAlign>
+    offset: p.Property<number>
+    text_align: p.Property<TextAlign>
+    text_baseline: p.Property<TextBaseline>
+  } & mixins.BorderLine
+    & mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -154,21 +135,19 @@ export namespace Title {
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
-
   properties: Title.Props
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Title'
+  static init_Title(): void {
     this.prototype.default_view = TitleView
 
     this.mixins(['line:border_', 'fill:background_'])
 
-    this.define({
-      text:            [ p.String,                    ],
+    this.define<Title.Props>({
+      text:            [ p.String                     ],
       text_font:       [ p.Font,          'helvetica' ],
       text_font_size:  [ p.FontSizeSpec,  '10pt'      ],
       text_font_style: [ p.FontStyle,     'bold'      ],
@@ -190,4 +169,3 @@ export class Title extends TextAnnotation {
     })
   }
 }
-Title.initClass()

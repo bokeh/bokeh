@@ -2,7 +2,7 @@
 # move on to its abstract dependencies (listed in install_requires),
 # combining them with its --index option (the PyPi location) and
 # turning them into concrete dependencies and installing them.
-# Reference: https://caremad.io/blog/setup-vs-requirement/
+# Reference: https://caremad.io/posts/2013/07/setup-vs-requirement/
 --index-url https://pypi.python.org/simple/
 
 -e .

@@ -1,11 +1,11 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {Rect} from "models/glyphs/rect"
-import {CDSView} from "models/sources/cds_view"
-import {IndexFilter} from "models/filters/index_filter"
+import {Rect} from "@bokehjs/models/glyphs/rect"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 
-import {create_hit_test_result_from_hits, create_empty_hit_test_result} from "core/hittest"
+import {create_hit_test_result_from_hits, create_empty_hit_test_result} from "@bokehjs/core/hittest"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
 describe("SelectionManager", () => {

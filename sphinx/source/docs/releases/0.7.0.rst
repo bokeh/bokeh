@@ -1,8 +1,10 @@
-0.7.0 (Dec 2014)
-================
+.. _release-0-7-0:
 
-This release focused on new features and capability, particularly around
-user interface and experience:
+0.7.0
+=====
+
+Bokeh ``0.7.0`` (Dec 2014) focused on new features and capability, particularly
+arounduser interface and experience:
 
 * IPython widgets and animations without a Bokeh server
 * Touch UI working for tools on mobile devices
@@ -12,8 +14,10 @@ user interface and experience:
 * Improved toolbar
 * Many new tools: lasso, poly, and point selection, crosshair inspector
 
-Migration Guide
----------------
+.. _release-0-7-0-migration:
+
+`Migration Guide <releases.html#release-0-7-0-migration>`__
+-----------------------------------------------------------
 
 Additionally, note that the "implicit" plotting interface of plotting.py
 has been deprecated, and will be removed in Bokeh 0.8. In a nutshell,

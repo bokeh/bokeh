@@ -3,7 +3,7 @@ import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {map} from "core/util/arrayable"
-import {all, sum} from "core/util/array"
+import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 
 export type L1Factor = string
@@ -11,6 +11,14 @@ export type L2Factor = [string, string]
 export type L3Factor = [string, string, string]
 
 export type Factor = L1Factor | L2Factor | L3Factor
+
+export type BoxedFactor = [string] | L2Factor | L3Factor
+
+export type L1Factors = Arrayable<L1Factor>
+export type L2Factors = Arrayable<L2Factor>
+export type L3Factors = Arrayable<L3Factor>
+
+export type Factors = L1Factors | L2Factors | L3Factors
 
 export type L1OffsetFactor = [string, number]
 export type L2OffsetFactor = [string, string, number]
@@ -23,7 +31,7 @@ export type L2Mapping = {[key: string]: {value: number, mapping: L1Mapping}}
 export type L3Mapping = {[key: string]: {value: number, mapping: L2Mapping}}
 
 export function map_one_level(factors: L1Factor[], padding: number, offset: number = 0): [L1Mapping, number] {
-  const mapping: {[key: string]: {value: number}} = {}
+  const mapping: L1Mapping = {}
 
   for (let i = 0; i < factors.length; i++) {
     const factor = factors[i]
@@ -90,7 +98,7 @@ export function map_three_levels(factors: L3Factor[],
     for (const f1 of submids_order)
       mids_order.push([f0, f1])
     total_subpad += subpad
-    const subtot = sum(tops[f0].map(([f1,]) => submap[f1].value))
+    const subtot = sum(tops[f0].map(([f1]) => submap[f1].value))
     mapping[f0] = {value: subtot/n, mapping: submap}
     suboffset += n + outer_pad + subpad
   }
@@ -99,23 +107,9 @@ export function map_three_levels(factors: L3Factor[],
 }
 
 export namespace FactorRange {
-  export interface Attrs extends Range.Attrs {
-    factors: Factor[]
-    factor_padding: number
-    subgroup_padding: number
-    group_padding: number
-    range_padding: number
-    range_padding_units: PaddingUnits
-    start: number
-    end: number
+  export type Attrs = p.AttrsOf<Props>
 
-    levels: number
-    mids: [string, string][] | undefined
-    tops: string[] | undefined
-    tops_groups: string[]
-  }
-
-  export interface Props extends Range.Props {
+  export type Props = Range.Props & {
     factors: p.Property<Factor[]>
     factor_padding: p.Property<number>
     subgroup_padding: p.Property<number>
@@ -124,23 +118,25 @@ export namespace FactorRange {
     range_padding_units: p.Property<PaddingUnits>
     start: p.Property<number>
     end: p.Property<number>
+
+    levels: p.Property<number>
+    mids: p.Property<[string, string][] | undefined>
+    tops: p.Property<string[] | undefined>
+    tops_groups: p.Property<string[]>
   }
 }
 
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-
   properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "FactorRange"
-
-    this.define({
+  static init_FactorRange(): void {
+    this.define<FactorRange.Props>({
       factors:             [ p.Array,        []        ],
       factor_padding:      [ p.Number,       0         ],
       subgroup_padding:    [ p.Number,       0.8       ],
@@ -189,7 +185,7 @@ export class FactorRange extends Range {
     this.change.emit()
   }
 
-  protected _lookup(x: any): number {
+  protected _lookup(x: BoxedFactor): number {
     if (x.length == 1) {
       const m = this._mapping as L1Mapping
       if (!m.hasOwnProperty(x[0])) {
@@ -213,7 +209,7 @@ export class FactorRange extends Range {
   }
 
   // convert a string factor into a synthetic coordinate
-  synthetic(x: number | Factor | OffsetFactor): number {
+  synthetic(x: number | Factor | [string] | OffsetFactor): number {
     if (isNumber(x))
       return x
 
@@ -224,27 +220,27 @@ export class FactorRange extends Range {
     const off = x[x.length-1]
     if (isNumber(off)) {
       offset = off
-      x = x.slice(0, -1) as Factor
+      x = x.slice(0, -1) as BoxedFactor
     }
 
-    return this._lookup(x) + offset
+    return this._lookup(x as BoxedFactor) + offset
   }
 
   // convert an array of string factors into synthetic coordinates
-  v_synthetic(xs: Arrayable<number | Factor | OffsetFactor>): Arrayable<number> {
+  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): Arrayable<number> {
     return map(xs, (x) => this.synthetic(x))
   }
 
   protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
-    if (all(this.factors as any, isString)) {
+    if (every(this.factors, isString)) {
       levels = 1;
       [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
-    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
+    } else if (every(this.factors, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
       levels = 2;
       [this._mapping, this.tops, inside_padding] = map_two_levels(this.factors as [string, string][], this.group_padding, this.factor_padding)
-    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
+    } else if (every(this.factors, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
       levels = 3;
       [this._mapping, this.tops, this.mids, inside_padding] = map_three_levels(this.factors as [string, string, string][], this.group_padding, this.subgroup_padding, this.factor_padding)
     } else
@@ -262,11 +258,9 @@ export class FactorRange extends Range {
       end += this.range_padding
     }
 
-    this.setv({start: start, end: end, levels: levels}, {silent: silent})
+    this.setv({start, end, levels}, {silent})
 
     if (this.bounds == "auto")
       this.setv({bounds: [start, end]}, {silent: true})
   }
 }
-
-FactorRange.initClass()

@@ -1,5 +1,5 @@
 from bokeh.document import Document
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
 from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
 from bokeh.models.layouts import Column
 from bokeh.embed import file_html
@@ -30,7 +30,7 @@ columns = [
 data_table = DataTable(source=source, columns=columns, editable=True, width=1000,
                        index_position=-1, index_header="row index", index_width=60)
 
-plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
+plot = Plot(title=None, plot_width=1000, plot_height=300)
 
 # Set up x & y axis
 plot.add_layout(LinearAxis(), 'below')

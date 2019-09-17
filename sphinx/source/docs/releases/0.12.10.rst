@@ -1,11 +1,16 @@
-0.12.10 (Oct 2017)
-==================
+.. _release-0-12-10:
 
-Bokeh Version ``0.12.10`` is an incremental update that adds a few important
-features and fixes several bugs. For full details see the :bokeh-tree:`CHANGELOG`.
+0.12.10
+=======
 
-Migration Guide
----------------
+Bokeh Version ``0.12.10`` (Oct 2017) is an incremental update that adds a few
+important features and fixes several bugs. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-0-12-10-migration:
+
+`Migration Guide <releases.html#release-0-12-10-migration>`__
+-------------------------------------------------------------
 
 Deprecations Removed
 ~~~~~~~~~~~~~~~~~~~~
@@ -58,4 +63,4 @@ longer than necessary. It is not expected this change should affect any
 users, but if you need this value, the ``bokeh.util.version.base_version``
 function can be used.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

@@ -21,7 +21,7 @@ legend = Legend(items=[
     ("sin(x)"   , [r0, r1]),
     ("2*sin(x)" , [r2]),
     ("3*sin(x)" , [r3, r4]),
-], location=(0, -30))
+], location="center")
 
 p.add_layout(legend, 'right')
 

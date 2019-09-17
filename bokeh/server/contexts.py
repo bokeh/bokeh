@@ -1,13 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provides the Application, Server, and Session context classes.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import gen
 
+# Bokeh imports
 from .session import ServerSession
 
 from ..application.application import ServerContext, SessionContext
@@ -15,15 +33,27 @@ from ..document import Document
 from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup, yield_for_all_futures
 
-class _RequestProxy(object):
-    def __init__(self, request):
-        args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
-        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
-        self._args = args_copy
-    @property
-    def arguments(self):
-        return self._args
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'ApplicationContext',
+    'BokehServerContext',
+    'BokehSessionContext',
+)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
@@ -59,9 +89,10 @@ class BokehServerContext(ServerContext):
         self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
-    def __init__(self, session_id, server_context, document):
+    def __init__(self, session_id, server_context, document, logout_url=None):
         self._document = document
         self._session = None
+        self._logout_url = logout_url
         super(BokehSessionContext, self).__init__(server_context,
                                                   session_id)
         # request arguments used to instantiate this session
@@ -88,6 +119,10 @@ class BokehSessionContext(SessionContext):
             return self._session.destroyed
 
     @property
+    def logout_url(self):
+        return self._logout_url
+
+    @property
     def request(self):
         return self._request
 
@@ -97,12 +132,12 @@ class BokehSessionContext(SessionContext):
 
 
 class ApplicationContext(object):
-    ''' Server-side holder for bokeh.application.Application plus any associated data.
-        This holds data that's global to all sessions, while ServerSession holds
+    ''' Server-side holder for ``bokeh.application.Application`` plus any associated data.
+        This holds data that's global to all sessions, while ``ServerSession`` holds
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, io_loop=None, url=None):
+    def __init__(self, application, io_loop=None, url=None, logout_url=None):
         self._application = application
         self._loop = io_loop
         self._sessions = dict()
@@ -110,6 +145,7 @@ class ApplicationContext(object):
         self._session_contexts = dict()
         self._server_context = None
         self._url = url
+        self._logout_url = logout_url
 
     @property
     def io_loop(self):
@@ -168,7 +204,8 @@ class ApplicationContext(object):
 
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,
-                                                  doc)
+                                                  doc,
+                                                  logout_url=self._logout_url)
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request)
 
@@ -231,7 +268,7 @@ class ApplicationContext(object):
                 del self._session_contexts[session.id]
                 log.trace("Session %r was successfully discarded", session.id)
             else:
-                log.warn("Session %r was scheduled to discard but came back to life", session.id)
+                log.warning("Session %r was scheduled to discard but came back to life", session.id)
         yield session.with_document_locked(do_discard)
 
         # session lifecycle hooks are supposed to be called outside the document lock,
@@ -265,3 +302,31 @@ class ApplicationContext(object):
                 yield self._discard_session(session, should_discard_ignoring_block)
 
         raise gen.Return(None)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+class _RequestProxy(object):
+    def __init__(self, request):
+        self._request = request
+
+        arguments = dict(request.arguments)
+        if 'bokeh-protocol-version' in arguments: del arguments['bokeh-protocol-version']
+        if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
+        self._arguments = arguments
+
+    @property
+    def arguments(self):
+        return self._arguments
+
+    def __getattr__(self, name):
+        if not name.startswith("_"):
+            val = getattr(self._request, name, None)
+            if val is not None:
+                return val
+        return super.__getattr__(name)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

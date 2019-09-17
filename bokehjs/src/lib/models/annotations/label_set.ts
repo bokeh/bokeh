@@ -1,14 +1,15 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {NumberSpec, AngleSpec, StringSpec, ColorSpec} from "core/vectorization"
-import {TextMixinVector} from "core/property_mixins"
+import {TextVector} from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
-import {div, show, hide} from "core/dom"
+import {div, display, undisplay} from "core/dom"
 import * as p from "core/properties"
+import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
+import {bk_annotation_child} from "styles/annotations"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
@@ -21,14 +22,14 @@ export class LabelSetView extends TextAnnotationView {
   protected _x_offset: Arrayable<number>
   protected _y_offset: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this.set_data(this.model.source)
 
     if (this.model.render_mode == 'css') {
       for (let i = 0, end = this._text.length; i < end; i++) {
-        const el = div({class: 'bk-annotation-child', style: {display: "none"}})
+        const el = div({class: bk_annotation_child, style: {display: "none"}})
         this.el.appendChild(el)
       }
     }
@@ -83,7 +84,7 @@ export class LabelSetView extends TextAnnotationView {
     const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
     const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
 
-    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
 
     const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
     const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
@@ -93,7 +94,7 @@ export class LabelSetView extends TextAnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return
@@ -108,24 +109,12 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {ctx} = this.plot_view.canvas_view
     this.visuals.text.set_value(ctx)
 
-    switch (this.model.panel!.side) {
-      case "above":
-      case "below": {
-        const height = ctx.measureText(this._text[0]).ascent
-        return height
-      }
-      case "left":
-      case "right": {
-        const {width} = ctx.measureText(this._text[0])
-        return width
-      }
-      default:
-        throw new Error("unreachable code")
-    }
+    const {width, ascent} = ctx.measureText(this._text[0])
+    return {width, height: ascent}
   }
 
   protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
@@ -194,45 +183,39 @@ export class LabelSetView extends TextAnnotationView {
       el.style.borderColor = `${this.visuals.border_line.color_value()}`
     }
 
-    show(el)
+    display(el)
   }
 }
 
 export namespace LabelSet {
-  // line:border_ v
-  export interface BorderLine {
-    border_line_color: ColorSpec
-    border_line_width: NumberSpec
-    border_line_alpha: NumberSpec
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = TextAnnotation.Props & TextVector & {
+    x: p.NumberSpec
+    y: p.NumberSpec
+    x_units: p.Property<SpatialUnits>
+    y_units: p.Property<SpatialUnits>
+    text: p.StringSpec
+    angle: p.AngleSpec
+    x_offset: p.NumberSpec
+    y_offset: p.NumberSpec
+    source: p.Property<ColumnarDataSource>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+
+    // line:border_ v
+    border_line_color: p.ColorSpec
+    border_line_width: p.NumberSpec
+    border_line_alpha: p.NumberSpec
+    border_line_join: p.Property<LineJoin>
+    border_line_cap: p.Property<LineCap>
+    border_line_dash: p.Property<number[]>
+    border_line_dash_offset: p.Property<number>
+
+    // fill:background_ v
+    background_fill_color: p.ColorSpec
+    background_fill_alpha: p.NumberSpec
   }
-
-  // fill:background_ v
-  export interface BackgroundFill {
-    background_fill_color: ColorSpec
-    background_fill_alpha: NumberSpec
-  }
-
-  export interface Mixins extends TextMixinVector, BorderLine, BackgroundFill {}
-
-  export interface Attrs extends TextAnnotation.Attrs, Mixins {
-    x: NumberSpec
-    y: NumberSpec
-    x_units: SpatialUnits
-    y_units: SpatialUnits
-    text: StringSpec
-    angle: AngleSpec
-    x_offset: NumberSpec
-    y_offset: NumberSpec
-    source: ColumnarDataSource
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends TextAnnotation.Props {}
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -240,20 +223,18 @@ export namespace LabelSet {
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
-
   properties: LabelSet.Props
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'LabelSet'
+  static init_LabelSet(): void {
     this.prototype.default_view = LabelSetView
 
     this.mixins(['text', 'line:border_', 'fill:background_'])
 
-    this.define({
+    this.define<LabelSet.Props>({
       x:            [ p.NumberSpec                      ],
       y:            [ p.NumberSpec                      ],
       x_units:      [ p.SpatialUnits, 'data'            ],
@@ -273,4 +254,3 @@ export class LabelSet extends TextAnnotation {
     })
   }
 }
-LabelSet.initClass()

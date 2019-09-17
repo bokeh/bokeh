@@ -1,26 +1,68 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import datetime
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import base64
+import datetime
+import os
 
-import pytest
+# External imports
 import numpy as np
 import pytz
 
+# Bokeh imports
 
+# Module under test
 import bokeh.util.serialization as bus
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
-def test_id():
-    assert len(bus.make_id()) == 36
-    assert isinstance(bus.make_id(), str)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-def test_id_with_simple_ids():
-    import os
-    os.environ["BOKEH_SIMPLE_IDS"] = "yes"
-    assert bus.make_id() == "1001"
-    assert bus.make_id() == "1002"
-    del os.environ["BOKEH_SIMPLE_IDS"]
+class Test_make_id(object):
+
+    def test_default(self):
+        bus._simple_id = 999
+        assert bus.make_id() == "1000"
+        assert bus.make_id() == "1001"
+        assert bus.make_id() == "1002"
+
+    def test_simple_ids_yes(self):
+        bus._simple_id = 999
+        os.environ["BOKEH_SIMPLE_IDS"] = "yes"
+        assert bus.make_id() == "1000"
+        assert bus.make_id() == "1001"
+        assert bus.make_id() == "1002"
+
+    def test_simple_ids_no(self):
+        os.environ["BOKEH_SIMPLE_IDS"] = "no"
+        assert len(bus.make_id()) == 36
+        assert isinstance(bus.make_id(), str)
+        del os.environ["BOKEH_SIMPLE_IDS"]
+
+class Test_make_globally_unique_id(object):
+    def test_basic(self):
+        assert len(bus.make_globally_unique_id()) == 36
+        assert isinstance(bus.make_globally_unique_id(), str)
 
 def test_np_consts():
     assert bus.NP_EPOCH == np.datetime64(0, 'ms')
@@ -331,7 +373,7 @@ def test_encode_base64_dict(dt, shape):
 
     assert '__ndarray__' in d
     b64 = base64.b64decode(d['__ndarray__'])
-    aa = np.fromstring(b64, dtype=d['dtype'])
+    aa = np.frombuffer(b64, dtype=d['dtype'])
     assert np.array_equal(a, aa)
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
@@ -353,6 +395,8 @@ def test_decode_base64_dict(dt, shape):
     assert aa.dtype.name == a.dtype.name
 
     assert np.array_equal(a, aa)
+
+    assert aa.flags['WRITEABLE']
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
@@ -409,3 +453,15 @@ def test_transform_column_source_data_with_buffers(pd, cols, dt1, dt2):
             else:
                 assert isinstance(out[x], list)
                 assert out[x] == list(d[x])
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

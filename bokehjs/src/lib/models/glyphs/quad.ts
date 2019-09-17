@@ -1,8 +1,7 @@
 import {Box, BoxView, BoxData} from "./box"
 import {Arrayable} from "core/types"
-import {NumberSpec} from "core/vectorization"
-import {Anchor} from "core/enums"
 import {SpatialIndex} from "core/util/spatial"
+import * as p from "core/properties"
 
 export interface QuadData extends BoxData {
   _right: Arrayable<number>
@@ -21,26 +20,6 @@ export interface QuadView extends QuadData {}
 export class QuadView extends BoxView {
   model: Quad
   visuals: Quad.Visuals
-
-  get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
-    const left = Math.min(this.sleft[i], this.sright[i])
-    const right = Math.max(this.sright[i], this.sleft[i])
-    const top = Math.min(this.stop[i], this.sbottom[i])     // screen coordinates !!!
-    const bottom = Math.max(this.sbottom[i], this.stop[i])  //
-
-    switch (anchor) {
-      case "top_left":      return {x: left,             y: top             }
-      case "top_center":    return {x: (left + right)/2, y: top             }
-      case "top_right":     return {x: right,            y: top             }
-      case "center_right":  return {x: right,            y: (top + bottom)/2}
-      case "bottom_right":  return {x: right,            y: bottom          }
-      case "bottom_center": return {x: (left + right)/2, y: bottom          }
-      case "bottom_left":   return {x: left,             y: bottom          }
-      case "center_left":   return {x: left,             y: (top + bottom)/2}
-      case "center":        return {x: (left + right)/2, y: (top + bottom)/2}
-      default:              return null
-    }
-  }
 
   scenterx(i: number): number {
     return (this.sleft[i] + this.sright[i])/2
@@ -64,33 +43,30 @@ export class QuadView extends BoxView {
 }
 
 export namespace Quad {
-  export interface Attrs extends Box.Attrs {
-    right: NumberSpec
-    bottom: NumberSpec
-    left: NumberSpec
-    top: NumberSpec
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Box.Props & {
+    right: p.CoordinateSpec
+    bottom: p.CoordinateSpec
+    left: p.CoordinateSpec
+    top: p.CoordinateSpec
   }
 
-  export interface Props extends Box.Props {}
-
-  export interface Visuals extends Box.Visuals {}
+  export type Visuals = Box.Visuals
 }
 
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
-
   properties: Quad.Props
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Quad'
+  static init_Quad(): void {
     this.prototype.default_view = QuadView
 
     this.coords([['right', 'bottom'], ['left', 'top']])
   }
 }
-Quad.initClass()

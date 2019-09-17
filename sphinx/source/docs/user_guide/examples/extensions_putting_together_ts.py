@@ -1,69 +1,97 @@
-from bokeh.core.properties import String, Instance
-from bokeh.models import LayoutDOM, Slider
+from bokeh.core.properties import String, Instance, Override
+from bokeh.models import HTMLBox, Slider
 
 CODE ="""
-import {div, empty} from "core/dom"
+import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
+import {Slider} from "models/widgets/slider"
+import {div} from "core/dom"
 import * as p from "core/properties"
-import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
-export class CustomView extends LayoutDOMView {
+export class CustomView extends HTMLBoxView {
+  model: Custom
 
-  initialize(options) {
-    super.initialize(options)
+  private content_el: HTMLElement
 
-    this.render()
-
-    // Set BokehJS listener so that when the Bokeh slider has a change
-    // event, we can process the new data
-    this.connect(this.model.slider.change, () => this.render())
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.slider.change, () => this._update_text())
   }
 
-  render() {
-    // BokehjS Views create <div> elements by default, accessible as
-    // ``this.el``. Many Bokeh views ignore this default <div>, and instead
-    // do things like draw to the HTML canvas. In this case though, we change
-    // the contents of the <div>, based on the current slider value.
-    empty(this.el)
-    this.el.appendChild(div({
-      style: {
-        'padding': '2px',
-        'color': '#b88d8e',
-        'background-color': '#2a3153',
-      },
-    }, `${this.model.text}: ${this.model.slider.value}`))
+  render(): void {
+    // BokehJS Views create <div> elements by default, accessible as ``this.el``.
+    // Many Bokeh views extend this default <div> with additional elements
+    // (e.g. <canvas>), and instead do things like paint on the HTML canvas.
+    // In this case though, we change the contents of the <div>, based on the
+    // current slider value.
+    super.render()
+
+    this.content_el = div({style: {
+      textAlign: "center",
+      fontSize: "1.2em",
+      padding: "2px",
+      color: "#b88d8e",
+      backgroundColor: "#2a3153",
+    }})
+    this.el.appendChild(this.content_el)
+
+    this._update_text()
+  }
+
+  private _update_text(): void {
+    this.content_el.textContent = `${this.model.text}: ${this.model.slider.value}`
   }
 }
 
-export class Custom extends LayoutDOM {
+export namespace Custom {
+  export type Attrs = p.AttrsOf<Props>
 
-  // If there is an associated view, this is typically boilerplate.
-  default_view = CustomView
-
-  // The ``type`` class attribute should generally match exactly the name
-  // of the corresponding Python class.
-  type = "Custom"
+  export type Props = HTMLBox.Props & {
+    text: p.Property<string>
+    slider: p.Property<Slider>
+  }
 }
 
-// The @define block adds corresponding "properties" to the JS model. These
-// should normally line up 1-1 with the Python model class. Most property
-// types have counterparts, e.g. bokeh.core.properties.String will be
-// ``p.String`` in the JS implementation. Any time the JS type system is not
-// yet as complete, you can use ``p.Any`` as a "wildcard" property type.
-Custom.define({
-  text:   [ p.String ],
-  slider: [ p.Any    ],
-})
+export interface Custom extends Custom.Attrs {}
+
+export class Custom extends HTMLBox {
+  properties: Custom.Props
+
+  constructor(attrs?: Partial<Custom.Attrs>) {
+    super(attrs)
+  }
+
+  static init_Custom(): void {
+    // If there is an associated view, this is typically boilerplate.
+    this.prototype.default_view = CustomView
+
+    // The define block adds corresponding "properties" to the JS model. These
+    // should normally line up 1-1 with the Python model class. Most property
+    // types have counterparts, e.g. bokeh.core.properties.String will be
+    // ``p.String`` in the JS implementation. Any time the JS type system is not
+    // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
+    this.define<Custom.Props>({
+      text:   [ p.String ],
+      slider: [ p.Any    ],
+    })
+
+    this.override({
+      margin: 5,
+    })
+  }
+}
 """
 
 from bokeh.util.compiler import TypeScript
 
-class Custom(LayoutDOM):
+class Custom(HTMLBox):
 
     __implementation__ = TypeScript(CODE)
 
     text = String(default="Custom text")
 
     slider = Instance(Slider)
+
+    margin = Override(default=5)
 
 from bokeh.io import show
 

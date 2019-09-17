@@ -3,6 +3,25 @@
 Exporting Plots
 ===============
 
+Additional dependencies
+-----------------------
+
+In order to use the |export| functions, users have to install some
+additional dependencies. These dependencies can be installed via conda:
+
+.. code-block:: sh
+
+    conda install selenium phantomjs
+
+Alternatively, you can install phantomjs from npm via
+
+.. code-block:: sh
+
+    npm install -g phantomjs-prebuilt
+
+Note that the minimum compatible version of PhantomJS is 2.1, regardless of
+how it is installed.
+
 .. _userguide_export_png:
 
 PNG Generation
@@ -22,28 +41,7 @@ Limitations
 ~~~~~~~~~~~
 
 Responsive sizing_modes may generate layouts with unexpected size and aspect
-ratios. It is recommended to use the default ``fixed`` sizing mode. Also,
-glyphs that are rendered via webgl won't be included in the generated PNG, so
-it's suggested to use the default ``Plot.webgl=True`` attribute.
-
-Additional dependencies
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to use the |export_png| function, users have to install some
-additional dependencies. These dependencies can be installed via conda:
-
-.. code-block:: sh
-
-    conda install selenium phantomjs pillow
-
-Alternatively, you can install phantomjs from npm via
-
-.. code-block:: sh
-
-    npm install -g phantomjs-prebuilt
-
-Note that the minimum compatible version of PhantomJS is 2.1, regardless of
-how it is installed.
+ratios. It is recommended to use the default ``fixed`` sizing mode.
 
 Example usage
 ~~~~~~~~~~~~~
@@ -57,6 +55,19 @@ Usage is similar to the |save| and |show| functions.
     export_png(plot, filename="plot.png")
 
 .. image:: /_images/unemployment.png
+
+Image Objects
+~~~~~~~~~~~~~
+
+In case you would like to access an Image object directly in code rather than
+saving the image to a file, you can use the lower-level function
+:func:`~bokeh.io.export.get_screenshot_as_png`.
+
+.. code-block:: python
+
+    from bokeh.io.export import get_screenshot_as_png
+
+    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
 
 .. _userguide_export_svg:
 
@@ -125,8 +136,9 @@ SVG-enabled plots within a layout as distinct SVG files.
 
 .. image:: /_images/unemployment.svg
 
+.. |export|          replace:: :func:`~bokeh.io.export`
+.. |export_png|      replace:: :func:`~bokeh.io.export_png`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
-.. |export_png|      replace:: :func:`~bokeh.io.export`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 

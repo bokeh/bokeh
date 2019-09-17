@@ -22,8 +22,8 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.embed.util import escape
 from bokeh.models import PreText
+from bokeh.util.string import escape
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -47,7 +47,7 @@ class Test_PreText(object):
 
         page = bokeh_model_page(para)
 
-        el = page.driver.find_element_by_css_selector('div.foo div pre')
+        el = page.driver.find_element_by_css_selector('.foo div pre')
         assert el.get_attribute("innerHTML") == escape(text, quote=None)
 
         assert page.has_no_console_errors()
@@ -57,7 +57,7 @@ class Test_PreText(object):
 
         page = bokeh_model_page(para)
 
-        el = page.driver.find_element_by_css_selector('div.foo div')
+        el = page.driver.find_element_by_css_selector('.foo div')
         assert 'font-size: 20pt;' in el.get_attribute('style')
 
         assert page.has_no_console_errors()

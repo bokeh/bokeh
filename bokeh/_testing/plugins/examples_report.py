@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -24,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-from os.path import abspath, dirname, exists, expanduser, expandvars, join, pardir
+from os.path import normpath, abspath, dirname, exists, expanduser, expandvars, join, pardir
 import re
 
 # External imports
@@ -43,6 +42,15 @@ from bokeh.util.terminal import warn
 #-----------------------------------------------------------------------------
 
 _examples = None
+
+__all__ = (
+    'ExamplesTestReport',
+    'get_all_examples',
+    'pytest_generate_tests',
+    'pytest_runtest_call',
+    'pytest_unconfigure',
+    'report',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -67,33 +75,41 @@ def get_all_examples(config):
 
 def pytest_generate_tests(metafunc):
     if 'example' in metafunc.fixturenames:
-        examples = get_all_examples(metafunc.config)
+        config = metafunc.config
+        examples = get_all_examples(config)
+
+        def marks(example):
+            result = []
+            if example.is_skip:
+                result.append(pytest.mark.skip(reason="skipping %s" % example.relpath))
+            if example.is_xfail and not example.no_js:
+                result.append(pytest.mark.xfail(reason="xfail %s" % example.relpath, strict=True))
+            return result
 
         if 'js_example' in metafunc.fixturenames:
-            js_examples = [ e for e in examples if e.is_js ]
-            metafunc.parametrize('js_example,example', zip([ e.path for e in js_examples ], js_examples))
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_js ]
+            metafunc.parametrize('js_example,example,config', params)
         if 'file_example' in metafunc.fixturenames:
-            file_examples = [ e for e in examples if e.is_file ]
-            metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_file ]
+            metafunc.parametrize('file_example,example,config', params)
         if 'server_example' in metafunc.fixturenames:
-            server_examples = [ e for e in examples if e.is_server ]
-            metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_server ]
+            metafunc.parametrize('server_example,example,config', params)
         if 'notebook_example' in metafunc.fixturenames:
-            notebook_examples = [ e for e in examples if e.is_notebook ]
-            metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_notebook ]
+            metafunc.parametrize('notebook_example,example,config', params)
 
 _warned = False
 
 def pytest_runtest_call(item):
     if 'example' in item.fixturenames:
-        if pytest.config.option.verbose:
+        if item.config.option.verbose:
             print()
 
         global _warned
         if not _warned and item.config.option.no_js:
             _warned = True
             warn("All examples will skip js rendering and image diff (under --no-js flag)")
-
 
 def pytest_unconfigure(config):
     examples_report = getattr(config, 'examples_report', None)
@@ -112,13 +128,14 @@ def report(request):
 
         examples = get_all_examples(config)
 
-        config.examples_report = ExamplesTestReport(report_path, diff_ref, examples)
+        config.examples_report = ExamplesTestReport(config, report_path, diff_ref, examples)
         config.pluginmanager.register(config.examples_report)
 
 
 class ExamplesTestReport(object):
 
-    def __init__(self, report_path, diff_ref, examples):
+    def __init__(self, config, report_path, diff_ref, examples):
+        self.config = config
         report_path = expanduser(expandvars(report_path))
         self.report_path = abspath(report_path)
         self.examples = { e.path: e for e in examples }
@@ -142,17 +159,17 @@ class ExamplesTestReport(object):
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/file/anscombe.py-exampleN]')
         match = re.search(r'\[(.*?)\]', report.location[2])
         if match is not None:
-            example_path = match.group(1).rsplit('-', 1)[0]
+            example_path = normpath(match.group(1).rsplit('-', 2)[0])
             self.entries.append((self.examples[example_path], failed, skipped))
 
-            if pytest.config.option.incremental:
+            if self.config.option.incremental:
                 self._write_report()
 
     def _write_report(self):
         with io.open(join(dirname(__file__), "examples_report.jinja"), encoding="utf-8") as f:
             template = jinja2.Template(f.read())
 
-        diff_ref = pytest.config.option.diff_ref
+        diff_ref = self.config.option.diff_ref
         html = template.render(version=__version__, diff_ref=diff_ref, entries=self.entries)
 
         if not exists(dirname(self.report_path)):
@@ -200,8 +217,8 @@ class ExamplesTestReport(object):
     def pytest_sessionfinish(self, session):
         self._write_report()
 
-        if pytest.config.option.upload:
-            if pytest.config.option.verbose:
+        if self.config.option.upload:
+            if self.config.option.verbose:
                 print()
 
             if connect_to_s3() is None:

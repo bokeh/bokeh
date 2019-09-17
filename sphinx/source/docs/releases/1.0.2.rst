@@ -1,0 +1,13 @@
+.. _release-1-0-2:
+
+1.0.2
+=====
+
+Bokeh Version ``1.0.2`` (November 2018) is a micro bugfix and feature release.
+
+Some of the highlights include:
+
+* Expose configurable ``DataTable`` row height (:bokeh-issue:`8411`)
+* Fix issue with legends and empty scatter glyphs (:bokeh-issue:`8395`)
+
+For full details see the :bokeh-tree:`CHANGELOG`.

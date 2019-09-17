@@ -6,9 +6,7 @@ from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
-from bokeh.models import (
-    Plot, LinearAxis, ColumnDataSource, Range1d, PanTool, WheelZoomTool
-)
+from bokeh.models import Plot, LinearAxis, ColumnDataSource, Range1d, PanTool, WheelZoomTool
 from bokeh.resources import INLINE
 
 x = arange(-2*pi, 2*pi, 0.1)

@@ -1,29 +1,24 @@
-import numpy as np
-
-from bokeh.layouts import gridplot
+from bokeh.layouts import row
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show, output_file
+from bokeh.sampledata.autompg import autompg
+from bokeh.transform import jitter
 
-N = 300
-x = np.linspace(0, 4*np.pi, N)
-y1 = np.sin(x)
-y2 = np.cos(x)
-
-source = ColumnDataSource(data=dict(x=x, y1=y1, y2=y2))
+source = ColumnDataSource(autompg)
 
 TOOLS = "save,box_select,lasso_select"
 
-s1 = figure(tools=TOOLS)
+s1 = figure(tools=TOOLS, plot_width=400, plot_height=400,
+            x_axis_label='# Cylinders', y_axis_label='MPG')
 
-s1.circle('x', 'y1', source=source)
+s1.circle(jitter('cyl', 0.5), 'mpg', source=source)
 
-s2 = figure(tools=TOOLS)
+s2 = figure(tools=TOOLS, plot_width=400, plot_height=400,
+            x_axis_label='Acceleration', y_axis_label='MPG')
 
 # linked brushing is expressed by sharing data sources between renderers
-s2.circle('x', 'y2', source=source)
-
-p = gridplot([[s1,s2]], plot_width=400, plot_height=400)
+s2.circle('accel', 'mpg', source=source)
 
 output_file("linked_brushing.html", title="linked_brushing.py example")
 
-show(p)
+show(row(s1,s2))

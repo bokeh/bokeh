@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -39,6 +38,10 @@ from .util import default_filename
 #-----------------------------------------------------------------------------
 
 DEFAULT_TITLE = "Bokeh Plot"
+
+__all__ = (
+    'save',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -122,8 +125,8 @@ def _get_save_resources(state, resources, suppress_warning):
     if not suppress_warning:
         warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
 
-    from ..resources import CDN
-    return CDN
+    from ..resources import Resources
+    return Resources(mode=settings.resources())
 
 def _get_save_title(state, title, suppress_warning):
     if title is not None:

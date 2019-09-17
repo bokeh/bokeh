@@ -1,9 +1,10 @@
-0.11.1 (Feb 2016)
-=================
+.. _release-0-11-1:
 
-This release was focused on providing bug fixes, small features, and
-documentation improvements from the Jan 2016 0.11.0 release. Highlights
-include:
+0.11.1
+======
+
+Bokeh version ``0.11.1`` (Feb 2016) focuses on providing bug fixes, small
+features, and documentation improvements. Highlights include:
 
 * settings and documentation for Bokeh server behind an SSL terminated proxy
 * bugfixes:
@@ -25,7 +26,10 @@ Additionally some internal work has started to refactor and clean up BokehJS
 to bring the class and file structure into closer alignment with the Bokeh
 python library.
 
-Migration notes:
+.. _release-0-11-1-migration:
+
+`Migration Guide <releases.html#release-0-11-1-migration>`__
+------------------------------------------------------------
 
 * Range update callbacks now return the range object as cb_obj (not the plot)
 * Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to

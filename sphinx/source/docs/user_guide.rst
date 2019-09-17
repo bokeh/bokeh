@@ -65,7 +65,7 @@ topic:
     in a variety of ways.
 
 :ref:`userguide_cli`
-    Use Bokeh's capabilites from the command line with the ``bokeh``
+    Use Bokeh's capabilities from the command line with the ``bokeh``
     command.
 
 :ref:`userguide_extensions`
@@ -83,12 +83,11 @@ topic:
 :ref:`userguide_info`
     See where to go next for more information and examples.
 
-The examples in the user guide are written to be as minimal as possible,
-while illustrating how to accomplish a single task within Bokeh. With a
-handful of exceptions, no outside libraries such as NumPy, Pandas, or
-Blaze are required to run the examples as written. However, Bokeh works
-well with NumPy, Pandas, Blaze, or almost any array or table-like data
-structure.
+The examples in the user guide are written to be as minimal as possible, while
+illustrating how to accomplish a single task within Bokeh. With a handful of
+exceptions, no outside libraries such as NumPy or Pandas,are required to run the
+examples as written. However, Bokeh works well with NumPy, Pandas, or almost any
+array or table-like data structure.
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 

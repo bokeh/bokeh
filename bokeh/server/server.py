@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide basic Bokeh server objects that use a Tornado ``HTTPServer`` and
 ``BokeTornado`` Tornado Application to service Bokeh Server Applications.
 There are two public classes in this module:
@@ -13,18 +19,30 @@ There are two public classes in this module:
     automatically create and coordinate the lower level Tornado components.
 
 '''
-from __future__ import absolute_import, print_function
 
-import atexit
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import logging
 log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+import atexit
 import signal
 import sys
 
+# External imports
 import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
+# Bokeh imports
 from .. import __version__
 from ..application import Application
 from ..core.properties import Bool, Int, List, String
@@ -34,56 +52,18 @@ from ..util.options import Options
 from .util import bind_sockets, create_hosts_whitelist
 from .tornado import BokehTornado, DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 
-# This class itself is intentionally undocumented (it is used to generate
-# documentation elsewhere)
-class _ServerOpts(Options):
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-    num_procs = Int(default=1, help="""
-    The number of worker processes to start for the HTTP server. If an explicit
-    ``io_loop`` is also configured, then ``num_procs=1`` is the only compatible
-    value. Use ``BaseServer`` to coordinate an explicit ``IOLoop`` with a
-    multi-process HTTP server.
+__all__ = (
+    'BaseServer',
+    'Server',
+)
 
-    A value of 0 will auto detect number of cores.
-
-    Note that due to limitations inherent in Tornado, Windows does not support
-    ``num_procs`` values greater than one! In this case consider running
-    multiple Bokeh server instances behind a load balancer.
-    """)
-
-    address = String(default=None, help="""
-    The address the server should listen on for HTTP requests.
-    """)
-
-    port = Int(default=DEFAULT_SERVER_PORT, help="""
-    The port number the server should listen on for HTTP requests.
-    """)
-
-    prefix = String(default="", help="""
-    A URL prefix to use for all Bokeh server paths.
-    """)
-
-    allow_websocket_origin = List(String, default=None, help="""
-    A list of hosts that can connect to the websocket.
-
-    This is typically required when embedding a Bokeh server app in an external
-    web site using :func:`~bokeh.embed.server_document` or similar.
-
-    If None, "localhost" is used.
-    """)
-
-    use_xheaders = Bool(default=False, help="""
-    Whether to have the Bokeh server override the remote IP and URI scheme
-    and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
-    ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
-    """)
-
-    websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
-    Set the Tornado ``websocket_max_message_size`` value.
-
-    NOTE: This setting has effect ONLY for Tornado>=4.5
-    """)
-
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BaseServer(object):
     ''' Explicitly coordinate the level Tornado components required to run a
@@ -181,7 +161,7 @@ class BaseServer(object):
             None
 
         '''
-        self._http.close_all_connections()
+        yield self._http.close_all_connections()
         self._http.stop()
 
     def run_until_shutdown(self):
@@ -295,6 +275,10 @@ class BaseServer(object):
         # Tell self._loop.start() to return.
         self._loop.add_callback_from_signal(self._loop.stop)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 class Server(BaseServer):
     ''' A high level convenience class to run a Bokeh server.
 
@@ -331,7 +315,8 @@ class Server(BaseServer):
                 path "/" automatically.
 
                 As a convenience, a callable may also be provided, in which
-                an Application will be created for it using FunctionHandler.
+                an Application will be created for it using
+                ``FunctionHandler``.
 
             io_loop (IOLoop, optional) :
                 An explicit Tornado ``IOLoop`` to run Bokeh Server code on. If
@@ -360,6 +345,7 @@ class Server(BaseServer):
         log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         from bokeh.application.handlers.function import FunctionHandler
+        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))
@@ -370,11 +356,15 @@ class Server(BaseServer):
         for k, v in list(applications.items()):
             if callable(v):
                 applications[k] = Application(FunctionHandler(v))
+            if all(not isinstance(handler, DocumentLifecycleHandler)
+                   for handler in applications[k]._handlers):
+                applications[k].add(DocumentLifecycleHandler())
 
         opts = _ServerOpts(kwargs)
         self._port = opts.port
         self._address = opts.address
         self._prefix = opts.prefix
+        self._index = opts.index
 
         if opts.num_procs != 1:
             assert all(app.safe_to_fork for app in applications.values()), (
@@ -393,6 +383,13 @@ class Server(BaseServer):
             http_server_kwargs = {}
         http_server_kwargs.setdefault('xheaders', opts.use_xheaders)
 
+        if opts.ssl_certfile:
+            log.info("Configuring for SSL termination")
+            import ssl
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
+            http_server_kwargs['ssl_options'] = context
+
         sockets, self._port = bind_sockets(self.address, self.port)
 
         extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
@@ -400,6 +397,7 @@ class Server(BaseServer):
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
                                        prefix=self.prefix,
+                                       index=self.index,
                                        websocket_max_message_size_bytes=opts.websocket_max_message_size,
                                        **kwargs)
 
@@ -418,6 +416,13 @@ class Server(BaseServer):
             io_loop = IOLoop.current()
 
         super(Server, self).__init__(io_loop, tornado_app, http_server)
+
+    @property
+    def index(self):
+        ''' A path to a Jinja2 template to use for index at "/"
+
+        '''
+        return self._index
 
     @property
     def prefix(self):
@@ -441,3 +446,77 @@ class Server(BaseServer):
 
         '''
         return self._address
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# This class itself is intentionally undocumented (it is used to generate
+# documentation elsewhere)
+class _ServerOpts(Options):
+
+    num_procs = Int(default=1, help="""
+    The number of worker processes to start for the HTTP server. If an explicit
+    ``io_loop`` is also configured, then ``num_procs=1`` is the only compatible
+    value. Use ``BaseServer`` to coordinate an explicit ``IOLoop`` with a
+    multi-process HTTP server.
+
+    A value of 0 will auto detect number of cores.
+
+    Note that due to limitations inherent in Tornado, Windows does not support
+    ``num_procs`` values greater than one! In this case consider running
+    multiple Bokeh server instances behind a load balancer.
+    """)
+
+    address = String(default=None, help="""
+    The address the server should listen on for HTTP requests.
+    """)
+
+    port = Int(default=DEFAULT_SERVER_PORT, help="""
+    The port number the server should listen on for HTTP requests.
+    """)
+
+    prefix = String(default="", help="""
+    A URL prefix to use for all Bokeh server paths.
+    """)
+
+    index = String(default=None, help="""
+    A path to a Jinja2 template to use for the index "/"
+    """)
+
+    allow_websocket_origin = List(String, default=None, help="""
+    A list of hosts that can connect to the websocket.
+
+    This is typically required when embedding a Bokeh server app in an external
+    web site using :func:`~bokeh.embed.server_document` or similar.
+
+    If None, "localhost" is used.
+    """)
+
+    use_xheaders = Bool(default=False, help="""
+    Whether to have the Bokeh server override the remote IP and URI scheme
+    and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
+    ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
+    """)
+
+    ssl_certfile = String(default=None, help="""
+    The path to a certificate file for SSL termination.
+    """)
+
+    ssl_keyfile = String(default=None, help="""
+    The path to a private key file for SSL termination.
+    """)
+
+    ssl_password = String(default=None, help="""
+    A password to decrypt the SSL keyfile, if necessary.
+    """)
+
+    websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
+    Set the Tornado ``websocket_max_message_size`` value.
+
+    NOTE: This setting has effect ONLY for Tornado>=4.5
+    """)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

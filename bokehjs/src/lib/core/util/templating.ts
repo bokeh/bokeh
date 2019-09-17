@@ -1,29 +1,32 @@
-import {sprintf} from "sprintf-js"
+import {sprintf as sprintf_js} from "sprintf-js"
 import * as Numbro from "numbro"
 import tz = require("timezone")
 
-import {Anything} from "../types"
 import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {ImageIndex} from "../../models/glyphs/image"
 import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
+import {ImageIndex} from "models/selections/selection"
+
+export function sprintf(format: string, ...args: unknown[]): string {
+  return sprintf_js(format, ...args)
+}
 
 export type FormatterType = "numeral" | "printf" | "datetime"
 export type FormatterSpec = CustomJSHover | FormatterType
 export type Formatters = {[key: string]: FormatterSpec}
-export type FormatterFunc = (value:any, format:string, special_vars: Vars) => string
+export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
-export type Vars = {[key: string]: Anything}
+export type Vars = {[key: string]: unknown}
 
 export const DEFAULT_FORMATTERS = {
-  "numeral"  : function(value:any, format:string, _special_vars: Vars) { return Numbro.format(value, format) },
-  "datetime" : function(value:any, format:string, _special_vars: Vars) { return tz(value, format)            },
-  "printf"   : function(value:any, format:string, _special_vars: Vars) { return sprintf(format, value)       },
+  numeral:  (value: string | number, format: string, _special_vars: Vars) => Numbro.format(value, format),
+  datetime: (value: unknown, format: string, _special_vars: Vars) => tz(value, format),
+  printf:   (value: unknown, format: string, _special_vars: Vars) => sprintf(format, value),
 }
 
-export function basic_formatter(value:any, _format:string, _special_vars: Vars): string {
+export function basic_formatter(value: unknown, _format: string, _special_vars: Vars): string {
   if (isNumber(value)) {
     const format = (() => {
       switch (false) {
@@ -37,9 +40,7 @@ export function basic_formatter(value:any, _format:string, _special_vars: Vars):
     })()
 
     return sprintf(format, value)
-  }
-
-  else
+  } else
     return `${value}`  // get strings for categorical types
 }
 
@@ -63,13 +64,13 @@ export function get_formatter(name: string, raw_spec: string, format?: string, f
         throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
     }
 
-    return function(value: any, format: string, special_vars: Vars) : string {
+    return function(value: unknown, format: string, special_vars: Vars): string {
       return formatter.format(value, format, special_vars)
     }
   }
 
   // otherwise use "numeral" as default
-  return DEFAULT_FORMATTERS["numeral"]
+  return DEFAULT_FORMATTERS.numeral
 
 }
 
@@ -100,18 +101,10 @@ export function get_value(name: string, data_source: ColumnarDataSource, i: Inde
     if (isArray(data[0])) {
       const row: any = data[i.dim2]
       return row[i.dim1]
-    }
-
-    // inspect flat array
-    else
-      return data[i.flat_index]
-
-  }
-
-  // inspect per-image scalar data
-  else
-    return data
-
+    } else
+      return data[i.flat_index] // inspect flat array
+  } else
+    return data // inspect per-image scalar data
 }
 
 export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {
@@ -137,14 +130,12 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
 
     // 'safe' format, return the value as-is
     if (format == 'safe')
-     return `${prefix}${value}`
+      return `${prefix}${value}`
 
     // format and escape everything else
     const formatter = get_formatter(name, raw_spec, format, formatters)
     return `${prefix}${escape(formatter(value, format, special_vars))}`
-
   })
 
   return str
-
 }

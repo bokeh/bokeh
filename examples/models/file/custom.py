@@ -1,65 +1,95 @@
 from __future__ import print_function
 
-from bokeh.core.properties import String, Int, Color
+from bokeh.core.properties import String, Float, Color, List, Override
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.callbacks import Callback
 from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
-from bokeh.models.layouts import Row
+from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.util.compiler import CoffeeScript
+from bokeh.util.compiler import TypeScript
 
 class Popup(Callback):
 
-    __implementation__ = "popup.coffee"
+    __implementation__ = "popup.ts"
 
     message = String("", help="""
     Message to display in a popup window. This can be a template string,
     which will be formatted with data from the data source.
     """)
 
-class MyRow(Row):
+class MyPlot(Plot):
 
-    __implementation__ = """
-import {Row, RowView} from "models/layouts/row"
+    __implementation__ = TypeScript("""
+import {Plot, PlotView} from "models/plots/plot"
 import * as p from "core/properties"
 import "./custom.less"
 
-export class MyRowView extends RowView
-  render: () ->
-    super()
-    @el.classList.add("bk-my-row")
-    @el.style.borderWidth = "#{@model.border_width}px"
-    @el.style.borderColor = @model.border_color
+export class MyPlotView extends PlotView {
+  model: MyPlot
 
-export class MyRow extends Row
-  type: "MyRow"
-  default_view: MyRowView
+  render(): void {
+    super.render()
+    this.el.classList.add("bk-my-plot")
 
-  @define {
-    border_width: [ p.Number, 3 ]
-    border_color: [ p.Color, "black" ]
+    const angle = `${this.model.gradient_angle}deg`
+
+    let offset = 0
+    const colors = []
+    const step = this.model.gradient_step
+
+    for (const color of this.model.gradient_colors) {
+      colors.push(`${color} ${offset}px`)
+      offset += step
+      colors.push(`${color} ${offset}px`)
+    }
+
+    this.el.style.backgroundImage = `repeating-linear-gradient(${angle}, ${colors.join(', ')})`
   }
-"""
+}
 
-    border_width = Int(3)
-    border_color = Color("black")
+export namespace MyPlot {
+  export type Attrs = p.AttrsOf<Props>
 
-class MyRow2(MyRow):
+  export type Props = Plot.Props & {
+    gradient_angle: p.Property<number>
+    gradient_step: p.Property<number>
+    gradient_colors: p.Property<string[]>
+  }
+}
 
-    __implementation__ = CoffeeScript("""
-import {MyRow, MyRowView} from "custom/my_row"
+export interface MyPlot extends MyPlot.Attrs {
+  width: number | null
+  height: number | null
+}
 
-export class MyRow2View extends MyRowView
-  render: () ->
-    super()
+export class MyPlot extends Plot {
+  properties: MyPlot.Props
 
-export class MyRow2 extends MyRow
-  type: "MyRow2"
-  default_view: MyRow2View
+  static init_MyPlot(): void {
+    this.prototype.default_view = MyPlotView
+
+    this.define<MyPlot.Props>({
+      gradient_angle:  [ p.Number, 0                      ],
+      gradient_step:   [ p.Number, 20                     ],
+      gradient_colors: [ p.Array,  ["white", "lightgray"] ],
+    })
+
+    this.override({
+      background_fill_alpha: 0.0,
+      border_fill_alpha: 0.0,
+    })
+  }
+}
 """)
+
+    gradient_angle = Float(default=0)
+    gradient_step = Float(default=20)
+    gradient_colors = List(Color, default=["white", "gray"])
+
+    background_fill_alpha = Override(default=0.0)
+    border_fill_alpha = Override(default=0.0)
 
 source = ColumnDataSource(
     data = dict(
@@ -69,10 +99,7 @@ source = ColumnDataSource(
     )
 )
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-plot = Plot(x_range=xdr, y_range=ydr)
+plot = MyPlot(gradient_angle=45)
 
 circle = Circle(x="x", y="y", radius=0.2, fill_color="color", line_color="black")
 circle_renderer = plot.add_glyph(source, circle)
@@ -84,7 +111,7 @@ tap = TapTool(renderers=[circle_renderer], callback=Popup(message="Selected colo
 plot.add_tools(PanTool(), WheelZoomTool(), tap)
 
 doc = Document()
-doc.add_root(MyRow2(children=[plot]))
+doc.add_root(plot)
 
 if __name__ == "__main__":
     doc.validate()

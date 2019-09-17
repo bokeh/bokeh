@@ -1,4 +1,17 @@
-###########################################################################
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+# License regarding the Turbo colormap:
+#
+# Copyright 2019 Google LLC.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Author: Anton Mikhailov
+#
+#-----------------------------------------------------------------------------
 # License regarding the Viridis, Magma, Plasma and Inferno colormaps:
 #
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
@@ -15,14 +28,14 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
-###########################################################################
+#-----------------------------------------------------------------------------
 # License regarding the brewer palettes:
 #
 # This product includes color specifications and designs developed by
 # Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
-###########################################################################
+#-----------------------------------------------------------------------------
 # License regarding the cividis palette from https://github.com/pnnl/cmaputil
 #
 # Copyright (c) 2017, Battelle Memorial Institute
@@ -56,7 +69,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-###########################################################################
+#-----------------------------------------------------------------------------
 # License regarding the D3 color palettes (Category10, Category20,
 # Category20b, and Category 20c):
 #
@@ -87,7 +100,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-###########################################################################
+#-----------------------------------------------------------------------------
 """ Provide a collection of palettes for color mapping.
 
 In the context of Bokeh, a *palette* is a simple plain Python list of (hex) RGB color
@@ -124,7 +137,7 @@ attributes ``d3``, ``mpl``, and ``colorblind`` that have dictionaries
 corresponding to the those groups of palettes.
 
 Finally, all palettes are collected in the ``all_palettes`` palettes
-module attrubute, and the "small" palettes (i.e. excluding the ones with 256
+module attribute, and the "small" palettes (i.e. excluding the ones with 256
 colors) are collected and in a ``small_palettes`` attribute.
 
 Built-in Palettes
@@ -133,8 +146,8 @@ Built-in Palettes
 Matplotlib Palettes
 ~~~~~~~~~~~~~~~~~~~
 
-Bokeh includes the `Matplotlib`_ palettes Magma, Inferno, Plasma, and
-Viridis. This section shows the pre-defined small palettes in this group.
+Bokeh includes the `Matplotlib`_ palettes Magma, Inferno, Plasma, Viridis, and
+Cividis. This section shows the pre-defined small palettes in this group.
 There are also large 256-color versions of these palettes, shown below
 in the `Large Palettes`_ section.
 
@@ -181,6 +194,7 @@ larger palettes with 256 colors. These are shown below:
 
 :Cividis256: :bokeh-palette:`cividis(256)` (mpl)
 
+:Turbo256: :bokeh-palette:`turbo(256)` (mpl)
 
 Many other 256-color perceptually uniform palettes are
 available in the external `colorcet`_ package.
@@ -316,11 +330,36 @@ source file.
 
 """
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import sys as _sys
 import types as _types
 
-# Notes to developers:
-#
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+# __all__ defined at the bottom on the class module
+
+#-----------------------------------------------------------------------------
+# Note to developers
+#-----------------------------------------------------------------------------
+
 # In order to prevent users from unintentionally modifying built-in palettes
 # (which can result in subtle bugs), the bokeh.palettes modules uses the
 # "class module" trick, to install a _PalettesModule instance in place of the
@@ -345,16 +384,41 @@ import types as _types
 # making any changes to this file, please makes sure to check and appropriately
 # update the docstring at the top.
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
 def _autoprop(cls):
     for k, v in cls.__dict__.items():
         if k.startswith('_'): continue
-        if k in ['linear_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray']:
+        if k in ['linear_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray', 'turbo']:
             continue
         setattr(cls, k, property(v))
     return cls
 
 @_autoprop
 class _PalettesModule(_types.ModuleType):
+
+    # Properties --------------------------------------------------------------
+
+    @property
+    def __palettes__(self):
+        __palettes__ = []
+        for name, palettes in sorted(self.all_palettes.items(), key=lambda arg: arg[0]):
+            name = name + "_" if name[-1].isdigit() else name
+            __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
+        return __palettes__
+
+    # Public methods ----------------------------------------------------------
+
     def YlGn3(self): return ["#31a354", "#addd8e", "#f7fcb9"]
     def YlGn4(self): return ["#238443", "#78c679", "#c2e699", "#ffffcc"]
     def YlGn5(self): return ["#006837", "#31a354", "#78c679", "#c2e699", "#ffffcc"]
@@ -859,6 +923,40 @@ class _PalettesModule(_types.ModuleType):
             '#F3DB4F', '#F4DC4E', '#F5DD4D', '#F6DE4C', '#F7DF4B', '#F9E049', '#FAE048', '#FBE147', '#FCE246', '#FDE345', '#FFE443', '#FFE542',
             '#FFE642', '#FFE743', '#FFE844', '#FFE945']
 
+    def Turbo3(self):  return ['#30123b', '#a1fc3d', '#7a0402']
+    def Turbo4(self):  return ['#30123b', '#1ae4b6', '#f9ba38', '#7a0402']
+    def Turbo5(self):  return ['#30123b', '#2ab9ed', '#a1fc3d', '#fb8022', '#7a0402']
+    def Turbo6(self):  return ['#30123b', '#3e9bfe', '#46f783', '#e1dc37', '#ef5a11', '#7a0402']
+    def Turbo7(self):  return ['#30123b', '#4584f9', '#1ae4b6', '#a1fc3d', '#f9ba38', '#e5460a', '#7a0402']
+    def Turbo8(self):  return ['#30123b', '#4675ed', '#1ccdd7', '#61fc6c', '#cfea34', '#fe9b2d', '#db3a07', '#7a0402']
+    def Turbo9(self):  return ['#30123b', '#4668e0', '#2ab9ed', '#2ff09a', '#a1fc3d', '#ecd139', '#fb8022', '#d23005', '#7a0402']
+    def Turbo10(self): return ['#30123b', '#4560d6', '#36a8f9', '#1ae4b6', '#71fd5f', '#c5ef33', '#f9ba38', '#f66b18', '#cb2b03', '#7a0402']
+    def Turbo11(self): return ['#30123b', '#4458cb', '#3e9bfe', '#18d5cc', '#46f783', '#a1fc3d', '#e1dc37', '#fda631', '#ef5a11', '#c52602', '#7a0402']
+    def Turbo256(self):
+        return [
+            '#30123b', '#311542', '#32184a', '#341b51', '#351e58', '#36215f', '#372365', '#38266c', '#392972', '#3a2c79', '#3b2f7f', '#3c3285',
+            '#3c358b', '#3d3791', '#3e3a96', '#3f3d9c', '#4040a1', '#4043a6', '#4145ab', '#4148b0', '#424bb5', '#434eba', '#4350be', '#4353c2',
+            '#4456c7', '#4458cb', '#455bce', '#455ed2', '#4560d6', '#4563d9', '#4666dd', '#4668e0', '#466be3', '#466de6', '#4670e8', '#4673eb',
+            '#4675ed', '#4678f0', '#467af2', '#467df4', '#467ff6', '#4682f8', '#4584f9', '#4587fb', '#4589fc', '#448cfd', '#438efd', '#4291fe',
+            '#4193fe', '#4096fe', '#3f98fe', '#3e9bfe', '#3c9dfd', '#3ba0fc', '#39a2fc', '#38a5fb', '#36a8f9', '#34aaf8', '#33acf6', '#31aff5',
+            '#2fb1f3', '#2db4f1', '#2bb6ef', '#2ab9ed', '#28bbeb', '#26bde9', '#25c0e6', '#23c2e4', '#21c4e1', '#20c6df', '#1ec9dc', '#1dcbda',
+            '#1ccdd7', '#1bcfd4', '#1ad1d2', '#19d3cf', '#18d5cc', '#18d7ca', '#17d9c7', '#17dac4', '#17dcc2', '#17debf', '#18e0bd', '#18e1ba',
+            '#19e3b8', '#1ae4b6', '#1be5b4', '#1de7b1', '#1ee8af', '#20e9ac', '#22eba9', '#24eca6', '#27eda3', '#29eea0', '#2cef9d', '#2ff09a',
+            '#32f197', '#35f394', '#38f491', '#3bf48d', '#3ff58a', '#42f687', '#46f783', '#4af880', '#4df97c', '#51f979', '#55fa76', '#59fb72',
+            '#5dfb6f', '#61fc6c', '#65fc68', '#69fd65', '#6dfd62', '#71fd5f', '#74fe5c', '#78fe59', '#7cfe56', '#80fe53', '#84fe50', '#87fe4d',
+            '#8bfe4b', '#8efe48', '#92fe46', '#95fe44', '#98fe42', '#9bfd40', '#9efd3e', '#a1fc3d', '#a4fc3b', '#a6fb3a', '#a9fb39', '#acfa37',
+            '#aef937', '#b1f836', '#b3f835', '#b6f735', '#b9f534', '#bbf434', '#bef334', '#c0f233', '#c3f133', '#c5ef33', '#c8ee33', '#caed33',
+            '#cdeb34', '#cfea34', '#d1e834', '#d4e735', '#d6e535', '#d8e335', '#dae236', '#dde036', '#dfde36', '#e1dc37', '#e3da37', '#e5d838',
+            '#e7d738', '#e8d538', '#ead339', '#ecd139', '#edcf39', '#efcd39', '#f0cb3a', '#f2c83a', '#f3c63a', '#f4c43a', '#f6c23a', '#f7c039',
+            '#f8be39', '#f9bc39', '#f9ba38', '#fab737', '#fbb537', '#fbb336', '#fcb035', '#fcae34', '#fdab33', '#fda932', '#fda631', '#fda330',
+            '#fea12f', '#fe9e2e', '#fe9b2d', '#fe982c', '#fd952b', '#fd9229', '#fd8f28', '#fd8c27', '#fc8926', '#fc8624', '#fb8323', '#fb8022',
+            '#fa7d20', '#fa7a1f', '#f9771e', '#f8741c', '#f7711b', '#f76e1a', '#f66b18', '#f56817', '#f46516', '#f36315', '#f26014', '#f15d13',
+            '#ef5a11', '#ee5810', '#ed550f', '#ec520e', '#ea500d', '#e94d0d', '#e84b0c', '#e6490b', '#e5460a', '#e3440a', '#e24209', '#e04008',
+            '#de3e08', '#dd3c07', '#db3a07', '#d93806', '#d73606', '#d63405', '#d43205', '#d23005', '#d02f04', '#ce2d04', '#cb2b03', '#c92903',
+            '#c72803', '#c52602', '#c32402', '#c02302', '#be2102', '#bb1f01', '#b91e01', '#b61c01', '#b41b01', '#b11901', '#ae1801', '#ac1601',
+            '#a91501', '#a61401', '#a31201', '#a01101', '#9d1001', '#9a0e01', '#970d01', '#940c01', '#910b01', '#8e0a01', '#8b0901', '#870801',
+            '#840701', '#810602', '#7d0502', '#7a0402']
+
     def Category10_3(self):  return self.Category10_10[:3]
     def Category10_4(self):  return self.Category10_10[:4]
     def Category10_5(self):  return self.Category10_10[:5]
@@ -983,6 +1081,8 @@ class _PalettesModule(_types.ModuleType):
     def Inferno(self):  return { 3: self.Inferno3,  4: self.Inferno4,  5: self.Inferno5,  6: self.Inferno6,  7: self.Inferno7,  8: self.Inferno8,  9: self.Inferno9,  10: self.Inferno10,  11: self.Inferno11, 256: self.Inferno256 } # NOQA
     def Plasma(self):   return { 3: self.Plasma3,   4: self.Plasma4,   5: self.Plasma5,   6: self.Plasma6,   7: self.Plasma7,   8: self.Plasma8,   9: self.Plasma9,   10: self.Plasma10,   11: self.Plasma11,  256: self.Plasma256 } # NOQA
     def Viridis(self):  return { 3: self.Viridis3,  4: self.Viridis4,  5: self.Viridis5,  6: self.Viridis6,  7: self.Viridis7,  8: self.Viridis8,  9: self.Viridis9,  10: self.Viridis10,  11: self.Viridis11, 256: self.Viridis256 } # NOQA
+    def Cividis(self):  return { 3: self.Cividis3,  4: self.Cividis4,  5: self.Cividis5,  6: self.Cividis6,  7: self.Cividis7,  8: self.Cividis8,  9: self.Cividis9,  10: self.Cividis10,  11: self.Cividis11, 256: self.Cividis256 } # NOQA
+    def Turbo(self):    return { 3: self.Turbo3,    4: self.Turbo4,    5: self.Turbo5,    6: self.Turbo6,    7: self.Turbo7,    8: self.Turbo8,    9: self.Turbo9,    10: self.Turbo10,    11: self.Turbo11,   256: self.Turbo256 } # NOQA
     def Category10(self):
         return { 3: self.Category10_3, 4: self.Category10_4, 5: self.Category10_5, 6: self.Category10_6,
                  7: self.Category10_7, 8: self.Category10_8, 9: self.Category10_9, 10: self.Category10_10 }
@@ -1057,6 +1157,7 @@ class _PalettesModule(_types.ModuleType):
             "Inferno" : self.Inferno,
             "Plasma"  : self.Plasma,
             "Viridis" : self.Viridis,
+            "Cividis" : self.Cividis,
         }
 
     def colorblind(self):
@@ -1072,6 +1173,8 @@ class _PalettesModule(_types.ModuleType):
         palettes["Inferno"]    = self.Inferno
         palettes["Plasma"]     = self.Plasma
         palettes["Viridis"]    = self.Viridis
+        palettes["Cividis"]    = self.Cividis
+        palettes["Turbo"]      = self.Turbo
         return palettes
 
     def small_palettes(self):
@@ -1081,15 +1184,9 @@ class _PalettesModule(_types.ModuleType):
         del palettes["Inferno"][256]
         del palettes["Plasma"][256]
         del palettes["Viridis"][256]
+        del palettes["Cividis"][256]
+        del palettes["Turbo"][256]
         return palettes
-
-    @property
-    def __palettes__(self):
-        __palettes__ = []
-        for name, palettes in sorted(self.all_palettes.items(), key=lambda arg: arg[0]):
-            name = name + "_" if name[-1].isdigit() else name
-            __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
-        return __palettes__
 
     def __dir__(self):
         return [name for name in dir(type(self)) if not name.startswith('_')]
@@ -1263,6 +1360,39 @@ class _PalettesModule(_types.ModuleType):
         '''
         return self.linear_palette(self.Cividis256, n)
 
+    def turbo(self, n):
+        ''' Generate a palette of colors or from the Turbo palette.
+
+        Turbo is described here:
+
+        https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html
+
+        The full Turbo palette that serves as input for deriving new palettes
+        has 256 colors, and looks like:
+
+        :bokeh-palette:`turbo(256)`
+
+        Args:
+            n (int) : size of the palette to generate
+
+        Returns:
+            list[str] : a list of hex RGB color strings
+
+        Raises:
+            ``ValueError`` if n is greater than the base palette length of 256
+
+        Examples:
+
+        .. code-block:: python
+
+            >>> turbo(6)
+            ['#00204C', '#31446B', '#666870', '#958F78', '#CAB969', '#FFE945']
+
+        The resulting palette looks like: :bokeh-palette:`turbo(6)`
+
+        '''
+        return self.linear_palette(self.Turbo256, n)
+
     def grey(self, n):
         ''' Generate a palette of colors or from the Greys palette.
 
@@ -1326,6 +1456,10 @@ class _PalettesModule(_types.ModuleType):
 
         '''
         return self.linear_palette(self.Greys256, n)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 # need to explicitly transfer the docstring for Sphinx docs to build correctly
 _mod = _PalettesModule(str('bokeh.palettes'))

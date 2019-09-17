@@ -1,11 +1,32 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Represent transformations of data to happen on the client (browser) side.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from textwrap import dedent
 from types import FunctionType
 
+# External imports
+
+# Bokeh imports
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
 from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, AnyRef
@@ -16,6 +37,24 @@ from ..util.future import get_param_info, signature
 
 from .sources import ColumnarDataSource
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'CustomJSTransform',
+    'Dodge',
+    'Interpolator',
+    'Jitter',
+    'LinearInterpolator',
+    'StepInterpolator',
+    'Transform',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 @abstract
 class Transform(Model):
     ''' Base class for ``Transform`` models that represent a computation
@@ -23,7 +62,7 @@ class Transform(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block: coffeescript
+    .. code-block:: coffeescript
 
         compute: (x) ->
             # compute the transform of a single value
@@ -48,11 +87,11 @@ class CustomJSTransform(Transform):
 
     @classmethod
     def from_py_func(cls, func, v_func):
-        ''' Create a CustomJSTransform instance from a pair of Python
+        ''' Create a ``CustomJSTransform`` instance from a pair of Python
         functions. The function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
         arguments to the functions.
 
         The ``func`` function namespace will contain the variable ``x`` (the
@@ -87,6 +126,10 @@ class CustomJSTransform(Transform):
             CustomJSTransform
 
         '''
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use CustomJSTransform directly instead.")
+
         if not isinstance(func, FunctionType) or not isinstance(v_func, FunctionType):
             raise ValueError('CustomJSTransform.from_py_func only accepts function objects.')
 
@@ -125,7 +168,7 @@ class CustomJSTransform(Transform):
 
     @classmethod
     def from_coffeescript(cls, func, v_func, args={}):
-        ''' Create a CustomJSTransform instance from a pair of CoffeeScript
+        ''' Create a ``CustomJSTransform`` instance from a pair of CoffeeScript
         snippets. The function bodies are translated to JavaScript functions
         using node and therefore require return statements.
 
@@ -257,31 +300,31 @@ class Interpolator(Transform):
     between specified (x, y) pairs of data.  As an example, if two control
     point pairs were provided to the interpolator, a linear interpolaction
     at a specific value of 'x' would result in the value of 'y' which existed
-    on the line conneting the two control points.
+    on the line connecting the two control points.
 
     The control point pairs for the interpolators can be specified through either
 
     * A literal sequence of values:
 
-    .. code-block: python
+    .. code-block:: python
 
         interp = Interpolator(x=[1, 2, 3, 4, 5], y=[2, 5, 10, 12, 16])
 
-    * or a pair of columns defined in a `ColumnDataSource` object:
+    * or a pair of columns defined in a ``ColumnDataSource`` object:
 
-    .. code-block: python
+    .. code-block:: python
 
         interp = Interpolator(x="year", y="earnings", data=jewlery_prices))
 
 
     This is the base class and is not intended to end use.  Please see the
-    documentation for the final derived classes (Jitter, LineraInterpolator,
-    StepInterpolator) for mor information on their specific methods of
+    documentation for the final derived classes (``Jitter``, ``LineraInterpolator``,
+    ``StepInterpolator``) for more information on their specific methods of
     interpolation.
 
     '''
     x = Either(String, Seq(Float), help="""
-    Independant coordiante denoting the location of a point.
+    Independent coordinate denoting the location of a point.
     """)
 
     y = Either(String, Seq(Float), help="""
@@ -323,3 +366,15 @@ class StepInterpolator(Interpolator):
     * ``before``: Assume the y-value associated with the nearest x-value which is greater than the point to transform.
     * ``center``: Assume the y-value associated with the nearest x-value to the point to transform.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

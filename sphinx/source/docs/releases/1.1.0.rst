@@ -1,0 +1,75 @@
+.. _release-1-1-0:
+
+1.1.0
+=====
+
+Bokeh Version ``1.1.0`` (April 2019) is a significant release that primarily
+addresses the layout system. More than 50 layout-related issues were closed,
+addressing bugs, missing features, and performance. Other topics of this
+release included:
+
+* Hover tool fixes and features :bokeh-issue:`8742`, :bokeh-issue:`8668`, :bokeh-issue:`7991`
+* Widget improvements :bokeh-issue:`7665`, :bokeh-issue:`8717`, :bokeh-issue:`6822`, :bokeh-issue:`6333`
+* Sphinx extensions more generally useable :bokeh-issue:`5955`
+* Notebook integration work :bokeh-issue:`8583`, :bokeh-issue:`8681`, :bokeh-issue:`8681`, :bokeh-issue:`8733`
+* Live BokehJS examples added to docs :bokeh-issue:`8692`
+* Improved DataTable performance :bokeh-issue:`8227`
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-1-1-0-migration:
+
+`Migration Guide <releases.html#release-1-1-0-migration>`__
+-----------------------------------------------------------
+
+New in 1.1
+~~~~~~~~~~
+
+The ``js_link`` function was added to make it simpler to link two Bokeh model
+properties together:
+
+.. code:: python
+
+    slider.js_link('value', r.glyph, 'radius')
+
+See :ref:`userguide_interaction_linked_properties` for more information.
+
+The ``Slider.value_as_date`` method was added to conveniently retrieve Slider
+values as date objects when appropriate.
+
+Deprecations
+~~~~~~~~~~~~
+
+The following features or APIs were deprecated in version 1.1 and will be
+removed in a future 2.0 release:
+
+* Support for CoffeeScript in ``CustomJS`` or custom extensions. Use JavaScript
+  or Typescript instead.
+
+* Support for ``ClientSession.loop_until_closed``. This function is intended
+  to support testing only, and will be removed from the public API. Bokeh
+  applications should be run directly on a Bokeh server.
+
+* Support for "transpiling" Python code to JavaScript. All ``from_py_func``
+  methods will be removed. Use JavaScript or Typescript instead.
+
+Changes to bokeh.sphinxext
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to support a longer term goal of moving Bokeh docs to `ReadTheDocs`_,
+some changes to the ``bokeh-plot`` Sphinx directive were necessary. These are:
+
+* Plot script files are now always placed immediately adjacent to the document
+  they are for, and loaded using relative URLs.
+
+* The config values ``bokeh_plot_pyfile_include_dirs`` and
+  ``bokeh_plot_use_relative_paths`` are no longer needed. Setting them will have
+  no effect (but will not break existing builds). These config values will be
+  removed in a future 2.0 release.
+
+We believe that there are very few users of ``bokeh.sphinxext`` outside the
+project itself, and that these changes will not cause any breakage for any of
+those users. However, please reach out for support if any unforeseen issues arise.
+
+.. _ReadTheDocs: https://readthedocs.org

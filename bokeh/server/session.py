@@ -1,29 +1,48 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provides the ``ServerSession`` class.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import time
 
+# External imports
 from tornado import gen, locks
 
+# Bokeh imports
 from ..util.tornado import yield_for_all_futures
 
 from .callbacks import _DocumentCallbackGroup
 
-def current_time():
-    '''Return the time in milliseconds since the epoch as a floating
-       point number.
-    '''
-    try:
-        # python >=3.3 only
-        return time.monotonic() * 1000
-    except:
-        # if your python is old, don't set your clock backward!
-        return time.time() * 1000
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'current_time',
+    'ServerSession',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def _needs_document_lock(func):
     '''Decorator that adds the necessary locking and post-processing
@@ -61,6 +80,21 @@ def _needs_document_lock(func):
         finally:
             self.unblock_expiration()
     return _needs_document_lock_wrapper
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+def current_time():
+    '''Return the time in milliseconds since the epoch as a floating
+       point number.
+    '''
+    try:
+        # python >=3.3 only
+        return time.monotonic() * 1000
+    except:
+        # if your python is old, don't set your clock backward!
+        return time.time() * 1000
 
 class ServerSession(object):
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
@@ -135,11 +169,11 @@ class ServerSession(object):
         self._expiration_blocked_count -= 1
 
     def subscribe(self, connection):
-        """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""
+        """This should only be called by ``ServerConnection.subscribe_session`` or our book-keeping will be broken"""
         self._subscribed_connections.add(connection)
 
     def unsubscribe(self, connection):
-        """This should only be called by ServerConnection.unsubscribe_session or our book-keeping will be broken"""
+        """This should only be called by ``ServerConnection.unsubscribe_session`` or our book-keeping will be broken"""
         self._subscribed_connections.discard(connection)
         self._last_unsubscribe_time = current_time()
 
@@ -240,3 +274,12 @@ class ServerSession(object):
     def patch(cls, message, connection):
         ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_patch(message, connection)
+
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

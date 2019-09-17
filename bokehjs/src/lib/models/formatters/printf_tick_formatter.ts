@@ -1,37 +1,31 @@
-import {sprintf} from "sprintf-js"
-
 import {TickFormatter} from "./tick_formatter"
-import {Axis} from "../axes/axis"
+import {sprintf} from "core/util/templating"
 import * as p from "core/properties"
 
 export namespace PrintfTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    format: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    format: p.Property<string>
+  }
 }
 
 export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
-
   properties: PrintfTickFormatter.Props
 
   constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'PrintfTickFormatter'
-
-    this.define({
+  static init_PrintfTickFormatter(): void {
+    this.define<PrintfTickFormatter.Props>({
       format: [ p.String, '%s' ],
     })
   }
 
-  doFormat(ticks: number[], _axis: Axis): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     return ticks.map((tick) => sprintf(this.format, tick))
   }
 }
-PrintfTickFormatter.initClass()

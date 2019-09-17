@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -17,7 +16,7 @@ Generating output for Bokeh plots requires coordinating several things:
 
 :class:`~bokeh.document.Document`
     Groups together Bokeh models that may be shared between plots (e.g.,
-    range or data source objects) into one common strucure.
+    range or data source objects) into one common structure.
 
 :class:`~bokeh.resources.Resources`
     Control how JavaScript and CSS for the client library BokehJS are
@@ -57,6 +56,11 @@ from ..resources import Resources
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'curstate',
+    'State',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -128,7 +132,7 @@ class State(object):
 
     # Public methods ----------------------------------------------------------
 
-    def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", mode=None, root_dir=None):
         ''' Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to
@@ -150,7 +154,7 @@ class State(object):
             root_dir (str, optional) : root dir to use for absolute resources
                 (default: None)
 
-                This value is ignored for other resource types, e.g. ``INLINE`` or``CDN``.
+                This value is ignored for other resource types, e.g. ``INLINE`` or ``CDN``.
 
         .. warning::
             The specified output file will be overwritten on every save, e.g.,
@@ -222,6 +226,10 @@ def curstate():
     if _STATE is None:
         _STATE = State()
     return _STATE
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -1,26 +1,106 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a base class for all objects (called Bokeh Models) that can go in
 a Bokeh |Document|.
 
 '''
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from json import loads
 from operator import itemgetter
 
-from six import iteritems
+# External imports
+from six import iteritems, string_types
 
+# Bokeh imports
 from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
 from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
+
+from .events import Event
 from .themes import default as default_theme
+
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
-from .events import Event
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'collect_models',
+    'get_class',
+    'Model',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def collect_filtered_models(discard, *input_values):
+    ''' Collect a duplicate-free list of all other Bokeh models referred to by
+    this model, or by any of its references, etc, unless filtered-out by the
+    provided callable.
+
+    Iterate over ``input_values`` and descend through their structure
+    collecting all nested ``Models`` on the go.
+
+    Args:
+        *discard (Callable[[Model], bool])
+            a callable which accepts a *Model* instance as its single argument
+            and returns a boolean stating whether to discard the instance. The
+            latter means that the instance will not be added to collected
+            models nor will its references be explored.
+
+        *input_values (Model)
+            Bokeh models to collect other models from
+
+    Returns:
+        None
+
+    '''
+
+    ids = set([])
+    collected = []
+    queued = []
+
+    def queue_one(obj):
+        if obj.id not in ids and not (callable(discard) and discard(obj)):
+            queued.append(obj)
+
+    for value in input_values:
+        _visit_value_and_its_immediate_references(value, queue_one)
+
+    while queued:
+        obj = queued.pop(0)
+        if obj.id not in ids:
+            ids.add(obj.id)
+            collected.append(obj)
+            _visit_immediate_value_references(obj, queue_one)
+
+    return collected
 
 def collect_models(*input_values):
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
@@ -38,26 +118,7 @@ def collect_models(*input_values):
         list[Model] : all models reachable from this one.
 
     '''
-
-    ids = set([])
-    collected = []
-    queued = []
-
-    def queue_one(obj):
-        if obj._id not in ids:
-            queued.append(obj)
-
-    for value in input_values:
-        _visit_value_and_its_immediate_references(value, queue_one)
-
-    while queued:
-        obj = queued.pop(0)
-        if obj._id not in ids:
-            ids.add(obj._id)
-            collected.append(obj)
-            _visit_immediate_value_references(obj, queue_one)
-
-    return collected
+    return collect_filtered_models(None, *input_values)
 
 def get_class(view_model_name):
     ''' Look up a Bokeh model class, given its view model name.
@@ -93,6 +154,10 @@ def get_class(view_model_name):
         return d[view_model_name]
     else:
         raise KeyError("View model name '%s' not found" % view_model_name)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class MetaModel(MetaHasProps):
     ''' Specialize the construction of |Model| classes.
@@ -213,17 +278,43 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     '''
 
+    def __new__(cls, *args, **kwargs):
+        obj =  super(Model, cls).__new__(cls)
+        obj._id = kwargs.pop("id", make_id())
+        obj._document = None
+        obj._temp_document = None
+        return obj
+
     def __init__(self, **kwargs):
-        self._id = kwargs.pop("id", make_id())
-        self._document = None
+
+        # "id" is popped from **kw in __new__, so in an ideal world I don't
+        # think it should be here too. But Python does this, so it is:
+        #
+        # class Foo(object):
+        #     def __new__(cls, *args, **kw):
+        #         obj = super(Foo, cls).__new__(cls)
+        #         obj.bar = kw.pop("bar", 111)
+        #         print("__new__  :", id(kw), kw)
+        #         return obj
+        #     def __init__(self, **kw):
+        #         print("__init__ :", id(kw), kw)
+        #
+        # >>> f = Foo(bar=10)
+        # __new__  : 4405522296 {}
+        # __init__ : 4405522296 {'bar': 10}
+        kwargs.pop("id", None)
+
         super(Model, self).__init__(**kwargs)
         default_theme.apply_to_model(self)
 
     def __str__(self):
-        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
+        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
 
     __repr__ = __str__
 
+    @property
+    def id(self):
+        return self._id
 
     name = String(help="""
     An arbitrary, user-supplied name for this model.
@@ -259,7 +350,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         [GlyphRenderer(id='1de4c3df-a83d-480a-899b-fb263d3d5dd9', ...)]
 
     Or simply a convenient way to attach any necessary metadata to a model
-    that can be accessed by CustomJS callbacks, etc.
+    that can be accessed by ``CustomJS`` callbacks, etc.
 
     .. note::
         No uniqueness guarantees or other conditions are enforced on any tags
@@ -270,14 +361,14 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
     help="""
-    A mapping of event names to lists of CustomJS callbacks.
+    A mapping of event names to lists of ``CustomJS`` callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
     added using the ``Model.js_on_event`` method:
 
     .. code:: python
 
-        callback = CustomJS(code="console.log('tap event occured')")
+        callback = CustomJS(code="console.log('tap event occurred')")
         plot.js_on_event('tap', callback)
     """)
 
@@ -288,7 +379,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     """)
 
     js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
-    A mapping of attribute names to lists of CustomJS callbacks, to be set up on
+    A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -301,12 +392,15 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     """)
 
+    # Properties --------------------------------------------------------------
 
     @property
     def document(self):
         ''' The |Document| this model is attached to (can be ``None``)
 
         '''
+        if self._temp_document is not None:
+            return self._temp_document
         return self._document
 
     @property
@@ -328,17 +422,19 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
             return {
                 'type'    : self.__view_model__,
                 'subtype' : self.__subtype__,
-                'id'      : self._id,
+                'id'      : self.id,
             }
         else:
             return {
                 'type' : self.__view_model__,
-                'id'   : self._id,
+                'id'   : self.id,
             }
+
+    # Public methods ----------------------------------------------------------
 
     def js_on_event(self, event, *callbacks):
 
-        if not isinstance(event, str) and issubclass(event, Event):
+        if not isinstance(event, string_types) and issubclass(event, Event):
             event = event.event_name
 
         if event not in self.js_event_callbacks:
@@ -350,8 +446,65 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
             self.js_event_callbacks[event].append(callback)
 
 
+    def js_link(self, attr, other, other_attr):
+        ''' Link two Bokeh model properties using JavaScript.
+
+        This is a convenience method that simplifies adding a CustomJS callback
+        to update one Bokeh model property whenever another changes value.
+
+        Args:
+
+            attr (str) :
+                The name of a Bokeh property on this model
+
+            other (Model):
+                A Bokeh model to link to self.attr
+
+            other_attr (str) :
+                The property on ``other`` to link together
+
+        Added in version 1.1
+
+        Raises:
+
+            ValueError
+
+        Examples:
+
+            This code with ``js_link``:
+
+            .. code :: python
+
+                select.js_link('value', plot, 'sizing_mode')
+
+            is equivalent to the following:
+
+            .. code:: python
+
+                from bokeh.models import CustomJS
+                select.js_on_change('value',
+                    CustomJS(args=dict(other=plot),
+                             code="other.sizing_mode = this.value"
+                    )
+                )
+
+        '''
+        if attr not in self.properties():
+            raise ValueError("%r is not a property of self (%r)" % (attr, self))
+
+        if not isinstance(other, Model):
+            raise ValueError("'other' is not a Bokeh model: %r" % other)
+
+        if other_attr not in other.properties():
+            raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
+
+        from bokeh.models.callbacks import CustomJS
+        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+
+        self.js_on_change(attr, cb)
+
     def js_on_change(self, event, *callbacks):
-        ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
+        ''' Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
 
         On the BokehJS side, change events for model properties have the
         form ``"change:property_name"``. As a convenience, if the event name
@@ -385,12 +538,14 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         if event in self.properties():
             event = "change:%s" % event
 
+        old = {k: [cb for cb in cbs] for k, cbs in self.js_property_callbacks.items()}
         if event not in self.js_property_callbacks:
             self.js_property_callbacks[event] = []
         for callback in callbacks:
             if callback in self.js_property_callbacks[event]:
                 continue
             self.js_property_callbacks[event].append(callback)
+        self.trigger('js_property_callbacks', old, self.js_property_callbacks)
 
     def layout(self, side, plot):
         '''
@@ -484,7 +639,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         need to separately have the full attributes of those
         other objects.
 
-        There's no corresponding from_json() because to
+        There's no corresponding ``from_json()`` because to
         deserialize an object is normally done in the context of a
         Document (since the Document can resolve references).
 
@@ -506,7 +661,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         will need to separately have the full attributes of those
         other objects.
 
-        There's no corresponding from_json_string() because to
+        There's no corresponding ``from_json_string()`` because to
         deserialize an object is normally done in the context of a
         Document (since the Document can resolve references).
 
@@ -519,7 +674,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         '''
         json_like = self._to_json_like(include_defaults=include_defaults)
-        json_like['id'] = self._id
+        json_like['id'] = self.id
         # serialize_json "fixes" the JSON from _to_json_like by converting
         # all types into plain JSON types # (it converts Model into refs,
         # for example).
@@ -533,7 +688,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         # The explicit assumption here is that hinted events do not need to
         # go through all the same invalidation steps. Currently this is the
         # case for ColumnsStreamedEvent and ColumnsPatchedEvent. However,
-        # this may need to be further refined in the future, if the a
+        # this may need to be further refined in the future, if the
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
         if hint is None:
@@ -588,7 +743,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         That's what "json like" means.
 
         This method should be considered "private" or "protected",
-        for use internal to Bokeh; use to_json() instead because
+        for use internal to Bokeh; use ``to_json()`` instead because
         it gives you only plain JSON-compatible types.
 
         Args:
@@ -662,6 +817,10 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         return html
 
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
 def _visit_immediate_value_references(value, visitor):
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
@@ -677,7 +836,6 @@ def _visit_immediate_value_references(value, visitor):
 
 
 _common_types = {int, float, str}
-
 
 def _visit_value_and_its_immediate_references(obj, visitor):
     ''' Recurse down Models, HasProps, and Python containers
@@ -703,3 +861,8 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         else:
             # this isn't a Model, so recurse into it
             _visit_immediate_value_references(obj, visitor)
+
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,5 +1,9 @@
-0.2.0 (Oct 2013)
-================
+.. _release-0-2-0:
+
+0.2.0
+=====
+
+Bokeh ``0.2.0`` (Oct 2013) is a minor release:
 
 * bokeh.plotting interface for schematized plotting, that wraps the low-level interface
 * Performance improvements in BokehJS

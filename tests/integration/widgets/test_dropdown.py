@@ -48,17 +48,12 @@ class Test_Dropdown(object):
 
         page = bokeh_model_page(button)
 
-        button_div = page.driver.find_element_by_class_name('foo')
-        button = button_div.find_element_by_tag_name("button")
+        button = page.driver.find_element_by_css_selector('.foo button')
         assert button.text == "Dropdown button"
         button.click()
 
-        links = page.driver.find_elements_by_css_selector('ul li a')
-        assert len(links) == 3
-
-        for i, link in enumerate(links):
-            assert link.text == items[i][0]
-            assert link.get_attribute('data-value') == items[i][1]
+        menu = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert menu.is_displayed()
 
     @pytest.mark.parametrize('typ', list(ButtonType))
     def test_displays_button_type(self, typ, bokeh_model_page):
@@ -66,8 +61,7 @@ class Test_Dropdown(object):
 
         page = bokeh_model_page(button)
 
-        button_div = page.driver.find_element_by_class_name('foo')
-        button = button_div.find_element_by_tag_name("button")
+        button = page.driver.find_element_by_css_selector('.foo button')
         assert typ in button.get_attribute('class')
 
     def test_server_on_change_round_trip(self, bokeh_server_page):
@@ -77,111 +71,112 @@ class Test_Dropdown(object):
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
-            def cb(attr, old, new):
-                if new == "item_1_value":
+            def cb(event):
+                item = event.item
+                if item == "item_1_value":
                     source.data = dict(x=[10, 20], y=[10, 10])
-                elif new == "item_2_value":
+                elif item == "item_2_value":
                     source.data = dict(x=[100, 200], y=[100, 100])
-                elif new == "item_3_value":
+                elif item == "item_3_value":
                     source.data = dict(x=[1000, 2000], y=[1000, 1000])
-            button.on_change('value', cb)
+            button.on_event('menu_item_click', cb)
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo button')
         button.click()
-        item = page.driver.find_element_by_link_text("Item 1")
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(1)")
         item.click()
 
         page.click_custom_action()
 
         results = page.results
-        assert results ==  {'data': {'x': [10, 20], 'y': [10, 10]}}
+        assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo button')
         button.click()
-        item = page.driver.find_element_by_link_text("Item 3")
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(3)")
         item.click()
 
         page.click_custom_action()
 
         results = page.results
-        assert results ==  {'data': {'x': [1000, 2000], 'y': [1000, 1000]}}
+        assert results == {'data': {'x': [1000, 2000], 'y': [1000, 1000]}}
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo button')
         button.click()
-        item = page.driver.find_element_by_link_text("Item 2")
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(2)")
         item.click()
 
         page.click_custom_action()
 
         results = page.results
-        assert results ==  {'data': {'x': [100, 200], 'y': [100, 100]}}
+        assert results == {'data': {'x': [100, 200], 'y': [100, 100]}}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_callback_property_executes(self, bokeh_model_page):
-        button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
-        button.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
+    #def test_callback_property_executes(self, bokeh_model_page):
+    #    button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
+    #    button.callback = CustomJS(code=RECORD("value", "this.item"))
 
-        page = bokeh_model_page(button)
+    #    page = bokeh_model_page(button)
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
-        item = page.driver.find_element_by_link_text("Item 1")
-        item.click()
+    #    button = page.driver.find_element_by_css_selector('.foo button')
+    #    button.click()
+    #    item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(1)")
+    #    item.click()
 
-        results = page.results
-        assert results ==  {'value': "item_1_value"}
+    #    results = page.results
+    #    assert results == {'value': "item_1_value"}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
-        item = page.driver.find_element_by_link_text("Item 3")
-        item.click()
+    #    button = page.driver.find_element_by_css_selector('.foo button')
+    #    button.click()
+    #    item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(3)")
+    #    item.click()
 
-        results = page.results
-        assert results ==  {'value': "item_3_value"}
+    #    results = page.results
+    #    assert results == {'value': "item_3_value"}
 
-        button = page.driver.find_element_by_class_name('foo')
-        button.click()
-        item = page.driver.find_element_by_link_text("Item 2")
-        item.click()
+    #    button = page.driver.find_element_by_css_selector('.foo button')
+    #    button.click()
+    #    item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(2)")
+    #    item.click()
 
-        results = page.results
-        assert results ==  {'value': "item_2_value"}
+    #    results = page.results
+    #    assert results == {'value': "item_2_value"}
 
-        assert page.has_no_console_errors()
+    #    assert page.has_no_console_errors()
 
     def test_js_on_change_executes(self, bokeh_model_page):
         button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
-        button.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+        button.js_on_event('menu_item_click', CustomJS(code=RECORD("value", "this.item")))
 
         page = bokeh_model_page(button)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo button')
         button.click()
-        item = page.driver.find_element_by_link_text("Item 1")
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(1)")
         item.click()
 
         results = page.results
-        assert results ==  {'value': "item_1_value"}
+        assert results == {'value': "item_1_value"}
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo button')
         button.click()
-        item = page.driver.find_element_by_link_text("Item 3")
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(3)")
         item.click()
 
         results = page.results
-        assert results ==  {'value': "item_3_value"}
+        assert results == {'value': "item_3_value"}
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo button')
         button.click()
-        item = page.driver.find_element_by_link_text("Item 2")
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(2)")
         item.click()
 
         results = page.results
-        assert results ==  {'value': "item_2_value"}
+        assert results == {'value': "item_2_value"}
 
         assert page.has_no_console_errors()

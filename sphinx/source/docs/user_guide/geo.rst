@@ -5,7 +5,7 @@ Mapping Geo Data
 
 Bokeh has started adding support for working with Geographical data. There are
 a number of powerful features already available, but we still have more to add.
-Please tell use your use cases through the `mailing list`_ or on `github`_ so that we
+Please tell us your use cases through the `Discourse`_ or on `github`_ so that we
 can continue to build out these features to meet your needs.
 
 .. _userguide_geo_tile_provider_maps:
@@ -42,6 +42,15 @@ underlay.
     Google has its own terms of service for using Google Maps API and any use
     of Bokeh with Google Maps must be within Google's Terms of Service
 
+Also note that Google Maps exert explicit control over aspect ratios at all
+times, which imposes some limitations on ``GMapPlot``:
+
+* Only ``Range1d`` ranges are supported. Attempting to use other range types
+  will result in an error.
+
+* Usage of ``BoxZoomTool`` is incompatible with ``GMapPlot``. Adding a
+  ``BoxZoomTool`` will have no effect.
+
 .. _userguide_geo_geojson_data:
 
 GeoJSON Data
@@ -67,4 +76,4 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
 .. _GeoJSON: http://geojson.org
 .. _github: https://github.com/bokeh/bokeh
 .. _Google API Key: https://developers.google.com/maps/documentation/javascript/get-api-key
-.. _mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
+.. _Discourse: https://discourse.bokeh.org

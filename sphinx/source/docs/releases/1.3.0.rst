@@ -1,0 +1,17 @@
+.. _release-1-3-0:
+
+1.3.0
+=====
+
+Bokeh Version ``1.3.0`` (Jul 2019) is a point release that adds some
+interesting new features:
+
+* ``FileInput`` widget added :bokeh-issue:`6096`
+* New DataCube widget affords groups and aggregations of tabular data :bokeh-issue:`8100`
+* ``TextInput`` widget now has a new per-keystroke capability. :bokeh-issue:`8676`
+* Can now set ``source.data`` directly from DataFrames :bokeh-issue:`9052`
+
+And several other bug fixes and docs additions. For more details see the
+:bokeh-tree:`CHANGELOG` or the `blog announcement`_.
+
+.. _blog announcement: https://blog.bokeh.org/posts/release-1-3-0

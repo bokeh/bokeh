@@ -1,10 +1,9 @@
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import * as p from "core/properties"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable} from "core/types"
-import {IBBox} from "core/util/bbox"
+import {Arrayable, Rect} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -40,10 +39,10 @@ export class SegmentView extends GlyphView {
 
       if (!isNaN(x0 + x1 + y0 + y1)) {
         points.push({
-          minX: Math.min(x0, x1),
-          minY: Math.min(y0, y1),
-          maxX: Math.max(x0, x1),
-          maxY: Math.max(y0, y1),
+          x0: Math.min(x0, x1),
+          y0: Math.min(y0, y1),
+          x1: Math.max(x0, x1),
+          y1: Math.max(y0, y1),
           i,
         })
       }
@@ -73,11 +72,11 @@ export class SegmentView extends GlyphView {
     const point = {x: sx, y: sy}
 
     const hits = []
-    const lw_voffset = 2; // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
+    const lw_voffset = 2 // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
 
-    const [minX, maxX] = this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
-    const [minY, maxY] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
-    const candidates = this.index.indices({minX, minY, maxX, maxY})
+    const [x0, x1] = this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
+    const [y0, y1] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
+    const candidates = this.index.indices({x0, y0, x1, y1})
 
     for (const i of candidates) {
       const threshold2 = Math.pow(Math.max(2, this.visuals.line.cache_select('line_width', i) / 2), 2)
@@ -110,9 +109,9 @@ export class SegmentView extends GlyphView {
 
     const hits = []
 
-    const [minX, maxX] = this.renderer.xscale.r_invert(hr.start, hr.end)
-    const [minY, maxY] = this.renderer.yscale.r_invert(vr.start, vr.end)
-    const candidates = this.index.indices({minX, minY, maxX, maxY})
+    const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+    const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+    const candidates = this.index.indices({x0, y0, x1, y1})
 
     for (const i of candidates) {
       if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i]))
@@ -132,44 +131,37 @@ export class SegmentView extends GlyphView {
     return (this.sy0[i] + this.sy1[i])/2
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }
 
 export namespace Segment {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    x0: NumberSpec
-    y0: NumberSpec
-    x1: NumberSpec
-    y1: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    x0: p.CoordinateSpec
+    y0: p.CoordinateSpec
+    x1: p.CoordinateSpec
+    y1: p.CoordinateSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
-
   properties: Segment.Props
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Segment'
+  static init_Segment(): void {
     this.prototype.default_view = SegmentView
 
     this.coords([['x0', 'y0'], ['x1', 'y1']])
     this.mixins(['line'])
   }
 }
-Segment.initClass()

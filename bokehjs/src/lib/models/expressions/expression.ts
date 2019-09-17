@@ -1,25 +1,21 @@
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Model} from "../../model"
 import {Arrayable} from "core/types"
+import * as p from "core/properties"
 
 export namespace Expression {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface Expression extends Expression.Attrs {}
 
 export abstract class Expression extends Model {
-
   properties: Expression.Props
 
   constructor(attrs?: Partial<Expression.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "Expression"
   }
 
   protected _connected: {[key: string]: boolean} = {}
@@ -49,4 +45,3 @@ export abstract class Expression extends Model {
     return result
   }
 }
-Expression.initClass()

@@ -12,11 +12,10 @@ from bokeh.plotting import Figure
 
 class IonRangeSlider(InputWidget):
     # The special class attribute ``__implementation__`` should contain a string
-    # of JavaScript (or CoffeeScript) code that implements the JavaScript side
-    # of the custom extension model or a string name of a JavaScript (or
-    # CoffeeScript) file with the implementation.
+    # of JavaScript, TypeScript or CoffeeScript code that implements the web browser
+    # side of the custom extension model or a string name of a file with the implementation.
 
-    __implementation__ = 'extensions_ion_range_slider.coffee'
+    __implementation__ = 'extensions_ion_range_slider.ts'
     __javascript__ = ["https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js",
                       "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/js/ion.rangeSlider.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css",
@@ -30,7 +29,7 @@ class IonRangeSlider(InputWidget):
     # also support type validation. More information about properties in
     # can be found here:
     #
-    #    https://bokeh.pydata.org/en/latest/docs/reference/core.html#bokeh-core-properties
+    #    https://docs.bokeh.org/en/latest/docs/reference/core/properties.html#bokeh-core-properties
 
     disable = Bool(default=True, help="""
     Enable or disable the slider.
@@ -109,9 +108,11 @@ callback_ion = CustomJS(args=dict(source=source), code="""
     """)
 
 
-slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power", callback=callback_single)
+slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power")
+slider.js_on_change('value', callback_single)
+
 ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
-    title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
+    title='Ion Range Slider - Range', callback_policy='continuous', callback=callback_ion)
 
 layout = column(plot, slider, ion_range_slider)
 show(layout)

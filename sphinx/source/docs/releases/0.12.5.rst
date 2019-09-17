@@ -1,8 +1,10 @@
-0.12.5 (Mar 2017)
-=================
+.. _release-0-12-5:
 
-Bokeh Version ``0.12.5`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.5
+======
+
+Bokeh Version ``0.12.5`` (Mar 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * New general capability for Python/JS events (:bokeh-issue:`3210`,
   :bokeh-issue:`3748`, :bokeh-issue:`5278`)
@@ -22,16 +24,18 @@ features and fixes several bugs. Some of the highlights include:
 Many other bugfixes and docs additions are also included. For full details
 see the :bokeh-tree:`CHANGELOG`.
 
+.. _release-0-12-5-migration:
+
+`Migration Guide <releases.html#release-0-12-5-migration>`__
+------------------------------------------------------------
+
 Known Issues
-------------
+~~~~~~~~~~~~
 
 The ClientSession APIs defined in `bokeh.client.session`, such as
 `push_session`, don't currently support the new `on_event` interface for
 UI event callbacks in Bokeh Server application. You may track the issue on
 GitHub (:bokeh-issue:`6092`).
-
-Migration Guide
----------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained
@@ -41,7 +45,7 @@ period of deprecation.
 New Deprecations
 ~~~~~~~~~~~~~~~~
 
-**MPL COMPATIBLITY IS DEPRECATED**
+**MPL COMPATIBILITY IS DEPRECATED**
 
 Bokeh's MPL compatibility was implemented using a third-party library that
 only exposes a small fraction of all Matplotlib functionality, and is
@@ -177,7 +181,7 @@ attribute that can now be accessed on ``request`` is ``.arguments``, e.g.:
 Attempting to access any other attribute on ``request`` will result in an
 error.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap
 
 Default save file
 ~~~~~~~~~~~~~~~~~

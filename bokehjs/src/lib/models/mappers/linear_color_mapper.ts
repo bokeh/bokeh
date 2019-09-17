@@ -1,25 +1,21 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
 import {min, max} from "core/util/arrayable"
+import * as p from "core/properties"
 
 export namespace LinearColorMapper {
-  export interface Attrs extends ContinuousColorMapper.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ContinuousColorMapper.Props {}
+  export type Props = ContinuousColorMapper.Props
 }
 
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ContinuousColorMapper {
-
   properties: LinearColorMapper.Props
 
   constructor(attrs?: Partial<LinearColorMapper.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "LinearColorMapper"
   }
 
   protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
@@ -60,4 +56,3 @@ export class LinearColorMapper extends ContinuousColorMapper {
     }
   }
 }
-LinearColorMapper.initClass()

@@ -11,7 +11,7 @@ fi
 wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash
 
 # install Miniconda
-PYTHON="${PYTHON:-3.6}"
+PYTHON="${PYTHON:-3.7}"
 MINICONDA_FILENAME=Miniconda${PYTHON:0:1}-latest-Linux-x86_64.sh
 if  [ "${NO_INSTALL_CONDA}" != "1" ]; then
     wget -nv "http://repo.continuum.io/miniconda/${MINICONDA_FILENAME}"
@@ -21,17 +21,25 @@ fi
 
 # if emergency, temporary package pins are necessary, they can go here
 PINNED_PKGS=$(cat <<EOF
-pandas <0.23.0
-pillow <=5.1
 EOF
 )
 mkdir -p $HOME/miniconda/conda-meta
 echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
 
-# install conda packages
-conda install --yes --quiet python=${PYTHON} ${CONDA_REQS}
+# install conda packages in root env
+conda install --yes --quiet ${CONDA_REQS}
 
 # set default conda channels
 conda config --set auto_update_conda off
 conda config --append channels bokeh
 conda config --get channels
+
+# XXX remove for 2.0 when futures-compat no longer needed
+conda config --set restore_free_channel true
+
+# create and activate test env
+conda create -n testenv --yes --quiet python=${PYTHON} jinja2 pyyaml
+
+# conda init / activate unfortunately do not work on TravisCI so this path
+# is added in .travis.yml
+# export PATH=${HOME}/miniconda/envs/testenv/bin:${PATH}

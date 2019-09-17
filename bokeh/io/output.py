@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -33,15 +32,21 @@ from .state import curstate
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'output_file',
+    'output_notebook',
+    'reset_output',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
-    Does not change the current Document from curdoc(). File and notebook
+    Does not change the current ``Document`` from ``curdoc()``. File and notebook
     output may be active at the same time, so e.g., this does not clear the
     effects of ``output_notebook()``.
 

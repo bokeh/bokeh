@@ -5,9 +5,9 @@ set -x # echo commands
 
 # install NPM dependencies
 pushd bokehjs
-npm install --no-save --no-progress phantomjs
+npm install --no-save --no-progress
 popd
 
 if  [[ ! -z "${MINIMAL}" ]]; then
-    conda remove --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
+    conda remove -n testenv --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
 fi

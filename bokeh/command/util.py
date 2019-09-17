@@ -1,21 +1,53 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide utility functions for implementing the ``bokeh`` command.
 
 '''
-from __future__ import print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import contextlib
 import errno
-import logging
 import os
 import sys
 import warnings
 
+# External imports
+
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
+from bokeh.models.plots import Plot
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-log = logging.getLogger(__name__)
+__all__ = (
+    'build_single_handler_application',
+    'build_single_handler_applications',
+    'die',
+    'report_server_init_errors',
+    'set_single_plot_width_height',
+)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def die(message, status=1):
     ''' Print an error message and exit.
@@ -39,7 +71,7 @@ call "bokeh serve" on the directory instead. For example:
 
     bokeh serve my_app_dir/
 
-If this is not the case, renaming main.py will supress this warning.
+If this is not the case, renaming main.py will suppress this warning.
 """
 
 def build_single_handler_application(path, argv=None):
@@ -81,9 +113,13 @@ def build_single_handler_application(path, argv=None):
     '''
     argv = argv or []
     path = os.path.abspath(path)
+
+    # There are certainly race conditions here if the file/directory is deleted
+    # in between the isdir/isfile tests and subsequent code. But it would be a
+    # failure if they were not there to begin with, too (just a different error)
     if os.path.isdir(path):
         handler = DirectoryHandler(filename=path, argv=argv)
-    else:
+    elif os.path.isfile(path):
         if path.endswith(".ipynb"):
             handler = NotebookHandler(filename=path, argv=argv)
         elif path.endswith(".py"):
@@ -92,6 +128,8 @@ def build_single_handler_application(path, argv=None):
             handler = ScriptHandler(filename=path, argv=argv)
         else:
             raise ValueError("Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path)
+    else:
+        raise ValueError("Path for Bokeh server application does not exist: %s" % path)
 
     if handler.failed:
         raise RuntimeError("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
@@ -123,7 +161,7 @@ def build_single_handler_applications(paths, argvs=None):
 
     '''
     applications = {}
-    argvs = {} or argvs
+    argvs = argvs or {}
 
     for path in paths:
         application = build_single_handler_application(path, argvs.get(path, []))
@@ -172,3 +210,25 @@ def report_server_init_errors(address=None, port=None, **kwargs):
             codename = errno.errorcode[e.errno]
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
         sys.exit(1)
+
+def set_single_plot_width_height(doc, width, height):
+    if width is not None or height is not None:
+        layout = doc.roots
+        if len(layout) != 1 or not isinstance(layout[0], Plot):
+            warnings.warn("Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)")
+        else:
+            plot = layout[0]
+            plot.plot_height = height or plot.plot_height
+            plot.plot_width  = width or plot.plot_width
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

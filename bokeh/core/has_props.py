@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a base class for objects that can have declarative, typed,
 serializable properties.
 
@@ -8,37 +14,53 @@ serializable properties.
     anyone who is not directly developing on Bokeh's own infrastructure.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import difflib
 import inspect
 from warnings import warn
 
+# External imports
+
+# Bokeh imports
 from ..util.future import with_metaclass
 from ..util.string import nice_join
-from .property.containers import PropertyValueContainer
+
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
+from .property.wrappers import PropertyValueContainer
 
-_ABSTRACT_ADMONITION = '''
-    .. note::
-        This is an abstract base class used to help organize the hierarchy of Bokeh
-        model types. **It is not useful to instantiate on its own.**
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-'''
+__all__ = (
+    'abstract',
+    'accumulate_dict_from_superclasses',
+    'accumulate_from_superclasses',
+    'HasProps',
+    'MetaHasProps',
+)
 
-_EXAMPLE_TEMPLATE = '''
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../%(path)s
-        :source-position: below
-
-'''
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def abstract(cls):
     ''' A decorator to mark abstract base classes derived from |HasProps|.
@@ -324,7 +346,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, json, models, setter)
         else:
-            log.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
+            log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def update(self, **kwargs):
         ''' Updates the object's properties from the given keyword arguments.
@@ -452,7 +474,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         properties defined on any parent classes.
 
         Returns:
-            set[str] : names of DataSpec properties
+            set[str] : names of ``DataSpec`` properties
 
         '''
         return set(cls.dataspecs_with_props().keys())
@@ -622,3 +644,29 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         '''
         return self.__class__(**self._property_values)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_ABSTRACT_ADMONITION = '''
+    .. note::
+        This is an abstract base class used to help organize the hierarchy of Bokeh
+        model types. **It is not useful to instantiate on its own.**
+
+'''
+
+# The "../../" is needed for bokeh-plot to construct the correct path to examples
+_EXAMPLE_TEMPLATE = '''
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../../%(path)s
+        :source-position: below
+
+'''
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

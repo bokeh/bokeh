@@ -1,8 +1,8 @@
-import {sprintf} from "sprintf-js"
 import {Palette} from "./palettes"
 import * as palettes from "./palettes"
-import {zip, unzip, sum, cumsum, copy} from "../core/util/array"
+import {zip, unzip, sum, cumsum, copy, transpose} from "../core/util/array"
 import {isArray} from "../core/util/types"
+import {sprintf} from "../core/util/templating"
 import {Anchor, TooltipAttachment} from "../core/enums"
 
 import {
@@ -52,7 +52,7 @@ export interface ChartOpts {
 }
 
 export interface PieChartData {
-  labels: number[]
+  labels: string[]
   values: number[]
 }
 
@@ -67,7 +67,7 @@ export interface PieChartOpts extends ChartOpts {
 }
 
 export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
-  const labels: number[] = []
+  const labels: string[] = []
   const values: number[] = []
 
   for (let i = 0; i < Math.min(data.labels.length, data.values.length); i++) {
@@ -132,28 +132,28 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
 
   const source = new ColumnDataSource({
     data: {
-      labels: labels,
-      values: values,
+      labels,
+      values,
       percentages: normalized_values.map((v) => sprintf("%.2f%%", v*100)),
-      start_angles: start_angles,
-      end_angles: end_angles,
-      text_angles: text_angles,
-      colors: colors,
-      text_colors: text_colors,
-      text_cx: text_cx,
-      text_cy: text_cy,
+      start_angles,
+      end_angles,
+      text_angles,
+      colors,
+      text_colors,
+      text_cx,
+      text_cy,
     },
   })
 
   const g1 = new AnnularWedge({
     x: cx, y: cy,
-    inner_radius: inner_radius, outer_radius: outer_radius,
+    inner_radius, outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"},
   })
   const h1 = new AnnularWedge({
     x: cx, y: cy,
-    inner_radius: inner_radius, outer_radius: outer_radius,
+    inner_radius, outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"}, fill_alpha: 0.8,
   })
@@ -191,7 +191,7 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   return plot
 }
 
-export type BarChartData = number[][]
+export type BarChartData = (string | number)[][]
 
 export interface BarChartOpts extends ChartOpts {
   stacked?: boolean
@@ -203,17 +203,12 @@ export interface BarChartOpts extends ChartOpts {
 
 export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   const column_names = data[0]
-  const rows = data.slice(1)
 
-  let columns: number[][] = column_names.map((_) => [])
-  for (const row of rows) {
-    for (let i = 0; i < row.length; i++) {
-      columns[i].push(row[i])
-    }
-  }
+  const row_data = data.slice(1)
+  const col_data = transpose(row_data)
 
-  const labels = columns[0].map((v) => v.toString())
-  columns = columns.slice(1)
+  const labels = col_data[0].map((v) => v.toString())
+  const columns = col_data.slice(1) as number[][]
 
   let yaxis: Axis = new CategoricalAxis()
   let ydr: Range = new FactorRange({factors: labels})
@@ -260,9 +255,9 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
         data: {
           left: copy(left),
           right: copy(right),
-          top: top,
-          bottom: bottom,
-          labels: labels,
+          top,
+          bottom,
+          labels,
           values: columns[i],
           columns: columns[i].map((_) => column_names[i+1]),
         },
@@ -295,11 +290,11 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
 
       const source = new ColumnDataSource({
         data: {
-          left: left,
-          right: right,
-          top: top,
-          bottom: bottom,
-          labels: labels,
+          left,
+          right,
+          top,
+          bottom,
+          labels,
           values: columns[i],
           columns: columns[i].map((_) => column_names[i+1]),
         },
@@ -316,14 +311,14 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   }
 
   if (orientation == "vertical") {
-    [xdr, ydr] = [ydr, xdr];
-    [xaxis, yaxis] = [yaxis, xaxis];
-    [xscale, yscale] = [yscale, xscale];
+    [xdr, ydr] = [ydr, xdr]
+    ;[xaxis, yaxis] = [yaxis, xaxis]
+    ;[xscale, yscale] = [yscale, xscale]
 
     for (const r of renderers) {
-      const data = (r.data_source as ColumnDataSource).data;
-      [data.left, data.bottom] = [data.bottom, data.left];
-      [data.right, data.top] = [data.top, data.right];
+      const data = (r.data_source as ColumnDataSource).data
+      ;[data.left, data.bottom] = [data.bottom, data.left]
+      ;[data.right, data.top] = [data.top, data.right]
     }
   }
 
@@ -349,11 +344,11 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   }
 
   const hover = new HoverTool({
-    renderers: renderers,
+    renderers,
     tooltips: tooltip,
     point_policy: "snap_to_data",
-    anchor: anchor,
-    attachment: attachment,
+    anchor,
+    attachment,
   })
   plot.add_tools(hover)
 

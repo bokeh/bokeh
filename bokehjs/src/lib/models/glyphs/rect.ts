@@ -1,12 +1,12 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable} from "core/types"
+import {Class} from "core/class"
+import * as types from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import * as spatial from "core/util/spatial"
-import {IBBox} from "core/util/bbox"
 import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -144,8 +144,7 @@ export class RectView extends CenterRotatableView {
 
     const hits = []
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for (const i of this.index.indices(bbox)) {
+    for (const i of this.index.indices({x0, x1, y0, y1})) {
       let height_in: boolean, width_in: boolean
       if (this._angle[i]) {
         const s = Math.sin(-this._angle[i])
@@ -218,50 +217,44 @@ export class RectView extends CenterRotatableView {
     return ddist
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
-  protected _bounds({minX, maxX, minY, maxY}: spatial.Rect): spatial.Rect {
+  protected _bounds({x0, x1, y0, y1}: types.Rect): types.Rect {
     return {
-      minX: minX - this.max_w2,
-      maxX: maxX + this.max_w2,
-      minY: minY - this.max_h2,
-      maxY: maxY + this.max_h2,
+      x0: x0 - this.max_w2,
+      x1: x1 + this.max_w2,
+      y0: y0 - this.max_h2,
+      y1: y1 + this.max_h2,
     }
   }
 }
 
 export namespace Rect {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends CenterRotatable.Attrs, Mixins {
-    dilate: boolean
-  }
-
-  export interface Props extends CenterRotatable.Props {
+  export type Props = CenterRotatable.Props & LineVector & FillVector & {
     dilate: p.Property<boolean>
   }
 
-  export interface Visuals extends CenterRotatable.Visuals {}
+  export type Visuals = CenterRotatable.Visuals
 }
 
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
-
   properties: Rect.Props
+  default_view: Class<RectView>
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Rect'
+  static init_Rect(): void {
     this.prototype.default_view = RectView
-    this.define({
-      dilate: [ p.Bool,        false ],
+    this.define<Rect.Props>({
+      dilate: [ p.Boolean, false ],
     })
   }
 }
-Rect.initClass()

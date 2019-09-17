@@ -1,14 +1,43 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import datetime as dt
 
 import mock
-import pytest
 
+# External imports
+
+# Bokeh imports
 from bokeh.core.validation import check_integrity
-from bokeh.models import Range1d, DataRange1d, FactorRange
 
 from .utils.property_utils import check_properties_existence
+
+# Module under test
+from bokeh.models import Range1d, DataRange1d, FactorRange
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Test_Range1d(object):
 
@@ -204,16 +233,28 @@ class Test_FactorRange(object):
 
     def test_duplicate_factors_raises_validation_error(self):
         r = FactorRange("foo", "bar", "foo")
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
         r = FactorRange(factors=[("foo", "a"), ("foo", "b"),  ("foo", "a")])
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
         r = FactorRange(factors=[("foo", "a", "1"), ("foo", "a", "2"),  ("foo", "a", "1")])
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

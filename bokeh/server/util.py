@@ -1,13 +1,47 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide some utility functions useful for implementing different
 components in ``bokeh.server``.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import netutil
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'bind_sockets',
+    'check_whitelist',
+    'create_hosts_whitelist',
+    'match_host',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def bind_sockets(address, port):
     ''' Bind a socket to a port on an address.
@@ -139,7 +173,7 @@ def match_host(host, pattern):
             wildcards for ip address octets or ports.
 
     This function will return ``True`` if the hostname matches the pattern,
-    including any widcards. If the pattern contains a port, the host string
+    including any wildcards. If the pattern contains a port, the host string
     must also contain a matching port.
 
     Returns:
@@ -204,3 +238,15 @@ def match_host(host, pattern):
         else:
             return False
     return True
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

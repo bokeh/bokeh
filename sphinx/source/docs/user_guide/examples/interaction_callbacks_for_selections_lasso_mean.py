@@ -15,27 +15,27 @@ p.circle('x', 'y', color='color', size=8, source=s, alpha=0.4)
 s2 = ColumnDataSource(data=dict(x=[0, 1], ym=[0.5, 0.5]))
 p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
-s.callback = CustomJS(args=dict(s2=s2), code="""
-        var inds = cb_obj.selected.indices;
-        var d = cb_obj.data;
-        var ym = 0
+s.selected.js_on_change('indices', CustomJS(args=dict(s=s, s2=s2), code="""
+    const inds = s.selected.indices;
+    const d = s.data;
+    var ym = 0
 
-        if (inds.length == 0)
-            return;
+    if (inds.length == 0)
+        return;
 
-        for (var i = 0; i < d['color'].length; i++) {
-            d['color'][i] = "navy"
-        }
-        for (var i = 0; i < inds.length; i++) {
-            d['color'][inds[i]] = "firebrick"
-            ym += d['y'][inds[i]]
-        }
+    for (var i = 0; i < d['color'].length; i++) {
+        d['color'][i] = "navy"
+    }
+    for (var i = 0; i < inds.length; i++) {
+        d['color'][inds[i]] = "firebrick"
+        ym += d['y'][inds[i]]
+    }
 
-        ym /= inds.length
-        s2.data['ym'] = [ym, ym]
+    ym /= inds.length
+    s2.data['ym'] = [ym, ym]
 
-        cb_obj.change.emit();
-        s2.change.emit();
-    """)
+    s.change.emit();
+    s2.change.emit();
+"""))
 
 show(p)

@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Bokeh comes with a number of interactive tools.
 
 There are five types of tool interactions:
@@ -13,17 +19,32 @@ There are five types of tool interactions:
 
 For the first three comprise the category of gesture tools, and only
 one tool for each gesture can be active at any given time. The active
-tool is indicated on the toolbar by a highlight next to to the tool.
+tool is indicated on the toolbar by a highlight next to the tool.
 Actions are immediate or modal operations that are only activated when
 their button in the toolbar is pressed. Inspectors are passive tools that
 merely report information or annotate the plot in some way, and may
 always be active regardless of what other tools are currently active.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from types import FunctionType
 
+# External imports
+
+# Bokeh imports
 from ..core.enums import (Anchor, Dimension, Dimensions, Location,
                           TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
@@ -48,6 +69,54 @@ from .glyphs import XYGlyph, Rect, Patches, MultiLine
 from .ranges import Range1d
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Action',
+    'BoxEditTool',
+    'BoxSelectTool',
+    'BoxZoomTool',
+    'CrosshairTool',
+    'CustomAction',
+    'CustomJSHover',
+    'Drag',
+    'EditTool',
+    'FreehandDrawTool',
+    'HelpTool',
+    'HoverTool',
+    'Inspection',
+    'Gesture',
+    'LassoSelectTool',
+    'PanTool',
+    'PointDrawTool',
+    'PolyDrawTool',
+    'PolyEditTool',
+    'PolySelectTool',
+    'ProxyToolbar',
+    'RangeTool',
+    'RedoTool',
+    'ResetTool',
+    'SaveTool',
+    'Scroll',
+    'Tap',
+    'TapTool',
+    'Tool',
+    'Toolbar',
+    'ToolbarBase',
+    'ToolbarBox',
+    'UndoTool',
+    'WheelPanTool',
+    'WheelZoomTool',
+    'ZoomInTool',
+    'ZoomOutTool',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Tool(Model):
@@ -97,7 +166,7 @@ class Inspection(Gesture):
     '''
     toggleable = Bool(True, help="""
     Whether an on/off toggle button should appear in the toolbar for this
-    inpection tool. If ``False``, the viewers of a plot will not be able to
+    inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
     """)
 
@@ -110,6 +179,11 @@ class ToolbarBase(Model):
     logo = Enum("normal", "grey", help="""
     What version of the Bokeh logo to display on the toolbar. If
     set to None, no logo will be displayed.
+    """)
+
+    autohide = Bool(default=False, help="""
+    Whether the toolbar will be hidden by default. Default: False.
+    If True, hides toolbar when cursor is not in canvas.
     """)
 
     tools = List(Instance(Tool), help="""
@@ -149,7 +223,10 @@ class Toolbar(ToolbarBase):
     """)
 
 class ProxyToolbar(ToolbarBase):
-    ''' A toolbar that allow to merge and proxy tools of toolbars in multiple plots. '''
+    ''' A toolbar that allow to merge and proxy tools of toolbars in multiple
+    plots.
+
+    '''
 
 class ToolbarBox(LayoutDOM):
     ''' A layoutable toolbar that can accept the tools of multiple plots, and
@@ -166,14 +243,12 @@ class ToolbarBox(LayoutDOM):
 class PanTool(Drag):
     ''' *toolbar icon*: |pan_icon|
 
-    The pan tool allows the user to pan a Plot by left-dragging
-    a mouse, or on touch devices by dragging a finger or stylus, across
-    the plot region.
+    The pan tool allows the user to pan a Plot by left-dragging a mouse, or on
+    touch devices by dragging a finger or stylus, across the plot region.
 
-    The pan tool also activates the border regions of a Plot for "single
-    axis" panning. For instance, dragging in the vertical border or axis
-    will effect a pan in the vertical direction only, with the horizontal
-    dimension kept fixed.
+    The pan tool also activates the border regions of a Plot for "single axis"
+    panning. For instance, dragging in the vertical border or axis will effect
+    a pan in the vertical direction only, with horizontal dimension kept fixed.
 
     .. |pan_icon| image:: /_images/icons/Pan.png
         :height: 18pt
@@ -189,7 +264,7 @@ class PanTool(Drag):
 
 DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     level="overlay",
-    render_mode="css",
+    render_mode="canvas",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -266,8 +341,8 @@ class WheelPanTool(Scroll):
     '''
 
     dimension = Enum(Dimension, default="width", help="""
-    Which dimension the wheel pan tool is constrained to act in. By
-    default the wheel pan tool will pan the plot along the x-axis.
+    Which dimension the wheel pan tool is constrained to act in. By default the
+    wheel pan tool will pan the plot along the x-axis.
     """)
 
 class WheelZoomTool(Scroll):
@@ -287,21 +362,21 @@ class WheelZoomTool(Scroll):
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the wheel zoom tool is constrained to act in. By
-    default the wheel zoom tool will zoom in any dimension, but can be
-    configured to only zoom horizontally across the width of the plot, or
-    vertically across the height of the plot.
+    Which dimensions the wheel zoom tool is constrained to act in. By default
+    the wheel zoom tool will zoom in any dimension, but can be configured to
+    only zoom horizontally across the width of the plot, or vertically across
+    the height of the plot.
     """)
 
     maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains its focus position. Setting it
-    to False results in a more "gliding" behavior, allowing one to
-    zoom out more smoothly, at the cost of losing the focus position.
+    Whether or not zooming tool maintains its focus position. Setting to False
+    results in a more "gliding" behavior, allowing one to zoom out more
+    smoothly, at the cost of losing the focus position.
     """)
 
     zoom_on_axis = Bool(default=True, help="""
-    Whether scrolling on an axis (outside the central plot area) should
-    zoom that dimension.
+    Whether scrolling on an axis (outside the central plot area) should zoom
+    that dimension.
     """)
 
     speed = Float(default=1/600, help="""
@@ -357,12 +432,9 @@ class SaveTool(Action):
 class ResetTool(Action):
     ''' *toolbar icon*: |reset_icon|
 
-    The reset tool is an action. When activated in the toolbar, the tool
-    resets the data bounds of the plot to their values when the plot was
-    initially created.
-
-    Optionally, the reset tool also resets the plat canvas dimensions to
-    their original size
+    The reset tool is an action. When activated in the toolbar, the tool resets
+    the data bounds of the plot to their values when the plot was initially
+    created.
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 18pt
@@ -405,7 +477,7 @@ class TapTool(Tap):
     This tool can be configured to either make selections or inspections
     on associated data sources. The difference is that selection changes
     propagate across bokeh and other components (e.g. selection glyph)
-    will be notified. Inspecions don't act like this, so it's useful to
+    will be notified. Inspections don't act like this, so it's useful to
     configure `callback` when setting `behavior='inspect'`.
     """)
 
@@ -428,11 +500,11 @@ class TapTool(Tap):
     ``.type`` is the geometry type, which always a ``.point`` for a tap event.
     ``.sx`` and ``.sy`` are the screen X and Y coordinates where the tap occurred.
     ``.x`` and ``.y`` are the converted data coordinates for the item that has
-    been selected. The ``.x`` and ``.y`` values are based on the axis assiged
+    been selected. The ``.x`` and ``.y`` values are based on the axis assigned
     to that glyph.
 
     .. note::
-        This callback does *not* execute on every tap, only when a glyphs is
+        This callback does *not* execute on every tap, only when a glyph is
         "hit". If you would like to execute a callback on every mouse tap,
         please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 
@@ -441,14 +513,14 @@ class TapTool(Tap):
 class CrosshairTool(Inspection):
     ''' *toolbar icon*: |crosshair_icon|
 
-    The crosshair tool is a passive inspector tool. It is generally on
-    at all times, but can be configured in the inspector's menu
-    associated with the *toolbar icon* shown above.
+    The crosshair tool is a passive inspector tool. It is generally on at all
+    times, but can be configured in the inspector's menu associated with the
+    *toolbar icon* shown above.
 
-    The crosshair tool draws a crosshair annotation over the plot,
-    centered on the current mouse position. The crosshair tool may be
-    configured to draw across only one dimension by setting the
-    ``dimension`` property to only ``width`` or ``height``.
+    The crosshair tool draws a crosshair annotation over the plot, centered on
+    the current mouse position. The crosshair tool may be configured to draw
+    across only one dimension by setting the ``dimension`` property to only
+    ``width`` or ``height``.
 
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
         :height: 18pt
@@ -456,10 +528,10 @@ class CrosshairTool(Inspection):
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the crosshair tool is to track. By default, both a
-    vertical and horizontal line will be drawn. If only "width" is supplied,
-    only a horizontal line will be drawn. If only "height" is supplied,
-    only a vertical line will be drawn.
+    Which dimensions the crosshair tool is to track. By default, both vertical
+    and horizontal lines will be drawn. If only "width" is supplied, only a
+    horizontal line will be drawn. If only "height" is supplied, only a
+    vertical line will be drawn.
     """)
 
     line_color = Color(default="black", help="""
@@ -506,24 +578,27 @@ DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
 class BoxZoomTool(Drag):
     ''' *toolbar icon*: |box_zoom_icon|
 
-    The box zoom tool allows users to define a rectangular
-    region of a Plot to zoom to by dragging he mouse or a
-    finger over the plot region. The end of the drag
-    event indicates the selection region is ready.
+    The box zoom tool allows users to define a rectangular egion of a Plot to
+    zoom to by dragging he mouse or a finger over the plot region. The end of
+    the drag event indicates the selection region is ready.
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
         :height: 18pt
 
+    .. note::
+        ``BoxZoomTool`` is incompatible with ``GMapPlot`` due to the manner in
+        which Google Maps exert explicit control over aspect ratios. Adding
+        this tool to a ``GMapPlot`` will have no effect.
+
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom box is to be free in. By default,
-    users may freely draw zoom boxes with any dimensions. If only
-    "width" is supplied, the box will be constrained to span the entire
-    vertical space of the plot, only the horizontal dimension can be
-    controlled. If only "height" is supplied, the box will be constrained
-    to span the entire horizontal space of the plot, and the vertical
-    dimension can be controlled.
+    Which dimensions the zoom box is to be free in. By default, users may
+    freely draw zoom boxes with any dimensions. If only "width" is supplied,
+    the box will be constrained to span the entire vertical space of the plot,
+    only the horizontal dimension can be controlled. If only "height" is
+    supplied, the box will be constrained to span the entire horizontal space
+    of the plot, and the vertical dimension can be controlled.
     """)
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
@@ -557,10 +632,10 @@ class ZoomInTool(Action):
     '''
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom-in tool is constrained to act in. By
-    default the zoom-in zoom tool will zoom in any dimension, but can be
-    configured to only zoom horizontally across the width of the plot, or
-    vertically across the height of the plot.
+    Which dimensions the zoom-in tool is constrained to act in. By default the
+    zoom-in zoom tool will zoom in any dimension, but can be configured to only
+    zoom horizontally across the width of the plot, or vertically across the
+    height of the plot.
     """)
 
     factor = Percent(default=0.1, help="""
@@ -578,10 +653,10 @@ class ZoomOutTool(Action):
 
     '''
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom-out tool is constrained to act in. By
-    default the zoom-out tool will zoom in any dimension, but can be
-    configured to only zoom horizontally across the width of the plot, or
-    vertically across the height of the plot.
+    Which dimensions the zoom-out tool is constrained to act in. By default the
+    zoom-out tool will zoom in any dimension, but can be configured to only
+    zoom horizontally across the width of the plot, or vertically across the
+    height of the plot.
     """)
 
     factor = Percent(default=0.1, help="""
@@ -591,10 +666,9 @@ class ZoomOutTool(Action):
 class BoxSelectTool(Drag):
     ''' *toolbar icon*: |box_select_icon|
 
-    The box selection tool allows users to make selections on a
-    Plot by indicating a rectangular region by dragging the
-    mouse or a finger over the plot region. The end of the drag
-    event indicates the selection region is ready.
+    The box selection tool allows users to make selections on a Plot by showing
+    a rectangular region by dragging the mouse or a finger over the plot area.
+    The end of the drag event indicates the selection region is ready.
 
     See :ref:`userguide_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
@@ -606,8 +680,8 @@ class BoxSelectTool(Drag):
     '''
 
     names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
+    A list of names to query for. If set, only renderers that have a matching
+    value for their ``name`` attribute will be used.
     """)
 
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
@@ -616,24 +690,23 @@ class BoxSelectTool(Drag):
     """)
 
     select_every_mousemove = Bool(False, help="""
-    Whether a selection computation should happen on every mouse
-    event, or only once, when the selection region is completed. Default: False
+    Whether a selection computation should happen on every mouse event, or only
+    once, when the selection region is completed. Default: False
     """)
 
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the box selection is to be free in. By default,
-    users may freely draw selections boxes with any dimensions. If only
-    "width" is supplied, the box will be constrained to span the entire
-    vertical space of the plot, only the horizontal dimension can be
-    controlled. If only "height" is supplied, the box will be constrained
-    to span the entire horizontal space of the plot, and the vertical
-    dimension can be controlled.
+    Which dimensions the box selection is to be free in. By default, users may
+    freely draw selections boxes with any dimensions. If only "width" is set,
+    the box will be constrained to span the entire vertical space of the plot,
+    only the horizontal dimension can be controlled. If only "height" is set,
+    the box will be constrained to span the entire horizontal space of the
+    plot, and the vertical dimension can be controlled.
     """)
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.
-    The cb_data parameter that is available to the Callback code will contain
-    one BoxSelectTool-specific field:
+    The ``cb_data`` parameter that is available to the Callback code will contain
+    one ``BoxSelectTool``-specific field:
 
     :geometry: object containing the coordinates of the selection box
     """)
@@ -662,19 +735,19 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
 class LassoSelectTool(Drag):
     ''' *toolbar icon*: |lasso_select_icon|
 
-    The lasso selection tool allows users to make selections on a
-    Plot by indicating a free-drawn "lasso" region by dragging the
-    mouse or a finger over the plot region. The end of the drag
-    event indicates the selection region is ready.
+    The lasso selection tool allows users to make selections on a Plot by
+    indicating a free-drawn "lasso" region by dragging the mouse or a finger
+    over the plot region. The end of the drag event indicates the selection
+    region is ready.
 
     See :ref:`userguide_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
     .. note::
-        Selections can be comprised of multiple regions, even those
-        made by different selection tools. Hold down the <<shift>> key
-        while making a selection to append the new selection to any
-        previous selection that might exist.
+        Selections can be comprised of multiple regions, even those made by
+        different selection tools. Hold down the <<shift>> key while making a
+        selection to append the new selection to any previous selection that
+        might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
         :height: 18pt
@@ -682,24 +755,24 @@ class LassoSelectTool(Drag):
     '''
 
     names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
+    A list of names to query for. If set, only renderers that have a matching
+    value for their ``name`` attribute will be used.
     """)
 
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
+    An explicit list of renderers to hit test against. If unset, defaults to
+    all renderers on a plot.
     """)
 
     select_every_mousemove = Bool(True, help="""
-    Whether a selection computation should happen on every mouse
-    event, or only once, when the selection region is completed. Default: True
+    Whether a selection computation should happen on every mouse event, or only
+    once, when the selection region is completed.
     """)
 
     callback = Instance(Callback, help="""
-    A callback to run in the browser on every selection of a lasso area.
-    The cb_data parameter that is available to the Callback code will contain
-    one LassoSelectTool-specific field:
+    A callback to run in the browser on every selection of a lasso area. The
+    ``cb_data`` parameter that is available to the Callback code will contain
+    one ``LassoSelectTool``-specific field:
 
     :geometry: object containing the coordinates of the lasso area
     """)
@@ -732,18 +805,18 @@ class PolySelectTool(Tap):
     '''
 
     names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
+    A list of names to query for. If set, only renderers that  have a matching
+    value for their ``name`` attribute will be used.
     """)
 
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
+    An explicit list of renderers to hit test against. If unset, defaults to
+    all renderers on a plot.
     """)
 
     callback = Instance(Callback, help="""
-    A callback to run in the browser on completion of drawing a polygon.
-    The cb_data parameter that is available to the Callback code will contain
+    A callback to run in the browser on completion of drawing a polygon. The
+    ``cb_data`` parameter that is available to the Callback code will contain
     one PolySelectTool-specific field:
 
     :geometry: object containing the coordinates of the polygon
@@ -807,11 +880,11 @@ class CustomJSHover(Model):
 
     @classmethod
     def from_py_func(cls, code):
-        ''' Create a CustomJSHover instance from a Python functions. The
+        ''' Create a ``CustomJSHover`` instance from a Python functions. The
         function is translated to JavaScript using PScript.
 
-        The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        The python functions must have no positional arguments. It is
+        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
         arguments to the functions.
 
         The ``code`` function namespace will contain the variable ``value``
@@ -825,6 +898,10 @@ class CustomJSHover(Model):
             CustomJSHover
 
         '''
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use CustomJSHover directly instead.")
+
         if not isinstance(code, FunctionType):
             raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
 
@@ -856,13 +933,13 @@ class CustomJSHover(Model):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        ''' Create a CustomJSHover instance from a CoffeeScript snippet.
-        The function bodies are translated to JavaScript functions using
-        node and therefore require return statements.
+        ''' Create a CustomJSHover instance from a CoffeeScript snippet. The
+        function bodies are translated to JavaScript functions using node and
+        therefore require return statements.
 
-        The ``code`` snippet namespace will contain the variable ``value``
-        (the untransformed value) at render time as well as ``format`` and
-        ``special_vars`` as described in the class description.
+        The ``code`` snippet namespace will contain the variable ``value`` (the
+        untransformed value) at render time as well as ``special_vars`` and
+        ``format`` as described in the class description.
 
         Example:
 
@@ -885,9 +962,9 @@ class CustomJSHover(Model):
         return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
-    A mapping of names to Bokeh plot objects. These objects are made
-    available to the callback code snippet as the values of named
-    parameters to the callback.
+    A mapping of names to Bokeh plot objects. These objects are made available
+    to the callback code snippet as the values of named parameters to the
+    callback.
     """)
 
     code = String(default="", help="""
@@ -926,15 +1003,15 @@ class CustomJSHover(Model):
 class HoverTool(Inspection):
     ''' *toolbar icon*: |crosshair_icon|
 
-    The hover tool is a passive inspector tool. It is generally on at
-    all times, but can be configured in the inspector's menu associated
-    with the *toolbar icon* shown above.
+    The hover tool is a passive inspector tool. It is generally on at all
+    times, but can be configured in the inspector's menu associated with the
+    *toolbar icon* shown above.
 
-    By default, the hover tool displays informational tooltips whenever
-    the cursor is directly over a glyph. The data to show comes from the
-    glyph's data source, and what is to be displayed is configurable with
-    the ``tooltips`` attribute that maps display names to columns in the
-    data source, or to special known variables.
+    By default, the hover tool displays informational tooltips whenever the
+    cursor is directly over a glyph. The data to show comes from the glyph's
+    data source, and what to display is configurable with the ``tooltips``
+    property that maps display names to columns in the data source, or to
+    special known variables.
 
     Here is an example of how to configure and use the hover tool::
 
@@ -951,7 +1028,7 @@ class HoverTool(Inspection):
             ("total", "@total{$0,0.00}"
         ]
 
-    You can also supply a ``Callback`` to the HoverTool, to build custom
+    You can also supply a ``Callback`` to the ``HoverTool``, to build custom
     interactions on hover. In this case you may want to turn the tooltips
     off by setting ``tooltips=None``.
 
@@ -985,19 +1062,19 @@ class HoverTool(Inspection):
     '''
 
     names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
+    A list of names to query for. If set, only renderers that have a matching
+    value for their ``name`` attribute will be used.
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), defatult="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset, defaults to
+    all renderers on a plot.
     """)
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the input's value changes. The
-    cb_data parameter that is available to the Callback code will contain two
-    HoverTool specific fields:
+    ``cb_data`` parameter that is available to the Callback code will contain two
+    ``HoverTool`` specific fields:
 
     :index: object containing the indices of the hovered points in the data source
     :geometry: object containing the coordinates of the hover cursor
@@ -1083,7 +1160,7 @@ class HoverTool(Inspection):
         tool.formatters = dict(date="datetime")
 
     will cause format specifications for the "date" column to be interpreted
-    according to the "datetime" formatting scheme. The following schemed are
+    according to the "datetime" formatting scheme. The following schemes are
     available:
 
     :``"numeral"``:
@@ -1139,11 +1216,11 @@ class HoverTool(Inspection):
     """)
 
     show_arrow = Bool(default=True, help="""
-    Whether tooltip's arrow should be showed.
+    Whether tooltip's arrow should be shown.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
-DEFAULT_HELP_URL = "https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools"
+DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"
 
 class HelpTool(Action):
     ''' A button tool to provide a "help" link to users.
@@ -1187,75 +1264,82 @@ class EditTool(Gesture):
 
     '''
 
+    custom_tooltip = String(None, help="""
+    A custom tooltip label to override the default name.
+    """)
+
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
     Defines the value to insert on non-coordinate columns when a new
-    glyph is inserted into the ColumnDataSource columns, e.g. when a
+    glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
     point will add the x and y-coordinates to 'x' and 'y' columns and
     the color column will be filled with the defined empty value.
     """)
 
+    custom_icon = Image(help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as a string filename for an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array.
+    """)
+
     renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers corresponding to scatter glyphs
-    that may be edited.
+    An explicit list of renderers corresponding to scatter glyphs that may
+    be edited.
     """)
 
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
 
-    The BoxEditTool allows drawing, dragging and deleting ``Rect``
-    glyphs on one or more renderers by editing the underlying
-    ``ColumnDataSource`` data. Like other drawing tools, the renderers
-    that are to be edited must be supplied explicitly as a list. When
-    drawing a new box the data will always be added to the
-    ``ColumnDataSource`` on the first supplied renderer.
+    Allows drawing, dragging and deleting ``Rect`` glyphs on one or more
+    renderers by editing the underlying ``ColumnDataSource`` data. Like other
+    drawing tools, the renderers that are to be edited must be supplied
+    explicitly as a list. When drawing a new box the data will always be added
+    to the ``ColumnDataSource`` on the first supplied renderer.
 
-    The tool will automatically modify the columns on the data source
-    corresponding to the ``x``, ``y``, ``width`` and ``height`` values
-    of the glyph. Any additional columns in the data source will be
-    padded with the declared ``empty_value``, when adding a new box.
+    The tool will modify the columns on the data source corresponding to the
+    ``x``, ``y``, ``width`` and ``height`` values of the glyph. Any additional
+    columns in the data source will be padded with ``empty_value``, when adding
+    a new box.
 
     The supported actions include:
 
-    * Add box: Hold shift then click and drag anywhere on the plot or
-      double tap once to start drawing, move the mouse and double tap
-      again to finish drawing.
+    * Add box: Hold shift then click and drag anywhere on the plot or double
+      tap once to start drawing, move the mouse and double tap again to finish
+      drawing.
 
-    * Move box: Click and drag an existing box, the box will be
-      dropped once you let go of the mouse button.
+    * Move box: Click and drag an existing box, the box will be dropped once
+      you let go of the mouse button.
 
-    * Delete box: Tap a box to select it then press <<backspace>> key
-      while the mouse is within the plot area.
+    * Delete box: Tap a box to select it then press <<backspace>> key while the
+      mouse is within the plot area.
 
     To **Move** or **Delete** multiple boxes at once:
 
-    * Move selection: Select box(es) with <<shift>>+tap (or another
-      selection tool) then drag anywhere on the plot. Selecting and
-      then dragging on a specific box will move both.
+    * Move selection: Select box(es) with <<shift>>+tap (or another selection
+      tool) then drag anywhere on the plot. Selecting and then dragging on a
+      specific box will move both.
 
-    * Delete selection: Select box(es) with <<shift>>+tap (or another
-      selection tool) then press <<backspace>> while the mouse is
-      within the plot area.
+    * Delete selection: Select box(es) with <<shift>>+tap (or another selection
+      tool) then press <<backspace>> while the mouse is within the plot area.
 
     .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
         :height: 18pt
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the box drawing is to be free in. By default,
-    users may freely draw boxes with any dimensions. If only "width"
-    is supplied, the box will be constrained to span the entire
-    vertical space of the plot, only the horizontal dimension can be
-    controlled. If only "height" is supplied, the box will be
-    constrained to span the entire horizontal space of the plot, and
-    the vertical dimension can be controlled.
+    Which dimensions the box drawing is to be free in. By default, users may
+    freely draw boxes with any dimensions. If only "width" is set, the box will
+    be constrained to span the entire vertical space of the plot, only the
+    horizontal dimension can be controlled. If only "height" is set, the box
+    will be constrained to span the entire horizontal space of the plot, and the
+    vertical dimension can be controlled.
     """)
 
     num_objects = Int(default=0, help="""
-    Defines a limit on the number of boxes that can be drawn. By
-    default there is no limit on the number of objects, but if enabled
-    the oldest drawn box will be dropped to make space for the new box
-    being added.
+    Defines a limit on the number of boxes that can be drawn. By default there
+    is no limit on the number of objects, but if enabled the oldest drawn box
+    will be dropped to make space for the new box being added.
     """)
 
     @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
@@ -1271,17 +1355,17 @@ class BoxEditTool(EditTool, Drag, Tap):
 class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
 
-    The PointDrawTool allows adding, dragging and deleting point-like
-    glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
+    The PointDrawTool allows adding, dragging and deleting point-like glyphs
+    (i.e subclasses of``XYGlyph``) on one or more renderers by editing the
     underlying ``ColumnDataSource`` data. Like other drawing tools, the
-    renderers that are to be edited must be supplied explicitly as a list.
-    Any newly added points will be inserted on the ``ColumnDataSource`` of
-    the first supplied renderer.
+    renderers that are to be edited must be supplied explicitly as a list. Any
+    newly added points will be inserted on the ``ColumnDataSource`` of the
+    first supplied renderer.
 
-    The tool will automatically modify the columns on the data source
-    corresponding to the ``x`` and ``y`` values of the glyph. Any additional
-    columns in the data source will be padded with the given ``empty_value``
-    when adding a new point.
+    The tool will modify the columns on the data source corresponding to the
+    ``x`` and ``y`` values of the glyph. Any additional columns in the data
+    source will be padded with the given ``empty_value`` when adding a new
+    point.
 
     .. note::
         The data source updates will trigger data change events continuously
@@ -1304,16 +1388,17 @@ class PointDrawTool(EditTool, Drag, Tap):
     '''
 
     add = Bool(default=True, help="""
-    Enables adding of new points on tap events.""")
+    Enables adding of new points on tap events.
+    """)
 
     drag = Bool(default=True, help="""
-    Enables dragging of existing points on pan events.""")
+    Enables dragging of existing points on pan events.
+    """)
 
     num_objects = Int(default=0, help="""
-    Defines a limit on the number of points that can be drawn. By
-    default there is no limit on the number of objects, but if enabled
-    the oldest drawn point will be dropped to make space for the new
-    point.
+    Defines a limit on the number of points that can be drawn. By default there
+    is no limit on the number of objects, but if enabled the oldest drawn point
+    will be dropped to make space for the new point.
     """)
 
     @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
@@ -1329,54 +1414,51 @@ class PointDrawTool(EditTool, Drag, Tap):
 class PolyDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
 
-    The PolyDrawTool allows drawing, selecting and deleting
-    ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
-    editing the underlying ColumnDataSource data. Like other drawing
-    tools, the renderers that are to be edited must be supplied
-    explicitly as a list.
+    The PolyDrawTool allows drawing, selecting and deleting ``Patches`` and
+    ``MultiLine`` glyphs on one or more renderers by editing the underlying
+    ``ColumnDataSource`` data. Like other drawing tools, the renderers that
+    are to be edited must be supplied explicitly.
 
-    The tool will automatically modify the columns on the data source
-    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-    additional columns in the data source will be padded with the
-    declared ``empty_value``, when adding a new point.
+    The tool will modify the columns on the data source corresponding to the
+    ``xs`` and ``ys`` values of the glyph. Any additional columns in the data
+    source will be padded with the declared ``empty_value``, when adding a new
+    point.
 
-    If a ``vertex_renderer`` with an point-like glyph is supplied the
-    PolyDrawTool will use it to display the vertices of the
-    multi-lines/patches on all supplied renderers. This also enables
-    the ability to snap to existing vertices while drawing.
+    If a ``vertex_renderer`` with an point-like glyph is supplied then the
+    ``PolyDrawTool`` will use it to display the vertices of the multi-lines or
+    patches on all supplied renderers. This also enables the ability to snap
+    to existing vertices while drawing.
 
     The supported actions include:
 
-    * Add patch/multi-line: Double tap to add the first vertex, then
-      use tap to add each subsequent vertex, to finalize the draw
-      action double tap to insert the final vertex or press the <<esc>
-      key.
+    * Add patch or multi-line: Double tap to add the first vertex, then use tap
+      to add each subsequent vertex, to finalize the draw action double tap to
+      insert the final vertex or press the <<esc> key.
 
-    * Move patch/multi-line: Tap and drag an existing
-      patch/multi-line, the point will be dropped once you let go of
-      the mouse button.
+    * Move patch or ulti-line: Tap and drag an existing patch/multi-line, the
+      point will be dropped once you let go of the mouse button.
 
-    * Delete patch/multi-line: Tap a patch/multi-line to select it
-      then press <<backspace>> key while the mouse is within the plot
-      area.
+    * Delete patch or multi-line: Tap a patch/multi-line to select it then
+      press <<backspace>> key while the mouse is within the plot area.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 18pt
     '''
 
     drag = Bool(default=True, help="""
-    Enables dragging of existing patches and multi-lines on pan events.""")
+    Enables dragging of existing patches and multi-lines on pan events.
+    """)
 
     num_objects = Int(default=0, help="""
-    Defines a limit on the number of patches or multi-lines that can
-    be drawn. By default there is no limit on the number of objects,
-    but if enabled the oldest drawn patch or multi-line will be
-    dropped to make space for the new patch or multi-line.
+    Defines a limit on the number of patches or multi-lines that can be drawn.
+    By default there is no limit on the number of objects, but if enabled the
+    oldest drawn patch or multi-line will be dropped to make space for the new
+    patch or multi-line.
     """)
 
     vertex_renderer = Instance(GlyphRenderer, help="""
-    The renderer used to render the vertices of a selected line or
-    polygon.""")
+    The renderer used to render the vertices of a selected line or polygon.
+    """)
 
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
@@ -1399,32 +1481,30 @@ class PolyDrawTool(EditTool, Drag, Tap):
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
 
-    The FreehandDrawTool allows freehand drawing of ``Patches`` and
-    ``MultiLine`` glyphs. The glyph to draw may be defined via the
-    ``renderers`` property.
+    Allows freehand drawing of ``Patches`` and ``MultiLine`` glyphs. The glyph
+    to draw may be defined via the ``renderers`` property.
 
-    The tool will automatically modify the columns on the data source
-    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-    additional columns in the data source will be padded with the
-    declared ``empty_value``, when adding a new point.
+    The tool will modify the columns on the data source corresponding to the
+    ``xs`` and ``ys`` values of the glyph. Any additional columns in the data
+    source will be padded with the declared ``empty_value``, when adding a new
+    point.
 
     The supported actions include:
 
     * Draw vertices: Click and drag to draw a line
 
-    * Delete patch/multi-line: Tap a patch/multi-line to select it
-      then press <<backspace>> key while the mouse is within the plot
-      area.
+    * Delete patch/multi-line: Tap a patch/multi-line to select it then press
+      <<backspace>> key while the mouse is within the plot area.
 
     .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
         :height: 18pt
     '''
 
     num_objects = Int(default=0, help="""
-    Defines a limit on the number of patches or multi-lines that can
-    be drawn. By default there is no limit on the number of objects,
-    but if enabled the oldest drawn patch or multi-line will be
-    overwritten when the limit is reached.
+    Defines a limit on the number of patches or multi-lines that can be drawn.
+    By default there is no limit on the number of objects, but if enabled the
+    oldest drawn patch or multi-line will be overwritten when the limit is
+    reached.
     """)
 
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
@@ -1440,31 +1520,29 @@ class FreehandDrawTool(EditTool, Drag, Tap):
 class PolyEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
 
-    The PolyEditTool allows editing the vertices of one or more
-    ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
-    be defined via the ``renderers`` property and the renderer for the
-    vertices can be defined via the ``vertex_renderer``, which must
-    render a point-like Glyph (of ``XYGlyph`` type).
+    The PolyEditTool allows editing the vertices of one or more ``Patches`` or
+    ``MultiLine`` glyphs. Glyphs to be edited are defined via the ``renderers``
+    property and a renderer for the vertices is set via the ``vertex_renderer``
+    property (must render a point-like Glyph (a subclass of ``XYGlyph``).
 
-    The tool will automatically modify the columns on the data source
-    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-    additional columns in the data source will be padded with the
-    declared ``empty_value``, when adding a new point.
+    The tool will modify the columns on the data source corresponding to the
+    ``xs`` and ``ys`` values of the glyph. Any additional columns in the data
+    source will be padded with the declared``empty_value``, when adding a new
+    point.
 
     The supported actions include:
 
     * Show vertices: Double tap an existing patch or multi-line
 
-    * Add vertex: Double tap an existing vertex to select it, the tool
-      will draw the next point, to add it tap in a new location. To
-      finish editing and add a point double tap otherwise press the
-      <<esc> key to cancel.
+    * Add vertex: Double tap an existing vertex to select it, the tool will
+      draw the next point, to add it tap in a new location. To finish editing
+      and add a point double tap otherwise press the <<esc> key to cancel.
 
-    * Move vertex: Drag an existing vertex and let go of the mouse
-      button to release it.
+    * Move vertex: Drag an existing vertex and let go of the mouse button to
+      release it.
 
-    * Delete vertex: After selecting one or more vertices press
-      <<backspace>> while the mouse cursor is within the plot area.
+    * Delete vertex: After selecting one or more vertices press <<backspace>>
+      while the mouse cursor is within the plot area.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
         :height: 18pt
@@ -1490,3 +1568,15 @@ class PolyEditTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

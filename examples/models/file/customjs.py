@@ -5,21 +5,19 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.callbacks import CustomJS
 from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
+from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
 from bokeh.resources import INLINE
 
 source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
         y = [5, 4, 3, 2, 2.1, 1, 1.1],
-        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"]
+        color = ["red", "green", "blue", "#2c7fb8", "grey", "#2c7fb8", "lightgrey"]
     )
 )
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-plot = Plot(x_range=xdr, y_range=ydr)
+plot = Plot()
+plot.title.text = "Click a circle execute a JavaScript callback"
 
 circle = Circle(x="x", y="y", radius=0.2, fill_color="color", line_color="black")
 circle_renderer = plot.add_glyph(source, circle)
@@ -27,12 +25,9 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
-customjs = CustomJS.from_coffeescript(args=dict(source=source), code="""
-  import {get_indices} from "core/util/selection"
-
-  for i in get_indices(source)
-    color = source.data['color'][i]
-    window.alert("Selected color: #{color}")
+customjs = CustomJS(args=dict(source=source), code="""
+  const colors = source.selected.indices.map((i) => source.data["color"][i])
+  window.alert("Selected colors: " + colors)
 """)
 
 tap = TapTool(renderers=[circle_renderer], callback=customjs)
@@ -45,6 +40,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "customjs.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Demonstration of custom callback written in CoffeeScript"))
+        f.write(file_html(doc, INLINE, "Demonstration of custom callback written in TypeScript"))
     print("Wrote %s" % filename)
     view(filename)

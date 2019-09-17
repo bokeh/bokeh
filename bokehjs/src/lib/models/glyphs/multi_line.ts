@@ -1,17 +1,16 @@
-import {IBBox} from "core/util/bbox"
 import {SpatialIndex} from "core/util/spatial"
 import {PointGeometry, SpanGeometry} from "core/geometry"
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import * as hittest from "core/hittest"
+import * as p from "core/properties"
 import {keys} from "core/util/object"
 import {min, max} from "core/util/array"
 import {isStrictNaN} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface MultiLineData extends GlyphData {
@@ -50,10 +49,10 @@ export class MultiLineView extends GlyphView {
           ys.push(y)
       }
 
-      const [minX, maxX] = [min(xs), max(xs)]
-      const [minY, maxY] = [min(ys), max(ys)]
+      const [x0, x1] = [min(xs), max(xs)]
+      const [y0, y1] = [min(ys), max(ys)]
 
-      points.push({minX, minY, maxX, maxY, i})
+      points.push({x0, y0, x1, y1, i})
     }
 
     return new SpatialIndex(points)
@@ -140,32 +139,11 @@ export class MultiLineView extends GlyphView {
   }
 
   get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
-    const {sx, sy} = geometry
-    const x2 = this._xs[i][point_i]
-    const y2 = this._ys[i][point_i]
-    const x3 = this._xs[i][point_i+1]
-    const y3 = this._ys[i][point_i+1]
-
-    let x0: number, x1: number
-    let y0: number, y1: number
-    if (geometry.type == 'point') {
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy-1, sy+1)
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx-1, sx+1)
-    } else {
-      if (geometry.direction == 'v') {
-        ;[y0, y1] = this.renderer.yscale.r_invert(sy, sy)
-        ;[x0, x1] = [x2, x3]
-      } else {
-        ;[x0, x1] = this.renderer.xscale.r_invert(sx, sx)
-        ;[y0, y1] = [y2, y3]
-      }
-    }
-
-    const {x, y} = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
-    return [x!, y!] // XXX: null is not handled at use sites
+    const [x2, y2, x3, y3] = [this._xs[i][point_i], this._ys[i][point_i], this._xs[i][point_i+1], this._ys[i][point_i+1]]
+    return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -179,36 +157,29 @@ export class MultiLineView extends GlyphView {
 }
 
 export namespace MultiLine {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    xs: NumberSpec
-    ys: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    xs: p.CoordinateSeqSpec
+    ys: p.CoordinateSeqSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
-
   properties: MultiLine.Props
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'MultiLine'
+  static init_MultiLine(): void {
     this.prototype.default_view = MultiLineView
 
     this.coords([['xs', 'ys']])
     this.mixins(['line'])
   }
 }
-MultiLine.initClass()

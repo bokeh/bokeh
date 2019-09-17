@@ -1,4 +1,4 @@
-import {difference, copy} from "./array"
+import {difference, copy, min} from "./array"
 import {isEqual} from "./eq"
 import {isArray} from "./types"
 
@@ -57,90 +57,150 @@ export class MultiDict<T> {
 
 export class Set<T> {
 
-  values: T[]
+  private _values: T[]
+
+  get values(): T[] {
+    return copy(this._values).sort()
+  }
 
   constructor(obj?: T[] | Set<T>) {
-    if (obj == null) {
-      this.values = []
-    } else if (obj instanceof Set) {
-      this.values = copy(obj.values)
-    } else {
-      this.values = this._compact(obj)
+    if (obj == null)
+      this._values = []
+    else if (obj instanceof Set)
+      this._values = copy(obj._values)
+    else {
+      this._values = []
+      for (const item of obj)
+        this.add(item)
     }
-  }
-
-  protected _compact(array: T[]): T[] {
-    const newArray: T[] = []
-
-    for (const item of array) {
-      if (newArray.indexOf(item) === -1) {
-        newArray.push(item)
-      }
-    }
-
-    return newArray
-  }
-
-  push(item: T): void {
-    if (this.missing(item))
-      this.values.push(item)
-  }
-
-  remove(item: T): void {
-    const i = this.values.indexOf(item)
-    this.values = this.values.slice(0, i).concat(this.values.slice(i + 1))
-  }
-
-  length(): number {
-    return this.values.length
-  }
-
-  includes(item: T): boolean {
-    return this.values.indexOf(item) != -1
-  }
-
-  missing(item: T): boolean {
-    return !this.includes(item)
-  }
-
-  slice(from: number, to: number): T[] {
-    return this.values.slice(from, to)
-  }
-
-  join(str: string): string {
-    return this.values.join(str)
   }
 
   toString(): string {
-    return this.join(', ')
+    return `Set([${this.values.join(",")}])`
   }
 
-  union(set: T[] | Set<T>): Set<T> {
-    set = new Set<T>(set)
-    return new Set(this.values.concat(set.values))
+  get size(): number {
+    return this._values.length
   }
 
-  intersect(set: T[] | Set<T>): Set<T> {
-    set = new Set<T>(set)
-    const newSet = new Set<T>()
+  has(item: T): boolean {
+    return this._values.indexOf(item) !== -1
+  }
 
-    for (const item of set.values) {
-      if (this.includes(item) && set.includes(item))
-        newSet.push(item)
+  add(item: T): void {
+    if (!this.has(item))
+      this._values.push(item)
+  }
+
+  remove(item: T): void {
+    const i = this._values.indexOf(item)
+    if (i !== -1)
+      this._values.splice(i, 1)
+  }
+
+  toggle(item: T): void {
+    const i = this._values.indexOf(item)
+    if (i === -1)
+      this._values.push(item)
+    else
+      this._values.splice(i, 1)
+  }
+
+  clear(): void {
+    this._values = []
+  }
+
+  union(input: T[] | Set<T>): Set<T> {
+    input = new Set<T>(input)
+    return new Set(this._values.concat(input._values))
+  }
+
+  intersect(input: T[] | Set<T>): Set<T> {
+    input = new Set<T>(input)
+    const output = new Set<T>()
+
+    for (const item of input._values) {
+      if (this.has(item) && input.has(item))
+        output.add(item)
     }
 
-    return newSet
+    return output
   }
 
-  diff(set: T[] | Set<T>): Set<T> {
-    set = new Set<T>(set)
-    const newSet = new Set<T>()
+  diff(input: T[] | Set<T>): Set<T> {
+    input = new Set<T>(input)
+    const output = new Set<T>()
 
-    for (const item of this.values) {
-      if (set.missing(item))
-        newSet.push(item)
+    for (const item of this._values) {
+      if (!input.has(item))
+        output.add(item)
     }
 
-    return newSet
+    return output
+  }
+
+  forEach(fn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any): void {
+    for (const value of this._values) {
+      fn.call(thisArg || this, value, value, this)
+    }
+  }
+}
+
+export namespace Matrix {
+  export type MapFn<T, U> = (value: T, row: number, col: number) => U
+}
+
+export class Matrix<T> {
+  private _matrix: T[][]
+
+  constructor(readonly nrows: number, readonly ncols: number, init: (row: number, col: number) => T) {
+    this._matrix = new Array(nrows)
+    for (let y = 0; y < nrows; y++) {
+      this._matrix[y] = new Array(ncols)
+      for (let x = 0; x < ncols; x++) {
+        this._matrix[y][x] = init(y, x)
+      }
+    }
+  }
+
+  at(row: number, col: number): T {
+    return this._matrix[row][col]
+  }
+
+  map<U>(fn: Matrix.MapFn<T, U>): Matrix<U> {
+    return new Matrix<U>(this.nrows, this.ncols, (row, col) => fn(this.at(row, col), row, col))
+  }
+
+  apply<U>(obj: Matrix<Matrix.MapFn<T, U>> | Matrix.MapFn<T, U>[][]): Matrix<U> {
+    const fn = Matrix.from(obj)
+
+    const {nrows, ncols} = this
+    if (nrows == fn.nrows && ncols == fn.ncols)
+      return new Matrix(nrows, ncols, (row, col) => fn.at(row, col)(this.at(row, col), row, col))
+    else
+      throw new Error("dimensions don't match")
+  }
+
+  to_sparse(): [T, number, number][] {
+    const items: [T, number, number][] = []
+
+    for (let y = 0; y < this.nrows; y++) {
+      for (let x = 0; x < this.ncols; x++) {
+        const value = this._matrix[y][x]
+        items.push([value, y, x])
+      }
+    }
+
+    return items
+  }
+
+  static from<U>(obj: Matrix<U> | U[][]): Matrix<U> {
+    if (obj instanceof Matrix)
+      return obj
+    else {
+      const nrows = obj.length
+      const ncols = min(obj.map((row) => row.length))
+      return new Matrix(nrows, ncols, (row, col) => obj[row][col])
+    }
   }
 }

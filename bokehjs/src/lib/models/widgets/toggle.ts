@@ -1,45 +1,54 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
+import {classes} from "core/dom"
 import * as p from "core/properties"
+
+import {bk_active} from "styles/mixins"
 
 export class ToggleView extends AbstractButtonView {
   model: Toggle
 
-  render(): void {
-    super.render()
-    if (this.model.active)
-      this.buttonEl.classList.add("bk-bs-active")
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.active.change, () => this._update_active())
   }
 
-  change_input(): void {
+  render(): void {
+    super.render()
+    this._update_active()
+  }
+
+  click(): void {
     this.model.active = !this.model.active
-    super.change_input()
+    super.click()
+  }
+
+  protected _update_active(): void {
+    classes(this.button_el).toggle(bk_active, this.model.active)
   }
 }
 
 export namespace Toggle {
-  export interface Attrs extends AbstractButton.Attrs {
-    active: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractButton.Props {}
+  export type Props = AbstractButton.Props & {
+    active: p.Property<boolean>
+  }
 }
 
 export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
-
   properties: Toggle.Props
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Toggle"
+  static init_Toggle(): void {
     this.prototype.default_view = ToggleView
 
-    this.define({
-      active: [ p. Bool, false ],
+    this.define<Toggle.Props>({
+      active: [ p.Boolean, false ],
     })
 
     this.override({
@@ -47,5 +56,3 @@ export class Toggle extends AbstractButton {
     })
   }
 }
-
-Toggle.initClass()

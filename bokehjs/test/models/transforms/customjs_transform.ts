@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {CustomJSTransform} from "models/transforms/customjs_transform"
-import {Range1d} from "models/ranges/range1d"
+import {CustomJSTransform} from "@bokehjs/models/transforms/customjs_transform"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("customjs_transform module", () => {
 
@@ -105,7 +105,7 @@ for (var i = 0; i < xs.length; i++) {
 return new_xs\
 `
       const r = new CustomJSTransform({v_func, use_strict: true})
-      expect(r.v_compute([1,2,3])).to.be.deep.equal(new Array(11,12,13))
+      expect(r.v_compute([1, 2, 3])).to.be.deep.equal(new Array(11, 12, 13))
     })
 
     it("should properly transform an array of values using an arg property", () => {
@@ -118,7 +118,7 @@ return new_xs\
 `
       const rng = new Range1d({start: 11, end: 21})
       const r = new CustomJSTransform({args: {foo: rng}, v_func, use_strict: true})
-      expect(r.v_compute([1,2,3])).to.be.deep.equal(new Array(12,13,14))
+      expect(r.v_compute([1, 2, 3])).to.be.deep.equal(new Array(12, 13, 14))
     })
   })
 })

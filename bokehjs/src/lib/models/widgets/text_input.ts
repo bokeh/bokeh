@@ -1,89 +1,77 @@
-import {logger} from "core/logging"
-import * as p from "core/properties"
-import {empty, label, input} from "core/dom"
-
 import {InputWidget, InputWidgetView} from "./input_widget"
+
+import {input} from "core/dom"
+import * as p from "core/properties"
+
+import {bk_input} from "styles/widgets/inputs"
 
 export class TextInputView extends InputWidgetView {
   model: TextInput
 
-  protected inputEl: HTMLInputElement
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
+  protected input_el: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
-
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-form-group")
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
+    this.connect(this.model.properties.value_input.change, () => this.input_el.value = this.model.value_input)
+    this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
+    this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
   }
 
   render(): void {
     super.render()
 
-    empty(this.el)
-
-    const labelEl = label({for: this.model.id}, this.model.title)
-    this.el.appendChild(labelEl)
-
-    this.inputEl = input({
+    this.input_el = input({
       type: "text",
-      "class": "bk-widget-form-input",
-      id: this.model.id,
+      class: bk_input,
       name: this.model.name,
       value: this.model.value,
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
-    this.inputEl.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.inputEl)
-
-    // TODO - This 35 is a hack we should be able to compute it
-    if (this.model.height)
-      this.inputEl.style.height = `${this.model.height - 35}px`
+    this.input_el.addEventListener("change", () => this.change_input())
+    this.input_el.addEventListener("input",  () => this.change_input_oninput())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    const value = this.inputEl.value
-    logger.debug(`widget/text_input: value = ${value}`)
-    this.model.value = value
+    this.model.value = this.input_el.value
+    super.change_input()
+  }
+
+  change_input_oninput(): void {
+    this.model.value_input = this.input_el.value
     super.change_input()
   }
 }
 
 export namespace TextInput {
-  export interface Attrs extends InputWidget.Attrs {
-    value: string
-    placeholder: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {}
+  export type Props = InputWidget.Props & {
+    value: p.Property<string>
+    value_input: p.Property<string>
+    placeholder: p.Property<string>
+  }
 }
 
 export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends InputWidget {
-
   properties: TextInput.Props
 
   constructor(attrs?: Partial<TextInput.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "TextInput"
+  static init_TextInput(): void {
     this.prototype.default_view = TextInputView
 
-    this.define({
+    this.define<TextInput.Props>({
       value:       [ p.String, "" ],
+      value_input: [ p.String, "" ],
       placeholder: [ p.String, "" ],
     })
   }
 }
-
-TextInput.initClass()

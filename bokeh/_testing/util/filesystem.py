@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -36,6 +35,14 @@ import tempfile
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'makedirs_ok_if_exists',
+    'TmpDir',
+    'with_directory_contents',
+    'with_temporary_file',
+    'WorkingDir',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -93,7 +100,7 @@ def with_directory_contents(contents, func):
                     f.write(file_content)
         return func(os.path.realpath(dirname))
 
-def with_file_contents(contents, func, dir=None):
+def with_file_contents(contents, func, dir=None, suffix=''):
     '''
 
     '''
@@ -105,9 +112,9 @@ def with_file_contents(contents, func, dir=None):
         f.close()
         func(f.name)
 
-    with_temporary_file(with_file_object, dir=dir)
+    with_temporary_file(with_file_object, dir=dir, suffix=suffix)
 
-def with_temporary_file(func, dir=None):
+def with_temporary_file(func, dir=None, suffix=''):
     '''
 
     '''
@@ -118,7 +125,7 @@ def with_temporary_file(func, dir=None):
     # auto-delete, and then try to open the file again ourselves
     # with f.name. So we manually delete in the finally block
     # below.
-    f = tempfile.NamedTemporaryFile(dir=dir, delete=False)
+    f = tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix=suffix)
     try:
         func(f)
     finally:

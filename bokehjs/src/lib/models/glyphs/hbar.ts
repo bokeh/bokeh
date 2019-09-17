@@ -1,6 +1,5 @@
 import {Box, BoxView, BoxData} from "./box"
 import {Arrayable} from "core/types"
-import {DistanceSpec, NumberSpec} from "core/vectorization"
 import * as p from "core/properties"
 import {SpatialIndex} from "core/util/spatial"
 
@@ -65,38 +64,35 @@ export class HBarView extends BoxView {
 }
 
 export namespace HBar {
-  export interface Attrs extends Box.Attrs {
-    left: NumberSpec
-    y: NumberSpec
-    height: DistanceSpec
-    right: NumberSpec
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Box.Props & {
+    left: p.CoordinateSpec
+    y: p.CoordinateSpec
+    height: p.NumberSpec
+    right: p.CoordinateSpec
   }
 
-  export interface Props extends Box.Props {}
-
-  export interface Visuals extends Box.Visuals {}
+  export type Visuals = Box.Visuals
 }
 
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
-
   properties: HBar.Props
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'HBar'
+  static init_HBar(): void {
     this.prototype.default_view = HBarView
 
     this.coords([['left', 'y']])
-    this.define({
-      height: [ p.DistanceSpec  ],
-      right:  [ p.NumberSpec    ],
+    this.define<HBar.Props>({
+      height: [ p.NumberSpec     ],
+      right:  [ p.CoordinateSpec ],
     })
     this.override({ left: 0 })
   }
 }
-HBar.initClass()

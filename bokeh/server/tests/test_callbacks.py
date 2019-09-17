@@ -1,12 +1,36 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
-import pytest
+# External imports
 from tornado.ioloop import IOLoop
 
+# Bokeh imports
+
+# Module under test
 from bokeh.util.tornado import _CallbackGroup
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 def _make_invocation_counter(loop, stop_after=1):
     from types import MethodType
@@ -46,6 +70,10 @@ class LoopAndGroup(object):
 
     def __enter__(self):
         return self
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestCallbackGroup(object):
     def test_next_tick_runs(self):
@@ -182,3 +210,15 @@ class TestCallbackGroup(object):
             tpe = ThreadPoolExecutor(n)
             list(tpe.map(ctx.group.add_next_tick_callback, repeat(func, n)))
         assert n == func.count()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

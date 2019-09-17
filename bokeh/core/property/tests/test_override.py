@@ -1,19 +1,71 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import bokeh.core.property.override as po
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-def test_create_default():
-    o = po.Override(default=10)
-    assert o.default_overridden
-    assert o.default == 10
+import pytest ; pytest
 
-def test_create_no_args():
-    with pytest.raises(ValueError):
-        po.Override()
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
-def test_create_unkown_args():
-    with pytest.raises(ValueError):
-        po.Override(default=10, junk=20)
+# Standard library imports
 
-    with pytest.raises(ValueError):
-        po.Override(junk=20)
+# External imports
+
+# Bokeh imports
+from bokeh._testing.util.api import verify_all
+
+# Module under test
+import bokeh.core.property.override as bcpo
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+ALL = (
+    'Override',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+class Test_Override(object):
+
+    def test_create_default(self):
+        o = bcpo.Override(default=10)
+        assert o.default_overridden
+        assert o.default == 10
+
+    def test_create_no_args(self):
+        with pytest.raises(ValueError):
+            bcpo.Override()
+
+    def test_create_unkown_args(self):
+        with pytest.raises(ValueError):
+            bcpo.Override(default=10, junk=20)
+
+        with pytest.raises(ValueError):
+            bcpo.Override(junk=20)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcpo, ALL)

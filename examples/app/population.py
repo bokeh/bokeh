@@ -1,7 +1,7 @@
 from math import pi
 
 from bokeh.io import curdoc
-from bokeh.layouts import column, row, widgetbox
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJSTransform, FuncTickFormatter, Select
 from bokeh.plotting import figure
 from bokeh.sampledata.population import data as df
@@ -51,8 +51,8 @@ population.line("x", "y", color="violet", line_width=2, line_dash="dashed", sour
 
 population.xaxis.major_label_orientation = pi/4
 population.xgrid.grid_line_color = None
-population.legend.orientation = "horizontal"
-population.legend.location = "bottom_center"
+population.legend.location = "center_right"
+population.x_range.end = 2150
 population.yaxis.minor_tick_line_color = None
 population.yaxis[0].formatter = FuncTickFormatter(code="""
     return (Math.abs(tick) / 1e9) + " B"
@@ -64,8 +64,7 @@ year = Select(title="Year:", value="2010", options=years)
 location = Select(title="Location:", value="World", options=locations)
 
 def update():
-    age =  df[(df.Location == location.value) & (df.Year == int(year.value))]
-    ages.data = ColumnDataSource.from_df(age)
+    ages.data = df[(df.Location == location.value) & (df.Year == int(year.value))]
 
     pop = df[df.Location == location.value].groupby(df.Year).Value.sum()
     new_known = pop[pop.index <= 2010]
@@ -78,5 +77,5 @@ location.on_change('value', lambda attr, old, new: update())
 
 update()
 
-controls = widgetbox(year, location, width=600)
+controls = column(year, location, width=300)
 curdoc().add_root(row(column(pyramid, population), controls))

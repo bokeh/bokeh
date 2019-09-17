@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -62,7 +61,8 @@ def test_show_doc_no_server(mock_notebook_content,
     mock_notebook_content.return_value = ["notebook_script", "notebook_div", d]
 
     class Obj(object):
-        _id = None
+        id = None
+        def references(self): return []
 
     assert mock__publish_display_data.call_count == 0
     binb.show_doc(Obj(), s, True)
@@ -121,3 +121,7 @@ def test__server_url():
     assert binb._server_url("foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("http://foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("https://foo.com:8888", 10) == "https://foo.com:10/"
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

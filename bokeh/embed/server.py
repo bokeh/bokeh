@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -32,11 +31,18 @@ from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
 from ..util.string import encode_utf8, format_docstring
 from .bundle import bundle_for_objs_and_resources
-from .util import RenderItem, html_page_for_render_items
+from .elements import html_page_for_render_items
+from .util import RenderItem
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'server_document',
+    'server_session',
+    'server_html_page_for_session',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -103,7 +109,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
 
     return encode_utf8(tag)
 
-def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default", arguments=None):
+def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default"):
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -152,10 +158,6 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-        arguments (dict[str, str], optional) :
-            A dictionary of key/values to be passed as HTTP request arguments
-            to Bokeh application code (default: None)
-
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
@@ -174,14 +176,13 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
     app_path = _get_app_path(url)
 
     elementid = make_id()
-    modelid = "" if model is None else model._id
+    modelid = "" if model is None else model.id
     src_path = _src_path(url, elementid)
 
     src_path += _process_app_path(app_path)
     src_path += _process_relative_urls(relative_urls, url)
     src_path += _process_session_id(session_id)
     src_path += _process_resources(resources)
-    src_path += _process_arguments(arguments)
 
     tag = AUTOLOAD_TAG.render(
         src_path  = src_path,
@@ -333,7 +334,7 @@ def _process_resources(resources):
     return ""
 
 def _process_session_id(session_id):
-    ''' Return a session ID HTML argument to add to a Bokeh serrver URL
+    ''' Return a session ID HTML argument to add to a Bokeh server URL
 
     Args:
         session_id (str) :

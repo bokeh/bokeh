@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -31,6 +30,10 @@ log = logging.getLogger(__name__)
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'Color',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -52,7 +55,7 @@ class Color(object):
             value (float) :
                 A number to clamp.
 
-            maxiumum (float, optional) :
+            maximum (float, optional) :
                 A max bound to to clamp to. If None, there is no upper bound,
                 and values are only clamped to be non-negative. (default: None)
 

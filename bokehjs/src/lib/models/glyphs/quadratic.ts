@@ -1,12 +1,11 @@
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable} from "core/types"
-import {IBBox} from "core/util/bbox"
+import {Arrayable, Rect} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
+import * as p from "core/properties"
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
 //
@@ -60,7 +59,7 @@ export class QuadraticView extends GlyphView {
       const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
       const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
 
-      points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i})
+      points.push({x0, y0, x1, y1, i})
     }
 
     return new SpatialIndex(points)
@@ -82,7 +81,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -96,40 +95,33 @@ export class QuadraticView extends GlyphView {
 }
 
 export namespace Quadratic {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    x0: NumberSpec
-    y0: NumberSpec
-    x1: NumberSpec
-    y1: NumberSpec
-    cx: NumberSpec
-    cy: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    x0: p.CoordinateSpec
+    y0: p.CoordinateSpec
+    x1: p.CoordinateSpec
+    y1: p.CoordinateSpec
+    cx: p.CoordinateSpec
+    cy: p.CoordinateSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
-
   properties: Quadratic.Props
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Quadratic'
+  static init_Quadratic(): void {
     this.prototype.default_view = QuadraticView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']])
     this.mixins(['line'])
   }
 }
-Quadratic.initClass()

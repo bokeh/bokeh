@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {AdaptiveTicker} from "models/tickers/adaptive_ticker"
-import {DatetimeTicker} from "models/tickers/datetime_ticker"
-import {DaysTicker} from "models/tickers/days_ticker"
-import {MonthsTicker} from "models/tickers/months_ticker"
-import {YearsTicker} from "models/tickers/years_ticker"
+import {AdaptiveTicker} from "@bokehjs/models/tickers/adaptive_ticker"
+import {DatetimeTicker} from "@bokehjs/models/tickers/datetime_ticker"
+import {DaysTicker} from "@bokehjs/models/tickers/days_ticker"
+import {MonthsTicker} from "@bokehjs/models/tickers/months_ticker"
+import {YearsTicker} from "@bokehjs/models/tickers/years_ticker"
 
 describe("DatetimeTicker Model", () => {
 

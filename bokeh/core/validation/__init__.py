@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' The validation module provides the capability to perform integrity
 checks on an entire collection of Bokeh models.
 
@@ -16,8 +22,56 @@ To assist with diagnosing potential problems, Bokeh performs a validation step
 when outputting a visualization for display. This module contains error and
 warning codes as well as helper functions for defining validation checks.
 
-'''
-from __future__ import absolute_import
+One use case for warnings is to loudly point users in the right direction
+when they accidentally do something that they probably didn't mean to do - this
+is the case for EMPTY_LAYOUT for instance. Since warnings don't necessarily
+indicate misuse, they are configurable. To silence a warning, use the silence
+function provided.
 
-from .check import check_integrity
+.. code-block:: python
+
+    >>> from bokeh.core.validation import silence
+    >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT
+    >>> silence(EMPTY_LAYOUT, True)
+
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from .check import check_integrity, silence
 from .decorators import error, warning
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

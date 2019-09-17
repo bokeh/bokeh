@@ -1,8 +1,10 @@
-0.12.6 (Jun 2017)
-=================
+.. _release-0-12-6:
 
-Bokeh Version ``0.12.6`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.6
+======
+
+Bokeh Version ``0.12.6`` (Jun 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * Headless, programmatic export of SVG and PNG images (:bokeh-issue:`538`)
 * New annotations ``Band`` and ``Whisker`` for displaying error estimates
@@ -23,8 +25,10 @@ features and fixes several bugs. Some of the highlights include:
 Many other bugfixes and docs additions are also included. For full details
 see the :bokeh-tree:`CHANGELOG`.
 
-Migration Guide
----------------
+.. _release-0-12-6-migration:
+
+`Migration Guide <releases.html#release-0-12-6-migration>`__
+------------------------------------------------------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained
@@ -152,4 +156,4 @@ Views can be obtained through ``Bokeh.index``. To resize all roots use
         Bokeh.index[key].resize(width, height);
     }
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -26,10 +25,11 @@ import re
 from PIL import Image
 
 # Bokeh imports
+from bokeh.layouts import row
 from bokeh.models.plots import Plot
-from bokeh.models.ranges import Range1d
-from bokeh.models.widgets.markups import Div
-from bokeh.io.export import create_webdriver, terminate_webdriver
+from bokeh.models import ColumnDataSource, Range1d, Rect
+from bokeh.io.webdriver import webdriver_control, terminate_webdriver
+from bokeh.plotting import figure
 from bokeh.resources import Resources
 
 # Module under test
@@ -41,7 +41,7 @@ import bokeh.io.export as bie
 
 @pytest.fixture(scope='module')
 def webdriver():
-    driver = create_webdriver()
+    driver = webdriver_control.create()
     yield driver
     terminate_webdriver(driver)
 
@@ -64,7 +64,31 @@ def test_get_screenshot_as_png():
     png = bie.get_screenshot_as_png(layout)
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
-    assert png.tobytes() == ("\x00"*1600).encode()
+    assert png.tobytes() == (b"\x00"*1600)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_glyph():
+    layout = Plot(x_range=Range1d(0, 1), y_range=Range1d(0, 1),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None, min_border=2,
+                  border_fill_color="blue", border_fill_alpha=1)
+    glyph = Rect(x="x", y="y", width=2, height=2, fill_color="red", line_color="red")
+    source = ColumnDataSource(data=dict(x=[0.5], y=[0.5]))
+    layout.add_glyph(source, glyph)
+
+    png = bie.get_screenshot_as_png(layout)
+    assert png.size == (20, 20)
+
+    # count 256 red pixels in center area (400 - 20*4 - 16*4)
+    data = png.tobytes()
+    count = 0
+    for x in range(400):
+        if data[x*4:x*4+4] == b"\xff\x00\x00\xff":
+            count += 1
+    assert count == 256
+
+    assert len(data) == 1600
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -97,17 +121,17 @@ def test_get_screenshot_as_png_large_plot(webdriver):
 @pytest.mark.unit
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver):
-    layout = Div(text="유니 코드 지원을위한 작은 테스트")
+    p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(layout, driver=webdriver, resources=Resources(mode="inline", minified=True))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
-    layout = Div(text="유니 코드 지원을위한 작은 테스트")
+    p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(layout, driver=webdriver, resources=Resources(mode="inline", minified=False))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
@@ -139,17 +163,11 @@ def test_get_svgs_with_svg_present(webdriver):
     svg2 = (
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
         'width="20" height="20" style="width: 20px; height: 20px;">'
-        '<defs>'
-            '<clipPath id="X"><path fill="none" stroke="none" d=" M 5 5 L 15 5 L 15 15 L 5 15 L 5 5 Z"/></clipPath>'
-            '<clipPath id="X"><path fill="none" stroke="none" d=" M 5 5 L 15 5 L 15 15 L 5 15 L 5 5 Z"/></clipPath>'
-        '</defs>'
+        '<defs/>'
         '<g>'
             '<g transform="scale(1,1) translate(0.5,0.5)">'
                 '<rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
                 '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/>'
-                '<g/>'
-                '<g clip-path="url(#X)"><g/></g>'
-                '<g clip-path="url(#X)"><g/></g>'
                 '<g/>'
             '</g>'
         '</g>'
@@ -170,6 +188,22 @@ def test_get_layout_html_resets_plot_dims():
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
 
+def test_layout_html_on_child_first():
+    p = Plot(x_range=Range1d(), y_range=Range1d())
+
+    bie.get_layout_html(p, height=100, width=100)
+
+    layout = row(p)
+    bie.get_layout_html(layout)
+
+def test_layout_html_on_parent_first():
+    p = Plot(x_range=Range1d(), y_range=Range1d())
+
+    layout = row(p)
+    bie.get_layout_html(layout)
+
+    bie.get_layout_html(p, height=100, width=100)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
@@ -187,3 +221,7 @@ def test__crop_image():
     rect = dict(left=2, right=8, top=3, bottom=7)
     cropped = bie._crop_image(image, **rect)
     assert cropped.size == (6,4)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

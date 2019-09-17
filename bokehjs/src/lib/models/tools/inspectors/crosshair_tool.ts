@@ -6,6 +6,7 @@ import {MoveEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {Color} from "core/types"
 import {values} from "core/util/object"
+import {bk_tool_icon_crosshair} from "styles/icons"
 
 export class CrosshairToolView extends InspectToolView {
   model: CrosshairTool
@@ -16,7 +17,7 @@ export class CrosshairToolView extends InspectToolView {
 
     const {sx, sy} = ev
 
-    if (!this.plot_model.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._update_spans(null, null)
     else
       this._update_spans(sx, sy)
@@ -36,35 +37,33 @@ export class CrosshairToolView extends InspectToolView {
 }
 
 export namespace CrosshairTool {
-  export interface Attrs extends InspectTool.Attrs {
-    dimensions: Dimensions
-    line_color: Color
-    line_width: number
-    line_alpha: number
+  export type Attrs = p.AttrsOf<Props>
 
-    location_units: SpatialUnits
-    render_mode: RenderMode
-    spans: {width: Span, height: Span}
+  export type Props = InspectTool.Props & {
+    dimensions: p.Property<Dimensions>
+    line_color: p.Property<Color>
+    line_width: p.Property<number>
+    line_alpha: p.Property<number>
+
+    location_units: p.Property<SpatialUnits>
+    render_mode: p.Property<RenderMode>
+    spans: p.Property<{width: Span, height: Span}>
   }
-
-  export interface Props extends InspectTool.Props {}
 }
 
 export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
-
   properties: CrosshairTool.Props
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CrosshairTool"
+  static init_CrosshairTool(): void {
     this.prototype.default_view = CrosshairToolView
 
-    this.define({
+    this.define<CrosshairTool.Props>({
       dimensions: [ p.Dimensions, "both" ],
       line_color: [ p.Color, 'black'     ],
       line_width: [ p.Number, 1          ],
@@ -79,7 +78,7 @@ export class CrosshairTool extends InspectTool {
   }
 
   tool_name = "Crosshair"
-  icon = "bk-tool-icon-crosshair"
+  icon = bk_tool_icon_crosshair
 
   get tooltip(): string {
     return this._get_dim_tooltip("Crosshair", this.dimensions)
@@ -114,5 +113,3 @@ export class CrosshairTool extends InspectTool {
     }
   }
 }
-
-CrosshairTool.initClass()

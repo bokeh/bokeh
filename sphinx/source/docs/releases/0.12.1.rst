@@ -1,8 +1,10 @@
-0.12.1 (Jul 2016)
-=================
+.. _release-0-12-1:
 
-Bokeh Version ``0.12.1`` is a minor, incremental update that adds a few new
-small features and fixes several bugs. Some of the highlights include:
+0.12.1
+======
+
+Bokeh Version ``0.12.1`` (Jul 2016) is a minor, incremental update that adds
+a few new small features and fixes several bugs. Some of the highlights include:
 
 * Add ``.patch`` method to ``ColumnDataSource`` for efficient partial updates.
 * Add ``.visible`` property to all glyphs for easy on/off capability.

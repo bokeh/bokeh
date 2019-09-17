@@ -1,7 +1,6 @@
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {IBBox} from "core/util/bbox"
 import * as proj from "core/util/projections"
 import * as visuals from "core/visuals"
 import {Geometry, RectGeometry} from "core/geometry"
@@ -10,11 +9,11 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {map} from "core/util/arrayable"
 import {extend} from "core/util/object"
 import {isArray, isTypedArray} from "core/util/types"
-import {SpatialIndex, Rect} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {LineView} from "./line"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -30,18 +29,22 @@ export abstract class GlyphView extends View {
   model: Glyph
   visuals: Glyph.Visuals
 
+  parent: GlyphRendererView
+
+  get renderer(): GlyphRendererView {
+    return this.parent
+  }
+
   glglyph?: any
 
   index: SpatialIndex
-  renderer: GlyphRendererView
 
   protected _nohit_warned: {[key: string]: boolean} = {}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._nohit_warned = {}
-    this.renderer = options.renderer
     this.visuals = new visuals.Visuals(this.model)
 
     // Init gl (this should really be done anytime renderer is set,
@@ -110,18 +113,18 @@ export abstract class GlyphView extends View {
 
     const positive_x_bbs = this.index.search(bbox.positive_x())
     for (const x of positive_x_bbs) {
-      if (x.minX < bb.minX)
-        bb.minX = x.minX
-      if (x.maxX > bb.maxX)
-        bb.maxX = x.maxX
+      if (x.x0 < bb.x0)
+        bb.x0 = x.x0
+      if (x.x1 > bb.x1)
+        bb.x1 = x.x1
     }
 
     const positive_y_bbs = this.index.search(bbox.positive_y())
     for (const y of positive_y_bbs) {
-      if (y.minY < bb.minY)
-        bb.minY = y.minY
-      if (y.maxY > bb.maxY)
-        bb.maxY = y.maxY
+      if (y.y0 < bb.y0)
+        bb.y0 = y.y0
+      if (y.y1 > bb.y1)
+        bb.y1 = y.y1
     }
 
     return this._bounds(bb)
@@ -173,7 +176,7 @@ export abstract class GlyphView extends View {
       return map(spt0, (_, i) => Math.abs(spt1[i] - spt0[i]))
   }
 
-  draw_legend_for_index(_ctx: Context2d, _bbox: IBBox, _index: number): void {}
+  draw_legend_for_index(_ctx: Context2d, _bbox: Rect, _index: number): void {}
 
   hit_test(geometry: Geometry): hittest.HitTestResult {
     let result = null
@@ -193,9 +196,8 @@ export abstract class GlyphView extends View {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices(bb)
+    result.indices = this.index.indices({x0, x1, y0, y1})
     return result
   }
 
@@ -208,7 +210,7 @@ export abstract class GlyphView extends View {
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => v[i])
+          data_subset[k] = indices.map((i) => (v as any)[i])
         else
           data_subset[k] = v
       }
@@ -218,12 +220,20 @@ export abstract class GlyphView extends View {
     const self = this as any
     extend(self, data)
 
+    // TODO (bev) Should really probably delegate computing projected
+    // coordinates to glyphs, instead of centralizing here in one place.
     if (this.renderer.plot_view.model.use_map) {
       if (self._x != null)
         [self._x, self._y] = proj.project_xy(self._x, self._y)
 
       if (self._xs != null)
         [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
+
+      if (self._x0 != null)
+        [self._x0, self._y0] = proj.project_xy(self._x0, self._y0)
+
+      if (self._x1 != null)
+        [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
     }
 
     // if we have any coordinates that are categorical, convert them to
@@ -245,10 +255,8 @@ export abstract class GlyphView extends View {
           if (yr instanceof FactorRange) {
             self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
           }
-        }
-
-        // hand standard glyph case
-        else {
+        } else {
+          // hand standard glyph case
           if (xr instanceof FactorRange) {
             self[xname] = xr.v_synthetic(self[xname])
           }
@@ -256,7 +264,6 @@ export abstract class GlyphView extends View {
             self[yname] = yr.v_synthetic(self[yname])
           }
         }
-
       }
     }
 
@@ -324,20 +331,19 @@ export abstract class GlyphView extends View {
 }
 
 export namespace Glyph {
-  export interface Attrs extends Model.Attrs {
-    x_range_name: string
-    y_range_name: string
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
   }
 
-  export interface Props extends Model.Props {}
-
-  export interface Visuals extends visuals.Visuals {}
+  export type Visuals = visuals.Visuals
 }
 
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
-
   properties: Glyph.Props
 
   /* prototype */ _coords: [string, string][]
@@ -346,9 +352,7 @@ export abstract class Glyph extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Glyph'
-
+  static init_Glyph(): void {
     this.prototype._coords = []
 
     this.internal({
@@ -363,11 +367,10 @@ export abstract class Glyph extends Model {
 
     const result: any = {}
     for (const [x, y] of coords) {
-      result[x] = [ p.NumberSpec ]
-      result[y] = [ p.NumberSpec ]
+      result[x] = [ p.CoordinateSpec ]
+      result[y] = [ p.CoordinateSpec ]
     }
 
-    this.define(result)
+    this.define<Glyph.Props>(result)
   }
 }
-Glyph.initClass()

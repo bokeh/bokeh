@@ -4,30 +4,27 @@ import {range} from "core/util/array"
 import {Extent, Bounds, meters_extent_to_geographic} from "./tile_utils"
 
 export namespace MercatorTileSource {
-  export interface Attrs extends TileSource.Attrs {
-    snap_to_zoom: boolean
-    wrap_around: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TileSource.Props {}
+  export type Props = TileSource.Props & {
+    snap_to_zoom: p.Property<boolean>
+    wrap_around: p.Property<boolean>
+  }
 }
 
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
-
   properties: MercatorTileSource.Props
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'MercatorTileSource'
-
-    this.define({
-      snap_to_zoom: [ p.Bool, false ],
-      wrap_around:  [ p.Bool, true  ],
+  static init_MercatorTileSource(): void {
+    this.define<MercatorTileSource.Props>({
+      snap_to_zoom: [ p.Boolean, false ],
+      wrap_around:  [ p.Boolean, true  ],
     })
 
     this.override({
@@ -107,8 +104,10 @@ export class MercatorTileSource extends TileSource {
     const y_rs = (extent[3] - extent[1]) / height
     const resolution = Math.max(x_rs, y_rs)
     const closest = this._resolutions.reduce(function(previous, current) {
-      if (Math.abs(current - resolution) < Math.abs(previous - resolution)) { return current; }
-      return previous
+      if (Math.abs(current - resolution) < Math.abs(previous - resolution))
+        return current
+      else
+        return previous
     })
     return this._resolutions.indexOf(closest)
   }
@@ -286,7 +285,7 @@ export class MercatorTileSource extends TileSource {
       quadkey = quadkey.substring(0, quadkey.length - 1)
       ;[x, y, z] = this.quadkey_to_tile_xyz(quadkey)
       ;[x, y, z] = this.denormalize_xyz(x, y, z, world_x)
-      if (this.tile_xyz_to_key(x, y, z) in this.tiles)
+      if (this.tiles.has(this.tile_xyz_to_key(x, y, z)))
         return [x, y, z]
     }
     return [0, 0, 0]
@@ -313,4 +312,3 @@ export class MercatorTileSource extends TileSource {
     return Math.floor(x / Math.pow(2, z))
   }
 }
-MercatorTileSource.initClass()

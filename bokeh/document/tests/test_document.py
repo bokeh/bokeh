@@ -1,14 +1,31 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from mock import patch
+import pytest ; pytest
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import logging
 
 from copy import copy
+import json
+from mock import patch
 
-import bokeh.document.document as document
+# External imports
+
+# Bokeh imports
 
 from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource
@@ -19,8 +36,16 @@ from bokeh.util.logconfig import basicConfig
 
 from .setup import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
 
-# needed for caplog tests to function
-basicConfig()
+# Module under test
+import bokeh.document.document as document
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestDocumentHold(object):
 
@@ -117,7 +142,9 @@ class Test_Document_delete_modules(object):
         # add an extra referrer for delete_modules to complain about
         extra.append(mod)
         import gc
-        assert len(gc.get_referrers(mod)) == 4
+
+        # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
+        assert len(gc.get_referrers(mod)) in (3,4)
 
         with caplog.at_level(logging.ERROR):
             d.delete_modules()
@@ -195,8 +222,8 @@ class TestDocument(object):
         d.add_root(m)
         assert len(d.roots) == 1
         assert len(d._all_models) == 2
-        assert d.get_model_by_id(m._id) == m
-        assert d.get_model_by_id(m2._id) == m2
+        assert d.get_model_by_id(m.id) == m
+        assert d.get_model_by_id(m2.id) == m2
         assert d.get_model_by_id("not a valid ID") is None
 
     def test_get_model_by_name(self):
@@ -829,31 +856,31 @@ class TestDocument(object):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        assert child1._id in d._all_models
-        assert child2._id not in d._all_models
-        assert child3._id not in d._all_models
+        assert child1.id in d._all_models
+        assert child2.id not in d._all_models
+        assert child3.id not in d._all_models
 
         event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
         patch1, buffers = process_document_events([event1])
         d.apply_json_patch_string(patch1)
 
-        assert root1.child._id == child3._id
-        assert root1.child.child._id == child2._id
-        assert child1._id in d._all_models
-        assert child2._id in d._all_models
-        assert child3._id in d._all_models
+        assert root1.child.id == child3.id
+        assert root1.child.child.id == child2.id
+        assert child1.id in d._all_models
+        assert child2.id in d._all_models
+        assert child3.id in d._all_models
 
         # put it back how it was before
         event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
         patch2, buffers = process_document_events([event2])
         d.apply_json_patch_string(patch2)
 
-        assert root1.child._id == child1._id
+        assert root1.child.id == child1.id
         assert root1.child.child is None
 
-        assert child1._id in d._all_models
-        assert child2._id not in d._all_models
-        assert child3._id not in d._all_models
+        assert child1.id in d._all_models
+        assert child2.id not in d._all_models
+        assert child3.id not in d._all_models
 
     def test_patch_two_properties_at_once(self):
         d = document.Document()
@@ -896,6 +923,41 @@ class TestDocument(object):
         d.add_root(p1)
         assert len(d.roots) == 1
 
+    def test_event_handles_new_callbacks_in_event_callback(self):
+        from bokeh.models import Button
+        d = document.Document()
+        button1 = Button(label="1")
+        button2 = Button(label="2")
+        def clicked_1():
+            button2.on_click(clicked_2)
+            d.add_root(button2)
+        def clicked_2():
+            pass
+
+        button1.on_click(clicked_1)
+        d.add_root(button1)
+
+        event_json = json.dumps({"event_name":"button_click","event_values":{"model_id":button1.id}})
+        try:
+            d.apply_json_event(event_json)
+        except RuntimeError:
+            pytest.fail("apply_json_event probably did not copy models before modifying")
+
     # TODO test serialize/deserialize with list-and-dict-valued properties
 
     # TODO test replace_with_json
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+# needed for caplog tests to function
+basicConfig()

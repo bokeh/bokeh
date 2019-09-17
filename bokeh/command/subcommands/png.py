@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 To generate a standalone PNG file for a Bokeh application from a single
 Python script, pass the script name to ``bokeh png`` on the command
@@ -38,15 +44,40 @@ For all cases, it's required to explicitly add a Bokeh layout to
 ``bokeh.io.curdoc`` for it to appear in the output.
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
 import sys
-import warnings
 
+# External imports
+
+# Bokeh imports
 from ...io.export import get_screenshot_as_png, create_webdriver, terminate_webdriver
-from ...models.plots import Plot
+from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'PNG',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class PNG(FileOutputSubcommand):
     ''' Subcommand to output applications as standalone PNG files.
@@ -107,17 +138,22 @@ class PNG(FileOutputSubcommand):
         '''
 
         '''
-        if args.width is not None or args.height is not None:
-            layout = doc.roots
-            if len(layout) != 1 or not isinstance(layout[0], Plot):
-                warnings.warn("Export called with height or width kwargs on a non-single Plot layout. The size values will be ignored.")
-            else:
-                plot = layout[0]
-                plot.plot_height = args.height or plot.plot_height
-                plot.plot_width  = args.width or plot.plot_width
+        set_single_plot_width_height(doc, width=args.width, height=args.height)
 
         image = get_screenshot_as_png(doc, driver=self.driver)
         buf = io.BytesIO()
         image.save(buf, "png")
         buf.seek(0)
         return buf.read()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

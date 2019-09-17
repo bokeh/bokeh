@@ -1,37 +1,33 @@
 import {TickFormatter} from "./tick_formatter"
-import {Axis} from "../axes/axis"
 import * as p from "core/properties"
 import {isNumber} from "core/util/types"
 
 export namespace BasicTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    precision: number | "auto"
-    use_scientific: boolean
-    power_limit_high: number
-    power_limit_low: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    precision: p.Property<number | "auto">
+    use_scientific: p.Property<boolean>
+    power_limit_high: p.Property<number>
+    power_limit_low: p.Property<number>
+  }
 }
 
 export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
-
   properties: BasicTickFormatter.Props
 
   constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'BasicTickFormatter'
-
-    this.define({
-      precision:        [ p.Any,    'auto' ], // TODO (bev) better
-      use_scientific:   [ p.Bool,   true   ],
-      power_limit_high: [ p.Number, 5      ],
-      power_limit_low:  [ p.Number, -3     ],
+  static init_BasicTickFormatter(): void {
+    this.define<BasicTickFormatter.Props>({
+      precision:        [ p.Any,     'auto' ], // TODO (bev) better
+      use_scientific:   [ p.Boolean, true   ],
+      power_limit_high: [ p.Number,  5      ],
+      power_limit_low:  [ p.Number,  -3     ],
     })
   }
 
@@ -45,7 +41,7 @@ export class BasicTickFormatter extends TickFormatter {
     return Math.pow(10.0, this.power_limit_high)
   }
 
-  doFormat(ticks: number[], _axis: Axis): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     if (ticks.length == 0)
       return []
 
@@ -119,4 +115,3 @@ export class BasicTickFormatter extends TickFormatter {
     return labels
   }
 }
-BasicTickFormatter.initClass()

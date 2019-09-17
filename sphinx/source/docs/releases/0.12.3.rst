@@ -1,8 +1,10 @@
-0.12.3 (Oct 2016)
-=================
+.. _release-0-12-3:
 
-Bokeh Version ``0.12.3`` is a minor, incremental update that adds a few new
-small features and fixes several bugs. Some of the highlights include:
+0.12.3
+======
+
+Bokeh Version ``0.12.3`` (Oct 2016) is a minor, incremental update that adds
+a few new small features and fixes several bugs. Some of the highlights include:
 
 * BokehJS reduced in size by nearly twenty percent
 * New Categorical color mapper
@@ -11,8 +13,10 @@ small features and fixes several bugs. Some of the highlights include:
 * Auto-generate legends from data in a column
 * Many small bugfixes
 
-Migration Guide
----------------
+.. _release-0-12-3-migration:
+
+`Migration Guide <releases.html#release-0-12-3-migration>`__
+------------------------------------------------------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained

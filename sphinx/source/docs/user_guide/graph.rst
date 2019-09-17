@@ -135,3 +135,20 @@ Here's a graph example with added node and edge interactions:
 
 .. bokeh-plot:: docs/user_guide/examples/graph_interaction.py
     :source-position: above
+
+Node and Edge Attributes
+------------------------
+
+In ``from_networkx``, NetworkX's node/edge attributes are converted for
+GraphRenderer's ``node_renderer``/``edge_renderer``.
+
+For example, "Zachary's Karate Club graph" dataset has a node attribute named
+"club". It's possible to hover these information using the node attributes
+converted in ``from_networkx``. Similarly, node/edge attributes can also be
+used for color information.
+
+Here’s a graph example that hovers node attributes and changes colors with
+edge attributes:
+
+.. bokeh-plot:: docs/user_guide/examples/graph_node_and_edge_attributes.py
+    :source-position: above

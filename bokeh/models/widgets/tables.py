@@ -1,8 +1,30 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Various kinds of data table (data grid) widgets.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ...core.enums import DateFormat, FontStyle, NumeralLanguage, TextAlign, RoundingFunction
 from ...core.has_props import abstract
 from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
@@ -11,6 +33,42 @@ from ...model import Model
 from ..sources import DataSource, CDSView
 
 from .widget import Widget
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AvgAggregator',
+    'BooleanFormatter',
+    'CellFormatter',
+    'CellEditor',
+    'CheckboxEditor',
+    'DataCube',
+    'DataTable',
+    'DateEditor',
+    'DateFormatter',
+    'GroupingInfo',
+    'HTMLTemplateFormatter',
+    'IntEditor',
+    'MaxAggregator',
+    'MinAggregator',
+    'NumberEditor',
+    'NumberFormatter',
+    'PercentEditor',
+    'SelectEditor',
+    'StringEditor',
+    'StringFormatter',
+    'SumAggregator',
+    'TableColumn',
+    'TableWidget',
+    'TextEditor',
+    'TimeEditor',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class CellFormatter(Model):
@@ -23,6 +81,19 @@ class CellEditor(Model):
     ''' Abstract base class for data table's cell editors.
 
     '''
+
+@abstract
+class RowAggregator(Model):
+    ''' Abstract base class for data cube's row formatters.
+
+    '''
+    field_ = String('', help="""
+    Refers to the table column being aggregated
+    """)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class StringFormatter(CellFormatter):
     ''' Basic string cell formatter.
@@ -443,6 +514,26 @@ class DateEditor(CellEditor):
 
     '''
 
+class AvgAggregator(RowAggregator):
+    ''' Simple average across multiple rows.
+
+    '''
+
+class MinAggregator(RowAggregator):
+    ''' Smallest value across multiple rows.
+
+    '''
+
+class MaxAggregator(RowAggregator):
+    ''' Largest value across multiple rows.
+
+    '''
+
+class SumAggregator(RowAggregator):
+    ''' Simple sum across multiple rows.
+
+    '''
+
 class TableColumn(Model):
     ''' Table column widget.
 
@@ -527,7 +618,7 @@ class DataTable(TableWidget):
     """)
 
     reorderable = Bool(True, help="""
-    Allows the reordering of a tables's columns. To reorder a column,
+    Allows the reordering of a table's columns. To reorder a column,
     click and drag a table's header to the desired location in the table.
     The columns on either side will remain in their previous order.
     """)
@@ -575,4 +666,47 @@ class DataTable(TableWidget):
     Whether to show a header row with column names at the top of the table.
     """)
 
+    width = Override(default=600)
+
     height = Override(default=400)
+
+    row_height = Int(25, help="""
+    The height of each row in pixels.
+    """)
+
+class GroupingInfo(Model):
+    '''Describes how to calculate totals and sub-totals
+    '''
+
+    getter = String('', help="""
+    References the column which generates the unique keys of this sub-total (groupby).
+    """)
+
+    aggregators = List(Instance(RowAggregator), help="""
+    Describes how to aggregate the columns which will populate this sub-total.
+    """)
+
+    collapsed = Bool(False, help="""
+    Whether the corresponding sub-total is expanded or collapsed by default.
+    """)
+
+class DataCube(DataTable):
+    '''Specialized DataTable with collapsing groups, totals, and sub-totals.
+    '''
+
+    grouping = List(Instance(GroupingInfo), help="""
+    Describe what aggregation operations used to define sub-totals and totals
+    """)
+
+    target = Instance(DataSource, help="""
+    Two column datasource (row_indices & labels) describing which rows of the
+    data cubes are expanded or collapsed
+    """)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

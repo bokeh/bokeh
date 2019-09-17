@@ -6,27 +6,24 @@ import {range} from "core/util/array"
 import {logger} from "core/logging"
 
 export namespace Filter {
-  export interface Attrs extends Model.Attrs {
-    filter: boolean[] | number[] | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    filter: p.Property<boolean[] | number[] | null>
+  }
 }
 
 export interface Filter extends Filter.Attrs {}
 
 export class Filter extends Model {
-
   properties: Filter.Props
 
   constructor(attrs?: Partial<Filter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Filter'
-
-    this.define({
+  static init_Filter(): void {
+    this.define<Filter.Props>({
       filter: [ p.Array, null ],
     })
   }
@@ -48,4 +45,3 @@ export class Filter extends Model {
     }
   }
 }
-Filter.initClass()

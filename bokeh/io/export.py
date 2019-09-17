@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -13,7 +12,6 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
-from six import raise_from, b
 
 import logging
 log = logging.getLogger(__name__)
@@ -25,17 +23,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 import io
-import signal
 import warnings
-from os.path import abspath, devnull
+from os.path import abspath
 from tempfile import mkstemp
 
 # External imports
+from six import raise_from
 
 # Bokeh imports
 from ..embed import file_html
 from ..resources import INLINE
-from ..util.dependencies import import_required, detect_phantomjs
+from ..util.dependencies import import_required
 from ..util.string import decode_utf8
 from .util import default_filename
 
@@ -43,15 +41,26 @@ from .util import default_filename
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'create_webdriver',
+    'export_png',
+    'export_svgs',
+    'get_layout_html',
+    'get_screenshot_as_png',
+    'get_svgs',
+    'terminate_webdriver',
+    'webdriver_control',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def export_png(obj, filename=None, height=None, width=None, webdriver=None):
-    ''' Export the LayoutDOM object or document as a PNG.
+def export_png(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
+    ''' Export the ``LayoutDOM`` object or document as a PNG.
 
-    If the filename is not given, it is derived from the script name
-    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+    If the filename is not given, it is derived from the script name (e.g.
+    ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
         obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
@@ -69,8 +78,15 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
 
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5) (Added in 1.1.1).
+
     Returns:
         filename (str) : the filename where the static file is saved.
+
+    If you would like to access an Image object directly, rather than save a
+    file to disk, use the lower-level :func:`~bokeh.io.export.get_screenshot_as_png`
+    function.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
@@ -78,16 +94,19 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
 
     '''
 
-    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
+    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver, timeout=timeout)
 
     if filename is None:
         filename = default_filename("png")
+
+    if image.width == 0 or image.height == 0:
+        raise ValueError("unable to save an empty image")
 
     image.save(filename)
 
     return abspath(filename)
 
-def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
+def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -109,19 +128,22 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
 
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5) (Added in 1.1.1).
+
     Returns:
-        filenames (list(str)) : the list of filenames where the SVGs files
-            are saved.
+        filenames (list(str)) : the list of filenames where the SVGs files are
+        saved.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, height=height, width=width, driver=webdriver)
+    svgs = get_svgs(obj, height=height, width=width, driver=webdriver, timeout=timeout)
 
     if len(svgs) == 0:
-        log.warn("No SVG Plots were found.")
+        log.warning("No SVG Plots were found.")
         return
 
     if filename is None:
@@ -147,9 +169,22 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
+# this is part of the API for this module
+from .webdriver import webdriver_control
+from .webdriver import terminate_webdriver # for back compat
 
-def get_screenshot_as_png(obj, driver=None, **kwargs):
-    ''' Get a screenshot of a LayoutDOM object.
+def create_webdriver():
+    ''' Create a new webdriver.
+
+    .. note ::
+        Here for compatibility. Prefer methods on the webdriver_control
+        object.
+
+    '''
+    return webdriver_control.create()
+
+def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
+    ''' Get a screenshot of a ``LayoutDOM`` object.
 
     Args:
         obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
@@ -157,6 +192,10 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
         driver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
+
+        timeout (int) : the maximum amount of time to wait for initialization.
+            It will be used as a timeout for loading Bokeh, then when waiting for
+            the layout to be rendered.
 
     Returns:
         cropped_image (PIL.Image.Image) : a pillow image loaded from PNG.
@@ -175,49 +214,41 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(decode_utf8(html))
 
-        web_driver = driver if driver is not None else create_webdriver()
+        web_driver = driver if driver is not None else webdriver_control.get()
 
-        try:
-            web_driver.get("file:///" + tmp.path)
-            web_driver.maximize_window()
+        web_driver.get("file:///" + tmp.path)
+        web_driver.maximize_window()
 
-            ## resize for PhantomJS compat
-            web_driver.execute_script("document.body.style.width = '100%';")
+        ## resize for PhantomJS compat
+        web_driver.execute_script("document.body.style.width = '100%';")
 
-            wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver, timeout)
 
-            png = web_driver.get_screenshot_as_png()
+        png = web_driver.get_screenshot_as_png()
 
-            b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
-        finally:
-            if driver is None: # only quit webdriver if not passed in as arg
-                terminate_webdriver(web_driver)
+        b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
 
     return cropped_image
 
-def get_svgs(obj, driver=None, **kwargs):
+def get_svgs(obj, driver=None, timeout=5, **kwargs):
     '''
 
     '''
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
-        with io.open(tmp.path, mode="wb") as file:
-            file.write(b(html))
+        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+            file.write(decode_utf8(html))
 
-        web_driver = driver if driver is not None else create_webdriver()
+        web_driver = driver if driver is not None else webdriver_control.get()
 
-        try:
-            web_driver.get("file:///" + tmp.path)
+        web_driver.get("file:///" + tmp.path)
 
-            wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver, timeout)
 
-            svgs = web_driver.execute_script(_SVG_SCRIPT)
-        finally:
-            if driver is None: # only quit webdriver if not passed in as arg
-                terminate_webdriver(web_driver)
+        svgs = web_driver.execute_script(_SVG_SCRIPT)
 
     return svgs
 
@@ -239,7 +270,7 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
             obj.plot_width = kwargs.get('width', old_width)
 
     try:
-        html = file_html(obj, resources, title="")
+        html = file_html(obj, resources, title="", suppress_callback_warning=True, _always_new=True)
     finally:
         if resize:
             obj.plot_height = old_height
@@ -247,12 +278,13 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
 
     return html
 
-def wait_until_render_complete(driver):
+def wait_until_render_complete(driver, timeout):
     '''
 
     '''
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver import Firefox
 
     def is_bokeh_loaded(driver):
         return driver.execute_script('''
@@ -261,7 +293,7 @@ def wait_until_render_complete(driver):
         ''')
 
     try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_loaded)
+        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
         raise_from(RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.'), e)
 
@@ -271,37 +303,20 @@ def wait_until_render_complete(driver):
         return driver.execute_script('return window._bokeh_render_complete;')
 
     try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
-        log.warn("The webdriver raised a TimeoutException while waiting for \
-                     a 'bokeh:idle' event to signify that the layout has rendered. \
-                     Something may have gone wrong.")
+        log.warning("The webdriver raised a TimeoutException while waiting for "
+                    "a 'bokeh:idle' event to signify that the layout has rendered. "
+                    "Something may have gone wrong.")
     finally:
-        browser_logs = driver.get_log('browser')
-        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
-        if len(severe_errors) > 0:
-            log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
-
-def create_webdriver():
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
-
-        webdriver = import_required('selenium.webdriver',
-                                    'To use bokeh.io image export functions you need selenium ' +
-                                    '("conda install -c bokeh selenium" or "pip install selenium")')
-
-        phantomjs_path = detect_phantomjs()
-        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
-
-def terminate_webdriver(driver):
-    if driver.name == "phantomjs":
-        # https://github.com/seleniumhq/selenium/issues/767
-        driver.service.process.send_signal(signal.SIGTERM)
-
-    try:
-        driver.quit()
-    except (IOError, OSError): # IOError for Python 2.7
-        pass
+        # Firefox webdriver does not currently support logs
+        if not isinstance(driver, Firefox):
+            browser_logs = driver.get_log('browser')
+            messages = [ l.get("message") for l in browser_logs if l.get('level') in ['WARNING', 'ERROR', 'SEVERE'] ]
+            if len(messages) > 0:
+                log.warning("There were browser warnings and/or errors that may have affected your export")
+                for message in messages:
+                    log.warning(message)
 
 #-----------------------------------------------------------------------------
 # Private API

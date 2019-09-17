@@ -1,5 +1,9 @@
-0.5.2 (Aug 2014)
-================
+.. _release-0-5-2:
+
+0.5.2
+=====
+
+Bokeh ``0.5.2`` (Aug 2014) is an incremental update:
 
 * New Layout system
 * Improved automate testing infrastructure

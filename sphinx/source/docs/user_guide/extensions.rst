@@ -44,16 +44,16 @@ below:
 .. code-block:: python
 
     from bokeh.core.properties import String, Instance
-    from bokeh.models import LayoutDOM, Slider
+    from bokeh.models import HTMLBox, Slider
 
-    class Custom(LayoutDOM):
+    class Custom(HTMLBox):
 
         text = String(default="Custom text")
 
         slider = Instance(Slider)
 
 Since we would like to create a custom extension that can participate in DOM
-layout, we subclass from :class:`~bokeh.models.layouts.LayoutDOM`. We also
+layout, we subclass from :class:`~bokeh.models.layouts.HTMLBox`. We also
 added two properties: a :class:`~bokeh.core.properties.String` to configure
 a text message for the readout, and an :class:`~bokeh.core.properties.Instance`
 that can hold a :class:`~bokeh.models.widgets.inputs.Slider`. The JavaScript
@@ -75,64 +75,73 @@ final BokehJS scripts. We will see how to connect this code to custom
 extensions in the next section.
 
 .. note::
-    BokehJS was originally written in `CoffeeScript`_, but is being ported
+    BokehJS was originally written in `CoffeeScript`_, but was ported
     to `TypeScript`_. Accordingly, the guidance here is presented in TypeScript.
     However, custom extensions can be written in CoffeeScript or pure JavaScript
     as well.
 
 .. code-block:: typescript
 
-    import {div, empty} from "core/dom"
+    import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
+
+    import {div} from "core/dom"
     import * as p from "core/properties"
-    import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
-    export class CustomView extends LayoutDOMView {
+    export class CustomView extends HTMLBoxView {
 
-      initialize(options) {
-        super.initialize(options)
-
-        this.render()
+      connect_signals(): void {
+        super.connect_signals()
 
         // Set BokehJS listener so that when the Bokeh slider has a change
-        // event, we can process the new data
-        this.connect(this.model.slider.change, () => this.render())
+        // event, we can process the new data.
+        this.connect(this.model.slider.change, () => {
+          this.render()
+          this.invalidate_layout()
+        })
       }
 
-      render() {
+      render(): void {
         // BokehjS Views create <div> elements by default, accessible as
         // ``this.el``. Many Bokeh views ignore this default <div>, and instead
         // do things like draw to the HTML canvas. In this case though, we change
         // the contents of the <div>, based on the current slider value.
-        empty(this.el)
+        super.render()
+
         this.el.appendChild(div({
           style: {
-            'padding': '2px',
-            'color': '#b88d8e',
-            'background-color': '#2a3153',
+            padding: '2px',
+            color: '#b88d8e',
+            backgroundColor: '#2a3153',
           },
         }, `${this.model.text}: ${this.model.slider.value}`))
       }
     }
 
-    export class Custom extends LayoutDOM {
+    export class Custom extends HTMLBox {
+      slider: {value: string}
 
-      // If there is an associated view, this is typically boilerplate.
-      default_view = CustomView
+      // The ``__name__`` class attribute should generally match exactly the name
+      // of the corresponding Python class. Note that if using TypeScript, this
+      // will be automatically filled in during compilation, so except in some
+      // special cases, this shouldn't be generally included manually, to avoid
+      // typos, which would prohibit serialization/deserialization of this model.
+      static __name__ = "Surface3d"
 
-      // The ``type`` class attribute should generally match exactly the name
-      // of the corresponding Python class.
-      type = "Custom"
+      static init_Custom(): void {
+        // If there is an associated view, this is typically boilerplate.
+        this.prototype.default_view = CustomView
+
+        // The this.define() block adds corresponding "properties" to the JS model.
+        // These should normally line up 1-1 with the Python model class. Most property
+        // types have counterparts, e.g. bokeh.core.properties.String will be
+        // ``p.String`` in the JS implementation. Any time the JS type system is not
+        // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
+        this.define<Custom.Props>({
+          text:   [ p.String ],
+          slider: [ p.Any    ],
+        })
+      }
     }
-
-    // The @define block adds corresponding "properties" to the JS model. These
-    // should normally line up 1-1 with the Python model class. Most property
-    // types have counterparts, e.g. bokeh.core.properties.String will be
-    // ``p.String`` in the JS implementation. Any time the JS type system is not
-    // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
-    Custom.define({
-      text:   [ p.String ],
-      slider: [ p.Any    ],
-    })
 
 .. _userguide_extensions_structure_putting_together:
 
@@ -153,9 +162,9 @@ then the complete Python class might look like:
 .. code-block:: python
 
     from bokeh.core.properties import String, Instance
-    from bokeh.models import LayoutDOM, Slider
+    from bokeh.models import HTMLBox, Slider
 
-    class Custom(LayoutDOM):
+    class Custom(HTMLBox):
 
         __implementation__ = "custom.ts"
 
@@ -197,7 +206,7 @@ the know extensions ``.coffee``, ``.js``, or ``.ts`` then the it is interpreted
 as a filename. The corresponding file is opened and its contents are compiled
 appropriately according to the file extension.
 
-Othewise, if the implementation is inline in the class, the language for the
+Otherwise, if the implementation is inline in the class, the language for the
 source code may be explicitly provided by using the classes ``CoffeeScript``,
 ``JavaScript``, or ``TypeScript``, e.g.
 
@@ -215,7 +224,7 @@ Supplying External Resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As part of implementing a custom model in Bokeh, there may be the need to
-include third-party javascript libraries or css resources. Bokeh supports
+include third-party Javascript libraries or CSS resources. Bokeh supports
 supplying external resources through the Python class attributes
 ``__javascript__`` and ``__css__`` of custom models.
 
@@ -223,15 +232,15 @@ Including the URL paths to external resources will causes Bokeh to add
 the resources to the html document head, causing the Javascript library to be
 available in the global namespace and the custom CSS styling to be applied.
 
-One example is including the JS and CSS files for `KaTex`_ (a
-Javascript-based typesetting library that supports LaTex) in order to create
-a ``LaTexLabel`` custom model.
+One example is including the JS and CSS files for `KaTeX`_ (a
+Javascript-based typesetting library that supports LaTeX) in order to create
+a ``LatexLabel`` custom model.
 
 .. code-block:: python
 
     class LatexLabel(Label):
         """A subclass of the Bokeh built-in `Label` that supports rendering
-        LaTex using the KaTex typesetting library.
+        LaTeX using the KaTeX typesetting library.
         """
         __javascript__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"
         __css__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"
@@ -239,7 +248,7 @@ a ``LaTexLabel`` custom model.
         # do something here
         """
 
-See the LaTex example in the extensions gallery below to see the full
+See the LaTeX example in the extensions gallery below to see the full
 implementation and resulting output.
 
 .. _userguide_extensions_structure_server_integration:
@@ -289,11 +298,11 @@ and improvements to this section for future users.
     a Bokeh custom extension.
 
 :ref:`userguide_extensions_examples_latex`
-    Include a third-party JavaScript library in order to render LaTex.
+    Include a third-party JavaScript library in order to render LaTeX.
 
 :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org
-.. _KaTex: https://khan.github.io/KaTeX/
+.. _KaTeX: https://khan.github.io/KaTeX/
 .. _TypeScript: https://www.typescriptlang.org/

@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -43,6 +42,20 @@ JS_MIME_TYPE   = 'application/javascript'
 LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
+
+__all__ = (
+    'CommsHandle',
+    'destroy_server',
+    'get_comms',
+    'install_notebook_hook',
+    'install_jupyter_hooks',
+    'load_notebook',
+    'publish_display_data',
+    'push_notebook',
+    'run_notebook_hook',
+    'show_app',
+    'show_doc',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -93,7 +106,7 @@ class CommsHandle(object):
     # internal doc with the event so that it is collected (until a
     # call to push_notebook processes and clear colleted events)
     def _document_model_changed(self, event):
-        if event.model._id in self.doc._all_models:
+        if event.model.id in self.doc._all_models:
             self.doc._trigger_on_change(event)
 
 def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
@@ -153,9 +166,10 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
             .. code-block:: python
 
                 show_app(
-                    app,         # the Bokeh Application to display
-                    state,       # current bokeh.io "state"
-                    notebook_url # URL to the current active notebook page
+                    app,          # the Bokeh Application to display
+                    state,        # current bokeh.io "state"
+                    notebook_url, # URL to the current active notebook page
+                    **kw          # any backend-specific keywords passed as-is
                 )
 
         overwrite (bool, optional) :
@@ -245,7 +259,7 @@ def push_notebook(document=None, state=None, handle=None):
     events = list(handle.doc._held_events)
 
     # This is to avoid having an exception raised for attempting to create a
-    # PATCH-DOC with no events. In the notebook, we just want to silenty
+    # PATCH-DOC with no events. In the notebook, we just want to silently
     # ignore calls to push_notebook when there are no new events
     if len(events) == 0:
         return
@@ -277,7 +291,7 @@ def run_notebook_hook(notebook_type, action, *args, **kw):
         Result of the hook action, as-is
 
     Raises:
-        RunetimeError
+        RuntimeError
             If the hook or specific action is not installed
 
     '''
@@ -360,12 +374,13 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
+    from ..resources import Resources
+    from ..settings import settings
     from ..util.serialization import make_id
-    from ..resources import CDN
     from ..util.compiler import bundle_all_models
 
     if resources is None:
-        resources = CDN
+        resources = Resources(mode=settings.resources())
 
     if not hide_banner:
 
@@ -396,7 +411,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     _NOTEBOOK_LOADED = resources
 
-    custom_models_js = bundle_all_models()
+    custom_models_js = bundle_all_models() or ""
 
     nb_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=True)
     jl_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=False)
@@ -416,8 +431,8 @@ def publish_display_data(*args, **kw):
     from IPython.display import publish_display_data
     return publish_display_data(*args, **kw)
 
-def show_app(app, state, notebook_url, port=0):
-    ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
+def show_app(app, state, notebook_url, port=0, **kw):
+    ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
     Args:
         app (Application or callable) :
@@ -443,6 +458,8 @@ def show_app(app, state, notebook_url, port=0):
             By default the port is 0, which results in the server listening
             on a random dynamic port.
 
+    Any additional keyword arguments are passed to :class:`~bokeh.server.Server` (added in version 1.1)
+
     Returns:
         None
 
@@ -459,7 +476,7 @@ def show_app(app, state, notebook_url, port=0):
     else:
         origin = _origin_url(notebook_url)
 
-    server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin])
+    server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin], **kw)
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
@@ -488,12 +505,15 @@ def show_doc(obj, state, notebook_handle):
     '''
 
     '''
+    if obj not in state.document.roots:
+        state.document.add_root(obj)
+
     from ..embed.notebook import notebook_content
     comms_target = make_id() if notebook_handle else None
     (script, div, cell_doc) = notebook_content(obj, comms_target)
 
     publish_display_data({HTML_MIME_TYPE: div})
-    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
+    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}})
 
     # Comms handling relies on the fact that the cell_doc returned by
     # notebook copy has models with the same IDs as the original curdoc

@@ -2,52 +2,49 @@ import {DataRange} from "./data_range"
 import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
+import {Rect} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {Rect} from "core/util/spatial"
 import {includes} from "core/util/array"
 
 export type Dim = 0 | 1
 export type Bounds = {[key: string]: Rect}
 
 export namespace DataRange1d {
-  export interface Attrs extends DataRange.Attrs {
-    start: number
-    end: number
-    range_padding: number
-    range_padding_units: PaddingUnits
-    flipped: boolean
-    follow: StartEnd
-    follow_interval: number
-    default_span: number
+  export type Attrs = p.AttrsOf<Props>
 
-    scale_hint: "log" | "auto"
+  export type Props = DataRange.Props & {
+    start: p.Property<number>
+    end: p.Property<number>
+    range_padding: p.Property<number>
+    range_padding_units: p.Property<PaddingUnits>
+    flipped: p.Property<boolean>
+    follow: p.Property<StartEnd>
+    follow_interval: p.Property<number>
+    default_span: p.Property<number>
+
+    scale_hint: p.Property<"log" | "auto">
   }
-
-  export interface Props extends DataRange.Props {}
 }
 
 export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
-
   properties: DataRange1d.Props
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DataRange1d"
-
-    this.define({
+  static init_DataRange1d(): void {
+    this.define<DataRange1d.Props>({
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],
       range_padding:       [ p.Number,       0.1       ],
       range_padding_units: [ p.PaddingUnits, "percent" ],
-      flipped:             [ p.Bool,         false     ],
-      follow:              [ p.StartEnd,               ],
+      flipped:             [ p.Boolean,      false     ],
+      follow:              [ p.StartEnd                ],
       follow_interval:     [ p.Number                  ],
       default_span:        [ p.Number,       2         ],
     })
@@ -112,7 +109,7 @@ export class DataRange1d extends DataRange {
     return renderers
   }
 
-  protected _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
+  /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
     let result = bbox.empty()
 
     for (const r of renderers) {
@@ -123,17 +120,17 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-   adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
+  adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
     const result = bbox.empty()
 
-    let width = bounds.maxX - bounds.minX
+    let width = bounds.x1 - bounds.x0
     if (width <= 0) { width = 1.0 }
 
-    let height = bounds.maxY - bounds.minY
+    let height = bounds.y1 - bounds.y0
     if (height <= 0) { height = 1.0 }
 
-    const xcenter = 0.5*(bounds.maxX + bounds.minX)
-    const ycenter = 0.5*(bounds.maxY + bounds.minY)
+    const xcenter = 0.5*(bounds.x1 + bounds.x0)
+    const ycenter = 0.5*(bounds.y1 + bounds.y0)
 
     if (width < ratio*height) {
       width = ratio*height
@@ -141,15 +138,15 @@ export class DataRange1d extends DataRange {
       height = width/ratio
     }
 
-    result.maxX = xcenter+0.5*width
-    result.minX = xcenter-0.5*width
-    result.maxY = ycenter+0.5*height
-    result.minY = ycenter-0.5*height
+    result.x1 = xcenter+0.5*width
+    result.x0 = xcenter-0.5*width
+    result.y1 = ycenter+0.5*height
+    result.y0 = ycenter-0.5*height
 
     return result
   }
 
-  protected _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const k in plot_bounds) {
       const v = plot_bounds[k]
@@ -158,14 +155,14 @@ export class DataRange1d extends DataRange {
 
     let min, max: number
     if (dimension == 0)
-      [min, max] = [overall.minX, overall.maxX]
+      [min, max] = [overall.x0, overall.x1]
     else
-      [min, max] = [overall.minY, overall.maxY]
+      [min, max] = [overall.y0, overall.y1]
 
     return [min, max]
   }
 
-  protected _compute_range(min: number, max: number): [number, number] {
+  /*protected*/ _compute_range(min: number, max: number): [number, number] {
     const range_padding = this.range_padding // XXX: ? 0
 
     let start, end: number
@@ -290,7 +287,7 @@ export class DataRange1d extends DataRange {
 
   reset(): void {
     this.have_updated_interactively = false
-    // change events silenced as PlotCanvasView.update_dataranges triggers property callbacks
+    // change events silenced as PlotView.update_dataranges triggers property callbacks
     this.setv({
       range_padding: this._initial_range_padding,
       range_padding_units: this._initial_range_padding_units,
@@ -301,5 +298,3 @@ export class DataRange1d extends DataRange {
     this.change.emit()
   }
 }
-
-DataRange1d.initClass()

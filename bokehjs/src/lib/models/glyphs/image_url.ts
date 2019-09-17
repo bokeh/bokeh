@@ -1,21 +1,21 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
+import {Class} from "core/class"
 import {Anchor} from "core/enums"
-import {logger} from "core/logging"
 import * as p from "core/properties"
-import {map} from "core/util/arrayable"
+import {map, min, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
+import {ImageLoader} from "core/util/image"
 
 export type CanvasImage = HTMLImageElement
-export const CanvasImage = Image
 
 export interface ImageURLData extends XYGlyphData {
   _url: Arrayable<string>
   _angle: Arrayable<number>
   _w: Arrayable<number>
   _h: Arrayable<number>
+  _bounds_rect: Rect
 
   sx: Arrayable<number>
   sy: Arrayable<number>
@@ -34,11 +34,10 @@ export class ImageURLView extends XYGlyphView {
   model: ImageURL
   visuals: ImageURL.Visuals
 
-  protected retries: Arrayable<number>
   protected _images_rendered = false
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
@@ -52,28 +51,51 @@ export class ImageURLView extends XYGlyphView {
 
     const {retry_attempts, retry_timeout} = this.model
 
-    this.retries = map(this._url, () => retry_attempts)
-
     for (let i = 0, end = this._url.length; i < end; i++) {
-      if (this._url[i] == null)
+      const url = this._url[i]
+
+      if (url == null || url == "")
         continue
 
-      const img = new CanvasImage()
-      img.onerror = () => {
-        if (this.retries[i] > 0) {
-          logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`)
-          setTimeout(() => img.src = this._url[i], retry_timeout)
-        } else
-          logger.warn(`ImageURL unable to load ${this._url[i]} image after ${retry_attempts} retries`)
-
-        this.retries[i] -= 1
-      }
-      img.onload = () => {
-        this.image[i] = img
-        this.renderer.request_render()
-      }
-      img.src = this._url[i]
+      new ImageLoader(url, {
+        loaded: (image) => {
+          this.image[i] = image
+          this.renderer.request_render()
+        },
+        attempts: retry_attempts + 1,
+        timeout: retry_timeout,
+      })
     }
+
+    const w_data = this.model.properties.w.units == "data"
+    const h_data = this.model.properties.h.units == "data"
+
+    const n = this._x.length
+
+    const xs = new Array<number>(w_data ? 2*n : n)
+    const ys = new Array<number>(h_data ? 2*n : n)
+
+    for (let i = 0; i < n; i++) {
+      xs[i] = this._x[i]
+      ys[i] = this._y[i]
+    }
+
+    // if the width/height are in screen units, don't try to include them in bounds
+    if (w_data) {
+      for (let i = 0; i < n; i++)
+        xs[n + i] = this._x[i] + this._w[i]
+    }
+    if (h_data) {
+      for (let i = 0; i < n; i++)
+        ys[n + i] = this._y[i] + this._h[i]
+    }
+
+    const x0 = min(xs)
+    const x1 = max(xs)
+    const y0 = min(ys)
+    const y1 = max(ys)
+
+    this._bounds_rect = {x0, x1, y0, y1}
   }
 
   has_finished(): boolean {
@@ -126,9 +148,6 @@ export class ImageURLView extends XYGlyphView {
       if (isNaN(sx[i] + sy[i] + _angle[i]))
         continue
 
-      if (this.retries[i] == -1)
-        continue
-
       const img = image[i]
 
       if (img == null) {
@@ -147,14 +166,14 @@ export class ImageURLView extends XYGlyphView {
 
   protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
     switch (anchor) {
-      case 'top_left':      return [sx         , sy         ]
+      case 'top_left':      return [sx, sy         ]
       case 'top_center':    return [sx - (sw/2), sy         ]
-      case 'top_right':     return [sx - sw    , sy         ]
-      case 'center_right':  return [sx - sw    , sy - (sh/2)]
-      case 'bottom_right':  return [sx - sw    , sy - sh    ]
+      case 'top_right':     return [sx - sw, sy         ]
+      case 'center_right':  return [sx - sw, sy - (sh/2)]
+      case 'bottom_right':  return [sx - sw, sy - sh    ]
       case 'bottom_center': return [sx - (sw/2), sy - sh    ]
-      case 'bottom_left':   return [sx         , sy - sh    ]
-      case 'center_left':   return [sx         , sy - (sh/2)]
+      case 'bottom_left':   return [sx, sy - sh    ]
+      case 'center_left':   return [sx, sy - (sh/2)]
       case 'center':        return [sx - (sw/2), sy - (sh/2)]
     }
   }
@@ -183,22 +202,16 @@ export class ImageURLView extends XYGlyphView {
 
     ctx.restore()
   }
+
+  bounds(): Rect {
+    return this._bounds_rect
+  }
 }
 
 export namespace ImageURL {
-  export interface Attrs extends XYGlyph.Attrs {
-    url: StringSpec
-    anchor: Anchor
-    global_alpha: number
-    angle: AngleSpec
-    w: DistanceSpec
-    h: DistanceSpec
-    dilate: boolean
-    retry_attempts: number
-    retry_timeout: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & {
     url: p.StringSpec
     anchor: p.Property<Anchor>
     global_alpha: p.Property<number>
@@ -210,34 +223,32 @@ export namespace ImageURL {
     retry_timeout: p.Property<number>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {}
+  export type Visuals = XYGlyph.Visuals
 }
 
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
-
   properties: ImageURL.Props
+  default_view: Class<ImageURLView>
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ImageURL'
+  static init_ImageURL(): void {
     this.prototype.default_view = ImageURLView
 
-    this.define({
+    this.define<ImageURL.Props>({
       url:            [ p.StringSpec            ],
       anchor:         [ p.Anchor,    'top_left' ],
       global_alpha:   [ p.Number,    1.0        ],
       angle:          [ p.AngleSpec, 0          ],
       w:              [ p.DistanceSpec          ],
       h:              [ p.DistanceSpec          ],
-      dilate:         [ p.Bool,      false      ],
+      dilate:         [ p.Boolean,   false      ],
       retry_attempts: [ p.Number,    0          ],
       retry_timeout:  [ p.Number,    0          ],
     })
   }
 }
-ImageURL.initClass()

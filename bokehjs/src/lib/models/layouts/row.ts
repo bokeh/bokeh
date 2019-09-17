@@ -1,34 +1,41 @@
 import {Box, BoxView} from "./box"
+import {Row as RowLayout, ColsSizing} from "core/layout/grid"
+import * as p from "core/properties"
 
 export class RowView extends BoxView {
   model: Row
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-grid-row")
+  _update_layout(): void {
+    const items = this.child_views.map((child) => child.layout)
+    this.layout = new RowLayout(items)
+    this.layout.cols = this.model.cols
+    this.layout.spacing = [0, this.model.spacing]
+    this.layout.set_sizing(this.box_sizing())
   }
 }
 
 export namespace Row {
-  export interface Attrs extends Box.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Box.Props {}
+  export type Props = Box.Props & {
+    cols: p.Property<ColsSizing>
+  }
 }
 
 export interface Row extends Row.Attrs {}
 
 export class Row extends Box {
-
   properties: Row.Props
 
   constructor(attrs?: Partial<Row.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Row"
+  static init_Row(): void {
     this.prototype.default_view = RowView
-  }
 
-  _horizontal = true
+    this.define<Row.Props>({
+      cols: [ p.Any, "auto" ],
+    })
+  }
 }
-Row.initClass()

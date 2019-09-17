@@ -1,6 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
@@ -28,41 +27,29 @@ export abstract class CenterRotatableView extends XYGlyphView {
 }
 
 export namespace CenterRotatable {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    angle: AngleSpec
-    width: DistanceSpec
-    height: DistanceSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     angle: p.AngleSpec
     width: p.DistanceSpec
     height: p.DistanceSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface CenterRotatable extends CenterRotatable.Attrs {}
 
 export abstract class CenterRotatable extends XYGlyph {
-
   properties: CenterRotatable.Props
 
   constructor(attrs?: Partial<CenterRotatable.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CenterRotatable'
-
+  static init_CenterRotatable(): void {
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<CenterRotatable.Props>({
       angle:  [ p.AngleSpec,   0     ],
       width:  [ p.DistanceSpec       ],
       height: [ p.DistanceSpec       ],
@@ -70,4 +57,3 @@ export abstract class CenterRotatable extends XYGlyph {
 
   }
 }
-CenterRotatable.initClass()

@@ -5,30 +5,27 @@ import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSTransform {
-  export interface Attrs extends Transform.Attrs {
-    args: {[key: string]: any}
-    func: string
-    v_func: string
-    use_strict: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props & {
+    args: p.Property<{[key: string]: unknown}>
+    func: p.Property<string>
+    v_func: p.Property<string>
+    use_strict: p.Property<boolean>
+  }
 }
 
 export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 
 export class CustomJSTransform extends Transform {
-
   properties: CustomJSTransform.Props
 
   constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CustomJSTransform'
-
-    this.define({
+  static init_CustomJSTransform(): void {
+    this.define<CustomJSTransform.Props>({
       args:       [ p.Any,    {}     ], // TODO (bev) better type
       func:       [ p.String, ""     ],
       v_func:     [ p.String, ""     ],
@@ -65,4 +62,3 @@ export class CustomJSTransform extends Transform {
     return this.vector_transform(...this.values, xs, require, {})
   }
 }
-CustomJSTransform.initClass()

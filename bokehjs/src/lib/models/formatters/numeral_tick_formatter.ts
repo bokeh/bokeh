@@ -1,38 +1,34 @@
 import * as Numbro from "numbro"
 
 import {TickFormatter} from "./tick_formatter"
-import {Axis} from "../axes/axis"
 import {RoundingFunction} from "core/enums"
 import * as p from "core/properties"
 
 export namespace NumeralTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    format: string
-    language: string
-    rounding: RoundingFunction
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    format: p.Property<string>
+    language: p.Property<string>
+    rounding: p.Property<RoundingFunction>
+  }
 }
 
 export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
-
   properties: NumeralTickFormatter.Props
 
   constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'NumeralTickFormatter'
-
-    this.define({
+  static init_NumeralTickFormatter(): void {
+    this.define<NumeralTickFormatter.Props>({
       // TODO (bev) all of these could be tightened up
-      format:   [ p.String, '0,0'   ],
-      language: [ p.String, 'en'    ],
-      rounding: [ p.String, 'round' ],
+      format:   [ p.String,           '0,0'   ],
+      language: [ p.String,           'en'    ],
+      rounding: [ p.RoundingFunction, 'round' ],
     })
   }
 
@@ -50,9 +46,8 @@ export class NumeralTickFormatter extends TickFormatter {
     }
   }
 
-  doFormat(ticks: number[], _axis: Axis): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     const {format, language, _rounding_fn} = this
     return ticks.map((tick) => Numbro.format(tick, format, language, _rounding_fn))
   }
 }
-NumeralTickFormatter.initClass()

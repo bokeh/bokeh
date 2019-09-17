@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Display a variety of simple scatter marker shapes whose attributes
 can be associated with data columns from ``ColumnDataSources``.
 
@@ -8,6 +14,7 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.CircleCross`
 * :class:`~bokeh.models.markers.CircleX`
 * :class:`~bokeh.models.markers.Cross`
+* :class:`~bokeh.models.markers.Dash`
 * :class:`~bokeh.models.markers.Diamond`
 * :class:`~bokeh.models.markers.DiamondCross`
 * :class:`~bokeh.models.markers.Hex`
@@ -29,14 +36,58 @@ other markers do not.
     :members:
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import enumeration
 from ..core.has_props import abstract
-from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
+from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, MarkerSpec, NumberSpec, ScreenDistanceSpec
 from ..core.property_mixins import FillProps, LineProps
 
 from .glyphs import XYGlyph
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Asterisk',
+    'Circle',
+    'CircleCross',
+    'CircleX',
+    'Cross',
+    'Dash',
+    'Diamond',
+    'DiamondCross',
+    'Hex',
+    'InvertedTriangle',
+    'Marker',
+    'Scatter',
+    'Square',
+    'SquareCross',
+    'SquareX',
+    'Triangle',
+    'X',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Marker(XYGlyph):
@@ -80,6 +131,46 @@ class Marker(XYGlyph):
     The %s values for the markers.
     """)
 
+class Scatter(Marker):
+    ''' Render arbitrary markers according a specification.
+
+    The Scatter can draw any built-in marker type. It can be configured
+    to draw the same marker for all values by specifying the name of a
+    marker, e.g.
+
+    .. code-block:: python
+
+        glyph = Scatter(x="x", y="y", size="sizes", marker="square")
+        plot.add_glyph(source, glyph)
+
+    will render only Square markers for all points. Alternatively, the
+    Scatter marker can be configured to use marker types specified in a
+    data source column:
+
+    .. code-block:: python
+
+        # source.data['markers'] = ["circle", "square", "circle", ... ]
+
+        glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
+        plot.add_glyph(source, glyph)
+
+    Note that circles drawn with `Scatter` conform to the standard Marker
+    interface, and can only vary by size (in screen units) and *not* by radius
+    (in data units). If you need to control circles by radius in data units,
+    you should use the Circle glyph directly.
+
+    '''
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'size', 'angle', 'marker')
+
+    marker = MarkerSpec(default="circle", help="""
+    Which marker to render. This can be the name of any built in marker,
+    e.g. "circle", or a reference to a data column containing such names.
+    """)
+
+    __example__ = "examples/reference/models/Scatter.py"
+
 class Asterisk(Marker):
     ''' Render asterisk '*' markers. '''
 
@@ -114,12 +205,15 @@ class Circle(Marker):
 
     """)
 
-    radius_dimension = Enum(enumeration('x', 'y'), help="""
+    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
     What dimension to measure circle radii along.
 
     When the data space aspect ratio is not 1-1, then the size of the drawn
     circles depends on what direction is used to measure the "distance" of
     the radius. This property allows that direction to be controlled.
+
+    Setting this dimension to 'max' will calculate the radius on both the x
+    and y dimensions and use the maximum of the two, 'min' selects the minimum.
     """)
 
 class CircleCross(Marker):
@@ -136,6 +230,13 @@ class Cross(Marker):
     ''' Render '+' cross markers. '''
 
     __example__ = "examples/reference/models/Cross.py"
+
+class Dash(Marker):
+    ''' Render dash markers. Use ``angle`` to rotate and create vertically
+    oriented short lines.
+    '''
+
+    __example__ = "examples/reference/models/Dash.py"
 
 class Diamond(Marker):
     ''' Render diamond markers. '''
@@ -181,3 +282,15 @@ class X(Marker):
     ''' Render a 'X' cross markers. '''
 
     __example__ = "examples/reference/models/X.py"
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

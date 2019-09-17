@@ -1,7 +1,5 @@
-import {Promise} from "es6-promise"
-
 import {logger} from "core/logging"
-import {Document} from "document"
+import {Document, DocJson} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import {ClientSession} from "./session"
@@ -25,6 +23,7 @@ export class ClientConnection {
   protected _current_handler: ((message: Message) => void) | null = null
   protected _pending_ack: [(connection: ClientConnection) => void, Rejecter] | null = null // null or [resolve,reject]
   protected _pending_replies: {[key: string]: [(message: Message) => void, Rejecter]} = {} // map reqid to [resolve,reject]
+  protected _pending_messages: Message[] = []
   protected readonly _receiver: Receiver = new Receiver()
 
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
@@ -90,9 +89,9 @@ export class ClientConnection {
       /*
       if (this.closed_permanently) {
       */
-        if (!this.closed_permanently)
-          logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        return
+      if (!this.closed_permanently)
+        logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
+      return
       /*
       } else {
         logger.debug(`Attempting to reconnect websocket ${this._number}`)
@@ -110,15 +109,15 @@ export class ClientConnection {
   }
 
   send_with_reply(message: Message): Promise<Message> {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise<Message>((resolve, reject) => {
       this._pending_replies[message.msgid()] = [resolve, reject]
       this.send(message)
     })
 
     return promise.then(
-      (message: Message) => {
+      (message) => {
         if (message.msgtype() === "ERROR")
-          throw new Error(`Error reply ${message.content['text']}`)
+          throw new Error(`Error reply ${message.content.text}`)
         else
           return message
       },
@@ -128,14 +127,14 @@ export class ClientConnection {
     )
   }
 
-  protected _pull_doc_json(): Promise<Message> {
+  protected _pull_doc_json(): Promise<DocJson> {
     const message = Message.create("PULL-DOC-REQ", {})
     const promise = this.send_with_reply(message)
     return promise.then(
       (reply) => {
         if (!('doc' in reply.content))
           throw new Error("No 'doc' field in PULL-DOC-REPLY")
-        return reply.content['doc']
+        return reply.content.doc
       },
       (error) => {
         throw error
@@ -154,12 +153,12 @@ export class ClientConnection {
           if (this.closed_permanently)
             logger.debug("Got new document after connection was already closed")
           else {
-            const document = (Document as any).from_json(doc_json)
+            const document = Document.from_json(doc_json)
 
             // Constructing models changes some of their attributes, we deal with that
             // here. This happens when models set attributes during construction
             // or initialization.
-            const patch = (Document as any)._compute_patch_since_json(doc_json, document)
+            const patch = Document._compute_patch_since_json(doc_json, document)
             if (patch.events.length > 0) {
               logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
               const patch_message = Message.create('PATCH-DOC', {}, patch)
@@ -167,6 +166,11 @@ export class ClientConnection {
             }
 
             this.session = new ClientSession(this, document, this.id)
+
+            for (const msg of this._pending_messages) {
+              this.session.handle(msg)
+            }
+            this._pending_messages = []
 
             logger.debug("Created a new session from new pulled doc")
             if (this._on_have_session_hook != null) {
@@ -264,8 +268,6 @@ export class ClientConnection {
       this._current_handler = (message: Message) => this._steady_state_handler(message)
 
       // Reload any sessions
-      // TODO (havocp) there's a race where we might get a PATCH before
-      // we send and get a reply to our pulls.
       this._repull_session_doc()
 
       if (this._pending_ack != null) {
@@ -281,19 +283,21 @@ export class ClientConnection {
       const promise_funcs = this._pending_replies[message.reqid()]
       delete this._pending_replies[message.reqid()]
       promise_funcs[0](message)
-    } else
-      this.session!.handle(message)
+    } else if (this.session) {
+      this.session.handle(message)
+    } else {
+      this._pending_messages.push(message)
+    }
   }
 }
 
 // Returns a promise of a ClientSession
 // The returned promise has a close() method in case you want to close before
 // getting a session; session.close() works too once you have a session.
-export function pull_session(url: string, session_id: string, args_string?: string): Promise<ClientSession> {
-  let connection: ClientConnection
-
+export function pull_session(url?: string, session_id?: string, args_string?: string): Promise<ClientSession> {
   const promise = new Promise<ClientSession>((resolve, reject) => {
-    connection = new ClientConnection(url, session_id, args_string,
+    const connection = new ClientConnection(
+      url, session_id, args_string,
       (session) => {
         try {
           resolve(session)
@@ -308,7 +312,7 @@ export function pull_session(url: string, session_id: string, args_string?: stri
         reject(new Error("Connection was closed before we successfully pulled a session"))
       },
     )
-    return connection.connect().then(
+    connection.connect().then(
       (_) => undefined,
       (error) => {
         logger.error(`Failed to connect to Bokeh server ${error}`)
@@ -317,11 +321,5 @@ export function pull_session(url: string, session_id: string, args_string?: stri
     )
   })
 
-  /*
-  // add a "close" method to the promise... too weird?
-  promise.close = () => {
-    connection.close()
-  }
-  */
   return promise
 }

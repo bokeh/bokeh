@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -34,15 +33,19 @@ from .rgb import RGB
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'ColorGroup',
+    'NamedColor',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Dev API
+# Private API
 #-----------------------------------------------------------------------------
 
-# Normally this would go under Private API but it is needed to define ColorGroup
 class _ColorGroupMeta(type):
     ''' This metaclass enables ColorGroup class types to be used like simple
     enumerations.
@@ -71,9 +74,13 @@ class _ColorGroupMeta(type):
 
     def __getattr__(self, v):
         from . import named
-        if v is not "_colors" and v in self._colors:
+        if v != "_colors" and v in self._colors:
             return getattr(named, v.lower())
         return super(_ColorGroupMeta, self).__getattr__(v)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class ColorGroup(with_metaclass(_ColorGroupMeta)):
     ''' Collect a group of named colors into an iterable, indexable group.
@@ -118,10 +125,6 @@ class NamedColor(RGB):
 
         '''
         return self.name
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code

@@ -4,29 +4,26 @@ import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJS {
-  export interface Attrs extends Callback.Attrs {
-    args: {[key: string]: any}
-    code: string
-    use_strict: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Callback.Props {}
+  export type Props = Callback.Props & {
+    args: p.Property<{[key: string]: unknown}>
+    code: p.Property<string>
+    use_strict: p.Property<boolean>
+  }
 }
 
 export interface CustomJS extends CustomJS.Attrs {}
 
 export class CustomJS extends Callback {
-
   properties: CustomJS.Props
 
   constructor(attrs?: Partial<CustomJS.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CustomJS'
-
-    this.define({
+  static init_CustomJS(): void {
+    this.define<CustomJS.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
       use_strict: [ p.Boolean, false ],
@@ -46,8 +43,7 @@ export class CustomJS extends Callback {
     return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", code)
   }
 
-  execute(cb_obj: any, cb_data: {[key: string]: any}): any {
+  execute(cb_obj: unknown, cb_data: {[key: string]: unknown} = {}): unknown {
     return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}))
   }
 }
-CustomJS.initClass()

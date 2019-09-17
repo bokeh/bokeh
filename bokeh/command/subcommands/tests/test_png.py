@@ -1,17 +1,46 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
-import pytest
 import os
-import sys
 
-is_python2 = sys.version_info[0] == 2
+# External imports
+import six
 
+# Bokeh imports
 import bokeh.command.subcommands.png as scpng
 from bokeh.command.bootstrap import main
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 
 from . import basic_scatter_script
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_create():
     import argparse
@@ -72,7 +101,7 @@ def test_no_script(capsys):
             with pytest.raises(SystemExit):
                 main(["bokeh", "png"])
         out, err = capsys.readouterr()
-        if is_python2:
+        if six.PY2:
             too_few = "too few arguments"
         else:
             too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
@@ -95,8 +124,7 @@ def test_basic_script(capsys):
 
         assert set(["scatter.png", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -110,8 +138,7 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.png", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -125,8 +152,23 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.png", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+@pytest.mark.skipif(six.PY2, reason="capsysbinary not available on Py2")
+def test_basic_script_with_output_stdout(capsysbinary):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "png", "--output", "-", "scatter.py"])
+        out, err = capsysbinary.readouterr()
+        assert len(err) == 0
+        assert len(out) > 0
+        assert out.startswith(b'\x89PNG')
+
+        assert set(["scatter.py"]) == set(os.listdir(dirname))
+
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -144,3 +186,11 @@ def test_basic_script_with_multiple_png_plots(capsys):
                               'scatter2.py' : basic_scatter_script,
                               'scatter3.py' : basic_scatter_script, },
                             run)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

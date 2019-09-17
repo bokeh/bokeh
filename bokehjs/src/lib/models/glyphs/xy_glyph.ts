@@ -1,6 +1,6 @@
 import {Arrayable} from "core/types"
-import {NumberSpec} from "core/vectorization"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
 export interface XYGlyphData extends GlyphData {
@@ -27,7 +27,7 @@ export abstract class XYGlyphView extends GlyphView {
       if (isNaN(x + y) || !isFinite(x + y))
         continue
 
-      points.push({minX: x, minY: y, maxX: x, maxY: y, i})
+      points.push({x0: x, y0: y, x1: x, y1: y, i})
     }
 
     return new SpatialIndex(points)
@@ -40,33 +40,30 @@ export abstract class XYGlyphView extends GlyphView {
   scentery(i: number): number {
     return this.sy[i]
   }
+
 }
 
 export namespace XYGlyph {
-  export interface Attrs extends Glyph.Attrs {
-    x: NumberSpec
-    y: NumberSpec
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Glyph.Props & {
+    x: p.CoordinateSpec
+    y: p.CoordinateSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {}
+  export type Visuals = Glyph.Visuals
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
-
   properties: XYGlyph.Props
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "XYGlyph"
-
+  static init_XYGlyph(): void {
     this.coords([['x', 'y']])
   }
 }
-XYGlyph.initClass()

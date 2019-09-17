@@ -1,22 +1,21 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
-import {LineMixinScalar} from "core/property_mixins"
+import {LineScalar} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
-import {show, hide} from "core/dom"
-import {Color} from "core/types"
+import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
-import {ViewTransform} from "core/layout/layout_canvas"
+import {CoordinateTransform} from "core/util/bbox"
 
 export class SpanView extends AnnotationView {
   model: Span
   visuals: Span.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.plot_view.canvas_overlays.appendChild(this.el)
     this.el.style.position = "absolute"
-    hide(this.el)
+    undisplay(this.el)
   }
 
   connect_signals(): void {
@@ -36,7 +35,7 @@ export class SpanView extends AnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return
@@ -47,7 +46,7 @@ export class SpanView extends AnnotationView {
   protected _draw_span(): void {
     const loc = this.model.for_hover ? this.model.computed_location : this.model.location
     if (loc == null) {
-      hide(this.el)
+      undisplay(this.el)
       return
     }
 
@@ -56,7 +55,7 @@ export class SpanView extends AnnotationView {
     const xscale = frame.xscales[this.model.x_range_name]
     const yscale = frame.yscales[this.model.y_range_name]
 
-    const _calc_dim = (scale: Scale, view: ViewTransform): number => {
+    const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
       if (this.model.for_hover)
         return this.model.computed_location!
       else {
@@ -87,7 +86,7 @@ export class SpanView extends AnnotationView {
       this.el.style.height = `${height}px`
       this.el.style.backgroundColor = this.model.properties.line_color.value()
       this.el.style.opacity = this.model.properties.line_alpha.value()
-      show(this.el)
+      display(this.el)
     } else if (this.model.render_mode == "canvas") {
       const {ctx} = this.plot_view.canvas_view
       ctx.save()
@@ -108,20 +107,9 @@ export class SpanView extends AnnotationView {
 }
 
 export namespace Span {
-  export interface Mixins extends LineMixinScalar {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    render_mode: RenderMode
-    x_range_name: string
-    y_range_name: string
-    location: number | null
-    location_units: SpatialUnits
-    dimension: Dimension
-    for_hover: boolean
-    computed_location: number | null
-  }
-
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & LineScalar & {
     render_mode: p.Property<RenderMode>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
@@ -130,10 +118,6 @@ export namespace Span {
     dimension: p.Property<Dimension>
     for_hover: p.Property<boolean>
     computed_location: p.Property<number | null>
-
-    line_color: p.Property<Color>
-    line_width: p.Property<number>
-    line_alpha: p.Property<number>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line}
@@ -142,20 +126,18 @@ export namespace Span {
 export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
-
   properties: Span.Props
 
   constructor(attrs?: Partial<Span.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Span'
+  static init_Span(): void {
     this.prototype.default_view = SpanView
 
     this.mixins(['line'])
 
-    this.define({
+    this.define<Span.Props>({
       render_mode:    [ p.RenderMode,   'canvas'  ],
       x_range_name:   [ p.String,       'default' ],
       y_range_name:   [ p.String,       'default' ],
@@ -174,4 +156,3 @@ export class Span extends Annotation {
     })
   }
 }
-Span.initClass()

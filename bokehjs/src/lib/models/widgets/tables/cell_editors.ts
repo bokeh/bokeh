@@ -3,7 +3,10 @@ import {input, textarea, select, option, Keys} from "core/dom"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
-import {DTINDEX_NAME, Item} from "./data_table"
+import {DTINDEX_NAME} from "./data_table"
+import {Item} from "./table_column"
+
+import {bk_cell_editor} from "styles/widgets/tables"
 
 export abstract class CellEditorView extends DOMView {
   model: CellEditor
@@ -22,23 +25,23 @@ export abstract class CellEditorView extends DOMView {
 
   constructor(options: any) {
     super({model: options.column.model, ...options})
+    this.args = options
+    this.render() // XXX: this isn't governed by layout
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.inputEl = this._createInput()
     this.defaultValue = null
-    this.args = options
-    this.render()
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-cell-editor")
+    return super.css_classes().concat(bk_cell_editor)
   }
 
   render(): void {
     super.render()
-    this.args.container.appendChild(this.el)
+    this.args.container.append(this.el)
     this.el.appendChild(this.inputEl)
     this.renderEditor()
     this.disableNavigation()
@@ -91,7 +94,9 @@ export abstract class CellEditorView extends DOMView {
   }
 
   applyValue(item: Item, state: any): void {
-    this.args.grid.getData().setField(item[DTINDEX_NAME], this.args.column.field, state)
+    const grid_data = this.args.grid.getData()
+    const offset = grid_data.index.indexOf(item[DTINDEX_NAME])
+    grid_data.setField(offset, this.args.column.field, state)
   }
 
   loadValue(item: Item): void {
@@ -116,12 +121,17 @@ export abstract class CellEditorView extends DOMView {
   }
 }
 
-export abstract class CellEditor extends Model {
-  static initClass(): void {
-    this.prototype.type = "CellEditor"
-  }
+export namespace CellEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props
 }
-CellEditor.initClass()
+
+export interface CellEditor extends CellEditor.Attrs {}
+
+export abstract class CellEditor extends Model {
+  properties: CellEditor.Props
+}
 
 export class StringEditorView extends CellEditorView {
   model: StringEditor
@@ -153,16 +163,26 @@ export class StringEditorView extends CellEditorView {
   }
 }
 
+export namespace StringEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props & {
+    completions: p.Property<string[]>
+  }
+}
+
+export interface StringEditor extends StringEditor.Attrs {}
+
 export class StringEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'StringEditor'
+  properties: StringEditor.Props
+
+  static init_StringEditor(): void {
     this.prototype.default_view = StringEditorView
-    this.define({
+    this.define<StringEditor.Props>({
       completions: [ p.Array, [] ],
     })
   }
 }
-StringEditor.initClass()
 
 export class TextEditorView extends CellEditorView {
   model: TextEditor
@@ -174,13 +194,21 @@ export class TextEditorView extends CellEditorView {
   }
 }
 
+export namespace TextEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props
+}
+
+export interface TextEditor extends TextEditor.Attrs {}
+
 export class TextEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'TextEditor'
+  properties: TextEditor.Props
+
+  static init_TextEditor(): void {
     this.prototype.default_view = TextEditorView
   }
 }
-TextEditor.initClass()
 
 export class SelectEditorView extends CellEditorView {
   model: SelectEditor
@@ -199,18 +227,26 @@ export class SelectEditorView extends CellEditorView {
   }
 }
 
-export class SelectEditor extends CellEditor {
-  options: string[]
+export namespace SelectEditor {
+  export type Attrs = p.AttrsOf<Props>
 
-  static initClass(): void {
-    this.prototype.type = 'SelectEditor'
+  export type Props = CellEditor.Props & {
+    options: p.Property<string[]>
+  }
+}
+
+export interface SelectEditor extends SelectEditor.Attrs {}
+
+export class SelectEditor extends CellEditor {
+  properties: SelectEditor.Props
+
+  static init_SelectEditor(): void {
     this.prototype.default_view = SelectEditorView
-    this.define({
+    this.define<SelectEditor.Props>({
       options: [ p.Array, [] ],
     })
   }
 }
-SelectEditor.initClass()
 
 export class PercentEditorView extends CellEditorView {
   model: PercentEditor
@@ -222,13 +258,21 @@ export class PercentEditorView extends CellEditorView {
   }
 }
 
+export namespace PercentEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props
+}
+
+export interface PercentEditor extends PercentEditor.Attrs {}
+
 export class PercentEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'PercentEditor'
+  properties: PercentEditor.Props
+
+  static init_PercentEditor(): void {
     this.prototype.default_view = PercentEditorView
   }
 }
-PercentEditor.initClass()
 
 export class CheckboxEditorView extends CellEditorView {
   model: CheckboxEditor
@@ -253,13 +297,21 @@ export class CheckboxEditorView extends CellEditorView {
   }
 }
 
+export namespace CheckboxEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props
+}
+
+export interface CheckboxEditor extends CheckboxEditor.Attrs {}
+
 export class CheckboxEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'CheckboxEditor'
+  properties: CheckboxEditor.Props
+
+  static init_CheckboxEditor(): void {
     this.prototype.default_view = CheckboxEditorView
   }
 }
-CheckboxEditor.initClass()
 
 export class IntEditorView extends CellEditorView {
   model: IntEditor
@@ -299,16 +351,26 @@ export class IntEditorView extends CellEditorView {
   }
 }
 
+export namespace IntEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props & {
+    step: p.Property<number>
+  }
+}
+
+export interface IntEditor extends IntEditor.Attrs {}
+
 export class IntEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'IntEditor'
+  properties: IntEditor.Props
+
+  static init_IntEditor(): void {
     this.prototype.default_view = IntEditorView
-    this.define({
+    this.define<IntEditor.Props>({
       step: [ p.Number, 1 ],
     })
   }
 }
-IntEditor.initClass()
 
 export class NumberEditorView extends CellEditorView {
   model: NumberEditor
@@ -348,16 +410,26 @@ export class NumberEditorView extends CellEditorView {
   }
 }
 
+export namespace NumberEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props & {
+    step: p.Property<number>
+  }
+}
+
+export interface NumberEditor extends NumberEditor.Attrs {}
+
 export class NumberEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'NumberEditor'
+  properties: NumberEditor.Props
+
+  static init_NumberEditor(): void {
     this.prototype.default_view = NumberEditorView
-    this.define({
+    this.define<NumberEditor.Props>({
       step: [ p.Number, 0.01 ],
     })
   }
 }
-NumberEditor.initClass()
 
 export class TimeEditorView extends CellEditorView {
   model: TimeEditor
@@ -369,13 +441,21 @@ export class TimeEditorView extends CellEditorView {
   }
 }
 
+export namespace TimeEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props
+}
+
+export interface TimeEditor extends TimeEditor.Attrs {}
+
 export class TimeEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'TimeEditor'
+  properties: TimeEditor.Props
+
+  static init_TimeEditor(): void {
     this.prototype.default_view = TimeEditorView
   }
 }
-TimeEditor.initClass()
 
 export class DateEditorView extends CellEditorView {
   model: DateEditor
@@ -430,17 +510,27 @@ export class DateEditorView extends CellEditorView {
     return super.position()
   }
 
-  getValue(): any {}
+  getValue(): any {
     //return @$datepicker.datepicker("getDate").getTime()
+  }
 
-  setValue(_val: any): void {}
-}
+  setValue(_val: any): void {
     //@$datepicker.datepicker("setDate", new Date(val))
+  }
+}
+
+export namespace DateEditor {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellEditor.Props
+}
+
+export interface DateEditor extends DateEditor.Attrs {}
 
 export class DateEditor extends CellEditor {
-  static initClass(): void {
-    this.prototype.type = 'DateEditor'
+  properties: DateEditor.Props
+
+  static init_DateEditor(): void {
     this.prototype.default_view = DateEditorView
   }
 }
-DateEditor.initClass()

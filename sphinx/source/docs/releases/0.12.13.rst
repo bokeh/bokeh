@@ -1,18 +1,25 @@
-0.12.13 (Dec 2017)
-==================
+.. _release-0-12-13:
 
-Bokeh Version ``0.12.13`` is a targeted bugfix release that addresses
-two issues:
+0.12.13
+=======
+
+Bokeh Version ``0.12.13`` (Dec 2017) is a targeted bugfix release that
+addresses two issues:
 
 * ``push_notebook`` regression in ``0.12.11``
 * Windows package install failures due to reserved "aux" filename
 
 For full details see the :bokeh-tree:`CHANGELOG`.
 
+.. _release-0-12-13-migration:
+
+`Migration Guide <releases.html#release-0-12-13-migration>`__
+-------------------------------------------------------------
+
 BokehJS Changes
 ~~~~~~~~~~~~~~~
 
-bokehjs doesn't require custom styles to make "responsive" layout modes work
+BokehJS doesn't require custom styles to make "responsive" layout modes work
 anymore. This means that there are no additional styles added a page, like
 margins. This results in margins working differently and now default to browser
 defaults. If you want to restore the previous behavior, then add the following

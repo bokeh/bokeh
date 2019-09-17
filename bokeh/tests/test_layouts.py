@@ -1,15 +1,42 @@
-import bokeh.layouts as lyt
-import pytest
-from bokeh.core.enums import SizingMode
-from bokeh.plotting import figure
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-from bokeh.layouts import gridplot
-from bokeh.models import Column, Row, Spacer
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from bokeh.plotting import figure
+from bokeh.layouts import column, row, gridplot, layout, grid
+from bokeh.models import Column, Row, GridBox, Spacer
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_gridplot_merge_tools_flat():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    lyt.gridplot([[p1, p2], [p3, p4]], merge_tools=True)
+    gridplot([[p1, p2], [p3, p4]], merge_tools=True)
 
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
@@ -18,7 +45,7 @@ def test_gridplot_merge_tools_flat():
 def test_gridplot_merge_tools_with_None():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    lyt.gridplot([[p1, None, p2], [p3, p4, None]], merge_tools=True)
+    gridplot([[p1, None, p2], [p3, p4, None]], merge_tools=True)
 
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
@@ -26,11 +53,11 @@ def test_gridplot_merge_tools_with_None():
 
 def test_gridplot_merge_tools_nested():
     p1, p2, p3, p4, p5, p6, p7 = figure(), figure(), figure(), figure(), figure(), figure(), figure()
-    r1 = lyt.row(p1, p2)
-    r2 = lyt.row(p3, p4)
-    c = lyt.column(lyt.row(p5), lyt.row(p6))
+    r1 = row(p1, p2)
+    r2 = row(p3, p4)
+    c = column(row(p5), row(p6))
 
-    lyt.gridplot([[r1, r2], [c, p7]], merge_tools=True)
+    gridplot([[r1, r2], [c, p7]], merge_tools=True)
 
     for p in p1, p2, p3, p4, p5, p6, p7:
         assert p.toolbar_location is None
@@ -42,50 +69,114 @@ def test_gridplot_None():
         p.circle([1, 2, 3], [4, 5, 6])
         return p
 
-    g = gridplot([[p(), p()], [None, None], [p(), p()]])
+    p0, p1, p2, p3 = p(), p(), p(), p()
+    g = gridplot([[p0, p1], [None, None], [p2, p3]], toolbar_location=None)
 
-    assert isinstance(g, Column) and len(g.children) == 2
-
-    c = g.children[1]
-    assert isinstance(c, Column) and len(c.children) == 3
-
-    r = c.children[1]
-    assert isinstance(r, Row) and len(r.children) == 2
-
-    s0 = r.children[0]
-    assert isinstance(s0, Spacer) and s0.width == 0 and s0.height == 0
-    s1 = r.children[1]
-    assert isinstance(s1, Spacer) and s1.width == 0 and s1.height == 0
-
+    assert isinstance(g, GridBox) and len(g.children) == 4
+    assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
 def test_layout_simple():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    grid = lyt.layout([[p1, p2], [p3, p4]], sizing_mode='fixed')
+    grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed')
 
-    assert isinstance(grid, lyt.Column)
-    for row in grid.children:
-        assert isinstance(row, lyt.Row)
+    assert isinstance(grid, Column)
+    for r in grid.children:
+        assert isinstance(r, Row)
+
+
+def test_layout_kwargs():
+    p1, p2, p3, p4 = figure(), figure(), figure(), figure()
+
+    grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed', name='simple')
+
+    assert grid.name == 'simple'
 
 
 def test_layout_nested():
     p1, p2, p3, p4, p5, p6 = figure(), figure(), figure(), figure(), figure(), figure()
 
-    grid = lyt.layout([[[p1, p1], [p2, p2]], [[p3, p4], [p5, p6]]], sizing_mode='fixed')
+    grid = layout([[[p1, p1], [p2, p2]], [[p3, p4], [p5, p6]]], sizing_mode='fixed')
 
-    assert isinstance(grid, lyt.Column)
-    for row in grid.children:
-        assert isinstance(row, lyt.Row)
-        for col in row.children:
-            assert isinstance(col, lyt.Column)
+    assert isinstance(grid, Column)
+    for r in grid.children:
+        assert isinstance(r, Row)
+        for c in r.children:
+            assert isinstance(c, Column)
 
+def test_grid():
+    s0 = Spacer()
+    s1 = Spacer()
+    s2 = Spacer()
+    s3 = Spacer()
+    s4 = Spacer()
+    s5 = Spacer()
+    s6 = Spacer()
 
-@pytest.mark.parametrize('sizing_mode', SizingMode)
-@pytest.mark.unit
-def test_layout_sizing_mode(sizing_mode):
-    p1, p2, p3, p4 = figure(), figure(), figure(), figure()
+    g0 = grid([])
+    assert g0.children == []
 
-    lyt.layout([[p1, p2], [p3, p4]], sizing_mode=sizing_mode)
+    g1 = grid(column(s0, row(column(s1, s2, s3, s4, s5), s6)))
+    assert g1.children == [
+        (s0, 0, 0, 1, 2),
+        (s1, 1, 0, 1, 1),
+        (s2, 2, 0, 1, 1),
+        (s3, 3, 0, 1, 1),
+        (s4, 4, 0, 1, 1),
+        (s5, 5, 0, 1, 1),
+        (s6, 1, 1, 5, 1),
+    ]
 
-    for p in p1, p2, p3, p4:
-        assert p1.sizing_mode == sizing_mode
+    g2 = grid([s0, [[s1, s2, s3, s4, s5], s6]])
+    assert g2.children == [
+        (s0, 0, 0, 1, 2),
+        (s1, 1, 0, 1, 1),
+        (s2, 2, 0, 1, 1),
+        (s3, 3, 0, 1, 1),
+        (s4, 4, 0, 1, 1),
+        (s5, 5, 0, 1, 1),
+        (s6, 1, 1, 5, 1),
+    ]
+
+    g3 = grid([s0, s1, s2, s3, s4, s5, s6], ncols=2)
+    assert g3.children == [
+        (s0, 0, 0, 1, 1),
+        (s1, 0, 1, 1, 1),
+        (s2, 1, 0, 1, 1),
+        (s3, 1, 1, 1, 1),
+        (s4, 2, 0, 1, 1),
+        (s5, 2, 1, 1, 1),
+        (s6, 3, 0, 1, 2),
+    ]
+
+    g4 = grid([s0, s1, s2, s3, s4, s5, s6, None], ncols=2)
+    assert g4.children == [
+        (s0, 0, 0, 1, 1),
+        (s1, 0, 1, 1, 1),
+        (s2, 1, 0, 1, 1),
+        (s3, 1, 1, 1, 1),
+        (s4, 2, 0, 1, 1),
+        (s5, 2, 1, 1, 1),
+        (s6, 3, 0, 1, 1),
+    ]
+
+    with pytest.raises(NotImplementedError):
+        grid("""
+        +----+----+----+----+
+        | s1 | s2 | s3 |    |
+        +---------+----+ s4 |
+        |    s5   | s5 |    |
+        +---------+----+----+
+        """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

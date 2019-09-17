@@ -1,5 +1,6 @@
 import io
 
+from collections import OrderedDict
 from jinja2 import Template
 
 from bokeh.embed import components
@@ -38,7 +39,7 @@ p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=3
 p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
 # plots can be a single Bokeh model, a list/tuple, or even a dictionary
-plots = {'Red': p1, 'Blue': p2, 'Green': p3}
+plots = OrderedDict([('Red', p1), ('Blue', p2), ('Green', p3)])
 
 script, div = components(plots)
 
@@ -51,18 +52,17 @@ template = Template('''<!DOCTYPE html>
         {{ script }}
         <style>
             .embed-wrapper {
-                width: 50%;
-                height: 400px;
-                margin: auto;
+                display: flex;
+                justify-content: space-evenly;
             }
         </style>
     </head>
     <body>
-        {% for key in div.keys() %}
-            <div class="embed-wrapper">
-            {{ div[key] }}
-            </div>
-        {% endfor %}
+        <div class="embed-wrapper">
+            {% for key in div.keys() %}
+                {{ div[key] }}
+            {% endfor %}
+        </div>
     </body>
 </html>
 ''')

@@ -1,15 +1,51 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
 ''' Client-side interactivity.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from types import FunctionType
 
+# External imports
+
+# Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import Dict, String, Bool, AnyRef
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Callback',
+    'OpenURL',
+    'CustomJS',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Callback(Model):
@@ -19,13 +55,18 @@ class Callback(Model):
 
 
 class OpenURL(Callback):
-    ''' Open a URL in a new tab or window (browser dependent).
+    ''' Open a URL in a new or current tab or window.
 
     '''
 
     url = String("http://", help="""
     The URL to direct the web browser to. This can be a template string,
     which will be formatted with data from the data source.
+    """)
+    same_tab = Bool(False, help="""
+    Open URL in a new (`False`, default) or current (`True`) tab or window.
+    For `same_tab=False`, whether tab or window will be opened is browser
+    dependent.
     """)
 
 
@@ -42,9 +83,13 @@ class CustomJS(Callback):
 
     @classmethod
     def from_py_func(cls, func):
-        """ Create a CustomJS instance from a Python function. The
+        """ Create a ``CustomJS`` instance from a Python function. The
         function is translated to JavaScript using PScript.
         """
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use CustomJS directly instead.")
+
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pscript = import_required('pscript',
@@ -83,7 +128,7 @@ class CustomJS(Callback):
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
-    (i.e. mouse coordinates and hovered glyph indices for the HoverTool).
+    (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
 
     .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
 
@@ -92,3 +137,15 @@ class CustomJS(Callback):
     use_strict = Bool(default=False, help="""
     Enables or disables automatic insertion of ``"use strict";`` into ``code``.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

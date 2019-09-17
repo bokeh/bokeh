@@ -2,28 +2,25 @@ import {MercatorTileSource} from './mercator_tile_source'
 import * as p from "core/properties"
 
 export namespace BBoxTileSource {
-  export interface Attrs extends MercatorTileSource.Attrs {
-    use_latlon: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends MercatorTileSource.Props {}
+  export type Props = MercatorTileSource.Props & {
+    use_latlon: p.Property<boolean>
+  }
 }
 
 export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
-
   properties: BBoxTileSource.Props
 
   constructor(attrs?: Partial<BBoxTileSource.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'BBoxTileSource'
-
-    this.define({
-      use_latlon: [ p.Bool, false ],
+  static init_BBoxTileSource(): void {
+    this.define<BBoxTileSource.Props>({
+      use_latlon: [ p.Boolean, false ],
     })
   }
 
@@ -36,10 +33,10 @@ export class BBoxTileSource extends MercatorTileSource {
     else
       [xmin, ymin, xmax, ymax] = this.get_tile_meter_bounds(x, y, z)
 
-    return image_url.replace("{XMIN}", xmin.toString())
-                    .replace("{YMIN}", ymin.toString())
-                    .replace("{XMAX}", xmax.toString())
-                    .replace("{YMAX}", ymax.toString())
+    return image_url
+      .replace("{XMIN}", xmin.toString())
+      .replace("{YMIN}", ymin.toString())
+      .replace("{XMAX}", xmax.toString())
+      .replace("{YMAX}", ymax.toString())
   }
 }
-BBoxTileSource.initClass()

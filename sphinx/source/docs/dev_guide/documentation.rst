@@ -13,7 +13,7 @@ project. It's also a good way to to get started and introduce yourself as a new
 contributor. The most likely way for typos or other small documentation errors
 to be resolved is for the person who notices the problem to immediately submit
 a Pull Request to with a correction. *This is always appreciated!* In
-addition quick fixes, there is also a list of `Open Docs Issues`_ on GitHub
+addition to quick fixes, there is also a list of `Open Docs Issues`_ on GitHub
 that anyone can look at for tasks that need help.
 
 Working on Documentation
@@ -67,7 +67,7 @@ targets or the Bokeh makefile are:
 
 ``serve``
     Start a server to serve the docs open a web browser to display. Note
-    that due the the JavaScript files involved, starting a real server is
+    that due to the JavaScript files involved, starting a real server is
     necessary to view many portions of the docs fully.
 
 For example, clean the docs build directory, run the follow command at the
@@ -98,7 +98,7 @@ Source Code Documentation
 -------------------------
 
 Docstrings and Model help are available from a Python interpreter, but are also
-processed byt the Sphinx build to automatically generate a complete
+processed by the Sphinx build to automatically generate a complete
 :ref:`refguide`.
 
 Bokeh uses some common conventions to create a consistent documentation style.
@@ -168,7 +168,7 @@ Models and Properties
 Bokeh's Model system supports its own system for providing detailed
 documentation for individual properties. These are given as a ``help``
 argument to the property type, which is interpreted as standard Sphinx
-ReST when the reference documenation is built. For example:
+ReST when the reference documentation is built. For example:
 
 .. code-block:: python
 

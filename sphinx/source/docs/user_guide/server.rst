@@ -8,6 +8,10 @@ Running a Bokeh Server
 Purpose
 -------
 
+The purpose of the Bokeh server is to make it easy for Python users to create
+interactive web applications that can connect front-end UI events to real,
+running Python code.
+
 The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
 in Python, and then converted to a JSON format that is consumed by the
@@ -30,14 +34,14 @@ purpose of the Bokeh Server.**
 
 ----
 
-The simple example below, embedded from `demo.bokehplots.com`_, illustrates
+The simple example below, embedded from `demo.bokeh.org`_, illustrates
 this.
 
 .. raw:: html
 
     <div>
     <iframe
-        src="https://demo.bokehplots.com/apps/sliders/#"
+        src="https://demo.bokeh.org/sliders"
         frameborder="0"
         style="overflow:hidden;height:400px;width: 90%;
 
@@ -208,7 +212,7 @@ Notice that we have not specified an output or connection method anywhere in
 this code. It is a simple script that creates and updates objects. The
 flexibility of the ``bokeh`` command line tool means that we can defer
 output options until the end. We could, e.g., run ``bokeh json myapp.py`` to
-get a JSON serialized version of the the application. But in this case,
+get a JSON serialized version of the application. But in this case,
 we would like to run the app on a Bokeh server, so we execute:
 
 .. code-block:: sh
@@ -274,7 +278,7 @@ The full set of files that Bokeh server knows about is:
 
 The optional components are
 
-* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
+* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as described in :ref:`userguide_server_applications_lifecycle`.
 
 * A ``static`` subdirectory that can be used to serve static resources associated with this application.
 
@@ -542,7 +546,7 @@ locked session callback on a different update rate.
     def locked_update(i):
         source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["blue"]))
 
-    # this unclocked callback will not prevent other session callbacks from
+    # this unlocked callback will not prevent other session callbacks from
     # executing while it is in flight
     @gen.coroutine
     @without_document_lock
@@ -601,6 +605,23 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
+Additionally, ``on_session_destroyed`` lifecycle hooks may also be defined
+directly on the ``Document`` being served. Since the task of cleaning up after
+a user closes a session is common, e.g. to shut down a database connection,
+this provides an easy route to performing such actions without bundling
+a separate file. To declare such a callback define a function and register
+it with the ``Document.on_session_destroyed`` method:
+
+.. code-block:: python
+
+    doc = Document()
+
+    def cleanup_session(session_context):
+        ''' This function is called when a session is closed. '''
+        pass
+
+    doc.on_session_destroyed(cleanup_session)
+
 .. _userguide_server_embedding:
 
 Embedding Bokeh Server as a Library
@@ -609,7 +630,6 @@ Embedding Bokeh Server as a Library
 It can be useful to embed the Bokeh Server in a larger Tornado application, or the
 Jupyter notebook, and use the already existing Tornado ``IOloop``.  Here is the
 basis of how to integrate Bokeh in such a scenario:
-
 
 .. code-block:: python
 
@@ -634,6 +654,11 @@ can be found in the examples directory:
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 * :bokeh-tree:`examples/howto/server_embed/standalone_embed.py`
 * :bokeh-tree:`examples/howto/server_embed/tornado_embed.py`
+
+Also note that most every command line argument for ``bokeh serve`` has a
+corresponding keyword argument to ``Server``. For instance, setting the
+`--allow-websocket-origin` command line argument is equivalent to passing
+``allow_websocket_origin`` as a parameter.
 
 .. _userguide_server_bokeh_client:
 
@@ -700,6 +725,7 @@ with it. To share it with other people who are able to install the required
 python stack, we can share the application with them, and let them run it locally
 themselves in the same manner. However, we might also want to deploy the application
 in a way that other people can access it as a service:
+
 * without having to install all of the prerequisites
 * without needing to have the source code
 * like any other webpage
@@ -754,7 +780,7 @@ Bokeh server were running on the local machine.
 
 The second, slightly more complicated case occurs when there is a gateway
 between the server and the local machine.  In that situation a reverse tunnel
-must be estabished from the server to the gateway. Additionally the tunnel
+must be established from the server to the gateway. Additionally the tunnel
 from the local machine will also point to the gateway.
 
 Issue the following commands on the **remote host** where the Bokeh server
@@ -787,7 +813,34 @@ local machine.
     We intend to expand this section with more guidance for other tools and
     configurations. If have experience with other web deployment scenarios
     and wish to contribute your knowledge here, please
-    `contact us on the mailing list`_.
+    contact us on https://discourse.bokeh.org
+
+.. _userguide_server_deployment_ssl:
+
+SSL Termination
+~~~~~~~~~~~~~~~
+
+A Bokeh server can be configure to terminate SSL connections (i.e. to service
+secure HTTPS and WSS sessions) directly. At a minimum, the ``--ssl-certfile``
+argument must be supplied. The value must be the path to a single file in PEM
+format containing the certificate as well as any number of CA certificates
+needed to establish the certificate's authenticity:
+
+.. code-block:: sh
+
+    bokeh serve --ssl-certfile /path/to/cert.pem
+
+The path to the certificate file may also be supplied by setting the environment
+variable ``BOKEH_SSL_CERTFILE``.
+
+If the private key is stored separately, its location may be supplied by
+setting the ``--ssl-keyfile`` command line argument, or by setting the
+``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
+environment variable.
+
+Alternativey, you may wish to run a Boekh server behind a proxy, and have the
+proxy terminate SSL. That scenario is described in the next section.
 
 .. _userguide_server_deplyoment_proxy:
 
@@ -805,7 +858,7 @@ Nginx
 '''''
 
 One very common HTTP and reverse-proxying server is Nginx. A sample
-server confuguration block is shown below:
+server configuration block is shown below:
 
 .. code-block:: nginx
 
@@ -853,14 +906,14 @@ similar to this:
     }
 
 Be careful that the file permissions of the Bokeh resources are accessible to
-whatever user account is running the Nginx server process. Alternatively, you can copy the resources
-to a global static directory during your deployment process. See
-:ref:`userguide_server_deployment_automation` for a demonstration of this.
+whatever user account is running the Nginx server process. Alternatively, you
+can copy the resources to a global static directory during your deployment
+process.
 
 Apache
 ''''''
 
-Another common HTTP server and proxy is Apache. Here is sample confuguration
+Another common HTTP server and proxy is Apache. Here is sample configuration
 for running a Bokeh server behind Apache:
 
 .. code-block:: apache
@@ -902,7 +955,7 @@ configuration:
 .. code-block:: sh
 
     a2enmod proxy
-    a2enmod http_proxy
+    a2enmod proxy_http
     a2enmod proxy_wstunnel
     apache2ctl restart
 
@@ -1058,81 +1111,235 @@ here:
 
     }
 
-.. _userguide_server_deployment_supervisord:
+.. _userguide_server_deployment_auth:
 
-Process Control with Supervisord
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Authentication
+~~~~~~~~~~~~~~
 
-It is often desired to use process control and monitoring tools when
-deploying web applications. One popular such tool is `Supervisor`_, which
-can automatically start and stop process, as well as re-start processes
-if they terminate unexpectedly. Supervisor is configured using INI style
-config files. A sample file that might be used to start a single Bokeh
-Server app is below:
+The Bokeh server itself does not have any facilities for authentication or
+authorization. However, the Bokeh server can be configured with an "Auth
+Provider" that hooks in to Tornado's underlying capabilities. For background
+information, see the Tornado docs for `Authentication and security`_. The rest
+of this section assumes some familiarity with that material.
 
-.. code-block:: ini
+Auth Module
+'''''''''''
 
-    ; supervisor config file
-
-    [unix_http_server]
-    file=/tmp/supervisor.sock   ; (the path to the socket file)
-    chmod=0700                  ; sockef file mode (default 0700)
-
-    [supervisord]
-    logfile=/var/log/supervisord.log ; (main log file; default $CWD/supervisord.log)
-    pidfile=/var/run/supervisord.pid ; (supervisord pidfile; default $CWD/supervisord.pid)
-    childlogdir=/var/log/supervisor  ; ('AUTO' child log dir, default $TEMP)
-
-    ; The section below must be in the present for the RPC (supervisorctl/web)
-    ; interface in to function.
-    [rpcinterface:supervisor]
-    supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-    [supervisorctl]
-    serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL for a unix socket
-
-    [program:myapp]
-    command=/path/to/bokeh serve myapp.py
-    directory=/path/to/workdir
-    autostart=false
-    autorestart=true
-    startretries=3
-    numprocs=4
-    process_name=%(program_name)s_%(process_num)02d
-    stderr_logfile=/var/log/myapp.err.log
-    stdout_logfile=/var/log/myapp.out.log
-    user=someuser
-    environment=USER="someuser",HOME="/home/someuser"
-
-The standard location for the supervisor config file varies from system to
-system. Consult the `Supervisor configuration documentation`_ for more
-details. It is also possible to specify a config file explicity. To do this,
-execute:
+The Bokeh server can be configured to only allow connections in case there is
+a properly authenticated user. This is accomplished by providing the path to
+a module that implements the necessary functions on the command line:
 
 .. code-block:: sh
 
-    supervisord -c /path/to/supervisord.conf
+    bokeh serve --auth-module=/path/to/auth.py
 
-to start the Supervisor process. Then to control processes execute
-``supervisorctl`` commands. For instance to start all processes, run:
+or by setting the ``BOKEH_AUTH_MODULE`` environment variable.
+
+The module must contain *one* of the following two functions that will return
+the current user (or None):
+
+.. code-block:: python
+
+    def get_user(request_handler):
+        pass
+
+    async def get_user_async(request_handler):
+        pass
+
+The function is passed the Tornado ``RequestHandler`` and can inspect cookies
+or request headers to determine the authenticated user. If there is no valid
+authenticated user, these functions should return None.
+
+Additionally, the module must specify where to redirect unauthenticated users.
+It must contain either:
+
+* a module attribute ``login_url`` and (optionally) a ``LoginHandler`` class
+* a function definition for ``get_login_url``
+
+.. code-block:: python
+
+    login_url = "..."
+
+    class LoginHandler(RequestHandler):
+        pass
+
+    def get_login_url(request_handler):
+        pass
+
+When a relative ``login_url`` is given, an optional ``LoginHandler`` class may
+also be provided, and it will be installed as a route on the Bokeh server
+automatically.
+
+The ``get_login_url`` function is useful in cases where the login URL must
+vary based on the request, or cookies, etc. It is not possible to specify a
+``LoginHandler`` when ``get_url_function`` is defined.
+
+Analogous to the login options, optional ``logout_url`` and ``LogoutHandler``
+values may be define an endpoint for logging users out.
+
+If no auth module is provided, then a default user will be assumed, and no
+authentication will be required to access Bokeh server endpoints.
+
+.. warning::
+    The contents of the auth module will be executed!
+
+Secure Cookies
+''''''''''''''
+
+If you want to use Tornado's `set_secure_cookie`_ and `get_secure_cookie`_
+functions in your auth module, a cookie secret must be set. This can be
+accomplished with the ``BOKEH_COOKIE_SECRET`` environment variable. e.g.
 
 .. code-block:: sh
 
-    supervisorctl -c /path/to/supervisord.conf start all
+    export BOKEH_COOKIE_SECRET=<cookie secret value>
 
-To stop all processes run:
+The value should be a long, random sequence of bytes
+
+.. _userguide_server_deployment_security:
+
+Security
+~~~~~~~~
+
+By default, a Bokeh server will accept any incoming connections on allowed
+websocket origins. If a session ID is specified, and a session with that ID
+already exists on the server, then a connection to that session is made.
+Otherwise, a new session is automatically created and used.
+
+If you are deploying an embedded Bokeh app within a large organization or
+to the wider internet, you may want to limit who can initiate sessions, and
+from where. Bokeh has options to restrict session creation.
+
+Websocket Origin
+''''''''''''''''
+
+When an HTTP request is made to the Bokeh server, it immediately returns a
+script that will initiate a websocket connection, and all subsequent
+commumication happens over the websocket. To reduce the risk of cross-site
+misuse, the bokeh server will only initiate websocket connections from
+origins that are explicitly whitelisted. Requests with Origin headers that
+do not match the whitelist will generate HTTP 403 error responses.
+
+By default only ``localhost:5006`` is whitelisted. I.e the following two
+invocations are identical:
 
 .. code-block:: sh
 
-    supervisorctl -c /path/to/supervisord.conf start all
+    bokeh serve --show myapp.py
 
-And to update the process control after editing the config file, run:
+and
 
 .. code-block:: sh
 
-    supervisorctl -c /path/to/supervisord.conf update
+    bokeh serve --show --allow-websocket-origin=localhost:5006 myapp.py
 
-.. _userguide_server_scaling:
+Both of these will open a browser to the default application URL
+``localhost:5006`` and since ``localhost:5006`` is in the allowed websocket
+origin whitelist, the Bokeh server will create and display a new session.
+
+Now, consider when a Bokeh server is embedded inside another web page, using
+|server_document| or |server_session|. In this instance, the "Origin" header
+for the request to the Bokeh server is the URL of page that has the Bokeh
+content embedded it. For example, if a user navigates to our page at
+``https://acme.com/products``, which has a Bokeh application embedded in it,
+then the origin header reported by the broweer will be ``acme.com``. In this
+instance, we typically want to restict the Bokeh server to honoring *only*
+requests that originate from our ``acme.com`` page, so that other pages cannot
+embed our Bokeh app without our knowledge.
+
+This can be accomplished  by setting the ``--allow-websocket-origin`` command
+line argument:
+
+.. code-block:: sh
+
+    bokeh serve --show --allow-websocket-origin=acme:com myapp.py
+
+This will prevent other sites from embedding our Bokeh application in their
+pages, because requests from users viewing those pages will report a different
+origin than  ``acme.com``, and the Bokeh server will reject them.
+
+.. warning::
+    Bear in mind that this only prevents *other web pages* from surreptitiously
+    embedding our Bokeh app to an audience using standard web browsers. A
+    determined and knowledgeble attacker can spoof Origin headers.
+
+If multiple allowed origins are required, then multiple instances of
+``--allow-websocket-origin`` can be passed on the command line.
+
+It is also possible to configure a Bokeh server to allow any and all connections
+Regardless of origin:
+
+.. code-block:: sh
+
+    bokeh serve --show --allow-websocket-origin='*' myapp.py
+
+This is not recommended outside testing and experimentation.
+
+Signed session IDs
+''''''''''''''''''
+
+By default, the Bokeh server will automatically create new sessions for all
+new requests from allowed websocket origins, even if no session ID is provided.
+When embedding a Bokeh app inside another web application (e.g. Flask, Django),
+we would like ensure that our web application, and *only* our web application,
+is capable of generating proper requests to the Bokeh server. It is possible to
+configure the Bokeh server to only create sessions when a cryptographically
+signed session ID is provided.
+
+To do this, you need to first create a secret for signing session ids with,
+using the ``bokeh secret`` command, e.g.
+
+.. code-block:: sh
+
+    export BOKEH_SECRET_KEY=`bokeh secret`
+
+Then set BOKEH_SIGN_SESSIONS when starting the Bokeh server (and typically
+also set the allowed websocket origin):
+
+.. code-block:: sh
+
+    BOKEH_SIGN_SESSIONS=yes bokeh serve --allow-websocket-origin=acme.com myapp.py
+
+Then in your web application, we explicitly provide (signed) session ids using
+``generate_session_id``:
+
+.. code-block:: python
+
+    from bokeh.util.session_id import generate_session_id
+
+    script = server_session(url='http://localhost:5006/bkapp',
+                            session_id=generate_session_id())
+    return render_template("embed.html", script=script, template="Flask")
+
+Make sure that the ``BOKEH_SECRET_KEY`` environment variable is set (and
+identical) for both the Bokeh server and web app processes (e.g. Flask or
+Django or whatever tool is in use).
+
+.. note::
+
+    Signed session IDs are effectively access tokens. As with any token system,
+    security is predicated on keeping the token a secret. It is also advised to
+    run the Bokeh server behind a proxy that terminates SSL, so that the session
+    ID is transmitted securely to the user's browser.
+
+XSRF Cookies
+''''''''''''
+
+Bokeh can enable the use of Tornado's cross-site request forgery protection
+protection. To turn this feature on, use the ``--enable-xsrf-cookies`` option,
+or set the environment variable ``BOKEH_XSRF_COOKIES=yes``. If this setting is
+enabled, any PUT, POST, or DELETE operations on custom or login handlers must be
+instrumented properly in order to function. Typically, this means adding the
+code:
+
+.. code-block:: html
+
+    {% module xsrf_form_html() %}
+
+to all HTML form submission templates. For full details, see the Tornado
+documentation on `XSRF Cookies`_.
+
+.. _userguide_server_deployment_scaling:
 
 Scaling the server
 ~~~~~~~~~~~~~~~~~~
@@ -1149,43 +1356,18 @@ see notes in the `Tornado docs`_.
 
 .. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
-.. _userguide_server_deployment_automation:
-
-A Full Example with Automation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To deploy the demo site at http://demo.bokehplots.com we combine all of the
-above techniques. Additionally, we used `SaltStack`_ to automate many aspects
-of the deployment.
-
-.. note::
-    Other devops automation tools include `Puppet`_, `Ansible`_, and `Chef`_.
-    We would like to provide specific guidance where ever we can, so if you
-    have experience with these tools and would be interested in contributing
-    your knowledge, please `contact us on the mailing list`_.
-
-You can see all the code for deploying the site at the public GitHub
-repository here:
-
-https://github.com/bokeh/demo.bokehplots.com
-
-You can modify or deploy your own version of this site on an Amazon Linux
-instance by simply running the ``deploy.sh`` script at the top level. With
-minor modifications, this machinery should work on many linux variants.
-
 Further Reading
 ---------------
 Now that you are familiar with the concepts of :ref:`userguide_server`, you
 may be interested in learning more about the internals of the Bokeh server
 in :ref:`devguide_server`
 
-.. _Ansible: http://www.ansible.com
-.. _Chef: https://www.chef.io/chef/
-.. _contact us on the mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
-.. _demo.bokehplots.com: https://demo.bokehplots.com
-.. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
-.. _Puppet: https://puppetlabs.com
-.. _SaltStack: http://saltstack.com
+.. _Authentication and security: https://www.tornadoweb.org/en/stable/guide/security.html
+.. _demo.bokeh.org: https://demo.bokeh.org
+.. _get_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.get_secure_cookie
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
-.. _Supervisor: http://supervisord.org
-.. _Supervisor configuration documentation: http://supervisord.org/configuration.html
+.. _set_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.set_secure_cookie
+.. _XSRF Cookies:  https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+
+.. |server_document|  replace:: :func:`~bokeh.embed.server_document`
+.. |server_session|  replace:: :func:`~bokeh.embed.server_session`

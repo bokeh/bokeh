@@ -12,17 +12,17 @@ Two separate components comprise Bokeh:
 * A JavaScript runtime BokehJS that draws and handles events in browsers
 * Python "bindings" and an optional server for interacting with BokehJS
 
-The BokehJS library is written in a mixture of CoffeeScript, TypeScript, and
-pure JavaScript. This necessitates a "compilation" step to build a complete
-BokehJS from these sources, and this fact makes the Bokeh setup and install
-more complicated than typical pure Python projects.
+The BokehJS library is written in a mixture of TypeScript and pure JavaScript.
+This necessitates a "compilation" step to build a complete BokehJS from these
+sources, and this fact makes the Bokeh setup and install more complicated than
+typical pure Python projects.
 
 In order to build BokehJS, the first step is to make sure that the "npm"
 command is installed. If you are using conda, you can typically just run
 
     conda install -c bokeh nodejs
 
-Othewise, you can find general instructions for installing NodeJS here:
+Otherwise, you can find general instructions for installing NodeJS here:
 
     https://nodejs.org/en/download/
 
@@ -39,7 +39,7 @@ The script also supports the standard "develop" mode that setuptools offers:
 It can take a few minutes for BokehJS to build, if you are not making changes
 to the BokehJS source code, then you only need to build it once, the first
 time. Subsequence invocations can be made to install the previously built
-BokehJS from the ``bokehjs`` source subdirectoruy with the ``--install-js``
+BokehJS from the ``bokehjs`` source subdirectory with the ``--install-js``
 option, e.g:
 
     python setup.py develop --install-js
@@ -126,8 +126,8 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     license='BSD-3-Clause',
-    author='Anaconda',
-    author_email='info@anaconda.com',
+    author='Bokeh Team',
+    author_email='info@bokeh.org',
     url='http://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 

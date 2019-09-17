@@ -39,6 +39,7 @@ example plots for all of them by clicking on entries in the list below:
     * |circle_cross|
     * |circle_x|
     * |cross|
+    * |dash|
     * |diamond|
     * |diamond_cross|
     * |inverted_triangle|
@@ -95,7 +96,7 @@ accomplished with the |multi_line| glyph method:
     dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each line, parameters xs and ys. multi_line
     also expects a scalar value or a list of scalers per each line for
-    parameters such as color, alpha, linewidth, etc. Similarily, a
+    parameters such as color, alpha, linewidth, etc. Similarly, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
@@ -110,25 +111,22 @@ components when rendered:
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_missing_points.py
     :source-position: above
 
+Stacked Lines
+'''''''''''''
+
+In some instances, it is desirable to stack lines that are aligned on a common
+index (e.g. time series of percentages). The |vline_stack| and |hline_stack|
+convenience methods can be used to accomplish this. Note the these methods
+stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
+    :source-position: above
+
 .. _userguide_plotting_bars_rects:
 
 Bars and Rectangles
 ~~~~~~~~~~~~~~~~~~~
-
-Rectangles
-''''''''''
-
-To draw *axis aligned* rectangles ("quads") by specifying the ``left``,
-``right``, ``top``, and ``bottom`` positions, use the |quad| glyph function:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
-    :source-position: above
-
-To draw arbitrary rectangles by specifying a center point, width, height,
-and angle, use the |rect| glyph function:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
-    :source-position: above
 
 Bars
 ''''
@@ -150,6 +148,34 @@ and left and right endpoints, use the |hbar| glyph function:
 .. bokeh-plot:: docs/user_guide/examples/plotting_hbar.py
     :source-position: above
 
+Stacked Bars
+''''''''''''
+
+It is often desirable to stack bars. This can be accomplished with the
+|vbar_stack| and |hbar_stack| convenience methods. Note the these methods
+stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information).
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_hbar_stack.py
+    :source-position: above
+
+More examples of stacked bars can be found in the section
+:ref:`userguide_categorical`.
+
+Rectangles
+''''''''''
+
+To draw *axis aligned* rectangles ("quads") by specifying the ``left``,
+``right``, ``top``, and ``bottom`` positions, use the |quad| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
+    :source-position: above
+
+To draw arbitrary rectangles by specifying a center point, width, height,
+and angle, use the |rect| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
+    :source-position: above
 
 .. userguide_plotting_hex
 
@@ -173,10 +199,40 @@ A more realistic example below computes counts per bin using the
 The above code can be made even simpler by calling the :func:`~bokeh.plotting.figure.Figure.hexbin`
 method of ``Figure``.
 
-.. _userguide_plotting_patch_glyphs:
+.. _userguide_plotting_directed_areas:
 
-Patch Glyphs
-~~~~~~~~~~~~
+Directed Areas
+~~~~~~~~~~~~~~
+
+Directed areas are filled regions between two series that share a common index.
+For instance, a vertical directed area has one `x` coordinate array, and two y
+coordinate arrays, `y1` and `y2`, which will be filled between.
+
+Single Areas
+''''''''''''
+
+A single directed area between two aligned series can be created in the
+vertical direction with |varea| or in the horizontal direction with
+|harea|.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_varea.py
+    :source-position: above
+
+Stacked Areas
+'''''''''''''
+
+It is often desirable to stack directed areas. This can be accomplished with
+the |varea_stack| and |harea_stack| convenience methods. Note the these methods
+stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_varea_stack.py
+    :source-position: above
+
+.. _userguide_plotting_patch_polygon_glyphs:
+
+Patches and Polygons
+~~~~~~~~~~~~~~~~~~~~
 
 Single Patches
 ''''''''''''''
@@ -202,7 +258,7 @@ This can be accomplished with the |patches| glyph method:
     dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each patch, parameters xs and ys. patches
     also expects a scalar value or a list of scalers per each patch for
-    parameters such as color, alpha, linewidth, etc. Similarily, a
+    parameters such as color, alpha, linewidth, etc. Similarly, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
@@ -220,6 +276,67 @@ patch objects, that have multiple disjoint components when rendered:
 .. warning::
     Hit testing on patch objects with ``NaN`` values is not currently
     supported.
+
+.. _userguide_plotting_multipolygons:
+
+Polygons with Holes
+~~~~~~~~~~~~~~~~~~~
+
+The |multi_polygons| glyph uses nesting to accept a variety of information
+relevant to polygons. Anything that can be rendered as a |Patches| can also be
+rendered as |multi_polygons|, but additionally |multi_polygons| can render
+holes inside each polygon.
+
+.. note::
+    This glyph is unlike most other glyphs. Instead of accepting a one
+    dimensional list or array of scalar values, it accepts a 3 times nested
+    list of x and y positions for the exterior and holes composing each
+    polygon. MultiPolygons also expects a scalar value or a list of scalers
+    per each item for parameters such as color, alpha, linewidth, etc.
+    Similarly, one can use a ColumnDataSource consisting of a 3 times nested
+    list and a list of scalars where the length of the list of scalars and
+    length of the top level list must match.
+
+Simple Polygon
+''''''''''''''
+
+Below is an example that shows how to generate a single polygon
+glyph from 3 times nested one-dimensional sequences of *x* and *y* points
+using the |multi_polygons| glyph method:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_simple.py
+    :source-position: above
+
+Polygon with Holes
+''''''''''''''''''
+
+Below is an example that shows how to generate a single polygon with holes
+from three sequences of *x* and *y* points. The first sequence represents
+the exterior of the polygon and the following sequences represent the holes:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_with_holes.py
+    :source-position: above
+
+MultiPolygon with Separate Parts
+''''''''''''''''''''''''''''''''
+
+Sometimes one conceptual polygon is composed of multiple polygon geometries.
+Below is an example that shows how to generate a MultiPolygon
+glyph from several sequences of *x* and *y* points. Each item in the sequence
+represents a part of the MultiPolygon:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_with_separate_parts.py
+    :source-position: above
+
+Multiple MultiPolygons
+''''''''''''''''''''''
+
+The top level of nesting is used to separate each MultiPolygon from the
+others. Each MultiPolygon can be thought of as a row in the data source -
+potentially with a corresponding label or color.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygons.py
+    :source-position: above
 
 .. _userguide_plotting_ovals_ellipses:
 
@@ -365,8 +482,13 @@ Below is a an example that shows both methods of setting the range:
 .. bokeh-plot:: docs/user_guide/examples/plotting_figure_range.py
     :source-position: above
 
-Ranges can also accept a min and max property that allow you to specify the
-edges of the plot that you do not want the user to be able to pan/zoom beyond.
+Ranges also have a ``bounds`` property that allows you to specify limits of
+the plot that you do not want the user to be able to pan/zoom beyond.
+
+.. code-block:: python
+
+    # set a range using a Range1d
+    p.y_range = Range1d(0, 15, bounds=(0, None))
 
 .. _userguide_plotting_axis_types:
 
@@ -477,16 +599,22 @@ The section on adding annotations to plots has moved.  Please see
 .. |circle_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.circle_cross`
 .. |circle_x|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_x`
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
+.. |dash|              replace:: :func:`~bokeh.plotting.figure.Figure.dash`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
+.. |harea|             replace:: :func:`~bokeh.plotting.figure.Figure.harea`
+.. |harea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.harea_stack`
 .. |hbar|              replace:: :func:`~bokeh.plotting.figure.Figure.hbar`
+.. |hbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.hbar_stack`
+.. |hline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.hline_stack`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`
 .. |image_url|         replace:: :func:`~bokeh.plotting.figure.Figure.image_url`
 .. |line|              replace:: :func:`~bokeh.plotting.figure.Figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.figure.Figure.multi_line`
+.. |multi_polygons|    replace:: :func:`~bokeh.plotting.figure.Figure.multi_polygons`
 .. |oval|              replace:: :func:`~bokeh.plotting.figure.Figure.oval`
 .. |patch|             replace:: :func:`~bokeh.plotting.figure.Figure.patch`
 .. |patches|           replace:: :func:`~bokeh.plotting.figure.Figure.patches`
@@ -500,6 +628,10 @@ The section on adding annotations to plots has moved.  Please see
 .. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
+.. |varea|             replace:: :func:`~bokeh.plotting.figure.Figure.varea`
+.. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.varea_stack`
 .. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.vbar`
+.. |vbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+.. |vline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.vline_stack`
 .. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`

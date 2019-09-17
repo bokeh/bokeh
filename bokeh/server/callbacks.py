@@ -1,11 +1,48 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide classes to represent callback code that can be associate with
 Bokeh Documents and Sessions.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..util.serialization import make_id
 from ..util.tornado import _CallbackGroup
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'NextTickCallback',
+    'PeriodicCallback',
+    'SessionCallback',
+    'TimeoutCallback',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class SessionCallback(object):
     ''' A base class for callback objects associated with Bokeh Documents
@@ -45,8 +82,12 @@ class SessionCallback(object):
         ''' Dev API used to wrap the callback with decorators. '''
         raise NotImplementedError("_copy_with_changed_callback")
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 class NextTickCallback(SessionCallback):
-    ''' Represent a callback to execute on the next IOLoop "tick".
+    ''' Represent a callback to execute on the next ``IOLoop`` "tick".
 
     '''
     def __init__(self, document, callback, id=None):
@@ -67,7 +108,7 @@ class NextTickCallback(SessionCallback):
         return NextTickCallback(self._document, new_callback, self._id)
 
 class PeriodicCallback(SessionCallback):
-    ''' Represent a callback to execute periodically on the IOLoop at a
+    ''' Represent a callback to execute periodically on the ``IOLoop`` at a
     specified periodic time interval.
 
     '''
@@ -100,7 +141,7 @@ class PeriodicCallback(SessionCallback):
         return PeriodicCallback(self._document, new_callback, self._period, self._id)
 
 class TimeoutCallback(SessionCallback):
-    ''' Represent a callback to execute once on the IOLoop after a specifeed
+    ''' Represent a callback to execute once on the ``IOLoop`` after a specified
     time interval passes.
 
     '''
@@ -130,6 +171,10 @@ class TimeoutCallback(SessionCallback):
     def _copy_with_changed_callback(self, new_callback):
         ''' Dev API used to wrap the callback with decorators. '''
         return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 class _DocumentCallbackGroup(object):
     '''
@@ -185,3 +230,7 @@ class _DocumentCallbackGroup(object):
                 self._group.remove_next_tick_callback(callback_obj.id)
         except ValueError:
             pass
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

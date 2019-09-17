@@ -1,7 +1,4 @@
 {
   "extends": "../tsconfig.json",
-  "files": [
-    "../../src/lib/api/typings.d.ts",
-    "linked.ts"
-  ]
+  "files": ["./linked.ts", "../bokehjs.d.ts"]
 }

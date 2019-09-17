@@ -1,18 +1,38 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Renderers for various kinds of annotations that can be added to
 Bokeh plots
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six import string_types
 
+# Bokeh imports
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
                           Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign,
                           TooltipAttachment)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
-                               Seq, String, StringSpec, Tuple, value)
+                               Seq, String, StringSpec, Tuple, UnitsSpec, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
@@ -25,15 +45,53 @@ from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import BasicTicker, ContinuousTicker
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Annotation',
+    'Arrow',
+    'Band',
+    'BoxAnnotation',
+    'ColorBar',
+    'Label',
+    'LabelSet',
+    'Legend',
+    'LegendItem',
+    'PolyAnnotation',
+    'Slope',
+    'Span',
+    'TextAnnotation',
+    'Title',
+    'Tooltip',
+    'ToolbarPanel',
+    'Whisker',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# This only exists to prevent a circular import.
+def _DEFAULT_ARROW():
+    from .arrow_heads import OpenHead
+    return OpenHead()
+
+# This only exists to prevent a circular import.
+def _DEFAULT_TEE():
+    from .arrow_heads import TeeHead
+    return TeeHead(level="underlay", size=10)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 @abstract
 class Annotation(Renderer):
     ''' Base class for all annotation models.
 
     '''
-
-    plot = Instance(".models.plots.Plot", help="""
-    The plot to which this annotation is attached.
-    """)
 
     level = Override(default="annotation")
 
@@ -44,8 +102,8 @@ class TextAnnotation(Annotation):
     '''
 
     render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
+    Specifies whether the text is rendered as a canvas element or as a
+    CSS element overlaid on the canvas. The default mode is "canvas".
 
     .. note::
         The CSS labels won't be present in the output using the "save" tool.
@@ -81,6 +139,18 @@ class LegendItem(Model):
     then all data_sources of renderers must be the same.
     """)
 
+    index = Int(default=None, help="""
+    The column data index to use for drawing the representative items.
+
+    If None (the default), then Bokeh will automatically choose an index to
+    use. If the label does not refer to a data column name, this is typically
+    the first data point in the data source. Otherwise, if the label does
+    refer to a column name, the legend will have "groupby" behavior, and will
+    choose and display representative points from every "group" in the column.
+
+    If set to a number, Bokeh will use that number as the index in all cases.
+    """)
+
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
         if self.label and 'field' in self.label:
@@ -111,6 +181,22 @@ class Legend(Annotation):
     orientation = Enum(Orientation, default="vertical", help="""
     Whether the legend entries should be placed vertically or horizontally
     when they are drawn.
+    """)
+
+    title = String(help="""
+    The title text to render.
+    """)
+
+    title_props = Include(TextProps, help="""
+    The %s values for the title text.
+    """)
+
+    title_text_font_size = Override(default={'value': "10pt"})
+
+    title_text_font_style = Override(default="italic")
+
+    title_standoff = Int(5, help="""
+    The distance (in pixels) to separate the title from the legend.
     """)
 
     border_props = Include(LineProps, help="""
@@ -181,7 +267,7 @@ class Legend(Annotation):
     """)
 
     spacing = Int(3, help="""
-    Amount of spacing (in pixles) between legend entries.
+    Amount of spacing (in pixels) between legend entries.
     """)
 
     items = List(Instance(LegendItem), help="""
@@ -266,7 +352,7 @@ class ColorBar(Annotation):
     """)
 
     formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
-    A TickFormatter to use for formatting the visual appearance of ticks.
+    A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
     major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
@@ -278,8 +364,8 @@ class ColorBar(Annotation):
     A continuous color mapper containing a color palette to render.
 
     .. warning::
-        If the `low` and `high` attributes of the ColorMapper aren't set, ticks
-        and tick labels won't be rendered. Additionally, if a LogTicker is
+        If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
+        and tick labels won't be rendered. Additionally, if a ``LogTicker`` is
         passed to the `ticker` argument and either or both of the logarithms
         of `low` and `high` values of the color_mapper are non-numeric
         (i.e. `low=0`), the tick and tick labels won't be rendered.
@@ -359,11 +445,6 @@ class ColorBar(Annotation):
 
     background_fill_alpha = Override(default=0.95)
 
-# This only exists to prevent a circular import.
-def _DEFAULT_ARROW():
-    from .arrow_heads import OpenHead
-    return OpenHead()
-
 class Arrow(Annotation):
     ''' Render an arrow as an annotation.
 
@@ -383,7 +464,7 @@ class Arrow(Annotation):
     """)
 
     start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
     x_end = NumberSpec(help="""
@@ -400,7 +481,7 @@ class Arrow(Annotation):
     """)
 
     end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
     body_props = Include(LineProps, use_prefix=False, help="""
@@ -514,16 +595,15 @@ class Band(Annotation):
     ''' Render a filled area band along a dimension.
 
     '''
-
-    lower = DistanceSpec(help="""
+    lower = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = DistanceSpec(help="""
-    The coordinations of the upper portion of the filled area band.
+    upper = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    The coordinates of the upper portion of the filled area band.
     """)
 
-    base = DistanceSpec(help="""
+    base = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -695,7 +775,7 @@ class LabelSet(TextAnnotation):
     """)
 
     x_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the xs attribute. Interpreted as "data space" units
+    The unit type for the ``xs`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -704,7 +784,7 @@ class LabelSet(TextAnnotation):
     """)
 
     y_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ys attribute. Interpreted as "data space" units
+    The unit type for the ``ys`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -776,7 +856,7 @@ class PolyAnnotation(Annotation):
     """)
 
     xs_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the xs attribute. Interpreted as "data space" units
+    The unit type for the ``xs`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -785,7 +865,7 @@ class PolyAnnotation(Annotation):
     """)
 
     ys_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ys attribute. Interpreted as "data space" units
+    The unit type for the ``ys`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -875,8 +955,8 @@ class Span(Annotation):
     """)
 
     render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the span is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
+    Specifies whether the span is rendered as a canvas element or as a
+    CSS element overlaid on the canvas. The default mode is "canvas".
 
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
@@ -898,11 +978,11 @@ class Title(TextAnnotation):
     """)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
-    Aligment of the text in its enclosing space, *across* the direction of the text.
+    Alignment of the text in its enclosing space, *across* the direction of the text.
     """)
 
     align = Enum(TextAlign, default='left', help="""
-    Aligment of the text in its enclosing space, *along* the direction of the text.
+    Alignment of the text in its enclosing space, *along* the direction of the text.
     """)
 
     offset = Float(default=0, help="""
@@ -990,36 +1070,31 @@ class Tooltip(Annotation):
     """)
 
     show_arrow = Bool(default=True, help="""
-    Whether tooltip's arrow should be showed.
+    Whether tooltip's arrow should be shown.
     """)
-
-# This only exists to prevent a circular import.
-def _DEFAULT_TEE():
-    from .arrow_heads import TeeHead
-    return TeeHead(level="underlay", size=10)
 
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
 
     '''
 
-    lower = DistanceSpec(help="""
+    lower = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
     lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
-    upper = DistanceSpec(help="""
-    The coordinations of the upper end of the whiskers.
+    upper = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    The coordinates of the upper end of the whiskers.
     """)
 
     upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
-    base = DistanceSpec(help="""
+    base = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -1053,3 +1128,11 @@ class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
     toolbar = Instance(".models.tools.Toolbar", help="""
     A toolbar to display.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

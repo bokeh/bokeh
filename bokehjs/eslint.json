@@ -1,0 +1,44 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": [
+      "./make/tsconfig.json",
+      "./src/lib/tsconfig.json",
+      "./src/compiler/tsconfig.json",
+      "./test/tsconfig.json",
+      "./examples/tsconfig.json"
+    ],
+    "tsconfigRootDir": ".",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [],
+  "rules": {
+    "semi": ["error", "never"],
+    "eol-last": ["error", "always"],
+    "indent": ["error", 2, {
+      "SwitchCase": 1,
+      "outerIIFEBody": 1,
+      "ArrayExpression": "first",
+      "ObjectExpression": "first",
+      "ImportDeclaration": "first",
+      "VariableDeclarator": "first",
+      "CallExpression": {"arguments": "first"},
+      "FunctionDeclaration": {"body": 1, "parameters": "off"},
+      "FunctionExpression": {"body": 1, "parameters": "off"},
+      "ignoredNodes": ["ConditionalExpression"]
+    }],
+    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+    "comma-spacing": ["error", {"before": false, "after": true}],
+    "comma-dangle": ["error", "always-multiline"],
+    "no-trailing-spaces": ["error"],
+    "@typescript-eslint/type-annotation-spacing": ["error"],
+    "no-floating-decimal": ["error"],
+    "space-before-function-paren": ["error", {
+      "anonymous": "never",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "space-in-parens": ["error", "never"]
+  }
+}

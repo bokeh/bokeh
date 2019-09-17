@@ -6,7 +6,8 @@ import pandas as pd
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, DataTable, RangeTool, TableColumn
+from bokeh.models import ColumnDataSource, DataTable, RangeTool, TableColumn, \
+                         NumberFormatter, StringFormatter
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 from bokeh.transform import cumsum
@@ -92,8 +93,10 @@ curdoc().add_root(platform)
 source = ColumnDataSource(data=mpg[:6])
 columns = [
     TableColumn(field="cyl", title="Counts"),
-    TableColumn(field="cty", title="Uniques"),
-    TableColumn(field="hwy", title="Rating"),
+    TableColumn(field="cty", title="Uniques",
+                formatter=StringFormatter(text_align="center")),
+    TableColumn(field="hwy", title="Rating",
+                formatter=NumberFormatter(text_align="right")),
 ]
 table = DataTable(source=source, columns=columns, height=210, width=330, name="table", sizing_mode="scale_both")
 

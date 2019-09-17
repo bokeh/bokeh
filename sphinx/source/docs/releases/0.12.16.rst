@@ -1,7 +1,9 @@
-0.12.16 (May 2018)
-==================
+.. _release-0-12-16:
 
-Bokeh Version ``0.12.16`` is an incremental update that adds a few
+0.12.16
+=======
+
+Bokeh Version ``0.12.16`` (May 2018) is an incremental update that adds a few
 new features and fixes several bugs. Some of the highlights include:
 
 * Hover tools now work with image glyphs (:bokeh-issue:`3886`)
@@ -21,8 +23,10 @@ new features and fixes several bugs. Some of the highlights include:
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
 
-Migration Guide
----------------
+.. _release-0-12-16-migration:
+
+`Migration Guide <releases.html#release-0-12-16-migration>`__
+-------------------------------------------------------------
 
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
@@ -91,4 +95,4 @@ will not fully render). To require an API be defined (i.e. to restore the
 previous behavior) you can now set ``bokeh_missing_google_api_key_ok = False``
 in the Sphinx config file.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

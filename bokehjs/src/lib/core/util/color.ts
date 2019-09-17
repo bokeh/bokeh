@@ -1,9 +1,20 @@
 import {svg_colors, is_svg_color} from "./svg_colors"
 import {includes} from "./array"
 
+export function is_color(value: string): boolean {
+  return is_svg_color(value.toLowerCase()) || value.substring(0, 1) == "#" || valid_rgb(value)
+}
+
 function _component2hex(v: number | string): string {
   const h = Number(v).toString(16)
   return h.length == 1 ? `0${h}` : h
+}
+
+export function rgb2hex(r: number, g: number, b: number): string {
+  const R = _component2hex(r & 0xFF)
+  const G = _component2hex(g & 0xFF)
+  const B = _component2hex(b & 0xFF)
+  return `#${R}${G}${B}`
 }
 
 export function color2hex(color: string): string {
@@ -13,7 +24,7 @@ export function color2hex(color: string): string {
   else if (is_svg_color(color))
     return svg_colors[color]
   else if (color.indexOf('rgb') == 0) {
-    const rgb = color.replace(/^rgba?\(|\s+|\)$/g,'').split(',')
+    const rgb = color.replace(/^rgba?\(|\s+|\)$/g, '').split(',')
     let hex = rgb.slice(0, 3).map(_component2hex).join('')
     if (rgb.length == 4)
       hex += _component2hex(Math.floor(parseFloat(rgb[3]) * 255))

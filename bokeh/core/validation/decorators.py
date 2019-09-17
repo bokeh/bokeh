@@ -1,11 +1,45 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide decorators help with define Bokeh validation checks.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from functools import partial
-
 from six import string_types
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'error',
+    'warning',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def _validator(code_or_name, validator_type):
     ''' Internal shared implementation to handle both error and warning
@@ -46,6 +80,17 @@ def _validator(code_or_name, validator_type):
     return decorator
 
 _error = partial(_validator, validator_type="error")
+
+_warning = partial(_validator, validator_type="warning")
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 def error(code_or_name):
     ''' Decorator to mark a validator method for a Bokeh error condition
 
@@ -55,7 +100,7 @@ def error(code_or_name):
     Returns:
         callable : decorator for Bokeh model methods
 
-    The function that is decoratate should have a name that starts with
+    The function that is decorated should have a name that starts with
     ``_check``, and return a string message in case a bad condition is
     detected, and ``None`` if no bad condition is detected.
 
@@ -86,7 +131,6 @@ def error(code_or_name):
     '''
     return _error(code_or_name)
 
-_warning = partial(_validator, validator_type="warning")
 def warning(code_or_name):
     ''' Decorator to mark a validator method for a Bokeh error condition
 
@@ -96,7 +140,7 @@ def warning(code_or_name):
     Returns:
         callable : decorator for Bokeh model methods
 
-    The function that is decoratate should have a name that starts with
+    The function that is decorated should have a name that starts with
     ``_check``, and return a string message in case a bad condition is
     detected, and ``None`` if no bad condition is detected.
 
@@ -126,3 +170,7 @@ def warning(code_or_name):
 
     '''
     return _warning(code_or_name)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

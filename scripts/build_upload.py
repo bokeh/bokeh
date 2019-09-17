@@ -12,15 +12,14 @@ import argparse
 from collections import defaultdict
 import glob
 from io import BytesIO
-import json
 import os
 from packaging.version import Version as V
 import re
 from subprocess import Popen, PIPE
 import sys
 
-import certifi
-import pycurl
+import boto
+import boto.s3.connection, boto.s3.key
 
 try:
     import colorama
@@ -40,8 +39,6 @@ except ImportError:
     def red(text):    return text
     def green(text):  return text
     def yellow(text): return text
-
-RSURL = 'https://storage101.iad3.clouddrive.com'
 
 NOT_STARTED = "NOT STARTED"
 STARTED = "STARTED BUT NOT COMPLETED"
@@ -163,24 +160,17 @@ def upload_wrapper(name):
         return wrapper
     return decorator
 
-def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False, url=RSURL):
+def cdn_upload(local_path, cdn_path, content_type, bucket, binary=False):
     print(":uploading to CDN: %s" % cdn_path)
     if CONFIG.dry_run: return
-    url = url + '/v1/%s/%s' % (cdn_id, cdn_path)
-    c = pycurl.Curl()
-    c.setopt(c.CAINFO, certifi.where())
-    c.setopt(c.URL, url)
-    c.setopt(c.CUSTOMREQUEST, "PUT")
-    c.setopt(c.HTTPHEADER, ["X-Auth-Token: %s" % cdn_token,
-                            "Origin: https://mycloud.rackspace.com",
-                            "Content-Type: %s" % content_type])
+    key = boto.s3.key.Key(bucket, cdn_path)
+    key.metadata = {'Cache-Control': 'max-age=31536000', 'Content-Type': content_type}
     if binary:
         data = open(local_path, "rb").read()
     else:
         data = open(local_path).read().encode('utf-8')
-    c.setopt(pycurl.POSTFIELDS, data)
-    c.perform()
-    c.close()
+    fp = BytesIO(data)
+    key.set_contents_from_file(fp)
 
 #--------------------------------------
 #
@@ -268,43 +258,53 @@ def check_anaconda_creds():
         failed("Could NOT verify Anaconda credentials")
         abort_checks()
 
-def check_cdn_creds(uservar='RSUSER', keyvar='RSAPIKEY'):
+def check_pypi_creds():
     if  CONFIG.dry_run:
-        return "junk", "junk"
+        return "junk"
     try:
-        username = os.environ[uservar]
-        key = os.environ[keyvar]
-        buf = BytesIO()
-        c = pycurl.Curl()
-        c.setopt(c.CAINFO, certifi.where())
-        c.setopt(c.URL, 'https://identity.api.rackspacecloud.com/v2.0/tokens/')
-        c.setopt(c.HTTPHEADER, ['Content-type: application/json'])
-        c.setopt(c.POSTFIELDS, json.dumps({
-            "auth" : {
-                "RAX-KSKEY:apiKeyCredentials" : {
-                    "username" : username,
-                    "apiKey"   : key,
-                }
-            }
-        }))
-        c.setopt(c.WRITEDATA, buf)
-        c.perform()
-        c.close()
+        token = os.environ['PYPI_TOKEN']
+        # TODO is there a way to actually test that the creds work?
+        passed("Verified PyPI credentials")
+        return token
+    except Exception:
+        failed("Could NOT verify PyPI credentials")
+        abort_checks()
 
-        data = json.loads(buf.getvalue().decode())
+def check_npm_creds():
+    if  CONFIG.dry_run:
+        return "junk"
+    try:
+        token = os.environ['NPM_TOKEN']
+        # TODO is there a way to actually test that the creds work?
+        passed("Verified NPM credentials")
+        return token
+    except Exception:
+        failed("Could NOT verify NPM credentials")
+        abort_checks()
 
-        cdn_token = data["access"]["token"]["id"]
-        cdn_id = [
-            d["endpoints"][0]["tenantId"]
-            for d in data["access"]["serviceCatalog"]
-            if d["name"] == "cloudFiles"
-        ][0]
+def check_cdn_buckets():
+    if  CONFIG.dry_run:
+        return "junk"
 
-        passed("Retrieved CDN credentials")
-        return cdn_token, cdn_id
+    try:
+        AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+        AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
     except:
         failed("Could NOT retrieve CDN credentials")
         abort_checks()
+
+    buckets = []
+    for bucket_name, bucket_region in [('cdn.bokeh.org', 'us-east-1'), ('cdn-backup.bokeh.org', 'us-west-2')]:
+        try:
+            conn = boto.s3.connect_to_region(bucket_region,
+                                             aws_access_key_id=AWS_ACCESS_KEY_ID,
+                                             aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                                             calling_format=boto.s3.connection.OrdinaryCallingFormat())
+            buckets.append(conn.get_bucket(bucket_name))
+        except:
+            failed("Could NOT connect to CDN bucket %r" % bucket_name)
+            abort_checks()
+    return buckets
 
 #--------------------------------------
 #
@@ -337,7 +337,7 @@ def build_examples():
 #--------------------------------------
 
 @upload_wrapper('cdn')
-def upload_cdn(cdn_token, cdn_id, url=RSURL):
+def upload_cdn(buckets):
     subdir = 'dev' if V(CONFIG.version).is_prerelease else 'release'
     version = CONFIG.version
 
@@ -345,22 +345,24 @@ def upload_cdn(cdn_token, cdn_id, url=RSURL):
     for name in ('bokeh', 'bokeh-api', 'bokeh-widgets', 'bokeh-tables', 'bokeh-gl'):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, url=url)
+            cdn_path = 'bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
+            for bucket in buckets:
+                cdn_upload(local_path, cdn_path, content_type, bucket)
 
     content_type = "text/css"
     for name in ('bokeh', 'bokeh-widgets', 'bokeh-tables'):
         for suffix in ('css', 'min.css'):
             local_path = 'bokehjs/build/css/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, url=url)
+            cdn_path = 'bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
+            for bucket in buckets:
+                cdn_upload(local_path, cdn_path, content_type, bucket)
 
 @upload_wrapper('anaconda')
 def upload_anaconda(token, dev):
     if dev:
-        cmd = "anaconda -t %s upload -u bokeh %s -c dev --force --no-progress"
+        cmd = "anaconda -t %s upload -u bokeh %s -l dev --force --no-progress"
     else:
-        cmd = "anaconda -t %s upload -u bokeh %s --force --no-progress"
+        cmd = "anaconda -t %s upload -u bokeh %s -l dev -l main --force --no-progress"
 
     files = glob.glob("/home/travis/miniconda/conda-bld/noarch/bokeh*.tar.bz2")
     for file in files:
@@ -371,8 +373,11 @@ def upload_anaconda(token, dev):
         run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('pypi')
-def upload_pypi():
-    run("twine upload dist/bokeh-%s.tar.gz" % CONFIG.version)
+def upload_pypi(token):
+    cmd = "twine upload -u __token__ -p %s %s"
+    files = glob.glob("dist/bokeh*.tar.gz")
+    for file in files:
+        run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('docs')
 def upload_docs():
@@ -385,10 +390,11 @@ def upload_docs():
     cd("..")
 
 @upload_wrapper('examples')
-def upload_examples(cdn_token, cdn_id, url=RSURL):
+def upload_examples(buckets):
     local_path = "examples-%s.zip" % CONFIG.version
-    cdn_path = 'bokeh/bokeh/examples/%s' % local_path
-    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, binary=True, url=url)
+    cdn_path = 'bokeh/examples/%s' % local_path
+    for bucket in buckets:
+        cdn_upload(local_path, cdn_path, 'application/zip', bucket, binary=True)
 
 @upload_wrapper('npm')
 def upload_npm():
@@ -434,12 +440,15 @@ if __name__ == '__main__':
         abort_checks()
 
     check_environment_var('ANACONDA_TOKEN', 'access token for Anaconda.org')
-    check_environment_var('RSUSER', 'username for CDN')
-    check_environment_var('RSAPIKEY', 'API key for CDN')
-
     anaconda_token = check_anaconda_creds()
 
-    cdn_token, cdn_id = check_cdn_creds()
+    check_environment_var('PYPI_TOKEN', 'access token for PyPI')
+    pypi_token = check_pypi_creds()
+
+    check_environment_var('NPM_TOKEN', 'access token for NPM')
+    check_npm_creds()
+
+    buckets = check_cdn_buckets()
 
     # builds ----------------------------------------------------------------
 
@@ -466,7 +475,7 @@ if __name__ == '__main__':
 
     # upload to CDN first -- if this fails, save the trouble of removing
     # useless packages from Anaconda.org and PyPI
-    upload_cdn(cdn_token, cdn_id)
+    upload_cdn(buckets)
 
     upload_anaconda(anaconda_token, V(CONFIG.version).is_prerelease)
 
@@ -477,9 +486,9 @@ if __name__ == '__main__':
         print(blue("[SKIP] ") + "Not updating NPM package for pre-releases")
         print(blue("[SKIP] ") + "Not updating Examples tarball for pre-releases")
     else:
-        upload_pypi()
+        upload_pypi(pypi_token)
         upload_npm()
-        upload_examples(cdn_token, cdn_id)
+        upload_examples(buckets)
 
     # finish ----------------------------------------------------------------
 

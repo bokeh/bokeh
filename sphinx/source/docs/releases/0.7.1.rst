@@ -1,7 +1,10 @@
-0.7.1 (Jan 2015)
-================
+.. _release-0-7-1:
 
-This release was focused on stability, bug fixes, improved documentation and better examples.
+0.7.1
+=====
+
+Bokeh ``0.7.1`` (Jan 2015) focused on stability, bug fixes, improved
+documentation and better examples.
 
 * Several bokeh.charts bug fixes and enhancements, such as configurable tools
 * Docs improvements, in particular, documenting json for bokeh.models

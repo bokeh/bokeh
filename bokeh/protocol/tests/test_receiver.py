@@ -1,12 +1,42 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from bokeh.protocol import receiver, Protocol
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from bokeh.protocol import Protocol
 from bokeh.protocol.exceptions import ValidationError
 from bokeh.util.string import decode_utf8
 
+# Module under test
+from bokeh.protocol import receiver
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
 _proto = Protocol("1.0")
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_creation():
     receiver.Receiver(None)
@@ -109,3 +139,15 @@ def test_text_payload_buffer_raises_error():
     r.consume(decode_utf8('buf_header')).result()
     with pytest.raises(ValidationError):
         r.consume(decode_utf8('buf_payload')).result()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,21 +1,89 @@
-1.0.0 (August 2018)
-===================
+.. _release-1-0-0:
 
-Bokeh Version ``1.0.0``
+1.0.0
+=====
+
+Bokeh Version ``1.0.0`` (October 2018) is a major milestone of the Bokeh project.
 
 Some of the highlights include:
 
+* Support for ``MultiPolygons`` with holes (:bokeh-issue:`2321`)
+* Fixes and improvements to `DataTable` (:bokeh-issue:`6454`, :bokeh-issue:`7116`, :bokeh-issue:`7417`, :bokeh-issue:`8021`, :bokeh-issue:`8040`, :bokeh-issue:`8050`, :bokeh-issue:`8201`)
+* ``CustomAction`` for user-defined Toolbar buttons (:bokeh-issue:`8099`)
+* Plain JSON export/embed functions (:bokeh-issue:`5231`)
+* Toolbar ``autohide`` property to hide toolbars when not in us(:bokeh-issue:`8284`)
+* Callback to allow ``AjaxDataSource`` to adapt JSON responses (:bokeh-issue:`8321`)
+* ``Scatter`` glyph for parameterizable marker type (:bokeh-issue:`5884`)
+* Reuse webdrivers for faster PNG/SVG export by default (:bokeh-issue:`8329`)
+* Improved testing capabilities (:bokeh-issue:`2596`, :bokeh-issue:`8078`, :bokeh-issue:`8139`, :bokeh-issue:`8146`, :bokeh-issue:`8217`, :bokeh-issue:`8225`)
+* Faster import times (:bokeh-issue:`8309`)
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
 
-Migration Guide
----------------
+.. _release-1-0-0-migration:
+
+`Migration Guide <releases.html#release-1-0-0-migration>`__
+-----------------------------------------------------------
+
+Handling of Selections
+~~~~~~~~~~~~~~~~~~~~~~
+
+Previous versions of Bokeh mistakenly had code paths that could replace data
+source ``Selection`` objects with entirely new instances. This was a mistake,
+and resulted in several regressions and other problems. Unfortunately, the
+problem persisted for a few releases, and now that the situation has been fixed,
+it will require some code changes for some users to adapt to correct usage.
+
+In general, you should NOT ever listen for a change of selections objects
+themselves, i.e. do not do this (anymore):
+
+.. code-block:: python
+
+    source.on_change('selected', callback)  # BAD, DON'T DO THIS
+
+Instead, you should listen for changes to the individual properties that are on
+``Selection`` objects. For instance, to execute a callback when the ``indices``
+on a selection change, (e.g. when a selection is made on a scatter plot), do
+this:
+
+.. code-block:: python
+
+    source.selected.on_change('indices', callback)  # GOOD
+
+Any code that looks like the first version above should be updated to use the
+second version. This applies to both Python or JavaScript callbacks for
+selections.
+
+While this breaking incompatibility is regretable, there are now much more
+extensive integration tests in place to maintain that the second version will
+always function as expected from now on.
 
 New Dependencies
 ~~~~~~~~~~~~~~~~
 
 "Pillow>=4.0" has been added to the list of Bokeh runtime dependencies.
+
+Examples
+~~~~~~~~
+
+The following examples have been removed or updated:
+
+* *app/pivot*: This large example was unfocused and unmaintained and has been
+  removed
+* *embed/simple*: Old example removed
+* *howto/us_marriages_divorces*: Redundant notebook removed, script moved
+  to *plotting/file/us_marriages_divorces_hover.py*
+* *models/file/colorspec.py* Old example removed
+* *models/file/external_resources.py* Moved to *latex_extension.py*
+* *models/file/glyph1.py* Moved to *basic_plot.py*
+* *models/file/grid.py* Old example removed
+* *models/file/line.py* Old example removed
+* *models/file/transform_jitter_coffee.py* Discouraged coffeescript example removed
+* *plotting/file/bar_chart.py* Removed old/duplicative example
+* *plotting/file/brewer.py*: Moved to *stacked_area.py*
+* *plotting/file/bollinger.py* Old example removed
+* *plotting/file/joyplot.py* Moved to *ridgeplot.py*
 
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,6 +95,18 @@ caused ipython console to be spammed with very large amounts of output,
 making it unusable. As a result, both ``pprint`` and ``pretty`` methods have
 been removed. A "pretty" HTML repr still functions in Jupyter notebooks. This
 change is not expected to affect any normal usage.
+
+Bokeh Object IDs
+~~~~~~~~~~~~~~~~
+
+Previously Bokeh generated unique UUIDs for every Bokeh object. Starting with
+this release, Bokeh generates simple increasing integer IDs by default. You can
+set the environment variable ``BOKEH_SIMPLE_IDS=no`` to restore the previous
+behavior. The generation of simple IDs is faster than UUIDs, otherwise this
+change is not expected to affect any normal usage. However, if you are creating
+Bokeh objects for a single Document in separate processes, i.e. by using the
+``multiprocessing`` module, then you will want to turn off simple IDs. (This
+is expected to be a rare and unusual usage.)
 
 ``bokeh.util.plot_utils``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,6 +122,14 @@ The ``bokeh.server.application_context`` module has been renamed to
 ``bokeh.server.contexts``.  This change is not expected to affect any normal
 usage.
 
+``arguments`` parameter for ``server_session``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``server_session`` function accepted an ``arguments`` parameter that did not
+(and could not) have any actual effect. It has been removed, immediately. Since
+the parameter did not function, it is not expected that this change will affect
+any normal usage.
+
 Codebase Tests
 ~~~~~~~~~~~~~~
 
@@ -51,4 +139,4 @@ pre-commit hook to run quality tests before allowing a commit, the hook code
 should be updated as above. This change is only expected to affect those who
 are developing the Bokeh codebase.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

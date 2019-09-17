@@ -14,8 +14,8 @@ in your browser.
 
 import numpy as np
 
-from bokeh.layouts import row, column
-from bokeh.models import BoxSelectTool, LassoSelectTool, Spacer
+from bokeh.layouts import gridplot
+from bokeh.models import BoxSelectTool, LassoSelectTool
 from bokeh.plotting import figure, curdoc
 
 # create three normal population samples with different parameters
@@ -75,13 +75,13 @@ pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", 
 vh1 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.5, **LINE_ARGS)
 vh2 = pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, alpha=0.1, **LINE_ARGS)
 
-layout = column(row(p, pv), row(ph, Spacer(width=200, height=200)))
+layout = gridplot([[p, pv], [ph, None]], merge_tools=False)
 
 curdoc().add_root(layout)
 curdoc().title = "Selection Histogram"
 
 def update(attr, old, new):
-    inds = np.array(new['1d']['indices'])
+    inds = new
     if len(inds) == 0 or len(inds) == len(x):
         hhist1, hhist2 = hzeros, hzeros
         vhist1, vhist2 = vzeros, vzeros
@@ -98,4 +98,4 @@ def update(attr, old, new):
     vh1.data_source.data["right"] =  vhist1
     vh2.data_source.data["right"] = -vhist2
 
-r.data_source.on_change('selected', update)
+r.data_source.selected.on_change('indices', update)

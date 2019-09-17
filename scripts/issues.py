@@ -101,7 +101,7 @@ def issue_section(issue):
         elif label['name'] in IGNORE_ISSUE_TYPE:
             return None
         else:
-            logging.warn('unknown issue type: "{}" for: {}'.format(label['name'], issue_line(issue)))
+            logging.warning('unknown issue type: "{}" for: {}'.format(label['name'], issue_line(issue)))
 
     return None
 
@@ -119,12 +119,17 @@ def closed_issue(issue, after=None):
             return True
     return False
 
+def landing20(issue):
+    """Returns True iff this issue is marked landing-2.0."""
+    labels = issue.get('labels', [])
+    return any(label['name'] == 'landing-2.0' for label in labels)
 
 def relevent_issue(issue, after):
     """Returns True iff this issue is something we should show in the changelog."""
     return (closed_issue(issue, after) and
             issue_completed(issue) and
-            issue_section(issue))
+            issue_section(issue) and
+            not landing20(issue))
 
 
 def relevant_issues(issues, after):
@@ -251,18 +256,18 @@ def check_issue(issue, after):
     labels = issue.get('labels', [])
     if 'pull_request' in issue:
         if not any(label['name'].startswith('status: ') for label in labels):
-            logging.warn('pull request without status label: {}'.format(issue_line(issue)))
+            logging.warning('pull request without status label: {}'.format(issue_line(issue)))
             have_warnings = True
     else:
         if not any(label['name'].startswith('type: ') for label in labels):
             if not any(label['name']=="reso: duplicate" for label in labels):
-                logging.warn('issue with no type label: {}'.format(issue_line((issue))))
+                logging.warning('issue with no type label: {}'.format(issue_line((issue))))
                 have_warnings = True
 
         if closed_issue(issue, after):
             if not any(label['name'].startswith('reso: ') for label in labels):
                 if not any(label['name'] in IGNORE_ISSUE_TYPE for label in labels):
-                    logging.warn('closed issue with no reso label: {}'.format(issue_line((issue))))
+                    logging.warning('closed issue with no reso label: {}'.format(issue_line((issue))))
                     have_warnings = True
 
     return have_warnings

@@ -5,29 +5,26 @@ import {DataSource} from "../sources/data_source"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {
-  export interface Attrs extends Filter.Attrs {
-    args: {[key: string]: any}
-    code: string
-    use_strict: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Filter.Props {}
+  export type Props = Filter.Props & {
+    args: p.Property<{[key: string]: unknown}>
+    code: p.Property<string>
+    use_strict: p.Property<boolean>
+  }
 }
 
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
-
   properties: CustomJSFilter.Props
 
   constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CustomJSFilter'
-
-    this.define({
+  static init_CustomJSFilter(): void {
+    this.define<CustomJSFilter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
       use_strict: [ p.Boolean, false ],
@@ -52,4 +49,3 @@ export class CustomJSFilter extends Filter {
     return super.compute_indices(source)
   }
 }
-CustomJSFilter.initClass()

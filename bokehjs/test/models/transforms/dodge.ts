@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {FactorRange} from "models/ranges/factor_range"
-import {Dodge} from "models/transforms/dodge"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {Dodge} from "@bokehjs/models/transforms/dodge"
 
 describe("Dodge transform module", () => {
 
@@ -9,7 +9,7 @@ describe("Dodge transform module", () => {
     const transform = new Dodge({value: -0.5})
 
     it("should add value to data", () => {
-      const vals = [-10, -2.5, 0, .2, .5, 10]
+      const vals = [-10, -2.5, 0, 0.2, 0.5, 10]
       const rets = transform.v_compute(vals)
       expect(rets).to.deep.equal(new Float64Array([-10.5, -3, -0.5, -0.3, 0, 9.5]))
     })

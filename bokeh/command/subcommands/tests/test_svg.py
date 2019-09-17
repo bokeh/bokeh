@@ -1,17 +1,50 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
-import pytest
 import os
 import sys
 
-is_python2 = sys.version_info[0] == 2
+# External imports
 
-import bokeh.command.subcommands.svg as scsvg
+# Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 
 from . import basic_svg_scatter_script, multi_svg_scatter_script
+
+# Module under test
+import bokeh.command.subcommands.svg as scsvg
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+is_python2 = sys.version_info[0] == 2
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_create():
     import argparse
@@ -94,8 +127,7 @@ def test_basic_script(capsys):
 
         assert set(["scatter.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -109,8 +141,7 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -124,8 +155,22 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_basic_script_with_output_stdout(capsys):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "svg", "--output", "-", "scatter.py"])
+        out, err = capsys.readouterr()
+        assert len(err) == 0
+        assert len(out) > 0
+        assert out.startswith('<svg version=')
+
+        assert set(["scatter.py"]) == set(os.listdir(dirname))
+
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -158,3 +203,11 @@ def test_basic_script_with_multiple_svg_plots(capsys):
 
     with_directory_contents({ 'scatter.py' : multi_svg_scatter_script },
                             run)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

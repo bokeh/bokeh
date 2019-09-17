@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -51,11 +50,9 @@ def on_session_destroyed(session_context):
 # Dev API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
 class Test_ServerLifecycleHandler(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_empty_lifecycle(self):
         doc = Document()
@@ -202,3 +199,11 @@ def on_server_unloaded():
         handler = result['handler']
         assert handler.error is not None
         assert handler.url_path() is None
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

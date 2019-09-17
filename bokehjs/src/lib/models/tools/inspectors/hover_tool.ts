@@ -1,9 +1,11 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
-import {RendererView} from "../../renderers/renderer"
+import {Renderer, RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
-import {GraphRendererView} from "../../renderers/graph_renderer"
-import {compute_renderers, DataRenderer, RendererSpec} from "../util"
+import {GraphRenderer, GraphRendererView} from "../../renderers/graph_renderer"
+import {DataRenderer} from "../../renderers/data_renderer"
+import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Vars} from "core/util/templating"
@@ -13,10 +15,14 @@ import {color2hex} from "core/util/color"
 import {values, isEmpty} from "core/util/object"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
-import {Anchor, TooltipAttachment} from "core/enums"
+import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {ImageIndex} from "../../glyphs/image"
+import {ImageIndex} from "../../selections/selection"
+import {bk_tool_icon_hover} from "styles/icons"
+import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from "styles/tooltips"
+
+export type TooltipVars = {index: number} & Vars
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
@@ -58,8 +64,8 @@ export class HoverToolView extends InspectToolView {
 
   protected _computed_renderers: DataRenderer[] | null
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.ttviews = {}
   }
 
@@ -74,13 +80,13 @@ export class HoverToolView extends InspectToolView {
     for (const r of this.computed_renderers) {
       if (r instanceof GlyphRenderer)
         this.connect(r.data_source.inspect, this._update)
-      else {
+      else if (r instanceof GraphRenderer) {
         this.connect(r.node_renderer.data_source.inspect, this._update)
         this.connect(r.edge_renderer.data_source.inspect, this._update)
       }
     }
 
-    // TODO: this.connect(this.plot_model.plot.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
+    // TODO: this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
@@ -99,7 +105,7 @@ export class HoverToolView extends InspectToolView {
             show_arrow: this.model.show_arrow,
           })
           ttmodels[r.id] = tooltip
-        } else {
+        } else if (r instanceof GraphRenderer) {
           const tooltip = new Tooltip({
             custom: isString(tooltips) || isFunction(tooltips),
             attachment: this.model.attachment,
@@ -111,7 +117,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    build_views(this.ttviews, values(ttmodels), {parent: this, plot_view: this.plot_view})
+    build_views(this.ttviews, values(ttmodels), {parent: this.plot_view})
 
     return ttmodels
   }
@@ -119,7 +125,7 @@ export class HoverToolView extends InspectToolView {
   get computed_renderers(): DataRenderer[] {
     if (this._computed_renderers == null) {
       const renderers = this.model.renderers
-      const all_renderers = this.plot_model.plot.renderers
+      const all_renderers = this.plot_model.renderers
       const names = this.model.names
       this._computed_renderers = compute_renderers(renderers, all_renderers, names)
     }
@@ -145,7 +151,7 @@ export class HoverToolView extends InspectToolView {
     if (!this.model.active)
       return
     const {sx, sy} = ev
-    if (!this.plot_model.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._clear()
     else
       this._inspect(sx, sy)
@@ -198,7 +204,7 @@ export class HoverToolView extends InspectToolView {
 
     const ds = selection_manager.source
 
-    const frame = this.plot_model.frame
+    const {frame} = this.plot_view
     const {sx, sy} = geometry
     const xscale = frame.xscales[renderer.x_range_name]
     const yscale = frame.yscales[renderer.y_range_name]
@@ -242,22 +248,15 @@ export class HoverToolView extends InspectToolView {
 
       const vars = {
         index: ii,
-        x:       x,
-        y:       y,
-        sx:      sx,
-        sy:      sy,
-        data_x:  data_x,
-        data_y:  data_y,
-        rx:      rx,
-        ry:      ry,
+        x, y, sx, sy, data_x, data_y, rx, ry,
         indices: indices.line_indices,
-        name:    renderer_view.model.name,
+        name: renderer_view.model.name,
       }
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
     for (const struct of indices.image_indices) {
-      const vars = {index: struct['index'], x, y, sx, sy}
+      const vars = {index: struct.index, x, y, sx, sy}
       const rendered = this._render_tooltips(ds, struct, vars)
       tooltip.add(sx, sy, rendered)
     }
@@ -304,16 +303,10 @@ export class HoverToolView extends InspectToolView {
             index = i
 
           const vars = {
-            index:         index,
+            index, x, y, sx, sy, data_x, data_y,
             segment_index: jj,
-            x:             x,
-            y:             y,
-            sx:            sx,
-            sy:            sy,
-            data_x:        data_x,
-            data_y:        data_y,
-            indices:       indices.multiline_indices,
-            name:          renderer_view.model.name,
+            indices: indices.multiline_indices,
+            name: renderer_view.model.name,
           }
           tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
         }
@@ -343,15 +336,9 @@ export class HoverToolView extends InspectToolView {
           index = i
 
         const vars = {
-          index:   index,
-          x:       x,
-          y:       y,
-          sx:      sx,
-          sy:      sy,
-          data_x:  data_x,
-          data_y:  data_y,
+          index, x, y, sx, sy, data_x, data_y,
           indices: indices.indices,
-          name:    renderer_view.model.name,
+          name: renderer_view.model.name,
         }
         tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
       }
@@ -361,7 +348,7 @@ export class HoverToolView extends InspectToolView {
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
     for (const r of this.computed_renderers) {
       const index = (r as any).data_source.inspected
-      const frame = this.plot_model.frame
+      const {frame} = this.plot_view
 
       const xscale = frame.xscales[r.x_range_name]
       const yscale = frame.yscales[r.y_range_name]
@@ -370,17 +357,11 @@ export class HoverToolView extends InspectToolView {
 
       const g = {x, y, ...geometry}
 
-      const callback = this.model.callback
-      const [obj, data] = [callback, {index: index, geometry: g, renderer: r}]
-
-      if (isFunction(callback))
-        callback(obj, data)
-      else
-        callback.execute(obj, data)
+      this.model.callback!.execute(this.model, {index, geometry: g, renderer: r})
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: Vars): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
@@ -397,10 +378,10 @@ export class HoverToolView extends InspectToolView {
 
         let cell: HTMLElement
 
-        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-label'}, `${label}: `)
+        cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
         row.appendChild(cell)
 
-        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-value'})
+        cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_value})
         row.appendChild(cell)
 
         if (value.indexOf("$color") >= 0) {
@@ -424,7 +405,7 @@ export class HoverToolView extends InspectToolView {
           let el = span({}, color)
           cell.appendChild(el)
           if (swatch) {
-            el = span({class: 'bk-tooltip-color-block', style: {backgroundColor: color}}, " ")
+            el = span({class: bk_tooltip_color_block, style: {backgroundColor: color}}, " ")
             cell.appendChild(el)
           }
         } else {
@@ -440,62 +421,54 @@ export class HoverToolView extends InspectToolView {
 }
 
 export namespace HoverTool {
-  export interface Attrs extends InspectTool.Attrs {
-    tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)
-    formatters: any // XXX
-    renderers: RendererSpec
-    names: string[]
-    mode: "mouse" | "hline" | "vline"
-    point_policy: "snap_to_data" | "follow_mouse" | "none"
-    line_policy: "prev" | "next" | "nearest" | "interp" | "none"
-    show_arrow: boolean
-    anchor: Anchor
-    attachment: TooltipAttachment
-    callback: any // XXX
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InspectTool.Props {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)>
+  export type Props = InspectTool.Props & {
+    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    formatters: p.Property<any> // XXX
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
+    mode: p.Property<HoverMode>
+    point_policy: p.Property<PointPolicy>
+    line_policy: p.Property<LinePolicy>
+    show_arrow: p.Property<boolean>
+    anchor: p.Property<Anchor>
+    attachment: p.Property<TooltipAttachment>
+    callback: p.Property<CallbackLike1<HoverTool, {index: number, geometry: Geometry, renderer: Renderer}> | null>
   }
 }
 
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
-
   properties: HoverTool.Props
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "HoverTool"
+  static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
-    this.define({
+    this.define<HoverTool.Props>({
       tooltips: [ p.Any, [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ p.Any,    {}             ],
-      renderers:    [ p.Any,    'auto'         ],
-      names:        [ p.Array,  []             ],
-      mode:         [ p.String, 'mouse'        ], // TODO (bev)
-      point_policy: [ p.String, 'snap_to_data' ], // TODO (bev) "follow_mouse", "none"
-      line_policy:  [ p.String, 'nearest'      ], // TODO (bev) "next", "nearest", "interp", "none"
-      show_arrow:   [ p.Boolean, true          ],
-      anchor:       [ p.String, 'center'       ], // TODO: enum
-      attachment:   [ p.String, 'horizontal'   ], // TODO: enum
-      callback:     [ p.Any                    ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+      formatters:   [ p.Any,               {}             ],
+      renderers:    [ p.Any,               'auto'         ],
+      names:        [ p.Array,             []             ],
+      mode:         [ p.HoverMode,         'mouse'        ],
+      point_policy: [ p.PointPolicy,       'snap_to_data' ],
+      line_policy:  [ p.LinePolicy,        'nearest'      ],
+      show_arrow:   [ p.Boolean,           true           ],
+      anchor:       [ p.Anchor,            'center'       ],
+      attachment:   [ p.TooltipAttachment, 'horizontal'   ],
+      callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
 
   tool_name = "Hover"
-  icon = "bk-tool-icon-hover"
+  icon = bk_tool_icon_hover
 }
-
-HoverTool.initClass()

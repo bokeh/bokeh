@@ -13,16 +13,18 @@ from data import process_data
 
 fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
 
-p = pd.Panel({'fertility': fertility_df, 'life': life_expectancy_df, 'population': population_df_size})
+df = pd.concat({'fertility': fertility_df,
+                'life': life_expectancy_df,
+                'population': population_df_size},
+               axis=1)
 
 data = {}
 
-region_name = regions_df.Group
-region_name.name = 'region'
-
+regions_df.rename({'Group':'region'}, axis='columns', inplace=True)
 for year in years:
-    df = pd.concat([p.loc[:, :, year], region_name], axis=1).reset_index()
-    data[year] = df.to_dict('series')
+    df_year = df.iloc[:,df.columns.get_level_values(1)==year]
+    df_year.columns = df_year.columns.droplevel(1)
+    data[year] = df_year.join(regions_df.region).reset_index().to_dict('series')
 
 source = ColumnDataSource(data=data[years[0]])
 
@@ -48,7 +50,7 @@ plot.circle(
     line_alpha=0.5,
     legend=field('region'),
 )
-plot.add_tools(HoverTool(tooltips="@index", show_arrow=False, point_policy='follow_mouse'))
+plot.add_tools(HoverTool(tooltips="@Country", show_arrow=False, point_policy='follow_mouse'))
 
 
 def animate_update():

@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -57,8 +56,16 @@ log = logging.getLogger(__name__)
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'Handler',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class Handler(object):
@@ -185,7 +192,7 @@ class Handler(object):
             return self._static
 
     def url_path(self):
-        ''' Returs a default URL path, if applicable.
+        ''' Returns a default URL path, if applicable.
 
         Handlers subclasses may optionally implement this method, to inform
         the Bokeh application what URL it should be installed at.
@@ -195,10 +202,6 @@ class Handler(object):
 
         '''
         return None
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

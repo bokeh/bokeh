@@ -1,9 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Guide renderers for various kinds of axes that can be added to
 Bokeh plots
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import TickLabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
@@ -12,6 +34,24 @@ from ..core.property_mixins import LineProps, TextProps
 from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter, MercatorTickFormatter
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker, MercatorTicker
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Axis',
+    'CategoricalAxis',
+    'ContinuousAxis',
+    'DatetimeAxis',
+    'LinearAxis',
+    'LogAxis',
+    'MercatorAxis',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Axis(GuideRenderer):
@@ -63,7 +103,7 @@ class Axis(GuideRenderer):
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     formatter = Instance(TickFormatter, help="""
-    A TickFormatter to use for formatting the visual appearance
+    A ``TickFormatter`` to use for formatting the visual appearance
     of ticks.
     """)
 
@@ -185,7 +225,7 @@ class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
 
     The ``CategoricalAxis`` can handle factor ranges with up to two levels of
-    nesting, including drawing a seperator line between top-level groups of
+    nesting, including drawing a separator line between top-level groups of
     factors.
 
     '''
@@ -246,7 +286,7 @@ class CategoricalAxis(Axis):
     subgroup_text_font_style = Override(default="bold")
 
 class DatetimeAxis(LinearAxis):
-    ''' An LinearAxis that picks nice numbers for tick locations on
+    ''' A ``LinearAxis`` that picks nice numbers for tick locations on
     a datetime scale. Configured with a ``DatetimeTickFormatter`` by
     default.
 
@@ -279,3 +319,15 @@ class MercatorAxis(LinearAxis):
     ticker = Override(default=lambda: MercatorTicker())
 
     formatter = Override(default=lambda: MercatorTickFormatter())
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

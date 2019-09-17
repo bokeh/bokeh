@@ -1,15 +1,62 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for computing good tick locations on different kinds
 of plots.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import LatLon
 from ..core.has_props import abstract
 from ..core.properties import Enum, Float, Instance, Int, Override, Seq
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Ticker',
+    'ContinuousTicker',
+    'FixedTicker',
+    'AdaptiveTicker',
+    'CompositeTicker',
+    'SingleIntervalTicker',
+    'DaysTicker',
+    'MonthsTicker',
+    'YearsTicker',
+    'BasicTicker',
+    'LogTicker',
+    'MercatorTicker',
+    'CategoricalTicker',
+    'DatetimeTicker',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Ticker(Model):
@@ -47,7 +94,11 @@ class FixedTicker(ContinuousTicker):
     '''
 
     ticks = Seq(Float, default=[], help="""
-    List of tick locations.
+    List of major tick locations.
+    """)
+
+    minor_ticks = Seq(Float, default=[], help="""
+    List of minor tick locations.
     """)
 
 class AdaptiveTicker(ContinuousTicker):
@@ -164,7 +215,7 @@ class MercatorTicker(BasicTicker):
     should be `"lat"``.
 
     In order to prevent hard to debug errors, there is no default value for
-    dimension. Using an un-configured MercatorTicker will result in a
+    dimension. Using an un-configured ``MercatorTicker`` will result in a
     validation error and a JavaScript console error.
     """)
 
@@ -227,3 +278,15 @@ class DatetimeTicker(CompositeTicker):
 
         YearsTicker(),
     ])
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

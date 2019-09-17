@@ -9,7 +9,7 @@ import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {range} from "core/util/array"
 
-export type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
+type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
 
 export type GeoData = {
   x: Arrayable<number>
@@ -22,29 +22,28 @@ export type GeoData = {
 }
 
 export namespace GeoJSONDataSource {
-  export interface Attrs extends ColumnarDataSource.Attrs {
-    geojson: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ColumnarDataSource.Props {
+  export type Props = ColumnarDataSource.Props & {
     geojson: p.Property<string>
   }
 }
 
 export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 
-export class GeoJSONDataSource extends ColumnarDataSource {
+function orNaN(v: number | undefined): number {
+  return v != null ? v : NaN
+}
 
+export class GeoJSONDataSource extends ColumnarDataSource {
   properties: GeoJSONDataSource.Props
 
   constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'GeoJSONDataSource'
-
-    this.define({
+  static init_GeoJSONDataSource(): void {
+    this.define<GeoJSONDataSource.Props>({
       geojson: [ p.Any ], // TODO (bev)
     })
 
@@ -75,20 +74,17 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     return range(0, length).map((_i) => NaN)
   }
 
-  protected _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
+  private _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
     const properties = item.properties || {}
     for (const property in properties) {
       if (!data.hasOwnProperty(property))
         data[property] = this._get_new_nan_array(item_count)
-      data[property][i] = properties[property]
+      // orNaN necessary here to prevent null values from ending up in the column
+      data[property][i] = orNaN(properties[property])
     }
   }
 
-  protected _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
-
-    function orNaN(v: number | undefined) {
-      return v != null ? v : NaN
-    }
+  private _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
 
     function flatten(acc: Position[], item: Position[]) {
       return acc.concat([[NaN, NaN, NaN]]).concat(item)
@@ -230,4 +226,3 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     return data
   }
 }
-GeoJSONDataSource.initClass()

@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' These define the standard error codes and messages for Bokeh
 validation checks.
 
@@ -38,7 +44,7 @@ validation checks.
     dimension (will result in blank plot).
 
 1010 *(CDSVIEW_SOURCE_DOESNT_MATCH)*
-    A |GlyphRenderer| has a CDSView whose source doesn't match the GlyphRenderer's
+    A |GlyphRenderer| has a ``CDSView`` whose source doesn't match the ``GlyphRenderer``'s
     data source.
 
 1011 *(MALFORMED_GRAPH_SOURCE)*
@@ -48,39 +54,61 @@ validation checks.
     Map plots can only support ``Range1d`` types, not data ranges.
 
 1013 *(INCOMPATIBLE_POINT_DRAW_RENDERER)*
-    The PointDrawTool renderers may only reference XYGlyph models.
+    The ``PointDrawTool`` renderers may only reference ``XYGlyph`` models.
 
 1014 *(INCOMPATIBLE_BOX_EDIT_RENDERER)*
-    The BoxEditTool renderers may only reference Rect glyph models.
+    The ``BoxEditTool`` renderers may only reference ``Rect`` glyph models.
 
 1015 *(INCOMPATIBLE_POLY_DRAW_RENDERER)*
-    The PolyDrawTool renderers may only reference MultiLine and Patches glyph models.
+    The ``PolyDrawTool`` renderers may only reference ``MultiLine`` and ``Patches`` glyph models.
 
 1016 *(INCOMPATIBLE_POLY_EDIT_RENDERER)*
-    The PolyEditTool renderers may only reference MultiLine and Patches glyph models.
+    The ``PolyEditTool`` renderers may only reference ``MultiLine`` and ``Patches`` glyph models.
 
 1017 *(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)*
-    The PolyEditTool vertex_renderer may only reference XYGlyph models.
+    The ``PolyEditTool`` vertex_renderer may only reference ``XYGlyph`` models.
 
 1018 *(NO_RANGE_TOOL_RANGES)*
-    The RangeTool must have at least one of x_range or y_range configured
+    The ``RangeTool`` must have at least one of ``x_range`` or ``y_range`` configured
 
 1019 *(DUPLICATE_FACTORS)*
-    FactorRange must specify a unique list of categorical factors for an axis.
+    ``FactorRange`` must specify a unique list of categorical factors for an axis.
 
 1020 *(BAD_EXTRA_RANGE_NAME)*
-    An extra range name is configued with a name that does not correspond to any range.
+    An extra range name is configured with a name that does not correspond to any range.
 
 1021 *(EQUAL_SLIDER_START_END)*
-    noUiSlider most have a nonequal start and end.
+    ``noUiSlider`` most have a nonequal start and end.
 
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
 '''
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 codes = {
-    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name"),
+    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. "), # NOQA
     1002: ("MISSING_GLYPH",                                      "Glyph renderer has no glyph set"),
     1003: ("NO_SOURCE_FOR_GLYPH",                                "Glyph renderer has no data source"),
     1004: ("REQUIRED_RANGE",                                     "A required Range object is missing"),
@@ -100,9 +128,29 @@ codes = {
     1018: ("NO_RANGE_TOOL_RANGES",                               "RangeTool must have at least one of x_range or y_range configured"),
     1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
     1020: ("BAD_EXTRA_RANGE_NAME",                               "An extra range name is configued with a name that does not correspond to any range"),
-    1021: ("EQUAL_SLIDER_START_END",                                    "Slider 'start' and 'end' cannot be equal"),
+    1021: ("EQUAL_SLIDER_START_END",                             "Slider 'start' and 'end' cannot be equal"),
+    1022: ("MIN_PREFERRED_MAX_WIDTH",                            "expected min_width <= width <= max_width"),
+    1023: ("MIN_PREFERRED_MAX_HEIGHT",                           "expected min_height <= height <= max_height"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
+
+__all__ = ()
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 for code in codes:
     exec("%s = %d" % (codes[code][0], code))

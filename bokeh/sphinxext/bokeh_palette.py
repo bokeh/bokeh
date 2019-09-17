@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Generate an inline visual representations of a single color palette.
 
 The ``:bokeh-palette:`` role can be used with by providing any of the
@@ -41,15 +47,44 @@ Will generate the output:
     :bokeh-palette:`viridis(256)`
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from docutils import nodes
 from sphinx.errors import SphinxError
 
+# Bokeh imports
 from .templates import PALETTE_DETAIL
 
-_globals = {}
-exec("from bokeh.palettes import *", _globals)
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'bokeh_palette',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=None):
     ''' Generate an inline visual representations of a single color palette.
@@ -80,7 +115,16 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
     return [node], []
 
 def setup(app):
-    ''' Required setup function for Sphinx extensions.
-
-    '''
+    ''' Required Sphinx extension setup function. '''
     app.add_role('bokeh-palette', bokeh_palette)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+_globals = {}
+exec("from bokeh.palettes import *", _globals)

@@ -8,23 +8,30 @@ import * as p from "./properties"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
+export namespace SelectionManager {
+  export type Props = HasProps.Props & {
+    source: p.Property<ColumnarDataSource>
+  }
+
+  export type Attrs = p.AttrsOf<Props>
+}
+
+export interface SelectionManager extends SelectionManager.Attrs {}
+
 export class SelectionManager extends HasProps {
+  properties: SelectionManager.Props
 
-  static initClass(): void {
-    this.prototype.type = "SelectionManager"
+  constructor(attrs?: Partial<SelectionManager.Attrs>) {
+    super(attrs)
+  }
 
+  static init_SelectionManager(): void {
     this.internal({
       source: [ p.Any ],
     })
   }
 
-  source: ColumnarDataSource
-  inspectors: {[key: string]: Selection}
-
-  initialize(): void {
-    super.initialize()
-    this.inspectors = {}
-  }
+  inspectors: {[key: string]: Selection} = {}
 
   select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
     // divide renderers into glyph_renderers or graph_renderers
@@ -63,7 +70,7 @@ export class SelectionManager extends HasProps {
         const inspection = this.get_or_create_inspector(renderer_view.model)
         inspection.update(hit_test_result, true, false)
         this.source.setv({inspected: inspection}, {silent: true})
-        this.source.inspect.emit([renderer_view, {geometry: geometry}])
+        this.source.inspect.emit([renderer_view, {geometry}])
       }
     } else if (renderer_view instanceof GraphRendererView) {
       const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
@@ -85,5 +92,3 @@ export class SelectionManager extends HasProps {
     return this.inspectors[rmodel.id]
   }
 }
-
-SelectionManager.initClass()

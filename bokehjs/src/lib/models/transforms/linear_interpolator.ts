@@ -1,24 +1,20 @@
-import {findLastIndex} from "core/util/array"
+import {find_last_index} from "core/util/array"
 import {Interpolator} from "./interpolator"
+import * as p from "core/properties"
 
 export namespace LinearInterpolator {
-  export interface Attrs extends Interpolator.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Interpolator.Props {}
+  export type Props = Interpolator.Props
 }
 
 export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
-
   properties: LinearInterpolator.Props
 
   constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "LinearInterpolator"
   }
 
   compute(x: number): number {
@@ -37,7 +33,7 @@ export class LinearInterpolator extends Interpolator {
     if (x == this._x_sorted[0])
       return this._y_sorted[0]
 
-    const ind = findLastIndex(this._x_sorted, num => num < x)
+    const ind = find_last_index(this._x_sorted, num => num < x)
 
     const x1 = this._x_sorted[ind]
     const x2 = this._x_sorted[ind+1]
@@ -47,4 +43,3 @@ export class LinearInterpolator extends Interpolator {
     return y1 + (((x-x1) / (x2-x1)) * (y2-y1))
   }
 }
-LinearInterpolator.initClass()

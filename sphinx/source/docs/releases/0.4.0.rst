@@ -1,5 +1,10 @@
-0.4.0 (Feb 2014)
-================
+.. _release-0-4-0:
+
+0.4.0
+=====
+
+Bokeh ``0.4.4`` (Feb 2014) is an incremental release with several important
+new pieces of work:
 
 * Preliminary work on Matplotlib support: convert MPL figures to Bokeh plots
 * Tool improvements:

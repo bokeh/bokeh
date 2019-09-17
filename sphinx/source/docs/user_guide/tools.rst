@@ -442,8 +442,6 @@ in data or screen space. These special fields are listed here:
     x-coordinate under the cursor in screen (canvas) space
 :``$sy``:
     y-coordinate under the cursor in screen (canvas) space
-:``$name``:
-    The ``name`` property of the glyph that is hovered over
 :``$color``:
     colors from a data source, with the syntax: ``$color[options]:field_name``.
     The available options are: ``hex`` (to display the color as a hex value),
@@ -663,7 +661,7 @@ space for the new box being added.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/box_edit_keyboard_optimized.gif"
+    <img src="http://docs.bokeh.org/static/box_edit_keyboard_optimized.gif"
      width='400px' alt="Animation showing box draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -731,7 +729,7 @@ queue to make space for the new patch/multi-line being added.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/freehand_draw_keyboard_optimized.gif"
+    <img src="http://docs.bokeh.org/static/freehand_draw_keyboard_optimized.gif"
      width='400px' alt="Animation showing freehand drawing and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -785,7 +783,7 @@ to make space for the new point being added.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/point_draw_keyboard_optimized.gif"
+    <img src="http://docs.bokeh.org/static/point_draw_keyboard_optimized.gif"
      width='400px' alt="Animation showing point draw, drag, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -851,7 +849,7 @@ ability to snap to existing vertices while drawing.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/poly_draw_keyboard_optimized.gif"
+    <img src="http://docs.bokeh.org/static/poly_draw_keyboard_optimized.gif"
      width='400px' alt="Animation showing polygon draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -895,7 +893,7 @@ additional columns in the data source will be padded with the declared
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/poly_edit_keyboard_optimized.gif"
+    <img src="http://docs.bokeh.org/static/poly_edit_keyboard_optimized.gif"
      width='400px' alt="Animation showing polygon and vertex drag, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting

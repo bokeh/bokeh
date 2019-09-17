@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -19,10 +18,6 @@ A client session has two primary uses:
 * Creating and customizing specific sessions of a Bokeh server application
   (running *in the Bokeh server*) before passing them on to a specific
   viewer.
-
-Note About "External" Applications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-{warning}
 
 '''
 
@@ -59,11 +54,18 @@ DEFAULT_SESSION_ID = "default"
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
 
+__all__ = (
+    'ClientSession',
+    'pull_session',
+    'push_session',
+    'show_session',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def pull_session(session_id=None, url='default', io_loop=None):
+def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
     ''' Create a session by loading the current server-side document.
 
     ``session.document`` will be a fresh document loaded from
@@ -101,15 +103,24 @@ def pull_session(session_id=None, url='default', io_loop=None):
                 can also be `"default"` which will connect to the default app URL
 
         io_loop (``tornado.ioloop.IOLoop``, optional) :
-            The IOLoop to use for the websocket
+            The ``IOLoop`` to use for the websocket
+
+        arguments (dict[str, str], optional) :
+            A dictionary of key/values to be passed as HTTP request arguments
+            to Bokeh application code (default: None)
+
+            Note that should only be provided when pulling new sessions.
+            If ``session_id`` is not None, or a session with ``session_id``
+            already exists, these arguments will have no effect.
 
     Returns:
         ClientSession :
-            A new ClientSession connected to the server
+            A new ``ClientSession`` connected to the server
 
     '''
+
     coords = _SessionCoordinates(session_id=session_id, url=url)
-    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
+    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop, arguments=arguments)
     session.pull()
     return session
 
@@ -206,26 +217,26 @@ class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync with the
-    corresponding Document for this ClientSession instance. Udates on either
-    side of the connection will automatically propagate to the other side, as
-    long as the connectiion is open.
+    corresponding Document for this ``ClientSession`` instance. Updates on
+    either side of the connection will automatically propagate to the other
+    side, as long as the connection is open.
 
     ClientSession objects can (and usually should) be used as a context manager
-    so that the sesssion is properly closed:
+    so that the session is properly closed:
 
     .. code-block:: python
 
-        with pull_session(url=app_url) as session:
+        with pull_session(url=app_url) as mysession:
             # customize session here
             script = server_session(session_id=mysession.id, url=app_url)
             return render_template("embed.html", script=script, template="Flask")
 
-    If you do not use ClientSesssion in this way, it is up to you to ensure
-    that ``session.close()`` is called.
+    If you do not use ``ClientSession`` in this way, it is up to you to ensure
+    that ``mysession.close()`` is called.
 
     '''
 
-    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None):
+    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None, arguments=None):
         ''' A connection which attaches to a particular named session on the
         server.
 
@@ -247,12 +258,20 @@ class ClientSession(object):
             io_loop (IOLoop, optional) :
                 The IOLoop to use for the websocket
 
+            arguments (dict[str, str], optional) :
+                A dictionary of key/values to be passed as HTTP request
+                arguments to Bokeh application code (default: None)
+
+                Note that should only be provided when pulling new sessions.
+                If ``session_id`` is not None, or a session with ``session_id``
+                already exists, these arguments will have no effect.
+
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
         from .connection import ClientConnection
-        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
+        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments)
 
         from ..server.callbacks import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
@@ -316,17 +335,22 @@ class ClientSession(object):
         self._connection.force_roundtrip()
 
     def loop_until_closed(self, suppress_warning=False):
-        ''' Execute a blocking loop that runs and exectutes event callbacks
+        ''' Execute a blocking loop that runs and executes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
 
         While this method can be used to run Bokeh application code "outside"
         the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
-        use case.
+        use case. This function is intended to facilitate testing ONLY.
 
         '''
-        import warnings
-        if not suppress_warning:
-            warnings.warn(_BOKEH_CLIENT_APP_WARNING_FULL)
+
+        suppress_warning # shut up flake
+
+        from bokeh.util.deprecation import deprecated
+        deprecated("ClientSession.loop_until_closed is deprecated, and will be removed in an eventual 2.0 release. "
+                   "Run Bokeh applications directly on a Bokeh server instead. See:\n\n"
+                   "    https//docs.bokeh.org/en/latest/docs/user_guide/server.html\n")
+
         self._connection.loop_until_closed()
 
     def pull(self):
@@ -418,8 +442,6 @@ class ClientSession(object):
 
     # Internal methods --------------------------------------------------------
 
-    # Private methods ---------------------------------------------------------
-
     def _attach_document(self, document):
         self._document = document
         self._document.on_change_dispatch_to(self)
@@ -468,31 +490,8 @@ class ClientSession(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-_BOKEH_CLIENT_APP_WARNING_BODY = """
-The use of `session.loop_until_closed` and `push_session` to run Bokeh
-application code outside a Bokeh server is **HIGHLY DISCOURAGED** for any real
-use.
-
-Running application code outside a Bokeh server with bokeh.client in this way
-has (and always will have) several intrinsic drawbacks:
-
-* Fast binary array transport is NOT available! Base64 fallback is much slower
-* All network traffic is DOUBLED due to extra hop between client and server
-* Server *and* client process must be running at ALL TIMES for callbacks to work
-* App code run outside the Bokeh server is NOT SCALABLE behind a load balancer
-
-The bokeh.client API is recommended to use ONLY for testing, or for customizing
-individual sessions running in a full Bokeh server, before passing on to viewers.
-
-For information about different ways of running apps in a Bokeh server, see:
-
-    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
-"""
-
-_BOKEH_CLIENT_APP_WARNING_FULL = "\n\n    !!!! PLEASE NOTE !!!!\n" + _BOKEH_CLIENT_APP_WARNING_BODY
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
 
-__doc__ = format_docstring(__doc__, warning=_BOKEH_CLIENT_APP_WARNING_BODY)
+__doc__ = format_docstring(__doc__)

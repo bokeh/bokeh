@@ -1,14 +1,14 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
-
 import * as p from "core/properties"
+import {bk_tool_icon_zoom_in} from "styles/icons"
 
 export class ZoomInToolView extends ActionToolView {
   model: ZoomInTool
 
   doit(): void {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const dims = this.model.dimensions
 
     // restrict to axis configured in tool's dimensions property
@@ -21,45 +21,41 @@ export class ZoomInToolView extends ActionToolView {
     this.plot_view.update_range(zoom_info, false, true)
 
     if (this.model.document)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 }
 
 export namespace ZoomInTool {
-  export interface Attrs extends ActionTool.Attrs {
-    factor: number
-    dimensions: Dimensions
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props & {
+    factor: p.Property<number>
+    dimensions: p.Property<Dimensions>
+  }
 }
 
 export interface ZoomInTool extends ZoomInTool.Attrs {}
 
 export class ZoomInTool extends ActionTool {
-
   properties: ZoomInTool.Props
 
   constructor(attrs?: Partial<ZoomInTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ZoomInTool"
+  static init_ZoomInTool(): void {
     this.prototype.default_view = ZoomInToolView
 
-    this.define({
+    this.define<ZoomInTool.Props>({
       factor:     [ p.Percent,    0.1    ],
       dimensions: [ p.Dimensions, "both" ],
     })
   }
 
   tool_name = "Zoom In"
-  icon = "bk-tool-icon-zoom-in"
+  icon = bk_tool_icon_zoom_in
 
   get tooltip(): string {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
-ZoomInTool.initClass()

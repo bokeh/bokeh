@@ -1,13 +1,47 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' A guide renderer for displaying grid lines on Bokeh plots.
 
 '''
-from __future__ import absolute_import
 
-from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, String, Tuple
-from ..core.property_mixins import FillProps, LineProps
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, Seq, String, Tuple
+from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 
 from .renderers import GuideRenderer
-from .tickers import Ticker
+from .tickers import FixedTicker, Ticker
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Grid',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Grid(GuideRenderer):
     ''' Display horizontal or vertical grid lines at locations
@@ -44,21 +78,21 @@ class Grid(GuideRenderer):
 
     ticker = Instance(Ticker, help="""
     The Ticker to use for computing locations for the Grid lines.
-    """)
+    """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
-    grid_props = Include(LineProps, help="""
+    grid_props = Include(ScalarLineProps, help="""
     The %s of the Grid lines.
     """)
 
     grid_line_color = Override(default='#e5e5e5')
 
-    minor_grid_props = Include(LineProps, help="""
+    minor_grid_props = Include(ScalarLineProps, help="""
     The %s of the minor Grid lines.
     """)
 
     minor_grid_line_color = Override(default=None)
 
-    band_props = Include(FillProps, help="""
+    band_fill_props = Include(ScalarFillProps, use_prefix="band", help="""
     The %s of alternating bands between Grid lines.
     """)
 
@@ -66,4 +100,20 @@ class Grid(GuideRenderer):
 
     band_fill_color = Override(default=None)
 
+    band_hatch_props = Include(ScalarHatchProps, use_prefix="band", help="""
+    The %s of alternating bands between Grid lines.
+    """)
+
     level = Override(default="underlay")
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

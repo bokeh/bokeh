@@ -1,9 +1,11 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike1} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
-import {Dimensions} from "core/enums"
-import {GestureEvent} from "core/ui_events"
+import {Dimensions, BoxOrigin} from "core/enums"
+import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
+import {bk_tool_icon_box_select} from "styles/icons"
 
 export class BoxSelectToolView extends SelectToolView {
   model: BoxSelectTool
@@ -11,7 +13,7 @@ export class BoxSelectToolView extends SelectToolView {
   protected _base_point: [number, number] | null
 
   protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const dims = this.model.dimensions
 
     let base_point = this._base_point!
@@ -24,12 +26,12 @@ export class BoxSelectToolView extends SelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     this._base_point = [sx, sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -42,7 +44,7 @@ export class BoxSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -58,19 +60,13 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, append: boolean = false): void {
-    const geometry: RectGeometry = {
-      type: 'rect',
-      sx0: sx0,
-      sx1: sx1,
-      sy0: sy0,
-      sy1: sy1,
-    }
+    const geometry: RectGeometry = {type: 'rect', sx0, sx1, sy0, sy1}
     this._select(geometry, final, append)
   }
 
   _emit_callback(geometry: RectGeometry): void {
     const r = this.computed_renderers[0]
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const xscale = frame.xscales[r.x_range_name]
     const yscale = frame.yscales[r.y_range_name]
@@ -80,7 +76,9 @@ export class BoxSelectToolView extends SelectToolView {
     const [y0, y1] = yscale.r_invert(sy0, sy1)
 
     const g = {x0, y0, x1, y1, ...geometry}
-    this.model.callback.execute(this.model, {geometry: g})
+
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model, {geometry: g})
   }
 }
 
@@ -102,42 +100,44 @@ const DEFAULT_BOX_OVERLAY = () => {
 }
 
 export namespace BoxSelectTool {
-  export interface Attrs extends SelectTool.Attrs {
-    dimensions: Dimensions
-    select_every_mousemove: boolean
-    callback: any // XXX
-    overlay: BoxAnnotation
-    origin: "corner" | "center"
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    dimensions: p.Property<Dimensions>
+    select_every_mousemove: p.Property<boolean>
+    callback: p.Property<CallbackLike1<BoxSelectTool, {
+      geometry: RectGeometry & {x0: number, y0: number, x1: number, y1: number}
+    }> | null>
+    overlay: p.Property<BoxAnnotation>
+    origin: p.Property<BoxOrigin>
+  }
 }
 
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
-
   properties: BoxSelectTool.Props
+
+  /*override*/ overlay: BoxAnnotation
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "BoxSelectTool"
+  static init_BoxSelectTool(): void {
     this.prototype.default_view = BoxSelectToolView
 
-    this.define({
+    this.define<BoxSelectTool.Props>({
       dimensions:             [ p.Dimensions, "both"              ],
-      select_every_mousemove: [ p.Bool,       false               ],
-      callback:               [ p.Instance                        ],
+      select_every_mousemove: [ p.Boolean,    false               ],
+      callback:               [ p.Any                             ],
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      origin:                 [ p.String,     "corner"            ], // Enum
+      origin:                 [ p.BoxOrigin,  "corner"            ],
     })
   }
 
   tool_name = "Box Select"
-  icon = "bk-tool-icon-box-select"
+  icon = bk_tool_icon_box_select
   event_type = "pan" as "pan"
   default_order = 30
 
@@ -145,5 +145,3 @@ export class BoxSelectTool extends SelectTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
-BoxSelectTool.initClass()

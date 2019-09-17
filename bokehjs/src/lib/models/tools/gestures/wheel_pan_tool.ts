@@ -2,6 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
+import {bk_tool_icon_wheel_pan} from "styles/icons"
 
 export class WheelPanToolView extends GestureToolView {
   model: WheelPanTool
@@ -19,7 +20,7 @@ export class WheelPanToolView extends GestureToolView {
   }
 
   _update_ranges(factor: number): void {
-    const frame = this.plot_model.frame
+    const {frame} = this.plot_view
 
     const hr = frame.bbox.h_range
     const vr = frame.bbox.v_range
@@ -59,56 +60,50 @@ export class WheelPanToolView extends GestureToolView {
     for (const name in xscales) {
       const scale = xscales[name]
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start: start, end: end}
+      xrs[name] = {start, end}
     }
 
     const yrs: {[key: string]: {start: number, end: number}} = {}
     for (const name in yscales) {
       const scale = yscales[name]
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start: start, end: end}
+      yrs[name] = {start, end}
     }
 
     // OK this sucks we can't set factor independently in each direction. It is used
     // for GMap plots, and GMap plots always preserve aspect, so effective the value
     // of 'dimensions' is ignored.
-    const pan_info = {
-      xrs: xrs,
-      yrs: yrs,
-      factor: factor,
-    }
+    const pan_info = {xrs, yrs, factor}
     this.plot_view.push_state('wheel_pan', {range: pan_info})
     this.plot_view.update_range(pan_info, false, true)
 
     if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 }
 
 export namespace WheelPanTool {
-  export interface Attrs extends GestureTool.Attrs {
-    dimension: Dimension
-    speed: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    dimension: p.Property<Dimension>
+    speed: p.Property<number>
+  }
 }
 
 export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
-
   properties: WheelPanTool.Props
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'WheelPanTool'
+  static init_WheelPanTool(): void {
     this.prototype.default_view = WheelPanToolView
 
-    this.define({
+    this.define<WheelPanTool.Props>({
       dimension: [ p.Dimension, "width" ],
     })
 
@@ -118,7 +113,7 @@ export class WheelPanTool extends GestureTool {
   }
 
   tool_name = "Wheel Pan"
-  icon = "bk-tool-icon-wheel-pan"
+  icon = bk_tool_icon_wheel_pan
   event_type = "scroll" as "scroll"
   default_order = 12
 
@@ -126,5 +121,3 @@ export class WheelPanTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimension)
   }
 }
-
-WheelPanTool.initClass()

@@ -1,28 +1,23 @@
-import {Widget, WidgetView} from "./widget"
+import {Model} from "model"
+import {DOMView} from "core/dom_view"
+import * as p from "core/properties"
 
-export abstract class AbstractIconView extends WidgetView {
+export abstract class AbstractIconView extends DOMView {
   model: AbstractIcon
 }
 
 export namespace AbstractIcon {
-  export interface Attrs extends Widget.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Model.Props
 }
 
 export interface AbstractIcon extends AbstractIcon.Attrs {}
 
-export abstract class AbstractIcon extends Widget {
-
+export abstract class AbstractIcon extends Model {
   properties: AbstractIcon.Props
 
   constructor(attrs?: Partial<AbstractIcon.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "AbstractIcon"
-  }
 }
-
-AbstractIcon.initClass()

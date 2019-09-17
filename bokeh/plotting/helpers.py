@@ -1,16 +1,40 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-from collections import Iterable, OrderedDict, Sequence
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+from collections import OrderedDict
+from bokeh.util.future import collections_abc # goes away with py2
+Iterable = collections_abc.Iterable # NOQA
+Sequence = collections_abc.Sequence # NOQA
+
 import difflib
 import itertools
 import re
 import textwrap
 import warnings
 
+# External imports
 import numpy as np
 import sys
 from six import string_types, reraise
 
+# Bokeh imports
 from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis, MercatorAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
@@ -19,8 +43,9 @@ from ..models import (
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
-    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool)
-from bokeh.models.markers import Marker
+    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool,
+)
+from ..models.markers import Marker
 from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
@@ -28,10 +53,83 @@ from ..transform import stack
 from ..util.dependencies import import_optional
 from ..util.string import nice_join
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 pd = import_optional('pandas')
 
+__all__ = (
+    'get_default_color',
+)
 
-def _stack(stackers, spec0, spec1, **kw):
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def get_default_color(plot=None):
+    colors = [
+        "#1f77b4",
+        "#ff7f0e", "#ffbb78",
+        "#2ca02c", "#98df8a",
+        "#d62728", "#ff9896",
+        "#9467bd", "#c5b0d5",
+        "#8c564b", "#c49c94",
+        "#e377c2", "#f7b6d2",
+        "#7f7f7f",
+        "#bcbd22", "#dbdb8d",
+        "#17becf", "#9edae5"
+    ]
+    if plot:
+        renderers = plot.renderers
+        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
+        num_renderers = len(renderers)
+        return colors[num_renderers]
+    else:
+        return colors[0]
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _single_stack(stackers, spec, **kw):
+    if spec in kw:
+        raise ValueError("Stack property '%s' cannot appear in keyword args" % spec)
+
+    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+
+    # lengths will be empty if there are no kwargs supplied at all
+    if len(lengths) > 0:
+        if len(lengths) != 1:
+            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+        if lengths.pop() != len(stackers):
+            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
+
+    s = []
+
+    _kw = []
+
+    for i, val in enumerate(stackers):
+        d  = {'name': val}
+        s.append(val)
+
+        d[spec] = stack(*s)
+
+        for k, v in kw.items():
+            if isinstance(v, (list, tuple)):
+                d[k] = v[i]
+            else:
+                d[k] = v
+
+        _kw.append(d)
+
+    return _kw
+
+def _double_stack(stackers, spec0, spec1, **kw):
     for name in (spec0, spec1):
         if name in kw:
             raise ValueError("Stack property '%s' cannot appear in keyword args" % name)
@@ -172,27 +270,6 @@ def _graph(node_source, edge_source, **kwargs):
 
     return renderer_kwargs
 
-def get_default_color(plot=None):
-    colors = [
-        "#1f77b4",
-        "#ff7f0e", "#ffbb78",
-        "#2ca02c", "#98df8a",
-        "#d62728", "#ff9896",
-        "#9467bd", "#c5b0d5",
-        "#8c564b", "#c49c94",
-        "#e377c2", "#f7b6d2",
-        "#7f7f7f",
-        "#bcbd22", "#dbdb8d",
-        "#17becf", "#9edae5"
-    ]
-    if plot:
-        renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
-        num_renderers = len(renderers)
-        return colors[num_renderers]
-    else:
-        return colors[0]
-
 
 _RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
                   'level', 'view', 'visible', 'muted']
@@ -256,37 +333,47 @@ def _get_legend_item_label(kwargs):
 
 
 _GLYPH_SOURCE_MSG = """
-Supplying a user-defined data source AND iterable values to glyph methods is
-not possibe. Either:
 
-Pass all data directly as literals:
+Expected %s to reference fields in the supplied data source.
 
-    p.circe(x=a_list, y=an_array, ...)
+When a 'source' argument is passed to a glyph method, values that are sequences
+(like lists or arrays) must come from references to data columns in the source.
 
-Or, put all data in a ColumnDataSource and pass column names:
+For instance, as an example:
 
     source = ColumnDataSource(data=dict(x=a_list, y=an_array))
-    p.circe(x='x', y='y', source=source, ...)
+
+    p.circle(x='x', y='y', source=source, ...) # pass column names and a source
+
+Alternatively, *all* data sequences may be provided as literals as long as a
+source is *not* provided:
+
+    p.circle(x=a_list, y=an_array, ...)  # pass actual sequences and no source
 
 """
 
 
 def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
+    incompatible_literal_spec_values = []
     dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
         if not isinstance(val, Iterable):
             continue
+
         # pass dicts (i.e., values or fields) on as-is
         if isinstance(val, dict):
             continue
+
         # let any non-dataspecs do their own validation (e.g., line_dash properties)
         if var not in dataspecs:
             continue
+
         # strings sequences are handled by the dataspec as-is
         if isinstance(val, string_types):
             continue
+
         # similarly colorspecs handle color tuple sequences as-is
         if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple)):
             continue
@@ -295,10 +382,12 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
         if is_user_source:
-            raise RuntimeError(_GLYPH_SOURCE_MSG)
+            incompatible_literal_spec_values.append(var)
+        else:
+            source.add(val, name=var)
+            kwargs[var] = var
 
-        source.add(val, name=var)
-        kwargs[var] = var
+    return incompatible_literal_spec_values
 
 
 def _make_glyph(glyphclass, kws, extra):
@@ -474,10 +563,9 @@ def _tool_from_string(name):
 
 def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
     axiscls, axiskw = _get_axis_class(axis_type, rng, dim)
-    if axiscls:
 
-        # this is so we can get a ticker off the axis, even if we discard it
-        axis = axiscls(plot=plot if axis_location else None, **axiskw)
+    if axiscls:
+        axis = axiscls(**axiskw)
 
         if isinstance(axis.ticker, ContinuousTicker):
             axis.ticker.num_minor_ticks = _get_num_minor_ticks(axiscls, minor_ticks)
@@ -486,7 +574,8 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         if axis_label:
             axis.axis_label = axis_label
 
-        grid = Grid(plot=plot, dimension=dim, ticker=axis.ticker); grid
+        grid = Grid(dimension=dim, ticker=axis.ticker)
+        plot.add_layout(grid, "center")
 
         if axis_location is not None:
             getattr(plot, axis_location).append(axis)
@@ -707,7 +796,7 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, **kwargs):
 
-        # Convert data source, if necesary
+        # Convert data source, if necessary
         is_user_source = kwargs.get('source', None) is not None
         if is_user_source:
             source = kwargs['source']
@@ -738,8 +827,11 @@ def _glyph_function(glyphclass, extra_docs=None):
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
-        _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
-        _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+        incompatible_literal_spec_values = []
+        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
+        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+        if incompatible_literal_spec_values:
+            raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
         # handle the nonselection glyph, we always set one
         nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
@@ -791,3 +883,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
 
     return sigfunc
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os
 from os.path import abspath, dirname, join
 
 #
@@ -23,7 +22,7 @@ from os.path import abspath, dirname, join
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.7'
+needs_sphinx = '1.8'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -47,7 +46,9 @@ extensions = [
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_releases',
+    'bokeh.sphinxext.bokeh_settings',
     'bokeh.sphinxext.bokeh_sitemap',
+    'bokeh.sphinxext.bokehjs_content',
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
@@ -67,7 +68,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Bokeh'
-copyright = '© Copyright 2015, Anaconda.'
+copyright = '© Copyright 2015-2018, Anaconda and Bokeh Contributors.'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
@@ -145,8 +146,8 @@ rst_prolog = """
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
 .. |Model|              replace:: :py:class:`~bokeh.model.Model`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
-.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.containers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
+.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
 .. |UnitsSpec|          replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
 
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
@@ -159,42 +160,27 @@ rst_prolog = """
 # a list of builtin themes.
 html_theme = 'bokeh_theme'
 html_theme_path = ['.']
-MAIN_SITE = '//bokehplots.com'
 
 html_context = {
-    'SITEMAP_BASE_URL': 'https://bokeh.pydata.org/en/', # Trailing slash is needed
+    'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
     'VERSION': version,
-    # Nav
     'NAV': (
-        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
-        ('Gallery', '/docs/gallery.html'),
-        ('Docs', '//bokeh.pydata.org/en/latest/'),
         ('Github', '//github.com/bokeh/bokeh'),
     ),
-    # Links
-    'LINKS': (
-        ('FAQs', MAIN_SITE + '/pages/faqs.html'),
-        ('Technical vision', MAIN_SITE + '/pages/technical-vision.html'),
-        ('Roadmap', MAIN_SITE + '/pages/roadmap.html'),
-        ('Citation', MAIN_SITE + '/pages/citation.html'),
-    ),
-    # About Links
     'ABOUT': (
-        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
-        ('Team', MAIN_SITE + '/pages/team.html'),
-        ('Contact', MAIN_SITE + '/pages/contact.html'),
+        ('Roadmap',         '//bokeh.org/roadmap'),
+        ('Team',            '//bokeh.org/team'),
+        ('Citation',        '//bokeh.org/citation'),
+        ('Contact',         '//bokeh.org'),
     ),
-    # Social links
     'SOCIAL': (
-        ('Contribute', MAIN_SITE + '/pages/contribute.html'),
-        ('Mailing list', '//groups.google.com/a/anaconda.com/forum/#!forum/bokeh'),
+        ('Contribute', 'contribute'),
+        ('Discourse', '//discourse.bokeh.org'),
         ('Github', '//github.com/bokeh/bokeh'),
         ('Twitter', '//twitter.com/BokehPlots'),
-        ('YouTube', '//www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw')
     ),
-    # Links for the docs sub navigation
     'NAV_DOCS': (
         ('Installation', 'installation'),
         ('User Guide', 'user_guide'),
@@ -205,7 +191,6 @@ html_context = {
         ('Developer Guide', 'dev_guide'),
     ),
     'ALL_VERSIONS': all_versions,
-    'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 
 # If true, links to the reST sources are added to the pages.
@@ -287,7 +272,7 @@ texinfo_documents = [
 
 # intersphinx settings
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/', None),
+    'python': ('https://docs.python.org/3/', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None)
 }

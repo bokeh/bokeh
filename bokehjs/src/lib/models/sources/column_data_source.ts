@@ -1,13 +1,14 @@
 import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "core/has_props"
-import {Arrayable} from "core/types"
+import {Arrayable, Attrs, Data} from "core/types"
 import * as p from "core/properties"
 import {Set} from "core/util/data_structures"
 import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
-import {isTypedArray, isArray, isNumber, isObject} from "core/util/types"
+import {isTypedArray, isArray, isNumber, isPlainObject} from "core/util/types"
 import {TypedArray} from "core/types"
 import * as typed_array from "core/util/typed_array"
 import {keys} from "core/util/object"
+import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
 
 //exported for testing
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
@@ -29,7 +30,7 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
       // resize col if it is shorter than the rollover length
       let result: TypedArray
       if (col.length < rollover) {
-        result = new ((col as any).constructor)(rollover)
+        result = new col.constructor(rollover)
         result.set(col, 0)
       } else
         result = col
@@ -46,15 +47,17 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
 
       return result
     } else {
-      const tmp = new ((col as any).constructor)(new_col)
+      const tmp = new col.constructor(new_col)
       return typed_array.concat(col, tmp)
     }
   } else
     throw new Error("unsupported array types")
 }
 
+export type Slice = {start?: number, stop?: number, step?: number}
+
 // exported for testing
-export function slice(ind: number | {start?: number, stop?: number, step?: number}, length: number): [number, number, number] {
+export function slice(ind: number | Slice, length: number): [number, number, number] {
   let start: number, step: number, stop: number
 
   if (isNumber(ind)) {
@@ -70,51 +73,59 @@ export function slice(ind: number | {start?: number, stop?: number, step?: numbe
   return [start, stop, step]
 }
 
-export type Index = number | [number, number] | [number, number, number]
+export type Patch = [number, unknown] | [[number, number | Slice] | [number, number | Slice, number | Slice], unknown[]] | [Slice, unknown[]]
+
+export type PatchSet = {[key: string]: Patch[]}
 
 // exported for testing
-export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: Shape[]): Set<number> {
+export function patch_to_column(col: Arrayable, patch: Patch[], shapes: Shape[]): Set<number> {
   const patched: Set<number> = new Set()
   let patched_range = false
 
-  for (let [ind, value] of patch) {
+  for (const [ind, val] of patch) {
 
     // make the single index case look like the length-3 multi-index case
     let item: Arrayable, shape: Shape
+    let index: [number, number | Slice, number | Slice]
+    let value: unknown[]
     if (isArray(ind)) {
       const [i] = ind
-      patched.push(i)
+      patched.add(i)
       shape = shapes[i]
       item = col[i]
+      value = val as unknown[]
+
+      // this is basically like NumPy's "newaxis", inserting an empty dimension
+      // makes length 2 and 3 multi-index cases uniform, so that the same code
+      // can handle both
+      if (ind.length === 2) {
+        shape = [1, shape[0]]
+        index = [ind[0], 0, ind[1]]
+      } else
+        index = ind
     } else  {
       if (isNumber(ind)) {
-        value = [value]
-        patched.push(ind)
-      } else
+        value = [val]
+        patched.add(ind)
+      } else {
+        value = val as unknown[]
         patched_range = true
+      }
 
-      ind = [0, 0, ind]
+      index = [0, 0, ind]
       shape = [1, col.length]
       item = col
     }
 
-    // this is basically like NumPy's "newaxis", inserting an empty dimension
-    // makes length 2 and 3 multi-index cases uniform, so that the same code
-    // can handle both
-    if (ind.length === 2) {
-      shape = [1, shape[0]]
-      ind = [ind[0], 0, ind[1]]
-    }
-
     // now this one nested loop handles all cases
     let flat_index = 0
-    const [istart, istop, istep] = slice(ind[1], shape[0])
-    const [jstart, jstop, jstep] = slice(ind[2], shape[1])
+    const [istart, istop, istep] = slice(index[1], shape[0])
+    const [jstart, jstop, jstep] = slice(index[2], shape[1])
 
     for (let i = istart; i < istop; i += istep) {
       for (let j = jstart; j < jstop; j += jstep) {
         if (patched_range) {
-          patched.push(j)
+          patched.add(j)
         }
         item[(i*shape[1]) + j] = value[flat_index]
         flat_index++
@@ -129,11 +140,9 @@ export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: S
 // the data attribute is a column name, and its value is an array of scalars.
 // Each column should be the same length.
 export namespace ColumnDataSource {
-  export interface Attrs extends ColumnarDataSource.Attrs {
-    data: {[key: string]: Arrayable}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ColumnarDataSource.Props {
+  export type Props = ColumnarDataSource.Props & {
     data: p.Property<{[key: string]: Arrayable}>
   }
 }
@@ -141,17 +150,14 @@ export namespace ColumnDataSource {
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
-
   properties: ColumnDataSource.Props
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ColumnDataSource'
-
-    this.define({
+  static init_ColumnDataSource(): void {
+    this.define<ColumnDataSource.Props>({
       data: [ p.Any, {} ],
     })
   }
@@ -162,12 +168,12 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json): any {
-    const attrs: {[key: string]: any} = {}
+    const attrs: Attrs = {}
     const obj = this.serializable_attributes()
     for (const key of keys(obj)) {
       let value = obj[key]
       if (key === 'data')
-        value = encode_column_data(value, this._shapes)
+        value = encode_column_data(value as Data, this._shapes)
 
       if (include_defaults)
         attrs[key] = value
@@ -178,22 +184,26 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   static _value_to_json(key: string, value: any, optional_parent_object: any): any {
-    if (isObject(value) && key === 'data')
-      return encode_column_data(value, optional_parent_object._shapes)
+    if (isPlainObject(value) && key === 'data')
+      return encode_column_data(value as any, optional_parent_object._shapes) // XXX: unknown vs. any
     else
       return HasProps._value_to_json(key, value, optional_parent_object)
   }
 
-  stream(new_data: {[key: string]: any[]}, rollover?: number): void {
+  stream(new_data: Data, rollover?: number, setter_id?: string): void {
     const {data} = this
     for (const k in new_data) {
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     }
     this.setv({data}, {silent: true})
     this.streaming.emit()
+    if (this.document != null) {
+      const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
+      this.document._notify_change(this, 'data', null, null, {setter_id, hint})
+    }
   }
 
-  patch(patches: {[key: string]: [Index, any][]}): void {
+  patch(patches: PatchSet, setter_id?: string): void {
     const {data} = this
     let patched: Set<number> = new Set()
     for (const k in patches) {
@@ -202,6 +212,9 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
     this.setv({data}, {silent: true})
     this.patching.emit(patched.values)
+    if (this.document != null) {
+      const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
+      this.document._notify_change(this, 'data', null, null, {setter_id, hint})
+    }
   }
 }
-ColumnDataSource.initClass()

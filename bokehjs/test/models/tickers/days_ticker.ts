@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {DaysTicker} from "models/tickers/days_ticker"
-import {ONE_DAY} from "models/tickers/util"
+import {DaysTicker} from "@bokehjs/models/tickers/days_ticker"
+import {ONE_DAY} from "@bokehjs/models/tickers/util"
 
 describe("DaysTicker Model", () => {
 
@@ -11,7 +11,7 @@ describe("DaysTicker Model", () => {
   })
 
   it("should configure an interval of (diff)*ONE_DAY with a multiple days", () => {
-    const ticker = new DaysTicker({days: [0,3,6,9]})
+    const ticker = new DaysTicker({days: [0, 3, 6, 9]})
     expect(ticker.interval).to.be.equal(3*ONE_DAY)
   })
 

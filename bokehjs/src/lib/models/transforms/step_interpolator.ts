@@ -1,30 +1,27 @@
 import {Interpolator} from "./interpolator"
 import {StepMode} from "core/enums"
 import * as p from "core/properties"
-import {min, findIndex, findLastIndex} from "core/util/array"
+import {min, find_index, find_last_index} from "core/util/array"
 
 export namespace StepInterpolator {
-  export interface Attrs extends Interpolator.Attrs {
-    mode: StepMode
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Interpolator.Props {}
+  export type Props = Interpolator.Props & {
+    mode: p.Property<StepMode>
+  }
 }
 
 export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
-
   properties: StepInterpolator.Props
 
   constructor(attrs?: Partial<StepInterpolator.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "StepInterpolator"
-
-    this.define({
+  static init_StepInterpolator(): void {
+    this.define<StepInterpolator.Props>({
       mode: [ p.StepMode, "after"],
     })
   }
@@ -45,17 +42,17 @@ export class StepInterpolator extends Interpolator {
     let ind: number
     switch (this.mode) {
       case "after": {
-        ind = findLastIndex(this._x_sorted, num => x >= num)
+        ind = find_last_index(this._x_sorted, num => x >= num)
         break
       }
       case "before": {
-        ind = findIndex(this._x_sorted, num => x <= num)
+        ind = find_index(this._x_sorted, num => x <= num)
         break
       }
       case "center": {
         const diffs = this._x_sorted.map((tx) => Math.abs(tx - x))
         const mdiff = min(diffs)
-        ind = findIndex(diffs, num => mdiff === num)
+        ind = find_index(diffs, num => mdiff === num)
         break
       }
       default:
@@ -65,4 +62,3 @@ export class StepInterpolator extends Interpolator {
     return ind != -1 ? this._y_sorted[ind] : NaN
   }
 }
-StepInterpolator.initClass()

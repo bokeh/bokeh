@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import * as ser from "core/util/serialization"
-import {isObject} from "core/util/types"
+import * as ser from "@bokehjs/core/util/serialization"
+import {isObject} from "@bokehjs/core/util/types"
 
 const GOOD_TYPES = [
   Float32Array, Float64Array, Uint8Array, Int8Array,
@@ -191,6 +191,37 @@ describe("serialization module", () => {
       expect(data).to.be.deep.equal(d)
       expect(shapes).to.be.deep.equal(s)
     })
+
+    it("should encode deeply nested typed column data source", () => {
+      const data = {
+        x: [[[new Float64Array([1, 2])]], [[new Float64Array([2, 3])]]],
+        y: [[[new Float64Array([1.1, 2.2])]], [[new Float64Array([3.3, 4.4])]]],
+      }
+      const shapes = {
+        x: [[[[2]]], [[[2]]]],
+        y: [[[[2]]], [[[2]]]],
+      }
+      const e = ser.encode_column_data(data, shapes)
+      const [d, s] = ser.decode_column_data(e)
+      expect(data).to.be.deep.equal(d)
+      expect(shapes).to.be.deep.equal(s)
+    })
+
+    it("should encode deeply nested typed mixed type column data source", () => {
+      const data = {
+        x: [[[[1, 2]]], [[new Float64Array([2, 3])]]],
+        y: [[[[1.1, 2.2]]], [[new Float64Array([3.3, 4.4])]]],
+      }
+      const shapes = {
+        x: [[], [[[2]]]],
+        y: [[], [[[2]]]],
+      }
+      const e = ser.encode_column_data(data, shapes)
+      const [d, s] = ser.decode_column_data(e)
+      expect(data).to.be.deep.equal(d)
+      expect(shapes).to.be.deep.equal(s)
+    })
+
   })
 
   describe("encode_column_data", () => {
@@ -199,9 +230,9 @@ describe("serialization module", () => {
       it(`should encode ${typ.name} array columns`, () => {
         const data = {a: new typ([1, 2]), b: [10, 20]}
         const enc = ser.encode_column_data(data)
-        expect(enc['b']).to.be.deep.equal([10, 20])
-        expect(enc['a']).to.be.deep.equal({
-          __ndarray__: ser.arrayBufferToBase64(data['a'].buffer),
+        expect(enc.b).to.be.deep.equal([10, 20])
+        expect(enc.a).to.be.deep.equal({
+          __ndarray__: ser.arrayBufferToBase64(data.a.buffer),
           shape: undefined,
           dtype: ser.DTYPES[typ.name as ser.ArrayName],
         })
@@ -212,13 +243,13 @@ describe("serialization module", () => {
       it(`should encode ragged ${typ.name} array columns`, () => {
         const data = {a: [new typ([1, 2]), new typ([1, 2])], b: [10, 20]}
         const enc = ser.encode_column_data(data)
-        expect(enc['b']).to.be.deep.equal([10, 20])
-        expect(enc['a']).to.be.deep.equal([{
-          __ndarray__: ser.arrayBufferToBase64(data['a'][0].buffer),
+        expect(enc.b).to.be.deep.equal([10, 20])
+        expect(enc.a).to.be.deep.equal([{
+          __ndarray__: ser.arrayBufferToBase64(data.a[0].buffer),
           shape: undefined,
           dtype: ser.DTYPES[typ.name as ser.ArrayName],
         }, {
-          __ndarray__: ser.arrayBufferToBase64(data['a'][1].buffer),
+          __ndarray__: ser.arrayBufferToBase64(data.a[1].buffer),
           shape: undefined,
           dtype: ser.DTYPES[typ.name as ser.ArrayName],
         }])
@@ -228,27 +259,41 @@ describe("serialization module", () => {
     for (const typ of GOOD_TYPES) {
       it(`should encode ${typ.name} array columns with shapes`, () => {
         const data1 = {a: new typ([1, 2, 3, 4]), b: [10, 20]}
-        const enc1 = ser.encode_column_data(data1, {a: [2,2]})
-        expect(enc1['b']).to.be.deep.equal([10, 20])
-        expect(enc1['a']).to.be.deep.equal({
-          __ndarray__: ser.arrayBufferToBase64(data1['a'].buffer),
+        const enc1 = ser.encode_column_data(data1, {a: [2, 2]})
+        expect(enc1.b).to.be.deep.equal([10, 20])
+        expect(enc1.a).to.be.deep.equal({
+          __ndarray__: ser.arrayBufferToBase64(data1.a.buffer),
           shape: [2, 2],
           dtype: ser.DTYPES[typ.name as ser.ArrayName],
         })
 
         const data2 = {a: [new typ([1, 2]), new typ([1, 2])], b: [10, 20]}
-        const enc2 = ser.encode_column_data(data2, {a: [[1,2], [2, 1]]})
-        expect(enc2['b']).to.be.deep.equal([10, 20])
-        expect(enc2['a']).to.be.deep.equal([{
-          __ndarray__: ser.arrayBufferToBase64(data2['a'][0].buffer),
+        const enc2 = ser.encode_column_data(data2, {a: [[1, 2], [2, 1]]})
+        expect(enc2.b).to.be.deep.equal([10, 20])
+        expect(enc2.a).to.be.deep.equal([{
+          __ndarray__: ser.arrayBufferToBase64(data2.a[0].buffer),
           shape: [1, 2],
           dtype: ser.DTYPES[typ.name as ser.ArrayName],
         }, {
-          __ndarray__: ser.arrayBufferToBase64(data2['a'][1].buffer),
+          __ndarray__: ser.arrayBufferToBase64(data2.a[1].buffer),
           shape: [2, 1],
           dtype: ser.DTYPES[typ.name as ser.ArrayName],
         }])
       })
     }
+  })
+
+  describe("process_array", () => {
+    it("should return arrays as-is", () => {
+      const arr = [1, 2, 3.4]
+      expect(ser.process_array(arr, [])).to.be.deep.equal([ arr, [] ])
+    })
+
+    it("should return typed arrays as-is", () => {
+      for (const typ of GOOD_TYPES) {
+        const arr = new typ([1, 2, 3.4])
+        expect(ser.process_array(arr, [])).to.be.deep.equal([ arr, [] ])
+      }
+    })
   })
 })

@@ -3,7 +3,7 @@ import {Signal, Signal0} from "core/signaling"
 import {logger} from "core/logging"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import {Arrayable, ArrayableNew} from "core/types"
 import {isArray} from "core/util/types"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
@@ -15,29 +15,23 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 // based data may be supplied directly or be computed from an attribute
 
 export namespace ColumnarDataSource {
-  export interface Attrs extends DataSource.Attrs {
-    selection_policy: SelectionPolicy
-    selection_manager: SelectionManager
-    inspected: Selection
-    _shapes: {[key: string]: Shape | Shape[]}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends DataSource.Props {
+  export type Props = DataSource.Props & {
     data: p.Property<{[key: string]: Arrayable}> // XXX: this is hack!!!
+    selection_policy: p.Property<SelectionPolicy>
+    selection_manager: p.Property<SelectionManager>
+    inspected: p.Property<Selection>
+    _shapes: p.Property<{[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}>
   }
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
-
   properties: ColumnarDataSource.Props
 
   data: {[key: string]: Arrayable}
-
-  get column_names(): string[] {
-    return keys(this.data)
-  }
 
   get_array<T>(key: string): T[] {
     let column = this.data[key]
@@ -51,7 +45,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<any, this> // XXX: <[indices, tool, renderer-view, source, data], this>
+  inspect: Signal<unknown, this> // XXX: <[indices, tool, renderer-view, source, data], this>
 
   streaming: Signal0<this>
   patching: Signal<number[], this>
@@ -60,10 +54,8 @@ export abstract class ColumnarDataSource extends DataSource {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ColumnarDataSource'
-
-    this.define({
+  static init_ColumnarDataSource(): void {
+    this.define<ColumnarDataSource.Props>({
       selection_policy: [ p.Instance, () => new UnionRenderers() ],
     })
 
@@ -120,5 +112,12 @@ export abstract class ColumnarDataSource extends DataSource {
     return range(0, length != null ? length : 1)
     //TODO: returns [0] when no data, should it?
   }
+
+  clear(): void {
+    const empty: {[key: string]: Arrayable} = {}
+    for (const col of this.columns()) {
+      empty[col] = new (this.data[col].constructor as ArrayableNew)(0)
+    }
+    this.data = empty
+  }
 }
-ColumnarDataSource.initClass()

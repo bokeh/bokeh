@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -41,7 +40,7 @@ class Test_output_file(object):
 
     @patch('bokeh.io.state.State.output_file')
     def test_no_args(self, mock_output_file):
-        default_kwargs = dict(title="Bokeh Plot", mode="cdn", root_dir=None)
+        default_kwargs = dict(title="Bokeh Plot", mode=None, root_dir=None)
         bio.output_file("foo.html")
         assert mock_output_file.call_count == 1
         assert mock_output_file.call_args[0] == ("foo.html",)
@@ -86,4 +85,8 @@ def test_reset_output(mock_reset):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

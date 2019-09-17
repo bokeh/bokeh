@@ -15,7 +15,8 @@ some of the most important concepts in Bokeh.
 ----
 
 Application
-    A Bokeh application is a rendered Bokeh document, running in a browser.
+    A Bokeh application is a recipe for generating Bokeh documents. Typically
+    this is Python code run by a Bokeh server when new sessions are created.
 
 BokehJS
     The JavaScript client library that actually renders the visuals and
@@ -189,7 +190,7 @@ Using the |bokeh.models| interface provides complete control over how Bokeh
 plots and Bokeh widgets are put together and configured. However, it provides
 no help with assembling the models in meaningful or correct ways. It is
 entirely up to developers to build the scenegraph "by hand". For this reason,
-most users will probably want to use one of the higher level interfaces
+most users will probably want to use the |bokeh.plotting| interface
 described below, unless they have specialized requirements that necessitate
 finer control. For more information about the details of all Bokeh models,
 consult the :ref:`refguide`.
@@ -205,11 +206,10 @@ plots with sensible default axes, grids, and tools. All the hard work to
 assemble the appropriate Bokeh Models to form a scenegraph
 that BokehJS can render is handled automatically.
 
-The main class in the |bokeh.plotting| interface is the |Figure| class. This
-is a subclass of the basic |Plot| model, that includes methods for easily
-adding different kinds of glyphs to a plot. Additionally it composes default
-axes, grids, and tools in the proper way without any extra effort. Typically,
-users will want to create |Figure| objects by using the |figure| function.
+The main class in the |bokeh.plotting| interface is the |figure| function. This
+creates a |Figure| model, that includes methods for adding different kinds of
+glyphs to a plot. Additionally it composes default axes, grids, and tools in
+the proper way without any extra effort.
 
 A prototypical example of the |bokeh.plotting| usage is show below, along
 with the resulting plot:

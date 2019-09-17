@@ -1,0 +1,15 @@
+.. _release-1-0-1:
+
+1.0.1
+=====
+
+Bokeh Version ``1.0.1`` (October 2018) is a micro bugfix release.
+
+Some of the highlights include:
+
+* Small fixes for ``export_png`` (:bokeh-issue:`8362`, :bokeh-issue:`8374`)
+* Better cleanup for ``DocumentLifeCycleHandler`` (:bokeh-issue:`8367`)
+* Fix issue with oval, ellipse legends (:bokeh-issue:`8375`)
+* Recognized CSS rgb(a) strings for colors (:bokeh-issue:`4096`)
+
+For full details see the :bokeh-tree:`CHANGELOG`.

@@ -1,11 +1,12 @@
 import {range} from "core/util/array"
+import * as p from "core/properties"
 
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {CompositeTicker} from "./composite_ticker"
 import {DaysTicker} from "./days_ticker"
 import {MonthsTicker} from "./months_ticker"
 import {YearsTicker} from "./years_ticker"
-import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR} from "./util"
+import {ONE_MILLI, ONE_SECOND, ONE_MINUTE, ONE_HOUR} from "./util"
 
 // This is a decent ticker for time data (in milliseconds).
 // It could certainly be improved:
@@ -14,24 +15,21 @@ import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR} from "./util"
 // leads to too-frequent tick transitions.
 
 export namespace DatetimeTicker {
-  export interface Attrs extends CompositeTicker.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CompositeTicker.Props {}
+  export type Props = CompositeTicker.Props
 }
 
 export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 
 export class DatetimeTicker extends CompositeTicker {
-
   properties: DatetimeTicker.Props
 
   constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DatetimeTicker"
-
+  static init_DatetimeTicker(): void {
     this.override({
       num_minor_ticks: 0,
       tickers: () => [
@@ -80,5 +78,3 @@ export class DatetimeTicker extends CompositeTicker {
     })
   }
 }
-
-DatetimeTicker.initClass()

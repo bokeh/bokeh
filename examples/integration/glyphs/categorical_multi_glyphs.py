@@ -1,5 +1,5 @@
 from bokeh.plotting import figure
-from bokeh.layouts import row, column
+from bokeh.layouts import gridplot
 from bokeh.io import show
 
 x_range = ['a', 'b', 'c', 'd']
@@ -40,4 +40,4 @@ p4 = figure(x_range=['foo', 'bar', 'ting'], y_range=(0, 5), title="patch", plot_
 p4.patch(patch1_x, patch1_y)
 p4.patch(patch2_x, patch2_y)
 
-show(column(row(p1, p2), row(p3, p4)))
+show(gridplot([[p1, p2], [p3, p4]], merge_tools=False))

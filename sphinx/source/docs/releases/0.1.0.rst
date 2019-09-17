@@ -1,5 +1,9 @@
-0.1.0 (Apr 2013)
-================
+.. _release-0-1-0:
+
+0.1.0
+=====
+
+Bokeh ``0.1.0`` (Apr 2013) is the initial public release of the Bokeh project:
 
 * Basic low-level interface, consisting of wrapper objects for BokehJS rendering primitives, glyphs, tools
 * Beginnings of the ggplot-style interface that wraps the low-level interface

@@ -1,14 +1,13 @@
 import {expect} from "chai"
 
-import {Axis, AxisView} from "models/axes/axis"
-import {BasicTicker} from "models/tickers/basic_ticker"
-import {BasicTickFormatter} from "models/formatters/basic_tick_formatter"
-import {Plot, PlotView} from "models/plots/plot"
-import {FactorRange} from "models/ranges/factor_range"
-import {Range1d} from "models/ranges/range1d"
-import {SidePanel} from "core/layout/side_panel"
-import {CategoricalScale} from "models/scales/categorical_scale"
-import {Toolbar} from "models/tools/toolbar"
+import {Axis, AxisView} from "@bokehjs/models/axes/axis"
+import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
+import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
+import {Toolbar} from "@bokehjs/models/tools/toolbar"
 
 describe("Axis", () => {
 
@@ -22,11 +21,14 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot,
       major_label_overrides: {0: "zero", 4: "four", 10: "ten"},
     })
-    expect(axis.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
-})
+    plot.add_layout(axis, "below")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+
+    expect(axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
+  })
 
   it("loc should return numeric fixed_location", () => {
     const plot = new Plot({
@@ -38,10 +40,49 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot,
       fixed_location: 10,
     })
-    expect(axis.loc).to.equal(10)
+    plot.add_layout(axis, "below")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.loc).to.equal(10)
+  })
+
+  it("should return zero offsets when fixed_location is numeric", () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      fixed_location: 5,
+    })
+    plot.add_layout(axis, "left")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.offsets).to.deep.equal([0, 0])
+  })
+
+  it("should return zero offsets when fixed_location is categorical", () => {
+    const plot = new Plot({
+      x_range: new FactorRange({factors: ["foo", "bar"]}),
+      x_scale: new CategoricalScale(),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      fixed_location: "foo",
+    })
+    plot.add_layout(axis, "left")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.offsets).to.deep.equal([0, 0])
   })
 
   it("loc should return synthetic for categorical fixed_location", () => {
@@ -55,41 +96,12 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot,
       fixed_location: "foo",
     })
-    axis.add_panel('left')
-    expect(axis.loc).to.equal(0.5)
-  })
-
-  it("should have a SidePanel after add_panel is called", () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
-    })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new Axis({
-      ticker,
-      formatter,
-      plot,
-    })
-    expect(axis.panel).to.be.undefined
-    axis.add_panel('left')
-    expect(axis.panel).to.be.an.instanceOf(SidePanel)
-  })
-
-  it("should have a SidePanel after plot.add_layout is called", () => {
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter})
-    expect(axis.panel).to.be.undefined
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
-    })
-    plot.add_layout(axis, 'left')
-    expect(axis.panel).to.be.an.instanceOf(SidePanel)
+    plot.add_layout(axis, "left")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.loc).to.equal(0.5)
   })
 })
 
@@ -114,14 +126,8 @@ describe("AxisView", () => {
     })
     plot.add_layout(axis, 'below')
 
-    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
-    const plot_canvas_view = plot_view.plot_canvas_view
-
-    const axis_view = new axis.default_view({
-      model: axis,
-      plot_view: plot_canvas_view,
-      parent: plot_canvas_view,
-    }) as AxisView
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
 
     return {axis, axis_view}
   }

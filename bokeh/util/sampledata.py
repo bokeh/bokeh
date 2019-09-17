@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -21,18 +20,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# NOTE: since downloading sampledata is not a common occurrnce, non-stdlib
+# imports are generally deferrered in this module
+
 # Standard library imports
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
-from zipfile import ZipFile
 
 # External imports
 import six
-from six.moves.urllib.request import urlopen
+from six.moves.urllib_parse import urljoin
 
 # Bokeh imports
-from .dependencies import import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,7 +53,8 @@ def download(progress=True):
     data_dir = external_data_dir(create=True)
     print("Using data directory: %s" % data_dir)
 
-    s3 = 'https://s3.amazonaws.com/bokeh_data/'
+    # HTTP requests are cheaper for us, and there is nothing private to protect
+    s3 = 'http://sampledata.bokeh.org'
     files = [
         (s3, 'CGM.csv'),
         (s3, 'US_Counties.zip'),
@@ -74,6 +75,7 @@ def download(progress=True):
         (s3, 'movies.db.zip'),
         (s3, 'airports.csv'),
         (s3, 'routes.csv'),
+        (s3, 'haarcascade_frontalface_default.xml'),
     ]
 
     for base_url, filename in files:
@@ -87,6 +89,7 @@ def external_csv(module, name, **kw):
     '''
 
     '''
+    from .dependencies import import_required
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
     return pd.read_csv(external_path(name), **kw)
 
@@ -103,7 +106,7 @@ def external_data_dir(create=False):
     data_dir = join(bokeh_dir, "data")
 
     try:
-        config = yaml.load(open(join(bokeh_dir, 'config')))
+        config = yaml.safe_load(open(join(bokeh_dir, 'config')))
         data_dir = expanduser(config['sampledata_dir'])
     except (IOError, TypeError):
         pass
@@ -133,6 +136,7 @@ def package_csv(module, name, **kw):
     '''
 
     '''
+    from .dependencies import import_required
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
     return pd.read_csv(package_path(name), **kw)
 
@@ -184,7 +188,13 @@ def _download_file(base_url, filename, data_dir, progress=True):
     '''
 
     '''
-    file_url = join(base_url, filename)
+    # These is actually a somewhat expensive imports that added ~5% to overall
+    # typical bokeh import times. Since downloading sampledata is not a common
+    # action, we defer them to inside this function.
+    from six.moves.urllib.request import urlopen
+    from zipfile import ZipFile
+
+    file_url = urljoin(base_url, filename)
     file_path = join(data_dir, filename)
 
     url = urlopen(file_url)

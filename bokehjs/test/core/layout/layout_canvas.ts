@@ -1,21 +1,22 @@
 import {expect} from "chai"
 
-import {LayoutCanvas} from "core/layout/layout_canvas"
-import {Variable} from "core/layout/solver"
+import {Layoutable, Size, SizeHint} from "@bokehjs/core/layout"
 
-class SomeLayoutCanvas extends LayoutCanvas {}
+class SomeLayout extends Layoutable {
+  _measure(_viewport: Size): SizeHint {
+    return {width: 100, height: 50}
+  }
+}
 
-describe("LayoutCanvas", () => {
+describe("Layoutable", () => {
 
-  it("should get new variables on initialize", () => {
-    const c = new SomeLayoutCanvas()
-    expect(c).to.have.property('_top')
-    expect(c).to.have.property('_left')
-    expect(c).to.have.property('_width')
-    expect(c).to.have.property('_height')
-    expect(c._top).to.be.an.instanceOf(Variable)
-    expect(c._left).to.be.an.instanceOf(Variable)
-    expect(c._width).to.be.an.instanceOf(Variable)
-    expect(c._height).to.be.an.instanceOf(Variable)
+  it("should have layout variables zeroed after initialization", () => {
+    const c = new SomeLayout()
+    expect(c._left.value).to.be.equal(0)
+    expect(c._right.value).to.be.equal(0)
+    expect(c._top.value).to.be.equal(0)
+    expect(c._bottom.value).to.be.equal(0)
+    expect(c._width.value).to.be.equal(0)
+    expect(c._height.value).to.be.equal(0)
   })
 })

@@ -1,15 +1,42 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import copy
 
-import pytest
+# External imports
 from six.moves import xrange
 
+# Bokeh imports
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model
-from bokeh.core.property.containers import PropertyValueList, PropertyValueDict
+from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def large_plot(n):
     from bokeh.models import (
@@ -28,10 +55,14 @@ def large_plot(n):
         xdr = DataRange1d()
         ydr = DataRange1d()
         plot = Plot(x_range=xdr, y_range=ydr)
-        xaxis = LinearAxis(plot=plot)
-        yaxis = LinearAxis(plot=plot)
-        xgrid = Grid(plot=plot, dimension=0)
-        ygrid = Grid(plot=plot, dimension=1)
+        xaxis = LinearAxis()
+        plot.add_layout(xaxis, "below")
+        yaxis = LinearAxis()
+        plot.add_layout(yaxis, "left")
+        xgrid = Grid(dimension=0)
+        plot.add_layout(xgrid, "center")
+        ygrid = Grid(dimension=1)
+        plot.add_layout(ygrid, "center")
         tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
@@ -120,17 +151,17 @@ class SomeModelToJson(Model):
 class TestModel(object):
 
     def setup_method(self):
-        from bokeh.models import Model
+        from bokeh.model import Model
 
         self.pObjectClass = Model
         self.maxDiff = None
 
     def test_init(self):
         testObject = self.pObjectClass(id='test_id')
-        assert testObject._id == 'test_id'
+        assert testObject.id == 'test_id'
 
         testObject2 = self.pObjectClass()
-        assert testObject2._id is not None
+        assert testObject2.id is not None
 
         assert set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks"]) == testObject.properties()
         assert dict(
@@ -205,8 +236,8 @@ class TestModel(object):
                               foo=42, bar="world")
         json = obj.to_json(include_defaults=True)
         json_string = obj.to_json_string(include_defaults=True)
-        assert { "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
-                           "id" : obj._id,
+        assert { "child" : { "id" : child_obj.id, "type" : "SomeModelToJson" },
+                           "id" : obj.id,
                            "name" : None,
                            "tags" : [],
                            'js_property_callbacks': {},
@@ -217,7 +248,7 @@ class TestModel(object):
         assert ('{"bar":"world",' +
                 '"child":{"id":"%s","type":"SomeModelToJson"},' +
                 '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
-                '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj._id, obj._id) == json_string
+                '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj.id, obj.id) == json_string
 
     def test_no_units_in_json(self):
         from bokeh.models import AnnularWedge
@@ -300,7 +331,7 @@ class TestModel(object):
             child = Instance(Model, lambda: Model())
         obj1 = HasFuncDefaultModel()
         obj2 = HasFuncDefaultModel()
-        assert obj1.child._id != obj2.child._id
+        assert obj1.child.id != obj2.child.id
 
         # 'child' is a default, but it gets included as a
         # non-default because it's unstable.
@@ -587,3 +618,15 @@ class TestDictMutation(TestContainerMutation):
         self._check_mutation(obj, 'foo', mutate,
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=7, c=8))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

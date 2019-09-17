@@ -1,12 +1,11 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
+import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {range} from "core/util/array"
 import {map} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
@@ -42,6 +41,18 @@ export class CircleView extends XYGlyphView {
           }
           case "y": {
             this.sradius = this.sdist(this.renderer.yscale, this._y, this._radius)
+            break
+          }
+          case "max": {
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
+            break
+          }
+          case "min": {
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
             break
           }
         }
@@ -80,8 +91,7 @@ export class CircleView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return this.index.indices(bbox)
+    return this.index.indices({x0, x1, y0, y1})
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius}: CircleData): void {
@@ -130,8 +140,7 @@ export class CircleView extends XYGlyphView {
       ;[y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const candidates = this.index.indices(bbox)
+    const candidates = this.index.indices({x0, x1, y0, y1})
 
     const hits: [number, number][] = []
     if ((this._radius != null) && (this.model.properties.radius.units == "data")) {
@@ -158,57 +167,55 @@ export class CircleView extends XYGlyphView {
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
-      let ms, x0, x1, y0, y1
-      const {sx, sy} = geometry
-      const {minX, minY, maxX, maxY} = this.bounds()
-      const result = hittest.create_empty_hit_test_result()
+    const {sx, sy} = geometry
+    const bounds = this.bounds()
+    const result = hittest.create_empty_hit_test_result()
 
-      if (geometry.direction == 'h') {
-        // use circle bounds instead of current pointer y coordinates
-        let sx0, sx1
-        y0 = minY
-        y1 = maxY
-        if (this._radius != null && this.model.properties.radius.units == "data") {
-          sx0 = sx - this.max_radius
-          sx1 = sx + this.max_radius
-          ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-        } else {
-          ms = this.max_size/2
-          sx0 = sx - ms
-          sx1 = sx + ms
-          ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-        }
+    let x0, x1, y0, y1
+    if (geometry.direction == 'h') {
+      // use circle bounds instead of current pointer y coordinates
+      let sx0, sx1
+      y0 = bounds.y0
+      y1 = bounds.y1
+      if (this._radius != null && this.model.properties.radius.units == "data") {
+        sx0 = sx - this.max_radius
+        sx1 = sx + this.max_radius
+        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
       } else {
-        // use circle bounds instead of current pointer x coordinates
-        let sy0, sy1
-        x0 = minX
-        x1 = maxX
-        if (this._radius != null && this.model.properties.radius.units == "data") {
-          sy0 = sy - this.max_radius
-          sy1 = sy + this.max_radius
-          ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-        } else {
-          ms = this.max_size/2
-          sy0 = sy - ms
-          sy1 = sy + ms
-          ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-        }
+        const ms = this.max_size/2
+        sx0 = sx - ms
+        sx1 = sx + ms
+        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
       }
-
-      const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      const hits = this.index.indices(bbox)
-
-      result.indices = hits
-      return result
+    } else {
+      // use circle bounds instead of current pointer x coordinates
+      let sy0, sy1
+      x0 = bounds.x0
+      x1 = bounds.x1
+      if (this._radius != null && this.model.properties.radius.units == "data") {
+        sy0 = sy - this.max_radius
+        sy1 = sy + this.max_radius
+        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      } else {
+        const ms = this.max_size/2
+        sy0 = sy - ms
+        sy1 = sy + ms
+        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      }
     }
+
+    const hits = this.index.indices({x0, x1, y0, y1})
+
+    result.indices = hits
+    return result
+  }
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices(bbox)
+    result.indices = this.index.indices({x0, x1, y0, y1})
     return result
   }
 
@@ -233,7 +240,7 @@ export class CircleView extends XYGlyphView {
 
   // circle does not inherit from marker (since it also accepts radius) so we
   // must supply a draw_legend for it  here
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1
@@ -251,48 +258,36 @@ export class CircleView extends XYGlyphView {
 }
 
 export namespace Circle {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    angle: AngleSpec
-    size: DistanceSpec
-    radius: DistanceSpec | null
-    radius_dimension: "x" | "y"
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     angle: p.AngleSpec
     size: p.DistanceSpec
-    radius: p.DistanceSpec
-    radius_dimension: p.Property<"x" | "y">
+    radius: p.DistanceSpec // XXX: null
+    radius_dimension: p.Property<RadiusDimension>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
-
   properties: Circle.Props
 
   constructor(attrs?: Partial<Circle.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Circle'
+  static init_Circle(): void {
     this.prototype.default_view = CircleView
 
     this.mixins(['line', 'fill'])
-    this.define({
-      angle:            [ p.AngleSpec,    0                             ],
-      size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
-      radius:           [ p.DistanceSpec, null                          ],
-      radius_dimension: [ p.String,       'x'                           ],
+    this.define<Circle.Props>({
+      angle:            [ p.AngleSpec,       0                             ],
+      size:             [ p.DistanceSpec,    { units: "screen", value: 4 } ],
+      radius:           [ p.DistanceSpec                                   ], // XXX: null
+      radius_dimension: [ p.RadiusDimension, 'x'                           ],
     })
   }
 
@@ -301,4 +296,3 @@ export class Circle extends XYGlyph {
     this.properties.radius.optional = true
   }
 }
-Circle.initClass()

@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -36,6 +35,10 @@ from ...util.serialization import make_id
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'CodeRunner',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -164,7 +167,7 @@ class CodeRunner(object):
 
         '''
         try:
-            # Simulate the sys.path behaviour decribed here:
+            # Simulate the sys.path behaviour described here:
             #
             # https://docs.python.org/2/library/sys.html#sys.path
             _cwd = os.getcwd()

@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -208,7 +207,7 @@ _black = (
 #-----------------------------------------------------------------------------
 
 def test__all__():
-    assert bcg.__all__ == ('pink', 'red', 'orange', 'yellow', 'brown', 'green', 'cyan', 'blue', 'purple', 'white', 'black')
+    assert bcg.__all__ == ('black', 'blue', 'brown', 'cyan', 'green', 'orange', 'pink', 'purple', 'red', 'white', 'yellow')
 
 @pytest.mark.parametrize('group', bcg.__all__)
 @pytest.mark.unit
@@ -226,4 +225,8 @@ def test_color(group):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

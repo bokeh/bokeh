@@ -3,7 +3,7 @@ import sympy as sy
 
 from bokeh.core.properties import value
 from bokeh.io import curdoc
-from bokeh.layouts import column, widgetbox
+from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Legend, LegendItem, Slider, TextInput, PreText
 from bokeh.plotting import figure
 
@@ -64,6 +64,6 @@ errbox = PreText()
 
 update()
 
-inputs = widgetbox(text, slider, errbox, width=400)
+inputs = column(text, slider, errbox, width=400)
 
 curdoc().add_root(column(inputs, p))

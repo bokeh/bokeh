@@ -1,0 +1,4 @@
+Plot bbox=[0, 0, 400, 400]
+  LinearAxis bbox=[21, 376, 374, 24]
+  LinearAxis bbox=[0, 5, 21, 371]
+  Title bbox=[21, 5, 374, 0]

@@ -1,29 +1,51 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 Functions for helping with serialization and deserialization of
 Bokeh objects.
 
-Certain NunPy array dtypes can be serialized to a binary format for
+Certain NumPy array dtypes can be serialized to a binary format for
 performance and efficiency. The list of supported dtypes is:
 
 {binary_array_types}
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import base64
 import datetime as dt
 import math
 import sys
+from threading import Lock
 import uuid
 
+# External imports
 import numpy as np
 
+# Bokeh imports
 from ..settings import settings
 from .string import format_docstring
 from .dependencies import import_optional
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 pd = import_optional('pandas')
 
@@ -62,9 +84,29 @@ DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
 __doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
-_simple_id = 1000
+__all__ = (
+    'array_encoding_disabled',
+    'convert_datetime_array',
+    'convert_datetime_type',
+    'convert_timedelta_type',
+    'decode_base64_dict',
+    'encode_binary_dict',
+    'encode_base64_dict',
+    'is_datetime_type',
+    'is_timedelta_type',
+    'make_globally_unique_id',
+    'make_id',
+    'serialize_array',
+    'transform_array',
+    'transform_array_to_list',
+    'transform_column_source_data',
+    'traverse_data',
+    'transform_series',
+)
 
-_dt_tuple = tuple(DATETIME_TYPES)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def is_datetime_type(obj):
     ''' Whether an object is any date, time, or datetime type recognized by
@@ -198,21 +240,35 @@ def convert_datetime_array(array):
 def make_id():
     ''' Return a new unique ID for a Bokeh object.
 
-    Normally this function will return UUIDs to use for identifying Bokeh
-    objects. This is especally important for Bokeh objects stored on a
-    Bokeh server. However, it is convenient to have more human-readable
-    IDs during development, so this behavior can be overridden by
-    setting the environment variable ``BOKEH_SIMPLE_IDS=yes``.
+    Normally this function will return simple monotonically increasing integer
+    IDs (as strings) for identifying Bokeh objects within a Document. However,
+    if it is desirable to have globally unique for every object, this behavior
+    can be overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
+
+    Returns:
+        str
 
     '''
     global _simple_id
 
-    if settings.simple_ids(False):
-        _simple_id += 1
-        new_id = _simple_id
+    if settings.simple_ids():
+        with _simple_id_lock:
+            _simple_id += 1
+            return str(_simple_id)
     else:
-        new_id = uuid.uuid4()
-    return str(new_id)
+        return make_globally_unique_id()
+
+def make_globally_unique_id():
+    ''' Return a globally unique UUID.
+
+    Some situations, e.g. id'ing dynamically created Divs in HTML documents,
+    always require globally unique IDs.
+
+    Returns:
+        str
+
+    '''
+    return str(uuid.uuid4())
 
 def array_encoding_disabled(array):
     ''' Determine whether an array may be binary encoded.
@@ -252,7 +308,7 @@ def transform_array(array, force_list=False, buffers=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             If force_list is True, then this value will be ignored, and
@@ -306,7 +362,7 @@ def transform_series(series, force_list=False, buffers=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             If force_list is True, then this value will be ignored, and
@@ -340,7 +396,7 @@ def serialize_array(array, force_list=False, buffers=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             If force_list is True, then this value will be ignored, and
@@ -400,7 +456,7 @@ def traverse_data(obj, use_numpy=True, buffers=None):
     return obj_copy
 
 def transform_column_source_data(data, buffers=None, cols=None):
-    ''' Transform ColumnSourceData data to a serialized format
+    ''' Transform ``ColumnSourceData`` data to a serialized format
 
     Args:
         data (dict) : the mapping of names to data columns to transform
@@ -408,7 +464,7 @@ def transform_column_source_data(data, buffers=None, cols=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             **This is an "out" parameter**. The values it contains will be
@@ -513,7 +569,24 @@ def decode_base64_dict(data):
 
     '''
     b64 = base64.b64decode(data['__ndarray__'])
-    array = np.fromstring(b64, dtype=data['dtype'])
+    array = np.copy(np.frombuffer(b64, dtype=data['dtype']))
     if len(data['shape']) > 1:
         array = array.reshape(data['shape'])
     return array
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_simple_id = 999
+_simple_id_lock = Lock()
+
+_dt_tuple = tuple(DATETIME_TYPES)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

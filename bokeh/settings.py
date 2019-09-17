@@ -1,152 +1,639 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Control global configuration options with environment variables.
+A global settings object that other parts of Bokeh can refer to.
+
+Setting values are always looked up in the following prescribed order:
+
+immediately supplied values
+    These are values that are passed to the setting:
+
+    .. code-block:: python
+
+        settings.minified(minified_val)
+
+    If ``minified_val`` is not None, then it will be returned, as-is.
+    Otherwise, if None is passed, then the setting will continute to look
+    down the search order for a value. This is useful for passing optional
+    function paramters that are None by default. If the parameter is passed
+    to the function, then it will take precedence.
+
+previously user-set values
+    If the value is set explicity in code:
+
+    .. code-block:: python
+
+        settings.minified = False
+
+    Then this value will take precedence over other sources. Applications
+    may use this ability to set values supplied on the command line, so that
+    they take precedence over environment variables.
+
+user-specified config override file
+    Values from a YAML configuration file that is explicitly loaded:
+
+    .. code-block:: python
+
+        settings.load_config("/path/to/bokeh.yaml)
+
+    Any values from ``bokeh.yaml`` will take precedence over the sources
+    below. Applications may offer command line arguments to load such a
+    file. e.g. ``bokeh serve --use-config myconf.yaml``
+
+environment variable
+    Values found in the associated environment variables:
+
+    .. code-block:: sh
+
+        BOKEH_MINIFIED=no bokeh serve app.py
+
+local user config file
+    Bokeh will look for a YAML configuration file in the current user's
+    home directory ``${HOME}/.bokeh/bokeh.yaml``.
+
+global system configuration (not yet implemented)
+    Future support is planned to load Bokeh settings from global system
+    configurations.
+
+implicit defaults
+    These are default values defined by the setting declarations. There are
+    regular defaults, as well as "dev" defaults that are used when the
+    environment variable ``BOKEH_DEV=yes`` is set.
+
+If no value is obtained after searching all of these locations, then a
+RuntimeError will be raised.
+
+Defined Settings
+~~~~~~~~~~~~~~~~
+
+Settings are accessible on the ``bokeh.settings.settings`` instance, via
+accessor methods. For instance:
+
+.. code-block:: python
+
+    settings.minified()
+
+Bokeh provides the following defined settings:
+
+.. bokeh-settings:: settings
+    :module: bokeh.settings
+
+Additionally, there are a few methods on the ``settings`` object:
+
+.. autoclass:: Settings
+    :members:
 
 '''
-from __future__ import absolute_import
 
-import codecs
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+import codecs
 import os
-from os.path import join, abspath, isdir
+from os.path import abspath, expanduser, join
 
-from .util.paths import ROOT_DIR, bokehjsdir
+# External imports
+import yaml
 
+# Bokeh imports
+from .util.paths import bokehjsdir
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'settings',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def convert_str(value):
+    ''' Return a string as-is
+    '''
+    return value
+
+def convert_bool(value):
+    ''' Convert a string to True or False
+
+    If a boolean is passed in, it is returned as-is. Otherwise the function
+    maps the following strings, ignoring case:
+
+    * "yes", "1", "on" -> True
+    * "no", "0", "off" -> False
+
+    Args:
+        value (str):
+            A string value to convert to bool
+
+    Returns:
+        bool
+
+    Raises:
+        ValueError
+
+    '''
+    if value in (True, False):
+        return value
+
+    val = value.lower()
+    if val in ["yes", "1", "on", "true", "True"]:
+        return True
+    if val in ["no", "0", "off", "false", "False"]:
+        return False
+
+    raise ValueError("Cannot convert {} to boolean value".format(value))
+
+def convert_str_seq(value):
+    ''' Convert a string to a lit of strings
+
+    If a list or tuple is passed in, it is returned as-is.
+
+    Args:
+        value (str) :
+            A string to convert to a list of strings
+
+    Returns
+        list[str]
+
+    '''
+    if isinstance(value, (list, tuple)):
+        return value
+
+    try:
+        return value.split(",")
+    except:
+        raise ValueError("Cannot convert {} to list value".format(value))
+
+_log_levels = {
+    "CRITICAL" : logging.CRITICAL,
+    "ERROR"    : logging.ERROR,
+    "WARNING"  : logging.WARNING,
+    "INFO"     : logging.INFO,
+    "DEBUG"    : logging.DEBUG,
+    "TRACE"    : 9,  # Custom level hard-coded to avoid circular import
+    "NONE"     : None,
+}
+
+def convert_logging(value):
+    '''Convert a string to a Python logging level
+
+    If a log level is passed in, it is returned as-is. Otherwise the function
+    understands the following strings, ignoring case:
+
+    * "critical"
+    * "error"
+    * "warning"
+    * "info"
+    * "debug"
+    * "trace"
+    * "none"
+
+    Args:
+        value (str):
+            A string value to convert to a logging level
+
+    Returns:
+        int or None
+
+    Raises:
+        ValueError
+
+    '''
+    if value in set(_log_levels.values()):
+        return value
+
+    value = value.upper()
+    if value in _log_levels:
+        return _log_levels[value]
+
+    raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
+
+class _Unset: pass
+
+def is_dev():
+    return convert_bool(os.environ.get("BOKEH_DEV", False))
+
+class PrioritizedSetting(object):
+    ''' Return a value for a global setting according to configuration precedence.
+
+    The following methods are searched in order for the setting:
+
+    6. immediately supplied values
+    5. previously user-set values (e.g. set from command line)
+    4. user-specified config override file
+    3. environment variable
+    2. local user config file
+    1. global system config file (not yet implemented)
+    0. implicit defaults
+
+    Ref: https://stackoverflow.com/a/11077282/3406693
+
+    If a value cannot be determined, a ValueError is raised.
+
+    The ``env_var`` argument specifies the name of an environment to check for
+    setting values, e.g. ``"BOKEH_LOG_LEVEL"``.
+
+    The optional ``default`` argument specified an implicit default value for
+    the setting that is returned if no other methods provide a value.
+
+    A ``convert`` agument may be provided to convert values before they are
+    returned. For instance to concert log levels in environment variables
+    to ``logging`` module values.
+    '''
+
+    def __init__(self, name, env_var=None, default=_Unset, dev_default=_Unset, convert=None, help=""):
+        self._convert = convert if convert else convert_str
+        self._default = default
+        self._dev_default = dev_default
+        self._env_var = env_var
+        self._help = help
+        self._name = name
+        self._parent = None
+        self._user_value = _Unset
+
+    def __call__(self, value=None):
+        '''Return the setting value according to the standard precedence.
+
+        Args:
+            value (any, optional):
+                An optional immediate value. If not None, the value will
+                be converted, then returned.
+
+        Returns:
+            str or int or float
+
+        Raises:
+            RuntimeError
+        '''
+
+        # 6. immediate values
+        if value is not None:
+            return self._convert(value)
+
+        # 5. previously user-set value
+        if self._user_value is not _Unset:
+            return self._convert(self._user_value)
+
+        # 4. user-named config file
+        if self._parent and self._name in self._parent.config_override:
+            return self._convert(self._parent.config_override[self._name])
+
+        # 3. environment variable
+        if self._env_var and self._env_var in os.environ:
+            return self._convert(os.environ[self._env_var])
+
+        # 2. local config file
+        if self._parent and self._name in self._parent.config_user:
+            return self._convert(self._parent.config_user[self._name])
+
+        # 1. global config file
+        if self._parent and self._name in self._parent.config_system:
+            return self._convert(self._parent.config_system[self._name])
+
+        # 0. implicit defaults
+        if is_dev() and self._dev_default is not _Unset:
+            return self._convert(self._dev_default)
+        if self._default is not _Unset:
+            return self._convert(self._default)
+
+        raise RuntimeError("No configured value found for setting %r" % self._name)
+
+    def __get__(self, instance, owner):
+        return self
+
+    def __set__(self, instance, value):
+        self.set_value(value)
+
+    def set_value(self, value):
+        ''' Specify a value for this setting programmatically.
+
+        A value set this way takes precedence over all other methods except
+        immediate values.
+
+        Args:
+            value (str or int or float):
+                A user-set value for this setting
+
+        Returns:
+            None
+        '''
+        self._user_value = value
+
+    def unset_value(self):
+        ''' Unset the previous user value such that the priority is reset.
+
+        '''
+        self._user_value = _Unset
+
+    @property
+    def env_var(self):
+        return self._env_var
+
+    @property
+    def default(self):
+        return self._default
+
+    @property
+    def dev_default(self):
+        return self._dev_default
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def help(self):
+        return self._help
+
+    @property
+    def convert_type(self):
+        if self._convert is convert_str: return "String"
+        if self._convert is convert_bool: return "Bool"
+        if self._convert is convert_logging: return "Log Level"
+        if self._convert is convert_str_seq: return "List[String]"
+
+_config_user_locations = (
+    join(expanduser("~"), ".bokeh", "bokeh.yaml"),
+)
+
+_config_system_locations = ()
 
 class Settings(object):
-    ''' A class to collect global, overridable Bokeh configuration settings.
+    '''
 
     '''
 
-    _prefix = "BOKEH_"
-    debugjs = False
+    def __init__(self):
+        self._config_override = {}
+        self._config_user = self._try_load_config(_config_user_locations)
+        self._config_system = {} # TODO (bev)
+
+        for x in self.__class__.__dict__.values():
+            if isinstance(x, PrioritizedSetting):
+                x._parent = self
 
     @property
-    def _environ(self):
-        return os.environ
-
-    def _get(self, key, default=None):
-        return self._environ.get(self._prefix + key, default)
+    def config_system(self):
+        return dict(self._config_system)
 
     @property
-    def _is_dev(self):
-        return self._get_bool("DEV", False)
+    def config_user(self):
+        return dict(self._config_user)
+
+    @property
+    def config_override(self):
+        return dict(self._config_override)
 
     @property
     def dev(self):
-        return self._is_dev
+        return is_dev()
 
-    def _dev_or_default(self, default, dev):
-        return dev if dev is not None and self._is_dev else default
+    allowed_ws_origin = PrioritizedSetting("allowed_ws_origin", "BOKEH_ALLOW_WS_ORIGIN", default=[], convert=convert_str_seq, help="""
+    A comma-separated list of allowed websocket origins for Bokeh server applications.
+    """)
 
-    def _get_str(self, key, default, dev=None):
-        return self._get(key, self._dev_or_default(default, dev))
+    auth_module = PrioritizedSetting("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
+    A path to a Python modules that implements user authentication functions for
+    the Bokeh server.
 
-    def _get_int(self, key, default, dev=None):
-        return int(self._get(key, self._dev_or_default(default, dev)))
+    .. warning::
+        The contents of this module will be executed!
 
-    def _get_bool(self, key, default, dev=None):
-        value = self._get(key)
+    """)
 
-        if value is None:
-            value = self._dev_or_default(default, dev)
-        elif value.lower() in ["true", "yes", "on", "1"]:
-            value = True
-        elif value.lower() in ["false", "no", "off", "0"]:
-            value = False
-        else:
-            raise ValueError("invalid value %r for boolean property %s%s" % (value, self._prefix, key))
+    browser = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
+    The default browser that Bokeh should use to show documents with.
 
-        return value
+    Valid values are any of the browser names understood by the python
+    standard library webbrowser_ module.
 
-    def browser(self, default=None):
-        ''' Set the default browser that Bokeh should use to show documents
-        with.
+    .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+    """)
+
+    cookie_secret = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
+    Configure the ``cookie_secret`` setting in Tornado. This value is required
+    if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
+    long, random sequence of bytes
+    """)
+
+    docs_cdn = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
+    The version of BokehJS that should be use for loading CDN resources when
+    building the docs.
+
+    To build and display the docs using a locally built BokehJS, use ``local``.
+    For example:
+
+    .. code-block:: sh
+
+        BOKEH_DOCS_CDN=local make clean serve
+
+    Will build a fresh copy of the docs using the locally built BokehJS and open
+    a new browser tab to view them.
+
+    Otherwise, the value is interpreted a version for CDN. For example:
+
+    .. code-block:: sh
+
+        BOKEH_DOCS_CDN=1.4.0rc1 make clean
+
+    will build docs that use BokehJS version ``1.4.0rc1`` from CDN.
+    """)
+
+    docs_version = PrioritizedSetting("docs_version", "BOKEH_DOCS_CDN", default=None, help="""
+    The Bokeh version to stipulate when building the docs.
+
+    This setting is necessary to re-deploy existing versions of docs with new
+    fixes or changes.
+    """)
+
+    ignore_filename = PrioritizedSetting("ignore_filename", "BOKEH_IGNORE_FILENAME", default=False, convert=convert_bool, help="""
+    Whether to ignore the current script filename when saving Bokeh content.
+    """)
+
+    log_level = PrioritizedSetting("log_level", "BOKEH_LOG_LEVEL", default="info", dev_default="debug", help="""
+    Set the log level for JavaScript BokehJS code.
+
+    Valid values are, in order of increasing severity:
+
+    - ``trace``
+    - ``debug``
+    - ``info``
+    - ``warn``
+    - ``error``
+    - ``fatal``
+
+    """)
+
+    minified = PrioritizedSetting("minified", "BOKEH_MINIFIED", convert=convert_bool, default=True, dev_default=False, help="""
+    Whether Bokeh should use minified BokehJS resources.
+    """)
+
+    nodejs_path = PrioritizedSetting("nodejs_path", "BOKEH_NODEJS_PATH", default=None, help="""
+    Path to the Node executable.
+
+    NodeJS is an optional dependency that is required for PNG and SVG export,
+    and for compiling custom extensions. Bokeh will try to automatically locate
+    an installed Node executable. Use this environment variable to override the
+    location Bokeh finds, or to point to a non-standard location.
+    """)
+
+    perform_document_validation = PrioritizedSetting("validate_doc", "BOKEH_VALIDATE_DOC", convert=convert_bool, default=True, help="""
+    whether Bokeh should perform validation checks on documents.
+
+    Setting this value to False may afford a small performance improvement.
+    """)
+
+    phantomjs_path = PrioritizedSetting("phantomjs_path", "BOKEH_PHANTOMJS_PATH", default=None, help="""
+    Path to the PhantomJS executable.
+
+    PhantomJS is an optional dependency that is required for PNG and SVG export.
+    Bokeh will try to automatically locate an installed PhantomJS executable.
+    Use this environment variable to override the location Bokeh finds, or to
+    point to a non-standard location.
+    """)
+
+    pretty = PrioritizedSetting("pretty", "BOKEH_PRETTY", default=False, dev_default=True, help="""
+    Whether JSON strings should be pretty-printed.
+    """)
+
+    py_log_level = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL", default="none", dev_default="debug", convert=convert_logging, help="""
+    The log level for Python Bokeh code.
+
+    Valid values are, in order of increasing severity:
+
+    - ``trace``
+    - ``debug``
+    - ``info``
+    - ``warn``
+    - ``error``
+    - ``fatal``
+    - ``none``
+
+    """)
+
+    resources = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="absolute-dev", help="""
+    What kind of BokehJS resources to configure, e.g ``inline`` or ``cdn``
+
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    """)
+
+    rootdir = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
+    Root directory to use with ``relative`` resources
+
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    """)
+
+    secret_key = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""
+    A long, cryptographically-random secret unique to a Bokeh deployment.
+    """)
+
+    sign_sessions = PrioritizedSetting("sign_sessions", "BOKEH_SIGN_SESSIONS", default=False, help="""
+    Whether the Boeh server should only allow sessions signed with a secret key.
+
+    If True, ``BOKEH_SECRET_KEY`` must also be set.
+    """)
+
+    simple_ids = PrioritizedSetting("simple_ids", "BOKEH_SIMPLE_IDS", default=True, convert=convert_bool, help="""
+    Whether Bokeh should use simple integers for model IDs (starting at 1000).
+
+    If False, Bokeh will use UUIDs for object identifiers. This might be needed,
+    e.g., if mulitple processes are contributing to a single Bokeh Document.
+    """)
+
+    ssl_certfile = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
+    The path to a certificate file for SSL termination.
+    """)
+
+    ssl_keyfile = PrioritizedSetting("ssl_keyfile", "BOKEH_SSL_KEYFILE", default=None, help="""
+    The path to a private key file for SSL termination.
+    """)
+
+    ssl_password = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
+    A password to decrypt the SSL keyfile, if necessary.
+    """)
+
+    strict = PrioritizedSetting("strict", "BOKEH_STRICT", convert=convert_bool, help="""
+    Whether validation checks should be strict (i.e. raise errors).
+    """)
+
+    version = PrioritizedSetting("version", "BOKEH_VERSION", default=None, help="""
+    What version of BokehJS to use with CDN resources.
+
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    """)
+
+    xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
+    Whether to enable Tornado XSRF cookie protection on the Bokeh server. This
+    is only applicable when also using an auth module or custom handlers. See
+
+    https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+
+    for more information about XSRF protection in Tornado. All PUT, POST, and
+    DELETE handlers will need to be appropriately instrumented when this setting
+    is active.
+    """)
+
+    # Non-settings methods
+
+    def bokehjsdir(self):
+        ''' The location of the BokehJS source tree.
 
         '''
-        return self._get_str("BROWSER", default, "none")
+        return bokehjsdir(self.dev)
 
-    def resources(self, default=None):
-        ''' Set (override) the type of resources that Bokeh should use when
-        outputting documents.
-
-        '''
-        return self._get_str("RESOURCES", default, "absolute-dev")
-
-    def rootdir(self, default=None):
-        ''' Set the root directory for "relative" resources.
+    def css_files(self):
+        ''' The CSS files in the BokehJS directory.
 
         '''
-        return self._get_str("ROOTDIR", default)
+        js_files = []
+        for root, dirnames, files in os.walk(self.bokehjsdir()):
+            for fname in files:
+                if fname.endswith(".css"):
+                    js_files.append(join(root, fname))
+        return js_files
 
-    def version(self, default=None):
-        ''' Set (override) the standard reported Bokeh version.
-
-        '''
-        return self._get_str("VERSION", default)
-
-    def docs_cdn(self, default=None):
-        ''' Set the version of BokehJS should use for CDN resources when
-        building the docs.
+    def js_files(self):
+        ''' The JS files in the BokehJS directory.
 
         '''
-        return self._get_str("DOCS_CDN", default)
+        js_files = []
+        for root, dirnames, files in os.walk(self.bokehjsdir()):
+            for fname in files:
+                if fname.endswith(".js"):
+                    js_files.append(join(root, fname))
+        return js_files
 
-    def docs_version(self, default=None):
-        ''' Set the version to use for building the docs.
+    def load_config(self, location):
+        ''' Load a user-specified override config file.
 
-        '''
-        return self._get_str("DOCS_VERSION", default)
-
-    def minified(self, default=None):
-        ''' Set whether Bokeh should use minified BokehJS resources.
-
-        '''
-        return self._get_bool("MINIFIED", default, False)
-
-    def log_level(self, default=None):
-        ''' Set the log level for JavaScript BokehJS code.
+        The file should be a YAML format with ``key: value`` lines.
 
         '''
-        return self._get_str("LOG_LEVEL", default, "debug")
-
-    def py_log_level(self, default='none'):
-        ''' Set the log level for python Bokeh code.
-
-        '''
-        level = self._get_str("PY_LOG_LEVEL", default, "debug")
-        LEVELS = {'trace': logging.TRACE,
-                  'debug': logging.DEBUG,
-                  'info' : logging.INFO,
-                  'warn' : logging.WARNING,
-                  'error': logging.ERROR,
-                  'fatal': logging.CRITICAL,
-                  'none' : None}
-        return LEVELS[level]
-
-    def pretty(self, default=None):
-        ''' Set whether JSON strings should be pretty-printed.
-
-        '''
-        return self._get_bool("PRETTY", default, True)
-
-    def simple_ids(self, default=None):
-        ''' Set whether Bokeh should generate simple numeric model IDs.
-
-        '''
-        return self._get_bool("SIMPLE_IDS", default, True)
-
-    def strict(self, default=None):
-        ''' Set whether validation should be performed strictly.
-
-        '''
-        return self._get_bool("STRICT", default, False)
-
-    def secret_key(self, default=None):
-        ''' Set the secret key.
-
-        Should be a long, cryptographically-random secret unique the
-        Bokeh deployment.
-        '''
-        return self._get_str("SECRET_KEY", default)
+        try:
+            self._config_override = yaml.load(open(abspath(location)), Loader=yaml.SafeLoader)
+        except Exception:
+            raise RuntimeError("Could not load Bokeh config file: {}".format(location))
 
     def secret_key_bytes(self):
         ''' Return the secret_key, converted to bytes and cached.
@@ -160,187 +647,23 @@ class Settings(object):
                 self._secret_key_bytes = codecs.encode(key, "utf-8")
         return self._secret_key_bytes
 
-    def sign_sessions(self, default=False):
-        ''' Set whether the server should only allow sessions signed with
-        our secret key.
+    def _try_load_config(self, locations):
+        for location in locations:
+            try:
+                return yaml.load(open(location), Loader=yaml.SafeLoader)
+            except:
+                pass
+        return {}
 
-        If True, BOKEH_SECRET_KEY must also be set.
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
-        '''
-        return self._get_bool("SIGN_SESSIONS", default)
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
-    def perform_document_validation(self, default=True):
-        ''' Set whether Bokeh should perform validation checks on documents.
-
-        '''
-        return self._get_bool("VALIDATE_DOC", default)
-
-    # Server settings go here:
-
-    def bokehjssrcdir(self):
-        ''' The absolute path of the BokehJS source code in the installed
-        Bokeh source tree.
-
-        '''
-        if self._is_dev or self.debugjs:
-            bokehjssrcdir = abspath(join(ROOT_DIR, '..', 'bokehjs', 'src'))
-
-            if isdir(bokehjssrcdir):
-                return bokehjssrcdir
-
-        return None
-
-    def bokehjsdir(self):
-        '''
-
-        '''
-        return bokehjsdir(self._is_dev or self.debugjs)
-
-    def js_files(self):
-        ''' The JS files in the BokehJS directory.
-
-        '''
-        bokehjsdir = self.bokehjsdir()
-        js_files = []
-        for root, dirnames, files in os.walk(bokehjsdir):
-            for fname in files:
-                if fname.endswith(".js"):
-                    js_files.append(join(root, fname))
-        return js_files
-
-    def css_files(self):
-        ''' The CSS files in the BokehJS directory.
-
-        '''
-        bokehjsdir = self.bokehjsdir()
-        js_files = []
-        for root, dirnames, files in os.walk(bokehjsdir):
-            for fname in files:
-                if fname.endswith(".css"):
-                    js_files.append(join(root, fname))
-        return js_files
-
-    def nodejs_path(self, default=None):
-        return self._get_str("NODEJS_PATH", default)
-
-    def phantomjs_path(self, default=None):
-        return self._get_str("PHANTOMJS_PATH", default)
-
-    def ignore_filename(self):
-        return self._get_bool("IGNORE_FILENAME", False)
-
-#: A global settings object that other parts of Bokeh can refer to.
-#:
-#:
-#: ``BOKEH_BROWSER`` --- What browser to use when opening plots.
-#:
-#:   Valid values are any of the browser names understood by the python
-#:   standard library webbrowser_ module.
-#:
-#: ``BOKEH_DEV`` --- Whether to use development mode.
-#:
-#:   This uses absolute paths to development (non-minified) BokehJS components,
-#:   sets logging to ``debug``, makes generated HTML and JSON human-readable,
-#:   etc.
-#:
-#:   This is a meta variable equivalent to the following environment variables:
-#:
-#:   - ``BOKEH_BROWSER=none``
-#:   - ``BOKEH_LOG_LEVEL=debug``
-#:   - ``BOKEH_MINIFIED=false``
-#:   - ``BOKEH_PRETTY=true``
-#:   - ``BOKEH_PY_LOG_LEVEL=debug``
-#:   - ``BOKEH_RESOURCES=absolute-dev``
-#:   - ``BOKEH_SIMPLE_IDS=true``
-#:
-#:  Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-#:
-#: ``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx
-#:   `~bokeh.resources.Resources` class reference for full details.
-#:
-#: ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx docs locally.
-#:
-#:   Useful for re-deployment purposes.
-#:
-#:   Set to ``"local"`` to use a locally built dev version of BokehJS.
-#:
-#:   .. note::
-#:       This variable is only used when building documentation from the
-#:       development version.
-#:
-#: ``BOKEH_DOCS_CSS_SERVER`` --- Where to get the CSS stylesheet from.
-#:
-#:   By default use CSS from bokehplots.com
-#:
-#:   .. note::
-#:       This variable is only used when building documentation from the
-#:       development version.
-#:
-#:   Set to ``"local"`` to use a locally built dev version of BokehJS.
-#:
-#: ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use.
-#:
-#:   Valid values are, in order of increasing severity:
-#:
-#:   - ``trace``
-#:   - ``debug``
-#:   - ``info``
-#:   - ``warn``
-#:   - ``error``
-#:   - ``fatal``
-#:
-#:   The default logging level is ``info``.
-#:
-#:   .. note::
-#:       When running server examples, it is the value of this
-#:       ``BOKEH_LOG_LEVEL`` that is set for the server that matters.
-#:
-#: ``BOKEH_MINIFIED`` --- Whether to emit minified JavaScript for ``bokeh.js``.
-#:
-#:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-#:
-#: ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON.
-#:
-#:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-#:
-#: ``BOKEH_PY_LOG_LEVEL`` --- The Python logging level to set.
-#:
-#:   As in the JS side, valid values are, in order of increasing severity:
-#:
-#:   - ``trace``
-#:   - ``debug``
-#:   - ``info``
-#:   - ``warn``
-#:   - ``error``
-#:   - ``fatal``
-#:   - ``none``
-#:
-#:   The default logging level is ``none``.
-#:
-#: ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure.
-#:
-#:   For example:  ``inline``, ``cdn``, ``server``. See the
-#:   :class:`~bokeh.core.resources.Resources` class reference for full details.
-#:
-#: ``BOKEH_ROOTDIR`` --- Root directory to use with ``relative`` resources.
-#:
-#:   See the :class:`~bokeh.resources.Resources` class reference for full
-#:   details.
-#:
-#: ``BOKEH_SIMPLE_IDS`` --- Whether to generate human-friendly object IDs.
-#:
-#:   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-#:   Normally Bokeh generates UUIDs for object identifiers. Setting this variable
-#:   to an affirmative value will result in more friendly simple numeric IDs
-#:   counting up from 1000.
-#:
-#: ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources.
-#:
-#:   See the :class:`~bokeh.resources.Resources` class reference for full details.
-#:
-#: .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
 settings = Settings()
-del Settings
 
 if settings.secret_key() is not None:
     if len(settings.secret_key()) < 32:
@@ -349,4 +672,4 @@ if settings.secret_key() is not None:
 
 if settings.sign_sessions() and settings.secret_key() is None:
     import warnings
-    warnings.warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to true")
+    warnings.warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to True")

@@ -1,11 +1,10 @@
-import {sprintf} from "sprintf-js"
 import tz = require("timezone")
 
 import {TickFormatter} from "./tick_formatter"
-import {Axis} from "../axes/axis"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {zip, unzip, sortBy} from "core/util/array"
+import {sprintf} from "core/util/templating"
+import {zip, unzip, sort_by} from "core/util/array"
 import {isFunction} from "core/util/types"
 
 function _us(t: number): number {
@@ -50,36 +49,33 @@ const format_order = [
 ]
 
 export namespace DatetimeTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    microseconds: string[]
-    milliseconds: string[]
-    seconds: string[]
-    minsec: string[]
-    minutes: string[]
-    hourmin: string[]
-    hours: string[]
-    days: string[]
-    months: string[]
-    years: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    microseconds: p.Property<string[]>
+    milliseconds: p.Property<string[]>
+    seconds: p.Property<string[]>
+    minsec: p.Property<string[]>
+    minutes: p.Property<string[]>
+    hourmin: p.Property<string[]>
+    hours: p.Property<string[]>
+    days: p.Property<string[]>
+    months: p.Property<string[]>
+    years: p.Property<string[]>
+  }
 }
 
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
-
   properties: DatetimeTickFormatter.Props
 
   constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'DatetimeTickFormatter'
-
-    this.define({
+  static init_DatetimeTickFormatter(): void {
+    this.define<DatetimeTickFormatter.Props>({
       microseconds: [ p.Array, ['%fus'] ],
       milliseconds: [ p.Array, ['%3Nms', '%S.%3Ns'] ],
       seconds:      [ p.Array, ['%Ss'] ],
@@ -108,7 +104,7 @@ export class DatetimeTickFormatter extends TickFormatter {
 
     const _widths = function(fmt_strings: string[]): [number[], string[]] {
       const sizes = fmt_strings.map((fmt_string) => _strftime(now, fmt_string).length)
-      const sorted = sortBy(zip(sizes, fmt_strings), ([size]) => size)
+      const sorted = sort_by(zip(sizes, fmt_strings), ([size]) => size)
       return unzip(sorted)
     }
 
@@ -149,7 +145,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     }
   }
 
-  doFormat(ticks: number[], _axis: Axis): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     // In order to pick the right set of labels, we need to determine
     // the resolution of the ticks.  We can do this using a ticker if
     // it's provided, or by computing the resolution from the actual
@@ -176,11 +172,11 @@ export class DatetimeTickFormatter extends TickFormatter {
     for (const fmt of format_order) {
       time_tuple_ndx_for_resol[fmt] = 0
     }
-    time_tuple_ndx_for_resol["seconds"] = 5
-    time_tuple_ndx_for_resol["minsec"] = 4
-    time_tuple_ndx_for_resol["minutes"] = 4
-    time_tuple_ndx_for_resol["hourmin"] = 3
-    time_tuple_ndx_for_resol["hours"] = 3
+    time_tuple_ndx_for_resol.seconds = 5
+    time_tuple_ndx_for_resol.minsec = 4
+    time_tuple_ndx_for_resol.minutes = 4
+    time_tuple_ndx_for_resol.hourmin = 3
+    time_tuple_ndx_for_resol.hours = 3
 
     // As we format each tick, check to see if we are at a boundary of the
     // next higher unit of time.  If so, replace the current format with one
@@ -246,4 +242,3 @@ export class DatetimeTickFormatter extends TickFormatter {
     return labels
   }
 }
-DatetimeTickFormatter.initClass()

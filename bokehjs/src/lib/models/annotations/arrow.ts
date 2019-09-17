@@ -2,8 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {ArrowHead, OpenHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {Arrayable} from "core/types"
@@ -22,8 +21,8 @@ export class ArrowView extends AnnotationView {
   protected _x_end: Arrayable<number>
   protected _y_end: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     if (this.model.source == null)
       this.model.source = new ColumnDataSource()
     this.set_data(this.model.source)
@@ -31,10 +30,9 @@ export class ArrowView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.set_data(this.model.source))
     this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
     this.connect(this.model.source.patching, () => this.set_data(this.model.source))
-    this.connect(this.model.source.change, () => this.set_data(this.model.source))
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -85,7 +83,7 @@ export class ArrowView extends AnnotationView {
     // Next we call .clip on all the arrow heads, inside an initial canvas sized
     // rect, to create an "inverted" clip region for the arrow heads
     ctx.beginPath()
-    const {x, y, width, height} = this.plot_model.canvas.bbox.rect
+    const {x, y, width, height} = this.plot_view.layout.bbox
     ctx.rect(x, y, width, height)
     if (this.model.end != null)
       this._arrow_head(ctx, "clip", this.model.end, start, end)
@@ -136,23 +134,9 @@ export class ArrowView extends AnnotationView {
 }
 
 export namespace Arrow {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    x_start: NumberSpec
-    y_start: NumberSpec
-    start_units: SpatialUnits
-    start: ArrowHead | null
-    x_end: NumberSpec
-    y_end: NumberSpec
-    end_units: SpatialUnits
-    end: ArrowHead | null
-    source: ColumnarDataSource
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & LineVector & {
     x_start: p.NumberSpec
     y_start: p.NumberSpec
     start_units: p.Property<SpatialUnits>
@@ -172,32 +156,29 @@ export namespace Arrow {
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
-
   properties: Arrow.Props
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Arrow'
+  static init_Arrow(): void {
     this.prototype.default_view = ArrowView
 
     this.mixins(['line'])
 
-    this.define({
-      x_start:      [ p.NumberSpec,                         ],
-      y_start:      [ p.NumberSpec,                         ],
-      start_units:  [ p.String,      'data'                 ],
-      start:        [ p.Instance,    null                   ],
-      x_end:        [ p.NumberSpec,                         ],
-      y_end:        [ p.NumberSpec,                         ],
-      end_units:    [ p.String,      'data'                 ],
-      end:          [ p.Instance,    () => new OpenHead({}) ],
-      source:       [ p.Instance                            ],
-      x_range_name: [ p.String,      'default'              ],
-      y_range_name: [ p.String,      'default'              ],
+    this.define<Arrow.Props>({
+      x_start:      [ p.NumberSpec                           ],
+      y_start:      [ p.NumberSpec                           ],
+      start_units:  [ p.SpatialUnits, 'data'                 ],
+      start:        [ p.Instance,     null                   ],
+      x_end:        [ p.NumberSpec                           ],
+      y_end:        [ p.NumberSpec                           ],
+      end_units:    [ p.SpatialUnits, 'data'                 ],
+      end:          [ p.Instance,     () => new OpenHead({}) ],
+      source:       [ p.Instance                             ],
+      x_range_name: [ p.String,       'default'              ],
+      y_range_name: [ p.String,       'default'              ],
     })
   }
 }
-Arrow.initClass()

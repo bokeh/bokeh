@@ -1,8 +1,9 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
 import {Constructor} from "./class"
+import {Set} from "./util/data_structures"
 import {defer} from "./util/callback"
-import {find, removeBy} from "./util/array"
+import {find, remove_by} from "./util/array"
 
 export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
 
@@ -161,11 +162,17 @@ export function Signalable<C extends Constructor>(Base?: C) {
       connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
         return signal.connect(slot, this)
       }
+      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+        return signal.disconnect(slot, this)
+      }
     }
   } else {
     return class implements ISignalable {
       connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
         return signal.connect(slot, this)
+      }
+      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+        return signal.disconnect(slot, this)
       }
     }
   }
@@ -174,6 +181,9 @@ export function Signalable<C extends Constructor>(Base?: C) {
 export namespace _Signalable {
   export function connect<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
     return signal.connect(slot, this)
+  }
+  export function disconnect<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+    return signal.disconnect(slot, this)
   }
 }
 
@@ -194,14 +204,14 @@ const dirtySet = new Set<Connection[]>()
 
 function scheduleCleanup(connections: Connection[]): void {
   if (dirtySet.size === 0) {
-    defer(cleanupDirtySet);
+    defer(cleanupDirtySet)
   }
-  dirtySet.add(connections);
+  dirtySet.add(connections)
 }
 
 function cleanupDirtySet(): void {
   dirtySet.forEach((connections) => {
-    removeBy(connections, (connection) => connection.signal == null)
+    remove_by(connections, (connection) => connection.signal == null)
   })
   dirtySet.clear()
 }

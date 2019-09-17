@@ -10,10 +10,10 @@ import {Scale} from "../scales/scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
-import {Arrayable, Color} from "core/types"
-import {Line, Fill, Text} from "core/visuals"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {Arrayable} from "core/types"
 import {LegendLocation, Orientation} from "core/enums"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
 import {min, max, range, reversed} from "core/util/array"
@@ -21,6 +21,7 @@ import {map} from "core/util/arrayable"
 import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
+import {Size} from "core/layout"
 
 const SHORT_DIM = 25
 const LONG_DIM_MIN_SCALAR = 0.3
@@ -39,8 +40,8 @@ export class ColorBarView extends AnnotationView {
 
   protected image: HTMLCanvasElement
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._set_canvas_image()
   }
 
@@ -57,22 +58,12 @@ export class ColorBarView extends AnnotationView {
     }
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     if (this.model.color_mapper == null)
-      return 0
-
-    const bbox = this.compute_legend_dimensions()
-    const {side} = this.model.panel!
-
-    switch (side) {
-      case "above":
-      case "below":
-        return bbox.height
-      case "left":
-      case "right":
-        return bbox.width
-      default:
-        throw new Error("unreachable code")
+      return {width: 0, height: 0}
+    else {
+      const {width, height} = this.compute_legend_dimensions()
+      return {width, height}
     }
   }
 
@@ -117,12 +108,12 @@ export class ColorBarView extends AnnotationView {
   }
 
   compute_legend_dimensions(): {width: number, height: number} {
-    const image_dimensions = this.model._computed_image_dimensions()
+    const image_dimensions = this._computed_image_dimensions()
     const [image_height, image_width] = [image_dimensions.height, image_dimensions.width]
 
     const label_extent = this._get_label_extent()
-    const title_extent = this.model._title_extent()
-    const tick_extent = this.model._tick_extent()
+    const title_extent = this._title_extent()
+    const tick_extent = this._tick_extent()
     const {padding} = this.model
 
     let legend_height: number, legend_width: number
@@ -148,7 +139,7 @@ export class ColorBarView extends AnnotationView {
 
     const legend_margin = this.model.margin
 
-    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
     const [hr, vr] = panel.bbox.ranges
     const {location} = this.model
 
@@ -221,7 +212,7 @@ export class ColorBarView extends AnnotationView {
     this._draw_image(ctx)
 
     if (this.model.color_mapper.low != null && this.model.color_mapper.high != null) {
-      const tick_info = this.model.tick_info()
+      const tick_info = this.tick_info()
       this._draw_major_ticks(ctx, tick_info)
       this._draw_minor_ticks(ctx, tick_info)
       this._draw_major_labels(ctx, tick_info)
@@ -248,7 +239,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _draw_image(ctx: Context2d): void {
-    const image = this.model._computed_image_dimensions()
+    const image = this._computed_image_dimensions()
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
     ctx.globalAlpha = this.model.scale_alpha
@@ -264,8 +255,8 @@ export class ColorBarView extends AnnotationView {
     if (!this.visuals.major_tick_line.doit)
       return
 
-    const [nx, ny] = this.model._normals()
-    const image = this.model._computed_image_dimensions()
+    const [nx, ny] = this._normals()
+    const image = this._computed_image_dimensions()
     const [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
     const [sx, sy] = tick_info.coords.major
@@ -288,8 +279,8 @@ export class ColorBarView extends AnnotationView {
     if (!this.visuals.minor_tick_line.doit)
       return
 
-    const [nx, ny] = this.model._normals()
-    const image = this.model._computed_image_dimensions()
+    const [nx, ny] = this._normals()
+    const image = this._computed_image_dimensions()
     const [x_offset, y_offset] = [image.width * nx, image.height * ny]
 
     const [sx, sy] = tick_info.coords.minor
@@ -312,10 +303,10 @@ export class ColorBarView extends AnnotationView {
     if (!this.visuals.major_label_text.doit)
       return
 
-    const [nx, ny] = this.model._normals()
-    const image = this.model._computed_image_dimensions()
+    const [nx, ny] = this._normals()
+    const image = this._computed_image_dimensions()
     const [x_offset, y_offset] = [image.width * nx, image.height * ny]
-    const standoff = (this.model.label_standoff + this.model._tick_extent())
+    const standoff = (this.model.label_standoff + this._tick_extent())
     const [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
 
     const [sx, sy] = tick_info.coords.major
@@ -344,8 +335,8 @@ export class ColorBarView extends AnnotationView {
     ctx.restore()
   }
 
-  protected _get_label_extent(): number {
-    const major_labels = this.model.tick_info().labels.major
+  /*protected*/ _get_label_extent(): number {
+    const major_labels = this.tick_info().labels.major
 
     let label_extent: number
     if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !isEmpty(major_labels)) {
@@ -357,7 +348,7 @@ export class ColorBarView extends AnnotationView {
           label_extent = max((major_labels.map((label) => ctx.measureText(label.toString()).width)))
           break
         case "horizontal":
-          label_extent = text_util.get_text_height(this.visuals.major_label_text.font_value()).height
+          label_extent = text_util.measure_font(this.visuals.major_label_text.font_value()).height
           break
         default:
           throw new Error("unreachable code")
@@ -371,137 +362,262 @@ export class ColorBarView extends AnnotationView {
     return label_extent
   }
 
-  protected _get_image_offset(): {x: number, y: number} {
+  /*protected*/ _get_image_offset(): {x: number, y: number} {
     // Returns image offset relative to legend bounding box
     const x = this.model.padding
-    const y = this.model.padding + this.model._title_extent()
+    const y = this.model.padding + this._title_extent()
     return {x, y}
   }
+
+  // {{{ TODO: state
+  _normals(): [number, number] {
+    return this.model.orientation == 'vertical' ? [1, 0] : [0, 1]
+  }
+
+  _title_extent(): number {
+    const font_value = this.model.title_text_font + " " + this.model.title_text_font_size + " " + this.model.title_text_font_style
+    const title_extent = this.model.title ? text_util.measure_font(font_value).height + this.model.title_standoff : 0
+    return title_extent
+  }
+
+  _tick_extent(): number {
+    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null)
+      return max([this.model.major_tick_out, this.model.minor_tick_out])
+    else
+      return 0
+  }
+
+  _computed_image_dimensions(): {height: number, width: number} {
+    /*
+    Heuristics to determine ColorBar image dimensions if set to "auto"
+
+    Note: Returns the height/width values for the ColorBar's scale image, not
+    the dimensions of the entire ColorBar.
+
+    If the short dimension (the width of a vertical bar or height of a
+    horizontal bar) is set to "auto", the resulting dimension will be set to
+    25 px.
+
+    For a ColorBar in a side panel with the long dimension (the height of a
+    vertical bar or width of a horizontal bar) set to "auto", the
+    resulting dimension will be as long as the adjacent frame edge, so that the
+    bar "fits" to the plot.
+
+    For a ColorBar in the plot frame with the long dimension set to "auto", the
+    resulting dimension will be the greater of:
+      * The length of the color palette * 25px
+      * The parallel frame dimension * 0.30
+        (i.e the frame height for a vertical ColorBar)
+    But not greater than:
+      * The parallel frame dimension * 0.80
+    */
+
+    const frame_height = this.plot_view.frame._height.value
+    const frame_width = this.plot_view.frame._width.value
+    const title_extent = this._title_extent()
+
+    let height: number, width: number
+    switch (this.model.orientation) {
+      case "vertical": {
+        if (this.model.height == 'auto') {
+          if (this.panel != null)
+            height = frame_height - 2*this.model.padding - title_extent
+          else {
+            height = max([this.model.color_mapper.palette.length*SHORT_DIM, frame_height*LONG_DIM_MIN_SCALAR])
+            height = min([height, frame_height*LONG_DIM_MAX_SCALAR - 2*this.model.padding - title_extent])
+          }
+        } else
+          height = this.model.height
+
+        width = this.model.width == 'auto' ? SHORT_DIM : this.model.width
+        break
+      }
+      case "horizontal": {
+        height = this.model.height == 'auto' ? SHORT_DIM : this.model.height
+
+        if (this.model.width == 'auto') {
+          if (this.panel != null)
+            width = frame_width - 2*this.model.padding
+          else {
+            width = max([this.model.color_mapper.palette.length*SHORT_DIM, frame_width*LONG_DIM_MIN_SCALAR])
+            width = min([width, frame_width*LONG_DIM_MAX_SCALAR - 2*this.model.padding])
+          }
+        } else
+          width = this.model.width
+        break
+      }
+      default:
+        throw new Error("unreachable code")
+    }
+
+    return {width, height}
+  }
+
+  /*protected*/ _tick_coordinate_scale(scale_length: number): Scale {
+    /*
+    Creates and returns a scale instance that maps the `color_mapper` range
+    (low to high) to a screen space range equal to the length of the ColorBar's
+    scale image. The scale is used to calculate the tick coordinates in screen
+    coordinates for plotting purposes.
+
+    Note: the type of color_mapper has to match the type of scale (i.e.
+    a LinearColorMapper will require a corresponding LinearScale instance).
+    */
+
+    const ranges = {
+      source_range: new Range1d({
+        start: this.model.color_mapper.low,
+        end: this.model.color_mapper.high,
+      }),
+      target_range: new Range1d({
+        start: 0,
+        end: scale_length,
+      }),
+    }
+
+    switch (this.model.color_mapper.type) {
+      case "LinearColorMapper": return new LinearScale(ranges)
+      case "LogColorMapper":    return new LogScale(ranges)
+      default:
+        throw new Error("unreachable code")
+    }
+  }
+
+  protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {
+    // XXX: passing null as cross_loc probably means MercatorTickFormatters, etc
+    // will not function properly in conjunction with colorbars
+    const formatted_labels = this.model.formatter.doFormat(initial_labels, null as any)
+
+    for (let i = 0, end = major_ticks.length; i < end; i++) {
+      if (major_ticks[i] in this.model.major_label_overrides)
+        formatted_labels[i] = this.model.major_label_overrides[major_ticks[i]]
+    }
+
+    return formatted_labels
+  }
+
+  tick_info(): TickInfo {
+    const image_dimensions = this._computed_image_dimensions()
+
+    let scale_length: number
+    switch (this.model.orientation) {
+      case "vertical": {
+        scale_length = image_dimensions.height
+        break
+      }
+      case "horizontal": {
+        scale_length = image_dimensions.width
+        break
+      }
+      default:
+        throw new Error("unreachable code")
+    }
+
+    const scale = this._tick_coordinate_scale(scale_length)
+    const [i, j] = this._normals()
+    const [start, end] = [this.model.color_mapper.low, this.model.color_mapper.high]
+
+    // XXX: passing null as cross_loc probably means MercatorTickers, etc
+    // will not function properly in conjunction with colorbars
+    const ticks = this.model.ticker.get_ticks(start, end, null, null, this.model.ticker.desired_num_ticks)
+
+    const majors = ticks.major
+    const minors = ticks.minor
+
+    const major_coords: [number[], number[]] = [[], []]
+    const minor_coords: [number[], number[]] = [[], []]
+
+    for (let ii = 0, _end = majors.length; ii < _end; ii++) {
+      if (majors[ii] < start || majors[ii] > end)
+        continue
+
+      major_coords[i].push(majors[ii])
+      major_coords[j].push(0)
+    }
+
+    for (let ii = 0, _end = minors.length; ii < _end; ii++) {
+      if (minors[ii] < start || minors[ii] > end)
+        continue
+
+      minor_coords[i].push(minors[ii])
+      minor_coords[j].push(0)
+    }
+
+    const labels = {major: this._format_major_labels(major_coords[i], majors)}
+
+    const coords: {major: Coords, minor: Coords} = {
+      major: [[], []],
+      minor: [[], []],
+    }
+
+    coords.major[i] = scale.v_compute(major_coords[i])
+    coords.minor[i] = scale.v_compute(minor_coords[i])
+
+    coords.major[j] = major_coords[j]
+    coords.minor[j] = minor_coords[j]
+
+    // Because we want the scale to be reversed
+    if (this.model.orientation == 'vertical') {
+      coords.major[i] = map(coords.major[i], (coord) => scale_length - coord)
+      coords.minor[i] = map(coords.minor[i], (coord) => scale_length - coord)
+    }
+
+    return {coords, labels}
+  }
+  // }}}
 }
 
 export namespace ColorBar {
-  // text:major_label_
-  export interface MajorLabelText {
-    major_label_text_font: string
-    major_label_text_font_size: string
-    major_label_text_font_style: FontStyle
-    major_label_text_color: Color
-    major_label_text_alpha: number
-    major_label_text_align: TextAlign
-    major_label_text_baseline: TextBaseline
-    major_label_text_line_height: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // text:title_
-  export interface TitleText {
-    title_text_font: string
-    title_text_font_size: string
-    title_text_font_style: FontStyle
-    title_text_color: Color
-    title_text_alpha: number
-    title_text_align: TextAlign
-    title_text_baseline: TextBaseline
-    title_text_line_height: number
-  }
-
-  // line:major_tick_
-  export interface MajorTickLine {
-    major_tick_line_color: Color
-    major_tick_line_width: number
-    major_tick_line_alpha: number
-    major_tick_line_join: LineJoin
-    major_tick_line_cap: LineCap
-    major_tick_line_dash: number[]
-    major_tick_line_dash_offset: number
-  }
-
-  // line:minor_tick_
-  export interface MinorTickLine {
-    minor_tick_line_color: Color
-    minor_tick_line_width: number
-    minor_tick_line_alpha: number
-    minor_tick_line_join: LineJoin
-    minor_tick_line_cap: LineCap
-    minor_tick_line_dash: number[]
-    minor_tick_line_dash_offset: number
-  }
-
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
-
-  // line:bar_
-  export interface BarLine {
-    bar_line_color: Color
-    bar_line_width: number
-    bar_line_alpha: number
-    bar_line_join: LineJoin
-    bar_line_cap: LineCap
-    bar_line_dash: number[]
-    bar_line_dash_offset: number
-  }
-
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends MajorLabelText, TitleText, MajorTickLine, MinorTickLine, BorderLine, BarLine, BackgroundFill {}
-
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    location: LegendLocation | [number, number]
-    orientation: Orientation
-    title: string
-    title_standoff: number
-    width: number | "auto"
-    height: number | "auto"
-    scale_alpha: number
-    ticker: ContinuousTicker
-    formatter: TickFormatter
-    major_label_overrides: {[key: string]: string}
-    color_mapper: ContinuousColorMapper
-    label_standoff: number
-    margin: number
-    padding: number
-    major_tick_in: number
-    major_tick_out: number
-    minor_tick_in: number
-    minor_tick_out: number
-  }
-
-  export interface Props extends Annotation.Props {}
+  export type Props = Annotation.Props & {
+    location: p.Property<LegendLocation | [number, number]>
+    orientation: p.Property<Orientation>
+    title: p.Property<string>
+    title_standoff: p.Property<number>
+    width: p.Property<number | "auto">
+    height: p.Property<number | "auto">
+    scale_alpha: p.Property<number>
+    ticker: p.Property<ContinuousTicker>
+    formatter: p.Property<TickFormatter>
+    major_label_overrides: p.Property<{[key: string]: string}>
+    color_mapper: p.Property<ContinuousColorMapper>
+    label_standoff: p.Property<number>
+    margin: p.Property<number>
+    padding: p.Property<number>
+    major_tick_in: p.Property<number>
+    major_tick_out: p.Property<number>
+    minor_tick_in: p.Property<number>
+    minor_tick_out: p.Property<number>
+  } & mixins.MajorLabelText
+    & mixins.TitleText
+    & mixins.MajorTickLine
+    & mixins.MinorTickLine
+    & mixins.BorderLine
+    & mixins.BarLine
+    & mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
-    major_label_text: Text
-    title_text: Text
-    major_tick_line: Line
-    minor_tick_line: Line
-    border_line: Line
-    bar_line: Line
-    background_fill: Fill
+    major_label_text: visuals.Text
+    title_text: visuals.Text
+    major_tick_line: visuals.Line
+    minor_tick_line: visuals.Line
+    border_line: visuals.Line
+    bar_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
-
   properties: ColorBar.Props
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ColorBar'
+  static init_ColorBar(): void {
     this.prototype.default_view = ColorBarView
 
     this.mixins([
@@ -514,10 +630,10 @@ export class ColorBar extends Annotation {
       'fill:background_',
     ])
 
-    this.define({
+    this.define<ColorBar.Props>({
       location:                [ p.Any,         'top_right' ],
       orientation:             [ p.Orientation, 'vertical'  ],
-      title:                   [ p.String,                  ],
+      title:                   [ p.String                   ],
       title_standoff:          [ p.Number,      2           ],
       width:                   [ p.Any,         'auto'      ],
       height:                  [ p.Any,         'auto'      ],
@@ -549,201 +665,4 @@ export class ColorBar extends Annotation {
       title_text_font_style: "italic",
     })
   }
-
-  _normals(): [number, number] {
-    return this.orientation == 'vertical' ? [1, 0] : [0, 1]
-  }
-
-  _title_extent(): number {
-    const font_value = this.title_text_font + " " + this.title_text_font_size + " " + this.title_text_font_style
-    const title_extent = this.title ? text_util.get_text_height(font_value).height + this.title_standoff : 0
-    return title_extent
-  }
-
-  _tick_extent(): number {
-    if (this.color_mapper.low != null && this.color_mapper.high != null)
-      return max([this.major_tick_out, this.minor_tick_out])
-    else
-      return 0
-  }
-
-  _computed_image_dimensions(): {height: number, width: number} {
-    /*
-    Heuristics to determine ColorBar image dimensions if set to "auto"
-
-    Note: Returns the height/width values for the ColorBar's scale image, not
-    the dimensions of the entire ColorBar.
-
-    If the short dimension (the width of a vertical bar or height of a
-    horizontal bar) is set to "auto", the resulting dimension will be set to
-    25 px.
-
-    For a ColorBar in a side panel with the long dimension (the height of a
-    vertical bar or width of a horizontal bar) set to "auto", the
-    resulting dimension will be as long as the adjacent frame edge, so that the
-    bar "fits" to the plot.
-
-    For a ColorBar in the plot frame with the long dimension set to "auto", the
-    resulting dimension will be the greater of:
-      * The length of the color palette * 25px
-      * The parallel frame dimension * 0.30
-        (i.e the frame height for a vertical ColorBar)
-    But not greater than:
-      * The parallel frame dimension * 0.80
-    */
-
-    const frame_height = this.plot.plot_canvas.frame._height.value
-    const frame_width = this.plot.plot_canvas.frame._width.value
-    const title_extent = this._title_extent()
-
-    let height: number, width: number
-    switch (this.orientation) {
-      case "vertical": {
-        if (this.height == 'auto') {
-          if (this.panel != null)
-            height = frame_height - 2*this.padding - title_extent
-          else {
-            height = max([this.color_mapper.palette.length*SHORT_DIM, frame_height*LONG_DIM_MIN_SCALAR])
-            height = min([height, frame_height*LONG_DIM_MAX_SCALAR - 2*this.padding - title_extent])
-          }
-        } else
-          height = this.height
-
-        width = this.width == 'auto' ? SHORT_DIM : this.width
-        break
-      }
-      case "horizontal": {
-        height = this.height == 'auto' ? SHORT_DIM : this.height
-
-        if (this.width == 'auto') {
-          if (this.panel != null)
-            width = frame_width - 2*this.padding
-          else {
-            width = max([this.color_mapper.palette.length*SHORT_DIM, frame_width*LONG_DIM_MIN_SCALAR])
-            width = min([width, frame_width*LONG_DIM_MAX_SCALAR - 2*this.padding])
-          }
-        } else
-          width = this.width
-        break
-      }
-      default:
-        throw new Error("unreachable code")
-    }
-
-    return {width, height}
-  }
-
-  protected _tick_coordinate_scale(scale_length: number): Scale {
-    /*
-    Creates and returns a scale instance that maps the `color_mapper` range
-    (low to high) to a screen space range equal to the length of the ColorBar's
-    scale image. The scale is used to calculate the tick coordinates in screen
-    coordinates for plotting purposes.
-
-    Note: the type of color_mapper has to match the type of scale (i.e.
-    a LinearColorMapper will require a corresponding LinearScale instance).
-    */
-
-    const ranges = {
-      source_range: new Range1d({
-        start: this.color_mapper.low,
-        end: this.color_mapper.high,
-      }),
-      target_range: new Range1d({
-        start: 0,
-        end: scale_length,
-      }),
-    }
-
-    switch (this.color_mapper.type) {
-      case "LinearColorMapper": return new LinearScale(ranges)
-      case "LogColorMapper":    return new LogScale(ranges)
-      default:
-        throw new Error("unreachable code")
-    }
-  }
-
-  protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {
-    // XXX: passing null as cross_loc probably means MercatorTickFormatters, etc
-    // will not function properly in conjunction with colorbars
-    const formatted_labels = this.formatter.doFormat(initial_labels, null as any)
-
-    for (let i = 0, end = major_ticks.length; i < end; i++) {
-      if (major_ticks[i] in this.major_label_overrides)
-        formatted_labels[i] = this.major_label_overrides[major_ticks[i]]
-    }
-
-    return formatted_labels
-  }
-
-  tick_info(): TickInfo {
-    const image_dimensions = this._computed_image_dimensions()
-
-    let scale_length: number
-    switch (this.orientation) {
-      case "vertical": {
-        scale_length = image_dimensions.height
-        break
-      }
-      case "horizontal": {
-        scale_length = image_dimensions.width
-        break
-      }
-      default:
-        throw new Error("unreachable code")
-    }
-
-    const scale = this._tick_coordinate_scale(scale_length)
-    const [i, j] = this._normals()
-    const [start, end] = [this.color_mapper.low, this.color_mapper.high]
-
-    // XXX: passing null as cross_loc probably means MercatorTickers, etc
-    // will not function properly in conjunction with colorbars
-    const ticks = this.ticker.get_ticks(start, end, null, null, this.ticker.desired_num_ticks)
-
-    const majors = ticks.major
-    const minors = ticks.minor
-
-    const major_coords: [number[], number[]] = [[], []]
-    const minor_coords: [number[], number[]] = [[], []]
-
-    for (let ii = 0, _end = majors.length; ii < _end; ii++) {
-      if (majors[ii] < start || majors[ii] > end)
-        continue
-
-      major_coords[i].push(majors[ii])
-      major_coords[j].push(0)
-    }
-
-    for (let ii = 0, _end = minors.length; ii < _end; ii++) {
-      if (minors[ii] < start || minors[ii] > end)
-        continue
-
-      minor_coords[i].push(minors[ii])
-      minor_coords[j].push(0)
-    }
-
-    const labels = {major: this._format_major_labels(major_coords[i], majors)}
-
-
-    const coords: {major: Coords, minor: Coords} = {
-      major: [[], []],
-      minor: [[], []],
-    }
-
-    coords.major[i] = scale.v_compute(major_coords[i])
-    coords.minor[i] = scale.v_compute(minor_coords[i])
-
-    coords.major[j] = major_coords[j]
-    coords.minor[j] = minor_coords[j]
-
-    // Because we want the scale to be reversed
-    if (this.orientation == 'vertical') {
-      coords.major[i] = map(coords.major[i], (coord) => scale_length - coord)
-      coords.minor[i] = map(coords.minor[i], (coord) => scale_length - coord)
-    }
-
-    return {coords, labels}
-  }
 }
-ColorBar.initClass()

@@ -1,37 +1,31 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from .utils.property_utils import (
-    FILL, LINE, TEXT, GLYPH, MARKER,
-    check_properties_existence, check_fill_properties,
+    FILL, HATCH, LINE, TEXT, GLYPH, MARKER,
+    check_properties_existence, check_fill_properties, check_hatch_properties,
     check_line_properties, check_text_properties, check_marker_properties
 )
-
-from bokeh.models.glyphs import (
-    AnnularWedge, Annulus, Arc,
-    Bezier,
-    Circle,
-    HBar,
-    Image, ImageRGBA, ImageURL,
-    Line,
-    MultiLine,
-    Oval,
-    Patch, Patches,
-    Quad, Quadratic, Ray,
-    Rect,
-    Segment,
-    Step,
-    Text,
-    VBar,
-    Wedge)
-
-from bokeh.models.glyphs import (
-    Asterisk,
-    CircleCross, CircleX, Cross,
-    Diamond, DiamondCross,
-    InvertedTriangle,
-    Square, SquareCross, SquareX,
-    Triangle,
-    X)
 
 from bokeh.core.enums import (
     LineJoin, LineDash, LineCap,
@@ -45,11 +39,49 @@ from bokeh.core.enums import (
     ButtonType, MapType,
     NamedColor as Color)
 
+# Module under test
+from bokeh.models.glyphs import (
+    AnnularWedge, Annulus, Arc,
+    Bezier,
+    Circle,
+    HArea,
+    HBar,
+    Image, ImageRGBA, ImageURL,
+    Line,
+    MultiLine,
+    MultiPolygons,
+    Oval,
+    Patch, Patches,
+    Quad, Quadratic, Ray,
+    Rect,
+    Segment,
+    Step,
+    Text,
+    VArea,
+    VBar,
+    Wedge)
+
+from bokeh.models.glyphs import (
+    Asterisk,
+    CircleCross, CircleX, Cross,
+    Dash, Diamond, DiamondCross,
+    InvertedTriangle,
+    Square, SquareCross, SquareX,
+    Triangle,
+    X)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
 # fool flake8
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
  AngleUnits, Dimension, Anchor, Location, LegendLocation,
  DashPattern, ButtonType, MapType, Color)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_AnnularWedge():
     glyph = AnnularWedge()
@@ -140,6 +172,20 @@ def test_Bezier():
     ], LINE, GLYPH)
 
 
+def test_HArea():
+    glyph = HArea()
+    assert glyph.y is None
+    assert glyph.x1 is None
+    assert glyph.x2 is None
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "y",
+        "x1",
+        "x2",
+    ], FILL, HATCH, GLYPH)
+
+
 def test_HBar():
     glyph = HBar()
     assert glyph.y is None
@@ -147,13 +193,14 @@ def test_HBar():
     assert glyph.left == 0
     assert glyph.right is None
     check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "y",
         "height",
         "left",
         "right",
-    ], FILL, LINE, GLYPH)
+    ], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Image():
@@ -252,6 +299,19 @@ def test_MultiLine():
     ], LINE, GLYPH)
 
 
+def test_MultiPolygons():
+    glyph = MultiPolygons()
+    assert glyph.xs is None
+    assert glyph.ys is None
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_line_properties(glyph)
+    check_properties_existence(glyph, [
+        "xs",
+        "ys",
+    ], FILL, HATCH, LINE, GLYPH)
+
+
 def test_Oval():
     glyph = Oval()
     assert glyph.x is None
@@ -278,11 +338,12 @@ def test_Patch():
     assert glyph.x is None
     assert glyph.y is None
     check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
-    ], FILL, LINE, GLYPH)
+    ], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Patches():
@@ -290,11 +351,12 @@ def test_Patches():
     assert glyph.xs is None
     assert glyph.ys is None
     check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "xs",
         "ys",
-    ], FILL, LINE, GLYPH)
+    ], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Quad():
@@ -304,13 +366,14 @@ def test_Quad():
     assert glyph.bottom is None
     assert glyph.top is None
     check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "left",
         "right",
         "bottom",
         "top",
-    ], FILL, LINE, GLYPH)
+    ], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Quadratic():
@@ -391,7 +454,7 @@ def test_Step():
     glyph = Step()
     assert glyph.x is None
     assert glyph.y is None
-    assert glyph.mode is "before"
+    assert glyph.mode == "before"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -418,6 +481,20 @@ def test_Text():
     ], TEXT, GLYPH)
 
 
+def test_VArea():
+    glyph = VArea()
+    assert glyph.x is None
+    assert glyph.y1 is None
+    assert glyph.y2 is None
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y1",
+        "y2",
+    ], FILL, HATCH, GLYPH)
+
+
 def test_VBar():
     glyph = VBar()
     assert glyph.x is None
@@ -425,13 +502,14 @@ def test_VBar():
     assert glyph.top is None
     assert glyph.bottom == 0
     check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "width",
         "top",
         "bottom",
-    ], FILL, LINE, GLYPH)
+    ], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Wedge():
@@ -502,6 +580,14 @@ def test_Cross():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
+def test_Dash():
+    marker = Dash()
+    check_marker_properties(marker)
+    check_fill_properties(marker)
+    check_line_properties(marker)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+
+
 def test_Diamond():
     marker = Diamond()
     check_marker_properties(marker)
@@ -564,3 +650,15 @@ def test_X():
     check_fill_properties(marker)
     check_line_properties(marker)
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

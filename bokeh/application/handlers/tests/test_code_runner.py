@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -38,7 +37,13 @@ import bokeh.application.handlers.code_runner as bahc
 # General API
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 class TestCodeRunner(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_init(self):
         cr = bahc.CodeRunner("# test", "path", [])
@@ -152,9 +157,9 @@ class TestCodeRunner(object):
         assert sys.path == old_path
 
 #-----------------------------------------------------------------------------
-# Dev API
+# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Private API
+# Code
 #-----------------------------------------------------------------------------

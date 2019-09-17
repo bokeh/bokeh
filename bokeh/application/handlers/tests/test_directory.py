@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -50,10 +49,6 @@ curdoc().add_root(%s())
 curdoc().add_root(%s())
 """
 
-def script_adds_two_roots(some_model_name, another_model_name):
-    return script_adds_two_roots_template % (another_model_name, some_model_name,
-                                             another_model_name, some_model_name)
-
 script_has_lifecycle_handlers = """
 def on_server_loaded(server_context):
     return "on_server_loaded"
@@ -69,7 +64,17 @@ def on_session_destroyed(session_context):
 # General API
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def script_adds_two_roots(some_model_name, another_model_name):
+    return script_adds_two_roots_template % (another_model_name, some_model_name,
+                                             another_model_name, some_model_name)
+
 class Test_DirectoryHandler(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_directory_empty_mainpy(self):
         doc = Document()
@@ -96,6 +101,49 @@ class Test_DirectoryHandler(object):
         with_directory_contents({
             'main.py' : script_adds_two_roots('SomeModelInTestDirectory',
                                               'AnotherModelInTestDirectory')
+        }, load)
+
+        assert len(doc.roots) == 2
+
+    def test_directory_empty_mainipynb(self):
+        import nbformat
+
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        with_directory_contents({
+            'main.ipynb': nbformat.writes(source)
+        }, load)
+
+        assert not doc.roots
+
+    def test_directory_mainipynb_adds_roots(self):
+        import nbformat
+
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        code = script_adds_two_roots('SomeModelInNbTestDirectory',
+                                     'AnotherModelInNbTestDirectory')
+        source.cells.append(nbformat.v4.new_code_cell(code))
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        with_directory_contents({
+            'main.ipynb': nbformat.writes(source)
         }, load)
 
         assert len(doc.roots) == 2
@@ -284,9 +332,9 @@ some.foo = 57
         assert h.url_path() is None
 
 #-----------------------------------------------------------------------------
-# Dev API
+# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Private API
+# Code
 #-----------------------------------------------------------------------------

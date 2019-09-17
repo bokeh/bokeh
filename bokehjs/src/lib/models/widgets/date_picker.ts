@@ -1,9 +1,12 @@
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-import {empty, input, label} from "core/dom"
+import {input} from "core/dom"
 import * as p from "core/properties"
 
 import * as Pikaday from "pikaday"
+
+import {bk_input} from "styles/widgets/inputs"
+import "styles/widgets/pikaday"
 
 Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.PikadayOptions}): void {
   if (this._o.container)
@@ -14,15 +17,15 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
   const field = this._o.trigger!
   const width = this.el.offsetWidth
   const height = this.el.offsetHeight
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth
-  const viewportHeight = window.innerHeight || document.documentElement.clientHeight
-  const scrollTop = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop
+  const viewportWidth = window.innerWidth || document.documentElement!.clientWidth
+  const viewportHeight = window.innerHeight || document.documentElement!.clientHeight
+  const scrollTop = window.pageYOffset || document.body.scrollTop || document.documentElement!.scrollTop
 
   const clientRect = field.getBoundingClientRect()
   let left = clientRect.left + window.pageXOffset
   let top = clientRect.bottom + window.pageYOffset
 
-  // adjust left/top origin to bk-root
+  // adjust left/top origin to .bk-root
   left -= this.el.parentElement!.offsetLeft
   top -= this.el.parentElement!.offsetTop
 
@@ -42,39 +45,42 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
 export class DatePickerView extends InputWidgetView {
   model: DatePicker
 
-  labelEl: HTMLElement
-  inputEl: HTMLElement
+  protected input_el: HTMLInputElement
 
-  protected _picker: Pikaday
+  private _picker: Pikaday
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-form-group")
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
   }
 
   render(): void {
-    super.render()
-
     if (this._picker != null)
       this._picker.destroy()
-    empty(this.el)
 
-    this.labelEl = label({}, this.model.title)
-    this.el.appendChild(this.labelEl)
+    super.render()
 
-    this.inputEl = input({type: "text", class: "bk-widget-form-input", disabled: this.model.disabled})
-    this.el.appendChild(this.inputEl)
+    this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
+    this.group_el.appendChild(this.input_el)
 
     this._picker = new Pikaday({
-      field: this.inputEl,
-      defaultDate: new Date(this.model.value),
+      field: this.input_el,
+      defaultDate: this._unlocal_date(new Date(this.model.value)),
       setDefaultDate: true,
-      minDate: this.model.min_date != null ? new Date(this.model.min_date) : undefined,
-      maxDate: this.model.max_date != null ? new Date(this.model.max_date) : undefined,
+      minDate: this.model.min_date != null ? this._unlocal_date(new Date(this.model.min_date)) : undefined,
+      maxDate: this.model.max_date != null ? this._unlocal_date(new Date(this.model.max_date)) : undefined,
       onSelect: (date) => this._on_select(date),
     })
 
-    // move date picker's element from body to bk-root
     this._root_element.appendChild(this._picker.el)
+  }
+
+  _unlocal_date(date: Date): Date {
+    // this sucks but the date comes in as a UTC timestamp and pikaday uses Date's local
+    // timezone-converted representation. We want the date to be as given by the user
+    const datestr = date.toISOString().substr(0, 10)
+    const tup = datestr.split('-')
+    return new Date(Number(tup[0]), Number(tup[1])-1, Number(tup[2]))
   }
 
   _on_select(date: Date): void {
@@ -88,30 +94,28 @@ export class DatePickerView extends InputWidgetView {
 }
 
 export namespace DatePicker {
-  export interface Attrs extends InputWidget.Attrs {
-    value:    string
-    min_date: string
-    max_date: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {}
+  export type Props = InputWidget.Props & {
+    value:    p.Property<string>
+    min_date: p.Property<string>
+    max_date: p.Property<string>
+  }
 }
 
 export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
-
   properties: DatePicker.Props
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DatePicker"
+  static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
-    this.define({
+    this.define<DatePicker.Props>({
       // TODO (bev) types
       value:    [ p.Any, new Date().toDateString() ],
       min_date: [ p.Any                            ],
@@ -119,5 +123,3 @@ export class DatePicker extends InputWidget {
     })
   }
 }
-
-DatePicker.initClass()

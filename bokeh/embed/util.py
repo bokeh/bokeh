@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -22,24 +21,32 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import Sequence, OrderedDict
+from collections import OrderedDict
+from bokeh.util.future import collections_abc # goes away with py2
+from contextlib import contextmanager
 
 # External imports
-from six import string_types
 
 # Bokeh imports
-from ..core.json_encoder import serialize_json
-from ..core.templates import _env, DOC_JS, FILE, MACROS, PLOT_DIV, SCRIPT_TAG
-from ..document.document import DEFAULT_TITLE, Document
+from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
-from ..util.compiler import bundle_all_models
-from ..util.serialization import make_id
-from ..util.string import encode_utf8, indent
+from ..util.serialization import make_globally_unique_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'FromCurdoc',
+    'OutputDocumentFor',
+    'RenderItem',
+    'RenderRoot',
+    'RenderRoots',
+    'standalone_docs_json',
+    'standalone_docs_json_and_render_items',
+    'submodel_has_python_callbacks',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -56,156 +63,151 @@ class FromCurdoc(object):
     '''
     pass
 
-def check_models_or_docs(models, allow_dict=False):
-    '''
+@contextmanager
+def OutputDocumentFor(objs, apply_theme=None, always_new=False):
+    ''' Find or create a (possibly temporary) Document to use for serializing
+    Bokeh content.
+
+    Typical usage is similar to:
+
+    .. code-block:: python
+
+         with OutputDocumentFor(models):
+            (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
+
+    Inside the context manager, the models will be considered to be part of a single
+    Document, with any theme specified, which can thus be serialized as a unit. Where
+    possible, OutputDocumentFor attempts to use an existing Document. However, this is
+    not possible in three cases:
+
+    * If passed a series of models that have no Document at all, a new Document will
+      be created, and all the models will be added as roots. After the context manager
+      exits, the new Document will continue to be the models' document.
+
+    * If passed a subset of Document.roots, then OutputDocumentFor temporarily "re-homes"
+      the models in a new bare Document that is only available inside the context manager.
+
+    * If passed a list of models that have differnet documents, then OutputDocumentFor
+      temporarily "re-homes" the models in a new bare Document that is only available
+      inside the context manager.
+
+    OutputDocumentFor will also perfom document validation before yielding, if
+    ``settings.perform_document_validation()`` is True.
+
+
+        objs (seq[Model]) :
+            a sequence of Models that will be serialized, and need a common document
+
+        apply_theme (Theme or FromCurdoc or None, optional):
+            Sets the theme for the doc while inside this context manager. (default: None)
+
+            If None, use whatever theme is on the document that is found or created
+
+            If FromCurdoc, use curdoc().theme, restoring any previous theme afterwards
+
+            If a Theme instance, use that theme, restoring any previous theme afterwards
+
+        always_new (bool, optional) :
+            Always return a new document, even in cases where it is otherwise possible
+            to use an existing document on models.
+
+    Yields:
+        Document
 
     '''
-    input_type_valid = False
+    # Note: Comms handling relies on the fact that the new_doc returned
+    # has models with the same IDs as they were started with
 
-    # Check for single item
-    if isinstance(models, (Model, Document)):
-        models = [models]
+    if not isinstance(objs, collections_abc.Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
+        raise ValueError("OutputDocumentFor expects a sequence of Models")
 
-    # Check for sequence
-    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
-        input_type_valid = True
+    def finish(): pass
 
-    if allow_dict:
-        if isinstance(models, dict) and \
-           all(isinstance(x, string_types) for x in models.keys()) and \
-           all(isinstance(x, (Model, Document)) for x in models.values()):
-            input_type_valid = True
+    docs = set(x.document for x in objs)
+    if None in docs: docs.remove(None)
 
-    if not input_type_valid:
-        if allow_dict:
-            raise ValueError(
-                'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
-            )
+    if always_new:
+        def finish(): # NOQA
+            _dispose_temp_doc(objs)
+        doc = _create_temp_doc(objs)
+
+    else:
+        if len(docs) == 0:
+            doc = Document()
+            for model in objs:
+                doc.add_root(model)
+
+        # handle a single shared document
+        elif len(docs) == 1:
+            doc = docs.pop()
+
+            # we are not using all the roots, make a quick clone for outputting purposes
+            if set(objs) != set(doc.roots):
+                def finish(): # NOQA
+                    _dispose_temp_doc(objs)
+                doc = _create_temp_doc(objs)
+
+            # we are using all the roots of a single doc, just use doc as-is
+            pass
+
+        # models have mixed docs, just make a quick clone
         else:
-            raise ValueError('Input must be a Model, a Document, or a Sequence of Models and Document')
+            def finish(): # NOQA
+                _dispose_temp_doc(objs)
+            doc = _create_temp_doc(objs)
 
-    return models
+    if settings.perform_document_validation():
+        doc.validate()
 
-def check_one_model_or_doc(model):
-    '''
+    _set_temp_theme(doc, apply_theme)
 
-    '''
-    models = check_models_or_docs(model)
-    if len(models) != 1:
-        raise ValueError("Input must be exactly one Model or Document")
-    return models[0]
+    yield doc
 
-def submodel_has_python_callbacks(models):
-    ''' Traverses submodels to check for Python (event) callbacks
+    _unset_temp_theme(doc)
 
-    '''
-    has_python_callback = False
-    for model in collect_models(models):
-        if len(model._callbacks) > 0 or len(model._event_callbacks) > 0:
-            has_python_callback = True
-            break
+    finish()
 
-    return has_python_callback
+class RenderItem(object):
 
-def div_for_render_item(item):
-    '''
-        item: RenderItem
-    '''
-    return PLOT_DIV.render(doc=item, macros=MACROS)
+    def __init__(self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None):
+        if (docid is None and sessionid is None) or (docid is not None and sessionid is not None):
+            raise ValueError("either docid or sessionid must be provided")
 
-def find_existing_docs(models):
-    '''
+        if roots is None:
+            roots = OrderedDict()
+        elif isinstance(roots, list):
+            roots = OrderedDict([ (root, make_globally_unique_id()) for root in roots ])
 
-    '''
-    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
-    existing_docs.discard(None)
+        self.docid = docid
+        self.sessionid = sessionid
+        self.elementid = elementid
+        self.roots = RenderRoots(roots)
+        self.use_for_title = use_for_title
 
-    if len(existing_docs) == 0:
-        # no existing docs, use the current doc
-        doc = Document()
-    elif len(existing_docs) == 1:
-        # all existing docs are the same, use that one
-        doc = existing_docs.pop()
-    else:
-        # conflicting/multiple docs, raise an error
-        msg = ('Multiple items in models contain documents or are '
-               'themselves documents. (Models must be owned by only a '
-               'single document). This may indicate a usage error.')
-        raise RuntimeError(msg)
-    return doc
+    def to_json(self):
+        json = {}
 
-def html_page_for_render_items(bundle, docs_json, render_items, title,
-                               template=None, template_variables={}):
-    '''
+        if self.docid is not None:
+            json["docid"] = self.docid
+        else:
+            json["sessionid"] = self.sessionid
 
-    '''
-    if title is None:
-        title = DEFAULT_TITLE
+        if self.elementid is not None:
+            json["elementid"] = self.elementid
 
-    bokeh_js, bokeh_css = bundle
+        if self.roots:
+            json["roots"] = self.roots.to_json()
 
-    json_id = make_id()
-    json = escape(serialize_json(docs_json), quote=False)
-    json = wrap_in_script_tag(json, "application/json", json_id)
+        if self.use_for_title is not None:
+            json["use_for_title"] = self.use_for_title
 
-    script = bundle_all_models()
-    script += script_for_render_items(json_id, render_items)
-    script = wrap_in_script_tag(script)
+        return json
 
-    context = template_variables.copy()
-
-    context.update(dict(
-        title = title,
-        bokeh_js = bokeh_js,
-        bokeh_css = bokeh_css,
-        plot_script = json + script,
-        docs = render_items,
-        base = FILE,
-        macros = MACROS,
-    ))
-
-    if len(render_items) == 1:
-        context["doc"] = context["docs"][0]
-        context["roots"] = context["doc"].roots
-
-    # XXX: backwards compatibility, remove for 1.0
-    context["plot_div"] = "\n".join(div_for_render_item(item) for item in render_items)
-
-    if template is None:
-        template = FILE
-    elif isinstance(template, string_types):
-        template = _env.from_string("{% extends base %}\n" + template)
-
-    html = template.render(context)
-    return encode_utf8(html)
-
-def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
-    '''
-
-    '''
-    if isinstance(docs_json_or_id, string_types):
-        docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
-    else:
-        # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,
-        # and encoding it would significantly increase size of generated files. Doing so
-        # is safe, because " in strings was already encoded by JSON, and the semi-encoded
-        # JSON string is included in JavaScript in single quotes.
-        docs_json = serialize_json(docs_json_or_id, pretty=False) # JSON string
-        docs_json = escape(docs_json, quote=("'",))               # make HTML-safe
-        docs_json = docs_json.replace("\\", "\\\\")               # double encode escapes
-        docs_json =  "'" + docs_json + "'"                        # JS string
-
-    js = DOC_JS.render(
-        docs_json=docs_json,
-        render_items=serialize_json([ item.to_json() for item in render_items ], pretty=False),
-        app_path=app_path,
-        absolute_url=absolute_url,
-    )
-
-    if not settings.dev:
-        js = wrap_in_safely(js)
-
-    return wrap_in_onload(js)
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.to_json() == other.to_json()
 
 class RenderRoot(object):
 
@@ -239,78 +241,33 @@ class RenderRoots(object):
             else:
                 raise ValueError("root with '%s' name not found" % key)
 
-        return RenderRoot(elementid, root._id, root.name, root.tags)
+        return RenderRoot(elementid, root.id, root.name, root.tags)
 
     def __getattr__(self, key):
         return self.__getitem__(key)
 
     def to_json(self):
-        return OrderedDict([ (root._id, elementid) for root, elementid in self._roots.items() ])
+        return OrderedDict([ (root.id, elementid) for root, elementid in self._roots.items() ])
 
-class RenderItem(object):
-
-    def __init__(self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None):
-        if (docid is None and sessionid is None) or (docid is not None and sessionid is not None):
-            raise ValueError("either docid or sessionid must be provided")
-
-        if roots is None:
-            roots = OrderedDict()
-        elif isinstance(roots, list):
-            roots = OrderedDict([ (root, make_id()) for root in roots ])
-
-        self.docid = docid
-        self.sessionid = sessionid
-        self.elementid = elementid
-        self.roots = RenderRoots(roots)
-        self.use_for_title = use_for_title
-
-    def to_json(self):
-        json = {}
-
-        if self.docid is not None:
-            json["docid"] = self.docid
-        else:
-            json["sessionid"] = self.sessionid
-
-        if self.elementid is not None:
-            json["elementid"] = self.elementid
-
-        if self.roots:
-            json["roots"] = self.roots.to_json()
-
-        if self.use_for_title is not None:
-            json["use_for_title"] = self.use_for_title
-
-        return json
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        else:
-            return self.to_json() == other.to_json()
-
-CALLBACKS_WARNING = """
-You are generating standalone HTML/JS output, but trying to use real Python
-callbacks (i.e. with on_change or on_event). This combination cannot work.
-
-Only JavaScript callbacks may be used with standalone output. For more
-information on JavaScript callbacks with Bokeh, see:
-
-    http://bokeh.pydata.org/en/latest/docs/user_guide/interaction/callbacks.html
-
-Alternatively, to use real Python callbacks, a Bokeh server application may
-be used. For more information on building and running Bokeh applications, see:
-
-    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
-"""
-
-def standalone_docs_json_and_render_items(models):
+def standalone_docs_json(models):
     '''
 
     '''
-    models = check_models_or_docs(models)
-    if submodel_has_python_callbacks(models):
-        log.warn(CALLBACKS_WARNING)
+    docs_json, render_items = standalone_docs_json_and_render_items(models)
+    return docs_json
+
+def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
+    '''
+
+    '''
+    if isinstance(models, (Model, Document)):
+        models = [models]
+
+    if not (isinstance(models, collections_abc.Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
+        raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
+
+    if submodel_has_python_callbacks(models) and not suppress_callback_warning:
+        log.warning(_CALLBACKS_WARNING)
 
     docs = {}
     for model_or_doc in models:
@@ -322,18 +279,18 @@ def standalone_docs_json_and_render_items(models):
             doc = model.document
 
             if doc is None:
-                raise ValueError("to render a model as HTML it must be part of a document")
+                raise ValueError("A Bokeh Model must be part of a Document to render as standalone content")
 
         if doc not in docs:
-            docs[doc] = (make_id(), OrderedDict())
+            docs[doc] = (make_globally_unique_id(), OrderedDict())
 
         (docid, roots) = docs[doc]
 
         if model is not None:
-            roots[model] = make_id()
+            roots[model] = make_globally_unique_id()
         else:
             for model in doc.roots:
-                roots[model] = make_id()
+                roots[model] = make_globally_unique_id()
 
     docs_json = {}
     for doc, (docid, _) in docs.items():
@@ -345,61 +302,67 @@ def standalone_docs_json_and_render_items(models):
 
     return (docs_json, render_items)
 
-def wrap_in_onload(code):
-    '''
+def submodel_has_python_callbacks(models):
+    ''' Traverses submodels to check for Python (event) callbacks
 
     '''
-    return _ONLOAD % dict(code=indent(code, 4))
+    has_python_callback = False
+    for model in collect_models(models):
+        if len(model._callbacks) > 0 or len(model._event_callbacks) > 0:
+            has_python_callback = True
+            break
 
-def wrap_in_safely(code):
-    '''
-
-    '''
-    return _SAFELY % dict(code=indent(code, 2))
-
-def wrap_in_script_tag(js, type="text/javascript", id=None):
-    '''
-
-    '''
-    return SCRIPT_TAG.render(js_code=indent(js, 2), type=type, id=id)
-
-# based on `html` stdlib module (3.2+)
-def escape(s, quote=("'", '"')):
-    """
-    Replace special characters "&", "<" and ">" to HTML-safe sequences.
-    If the optional flag quote is true (the default), the quotation mark
-    characters, both double quote (") and single quote (') characters are also
-    translated.
-    """
-    s = s.replace("&", "&amp;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    if quote:
-        if '"' in quote:
-            s = s.replace('"', "&quot;")
-        if "'" in quote:
-            s = s.replace("'", "&#x27;")
-    return s
+    return has_python_callback
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-_ONLOAD = """\
-(function() {
-  var fn = function() {
-%(code)s
-  };
-  if (document.readyState != "loading") fn();
-  else document.addEventListener("DOMContentLoaded", fn);
-})();\
+_CALLBACKS_WARNING = """
+You are generating standalone HTML/JS output, but trying to use real Python
+callbacks (i.e. with on_change or on_event). This combination cannot work.
+
+Only JavaScript callbacks may be used with standalone output. For more
+information on JavaScript callbacks with Bokeh, see:
+
+    http://docs.bokeh.org/en/latest/docs/user_guide/interaction/callbacks.html
+
+Alternatively, to use real Python callbacks, a Bokeh server application may
+be used. For more information on building and running Bokeh applications, see:
+
+    http://docs.bokeh.org/en/latest/docs/user_guide/server.html
 """
 
-_SAFELY = """\
-Bokeh.safely(function() {
-%(code)s
-});\
-"""
+def _create_temp_doc(models):
+    doc = Document()
+    for m in models:
+        doc._all_models[m.id] = m
+        m._temp_document = doc
+        for ref in m.references():
+            doc._all_models[ref.id] = ref
+            ref._temp_document = doc
+    doc._roots = models
+    return doc
+
+def _dispose_temp_doc(models):
+    for m in models:
+        m._temp_document = None
+        for ref in m.references():
+            ref._temp_document = None
+
+def _set_temp_theme(doc, apply_theme):
+    doc._old_theme = doc.theme
+    if apply_theme is FromCurdoc:
+        from ..io import curdoc; curdoc
+        doc.theme = curdoc().theme
+    elif apply_theme is not None:
+        doc.theme = apply_theme
+
+def _unset_temp_theme(doc):
+    if not hasattr(doc, "_old_theme"):
+        return
+    doc.theme = doc._old_theme
+    del doc._old_theme
 
 #-----------------------------------------------------------------------------
 # Code

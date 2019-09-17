@@ -1,12 +1,11 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {NumberSpec, StringSpec, AngleSpec} from "core/vectorization"
-import {TextMixinVector} from "core/property_mixins"
-import {PointGeometry} from "core/geometry";
-import * as hittest from "core/hittest";
+import {TextVector} from "core/property_mixins"
+import {PointGeometry} from "core/geometry"
+import * as hittest from "core/hittest"
 import {Arrayable} from "core/types"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
-import {get_text_height} from "core/util/text"
+import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
@@ -55,7 +54,7 @@ export class TextView extends XYGlyphView {
         this.visuals.text.set_vectorize(ctx, i)
 
         const font = this.visuals.text.cache_select("font", i)
-        const {height} = get_text_height(font)
+        const {height} = measure_font(font)
         const line_height = this.visuals.text.text_line_height.value()*height
         if (text.indexOf("\n") == -1){
           ctx.fillText(text, 0, 0)
@@ -110,7 +109,7 @@ export class TextView extends XYGlyphView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const {sx, sy} = geometry;
+    const {sx, sy} = geometry
     const hits = []
 
     for (let i = 0; i < this._sxs.length; i++) {
@@ -120,7 +119,7 @@ export class TextView extends XYGlyphView {
       for (let j = 0, endj = n; j < endj; j++) {
         const [sxr, syr] = this._rotate_point(sx, sy, sxs[n-1][0], sys[n-1][0], -this._angle[i])
         if (hittest.point_in_poly(sxr, syr, sxs[j], sys[j])) {
-          hits.push(i);
+          hits.push(i)
         }
       }
     }
@@ -129,7 +128,7 @@ export class TextView extends XYGlyphView {
     return result
   }
 
-  private _scenterxy(i: number): {x:number, y:number} {
+  private _scenterxy(i: number): {x: number, y: number} {
     const sx0 = this._sxs[i][0][0]
     const sy0 = this._sys[i][0][0]
     const sxc = (this._sxs[i][0][2] + sx0) / 2
@@ -148,43 +147,36 @@ export class TextView extends XYGlyphView {
 }
 
 export namespace Text {
-  export interface Mixins extends TextMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    text: StringSpec
-    angle: AngleSpec
-    x_offset: NumberSpec
-    y_offset: NumberSpec
+  export type Props = XYGlyph.Props & TextVector & {
+    text: p.NullStringSpec
+    angle: p.AngleSpec
+    x_offset: p.NumberSpec
+    y_offset: p.NumberSpec
   }
 
-  export interface Props extends XYGlyph.Props {}
-
-  export interface Visuals extends XYGlyph.Visuals {
-    text: visuals.Text
-  }
+  export type Visuals = XYGlyph.Visuals & {text: visuals.Text}
 }
 
 export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
-
   properties: Text.Props
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Text'
+  static init_Text(): void {
     this.prototype.default_view = TextView
 
     this.mixins(['text'])
-    this.define({
-      text:     [ p.StringSpec, {field: "text"} ],
-      angle:    [ p.AngleSpec,  0               ],
-      x_offset: [ p.NumberSpec, 0               ],
-      y_offset: [ p.NumberSpec, 0               ],
+    this.define<Text.Props>({
+      text:     [ p.NullStringSpec, {field: "text"} ],
+      angle:    [ p.AngleSpec,      0               ],
+      x_offset: [ p.NumberSpec,     0               ],
+      y_offset: [ p.NumberSpec,     0               ],
     })
   }
 }
-Text.initClass()

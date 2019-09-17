@@ -1,45 +1,28 @@
 import * as numbro from "numbro"
 
-import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
+import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import * as p from "core/properties"
 
 export class SliderView extends AbstractSliderView {
   model: Slider
-
-  protected _calc_to(): SliderSpec {
-    return {
-      start: this.model.start,
-      end: this.model.end,
-      value: [this.model.value],
-      step: this.model.step,
-    }
-  }
-
-  protected _calc_from([value]: number[]): number {
-    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step))
-      return Math.round(value)
-    else
-      return value
-  }
 }
 
 export namespace Slider {
-  export interface Attrs extends AbstractSlider.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractSlider.Props {}
+  export type Props = AbstractSlider.Props
 }
 
 export interface Slider extends Slider.Attrs {}
 
 export class Slider extends AbstractSlider {
-
   properties: Slider.Props
 
   constructor(attrs?: Partial<Slider.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Slider"
+  static init_Slider(): void {
     this.prototype.default_view = SliderView
 
     this.override({
@@ -54,5 +37,3 @@ export class Slider extends AbstractSlider {
     return numbro.format(value, format)
   }
 }
-
-Slider.initClass()

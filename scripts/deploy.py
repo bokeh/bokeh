@@ -1,4 +1,5 @@
 import argparse
+import json
 from os.path import join
 import re
 from subprocess import CalledProcessError, check_output, STDOUT
@@ -306,15 +307,18 @@ def commit(filename, version):
 
 def update_bokehjs_versions():
 
-    filenames = [
+    regex_filenames = [
         'bokehjs/src/lib/version.ts',
+    ]
+
+    json_filenames = [
         'bokehjs/package.json',
         'bokehjs/package-lock.json',
     ]
 
     pat = r"(release|version)([\" ][:=] [\"\'])" + CONFIG.last_any_version + "([\"\'])"
 
-    for filename in filenames:
+    for filename in regex_filenames:
         path = join(CONFIG.top_dir, filename)
         with open(path) as f:
             text = f.read()
@@ -335,20 +339,19 @@ def update_bokehjs_versions():
             passed("Updated version from %r to %r in file %r" % (CONFIG.last_any_version, CONFIG.new_version, filename))
             commit(filename, CONFIG.new_version)
 
-def update_docs_versions():
-
-    # Update all_versions.txt
-
-    filename = 'sphinx/source/all_versions.txt'
-    path = join(CONFIG.top_dir, filename)
-    try:
-        with open(path, 'a') as f:
-            f.write("{version}\n".format(version=CONFIG.new_version))
-    except Exception as e:
-        failed("Could not write new version to file %r" % filename, str(e).split("\n"))
-    else:
-        passed("Appended version %r to %r" % (CONFIG.new_version, filename))
-        commit(filename, CONFIG.new_version)
+    for filename in json_filenames:
+        path = join(CONFIG.top_dir, filename)
+        content = json.load(open(path))
+        try:
+            content['version'] = CONFIG.new_version
+            with open(path, "w") as f:
+                json.dump(content, f, indent=2)
+                f.write("\n")
+        except Exception as e:
+            failed("Unable to write new version to file %r" % filename, str(e).split("\n"))
+        else:
+            passed("Updated version from %r to %r in file %r" % (CONFIG.last_any_version, CONFIG.new_version, filename))
+            commit(filename, CONFIG.new_version)
 
 def update_changelog():
     try:
@@ -410,7 +413,7 @@ def merge_and_push():
     try:
         out = run("git checkout master")
         passed("Returned to master branch")
-    except Exception as e:
+    except Exception:
         failed("[NON-FATAL] Could not return to master branch", out.split("\n"))
 
     return True
@@ -438,6 +441,10 @@ if __name__ == '__main__':
                         type=str,
                         nargs=1,
                         help='The new version number for this release')
+    parser.add_argument('--dry-run',
+                        action="store_true",
+                        help='Set to perform a dry-run (no commits)')
+
     args = parser.parse_args()
 
     new_version = args.version[0]
@@ -451,8 +458,12 @@ if __name__ == '__main__':
     check_py3()
     check_git()
     check_maintainers()
-    check_repo()
-    check_checkout()
+    if not args.dry_run:
+        check_repo()
+        check_checkout()
+    else:
+        print(blue("[SKIP] ") + "Skipping repo and checkout checks for dry run")
+
 
     try:
         CONFIG.new_version = args.version[0]
@@ -496,7 +507,6 @@ if __name__ == '__main__':
     if V(CONFIG.new_version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating docs version or change log for pre-releases")
     else:
-        update_docs_versions()
         update_changelog()
 
     if CONFIG.problems:
@@ -508,6 +518,10 @@ if __name__ == '__main__':
     # confirmation ----------------------------------------------------------
 
     show_updates()
+
+    if args.dry_run:
+        banner(yellow, "{:^80}".format("Bokeh %r release deployment: DRY RUN (local checkout may be dirty)" % CONFIG.new_version))
+        sys.exit(1)
 
     confirm("Merge release branch and push these changes? [LAST CHANCE TO ABORT]")
 

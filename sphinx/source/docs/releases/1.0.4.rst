@@ -1,0 +1,9 @@
+.. _release-1-0-4:
+
+1.0.4
+=====
+
+Bokeh Version ``1.0.4`` (January 2019) primarily addresses a security issue
+regarding ``yaml.load`` (:bokeh-issue:`8541`).
+
+For full details see the :bokeh-tree:`CHANGELOG`.

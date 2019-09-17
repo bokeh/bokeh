@@ -1,12 +1,11 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 '''  Provide a Bokeh Application Handler to build up documents by running
-the code from ``main.py`` or `main.ipynb`` files in specified directories.
+the code from ``main.py`` or ``main.ipynb`` files in specified directories.
 
 The directory may also optionally contain:
 
@@ -56,6 +55,7 @@ from jinja2 import Environment, FileSystemLoader
 
 # Bokeh imports
 from .handler import Handler
+from .notebook import NotebookHandler
 from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
 
@@ -63,8 +63,16 @@ from .server_lifecycle import ServerLifecycleHandler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'DirectoryHandler',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class DirectoryHandler(Handler):
@@ -89,7 +97,7 @@ class DirectoryHandler(Handler):
         main_py = join(src_path, 'main.py')
         main_ipy = join(src_path, 'main.ipynb')
         if exists(main_py) and exists(main_ipy):
-            log.warn("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
+            log.warning("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
             main = main_py
         elif exists(main_py):
             main = main_py
@@ -99,7 +107,9 @@ class DirectoryHandler(Handler):
             raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
         self._path = src_path
         self._main = main
-        self._main_handler = ScriptHandler(filename=self._main, argv=argv)
+
+        handler = NotebookHandler if main.endswith('.ipynb') else ScriptHandler
+        self._main_handler = handler(filename=self._main, argv=argv)
 
         lifecycle = join(src_path, 'server_lifecycle.py')
         if exists(lifecycle):
@@ -169,7 +179,7 @@ class DirectoryHandler(Handler):
         if they are found.
 
         '''
-        if self.failed:
+        if self._lifecycle_handler.failed:
             return
         # Note: we do NOT copy self._theme, which assumes the Theme
         # class is immutable (has no setters)
@@ -238,10 +248,6 @@ class DirectoryHandler(Handler):
         else:
             # TODO should fix invalid URL characters
             return '/' + basename(self._path)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

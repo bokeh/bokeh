@@ -4,6 +4,7 @@
 from __future__ import print_function
 
 import shutil
+from glob import glob
 from os.path import dirname, exists, join, realpath, relpath
 import os, re, subprocess, sys, time
 
@@ -41,6 +42,7 @@ BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
 JS = join(BOKEHJSBUILD, 'js')
 SERVER = join(ROOT, 'bokeh/server')
+TSLIB = join(BOKEHJSROOT , 'node_modules/typescript/lib')
 
 # -----------------------------------------------------------------------------
 # Helpers for command line operations
@@ -316,19 +318,13 @@ def build_js():
             return os.stat(join("bokehjs", "build", *path)).st_size / 2**10
 
         print("  - bokeh.js              : %6.1f KB" % size("js", "bokeh.js"))
-        print("  - bokeh.css             : %6.1f KB" % size("css", "bokeh.css"))
         print("  - bokeh.min.js          : %6.1f KB" % size("js", "bokeh.min.js"))
-        print("  - bokeh.min.css         : %6.1f KB" % size("css", "bokeh.min.css"))
 
         print("  - bokeh-widgets.js      : %6.1f KB" % size("js", "bokeh-widgets.js"))
-        print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
         print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
-        print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
 
         print("  - bokeh-tables.js       : %6.1f KB" % size("js", "bokeh-tables.js"))
-        print("  - bokeh-tables.css      : %6.1f KB" % size("css", "bokeh-tables.css"))
         print("  - bokeh-tables.min.js   : %6.1f KB" % size("js", "bokeh-tables.min.js"))
-        print("  - bokeh-tables.min.css  : %6.1f KB" % size("css", "bokeh-tables.min.css"))
 
         print("  - bokeh-api.js          : %6.1f KB" % size("js", "bokeh-api.js"))
         print("  - bokeh-api.min.js      : %6.1f KB" % size("js", "bokeh-api.min.js"))
@@ -345,6 +341,7 @@ def install_js():
     '''
     target_jsdir = join(SERVER, 'static', 'js')
     target_cssdir = join(SERVER, 'static', 'css')
+    target_tslibdir = join(SERVER, 'static', 'lib')
 
     STATIC_ASSETS = [
         join(JS,  'bokeh.js'),
@@ -363,6 +360,13 @@ def install_js():
     if exists(target_cssdir):
         shutil.rmtree(target_cssdir)
     shutil.copytree(CSS, target_cssdir)
+
+    if exists(target_tslibdir):
+        shutil.rmtree(target_tslibdir)
+    if exists(TSLIB):
+        os.mkdir(target_tslibdir)
+        for lib_file in glob(join(TSLIB, "lib.*.d.ts")):
+            shutil.copy(lib_file, target_tslibdir)
 
 # -----------------------------------------------------------------------------
 # Helpers for collecting package data

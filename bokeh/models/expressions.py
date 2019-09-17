@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Represent array expressions to be computed on the client (browser) side
 by BokehJS.
 
@@ -21,11 +27,41 @@ browser by the JavaScript implementation of ``some_expression`` using a
 ``ColumnDataSource`` as input.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import Bool, Seq, String
 from ..model import Model
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'CumSum',
+    'Expression',
+    'Stack',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Expression(Model):
@@ -34,14 +70,14 @@ class Expression(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block: coffeescript
+    .. code-block:: coffeescript
 
         v_compute: (source) ->
             # compute an array of values
 
     .. note::
-        If you wish for results to be cached per source, and updated only if
-        the source changes, implement `_v_compute: (souce)` instead.
+        If you wish for results to be cached per source and updated only if
+        the source changes, implement ``_v_compute: (source)`` instead.
 
     '''
     pass
@@ -53,7 +89,7 @@ class CumSum(Expression):
     '''
 
     field = String(help="""
-    The name of a ColumnDataSource column to cumulatively sum for new values.
+    The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
     """)
 
     include_zero = Bool(default=False, help="""
@@ -94,3 +130,15 @@ class Stack(Expression):
     Will compute an array of values (in the browser) by adding the elements
     of the ``'sales'`` and ``'marketing'`` columns of a data source.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

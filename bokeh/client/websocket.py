@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -34,6 +33,10 @@ from tornado.websocket import WebSocketError
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'WebSocketClientConnectionWrapper',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -43,7 +46,7 @@ from tornado.websocket import WebSocketError
 #-----------------------------------------------------------------------------
 
 class WebSocketClientConnectionWrapper(object):
-    ''' Used for compat across Tornado versions and to add write_lock'''
+    ''' Used for compatibility across Tornado versions and to add write_lock'''
 
     def __init__(self, socket):
         if socket is None:

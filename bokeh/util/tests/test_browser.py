@@ -1,10 +1,38 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
+import sys
 import webbrowser
 
-import pytest
 from mock import patch
 
+# External imports
+
+# Bokeh imports
+
+# Module under test
 import bokeh.util.browser as bub
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 _open_args = None
 
@@ -12,6 +40,10 @@ class _RecordingWebBrowser(object):
     def open(self, *args, **kw):
         global _open_args
         _open_args = args, kw
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_get_browser_controller_dummy():
     b = bub.get_browser_controller('none')
@@ -32,15 +64,12 @@ def test_get_browser_controller_value(mock_get):
 def test_get_browser_controller_dummy_with_env(mock_get):
     os.environ['BOKEH_BROWSER'] = "bar"
     bub.get_browser_controller('none')
-    assert mock_get.called
-    assert mock_get.call_args[0] == ("bar",)
-    assert mock_get.call_args[1] == {}
     del os.environ['BOKEH_BROWSER']
 
 @patch('webbrowser.get')
 def test_get_browser_controller_None_with_env(mock_get):
     os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller(None)
+    bub.get_browser_controller()
     assert mock_get.called
     assert mock_get.call_args[0] == ("bar",)
     assert mock_get.call_args[1] == {}
@@ -51,7 +80,7 @@ def test_get_browser_controller_value_with_env(mock_get):
     os.environ['BOKEH_BROWSER'] = "bar"
     bub.get_browser_controller('foo')
     assert mock_get.called
-    assert mock_get.call_args[0] == ("bar",)
+    assert mock_get.call_args[0] == ("foo",)
     assert mock_get.call_args[1] == {}
     del os.environ['BOKEH_BROWSER']
 
@@ -70,7 +99,10 @@ def test_view_args():
 
     # test non-http locations treated as local files
     bub.view("/foo/bar", browser="none")
-    assert _open_args == (('file:///foo/bar',), {'autoraise': True, 'new': 0})
+    if sys.platform == "win32":
+        assert _open_args == (('file://' + os.path.splitdrive(os.getcwd())[0] + '\\foo\\bar',), {'autoraise': True, 'new': 0})
+    else:
+        assert _open_args == (('file:///foo/bar',), {'autoraise': True, 'new': 0})
 
     # test autoraise passed to open
     bub.view("http://foo", browser="none", autoraise=False)
@@ -88,3 +120,15 @@ def test_view_args():
 
 def test_NEW_PARAM():
     assert bub.NEW_PARAM == {'tab': 2, 'window': 1}
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

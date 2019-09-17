@@ -1,10 +1,35 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from functools import partial
 
-import pytest
+# External imports
 
+# Bokeh imports
+from bokeh.document import Document
+
+# Module under test
 import bokeh.util.callback_manager as cbm
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 class _GoodPropertyCallback(object):
 
@@ -43,6 +68,43 @@ def _partially_good_property(w, x, y, z):
     pass
 def _just_fine_property(w, x, y, z='default'):
     pass
+
+class _GoodEventCallback(object):
+
+    def __init__(self):
+        self.last_name = None
+        self.last_old = None
+        self.last_new = None
+
+    def __call__(self, event):
+        self.method(event)
+
+    def method(self, event):
+        self.event = event
+
+    def partially_good(self, arg, event):
+        pass
+
+class _BadEventCallback(object):
+
+    def __call__(self):
+        pass
+
+    def method(self):
+        pass
+
+def _good_event(event):
+    pass
+def _bad_event(x,y,z):
+    pass
+def _partially_good_event(arg, event):
+    pass
+def _partially_bad_event(event):
+    pass
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestPropertyCallbackManager(object):
 
@@ -207,40 +269,6 @@ class TestPropertyCallbackManager(object):
         assert good2.last_old == 42
         assert good2.last_new == 43
 
-
-class _GoodEventCallback(object):
-
-    def __init__(self):
-        self.last_name = None
-        self.last_old = None
-        self.last_new = None
-
-    def __call__(self, event):
-        self.method(event)
-
-    def method(self, event):
-        self.event = event
-
-    def partially_good(self, arg, event):
-        pass
-
-class _BadEventCallback(object):
-
-    def __call__(self):
-        pass
-
-    def method(self):
-        pass
-
-def _good_event(event):
-    pass
-def _bad_event(x,y,z):
-    pass
-def _partially_good_event(arg, event):
-    pass
-def _partially_bad_event(event):
-    pass
-
 class TestEventCallbackManager(object):
 
     def test_creation(self):
@@ -267,9 +295,8 @@ class TestEventCallbackManager(object):
         m = cbm.EventCallbackManager()
         p = partial(_partially_bad_event, 'foo')
         m.subscribed_events = []
-        with pytest.raises(ValueError):
-            m.on_event('foo', p)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', p)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_good_partial_method(self):
         m = cbm.EventCallbackManager()
@@ -322,17 +349,15 @@ class TestEventCallbackManager(object):
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', bad.method)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', bad.method)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_functor(self):
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', bad)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', bad)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_function(self):
         m = cbm.EventCallbackManager()
@@ -370,5 +395,49 @@ class TestEventCallbackManager(object):
         m.subscribed_events = []
         good = _GoodEventCallback()
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', good.method, bad.method)
+        m.on_event('foo', good.method, bad.method)
+        assert len(m._event_callbacks) == 1
+
+    def test__trigger_event_wraps_curdoc(self):
+        # This test is pretty clunky by assures that callbacks triggered by
+        # events use the correct value of curdoc()
+        from bokeh.io.doc import set_curdoc
+        from bokeh.io import curdoc
+        oldcd = curdoc()
+        d1 = Document()
+        d2 = Document()
+        set_curdoc(d1)
+        out = {}
+        def cb():
+            out['curdoc'] = curdoc()
+        m = cbm.EventCallbackManager()
+        m.subscribed_events = []
+        m.on_event('foo', cb)
+        m.id = 10
+        m._document = d2
+
+        assert len(m._event_callbacks) == 1
+        assert m._event_callbacks['foo'] == [cb]
+
+        class ev(object):
+            _model_id = 10
+            event_name = "foo"
+
+        m._trigger_event(ev())
+        assert out['curdoc'] is d2
+
+        set_curdoc(oldcd)
+
+
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -4,4 +4,3 @@ bokeh.settings
 ==============
 
 .. automodule:: bokeh.settings
-  :members:

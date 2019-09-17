@@ -1,9 +1,10 @@
-0.12.2 (Sept 2016)
-==================
+.. _release-0-12-2:
 
-We're pleased to announce the release of Bokeh 0.12.2! This minor update
-adds a few "small in footprint, but big in impact" features and several bug
-fixes including:
+0.12.2
+======
+
+Bokeh version 0.12.2 (Sept 2016) is aminor update that adds a few "small in
+footprint, but big in impact" features and several bug fixes including:
 
 * Client-side color mapping support for all glyphs
 * New color bar annotation
@@ -16,8 +17,10 @@ fixes including:
 * Split of the Bokeh JS API into a stand-alone bundle
 * Many small bug fixes
 
-Migration Guide
----------------
+.. _release-0-12-2-migration:
+
+`Migration Guide <releases.html#release-0-12-2-migration>`__
+------------------------------------------------------------
 
 Jupyter Notebook output changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,4 +55,4 @@ times, the Bokeh JS API has been separated into it's own bokeh-api(.min).js
 bundle. For users requiring the JS API, it will be necessary to add the new
 resource to their HTML templates.
 
-.. _LaTeX: https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html#examples
+.. _LaTeX: https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html#examples

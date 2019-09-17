@@ -1,10 +1,51 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide ancillary utility functions useful for manipulating Bokeh
 documents.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from ..core.has_props import HasProps
 from ..model import get_class
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'initialize_references_json',
+    'instantiate_references_json',
+    'references_json',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def initialize_references_json(references_json, references, setter=None):
     ''' Given a JSON representation of the models in a graph, and new model
@@ -41,6 +82,11 @@ def initialize_references_json(references_json, references, setter=None):
 
         instance = references[obj_id]
 
+        # We want to avoid any Model specific initialization that happens with
+        # Slider(...) when reconstituting from JSON, but we do need to perform
+        # general HasProps machinery that sets properties, so call it explicitly
+        HasProps.__init__(instance)
+
         instance.update_from_json(obj_attrs, models=references, setter=setter)
 
 def instantiate_references_json(references_json):
@@ -63,10 +109,10 @@ def instantiate_references_json(references_json):
         obj_type = obj.get('subtype', obj['type'])
 
         cls = get_class(obj_type)
-        instance = cls(id=obj_id, _block_events=True)
+        instance = cls.__new__(cls, id=obj_id)
         if instance is None:
             raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
-        references[instance._id] = instance
+        references[instance.id] = instance
 
     return references
 
@@ -90,3 +136,11 @@ def references_json(references):
         references_json.append(ref)
 
     return references_json
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -19,15 +19,14 @@ extra:
 
 requirements:
   build:
-    - certifi
     - jinja2
-    - nodejs >=8.8,<9.0
+    - nodejs >=8.8
     - numpy
     - packaging
-    - pycurl
     - python
     - python-dateutil
     - pyyaml
+    - ripgrep
     - setuptools
     - six
     - tornado >=4.3
@@ -53,7 +52,7 @@ test:
     # docs
     - colorcet
     - pygments
-    - sphinx >=1.6
+    - sphinx >=1.8
 
     # tests
     - beautifulsoup4
@@ -63,12 +62,14 @@ test:
     - flake8
     - lxml
     - mock
+    - nbconvert >=5.4
     - networkx
-    - nodejs >=8.8.0,<9.0
+    - nodejs >=8.8
     - numba
     - pandas
     - pillow
-    - pytest >=3.3.0
+    - psutil
+    - pytest
     - pytest-cov >=1.8.1
     - pytest-html
     - pytest-xdist
@@ -78,9 +79,12 @@ test:
 
     # examples
     - flask >=1.0
+    - django
+    - h5py
     - icalendar
     - networkx
     - notebook
+    - opencv
     - pscript
     - pyshp
     - scikit-learn

@@ -4,15 +4,12 @@ import {Signal0} from "core/signaling"
 import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
+import {InspectTool} from "./inspectors/inspect_tool"
 
 export namespace ToolProxy {
-  export interface Attrs extends Model.Attrs {
-    tools: ButtonTool[]
-    active: boolean
-    disabled: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     tools: p.Property<ButtonTool[]>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
@@ -22,20 +19,17 @@ export namespace ToolProxy {
 export interface ToolProxy extends ToolProxy.Attrs {}
 
 export class ToolProxy extends Model {
-
   properties: ToolProxy.Props
 
   constructor(attrs?: Partial<ToolProxy.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ToolProxy"
-
-    this.define({
-      tools:    [ p.Array, []    ],
-      active:   [ p.Bool,  false ],
-      disabled: [ p.Bool,  false ],
+  static init_ToolProxy(): void {
+    this.define<ToolProxy.Props>({
+      tools:    [ p.Array,   []    ],
+      active:   [ p.Boolean, false ],
+      disabled: [ p.Boolean, false ],
     })
   }
 
@@ -52,7 +46,7 @@ export class ToolProxy extends Model {
   }
 
   get tooltip(): string {
-    return this.tools[0].tool_name
+    return this.tools[0].tooltip
   }
 
   get tool_name(): string {
@@ -60,7 +54,16 @@ export class ToolProxy extends Model {
   }
 
   get icon(): string {
-    return this.tools[0].icon
+    return this.tools[0].computed_icon
+  }
+
+  get computed_icon(): string {
+    return this.icon
+  }
+
+  get toggleable(): boolean {
+    const tool = this.tools[0]
+    return tool instanceof InspectTool && tool.toggleable
   }
 
   initialize(): void {
@@ -93,4 +96,3 @@ export class ToolProxy extends Model {
   }
   */
 }
-ToolProxy.initClass()

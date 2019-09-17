@@ -56,6 +56,13 @@ p.multi_line([xpts+xx for xx in x], [ypts+yy for yy in y],
     color="#8073AC", line_width=2)
 children.append(p)
 
+p = figure(title="multi_polygons")
+p.multi_polygons(
+    [[[xpts*2+xx, xpts+xx]] for xx in x],
+    [[[ypts*3+yy, ypts+yy]] for yy in y],
+    color="#FB9A99")
+children.append(p)
+
 p = figure(title="oval")
 p.oval(x, y, 15, 25, angle=-0.7, color="#1D91C0",
        width_units="screen", height_units="screen")
@@ -121,12 +128,16 @@ p = figure(title="Marker: cross")
 p.scatter(x, y, marker="cross", size=sizes, color="#E6550D", line_width=2)
 children.append(p)
 
+p = figure(title="Marker: dash")
+p.scatter(x, y, marker="dash", angle=-0.7, size=sizes, color="#E6550D")
+children.append(p)
+
 p = figure(title="Marker: diamond")
 p.scatter(x, y, marker="diamond", size=sizes, color="#1C9099", line_width=2)
 children.append(p)
 
 p = figure(title="hex")
-p.hex(x, y, size=sizes, color="#99D594")
+p.scatter(x, y, marker="hex", size=sizes, color="#99D594")
 children.append(p)
 
 p = figure(title="Marker: inverted_triangle")

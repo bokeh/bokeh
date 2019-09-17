@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -49,6 +48,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
+import six
 
 # Bokeh imports
 from .code import CodeHandler
@@ -57,8 +57,16 @@ from .code import CodeHandler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'ScriptHandler',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class ScriptHandler(CodeHandler):
@@ -81,14 +89,21 @@ class ScriptHandler(CodeHandler):
             raise ValueError('Must pass a filename to ScriptHandler')
         filename = kwargs['filename']
 
-        with open(filename, 'r') as f:
-            kwargs['source'] = f.read()
+        # For Python 3, encoding must be set to utf-8 because:
+        # - when specifying an encoding in `io.open`, it doesn't
+        #   work with Python 2,
+        # - default encoding used by Python 3 `open` statement
+        #   is not 'utf-8' on Windows platform,
+        # - Python 3 `open` ignores le `coding` comment line.
+        # See https://github.com/bokeh/bokeh/pull/8202 for details.
+        if six.PY3:
+            with open(filename, 'r', encoding='utf-8') as f:
+                kwargs['source'] = f.read()
+        else:
+            with open(filename, 'r') as f:
+                kwargs['source'] = f.read()
 
         super(ScriptHandler, self).__init__(*args, **kwargs)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

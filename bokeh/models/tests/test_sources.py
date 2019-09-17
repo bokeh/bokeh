@@ -1,15 +1,42 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
 import datetime as dt
 import warnings
 
-import pytest
-
+# External imports
 import numpy as np
 
-from bokeh.models.sources import DataSource, ColumnDataSource
+# Bokeh imports
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
+
+# Module under test
+from bokeh.models.sources import DataSource, ColumnDataSource
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestColumnDataSource(object):
 
@@ -33,6 +60,20 @@ class TestColumnDataSource(object):
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = ColumnDataSource(df)
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in data.keys():
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
+
+    def test_data_accepts_dataframe_arg(self, pd):
+        data = dict(a=[1, 2], b=[2, 3])
+        df = pd.DataFrame(data)
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = df
         assert set(df.columns).issubset(set(ds.column_names))
         for key in data.keys():
             assert isinstance(ds.data[key], np.ndarray)
@@ -65,6 +106,48 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == set(["level_0"])
 
+    def test_data_accepts_dataframe_index_named_column(self, pd):
+        data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
+        df = pd.DataFrame(data)
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = df
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in data.keys():
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['level_0'], np.ndarray)
+        assert [0, 1] == list(ds.data['level_0'])
+        assert set(ds.column_names) - set(df.columns) == set(["level_0"])
+
+    def test_init_dataframe_column_categoricalindex(self, pd):
+        columns = pd.CategoricalIndex(['a', 'b'])
+        data = [[0,2], [1,3]]
+        df = pd.DataFrame(columns=columns, data=data)
+        ds = ColumnDataSource(data=df)
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in columns:
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
+
+    def test_data_accepts_dataframe_column_categoricalindex(self, pd):
+        columns = pd.CategoricalIndex(['a', 'b'])
+        data = [[0,2], [1,3]]
+        df = pd.DataFrame(columns=columns, data=data)
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = df
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in columns:
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
+
     def test_init_dataframe_nonstring_named_column(self, pd):
         data = {1: [1, 2], 2: [2, 3]}
         df = pd.DataFrame(data)
@@ -81,6 +164,20 @@ class TestColumnDataSource(object):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = ColumnDataSource(group)
+        s = group.describe()
+        assert len(ds.column_names) == 49
+        assert isinstance(ds.data['origin_cyl'], np.ndarray)
+        for key in s.columns.values:
+            k2 = "_".join(key)
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
+
+    def test_data_accepts_groupby_arg(self, pd):
+        from bokeh.sampledata.autompg import autompg as df
+        group = df.groupby(by=['origin', 'cyl'])
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = group
         s = group.describe()
         assert len(ds.column_names) == 49
         assert isinstance(ds.data['origin_cyl'], np.ndarray)
@@ -112,6 +209,29 @@ class TestColumnDataSource(object):
             k2 = "_".join(key)
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
+
+    def test_data_accepts_groupby_with_None_subindex_name(self, pd):
+        df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
+        group = df.groupby(['A', [10, 20, 30, 40] * 2])
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = group
+        s = group.describe()
+        assert len(ds.column_names) == 17
+        assert isinstance(ds.data['index'], np.ndarray)
+        for key in s.columns.values:
+            k2 = "_".join(key)
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
+
+    def test_init_propertyvaluecolumndata_copy(self):
+        data = dict(a=[1], b=[2])
+        cd = ColumnDataSource(data).data
+        ds = ColumnDataSource(data=cd)
+        assert ds.data == cd
+        assert id(ds.data) != id(cd)
+        ds.data['a'][0] = 2
+        assert cd['a'][0] == 2
 
     def test_add_with_name(self):
         ds = ColumnDataSource()
@@ -655,21 +775,33 @@ Lime,Green,99,$0.39
 
     def test_set_data_from_json_base64(self):
         ds = ColumnDataSource()
-        data = {"foo": np.arange(3)}
+        data = {"foo": np.arange(3, dtype=np.int64)}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
 
     def test_set_data_from_json_nested_base64(self):
         ds = ColumnDataSource()
-        data = {"foo": [[np.arange(3)]]}
+        data = {"foo": [[np.arange(3, dtype=np.int64)]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
 
     def test_set_data_from_json_nested_base64_and_list(self):
         ds = ColumnDataSource()
-        data = {"foo": [np.arange(3), [1, 2, 3]]}
+        data = {"foo": [np.arange(3, dtype=np.int64), [1, 2, 3]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

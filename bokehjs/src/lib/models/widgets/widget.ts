@@ -1,52 +1,64 @@
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {HTMLBox, HTMLBoxView} from "../layouts/html_box"
+import {Class} from "core/class"
+import {Orientation} from "core/enums"
+import {BoxSizing, SizingPolicy} from "core/layout"
+import * as p from "core/properties"
 
-export abstract class WidgetView extends LayoutDOMView {
+export namespace WidgetView {
+  export type Options = HTMLBoxView.Options & {model: Widget}
+}
+
+export abstract class WidgetView extends HTMLBoxView {
   model: Widget
+  default_view: Class<WidgetView, [WidgetView.Options]>
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget")
+  protected _width_policy(): SizingPolicy {
+    return this.model.orientation == "horizontal" ? super._width_policy() : "fixed"
   }
 
-  render(): void {
-    this._render_classes() // XXX: because no super()
-
-    // LayoutDOMView sets up lots of helpful things, but
-    // it's render method is not suitable for widgets - who
-    // should provide their own.
-    if (this.model.height != null)
-      this.el.style.height = `${this.model.height}px`
-    if (this.model.width != null)
-      this.el.style.width = `${this.model.width}px`
+  protected _height_policy(): SizingPolicy {
+    return this.model.orientation == "horizontal" ? "fixed" : super._height_policy()
   }
 
-  get_width(): number {
-    throw new Error("unused")
-  }
-
-  get_height(): number {
-    throw new Error("unused")
+  box_sizing(): Partial<BoxSizing> {
+    const sizing = super.box_sizing()
+    if (this.model.orientation == "horizontal") {
+      if (sizing.width == null)
+        sizing.width = this.model.default_size
+    } else {
+      if (sizing.height == null)
+        sizing.height = this.model.default_size
+    }
+    return sizing
   }
 }
 
 export namespace Widget {
-  export interface Attrs extends LayoutDOM.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {}
+  export type Props = HTMLBox.Props & {
+    orientation: p.Property<Orientation>
+    default_size: p.Property<number>
+  }
 }
 
 export interface Widget extends Widget.Attrs {}
 
-export abstract class Widget extends LayoutDOM {
-
+export abstract class Widget extends HTMLBox {
   properties: Widget.Props
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Widget"
+  static init_Widget(): void {
+    this.define<Widget.Props>({
+      orientation:  [ p.Orientation, "horizontal" ],
+      default_size: [ p.Number,      300          ],
+    })
+
+    this.override({
+      margin: [5, 5, 5, 5],
+    })
   }
 }
-
-Widget.initClass()

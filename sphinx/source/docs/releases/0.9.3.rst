@@ -1,7 +1,9 @@
-0.9.3 (Aug 2015)
-================
+.. _release-0-9-3:
 
-This release was focused into provide several usability enhancements, better
+0.9.3
+=====
+
+Bokeh ``0.9.3`` (Aug 2015) provides several usability enhancements, better
 docs, new examples, a lot of bug fixes and an improved testing machinery (using
 pytest and selenium-based test).
 

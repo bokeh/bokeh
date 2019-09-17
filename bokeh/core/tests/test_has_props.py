@@ -1,10 +1,44 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from mock import patch
-import pytest
 
-import bokeh.core.has_props as hp
+# External imports
 
+# Bokeh imports
 from bokeh.core.properties import Int, String, NumberSpec, List, Override, Either
 from bokeh.core.property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor
+
+# Module under test
+import bokeh.core.has_props as hp
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Parent(hp.HasProps):
     int1 = Int(default=10)
@@ -151,10 +185,10 @@ def test_HasProps_set_error():
     c = Child()
     with pytest.raises(AttributeError) as e:
         c.int3 = 10
-    assert str(e).endswith("unexpected attribute 'int3' to Child, similar attributes are int2 or int1")
+    assert str(e.value).endswith("unexpected attribute 'int3' to Child, similar attributes are int2 or int1")
     with pytest.raises(AttributeError) as e:
         c.junkjunk = 10
-    assert str(e).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
+    assert str(e.value).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
 
 
 def test_HasProps_lookup():
@@ -349,3 +383,11 @@ def test_HasProps_apply_theme_func_default():
     c.apply_theme(theme)
     c.foo = 50
     assert c.foo == 50
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

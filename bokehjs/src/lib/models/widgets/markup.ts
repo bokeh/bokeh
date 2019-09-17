@@ -1,63 +1,58 @@
+import {VariadicBox} from "core/layout"
+import {div} from "core/dom"
 import * as p from "core/properties"
-import {empty, div} from "core/dom"
 
 import {Widget, WidgetView} from "./widget"
+import {bk_clearfix} from "styles/clearfix"
 
-export class MarkupView extends WidgetView {
+export abstract class MarkupView extends WidgetView {
   model: Markup
 
-  protected markupEl: HTMLElement
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
+  protected markup_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => {
+      this.render()
+      this.root.compute_layout() // XXX: invalidate_layout?
+    })
+  }
+
+  _update_layout(): void {
+    this.layout = new VariadicBox(this.el)
+    this.layout.set_sizing(this.box_sizing())
   }
 
   render(): void {
     super.render()
-    empty(this.el)
-    const style = {
-      width: `${this.model.width}px`,
-      height: `${this.model.height}px`,
-      ...this.model.style,
-    }
-    this.markupEl = div({style: style})
-    this.el.appendChild(this.markupEl)
+    const style = {...this.model.style, display: "inline-block"}
+    this.markup_el = div({class: bk_clearfix, style})
+    this.el.appendChild(this.markup_el)
   }
 }
 
 export namespace Markup {
-  export interface Attrs extends Widget.Attrs {
-    text: string
-    style: {[key: string]: string}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    text: p.Property<string>
+    style: p.Property<{[key: string]: string}>
+  }
 }
 
 export interface Markup extends Markup.Attrs {}
 
-export class Markup extends Widget {
-
+export abstract class Markup extends Widget {
   properties: Markup.Props
 
   constructor(attrs?: Partial<Markup.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Markup"
-
-    this.define({
+  static init_Markup(): void {
+    this.define<Markup.Props>({
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
     })
   }
 }
-
-Markup.initClass()

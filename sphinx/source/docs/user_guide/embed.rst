@@ -16,7 +16,7 @@ First, a reminder of the distinction between standalone documents and apps:
 :ref:`userguide_embed_apps`
     These are Bokeh documents that are backed by a Bokeh Server. In addition
     to all the features of standalone documents, it is also possible to connect
-    events and tools to real Python callbacks, to execute that execute in the
+    events and tools to real Python callbacks, that execute in the
     Bokeh server. See :ref:`userguide_server` for more information about
     creating and running Bokeh apps.
 
@@ -60,6 +60,71 @@ may be useful for use from a web application, e.g. a Flask app. When using
 the |bokeh.plotting| interface in a script or Jupyter notebook, users will
 typically call the function |output_file| in conjunction with |show| or
 |save| instead.
+
+.. _userguide_embed_json_items:
+
+JSON Items
+~~~~~~~~~~
+
+Bokeh can also supply a block of JSON that can be easily consumed by a BokehJS
+to render standalone Bokeh content in a specified div. The |json_item| function
+accepts a Bokeh Model (e.g. a Plot), and optionally a target ID that identifies
+a div to render into:
+
+.. code-block:: python
+
+        p = figure()
+        p.circle(x, y)
+
+        item_text = json.dumps(json_item(p, "myplot"))
+
+This output can be used by the ``Bokeh.embed.embed_item`` function on a webpage:
+
+.. code-block:: javascript
+
+    item = JSON.parse(item_text);
+    Bokeh.embed.embed_item(item);
+
+In this situation, the Bokeh plot will render itself into a div with the id
+*"myplot"*.
+
+It is also possible to omit the target id when calling |json_item|
+
+.. code-block:: python
+
+        p = figure()
+        p.circle(x, y)
+
+        item_text = json.dumps(json_item(p)) # no target_id given
+
+Then the target id can be controlled on the JavaScript side:
+
+.. code-block:: javascript
+
+    item = JSON.parse(item_text);
+    Bokeh.embed.embed_item(item, "myplot");
+
+As a more complete example, it a Flask server may be configured to serve Bokeh
+JSON items from a */plot* endpoint:
+
+.. code-block:: python
+
+    @app.route('/plot')
+    def plot():
+        p = make_plot('petal_width', 'petal_length')
+        return json.dumps(json_item(p, "myplot"))
+
+Then the corresponding code on the page might look like:
+
+.. code-block:: html
+
+    <script>
+    fetch('/plot')
+        .then(function(response) { return response.json(); })
+        .then(function(item) { Bokeh.embed.embed_item(item); })
+    </script>
+
+A full example can be found a :bokeh-tree:`examples/embed/json_item.py`.
 
 .. _userguide_embed_standalone_components:
 
@@ -127,16 +192,6 @@ appropriate version replacing ``x.y.z``:
 
 .. code-block:: html
 
-    <link
-        href="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
-        rel="stylesheet" type="text/css">
-    <link
-        href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
-        rel="stylesheet" type="text/css">
-    <link
-        href="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
-        rel="stylesheet" type="text/css">
-
     <script src="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
     <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
     <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
@@ -145,23 +200,13 @@ The ``"-widgets"`` files are only necessary if your document includes Bokeh widg
 Similarly, the ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document.
 
-For example, to use version ``0.12.13``, including widgets and tables support:
+For example, to use version ``1.1.0``, including widgets and tables support:
 
 .. code-block:: html
 
-    <link
-        href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.css"
-        rel="stylesheet" type="text/css">
-    <link
-        href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.css"
-        rel="stylesheet" type="text/css">
-    <link
-        href="https://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.13.min.css"
-        rel="stylesheet" type="text/css">
-
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.13.min.js"></script>
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.13.min.js"></script>
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.13.min.js"></script>
+    <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
+    <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
+    <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.1.0.min.js"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
@@ -270,8 +315,7 @@ Then inserting the script and div elements into this boilerplate:
             <meta charset="utf-8">
             <title>Bokeh Scatter Plots</title>
 
-            <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.css" type="text/css" />
-            <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.6.min.js"></script>
+            <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
 
             <!-- COPY/PASTE SCRIPT HERE -->
 
@@ -298,8 +342,8 @@ Autoload Scripts
 
 A final way to embed standalone documents is the |autoload_static| function.
 This function with provide a  ``<script>`` tag that will replace itself with
-a Bokeh plot, wherever the tag happens to be located. The script will also check f
-or BokehJS and load it, if necessary. Using this function it is possible to
+a Bokeh plot, wherever the tag happens to be located. The script will also check
+for BokehJS and load it, if necessary. Using this function it is possible to
 embed a plot by placing this script tag alone in your document.
 
 This function takes a Bokeh model (e.g. a plot) that you want to display, a
@@ -369,18 +413,16 @@ Here is an example snipped using |server_document|:
 .. code-block:: python
 
     from bokeh.embed import server_document
-    script = server_document("https://demo.bokehplots.com/apps/slider")
+    script = server_document("https://demo.bokeh.org/sliders")
 
 The returned script tag will look something like this:
 
 .. code-block:: html
 
     <script
-        src="https://demo.bokehplots.com/apps/slider/autoload.js?bokeh-autoload-element=d8713a1a-d714-43be-a1c5-48a7a9dece3f&bokeh-app-path=/apps/slider&bokeh-absolute-url=https://demo.bokehplots.com/apps/slider"
-        id="d8713a1a-d714-43be-a1c5-48a7a9dece3f"
-        data-bokeh-model-id=""
-        data-bokeh-doc-id=""
-    ></script>
+        src="https://demo.bokeh.org/sliders/autoload.js?bokeh-autoload-element=1000&bokeh-app-path=/sliders&bokeh-absolute-url=https://demo.bokeh.org/sliders"
+        id="1000">
+    </script>
 
 It can be templated in an HTML page to include the Bokeh application at
 that point.
@@ -429,8 +471,8 @@ Standard template
 -----------------
 
 Bokeh also provides a standard Jinja template that can be useful for quickly
-embedding differnet document roots flexibly by extending the "base" template.
-This is especially useful for embedding individal components of a Bokeh app
+embedding different document roots flexibly by extending the "base" template.
+This is especially useful for embedding individual components of a Bokeh app
 in a non-Bokeh layout (e.g. Bootstrap, etc.).
 
 Below is a minimal example. Assuming that the application creates two roots
@@ -477,10 +519,10 @@ The full template, with all the sections that can be overridden, is given here:
         <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
         {% block preamble %}{% endblock %}
         {% block resources %}
-            {% block js_resources %}
+            {% block css_resources %}
             {{ bokeh_css | indent(8) if bokeh_css }}
             {% endblock %}
-            {% block css_resources %}
+            {% block js_resources %}
             {{ bokeh_js | indent(8) if bokeh_js }}
             {% endblock %}
         {% endblock %}
@@ -517,5 +559,6 @@ The full template, with all the sections that can be overridden, is given here:
 .. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
 .. |components|      replace:: :func:`~bokeh.embed.components`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
+.. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`
 .. |server_session|  replace:: :func:`~bokeh.embed.server_session`

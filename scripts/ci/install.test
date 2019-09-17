@@ -11,7 +11,7 @@ if  [[ ! -z "${TRAVIS_TAG}" ]]; then
 fi
 
 # if this is an external contributor then build assets were not uploaded
-if [[ -z "${SAUCE_USERNAME}" ]]; then
+if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
     echo
     echo "RE-RUNNING BUILD STEPS --- external committer"
     echo
@@ -24,23 +24,20 @@ else
     pushd ${HOME}
 
     # download the pre-built Bokeh package from the build phase
-    wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/conda-bld-noarch.tgz"
+    wget -nv "https://ci.bokeh.org/travis/${TRAVIS_BUILD_ID}/build/conda-bld-noarch.tgz"
     tar xzf conda-bld-noarch.tgz
 
     # download the previous BokehJS build directory to run tests
-    wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/bokehjs-build.tgz"
+    wget -nv "https://ci.bokeh.org/travis/${TRAVIS_BUILD_ID}/build/bokehjs-build.tgz"
     tar xzf bokehjs-build.tgz
 
     popd
 fi
 
 # install the pre-built Bokeh package plus all test and runtime dependencies
-conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test` tornado=${TORNADO:-5}
+conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test` tornado=${TORNADO:-5}
 
 npm install -g npm
-
-# regrettably need to have previous JS build in the source tree
-python setup.py --install-js
 
 # install Bokeh sample data needed test collector
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
@@ -49,3 +46,7 @@ python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 if [[ -f "scripts/ci/install.${GROUP}" ]]; then
     bash "scripts/ci/install.${GROUP}"
 fi
+
+# regrettably need to have previous JS build in the source tree, and it also
+# may require npm files installed in the test-specific scripts
+python setup.py --install-js

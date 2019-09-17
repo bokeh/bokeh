@@ -25,7 +25,7 @@ def deploy(v=None):
     run("cp -ar /www/bokeh/en/%s /www/bokeh/en/%s.bak" % (v, v))
 
     rsync_project(
-        local_dir="_build/html/",
+        local_dir="build/html/",
         remote_dir="/www/bokeh/en/%s" % v,
         delete=True
     )

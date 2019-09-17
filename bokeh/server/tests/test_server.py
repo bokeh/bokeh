@@ -1,19 +1,36 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from datetime import timedelta
-import pytest
 import logging
 import re
+import ssl
+import sys
 
+# External imports
 import mock
-
 from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 
-import bokeh.server.server as server
-
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.model import Model
@@ -24,6 +41,13 @@ from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
 
 from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
+
+# Module under test
+import bokeh.server.server as server
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -137,6 +161,178 @@ class HookTestHandler(Handler):
         self.hooks.append("periodic_session")
         self.session_periodic_remover()
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+def test_prefix():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server.prefix == ""
+
+    with ManagedServerLoop(application, prefix="foo") as server:
+        assert server.prefix == "foo"
+
+def test_index():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server.index is None
+
+    with ManagedServerLoop(application, index="foo") as server:
+        assert server.index == "foo"
+
+def test_get_sessions():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 0
+
+        http_get(server.io_loop, url(server))
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 1
+
+        http_get(server.io_loop, url(server))
+        server_sessions = server.get_sessions('/')
+        assert len(server_sessions) == 2
+
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 2
+
+        with pytest.raises(ValueError):
+            server.get_sessions("/foo")
+
+    with ManagedServerLoop({"/foo": application, "/bar": application}) as server:
+        http_get(server.io_loop, url(server) + "foo")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 1
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 0
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 1
+
+
+        http_get(server.io_loop, url(server) + "foo")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 2
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 0
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 2
+
+        http_get(server.io_loop, url(server) + "bar")
+        server_sessions = server.get_sessions('/foo')
+        assert len(server_sessions) == 2
+        server_sessions = server.get_sessions('/bar')
+        assert len(server_sessions) == 1
+        server_sessions = server.get_sessions()
+        assert len(server_sessions) == 3
+
+# examples:
+# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
+# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
+sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
+def extract_sessionid_from_json(html):
+    from six import string_types
+    if not isinstance(html, string_types):
+        import codecs
+        html = codecs.decode(html, 'utf-8')
+    match = sessionid_in_json.search(html)
+    return match.group(1)
+
+# examples:
+# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
+# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
+use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
+def extract_use_for_title_from_json(html):
+    from six import string_types
+    if not isinstance(html, string_types):
+        import codecs
+        html = codecs.decode(html, 'utf-8')
+    match = use_for_title_in_json.search(html)
+    return match.group(1)
+
+
+def autoload_url(server):
+    return url(server) + \
+        "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
+
+def resource_files_requested(response, requested=True):
+    from six import string_types
+    if not isinstance(response, string_types):
+        import codecs
+        response = codecs.decode(response, 'utf-8')
+    for file in [
+        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
+        if requested:
+            assert file in response
+        else:
+            assert file not in response
+
+def test_use_xheaders():
+    application = Application()
+    with ManagedServerLoop(application, use_xheaders=True) as server:
+        assert server._http.xheaders == True
+
+def test_ssl_args_plumbing():
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile=None, password=None)
+
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password=None)
+
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
+
+# This test just maintains basic creation and setup, detailed functionality
+# is exercised by Server tests above
+def test_base_server():
+    app = BokehTornado(Application())
+    httpserver = HTTPServer(app)
+    httpserver.start()
+
+    loop = IOLoop()
+    loop.make_current()
+
+    server = BaseServer(loop, app, httpserver)
+    server.start()
+
+    assert server.io_loop == loop
+    assert server._tornado.io_loop == loop
+
+    httpserver.stop()
+    server.stop()
+    server.io_loop.close()
+
+def test_server_applications_callable_arg():
+    def modify_doc(doc):
+        doc.title = "Hello, world!"
+
+    with ManagedServerLoop(modify_doc, port=0) as server:
+        http_get(server.io_loop, url(server))
+        session = server.get_sessions('/')[0]
+        assert session.document.title == "Hello, world!"
+
+    with ManagedServerLoop({"/foo": modify_doc}, port=0) as server:
+        http_get(server.io_loop, url(server) + "foo")
+        session = server.get_sessions('/foo')[0]
+        assert session.document.title == "Hello, world!"
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="Lifecycle hooks order different on Windows (TODO open issue)")
 def test__lifecycle_hooks():
     application = Application()
     handler = HookTestHandler()
@@ -204,60 +400,6 @@ def test__lifecycle_hooks():
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify"]
 
-def test_prefix():
-    application = Application()
-    with ManagedServerLoop(application) as server:
-        assert server.prefix == ""
-
-    with ManagedServerLoop(application, prefix="foo") as server:
-        assert server.prefix == "foo"
-
-def test_get_sessions():
-    application = Application()
-    with ManagedServerLoop(application) as server:
-        server_sessions = server.get_sessions('/')
-        assert len(server_sessions) == 0
-
-        http_get(server.io_loop, url(server))
-        server_sessions = server.get_sessions('/')
-        assert len(server_sessions) == 1
-
-        http_get(server.io_loop, url(server))
-        server_sessions = server.get_sessions('/')
-        assert len(server_sessions) == 2
-
-        server_sessions = server.get_sessions()
-        assert len(server_sessions) == 2
-
-        with pytest.raises(ValueError):
-            server.get_sessions("/foo")
-
-    with ManagedServerLoop({"/foo": application, "/bar": application}) as server:
-        http_get(server.io_loop, url(server) + "foo")
-        server_sessions = server.get_sessions('/foo')
-        assert len(server_sessions) == 1
-        server_sessions = server.get_sessions('/bar')
-        assert len(server_sessions) == 0
-        server_sessions = server.get_sessions()
-        assert len(server_sessions) == 1
-
-
-        http_get(server.io_loop, url(server) + "foo")
-        server_sessions = server.get_sessions('/foo')
-        assert len(server_sessions) == 2
-        server_sessions = server.get_sessions('/bar')
-        assert len(server_sessions) == 0
-        server_sessions = server.get_sessions()
-        assert len(server_sessions) == 2
-
-        http_get(server.io_loop, url(server) + "bar")
-        server_sessions = server.get_sessions('/foo')
-        assert len(server_sessions) == 2
-        server_sessions = server.get_sessions('/bar')
-        assert len(server_sessions) == 1
-        server_sessions = server.get_sessions()
-        assert len(server_sessions) == 3
-
 def test__request_in_session_context():
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -301,53 +443,6 @@ def test__no_request_arguments_in_session_context():
         # if we do not pass any arguments to the url, the request arguments
         # should be empty
         assert len(session_context.request.arguments) == 0
-
-# examples:
-# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
-# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
-sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
-def extract_sessionid_from_json(html):
-    from six import string_types
-    if not isinstance(html, string_types):
-        import codecs
-        html = codecs.decode(html, 'utf-8')
-    match = sessionid_in_json.search(html)
-    return match.group(1)
-
-# examples:
-# "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
-# 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
-use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
-def extract_use_for_title_from_json(html):
-    from six import string_types
-    if not isinstance(html, string_types):
-        import codecs
-        html = codecs.decode(html, 'utf-8')
-    match = use_for_title_in_json.search(html)
-    return match.group(1)
-
-
-def autoload_url(server):
-    return url(server) + \
-        "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
-
-def resource_files_requested(response, requested=True):
-    from six import string_types
-    if not isinstance(response, string_types):
-        import codecs
-        response = codecs.decode(response, 'utf-8')
-    for file in [
-        'static/css/bokeh.min.css', 'static/css/bokeh-widgets.min.css',
-        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
-        if requested:
-            assert file in response
-        else:
-            assert file not in response
-
-def test_use_xheaders():
-    application = Application()
-    with ManagedServerLoop(application, use_xheaders=True) as server:
-        assert server._http.xheaders == True
 
 @pytest.mark.parametrize("querystring,requested", [
     ("", True),
@@ -577,6 +672,8 @@ def test__no_generate_session_doc():
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="multiple processes not supported on Windows")
 def test__server_multiple_processes():
 
     # Can't use an ioloop in this test
@@ -585,7 +682,7 @@ def test__server_multiple_processes():
             application = Application()
             server.Server(application, num_procs=3, port=0)
 
-        tornado_fp.assert_called_with(3)
+        tornado_fp.assert_called_with(3, mock.ANY)
 
 def test__existing_ioloop_with_multiple_processes_exception():
     application = Application()
@@ -625,36 +722,6 @@ def test__ioloop_not_forcibly_stopped():
     loop.start()
     assert result == [None]
 
-# This test just maintains basic creation and setup, detailed functionality
-# is exercised by Server tests above
-def test_base_server():
-    app = BokehTornado(Application())
-    httpserver = HTTPServer(app)
-    httpserver.start()
-
-    loop = IOLoop()
-    loop.make_current()
-
-    server = BaseServer(loop, app, httpserver)
-    server.start()
-
-    assert server.io_loop == loop
-    assert server._tornado.io_loop == loop
-
-    httpserver.stop()
-    server.stop()
-    server.io_loop.close()
-
-def test_server_applications_callable_arg():
-    def modify_doc(doc):
-        doc.title = "Hello, world!"
-
-    with ManagedServerLoop(modify_doc, port=0) as server:
-        http_get(server.io_loop, url(server))
-        session = server.get_sessions('/')[0]
-        assert session.document.title == "Hello, world!"
-
-    with ManagedServerLoop({"/foo": modify_doc}, port=0) as server:
-        http_get(server.io_loop, url(server) + "foo")
-        session = server.get_sessions('/foo')[0]
-        assert session.document.title == "Hello, world!"
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

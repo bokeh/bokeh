@@ -1,32 +1,29 @@
 import {Filter} from "./filter"
 import * as p from "core/properties"
 import {logger} from "core/logging"
-import {range, all} from "core/util/array"
+import {range, every} from "core/util/array"
 import {isBoolean} from "core/util/types"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace BooleanFilter {
-  export interface Attrs extends Filter.Attrs {
-    booleans: boolean[] | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Filter.Props {}
+  export type Props = Filter.Props & {
+    booleans: p.Property<boolean[] | null>
+  }
 }
 
 export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
-
   properties: BooleanFilter.Props
 
   constructor(attrs?: Partial<BooleanFilter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'BooleanFilter'
-
-    this.define({
+  static init_BooleanFilter(): void {
+    this.define<BooleanFilter.Props>({
       booleans: [ p.Array, null ],
     })
   }
@@ -34,7 +31,7 @@ export class BooleanFilter extends Filter {
   compute_indices(source: ColumnarDataSource): number[] | null {
     const booleans = this.booleans
     if (booleans != null && booleans.length > 0) {
-      if (all(booleans, isBoolean)) {
+      if (every(booleans, isBoolean)) {
         if (booleans.length !== source.get_length()) {
           logger.warn(`BooleanFilter ${this.id}: length of booleans doesn't match data source`)
         }
@@ -52,4 +49,3 @@ export class BooleanFilter extends Filter {
     }
   }
 }
-BooleanFilter.initClass()

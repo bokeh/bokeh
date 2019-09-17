@@ -3,26 +3,198 @@ import * as p from "./properties"
 import {color2rgba} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
+import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
+
+function _horz(ctx: Context2d, h: number, h2: number): void {
+  ctx.moveTo(0, h2+0.5)
+  ctx.lineTo(h, h2+0.5)
+  ctx.stroke()
+}
+
+function _vert(ctx: Context2d, h: number, h2: number): void {
+  ctx.moveTo(h2+0.5, 0)
+  ctx.lineTo(h2+0.5, h)
+  ctx.stroke()
+}
+
+function _x(ctx: Context2d, h: number): void {
+  ctx.moveTo(0, h)
+  ctx.lineTo(h, 0)
+  ctx.stroke()
+  ctx.moveTo(0, 0)
+  ctx.lineTo(h, h)
+  ctx.stroke()
+}
+
+function _get_canvas(size: number): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  return canvas
+}
+
+export type Color = string
+function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight: number): HTMLCanvasElement {
+  const h = hatch_scale
+  const h2 = h / 2
+  const h4 = h2 / 2
+
+  const canvas = _get_canvas(hatch_scale)
+
+  const ctx = canvas.getContext("2d")! as Context2d
+  ctx.strokeStyle = hatch_color
+  ctx.lineCap="square"
+  ctx.fillStyle = hatch_color
+  ctx.lineWidth = hatch_weight
+
+  switch (hatch_pattern) {
+    // we should not need these if code conditions on hatch.doit, but
+    // include them here just for completeness
+    case " ":
+    case "blank":
+      break
+
+    case ".":
+    case "dot":
+      ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
+      ctx.fill()
+      break
+
+    case "o":
+    case "ring":
+      ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
+      ctx.stroke()
+      break
+
+    case "-":
+    case "horizontal_line":
+      _horz(ctx, h, h2)
+      break
+
+    case "|":
+    case "vertical_line":
+      _vert(ctx, h, h2)
+      break
+
+    case "+":
+    case "cross":
+      _horz(ctx, h, h2)
+      _vert(ctx, h, h2)
+      break
+
+    case "\"":
+    case "horizontal_dash":
+      _horz(ctx, h2, h2)
+      break
+
+    case ":":
+    case "vertical_dash":
+      _vert(ctx, h2, h2)
+      break
+
+    case "@":
+    case "spiral":
+      const h30 = h/30
+      ctx.moveTo(h2, h2)
+      for (let i = 0; i < 360; i++) {
+        const angle = 0.1 * i
+        const x = h2 + (h30 * angle) * Math.cos(angle)
+        const y = h2 + (h30 * angle) * Math.sin(angle)
+        ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+      break
+
+    case "/":
+    case "right_diagonal_line":
+      ctx.moveTo(-h4+0.5, h)
+      ctx.lineTo(h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(h4+0.5, h)
+      ctx.lineTo(3*h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(3*h4+0.5, h)
+      ctx.lineTo(5*h4+0.5, 0)
+      ctx.stroke()
+      ctx.stroke()
+      break
+
+    case "\\":
+    case "left_diagonal_line":
+      ctx.moveTo(h4+0.5, h)
+      ctx.lineTo(-h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(3*h4+0.5, h)
+      ctx.lineTo(h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(5*h4+0.5, h)
+      ctx.lineTo(3*h4+0.5, 0)
+      ctx.stroke()
+      ctx.stroke()
+      break
+
+    case "x":
+    case "diagonal_cross":
+      _x(ctx, h)
+      break
+
+    case ",":
+    case "right_diagonal_dash":
+      ctx.moveTo(h4+0.5, 3*h4+0.5)
+      ctx.lineTo(3*h4+0.5, h4+0.5)
+      ctx.stroke()
+      break
+
+    case "`":
+    case "left_diagonal_dash":
+      ctx.moveTo(h4+0.5, h4+0.5)
+      ctx.lineTo(3*h4+0.5, 3*h4+0.5)
+      ctx.stroke()
+      break
+
+    case "v":
+    case "horizontal_wave":
+      ctx.moveTo(0, h4)
+      ctx.lineTo(h2, 3*h4)
+      ctx.lineTo(h, h4)
+      ctx.stroke()
+      break
+
+    case ">":
+    case "vertical_wave":
+      ctx.moveTo(h4, 0)
+      ctx.lineTo(3*h4, h2)
+      ctx.lineTo(h4, h)
+      ctx.stroke()
+      break
+
+    case "*":
+    case "criss_cross":
+      _x(ctx, h)
+      _horz(ctx, h, h2)
+      _vert(ctx, h, h2)
+      break
+  }
+
+  return canvas
+}
 
 export abstract class ContextProperties {
 
   // prototype {
   attrs: string[]
-  do_attr: string
   // }
 
   readonly cache: {[key: string]: any} = {}
-  readonly doit: boolean
+
+  abstract get doit(): boolean
 
   all_indices: number[]
 
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
-    const do_spec = obj.properties[prefix + this.do_attr].spec
-    this.doit = do_spec.value !== null // XXX: can't be `undefined`, see TODOs below.
-
     for (const attr of this.attrs)
       (this as any)[attr] = obj.properties[prefix + attr]
   }
@@ -64,8 +236,8 @@ export class Line extends ContextProperties {
   readonly line_color:       p.ColorSpec
   readonly line_width:       p.NumberSpec
   readonly line_alpha:       p.NumberSpec
-  readonly line_join:        p.LineJoin
-  readonly line_cap:         p.LineCap
+  readonly line_join:        p.Property<LineJoin>
+  readonly line_cap:         p.Property<LineCap>
   readonly line_dash:        p.Array
   readonly line_dash_offset: p.Number
 
@@ -77,6 +249,12 @@ export class Line extends ContextProperties {
     ctx.lineCap     = this.line_cap.value()
     ctx.setLineDash(this.line_dash.value())
     ctx.setLineDashOffset(this.line_dash_offset.value())
+  }
+
+  get doit(): boolean {
+    return !(this.line_color.spec.value === null ||
+             this.line_alpha.spec.value == 0     ||
+             this.line_width.spec.value == 0)
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -116,7 +294,6 @@ export class Line extends ContextProperties {
 }
 
 Line.prototype.attrs = Object.keys(mixins.line())
-Line.prototype.do_attr = "line_color"
 
 export class Fill extends ContextProperties {
 
@@ -126,6 +303,11 @@ export class Fill extends ContextProperties {
   set_value(ctx: Context2d): void {
     ctx.fillStyle   = this.fill_color.value()
     ctx.globalAlpha = this.fill_alpha.value()
+  }
+
+  get doit(): boolean {
+    return !(this.fill_color.spec.value === null ||
+             this.fill_alpha.spec.value == 0)
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -145,17 +327,96 @@ export class Fill extends ContextProperties {
 }
 
 Fill.prototype.attrs = Object.keys(mixins.fill())
-Fill.prototype.do_attr =  "fill_color"
+
+export class Hatch extends ContextProperties {
+
+  readonly hatch_color: p.ColorSpec
+  readonly hatch_alpha: p.NumberSpec
+  readonly hatch_scale: p.NumberSpec
+  readonly hatch_pattern: p.StringSpec
+  readonly hatch_weight: p.NumberSpec
+
+  cache_select(name: string, i: number): any {
+    let value: any
+    if (name == "pattern") {
+      this.cache_select("hatch_color", i)
+      this.cache_select("hatch_scale", i)
+      this.cache_select("hatch_pattern", i)
+      this.cache_select("hatch_weight", i)
+      const {hatch_color, hatch_scale, hatch_pattern, hatch_weight, hatch_extra} = this.cache
+      if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
+        const custom = hatch_extra[hatch_pattern]
+        this.cache.pattern = custom.get_pattern(hatch_color, hatch_scale, hatch_weight)
+      } else {
+        this.cache.pattern = (ctx: Context2d) => {
+          const canvas = create_hatch_canvas(hatch_pattern, hatch_color, hatch_scale, hatch_weight)
+          return ctx.createPattern(canvas, 'repeat')!
+        }
+      }
+    } else
+      value = super.cache_select(name, i)
+
+    return value
+  }
+
+  private _try_defer(defer_func: () => void): void {
+    const {hatch_pattern, hatch_extra} = this.cache
+    if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
+      const custom = hatch_extra[hatch_pattern]
+      custom.onload(defer_func)
+    }
+  }
+
+  get doit(): boolean {
+    return !(this.hatch_color.spec.value === null ||
+             this.hatch_alpha.spec.value == 0 ||
+             this.hatch_pattern.spec.value == " " ||
+             this.hatch_pattern.spec.value == "blank" ||
+             this.hatch_pattern.spec.value === null)
+  }
+
+  doit2(ctx: Context2d, i: number, ready_func: () => void, defer_func: () => void): void {
+    if (!this.doit) {
+      return
+    }
+
+    this.cache_select("pattern", i)
+    const pattern = this.cache.pattern(ctx)
+    if (pattern == null) {
+      this._try_defer(defer_func)
+    } else {
+      this.set_vectorize(ctx, i)
+      ready_func()
+    }
+
+  }
+
+  protected _set_vectorize(ctx: Context2d, i: number): void {
+    this.cache_select("pattern", i)
+    ctx.fillStyle = this.cache.pattern(ctx)
+
+    this.cache_select("hatch_alpha", i)
+    if (ctx.globalAlpha !== this.cache.hatch_alpha)
+      ctx.globalAlpha = this.cache.hatch_alpha
+  }
+
+  color_value(): string {
+    const [r, g, b, a] = color2rgba(this.hatch_color.value(), this.hatch_alpha.value())
+    return `rgba(${r*255},${g*255},${b*255},${a})`
+  }
+}
+
+Hatch.prototype.attrs = Object.keys(mixins.hatch())
 
 export class Text extends ContextProperties {
 
   readonly text_font:        p.Font
   readonly text_font_size:   p.FontSizeSpec
-  readonly text_font_style:  p.FontStyle
+  readonly text_font_style:  p.Property<FontStyle>
   readonly text_color:       p.ColorSpec
   readonly text_alpha:       p.NumberSpec
-  readonly text_align:       p.TextAlign
-  readonly text_baseline:    p.TextBaseline
+  readonly text_align:       p.Property<TextAlign>
+  readonly text_baseline:    p.Property<TextBaseline>
   readonly text_line_height: p.Number
 
   cache_select(name: string, i: number): any {
@@ -193,6 +454,11 @@ export class Text extends ContextProperties {
     ctx.textBaseline = this.text_baseline.value()
   }
 
+  get doit(): boolean {
+    return !(this.text_color.spec.value === null ||
+             this.text_alpha.spec.value == 0)
+  }
+
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("font", i)
     if (ctx.font !== this.cache.font)
@@ -217,18 +483,18 @@ export class Text extends ContextProperties {
 }
 
 Text.prototype.attrs = Object.keys(mixins.text())
-Text.prototype.do_attr = "text_color"
 
 export class Visuals {
 
   constructor(model: HasProps) {
-    for (const spec of model.mixins) {
-      const [name, prefix=""] = spec.split(":")
+    for (const mixin of model.mixins) {
+      const [name, prefix=""] = mixin.split(":")
       let cls: Class<ContextProperties>
       switch (name) {
-        case "line": cls = Line; break
-        case "fill": cls = Fill; break
-        case "text": cls = Text; break
+        case "line":  cls = Line;  break
+        case "fill":  cls = Fill;  break
+        case "hatch": cls = Hatch; break
+        case "text":  cls = Text;  break
         default:
           throw new Error(`unknown visual: ${name}`)
       }

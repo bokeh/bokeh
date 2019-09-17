@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -68,10 +67,9 @@ def test__get_save_args_default_resources():
 
 @patch('bokeh.io.saving.warn')
 def test__get_save_args_missing_resources(mock_warn):
-    from bokeh.resources import CDN
     curstate().reset()
     filename, resources, title = bis._get_save_args(curstate(), "filename", None, "title")
-    assert resources == CDN
+    assert resources.mode == "cdn"
     assert mock_warn.call_count == 1
     assert mock_warn.call_args[0] == (
         "save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN",
@@ -116,3 +114,7 @@ def test__save_helper(mock_file_html, mock_io_open):
     assert mock_io_open.call_count == 1
     assert mock_io_open.call_args[0] == (filename,)
     assert mock_io_open.call_args[1] == dict(mode="w", encoding="utf-8")
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

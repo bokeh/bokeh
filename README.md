@@ -1,19 +1,23 @@
-Bokeh
-=====
+<a href="https://bokeh.org">
+  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" alt="Bokeh logotype" />
+</a>
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=).*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](https://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
 
 <table>
-
 <tr>
   <td>Latest Release</td>
-  <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg"
-           alt="Latest release version" /></td>
+  <td>
+    <img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="Latest release version" />
+    <a href="https://badge.fury.io/js/bokehjs">
+      <img src="https://badge.fury.io/js/bokehjs.svg" alt="npm version">
+    </a>
+  </td>
 
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
-    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg"
+    <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
          alt="Conda downloads per month" />
     </a>
   </td>
@@ -30,8 +34,10 @@ Bokeh
 
   <td>PyPI</td>
   <td>
-    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg"
+    <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
+    <img src="https://img.shields.io/pypi/dm/bokeh.svg"
          alt="PyPI downloads per month" />
+    </a>
   </td>
 </tr>
 
@@ -60,19 +66,23 @@ Bokeh
     <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master"
          alt="Current TravisCI build status" />
     </a>
+    <a href="https://ci.appveyor.com/project/bokeh-integrations/bokeh">
+    <img src="https://ci.appveyor.com/api/projects/status/u4idf25dhp219mho?svg=true"
+         alt="Current Appveyor build status" />
+    </a>
   </td>
 
-  <td>Gitter</td>
+  <td>Support</td>
   <td>
-    <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-    <img src="https://badges.gitter.im/bokeh/bokeh.svg"
-         alt="Chat on the Bokeh Gitter channel" />
+    <a href="https://discourse.bokeh.org">
+    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
+         alt="Community Support on discourse.bokeh.org" />
     </a>
   </td>
 </tr>
 
 <tr>
-  <td>Static Analyis</td>
+  <td>Static Analysis</td>
   <td>
     <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
     <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
@@ -103,7 +113,7 @@ delivering **high-performance** interactivity for large or streamed datasets.
 ---------------------------------------------------------------------------
 
 <p>
-<table cellspacing="20">
+<table cellspacing="10">
 <tr>
 
   <td>
@@ -260,19 +270,66 @@ Once Bokeh is installed, check out the [Getting Started](https://bokeh.pydata.or
 
 Documentation
 -------------
-Visit the [Bokeh site](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [Bokeh Front Page](https://bokeh.org) for information and [full documentation](https://bokeh.pydata.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Contribute to Bokeh
 -------------------
-If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html).
+If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html) and say hello on the [`bokeh-dev` chat channel](https://gitter.im/bokeh/bokeh-dev).
 
 Follow us
 ---------
-Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
+Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots)
 
-<p align="center">
-  <a href="https://www.numfocus.org/">
-  <img src="https://github.com/bokeh/bokeh/blob/master/sphinx/source/_images/NumFocus_2C_CMYK.svg"
-       alt="NumFocus Logo" width="400"/>
-  </a>
-</p>
+Sponsors
+--------
+
+The Bokeh project is grateful for [individual contributions](https://numfocus.salsalabs.org/donate-to-bokeh/index.html) as well as sponsorship by the organizations and companies below:
+
+<table>
+<tr>
+  <td>
+    <a href="https://www.numfocus.org/">
+    <img src="https://static.bokeh.org/sponsor/numfocus.svg"
+       alt="NumFocus Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.anaconda.com/">
+    <img src="https://static.bokeh.org/sponsor/anaconda.png"
+       alt="Anaconda Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.nvidia.com">
+    <img src="https://static.bokeh.org/sponsor/nvidia.png"
+       alt="NVidia Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://developer.nvidia.com/rapids">
+    <img src="https://static.bokeh.org/sponsor/rapids.png"
+       alt="Rapids Logo" width="200"/>
+    </a>
+  </td>
+</tr>
+</table>
+
+
+<table align="center">
+<tr>
+  <td>
+    <a href="https://www.quansight.com">
+    <img src="https://static.bokeh.org/sponsor/quansight.png"
+       alt="Quansight Logo" width="100"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.rexhomes.com/">
+    <img src="https://static.bokeh.org/sponsor/rex.jpg"
+       alt="Rex Logo" width="100"/>
+    </a>
+  </td>
+</tr>
+</table>
+
+If your company uses Bokeh and is able to sponsor the project, please contact <a href="info@bokeh.org">info@bokeh.org</a>

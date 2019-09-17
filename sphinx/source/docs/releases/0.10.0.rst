@@ -1,10 +1,12 @@
-0.10.0 (Sep 2015)
-=================
+.. _release-0-10-0:
 
-This release was focused into provide several new features such as webgl support,
-a new refactored and more powerful chart interface and responsive plots. But we
-are also shipping a lot of bugfixes and enhancements in our documentation,
-testing and build machineries and examples.
+0.10.0
+======
+
+Bokeh ``0.10.0`` (Sep 2015) provides several new features such as WebGL support,
+a new refactored and more powerful chart interface and responsive plots. Also
+bugfixes and enhancements in our documentation, testing and build machinery,
+and examples.
 
 * Initial webgl support (check our new examples: maps city, iris blend, scatter 10K, clustering.py)
 * New charts interface supporting aggregation (see our new Bars, BoxPlot, Histogram and Scatter examples)
@@ -20,8 +22,10 @@ testing and build machineries and examples.
 * Removed python33 testing and packaging
 * Removed multiuserblazeserver
 
-Migration Guide
----------------
+.. _release-0-10-0-migration:
+
+`Migration Guide <releases.html#release-0-10-0-migration>`__
+------------------------------------------------------------
 
 This release introduced a new, often requested style of chart interface that
 is centered around Pandas DataFrames.  All of "old style" charts in the

@@ -1,4 +1,4 @@
-import {Renderer, RendererView} from "./renderer"
+import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 
-export class GraphRendererView extends RendererView {
+export class GraphRendererView extends DataRendererView {
   model: GraphRenderer
 
   node_view: GlyphRendererView
@@ -18,15 +18,18 @@ export class GraphRendererView extends RendererView {
 
   protected _renderer_views: {[key: string]: GlyphRendererView}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
-    this.xscale = this.plot_view.frame.xscales["default"]
-    this.yscale = this.plot_view.frame.yscales["default"]
+    this.xscale = this.plot_view.frame.xscales.default
+    this.yscale = this.plot_view.frame.yscales.default
 
     this._renderer_views = {}
-    ;[this.node_view, this.edge_view] = build_views(this._renderer_views,
-      [this.model.node_renderer, this.model.edge_renderer], this.plot_view.view_options()) as [GlyphRendererView, GlyphRendererView]
+
+    ;[this.node_view, this.edge_view] = build_views(this._renderer_views, [
+      this.model.node_renderer,
+      this.model.edge_renderer,
+    ], {parent: this.parent}) as [GlyphRendererView, GlyphRendererView]
 
     this.set_data()
   }
@@ -42,7 +45,7 @@ export class GraphRendererView extends RendererView {
     this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data())
     this.connect(this.model.edge_renderer.data_source.change, () => this.set_data())
 
-    const {x_ranges, y_ranges} = this.plot_model.frame
+    const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]
@@ -84,45 +87,35 @@ export class GraphRendererView extends RendererView {
 }
 
 export namespace GraphRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    x_range_name: string
-    y_range_name: string
-    layout_provider: LayoutProvider
-    node_renderer: GlyphRenderer
-    edge_renderer: GlyphRenderer
-    selection_policy: GraphHitTestPolicy
-    inspection_policy: GraphHitTestPolicy
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Renderer.Props {}
+  export type Props = DataRenderer.Props & {
+    layout_provider: p.Property<LayoutProvider>
+    node_renderer: p.Property<GlyphRenderer>
+    edge_renderer: p.Property<GlyphRenderer>
+    selection_policy: p.Property<GraphHitTestPolicy>
+    inspection_policy: p.Property<GraphHitTestPolicy>
+  }
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
-export class GraphRenderer extends Renderer {
-
+export class GraphRenderer extends DataRenderer {
   properties: GraphRenderer.Props
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'GraphRenderer'
+  static init_GraphRenderer(): void {
     this.prototype.default_view = GraphRendererView
 
-    this.define({
-      x_range_name:       [ p.String,        'default'              ],
-      y_range_name:       [ p.String,        'default'              ],
+    this.define<GraphRenderer.Props>({
       layout_provider:    [ p.Instance                              ],
       node_renderer:      [ p.Instance                              ],
       edge_renderer:      [ p.Instance                              ],
       selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
       inspection_policy:  [ p.Instance,      () => new NodesOnly()  ],
-    })
-
-    this.override({
-      level: 'glyph',
     })
   }
 
@@ -130,4 +123,3 @@ export class GraphRenderer extends Renderer {
     return this.node_renderer.data_source.selection_manager
   }
 }
-GraphRenderer.initClass()

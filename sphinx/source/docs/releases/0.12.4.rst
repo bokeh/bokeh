@@ -1,8 +1,10 @@
-0.12.4 (Jan 2017)
-=================
+.. _release-0-12-4:
 
-Bokeh Version ``0.12.4`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.4
+======
+
+Bokeh Version ``0.12.4`` (Jan 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * Efficient binary array protocol. (:bokeh-issue:`2204`)
 * A general mechanism to add ``CustomJS`` callbacks to any property. (:bokeh-issue:`5498`)
@@ -13,11 +15,12 @@ features and fixes several bugs. Some of the highlights include:
 * Improved documentation for the :ref:`bokeh.palettes` module. (:bokeh-issue:`5619`)
 * Major refactor of ``bokeh.core`` including expanded documentation and tests (:bokeh-issue:`5626`, :bokeh-issue:`5627`)
 
-
 Many other small bugfixes and docs additions. For full details see the :bokeh-tree:`CHANGELOG`.
 
-Migration Guide
----------------
+.. _release-0-12-4-migration:
+
+`Migration Guide <releases.html#release-0-12-4-migration>`__
+------------------------------------------------------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained
@@ -149,13 +152,13 @@ improves maintainability and allows the contents of ``bokeh.core.properties``
 to limited to things of that might be useful to users writing custom models.
 The new file structure:
 
-* :ref:`bokeh.core.has_props`
-* :ref:`bokeh.core.properties`
-* :ref:`bokeh.core.property.bases`
-* :ref:`bokeh.core.property.containers`
-* :ref:`bokeh.core.property.descriptors`
-* :ref:`bokeh.core.property.descriptor_factory`
-* :ref:`bokeh.core.property.override`
+* ``bokeh.core.has_props``
+* ``bokeh.core.properties``
+* ``bokeh.core.property.bases``
+* ``bokeh.core.property.containers``
+* ``bokeh.core.property.descriptors``
+* ``bokeh.core.property.descriptor_factory``
+* ``bokeh.core.property.override``
 
 The following class names have been changed to improve intent and clarity
 (i.e. only things that are actually Python descriptors are named "Descriptor"):
@@ -182,4 +185,4 @@ Additionally, the ``HasProps.set`` method has been removed. The name caused
 problems with the Sphinx docs build, and it was an unnecessary duplicate of
 ``HasProps.update`` (which should be used instead).
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

@@ -1,22 +1,52 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-from mock import patch
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import logging
-import bokeh.document as document
-from bokeh.application import Application
-from bokeh.application.handlers import FunctionHandler
-from bokeh.client import pull_session, push_session, ClientSession
-from bokeh.document import Document
-from bokeh.model import Model
-from bokeh.models import Plot
-from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
-from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
+from mock import patch
+import os
+import sys
+
+# External imports
 from tornado import gen
 from tornado.httpclient import HTTPError
 
+# Bokeh imports
+from bokeh.application import Application
+from bokeh.application.handlers import FunctionHandler
+from bokeh.client import pull_session, push_session, ClientSession
+import bokeh.document as document
+from bokeh.document import Document
+from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
+from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
+from bokeh.model import Model
+from bokeh.models import Plot
 from bokeh.server.tests.utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
+
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -127,13 +157,31 @@ class TestClientServer(object):
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com:80")
 
+        # allow good origin from environment variable
+        with ManagedServerLoop(application) as server:
+            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
+            self.check_http_ok_socket_ok(server, origin="http://example.com:80")
+            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+
         # allow good origin with port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
 
+        # allow good origin with port from environment variable
+        with ManagedServerLoop(application) as server:
+            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
+            self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
+            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
             self.check_http_ok_socket_ok(server, origin="http://example.com")
+
+        # allow good origin header with an implicit 80
+        with ManagedServerLoop(application) as server:
+            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
+            self.check_http_ok_socket_ok(server, origin="http://example.com")
+            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
         # block non-Host origins by default even if no extra origins specified
         with ManagedServerLoop(application) as server:
@@ -147,9 +195,21 @@ class TestClientServer(object):
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
             self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
 
+        # block bad origin from environment variable
+        with ManagedServerLoop(application) as server:
+            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
+            self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
+            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
+
         # block bad origin port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
             self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+
+        # block bad origin port from environment variable
+        with ManagedServerLoop(application) as server:
+            os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
+            self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+            del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
     def test_push_document(self):
         application = Application()
@@ -233,6 +293,7 @@ class TestClientServer(object):
             session.loop_until_closed(suppress_warning=True)
             assert not session.connected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
     def test_ping(self):
         application = Application()
         with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
@@ -926,3 +987,15 @@ def test_session_show_adds_obj_to_curdoc_if_necessary(m):
     assert session.document.roots == []
     session.show(p)
     assert session.document.roots == [p]
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

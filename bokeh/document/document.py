@@ -1,9 +1,15 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide the ``Document`` class, which is a container for Bokeh Models to
 be reflected to the client side BokehJS library.
 
 As a concrete example, consider a column layout with ``Slider`` and ``Select``
 widgets, and a plot with some tools, an axis and grid, and a glyph renderer
-for circles. A simplified representation oh this document might look like the
+for circles. A simplified representation of this document might look like the
 figure below:
 
 .. figure:: /_images/document.svg
@@ -14,19 +20,29 @@ figure below:
     glyphs, etc.) that can be serialized as a single collection.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+log = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
+# Standard library imports
 from collections import defaultdict
 from json import loads
 import sys
 
+# External imports
 import jinja2
 from six import string_types
 
+# Bokeh imports
 from ..core.enums import HoldPolicy
 from ..core.json_encoder import serialize_json
 from ..core.query import find
@@ -44,7 +60,23 @@ from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, Session
 from .locking import UnlockedDocumentProxy
 from .util import initialize_references_json, instantiate_references_json, references_json
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 DEFAULT_TITLE = "Bokeh Application"
+
+__all__ = (
+    'Document',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Document(object):
     ''' The basic unit of serialization for Bokeh.
@@ -68,6 +100,7 @@ class Document(object):
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
+        self._session_destroyed_callbacks = set()
         self._session_callbacks = set()
         self._session_context = None
         self._modules = []
@@ -97,6 +130,17 @@ class Document(object):
 
         '''
         return list(self._session_callbacks)
+
+    @property
+    def session_destroyed_callbacks(self):
+        ''' A list of all the on_session_destroyed callbacks on this document.
+
+        '''
+        return self._session_destroyed_callbacks
+
+    @session_destroyed_callbacks.setter
+    def session_destroyed_callbacks(self, callbacks):
+        self._session_destroyed_callbacks = callbacks
 
     @property
     def session_context(self):
@@ -147,7 +191,7 @@ class Document(object):
         if self._theme is theme:
             return
 
-        if isinstance(theme, str):
+        if isinstance(theme, string_types):
             try:
                 self._theme = built_in_themes[theme]
             except KeyError:
@@ -158,7 +202,7 @@ class Document(object):
         elif isinstance(theme, Theme):
             self._theme = theme
         else:
-            raise ValueError("Theme must be a str or an instance of the Theme class")
+            raise ValueError("Theme must be a string or an instance of the Theme class")
 
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
@@ -288,10 +332,11 @@ class Document(object):
     def apply_json_event(self, json):
         event = loads(json, object_hook=Event.decode_json)
         if not isinstance(event, Event):
-            logger.warn('Could not decode event json: %s' % json)
+            log.warning('Could not decode event json: %s' % json)
         else:
-            for obj in self._subscribed_models[event.event_name]:
-                obj._trigger_event(event)
+            subscribed = self._subscribed_models[event.event_name].copy()
+            for model in subscribed:
+                model._trigger_event(event)
 
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.
@@ -321,8 +366,8 @@ class Document(object):
 
         # Use our existing model instances whenever we have them
         for obj in references.values():
-            if obj._id in self._all_models:
-                references[obj._id] = self._all_models[obj._id]
+            if obj.id in self._all_models:
+                references[obj.id] = self._all_models[obj.id]
 
         # The model being changed isn't always in references so add it in
         for event_json in events_json:
@@ -331,7 +376,7 @@ class Document(object):
                 if model_id in self._all_models:
                     references[model_id] = self._all_models[model_id]
 
-        initialize_references_json(references_json, references)
+        initialize_references_json(references_json, references, setter)
 
         for event_json in events_json:
 
@@ -341,7 +386,7 @@ class Document(object):
                     if patched_id not in self._all_former_model_ids:
                         raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
                     else:
-                        logger.warn("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
+                        log.warning("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
                         break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
@@ -362,7 +407,7 @@ class Document(object):
                     raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 data = event_json['data']
-                rollover = event_json['rollover']
+                rollover = event_json.get('rollover', None)
                 source._stream(data, rollover, setter)
 
             elif event_json['kind'] == 'ColumnsPatched':
@@ -445,7 +490,7 @@ class Document(object):
         from gc import get_referrers
         from types import FrameType
 
-        logger.debug("Deleting %s modules for %s" % (len(self._modules), self))
+        log.debug("Deleting %s modules for %s" % (len(self._modules), self))
 
         for module in self._modules:
 
@@ -465,7 +510,7 @@ class Document(object):
             referrers = [x for x in referrers if x is not self._modules]
             referrers = [x for x in referrers if not isinstance(x, FrameType)]
             if len(referrers) != 0:
-                logger.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
+                log.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
 
             # remove the reference from sys.modules
             if module.__name__ in sys.modules:
@@ -583,7 +628,7 @@ class Document(object):
 
         '''
         if self._hold is not None and self._hold != policy:
-            logger.warn("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
+            log.warning("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
             return
         if policy not in HoldPolicy:
             raise ValueError("Unknown hold policy %r" % policy)
@@ -622,6 +667,15 @@ class Document(object):
     def on_change_dispatch_to(self, receiver):
         if not receiver in self._callbacks:
             self._callbacks[receiver] = lambda event: event.dispatch(receiver)
+
+    def on_session_destroyed(self, *callbacks):
+        ''' Provide callbacks to invoke when the session serving the Document
+        is destroyed
+
+        '''
+        for callback in callbacks:
+            _check_callback(callback, ('session_context',))
+            self._session_destroyed_callbacks.add(callback)
 
     def remove_next_tick_callback(self, callback_obj):
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
@@ -705,7 +759,7 @@ class Document(object):
             None
 
         Raises:
-            ValueError, if the callback was never added or has alraedy been run or removed
+            ValueError, if the callback was never added or has already been run or removed
 
         '''
         self._remove_session_callback(callback_obj, self.add_timeout_callback)
@@ -804,7 +858,7 @@ class Document(object):
         '''
         root_ids = []
         for r in self._roots:
-            root_ids.append(r._id)
+            root_ids.append(r.id)
 
         root_references = self._all_models.values()
 
@@ -978,11 +1032,11 @@ class Document(object):
         recomputed = {}
         recomputed_by_name = MultiValuedDict()
         for m in new_all_models_set:
-            recomputed[m._id] = m
+            recomputed[m.id] = m
             if m.name is not None:
                 recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
-            self._all_former_model_ids.add(d._id)
+            self._all_former_model_ids.add(d.id)
             d._detach_document()
         for a in to_attach:
             a._attach_document(self)
@@ -1102,3 +1156,11 @@ def _combine_document_events(new_event, old_events):
 
     # no combination was possible
     old_events.append(new_event)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

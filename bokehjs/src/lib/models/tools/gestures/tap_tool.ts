@@ -1,20 +1,18 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike1} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
-import {isFunction} from "core/util/types"
 import {PointGeometry} from "core/geometry"
-import {DataSource} from "../../sources/data_source"
+import {TapBehavior} from "core/enums"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {bk_tool_icon_tap_select} from "styles/icons"
 
 export class TapToolView extends SelectToolView {
   model: TapTool
 
   _tap(ev: TapEvent): void {
     const {sx, sy} = ev
-    const geometry: PointGeometry = {
-      type: 'point',
-      sx: sx,
-      sy: sy,
-    }
+    const geometry: PointGeometry = {type: 'point', sx, sy}
     const append = ev.shiftKey
     this._select(geometry, true, append)
   }
@@ -32,20 +30,13 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.select(r_views, geometry, final, append)
 
         if (did_hit && callback != null) {
-          const frame = this.plot_model.frame
+          const {frame} = this.plot_view
           const xscale = frame.xscales[renderers[0].x_range_name]
           const yscale = frame.yscales[renderers[0].y_range_name]
           const x = xscale.invert(geometry.sx)
           const y = yscale.invert(geometry.sy)
-          const g = {...geometry, x, y}
-          const cb_data: {
-              geometries: PointGeometry & { x: number, y: number }
-              source: DataSource | null,
-          } = { geometries: g, source: sm.source }
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
+          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          callback.execute(this.model, data)
         }
       }
 
@@ -57,20 +48,13 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.inspect(this.plot_view.renderer_views[r.id], geometry)
 
         if (did_hit && callback != null) {
-          const frame = this.plot_model.frame
+          const {frame} = this.plot_view
           const xscale = frame.xscales[r.x_range_name]
           const yscale = frame.yscales[r.y_range_name]
           const x = xscale.invert(geometry.sx)
           const y = yscale.invert(geometry.sy)
-          const g = {...geometry, x, y}
-          const cb_data: {
-              geometries: PointGeometry & { x: number, y: number }
-              source: DataSource | null,
-          } = { geometries: g, source: sm.source }
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
+          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          callback.execute(this.model, data)
         }
       }
     }
@@ -78,38 +62,37 @@ export class TapToolView extends SelectToolView {
 }
 
 export namespace TapTool {
-  export interface Attrs extends SelectTool.Attrs {
-    behavior: "select" | "inspect"
-    callback: any // XXX
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    behavior: p.Property<TapBehavior>
+    callback: p.Property<CallbackLike1<TapTool, {
+      geometries: PointGeometry & {x: number, y: number}
+      source: ColumnarDataSource
+    }> | null>
+  }
 }
 
 export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
-
   properties: TapTool.Props
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "TapTool"
+  static init_TapTool(): void {
     this.prototype.default_view = TapToolView
 
-    this.define({
-      behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
-      callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+    this.define<TapTool.Props>({
+      behavior: [ p.TapBehavior, "select" ],
+      callback: [ p.Any                   ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
 
   tool_name = "Tap"
-  icon = "bk-tool-icon-tap-select"
+  icon = bk_tool_icon_tap_select
   event_type = "tap" as "tap"
   default_order = 10
 }
-
-TapTool.initClass()

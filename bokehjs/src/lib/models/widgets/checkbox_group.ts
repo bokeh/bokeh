@@ -1,98 +1,78 @@
-import {empty, input, label, div} from "core/dom"
-import * as p from "core/properties"
+import {InputGroup, InputGroupView} from "./input_group"
+import {CallbackLike0} from "../callbacks/callback"
+
+import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
+import {Set} from "core/util/data_structures"
+import * as p from "core/properties"
 
-import {Widget, WidgetView} from "./widget"
+import {bk_inline} from "styles/mixins"
+import {bk_input_group} from "styles/widgets/inputs"
 
-export class CheckboxGroupView extends WidgetView {
+export class CheckboxGroupView extends InputGroupView {
   model: CheckboxGroup
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
 
   render(): void {
     super.render()
-    empty(this.el)
 
-    const active = this.model.active
-    const labels = this.model.labels
+    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
+    this.el.appendChild(group)
+
+    const {active, labels} = this.model
 
     for (let i = 0; i < labels.length; i++) {
-      const text = labels[i]
-
-      const inputEl = input({type: `checkbox`, value: `${i}`})
-      inputEl.addEventListener("change", () => this.change_input())
+      const checkbox = input({type: `checkbox`, value: `${i}`})
+      checkbox.addEventListener("change", () => this.change_active(i))
 
       if (this.model.disabled)
-        inputEl.disabled = true
+        checkbox.disabled = true
 
       if (includes(active, i))
-        inputEl.checked = true
+        checkbox.checked = true
 
-      const labelEl = label({}, inputEl, text)
-      if (this.model.inline) {
-        labelEl.classList.add("bk-bs-checkbox-inline")
-        this.el.appendChild(labelEl)
-      } else {
-        const divEl = div({class: "bk-bs-checkbox"}, labelEl)
-        this.el.appendChild(divEl)
-      }
+      const label_el = label({}, checkbox, span({}, labels[i]))
+      group.appendChild(label_el)
     }
   }
 
-  change_input(): void {
-    const checkboxes = this.el.querySelectorAll("input")
-    const active: number[] = []
-    for (let i = 0; i < checkboxes.length; i++) {
-      const checkbox = checkboxes[i]
-      if (checkbox.checked)
-        active.push(i)
-    }
-    this.model.active = active
+  change_active(i: number): void {
+    const active = new Set(this.model.active)
+    active.toggle(i)
+    this.model.active = active.values
+
     if (this.model.callback != null)
       this.model.callback.execute(this.model)
   }
 }
 
 export namespace CheckboxGroup {
-  export interface Attrs extends Widget.Attrs {
-    active: number[]
-    labels: string[]
-    inline: boolean
-    callback: any // XXX
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = InputGroup.Props & {
+    active: p.Property<number[]>
+    labels: p.Property<string[]>
+    inline: p.Property<boolean>
+    callback: p.Property<CallbackLike0<CheckboxGroup> | null>
+  }
 }
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
-export class CheckboxGroup extends Widget {
-
+export class CheckboxGroup extends InputGroup {
   properties: CheckboxGroup.Props
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CheckboxGroup"
+  static init_CheckboxGroup(): void {
     this.prototype.default_view = CheckboxGroupView
 
-    this.define({
-      active:   [ p.Array, []    ],
-      labels:   [ p.Array, []    ],
-      inline:   [ p.Bool,  false ],
-      callback: [ p.Instance     ],
+    this.define<CheckboxGroup.Props>({
+      active:   [ p.Array,   []    ],
+      labels:   [ p.Array,   []    ],
+      inline:   [ p.Boolean, false ],
+      callback: [ p.Any            ],
     })
   }
 }
-
-CheckboxGroup.initClass()

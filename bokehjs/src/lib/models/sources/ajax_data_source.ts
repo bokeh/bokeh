@@ -4,38 +4,31 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 
 export namespace AjaxDataSource {
-  export interface Attrs extends RemoteDataSource.Attrs {
-    mode: UpdateMode
-    content_type: string
-    http_headers: {[key: string]: string}
-    max_size: number
-    method: HTTPMethod
-    if_modified: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends RemoteDataSource.Props {}
+  export type Props = RemoteDataSource.Props & {
+    content_type: p.Property<string>
+    http_headers: p.Property<{[key: string]: string}>
+    method: p.Property<HTTPMethod>
+    if_modified: p.Property<boolean>
+  }
 }
 
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends RemoteDataSource {
-
   properties: AjaxDataSource.Props
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'AjaxDataSource'
-
-    this.define({
-      mode:         [ p.String, 'replace'          ],
-      content_type: [ p.String, 'application/json' ],
-      http_headers: [ p.Any,    {}                 ],
-      max_size:     [ p.Number                     ],
-      method:       [ p.String, 'POST'             ], // TODO (bev)  enum?
-      if_modified:  [ p.Bool,   false              ],
+  static init_AjaxDataSource(): void {
+    this.define<AjaxDataSource.Props>({
+      content_type: [ p.String,     'application/json' ],
+      http_headers: [ p.Any,         {}                ],
+      method:       [ p.HTTPMethod,  'POST'            ], // TODO (bev)  enum?
+      if_modified:  [ p.Boolean,     false             ],
     })
   }
 
@@ -86,24 +79,8 @@ export class AjaxDataSource extends RemoteDataSource {
 
   do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number): void {
     if (xhr.status === 200) {
-      const data = JSON.parse(xhr.responseText)
-      switch (mode) {
-        case "replace": {
-          this.data = data
-          break
-        }
-        case "append": {
-          const original_data = this.data
-          for (const column of this.columns()) {
-            // XXX: support typed arrays
-            const old_col = Array.from(original_data[column])
-            const new_col = Array.from(data[column])
-            data[column] = old_col.concat(new_col).slice(-max_size)
-          }
-          this.data = data
-          break
-        }
-      }
+      const raw_data = JSON.parse(xhr.responseText)
+      this.load_data(raw_data, mode, max_size)
     }
   }
 
@@ -111,4 +88,3 @@ export class AjaxDataSource extends RemoteDataSource {
     logger.error(`Failed to fetch JSON from ${this.data_url} with code ${xhr.status}`)
   }
 }
-AjaxDataSource.initClass()

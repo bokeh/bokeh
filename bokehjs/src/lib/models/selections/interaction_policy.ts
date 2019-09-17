@@ -3,7 +3,6 @@ import {Geometry} from "core/geometry"
 import {HitTestResult} from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Selection} from "../selections/selection"
 
 export abstract class SelectionPolicy extends Model {
 
@@ -14,20 +13,11 @@ export abstract class SelectionPolicy extends Model {
       return false
     } else {
       source.selected.update(hit_test_result, final, append)
-
-      //new selection created in order for python-side change detection machinery
-      //to detect change in the source's selected property.
-      const selected = new Selection()
-      selected.update(source.selected, final, false)
-      source.selected = selected
-
       source._select.emit()
       return !source.selected.is_empty()
     }
   }
 }
-
-SelectionPolicy.prototype.type = "SelectionPolicy"
 
 export class IntersectRenderers extends SelectionPolicy {
 
@@ -50,8 +40,6 @@ export class IntersectRenderers extends SelectionPolicy {
   }
 }
 
-IntersectRenderers.prototype.type = "IntersectRenderers"
-
 export class UnionRenderers extends SelectionPolicy {
 
   hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult {
@@ -72,5 +60,3 @@ export class UnionRenderers extends SelectionPolicy {
     }
   }
 }
-
-UnionRenderers.prototype.type = "UnionRenderers"

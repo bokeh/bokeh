@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -33,10 +32,18 @@ from .saving import save
 from .state import curstate
 
 #-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'show',
+)
+
+#-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -55,8 +62,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
             In a Jupyter notebook, a Bokeh application or callable may also
             be passed. A callable will be turned into an Application using a
-            FunctionHandler. The application will be run and displayed inline
-            in the associated notebook output cell.
+            ``FunctionHandler``. The application will be run and displayed
+            inline in the associated notebook output cell.
 
         browser (str, optional) :
             Specify the browser to use to open output files(default: None)
@@ -110,6 +117,9 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     * The ``notebook_url`` parameter only applies when showing Bokeh
       Applications in a Jupyter notebook.
 
+    * Any additional keyword arguments are passed to :class:`~bokeh.server.Server` when
+      showing a Bokeh app (added in version 1.1)
+
     Returns:
         When in a Jupyter notebook (with ``output_notebook`` enabled)
         and ``notebook_handle=True``, returns a handle that can be used by
@@ -130,10 +140,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if is_application or callable(obj):
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url)
+        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kw)
 
-    if obj not in state.document.roots:
-        state.document.add_root(obj)
     return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
 #-----------------------------------------------------------------------------

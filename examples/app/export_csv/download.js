@@ -1,26 +1,32 @@
-var data = source.data;
-var filetext = 'name,income,years_experience\n';
-for (var i = 0; i < data['name'].length; i++) {
-    var currRow = [data['name'][i].toString(),
-                   data['salary'][i].toString(),
-                   data['years_experience'][i].toString().concat('\n')];
+function table_to_csv(source) {
+    const columns = Object.keys(source.data)
+    const nrows = source.get_length()
+    const lines = [columns.join(',')]
 
-    var joined = currRow.join();
-    filetext = filetext.concat(joined);
+    for (let i = 0; i < nrows; i++) {
+        let row = [];
+        for (let j = 0; j < columns.length; j++) {
+            const column = columns[j]
+            row.push(source.data[column][i].toString())
+        }
+        lines.push(row.join(','))
+    }
+    return lines.join('\n').concat('\n')
 }
 
-var filename = 'data_result.csv';
-var blob = new Blob([filetext], { type: 'text/csv;charset=utf-8;' });
+
+const filename = 'data_result.csv'
+filetext = table_to_csv(source)
+const blob = new Blob([filetext], { type: 'text/csv;charset=utf-8;' })
 
 //addresses IE
 if (navigator.msSaveBlob) {
-    navigator.msSaveBlob(blob, filename);
+    navigator.msSaveBlob(blob, filename)
 } else {
-    var link = document.createElement("a");
-    link = document.createElement('a')
-    link.href = URL.createObjectURL(blob);
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
     link.download = filename
-    link.target = "_blank";
-    link.style.visibility = 'hidden';
+    link.target = '_blank'
+    link.style.visibility = 'hidden'
     link.dispatchEvent(new MouseEvent('click'))
 }

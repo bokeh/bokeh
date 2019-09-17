@@ -1,12 +1,10 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {PointGeometry} from "core/geometry"
-import {DistanceSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 import {is_ie} from "core/util/compat"
 import {Selection} from "../selections/selection"
@@ -89,25 +87,24 @@ export class AnnulusView extends XYGlyphView {
     let x0: number, y0: number
     let x1: number, y1: number
     if (this.model.properties.outer_radius.units == "data") {
-      x0 = x - this.max_outer_radius;
-      x1 = x + this.max_outer_radius;
+      x0 = x - this.max_outer_radius
+      x1 = x + this.max_outer_radius
 
-      y0 = y - this.max_outer_radius;
-      y1 = y + this.max_outer_radius;
+      y0 = y - this.max_outer_radius
+      y1 = y + this.max_outer_radius
     } else {
-      const sx0 = sx - this.max_outer_radius;
-      const sx1 = sx + this.max_outer_radius;
-      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+      const sx0 = sx - this.max_outer_radius
+      const sx1 = sx + this.max_outer_radius
+      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
-      const sy0 = sy - this.max_outer_radius;
-      const sy1 = sy + this.max_outer_radius;
-      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
+      const sy0 = sy - this.max_outer_radius
+      const sy1 = sy + this.max_outer_radius
+      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
     const hits: [number, number][] = []
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for (const i of this.index.indices(bbox)) {
+    for (const i of this.index.indices({x0, x1, y0, y1})) {
       const or2 = Math.pow(this.souter_radius[i], 2)
       const ir2 = Math.pow(this.sinner_radius[i], 2)
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
@@ -120,7 +117,7 @@ export class AnnulusView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -140,43 +137,32 @@ export class AnnulusView extends XYGlyphView {
 }
 
 export namespace Annulus {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    inner_radius: DistanceSpec
-    outer_radius: DistanceSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     inner_radius: p.DistanceSpec
     outer_radius: p.DistanceSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
-
   properties: Annulus.Props
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Annulus'
+  static init_Annulus(): void {
     this.prototype.default_view = AnnulusView
 
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<Annulus.Props>({
       inner_radius: [ p.DistanceSpec ],
       outer_radius: [ p.DistanceSpec ],
     })
   }
 }
-Annulus.initClass()

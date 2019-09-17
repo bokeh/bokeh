@@ -3,23 +3,26 @@ import compile_template = require("underscore.template")
 import tz = require("timezone")
 
 import * as p from "core/properties"
-import {span, i} from "core/dom"
+import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {isString} from "core/util/types"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface CellFormatter extends CellFormatter.Attrs {}
 
 export abstract class CellFormatter extends Model {
-
   properties: CellFormatter.Props
+
+  constructor(attrs?: Partial<CellFormatter.Attrs>) {
+    super(attrs)
+  }
 
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     if (value == null)
@@ -30,25 +33,26 @@ export abstract class CellFormatter extends Model {
 }
 
 export namespace StringFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    font_style: FontStyle
-    text_align: TextAlign
-    text_color: Color
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    font_style: p.Property<FontStyle>
+    text_align: p.Property<TextAlign>
+    text_color: p.Property<Color>
+  }
 }
 
 export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
-
   properties: StringFormatter.Props
 
-  static initClass(): void {
-    this.prototype.type = 'StringFormatter'
+  constructor(attrs?: Partial<StringFormatter.Attrs>) {
+    super(attrs)
+  }
 
-    this.define({
+  static init_StringFormatter(): void {
+    this.define<StringFormatter.Props>({
       font_style: [ p.FontStyle, "normal" ],
       text_align: [ p.TextAlign, "left"   ],
       text_color: [ p.Color ],
@@ -58,7 +62,7 @@ export class StringFormatter extends CellFormatter {
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     const {font_style, text_align, text_color} = this
 
-    const text = span({}, value == null ? "" : `${value}`)
+    const text = div({}, value == null ? "" : `${value}`)
     switch (font_style) {
       case "bold":
         text.style.fontWeight = "bold"
@@ -76,65 +80,69 @@ export class StringFormatter extends CellFormatter {
     return text.outerHTML
   }
 }
-StringFormatter.initClass()
 
 export namespace NumberFormatter {
-  export interface Attrs extends StringFormatter.Attrs {
-    format: string
-    language: string
-    rounding: RoundingFunction
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends StringFormatter.Props {}
+  export type Props = StringFormatter.Props & {
+    format: p.Property<string>
+    language: p.Property<string>
+    rounding: p.Property<RoundingFunction>
+  }
 }
 
 export interface NumberFormatter extends NumberFormatter.Attrs {}
 
 export class NumberFormatter extends StringFormatter {
-
   properties: NumberFormatter.Props
 
-  static initClass(): void {
-    this.prototype.type = 'NumberFormatter'
+  constructor(attrs?: Partial<NumberFormatter.Attrs>) {
+    super(attrs)
+  }
 
-    this.define({
-      format:     [ p.String, '0,0'       ], // TODO (bev)
-      language:   [ p.String, 'en'        ], // TODO (bev)
-      rounding:   [ p.String, 'round'     ], // TODO (bev)
+  static init_NumberFormatter(): void {
+
+    this.define<NumberFormatter.Props>({
+      format:   [ p.String,           '0,0'   ], // TODO (bev)
+      language: [ p.String,           'en'    ], // TODO (bev)
+      rounding: [ p.RoundingFunction, 'round' ], // TODO (bev)
     })
   }
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {format, language} = this
-    const rounding = (() => { switch (this.rounding) {
-      case "round": case "nearest":   return Math.round
-      case "floor": case "rounddown": return Math.floor
-      case "ceil":  case "roundup":   return Math.ceil
-    } })()
+    const rounding = (() => {
+      switch (this.rounding) {
+        case "round": case "nearest":   return Math.round
+        case "floor": case "rounddown": return Math.floor
+        case "ceil":  case "roundup":   return Math.ceil
+      }
+    })()
     value = Numbro.format(value, format, language, rounding)
     return super.doFormat(row, cell, value, columnDef, dataContext)
   }
 }
-NumberFormatter.initClass()
 
 export namespace BooleanFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    icon: string // XXX: enum
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    icon: p.Property<string> // XXX: enum
+  }
 }
 
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 
 export class BooleanFormatter extends CellFormatter {
-
   properties: BooleanFormatter.Props
 
-  static initClass(): void {
-    this.prototype.type = 'BooleanFormatter'
+  constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
+    super(attrs)
+  }
 
-    this.define({
+  static init_BooleanFormatter(): void {
+
+    this.define<BooleanFormatter.Props>({
       icon: [ p.String, 'check' ],
     })
   }
@@ -143,31 +151,32 @@ export class BooleanFormatter extends CellFormatter {
     return !!value ? i({class: this.icon}).outerHTML : ""
   }
 }
-BooleanFormatter.initClass()
 
 export namespace DateFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    format: string // XXX: enum
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    format: p.Property<string> // XXX: enum
+  }
 }
 
 export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends CellFormatter {
-
   properties: DateFormatter.Props
 
-  static initClass(): void {
-    this.prototype.type = 'DateFormatter'
+  constructor(attrs?: Partial<DateFormatter.Attrs>) {
+    super(attrs)
+  }
 
-    this.define({
+  static init_DateFormatter(): void {
+
+    this.define<DateFormatter.Props>({
       format: [ p.String, 'ISO-8601' ],
     })
   }
 
-   getFormat(): string | undefined {
+  getFormat(): string | undefined {
     // using definitions provided here: https://api.jqueryui.com/datepicker/
     // except not implementing TICKS
     switch (this.format) {
@@ -200,26 +209,27 @@ export class DateFormatter extends CellFormatter {
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
-DateFormatter.initClass()
 
 export namespace HTMLTemplateFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    template: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    template: p.Property<string>
+  }
 }
 
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
-
   properties: HTMLTemplateFormatter.Props
 
-  static initClass(): void {
-    this.prototype.type = 'HTMLTemplateFormatter'
+  constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
+    super(attrs)
+  }
 
-    this.define({
+  static init_HTMLTemplateFormatter(): void {
+
+    this.define<HTMLTemplateFormatter.Props>({
       template: [ p.String, '<%= value %>' ],
     })
   }
@@ -235,4 +245,3 @@ export class HTMLTemplateFormatter extends CellFormatter {
     }
   }
 }
-HTMLTemplateFormatter.initClass()

@@ -8,7 +8,7 @@ N = 20
 cats = 10
 df = pd.DataFrame(np.random.randint(10, 100, size=(N, cats))).add_prefix('y')
 
-def  stacked(df):
+def stacked(df):
     df_top = df.cumsum(axis=1)
     df_bottom = df_top.shift(axis=1).fillna({'y0': 0})[::-1]
     df_stack = pd.concat([df_bottom, df_top], ignore_index=True)
@@ -24,6 +24,6 @@ p.grid.minor_grid_line_color = '#eeeeee'
 p.patches([x2] * areas.shape[1], [areas[c].values for c in areas],
           color=colors, alpha=0.8, line_color=None)
 
-output_file('brewer.html', title='brewer.py example')
+output_file('stacked_area.html', title='brewer.py example')
 
 show(p)

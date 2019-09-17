@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -19,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from mock import patch
+from collections import OrderedDict
 
 # External imports
 import bs4
@@ -26,10 +26,9 @@ from jinja2 import Template
 from six import string_types
 
 # Bokeh imports
-from bokeh.core.properties import Instance
 from bokeh.document import Document
+from bokeh.embed.util import standalone_docs_json
 from bokeh.io import curdoc
-from bokeh.model import Model
 from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.util.string import encode_utf8
@@ -41,9 +40,6 @@ from bokeh.embed.util import RenderRoot
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-class SomeModelInTestObjects(Model):
-    child = Instance(Model)
 
 def stable_id():
     return 'ID'
@@ -65,8 +61,7 @@ class Test_autoload_static(object):
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
-    def test_script_attrs(self, mock_make_id, test_plot):
+    def test_script_attrs(self, test_plot):
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "lxml")
         scripts = html.findAll(name='script')
@@ -100,7 +95,11 @@ class Test_components(object):
         assert isinstance(divs, dict)
         assert all(isinstance(x, string_types) for x in divs.keys())
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
+        _, divs = bes.components(OrderedDict([("Plot 1", plot1), ("Plot 2", plot2)]))
+        assert isinstance(divs, OrderedDict)
+        assert all(isinstance(x, string_types) for x in divs.keys())
+
+    @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
         doc = Document()
         plot1 = figure()
@@ -130,6 +129,7 @@ class Test_components(object):
         assert len(scripts) == 1
         assert scripts[0].attrs == {'type': 'text/javascript'}
 
+    @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
     def test_div_attrs(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(div, "lxml")
@@ -138,16 +138,17 @@ class Test_components(object):
         assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class', 'id'])
+        assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
         assert div.attrs['class'] == ['bk-root']
+        assert div.attrs['id'] == 'ID'
+        assert div.attrs['data-root-id'] == test_plot.id
         assert div.text == ''
 
     def test_script_is_utf8_encoded(self, test_plot):
         script, div = bes.components(test_plot)
         assert isinstance(script, str)
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
-    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id, test_plot):
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
@@ -230,7 +231,7 @@ class Test_file_html(object):
         r = bes.file_html(test_plot, CDN, "&<")
         assert "<title>&amp;&lt;</title>" in r
 
-    def test_entire_doc_is_used(self):
+    def test_entire_doc_is_not_used(self):
         from bokeh.document import Document
         from bokeh.models import Button
 
@@ -245,7 +246,42 @@ class Test_file_html(object):
         out = bes.file_html([fig], CDN)
 
         # this is a very coarse test but it will do
-        assert "bokeh-widgets" in out
+        assert "bokeh-widgets" not in out
+
+class Test_json_item(object):
+
+    def test_with_target_id(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['target_id'] == "foo"
+
+    def test_without_target_id(self, test_plot):
+        out = bes.json_item(test_plot)
+        assert out['target_id'] == None
+
+    def test_doc_json(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        expected = list(standalone_docs_json([test_plot]).values())[0]
+        assert out['doc'] == expected
+
+    def test_doc_title(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['doc']['title'] == ""
+
+    def test_root_id(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['doc']['roots']['root_ids'][0] == out['root_id']
+
+    @patch('bokeh.embed.standalone.OutputDocumentFor')
+    def test_apply_theme(self, mock_OFD, test_plot):
+        # the subsequent call inside ODF will fail since the model was never
+        # added to a document. Ignoring that since we just want to make sure
+        # ODF is called with the expected theme arg.
+        try:
+            bes.json_item(test_plot, theme="foo")
+        except ValueError:
+            pass
+        mock_OFD.assert_called_once_with([test_plot], apply_theme="foo")
+
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -255,88 +291,9 @@ class Test_file_html(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__ModelInDocument(object):
-
-    def test_single_model(self):
-        p = Model()
-        assert p.document is None
-        with bes._ModelInDocument([p]):
-            assert p.document is not None
-        assert p.document is None
-
-    def test_list_of_model(self):
-        p1 = Model()
-        p2 = Model()
-        assert p1.document is None
-        assert p2.document is None
-        with bes._ModelInDocument([p1, p2]):
-            assert p1.document is not None
-            assert p2.document is not None
-        assert p1.document is None
-        assert p2.document is None
-
-    def test_uses_precedent(self):
-        # it's deliberate that the doc is on p2, so _ModelInDocument
-        # has to be smart about looking for a doc anywhere in the list
-        # before it starts inventing new documents
-        doc = Document()
-        p1 = Model()
-        p2 = Model()
-        doc.add_root(p2)
-        assert p1.document is None
-        assert p2.document is not None
-        with bes._ModelInDocument([p1, p2]):
-            assert p1.document is not None
-            assert p2.document is not None
-            assert p1.document is doc
-            assert p2.document is doc
-        assert p1.document is None
-        assert p2.document is not None
-
-    def test_uses_doc_precedent(self):
-        doc = Document()
-        p1 = Model()
-        p2 = Model()
-        assert p1.document is None
-        assert p2.document is None
-        with bes._ModelInDocument([p1, p2, doc]):
-            assert p1.document is not None
-            assert p2.document is not None
-            assert p1.document is doc
-            assert p2.document is doc
-        assert p1.document is None
-        assert p2.document is None
-
-    def test_with_doc_in_child_raises_error(self):
-        doc = Document()
-        p1 = Model()
-        p2 = SomeModelInTestObjects(child=Model())
-        doc.add_root(p2.child)
-        assert p1.document is None
-        assert p2.document is None
-        assert p2.child.document is doc
-        with pytest.raises(RuntimeError):
-            with bes._ModelInDocument([p1, p2]):
-                assert p1.document is not None
-                assert p2.document is not None
-                assert p1.document is doc
-                assert p2.document is doc
-
-    @patch('bokeh.document.document.check_integrity')
-    def test_validates_document_by_default(self, check_integrity, test_plot):
-        with bes._ModelInDocument([test_plot]):
-            pass
-        assert check_integrity.called
-
-    @patch('bokeh.document.document.check_integrity')
-    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot):
-        monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
-        with bes._ModelInDocument([test_plot]):
-            pass
-        assert not check_integrity.called
-
-class Test__add_doc_to_models(object):
-    pass
-
 class Test__title_from_models(object):
     pass
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

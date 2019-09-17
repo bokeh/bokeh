@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Represent granular events that can be used to trigger callbacks.
 
 Bokeh documents and applications are capable of supporting various kinds of
@@ -46,12 +52,61 @@ event object that triggered the callback.
     may trigger at a very high rate.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from .util.future import with_metaclass
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'ButtonClick',
+    'DoubleTap',
+    'Event',
+    'LODStart',
+    'LODEnd',
+    'MenuItemClick',
+    'MouseEnter',
+    'MouseLeave',
+    'MouseMove',
+    'MouseWheel',
+    'Pan',
+    'PanEnd',
+    'PanStart',
+    'Pinch',
+    'PinchEnd',
+    'PinchStart',
+    'Rotate',
+    'RotateEnd',
+    'RotateStart',
+    'PlotEvent',
+    'PointEvent',
+    'Press',
+    'Reset',
+    'SelectionGeometry',
+    'Tap',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 _CONCRETE_EVENT_CLASSES = dict()
 
@@ -68,6 +123,10 @@ class _MetaEvent(type):
         if newclass.event_name is not None:
             _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
         return newclass
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Event(with_metaclass(_MetaEvent, object)):
     ''' Base class for all Bokeh events.
@@ -88,7 +147,7 @@ class Event(with_metaclass(_MetaEvent, object)):
         '''
         self._model_id = None
         if model is not None:
-            self._model_id = model._id
+            self._model_id = model.id
 
     @classmethod
     def decode_json(cls, dct):
@@ -115,7 +174,7 @@ class Event(with_metaclass(_MetaEvent, object)):
                 <bokeh.events.Pan object at 0x1040f84a8>
 
         '''
-        if not (('event_name' in dct) and ('event_values' in dct)):
+        if not ('event_name' in dct and 'event_values' in dct):
             return dct
 
         event_name = dct['event_name']
@@ -130,20 +189,30 @@ class Event(with_metaclass(_MetaEvent, object)):
         return event
 
 class ButtonClick(Event):
-    ''' Announce a button click event on a Bokeh Button widget.
+    ''' Announce a button click event on a Bokeh button widget.
 
     '''
     event_name = 'button_click'
 
     def __init__(self, model):
-        from .models.widgets import Button
-        if model is not None and not isinstance(model, Button):
-            msg ='{clsname} event only applies to Button models'
+        from .models.widgets import AbstractButton
+        if model is not None and not isinstance(model, AbstractButton):
+            msg ='{clsname} event only applies to button models'
             raise ValueError(msg.format(clsname=self.__class__.__name__))
         super(ButtonClick, self).__init__(model=model)
 
+class MenuItemClick(Event):
+    ''' Announce a button click event on a Bokeh menu item.
+
+    '''
+    event_name = 'menu_item_click'
+
+    def __init__(self, model, item=None):
+        self.item = item
+        super(MenuItemClick, self).__init__(model=model)
+
 class PlotEvent(Event):
-    ''' PlotEvent is the base class for all events applicable to Plot models.
+    ''' The base class for all events applicable to Plot models.
 
     '''
 
@@ -196,7 +265,7 @@ class SelectionGeometry(PlotEvent):
         super(SelectionGeometry, self).__init__(model=model)
 
 class Reset(PlotEvent):
-    ''' Announce a button click event on a plot ResetTool.
+    ''' Announce a button click event on a plot ``ResetTool``.
 
     '''
     event_name = "reset"
@@ -226,8 +295,6 @@ class PointEvent(PlotEvent):
         self.x = x
         self.y = y
         super(PointEvent, self).__init__(model=model)
-
-# --- Point Events ------------------------------------------------------------
 
 class Tap(PointEvent):
     ''' Announce a tap or click event on a Bokeh plot.
@@ -326,8 +393,8 @@ class MouseWheel(PointEvent):
 
     .. note::
         By default, Bokeh plots do not prevent default scroll events unless a
-        WheelZoomTool or WheelPanTool is active. This may change in future
-        releases.
+        ``WheelZoomTool`` or ``WheelPanTool`` is active. This may change in
+        future releases.
 
     '''
     event_name = 'wheel'
@@ -430,3 +497,61 @@ class PinchStart(PointEvent):
 
     '''
     event_name = 'pinchstart'
+
+class Rotate(PointEvent):
+    ''' Announce a rotate event on a Bokeh plot.
+
+    Attributes:
+        rotation (float) : the rotation that has been done (in deg)
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotate'
+
+    def __init__(self, model, rotation=None, **kwargs):
+        self.rotation = rotation
+        super(Rotate, self).__init__(model, **kwargs)
+
+class RotateEnd(PointEvent):
+    ''' Announce the end of a rotate event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotateend'
+
+class RotateStart(PointEvent):
+    ''' Announce the start of a rotate event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotatestart'
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

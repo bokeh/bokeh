@@ -1,28 +1,76 @@
-""" Document Bokeh color objects.
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Document Bokeh named colors.
 
-The ``bokeh-color`` directive generates a color swatch for named colors
-in the ``bokeh.colors`` module:
+The ``bokeh-color`` directive accepts a named color as its argument:
+
+.. code-block:: rest
 
     .. bokeh-color:: aliceblue
 
-"""
-from __future__ import absolute_import, print_function
+and generates a labeled color swatch as output.
 
+    .. bokeh-color:: aliceblue
+
+The ``bokeh-color`` direction may be used explicitly, but it can also be used
+in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
+
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from docutils import nodes
+from docutils.parsers.rst.directives import unchanged
 
+# Bokeh imports
 from bokeh.colors import named
 
 from .bokeh_directive import BokehDirective
 from .templates import COLOR_DETAIL
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BokehColorDirective',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 class BokehColorDirective(BokehDirective):
 
-    has_content = True
+    has_content = False
     required_arguments = 1
-    optional_arguments = 2
+    option_spec = {
+        'module': unchanged,
+    }
 
     def run(self):
-
         color = self.arguments[0]
 
         html = COLOR_DETAIL.render(color=getattr(named, color).to_css(), text=color)
@@ -30,4 +78,13 @@ class BokehColorDirective(BokehDirective):
         return [node]
 
 def setup(app):
+    ''' Required Sphinx extension setup function. '''
     app.add_directive_to_domain('py', 'bokeh-color', BokehColorDirective)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

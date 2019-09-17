@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -54,8 +53,16 @@ from .handler import Handler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'CodeHandler',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class CodeHandler(Handler):
@@ -178,7 +185,7 @@ class CodeHandler(Handler):
 
     # Private methods ---------------------------------------------------------
 
-    # subclassess must define self._logger_text
+    # subclasses must define self._logger_text
     def _make_io_logger(self, name):
         def logger(*args, **kwargs):
             log.info(self._logger_text , self._runner.path, name)
@@ -200,10 +207,6 @@ class CodeHandler(Handler):
         import bokeh.io as io
         for f in old:
             setattr(io, f, old[f])
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

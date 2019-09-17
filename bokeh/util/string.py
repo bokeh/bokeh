@@ -1,9 +1,49 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Functions useful for string manipulations or encoding.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import re
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'decode_utf8',
+    'encode_utf8',
+    'escape',
+    'format_docstring',
+    'indent',
+    'nice_join',
+    'snakify',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def encode_utf8(u):
     ''' Encode a UTF-8 string to a sequence of bytes.
@@ -35,8 +75,35 @@ def decode_utf8(u):
         u = u.decode('utf-8')
     return u
 
+# based on `html` stdlib module (3.2+)
+def escape(s, quote=("'", '"')):
+    ''' Perform HTML-safe escaping.
+
+    Replaces special characters "&", "<" and ">" to HTML-safe sequences, and
+    optionally translates quote characters.
+
+    Args:
+        s (str): a string to escape
+
+        quote (seq[str], optional) : which quote characters to replace
+            (default: ("'", '"'))
+
+    Returns:
+        str
+
+    '''
+    s = s.replace("&", "&amp;")
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
+    if quote:
+        if '"' in quote:
+            s = s.replace('"', "&quot;")
+        if "'" in quote:
+            s = s.replace("'", "&#x27;")
+    return s
+
 def indent(text, n=2, ch=" "):
-    ''' Indent all the lines in a given block of text by a specified ammount.
+    ''' Indent all the lines in a given block of text by a specified amount.
 
     Args:
         text (str) :
@@ -52,13 +119,15 @@ def indent(text, n=2, ch=" "):
     padding = ch * n
     return "\n".join(padding+line for line in text.split("\n"))
 
-def nice_join(seq, sep=", "):
+def nice_join(seq, sep=", ", conjuction="or"):
     ''' Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
     Args:
         seq (seq[str]) : a sequence of strings to nicely join
         sep (str, optional) : a sequence delimiter to use (default: ", ")
+        conjunction (str or None, optional) : a conjuction to use for the last
+            two items, or None to reproduce basic join behaviour (default: "or")
 
     Returns:
         a joined string
@@ -70,10 +139,10 @@ def nice_join(seq, sep=", "):
     '''
     seq = [str(x) for x in seq]
 
-    if len(seq) <= 1:
+    if len(seq) <= 1 or conjuction is None:
         return sep.join(seq)
     else:
-        return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+        return "%s %s %s" % (sep.join(seq[:-1]), conjuction, seq[-1])
 
 def snakify(name, sep='_'):
     ''' Convert CamelCase to snake_case. '''
@@ -98,3 +167,15 @@ def format_docstring(docstring, *args, **kwargs):
 
     '''
     return None if docstring is None else docstring.format(*args, **kwargs)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

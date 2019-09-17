@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bokeh.layouts import row, widgetbox
+from bokeh.layouts import row, column
 from bokeh.models import Select
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure
@@ -52,7 +52,7 @@ def create_figure():
 
     c = "#31AADE"
     if color.value != 'None':
-        if len(set(df[color.value])) > N_SIZES:
+        if len(set(df[color.value])) > N_COLORS:
             groups = pd.qcut(df[color.value].values, N_COLORS, duplicates='drop')
         else:
             groups = pd.Categorical(df[color.value])
@@ -79,7 +79,7 @@ size.on_change('value', update)
 color = Select(title='Color', value='None', options=['None'] + continuous)
 color.on_change('value', update)
 
-controls = widgetbox([x, y, color, size], width=200)
+controls = column([x, y, color, size], width=200)
 layout = row(controls, create_figure())
 
 curdoc().add_root(layout)

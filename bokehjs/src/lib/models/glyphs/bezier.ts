@@ -1,12 +1,11 @@
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable} from "core/types"
-import {IBBox} from "core/util/bbox"
+import {Arrayable, Rect} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
+import * as p from "core/properties"
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 function _cbb(x0: number, y0: number,
@@ -110,7 +109,7 @@ export class BezierView extends GlyphView {
 
       const [x0, y0, x1, y1] = _cbb(this._x0[i],  this._y0[i],  this._x1[i],  this._y1[i],
                                     this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i])
-      points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i})
+      points.push({x0, y0, x1, y1, i})
     }
 
     return new SpatialIndex(points)
@@ -133,7 +132,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -147,42 +146,35 @@ export class BezierView extends GlyphView {
 }
 
 export namespace Bezier {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    x0: NumberSpec
-    y0: NumberSpec
-    x1: NumberSpec
-    y1: NumberSpec
-    cx0: NumberSpec
-    cy0: NumberSpec
-    cx1: NumberSpec
-    cy1: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    x0: p.CoordinateSpec
+    y0: p.CoordinateSpec
+    x1: p.CoordinateSpec
+    y1: p.CoordinateSpec
+    cx0: p.CoordinateSpec
+    cy0: p.CoordinateSpec
+    cx1: p.CoordinateSpec
+    cy1: p.CoordinateSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
-
   properties: Bezier.Props
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Bezier'
+  static init_Bezier(): void {
     this.prototype.default_view = BezierView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']])
     this.mixins(['line'])
   }
 }
-Bezier.initClass()

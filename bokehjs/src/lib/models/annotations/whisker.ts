@@ -2,8 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {ArrowHead, TeeHead} from "./arrow_head"
-import {DistanceSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable} from "core/types"
 import {Dimension} from "core/enums"
@@ -26,8 +25,8 @@ export class WhiskerView extends AnnotationView {
   protected _upper_sx: Arrayable<number>
   protected _upper_sy: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.set_data(this.model.source)
   }
 
@@ -45,7 +44,7 @@ export class WhiskerView extends AnnotationView {
   }
 
   protected _map_data(): void {
-    const {frame} = this.plot_model
+    const {frame} = this.plot_view
     const dim = this.model.dimension
 
     const xscale = frame.xscales[this.model.x_range_name]
@@ -58,19 +57,19 @@ export class WhiskerView extends AnnotationView {
     const base_view  = dim == "height" ? frame.xview : frame.yview
 
     let _lower_sx
-    if (this.model.lower.units == "data")
+    if (this.model.properties.lower.units == "data")
       _lower_sx = limit_scale.v_compute(this._lower)
     else
       _lower_sx = limit_view.v_compute(this._lower)
 
     let _upper_sx
-    if (this.model.upper.units == "data")
+    if (this.model.properties.upper.units == "data")
       _upper_sx = limit_scale.v_compute(this._upper)
     else
       _upper_sx = limit_view.v_compute(this._upper)
 
     let _base_sx
-    if (this.model.base.units  == "data")
+    if (this.model.properties.base.units  == "data")
       _base_sx  = base_scale.v_compute(this._base)
     else
       _base_sx  = base_view.v_compute(this._base)
@@ -130,21 +129,19 @@ export class WhiskerView extends AnnotationView {
 }
 
 export namespace Whisker {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    lower: DistanceSpec
-    lower_head: ArrowHead
-    upper: DistanceSpec
-    upper_head: ArrowHead
-    base: DistanceSpec
-    dimension: Dimension
-    source: ColumnarDataSource
-    x_range_name: string
-    y_range_name: string
+  export type Props = Annotation.Props & LineVector & {
+    lower: p.DistanceSpec
+    lower_head: p.Property<ArrowHead>
+    upper: p.DistanceSpec
+    upper_head: p.Property<ArrowHead>
+    base: p.DistanceSpec
+    dimension: p.Property<Dimension>
+    source: p.Property<ColumnarDataSource>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
   }
-
-  export interface Props extends Annotation.Props {}
 
   export type Visuals = Annotation.Visuals & {line: Line}
 }
@@ -152,20 +149,18 @@ export namespace Whisker {
 export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
-
   properties: Whisker.Props
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Whisker'
+  static init_Whisker(): void {
     this.prototype.default_view = WhiskerView
 
     this.mixins(['line'])
 
-    this.define({
+    this.define<Whisker.Props>({
       lower:        [ p.DistanceSpec                    ],
       lower_head:   [ p.Instance,     () => new TeeHead({level: "underlay", size: 10}) ],
       upper:        [ p.DistanceSpec                    ],
@@ -182,4 +177,3 @@ export class Whisker extends Annotation {
     })
   }
 }
-Whisker.initClass()

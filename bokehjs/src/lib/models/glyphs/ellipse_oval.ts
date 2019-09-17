@@ -1,11 +1,11 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {PointGeometry} from "core/geometry"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
-import {IBBox} from "core/util/bbox"
-import {Rect} from "core/util/spatial"
+import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import * as p from "core/properties"
 
 export interface EllipseOvalData extends CenterRotatableData {}
 
@@ -39,24 +39,24 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseOvalData): void {
-     for (const i of indices) {
-       if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
-         continue
+    for (const i of indices) {
+      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
+        continue
 
-       ctx.beginPath()
-       ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
+      ctx.beginPath()
+      ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
 
-       if (this.visuals.fill.doit) {
-         this.visuals.fill.set_vectorize(ctx, i)
-         ctx.fill()
-       }
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+      }
 
-       if (this.visuals.line.doit) {
-         this.visuals.line.set_vectorize(ctx, i)
-         ctx.stroke()
-       }
-     }
-   }
+      if (this.visuals.line.doit) {
+        this.visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
+      }
+    }
+  }
 
   protected _hit_point(geometry: PointGeometry): Selection {
     let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
@@ -68,30 +68,28 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     if (this.model.properties.width.units == "data"){
       x0 = x - this.max_width
       x1 = x + this.max_width
-    }
-    else{
+    } else {
       sx0 = sx - this.max_width
       sx1 = sx + this.max_width
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     }
+
     if (this.model.properties.height.units == "data"){
       y0 = y - this.max_height
       y1 = y + this.max_height
-    }
-    else{
+    } else {
       sy0 = sy - this.max_height
       sy1 = sy + this.max_height
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const candidates = this.index.indices(bbox)
+    const candidates = this.index.indices({x0, x1, y0, y1})
     const hits: [number, number][] = []
 
     for (const i of candidates) {
       cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
-      if (cond){
-        ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
+      if (cond) {
+        [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         hits.push([i, dist])
@@ -101,7 +99,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -122,41 +120,33 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       sh[index] = d
     }
 
-    this._render(ctx, [index], {sx, sy, sw, sh} as any) // XXX
+    this._render(ctx, [index], {sx, sy, sw, sh, _angle: [0]} as any) // XXX
   }
 
-  protected _bounds({minX, maxX, minY, maxY}: Rect): Rect {
+  protected _bounds({x0, x1, y0, y1}: Rect): Rect {
     return {
-      minX: minX - this.max_w2,
-      maxX: maxX + this.max_w2,
-      minY: minY - this.max_h2,
-      maxY: maxY + this.max_h2,
+      x0: x0 - this.max_w2,
+      x1: x1 + this.max_w2,
+      y0: y0 - this.max_h2,
+      y1: y1 + this.max_h2,
     }
   }
 }
 
 export namespace EllipseOval {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends CenterRotatable.Attrs, Mixins {}
+  export type Props = CenterRotatable.Props & LineVector & FillVector
 
-  export interface Props extends CenterRotatable.Props {}
-
-  export interface Visuals extends CenterRotatable.Visuals {}
+  export type Visuals = CenterRotatable.Visuals
 }
 
 export interface EllipseOval extends EllipseOval.Attrs {}
 
 export abstract class EllipseOval extends CenterRotatable {
-
   properties: EllipseOval.Props
 
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = 'EllipseOval'
-  }
 }
-EllipseOval.initClass()

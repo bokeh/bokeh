@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -32,18 +31,20 @@ import pytest
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'log_file',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 @pytest.yield_fixture(scope="session")
 def log_file(request):
-    is_slave = hasattr(request.config, 'slaveinput')
-    if not is_slave:
-        with open(request.config.option.log_file, 'w') as f:
-            # Clean-out any existing log-file
-            f.write("")
-    with open(pytest.config.option.log_file, 'a') as f:
+    with open(request.config.option.log_file, 'w') as f:
+        # Clean-out any existing log-file
+        f.write("")
+    with open(request.config.option.log_file, 'a') as f:
         yield f
 
 #-----------------------------------------------------------------------------

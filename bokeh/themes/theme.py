@@ -1,17 +1,53 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a ``Theme`` class for specifying new default values for Bokeh
 :class:`~bokeh.model.Model` properties.
 
 '''
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import yaml
 
+# External imports
+
+# Bokeh imports
 from ..core.has_props import HasProps
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
 _empty_dict = dict()
+
+__all__ = (
+    'Theme',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 # Note: in DirectoryHandler and in general we assume this is an
 # immutable object, because we share it among sessions and we
@@ -91,7 +127,7 @@ class Theme(object):
         if filename is not None:
             f = open(filename)
             try:
-                json = yaml.load(f)
+                json = yaml.safe_load(f)
                 # empty docs result in None rather than {}, fix it.
                 if json is None:
                     json = {}
@@ -162,3 +198,11 @@ class Theme(object):
         # the dict.
         if len(_empty_dict) > 0:
             raise RuntimeError("Somebody put stuff in _empty_dict")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#----------------------------------------------------------------------------

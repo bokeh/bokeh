@@ -1,12 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models (mostly base classes) for the various kinds of renderer
 types that Bokeh supports.
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+from difflib import get_close_matches
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
@@ -17,8 +36,29 @@ from ..model import Model
 
 from .glyphs import Glyph, Circle, MultiLine
 from .graphs import LayoutProvider, GraphHitTestPolicy, NodesOnly
-from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
+from .sources import ColumnDataSource, DataSource, WebSource, CDSView
 from .tiles import TileSource, WMTSTileSource
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'DataRenderer',
+    'GlyphRenderer',
+    'GraphRenderer',
+    'GuideRenderer',
+    'Renderer',
+    'TileRenderer',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Renderer(Model):
@@ -40,6 +80,18 @@ class DataRenderer(Renderer):
 
     '''
 
+    level = Override(default="glyph")
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering glyphs on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering glyphs on the plot. If unset, use the default y-range.
+    """)
+
 class TileRenderer(DataRenderer):
     '''
 
@@ -53,19 +105,9 @@ class TileRenderer(DataRenderer):
     tile opacity 0.0 - 1.0
     """)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default x-range.
+    smoothing = Bool(default=True, help="""
+    Enable image smoothing for the rendered tiles.
     """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default y-range.
-    """)
-
-    level = Override(default="underlay")
 
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
@@ -92,16 +134,20 @@ class GlyphRenderer(DataRenderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
-        if isinstance(self.data_source, RemoteSource): return
-        missing = set()
+        if isinstance(self.data_source, WebSource): return
+        missing_values = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
             if name not in specs: continue
             if not isinstance(item, dict): continue
             if not isinstance(self.data_source, ColumnDataSource): continue
             if 'field' in item and item['field'] not in self.data_source.column_names:
-                missing.add(item['field'])
-        if missing:
+                missing_values.add((item['field'], name))
+        if missing_values:
+            suggestions = ['" (closest match: "%s")' % s[0] if s else '"' for s in [
+                get_close_matches(term[0], self.data_source.column_names, n=1) for term in missing_values]]
+            missing_values = [("".join([m[0], s]), m[1]) for m, s in zip(missing_values, suggestions)]
+            missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
     def __init__(self, **kw):
@@ -117,18 +163,6 @@ class GlyphRenderer(DataRenderer):
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default -range.
     """)
 
     glyph = Instance(Glyph, help="""
@@ -154,7 +188,7 @@ class GlyphRenderer(DataRenderer):
 
     hover_glyph = Instance(Glyph, help="""
     An optional glyph used for inspected points, e.g., those that are
-    being hovered over by a HoverTool.
+    being hovered over by a ``HoverTool``.
     """)
 
     muted_glyph = Instance(Glyph, help="""
@@ -162,8 +196,6 @@ class GlyphRenderer(DataRenderer):
 
     muted = Bool(False, help="""
     """)
-
-    level = Override(default="glyph")
 
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
     glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
@@ -190,44 +222,30 @@ class GraphRenderer(DataRenderer):
         if missing:
             return " ,".join(missing) + " [%s]" % self
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering graphs on the plot. If unset, use the
-    default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering graphs on the plot. If unset, use the
-    default -range.
-    """)
-
     layout_provider = Instance(LayoutProvider, help="""
-    An instance of a LayoutProvider that supplies the layout of the network
+    An instance of a ``LayoutProvider`` that supplies the layout of the network
     graph in cartesian space.
     """)
 
     node_renderer = Instance(GlyphRenderer, default=_DEFAULT_NODE_RENDERER, help="""
-    Instance of a GlyphRenderer containing an XYGlyph that will be rendered
+    Instance of a ``GlyphRenderer`` containing an ``XYGlyph`` that will be rendered
     as the graph nodes.
     """)
 
     edge_renderer = Instance(GlyphRenderer, default=_DEFAULT_EDGE_RENDERER, help="""
-    Instance of a GlyphRenderer containing an MultiLine Glyph that will be
+    Instance of a ``GlyphRenderer`` containing an ``MultiLine`` Glyph that will be
     rendered as the graph edges.
     """)
 
     selection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
-    An instance of a GraphHitTestPolicy that provides the logic for selection
+    An instance of a ``GraphHitTestPolicy`` that provides the logic for selection
     of graph components.
     """)
 
     inspection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
-    An instance of a GraphHitTestPolicy that provides the logic for inspection
+    An instance of a ``GraphHitTestPolicy`` that provides the logic for inspection
     of graph components.
     """)
-
-    level = Override(default="glyph")
 
 @abstract
 class GuideRenderer(Renderer):
@@ -236,15 +254,12 @@ class GuideRenderer(Renderer):
 
     '''
 
-    plot = Instance(".models.plots.Plot", help="""
-    The plot to which this guide renderer is attached.
-    """)
-
-    def __init__(self, **kwargs):
-        super(GuideRenderer, self).__init__(**kwargs)
-
-        if self.plot is not None:
-            if self not in self.plot.renderers:
-                self.plot.renderers.append(self)
-
     level = Override(default="overlay")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

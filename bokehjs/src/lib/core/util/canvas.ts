@@ -1,8 +1,5 @@
 import {OutputBackend} from "../enums"
 
-import SVGRenderingContext2D = require("canvas2svg")
-export {SVGRenderingContext2D}
-
 export type Context2d = {
   setLineDashOffset(offset: number): void
   getLineDashOffset(): number
@@ -83,8 +80,8 @@ function fixup_ellipse(ctx: any): void {
 
     ctx.moveTo(-rx, 0) // start point of first curve
     ctx.bezierCurveTo(-rx,  ry * c, -rx * c,  ry, 0,  ry)
-    ctx.bezierCurveTo( rx * c,  ry,  rx,  ry * c,  rx, 0)
-    ctx.bezierCurveTo( rx, -ry * c,  rx * c, -ry, 0, -ry)
+    ctx.bezierCurveTo(rx * c,  ry,  rx,  ry * c,  rx, 0)
+    ctx.bezierCurveTo(rx, -ry * c,  rx * c, -ry, 0, -ry)
     ctx.bezierCurveTo(-rx * c, -ry, -rx, -ry * c, -rx, 0)
 
     ctx.rotate(-rotation)

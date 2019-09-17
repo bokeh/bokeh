@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide base classes for the Bokeh property system.
 
 .. note::
@@ -7,24 +13,55 @@
     anyone who is not directly developing on Bokeh's own infrastructure.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from copy import copy
 import types
 
+# External imports
 from six import string_types
 import numpy as np
 
+# Bokeh imports
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 pd = import_optional('pandas')
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'ContainerProperty',
+    'DeserializationError',
+    'PrimitiveProperty',
+    'Property',
+    'validation_on',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class DeserializationError(Exception):
     pass
@@ -265,7 +302,7 @@ class Property(PropertyDescriptorFactory):
         try:
             if validation_on():
                 self.validate(value, False)
-        except ValueError as e:
+        except ValueError:
             return False
         else:
             return True
@@ -346,7 +383,7 @@ class Property(PropertyDescriptorFactory):
         Args:
             fn (callable) :
                 A function accepting ``(obj, value)`` that returns True if the value
-                passes the assertion, or False othwise
+                passes the assertion, or False otherwise.
 
             msg_or_fn (str or callable) :
                 A message to print in case the assertion fails, or a function
@@ -376,7 +413,7 @@ class ParameterizedProperty(Property):
         elif isinstance(type_param, Property):
             return type_param
 
-        raise ValueError("expected a Propertyas type parameter, got %s" % type_param)
+        raise ValueError("expected a Property as type parameter, got %s" % type_param)
 
     @property
     def type_params(self):
@@ -419,7 +456,7 @@ class PrimitiveProperty(Property):
             return json
         else:
             expected = nice_join([ cls.__name__ for cls in self._underlying_type ])
-            raise DeserializationError("%s expected %s, got %s" % (self, expected, json))
+            raise DeserializationError("%s expected %s, got %s of type %s" % (self, expected, json, type(json).__name__))
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
@@ -441,3 +478,11 @@ def validation_on():
 
     '''
     return Property._should_validate
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

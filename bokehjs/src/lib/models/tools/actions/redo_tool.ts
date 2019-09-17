@@ -1,4 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import * as p from "core/properties"
+import {bk_tool_icon_redo} from "styles/icons"
 
 export class RedoToolView extends ActionToolView {
   model: RedoTool
@@ -14,23 +16,21 @@ export class RedoToolView extends ActionToolView {
 }
 
 export namespace RedoTool {
-  export interface Attrs extends ActionTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props
 }
 
 export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
-
   properties: RedoTool.Props
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "RedoTool"
+  static init_RedoTool(): void {
     this.prototype.default_view = RedoToolView
 
     this.override({
@@ -39,7 +39,5 @@ export class RedoTool extends ActionTool {
   }
 
   tool_name = "Redo"
-  icon = "bk-tool-icon-redo"
+  icon = bk_tool_icon_redo
 }
-
-RedoTool.initClass()

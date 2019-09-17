@@ -7,11 +7,11 @@ from bokeh.layouts import row, column
 from bokeh.models import Slider, Dropdown, CustomJS
 from bokeh.plotting import figure, show, output_file
 
-p1 = figure(title="Canvas", output_backend="canvas")
+p1 = figure(title="Canvas", plot_width=400, plot_height= 400, output_backend="canvas")
 
-p2 = figure(title="SVG", output_backend="svg")
+p2 = figure(title="SVG", plot_width=400, plot_height= 400, output_backend="svg")
 
-p3 = figure(title="WebGL", output_backend="webgl")
+p3 = figure(title="WebGL", plot_width=400, plot_height= 400, output_backend="webgl")
 
 ys = 10  # yscale, to increase anisotropy
 
@@ -74,4 +74,4 @@ sliders = column(*sliders)
 
 output_file("line_compare.html", title="line_compare.py example")
 
-show(row(sliders, p1, p2, p3))
+show(row(column(sliders), column(p1, p2, p3)))

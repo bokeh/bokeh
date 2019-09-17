@@ -1,10 +1,10 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
-from bokeh.models.widgets import Tabs, Panel, Paragraph
-from bokeh.models.layouts import Column
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid, HoverTool
+from bokeh.models.widgets import Paragraph
+from bokeh.models.layouts import Column, Tabs, Panel
 from bokeh.models.glyphs import (
-    AnnularWedge, Annulus, Arc, Bezier, Circle, ImageURL, Line, MultiLine, Oval, Hex,
+    AnnularWedge, Annulus, Arc, Bezier, Circle, Dash, ImageURL, Line, MultiLine, MultiPolygons, Oval, Hex,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross, X
 )
@@ -22,12 +22,17 @@ sizes = np.linspace(10, 20, N)
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
 
+xs = [ xpts + xx for xx in x ]
+ys = [ ypts + yy for yy in y ]
+
 source = ColumnDataSource(dict(
     x = x,
     y = y,
     sizes = sizes,
-    xs = [ xpts + xx for xx in x ],
-    ys = [ ypts + yy for yy in y ],
+    xs = xs,
+    ys = ys,
+    xsss = [[[x]] for x in xs],
+    ysss = [[[y]] for y in ys],
     xp02 = x + 0.2,
     xp01 = x + 0.1,
     xm01 = x - 0.1,
@@ -35,8 +40,7 @@ source = ColumnDataSource(dict(
     ym01 = y - 0.1,
 ))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
+print()
 
 def screen(value):
     return dict(value=value, units="screen")
@@ -46,9 +50,10 @@ glyphs = [
     ("annulus", Annulus(x="x", y="y", inner_radius=screen(10), outer_radius=screen(20), fill_color="#7FC97F")),
     ("arc", Arc(x="x", y="y", radius=screen(20), start_angle=0.6, end_angle=4.1, line_color="#BEAED4", line_width=3)),
     ("bezier", Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#D95F02", line_width=2)),
-    ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="https://bokeh.pydata.org/en/latest/_static/images/logo.png"), anchor="center")),
+    ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="https://static.bokeh.org/logos/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
+    ("multi_polygons", MultiPolygons(xs="xsss", ys="ysss", line_color="#8073AC", fill_color="#FB9A99", line_width=2)),
     ("oval", Oval(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
@@ -76,10 +81,11 @@ markers = [
     ("asterisk", Asterisk(x="x", y="y", size="sizes", line_color="#F0027F", fill_color=None, line_width=2)),
     ("x", X(x="x", y="y", size="sizes", line_color="thistle", fill_color=None, line_width=2)),
     ("hex", Hex(x="x", y="y", size="sizes", line_color="#99D594", line_width=2)),
+    ("dash", Dash(x="x", y="y", size="sizes", angle=0.5, line_color="#386CB0", line_width=1)),
 ]
 
 def make_tab(title, glyph):
-    plot = Plot(x_range=xdr, y_range=ydr)
+    plot = Plot()
     plot.title.text = title
 
     plot.add_glyph(source, glyph)
@@ -95,7 +101,7 @@ def make_tab(title, glyph):
 
     plot.add_tools(HoverTool())
 
-    tab = Panel(child=plot, title=title)
+    tab = Panel(child=plot, title=title, closable=True)
 
     return tab
 

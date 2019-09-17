@@ -66,7 +66,7 @@ p.scatter(x, y, radius=radii,
 # Add a div to display events and a button to trigger button click events
 
 div = Div(width=1000)
-button = Button(label="Button", button_type="success")
+button = Button(label="Button", button_type="success", width=300)
 layout = column(button, row(p, div))
 
 

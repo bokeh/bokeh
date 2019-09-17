@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Mix-in classes that bulk add groups of properties to Bokeh models.
 
 Some groups of properties often show up in Bokeh models together. For
@@ -7,6 +13,8 @@ reduce boilerplate code and simplify defining models with these sets
 of properties, use the mix-in classes in this module:
 
 * |FillProps| --- properties for fill color and alpha
+
+* |HatchProps| --- properties for hatching pattern, color, alpha, etc.
 
 * |LineProps| --- properties for line color, dashing, width, etc.
 
@@ -35,16 +43,53 @@ different usage, for more information see the docs for |Include|.
 .. |Include| replace:: :class:`~bokeh.core.properties.Include`
 
 .. |FillProps| replace:: :class:`~bokeh.core.property_mixins.FillProps`
+.. |HatchProps| replace:: :class:`~bokeh.core.property_mixins.HatchProps`
 .. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from .enums import HatchPattern, HatchPatternAbbreviation, LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .has_props import HasProps
-from .properties import Color, ColorSpec, DashPattern, Enum, FontSize, FontSizeSpec, Include, Int, Float, NumberSpec, Percent, String, value
+from .properties import (
+    Color, ColorSpec, DashPattern, Dict, Enum, FontSize, FontSizeSpec, HatchPatternSpec,
+    Include, Instance, Int, Float, NumberSpec, Percent, Size, String, value
+)
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'FillProps',
+    'HatchProps',
+    'LineProps',
+    'TextProps',
+    'ScalarFillProps',
+    'ScalarHatchProps',
+    'ScalarLineProps',
+    'ScalarTextProps',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 _color_help = """
 A color to use to %s with.
@@ -68,36 +113,7 @@ and 1 (opaque).
 
 """
 
-class FillProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
-
-    Mirrors the BokehJS ``properties.Fill`` class.
-
-    '''
-
-    fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
-    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
-
-class ScalarFillProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
-
-    Mirrors the BokehJS ``properties.Fill`` class.
-
-    '''
-
-    fill_color = Color(default="gray", help=_color_help)
-    fill_alpha = Percent(default=1.0, help=_alpha_help)
-
-
-
-
-
-
-_line_width_help = """
-Stroke width in units of pixels.
-"""
-
-class BaseLineProps(HasProps):
+class _BaseLineProps(HasProps):
     line_join = Enum(LineJoin, default='bevel', help="""
     How path segments should be joined together.
 
@@ -143,36 +159,7 @@ class BaseLineProps(HasProps):
     start from.
     """)
 
-class LineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
-
-    Mirrors the BokehJS ``properties.Line`` class.
-
-    '''
-
-    base_line_props = Include(BaseLineProps, use_prefix=False)
-
-    line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
-    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
-    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
-
-
-class ScalarLineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
-
-    Mirrors the BokehJS ``properties.Line`` class.
-
-    '''
-    base_line_props = Include(BaseLineProps, use_prefix=False)
-
-    line_color = Color(default="black", help=_color_help % "stroke paths")
-    line_width = Float(default=1, help=_line_width_help)
-    line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
-
-
-
-
-class BaseTextProps(HasProps):
+class _BaseTextProps(HasProps):
 
     text_font = String("helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
@@ -188,6 +175,7 @@ class BaseTextProps(HasProps):
     - ``'normal'`` normal text
     - ``'italic'`` *italic text*
     - ``'bold'`` **bold text**
+    - ``"bold italic"`` ***bold italic text***
 
     """)
 
@@ -223,6 +211,107 @@ class BaseTextProps(HasProps):
     100%, means no additional space will be used.
     """)
 
+#----------------------------------------------------------------------------
+# General API
+#----------------------------------------------------------------------------
+
+class FillProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
+
+    Mirrors the BokehJS ``properties.Fill`` class.
+
+    '''
+
+    fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
+    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
+
+class ScalarFillProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
+
+    Mirrors the BokehJS ``properties.Fill`` class.
+
+    '''
+
+    fill_color = Color(default="gray", help=_color_help  % "fill paths")
+    fill_alpha = Percent(default=1.0, help=_alpha_help)
+
+_hatch_scale_help = """
+A rough measure of the 'size' of the hatching pattern. Generally speaking, the
+higher the number, the more spread out the pattern will be.
+"""
+
+_hatch_pattern_help = """
+Built-in patterns are can either be specified as long names:
+
+%s
+
+or as one-letter abbreviations:
+
+%s
+""" % (", ". join(HatchPattern), ", ". join(repr(x) for x in HatchPatternAbbreviation))
+
+_hatch_weight_help = """
+A width value for line-strokes used in hatching.
+"""
+
+class HatchProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
+
+    Mirrors the BokehJS ``properties.Hatch`` class.
+
+    '''
+
+    hatch_color = ColorSpec(default="black", help=_color_help % "hatching")
+    hatch_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "hatching")
+    hatch_scale = NumberSpec(default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help)
+    hatch_pattern = HatchPatternSpec(default=None, help=_hatch_pattern_help)
+    hatch_weight = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help)
+    hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
+
+class ScalarHatchProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
+
+    Mirrors the BokehJS ``properties.Hatch`` class.
+
+    '''
+
+    hatch_color = Color(default="black", help=_color_help % "hatching")
+    hatch_alpha = Percent(default=1.0, help=_alpha_help % "hatching")
+    hatch_scale = Size(default=12.0, help=_hatch_scale_help)
+    hatch_pattern = String(default=None, help=_hatch_pattern_help)  # String to accommodate user custom values
+    hatch_weight = Size(default=1.0, help=_hatch_weight_help)
+    hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
+
+_line_width_help = """
+Stroke width in units of pixels.
+"""
+
+class LineProps(HasProps):
+    ''' Properties relevant to rendering path operations.
+
+    Mirrors the BokehJS ``properties.Line`` class.
+
+    '''
+
+    base_line_props = Include(_BaseLineProps, use_prefix=False)
+
+    line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
+    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
+    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
+
+
+class ScalarLineProps(HasProps):
+    ''' Properties relevant to rendering path operations.
+
+    Mirrors the BokehJS ``properties.Line`` class.
+
+    '''
+    base_line_props = Include(_BaseLineProps, use_prefix=False)
+
+    line_color = Color(default="black", help=_color_help % "stroke paths")
+    line_width = Float(default=1, help=_line_width_help)
+    line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
+
 
 class TextProps(HasProps):
     ''' Properties relevant to rendering text.
@@ -234,7 +323,7 @@ class TextProps(HasProps):
         to stroke the outlines of text has not yet been exposed.
 
     '''
-    base_text_props = Include(BaseTextProps, use_prefix=False)
+    base_text_props = Include(_BaseTextProps, use_prefix=False)
 
     text_font_size = FontSizeSpec(value("12pt"))
 
@@ -253,7 +342,7 @@ class ScalarTextProps(HasProps):
 
     '''
 
-    base_text_props = Include(BaseTextProps, use_prefix=False)
+    base_text_props = Include(_BaseTextProps, use_prefix=False)
 
     # XXX not great
     text_font_size = FontSize("12pt")
@@ -261,3 +350,11 @@ class ScalarTextProps(HasProps):
     text_color = Color(default="#444444", help=_color_help % "fill text")
 
     text_alpha = Percent(default=1.0, help=_alpha_help % "fill text")
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

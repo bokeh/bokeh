@@ -1,7 +1,9 @@
-0.12.14 (Feb 2018)
-==================
+.. _release-0-12-14:
 
-Bokeh Version ``0.12.14`` is an incremental update that adds a few
+0.12.14
+=======
+
+Bokeh Version ``0.12.14`` (Feb 2018) is an incremental update that adds a few
 important features and fixes several bugs. Some of the highlights
 include:
 
@@ -12,8 +14,10 @@ include:
 Many other small bugfixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
 
-Migration Guide
----------------
+.. _release-0-12-14-migration:
+
+`Migration Guide <releases.html#release-0-12-14-migration>`__
+-------------------------------------------------------------
 
 Deprecations Removed
 ~~~~~~~~~~~~~~~~~~~~
@@ -93,4 +97,4 @@ values of attributes is to use bokehjs' properties system. This change affects
 only creators of custom extensions.
 
 .. _GeoViews: http://geo.holoviews.org
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

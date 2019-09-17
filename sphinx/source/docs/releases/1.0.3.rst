@@ -1,0 +1,13 @@
+.. _release-1-0-3:
+
+1.0.3
+=====
+
+Bokeh Version ``1.0.3`` (December 2018) is a micro bugfix and feature release.
+
+Some of the highlights include:
+
+* Enable Copy-and-Paste from ``DataTable`` (:bokeh-issue:`7762`)
+* Add a Multi-line ``TextAreaInput`` widget (:bokeh-issue:`2828`)
+
+For full details see the :bokeh-tree:`CHANGELOG`.

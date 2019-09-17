@@ -30,14 +30,11 @@ out = groups.apply(outliers).dropna()
 if not out.empty:
     outx = []
     outy = []
-    for cat in cats:
-        # only add outliers if they exist
-        if not out.loc[cat].empty:
-            for value in out[cat]:
-                outx.append(cat)
-                outy.append(value)
+    for keys in out.index:
+        outx.append(keys[0])
+        outy.append(out.loc[keys[0]].loc[keys[1]])
 
-p = figure(tools="save", background_fill_color="#EFE8E2", title="", x_range=cats)
+p = figure(tools="", background_fill_color="#efefef", x_range=cats, toolbar_location=None)
 
 # if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
 qmin = groups.quantile(q=0.00)

@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -18,17 +17,16 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from mock import patch
 
 # External imports
 
 # Bokeh imports
-#from bokeh.core.templates import DOC_NB_JS, PLOT_DIV
 #from bokeh.core.json_encoder import serialize_json
+#from bokeh.core.templates import DOC_NB_JS, PLOT_DIV
+#from bokeh.embed.util import RenderItem
 
 # Module under test
-import bokeh.embed.notebook as ben
-#from bokeh.embed.util import RenderItem
+#import bokeh.embed.notebook as ben
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -88,17 +86,6 @@ class Test_notebook_content(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__ModelInEmptyDocument(object):
-
-    @patch('bokeh.document.document.check_integrity')
-    def test_validates_document_by_default(self, check_integrity, test_plot):
-        with ben._ModelInEmptyDocument(test_plot):
-            pass
-        assert check_integrity.called
-
-    @patch('bokeh.document.document.check_integrity')
-    def test_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch, test_plot):
-        monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
-        with ben._ModelInEmptyDocument(test_plot):
-            pass
-        assert not check_integrity.called
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

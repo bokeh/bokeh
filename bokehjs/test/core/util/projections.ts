@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {clip_mercator, in_bounds} from "core/util/projections"
+import {clip_mercator, in_bounds} from "@bokehjs/core/util/projections"
 
 describe("core/util/projections module", () => {
 

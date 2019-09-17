@@ -1,9 +1,9 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {CustomJS} from "models/callbacks/customjs"
-import {Model} from "model"
-import * as p from "core/properties"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {Model} from "@bokehjs/model"
+import * as p from "@bokehjs/core/properties"
 
 class SomeModel extends Model {
 
@@ -11,17 +11,14 @@ class SomeModel extends Model {
   bar: string
   baz: number
 
-  static initClass(): void {
-    this.prototype.type = 'SomeModel'
-
-    this.define({
+  static init_SomeModel(): void {
+    this.define<any>({
       foo: [ p.Number, 2 ],
       bar: [ p.String    ],
       baz: [ p.Number, 1 ],
     })
   }
 }
-SomeModel.initClass()
 
 describe("Model objects", () => {
 

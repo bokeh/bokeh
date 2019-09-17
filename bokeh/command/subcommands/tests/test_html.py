@@ -1,17 +1,51 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
-import pytest
+from mock import patch
 import os
 import sys
 
-is_python2 = sys.version_info[0] == 2
+# External imports
 
-import bokeh.command.subcommands.html as schtml
+# Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 
 from . import basic_scatter_script
+
+# Module under test
+import bokeh.command.subcommands.html as schtml
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+is_python2 = sys.version_info[0] == 2
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_create():
     import argparse
@@ -83,8 +117,7 @@ def test_basic_script(capsys):
 
         assert set(["scatter.html", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 def test_basic_script_with_output_after(capsys):
     def run(dirname):
@@ -96,8 +129,7 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.html", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 def test_basic_script_with_output_before(capsys):
     def run(dirname):
@@ -109,5 +141,27 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.html", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
+
+@patch('bokeh.util.browser.view')
+def test_show(mock_view, capsys):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "html", "--show", "scatter.py"])
+        out, err = capsys.readouterr()
+        assert err == ""
+        assert out == ""
+
+        assert set(["scatter.html", "scatter.py"]) == set(os.listdir(dirname))
+        assert mock_view.called
+        assert mock_view.call_args[0] == ('scatter.html',)
+
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,31 +1,29 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {TooltipAttachment} from "core/enums"
-import {div, show, hide, empty} from "core/dom"
+import {TooltipAttachment, Side} from "core/enums"
+import {div, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
+import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
+import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
 
-export function compute_side(attachment: TooltipAttachment, sx: number, sy: number, hcenter: number, vcenter: number) {
-  let side
+export function compute_side(attachment: TooltipAttachment, sx: number, sy: number, hcenter: number, vcenter: number): Side {
   switch (attachment) {
     case "horizontal":
-      side = sx < hcenter ? 'right' : 'left'
-      break
+      return sx < hcenter ? "right" : "left"
     case "vertical":
-      side = sy < vcenter ? 'below' : 'above'
-      break
+      return sy < vcenter ? "below" : "above"
     default:
-      side = attachment
+      return attachment
   }
-  return side
 }
 
 export class TooltipView extends AnnotationView {
   model: Tooltip
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     // TODO (bev) really probably need multiple divs
     this.plot_view.canvas_overlays.appendChild(this.el)
-    hide(this.el)
+    undisplay(this.el)
   }
 
   connect_signals(): void {
@@ -34,7 +32,7 @@ export class TooltipView extends AnnotationView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-tooltip")
+    return super.css_classes().concat(bk_tooltip)
   }
 
   render(): void {
@@ -47,12 +45,12 @@ export class TooltipView extends AnnotationView {
   protected _draw_tips(): void {
     const {data} = this.model
     empty(this.el)
-    hide(this.el)
+    undisplay(this.el)
 
     if (this.model.custom)
-      this.el.classList.add("bk-tooltip-custom")
+      this.el.classList.add(bk_tooltip_custom)
     else
-      this.el.classList.remove("bk-tooltip-custom")
+      this.el.classList.remove(bk_tooltip_custom)
 
     if (data.length == 0)
       return
@@ -61,7 +59,7 @@ export class TooltipView extends AnnotationView {
 
     for (const [sx, sy, content] of data) {
       if (this.model.inner_only && !frame.bbox.contains(sx, sy))
-          continue
+        continue
 
       const tip = div({}, content)
       this.el.appendChild(tip)
@@ -71,36 +69,36 @@ export class TooltipView extends AnnotationView {
 
     const side = compute_side(this.model.attachment, sx, sy, frame._hcenter.value, frame._vcenter.value)
 
-    this.el.classList.remove("bk-right")
-    this.el.classList.remove("bk-left")
-    this.el.classList.remove("bk-above")
-    this.el.classList.remove("bk-below")
+    this.el.classList.remove(bk_right)
+    this.el.classList.remove(bk_left)
+    this.el.classList.remove(bk_above)
+    this.el.classList.remove(bk_below)
 
     const arrow_size = 10  // XXX: keep in sync with less
 
-    show(this.el)  // XXX: {offset,client}Width() gives 0 when display="none"
+    display(this.el)  // XXX: {offset,client}Width() gives 0 when display="none"
 
     // slightly confusing: side "left" (for example) is relative to point that
-    // is being annotated but CS class "bk-left" is relative to the tooltip itself
+    // is being annotated but CS class ".bk-left" is relative to the tooltip itself
     let left: number, top: number
     switch (side) {
       case "right":
-        this.el.classList.add("bk-left")
+        this.el.classList.add(bk_left)
         left = sx + (this.el.offsetWidth - this.el.clientWidth) + arrow_size
         top = sy - this.el.offsetHeight/2
         break
       case "left":
-        this.el.classList.add("bk-right")
+        this.el.classList.add(bk_right)
         left = sx - this.el.offsetWidth - arrow_size
         top = sy - this.el.offsetHeight/2
         break
       case "below":
-        this.el.classList.add("bk-above")
+        this.el.classList.add(bk_above)
         top = sy + (this.el.offsetHeight - this.el.clientHeight) + arrow_size
         left = Math.round(sx - this.el.offsetWidth/2)
         break
       case "above":
-        this.el.classList.add("bk-below")
+        this.el.classList.add(bk_below)
         top = sy - this.el.offsetHeight - arrow_size
         left = Math.round(sx - this.el.offsetWidth/2)
         break
@@ -109,7 +107,7 @@ export class TooltipView extends AnnotationView {
     }
 
     if (this.model.show_arrow)
-      this.el.classList.add("bk-tooltip-arrow")
+      this.el.classList.add(bk_tooltip_arrow)
 
     // TODO (bev) this is not currently bulletproof. If there are
     // two hits, not colocated and one is off the screen, that can
@@ -118,20 +116,14 @@ export class TooltipView extends AnnotationView {
       this.el.style.top = `${top}px`
       this.el.style.left = `${left}px`
     } else
-      hide(this.el)
+      undisplay(this.el)
   }
 }
 
 export namespace Tooltip {
-  export interface Attrs extends Annotation.Attrs {
-    attachment: TooltipAttachment
-    inner_only: boolean
-    show_arrow: boolean
-    data: [number, number, HTMLElement][]
-    custom: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & {
     attachment: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
@@ -143,21 +135,19 @@ export namespace Tooltip {
 export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
-
   properties: Tooltip.Props
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Tooltip'
+  static init_Tooltip(): void {
     this.prototype.default_view = TooltipView
 
-    this.define({
-      attachment: [ p.String, 'horizontal' ], // TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
-      inner_only: [ p.Bool,   true         ],
-      show_arrow: [ p.Bool,   true         ],
+    this.define<Tooltip.Props>({
+      attachment: [ p.TooltipAttachment, 'horizontal' ],
+      inner_only: [ p.Boolean,           true         ],
+      show_arrow: [ p.Boolean,           true         ],
     })
 
     this.override({
@@ -178,4 +168,3 @@ export class Tooltip extends Annotation {
     this.data = this.data.concat([[sx, sy, content]])
   }
 }
-Tooltip.initClass()

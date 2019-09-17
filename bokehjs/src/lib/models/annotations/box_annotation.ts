@@ -1,14 +1,13 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import {Signal0} from "core/signaling"
-import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
+import {LineScalar, FillScalar} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
-import {Color} from "core/types"
-import {show, hide} from "core/dom"
+import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
-import {ViewTransform} from "core/layout/layout_canvas"
-import {BBox} from "core/util/bbox"
+import {BBox, CoordinateTransform} from "core/util/bbox"
+import {bk_shading} from "styles/annotations"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -21,11 +20,11 @@ export class BoxAnnotationView extends AnnotationView {
   private sbottom: number
   private stop: number
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.plot_view.canvas_overlays.appendChild(this.el)
-    this.el.classList.add("bk-shading")
-    hide(this.el)
+    this.el.classList.add(bk_shading)
+    undisplay(this.el)
   }
 
   connect_signals(): void {
@@ -44,22 +43,22 @@ export class BoxAnnotationView extends AnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return
 
     // don't render if *all* position are null
     if (this.model.left == null && this.model.right == null && this.model.top == null && this.model.bottom == null) {
-      hide(this.el)
+      undisplay(this.el)
       return
     }
 
-    const {frame} = this.plot_model
+    const {frame} = this.plot_view
     const xscale = frame.xscales[this.model.x_range_name]
     const yscale = frame.yscales[this.model.y_range_name]
 
-    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: ViewTransform, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateTransform, frame_extrema: number): number => {
       let sdim
       if (dim != null) {
         if (this.model.screen)
@@ -103,7 +102,7 @@ export class BoxAnnotationView extends AnnotationView {
     const ld = this.model.properties.line_dash.value().length < 2 ? "solid" : "dashed"
     this.el.style.borderStyle = ld
 
-    show(this.el)
+    display(this.el)
   }
 
   protected _canvas_box(sleft: number, sright: number, sbottom: number, stop: number): void {
@@ -122,7 +121,7 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.restore()
   }
 
-  interactive_bbox() : BBox {
+  interactive_bbox(): BBox {
     const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
     return new BBox({
       x0: this.sleft-tol,
@@ -153,27 +152,9 @@ export class BoxAnnotationView extends AnnotationView {
 }
 
 export namespace BoxAnnotation {
-  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    render_mode: RenderMode
-    x_range_name: string
-    y_range_name: string
-    top: number | null
-    top_units: SpatialUnits
-    bottom: number | null
-    bottom_units: SpatialUnits
-    left: number | null
-    left_units: SpatialUnits
-    right: number | null
-    right_units: SpatialUnits
-    screen: boolean
-    ew_cursor: string | null
-    ns_cursor: string | null
-    in_cursor: string | null
-  }
-
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & LineScalar & FillScalar & {
     render_mode: p.Property<RenderMode>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
@@ -185,12 +166,10 @@ export namespace BoxAnnotation {
     left_units: p.Property<SpatialUnits>
     right: p.Property<number | null>
     right_units: p.Property<SpatialUnits>
-
-    line_color: p.Property<Color>
-    line_width: p.Property<number>
-    line_dash:  p.Property<number[]>
-    fill_color: p.Property<Color>
-    fill_alpha: p.Property<number>
+    screen: p.Property<boolean>
+    ew_cursor: p.Property<string | null>
+    ns_cursor: p.Property<string | null>
+    in_cursor: p.Property<string | null>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
@@ -199,20 +178,18 @@ export namespace BoxAnnotation {
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
-
   properties: BoxAnnotation.Props
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'BoxAnnotation'
+  static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
     this.mixins(['line', 'fill'])
 
-    this.define({
+    this.define<BoxAnnotation.Props>({
       render_mode:  [ p.RenderMode,   'canvas'  ],
       x_range_name: [ p.String,       'default' ],
       y_range_name: [ p.String,       'default' ],
@@ -253,4 +230,3 @@ export class BoxAnnotation extends Annotation {
     this.data_update.emit()
   }
 }
-BoxAnnotation.initClass()

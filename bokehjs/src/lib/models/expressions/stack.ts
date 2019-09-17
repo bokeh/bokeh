@@ -4,27 +4,24 @@ import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace Stack {
-  export interface Attrs extends Expression.Attrs {
-    fields: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Expression.Props {}
+  export type Props = Expression.Props & {
+    fields: p.Property<string[]>
+  }
 }
 
 export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
-
   properties: Stack.Props
 
   constructor(attrs?: Partial<Stack.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Stack"
-
-    this.define({
+  static init_Stack(): void {
+    this.define<Stack.Props>({
       fields: [ p.Array, [] ],
     })
   }
@@ -40,4 +37,3 @@ export class Stack extends Expression {
     return result
   }
 }
-Stack.initClass()

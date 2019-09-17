@@ -1,86 +1,38 @@
 import * as p from "core/properties"
-import {Location, SizingMode} from "core/enums"
-import {empty} from "core/dom"
-import {logger} from "core/logging"
-import {isString} from "core/util/types"
-import {any, sortBy, includes} from "core/util/array"
+import {Location} from "core/enums"
+import {includes, sort_by} from "core/util/array"
 
 import {Tool} from "./tool"
 import {ButtonTool} from "./button_tool"
 import {ActionTool} from "./actions/action_tool"
-import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
+import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {build_views, remove_views} from "core/build_views"
+import {ContentBox} from "core/layout"
 
 export namespace ProxyToolbar {
-  export interface Attrs extends ToolbarBase.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ToolbarBase.Props {}
+  export type Props = ToolbarBase.Props
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
-
   properties: ProxyToolbar.Props
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ProxyToolbar"
-  }
-
   _proxied_tools: (Tool | ToolProxy)[]
 
   initialize(): void {
     super.initialize()
-    this._init_tools()
     this._merge_tools()
-  }
-
-  protected _init_tools(): void {
-    for (const tool of this.tools) {
-      if (tool instanceof InspectTool) {
-        if (!any(this.inspectors, (t) => t.id == tool.id))
-          this.inspectors = this.inspectors.concat([tool])
-      } else if (tool instanceof HelpTool) {
-        if (!any(this.help, (t) => t.id == tool.id))
-          this.help = this.help.concat([tool])
-      } else if (tool instanceof ActionTool) {
-        if (!any(this.actions, (t) => t.id == tool.id))
-          this.actions = this.actions.concat([tool])
-      } else if (tool instanceof GestureTool) {
-        let event_types: GestureType[]
-        let multi: boolean
-        if (isString(tool.event_type)) {
-          event_types = [tool.event_type]
-          multi = false
-        } else {
-          event_types = tool.event_type || []
-          multi = true
-        }
-
-        for (let et of event_types) {
-          if (!(et in this.gestures)) {
-            logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
-            continue
-          }
-
-          if (multi)
-            et = "multi"
-
-          if (!any(this.gestures[et].tools, (t) => t.id == tool.id))
-            this.gestures[et].tools = this.gestures[et].tools.concat([tool])
-        }
-      }
-    }
   }
 
   protected _merge_tools(): void {
@@ -145,9 +97,17 @@ export class ProxyToolbar extends ToolbarBase {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
-          const proxy = make_proxy(tools)
-          gesture.tools.push(proxy as any)
-          this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+          if (event_type == 'multi') {
+            for (const tool of tools) {
+              const proxy = make_proxy([tool])
+              gesture.tools.push(proxy as any)
+              this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+            }
+          } else {
+            const proxy = make_proxy(tools)
+            gesture.tools.push(proxy as any)
+            this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+          }
         }
       }
     }
@@ -156,8 +116,12 @@ export class ProxyToolbar extends ToolbarBase {
     for (const tool_type in actions) {
       const tools = actions[tool_type]
 
-      if (tools.length > 0)
+      if (tool_type == 'CustomAction') {
+        for (const tool of tools)
+          this.actions.push(make_proxy([tool]) as any)
+      } else if (tools.length > 0) {
         this.actions.push(make_proxy(tools) as any) // XXX
+      }
     }
 
     this.inspectors = []
@@ -173,99 +137,67 @@ export class ProxyToolbar extends ToolbarBase {
       if (gesture.tools.length == 0)
         continue
 
-      gesture.tools = sortBy(gesture.tools, (tool) => tool.default_order)
+      gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
 
       if (!(et == 'pinch' || et == 'scroll' || et == 'multi'))
         gesture.tools[0].active = true
     }
   }
 }
-ProxyToolbar.initClass()
 
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
 
-  protected _toolbar_views: {[key: string]: ToolbarBaseView}
-
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
     this.model.toolbar.toolbar_location = this.model.toolbar_location
-    this._toolbar_views = {}
-    build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
+    super.initialize()
   }
 
-  remove(): void {
-    remove_views(this._toolbar_views)
-    super.remove()
+  get child_models(): LayoutDOM[] {
+    return [this.model.toolbar as any] // XXX
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-toolbar-box")
-  }
+  _update_layout(): void {
+    this.layout = new ContentBox(this.child_views[0].el)
 
-  render(): void {
-    super.render()
+    const {toolbar} = this.model
 
-    const toolbar = this._toolbar_views[this.model.toolbar.id]
-    toolbar.render()
-
-    empty(this.el)
-    this.el.appendChild(toolbar.el)
-  }
-
-  get_width(): number {
-    return this.model.toolbar.vertical ? 30 : null as never
-  }
-
-  get_height(): number {
-    return this.model.toolbar.horizontal ? 30 : null as never
+    if (toolbar.horizontal) {
+      this.layout.set_sizing({
+        width_policy: "fit", min_width: 100, height_policy: "fixed",
+      })
+    } else {
+      this.layout.set_sizing({
+        width_policy: "fixed", height_policy: "fit", min_height: 100,
+      })
+    }
   }
 }
 
 export namespace ToolbarBox {
-  export interface Attrs extends LayoutDOM.Attrs {
-    toolbar: ToolbarBase
-    toolbar_location: Location
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {}
+  export type Props = LayoutDOM.Props & {
+    toolbar: p.Property<ToolbarBase>
+    toolbar_location: p.Property<Location>
+  }
 }
 
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
-
   properties: ToolbarBox.Props
 
   constructor(attrs?: Partial<ToolbarBox.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ToolbarBox'
+  static init_ToolbarBox(): void {
     this.prototype.default_view = ToolbarBoxView
 
-    this.define({
+    this.define<ToolbarBox.Props>({
       toolbar:          [ p.Instance          ],
       toolbar_location: [ p.Location, "right" ],
     })
   }
-
-  // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
-  // hack, but currently every layoutable is allowed to have its
-  // sizing mode configured, which is wrong. Another example of this
-  // is PlotCanvas which only works with strech_both sizing mode.
-  get sizing_mode(): SizingMode {
-    switch (this.toolbar_location) {
-      case "above":
-      case "below": {
-        return "scale_width"
-      }
-      case "left":
-      case "right": {
-        return "scale_height"
-      }
-    }
-  }
 }
-ToolbarBox.initClass()

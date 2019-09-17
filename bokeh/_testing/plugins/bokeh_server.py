@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -22,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 import subprocess
 import sys
 import time
@@ -42,20 +42,27 @@ pytest_plugins = (
     "bokeh._testing.plugins.log_file",
 )
 
+__all__ = (
+    'bokeh_server',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 @pytest.fixture(scope='session')
 def bokeh_server(request, log_file):
-    bokeh_port = pytest.config.option.bokeh_port
+    bokeh_port = request.config.option.bokeh_port
 
     cmd = ["python", "-m", "bokeh", "serve"]
     argv = ["--port=%s" % bokeh_port]
     bokeh_server_url = 'http://localhost:%s' % bokeh_port
 
+    env = os.environ.copy()
+    env['BOKEH_MINIFIED'] = 'false'
+
     try:
-        proc = subprocess.Popen(cmd + argv, stdout=log_file, stderr=log_file)
+        proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
     except OSError:
         write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)

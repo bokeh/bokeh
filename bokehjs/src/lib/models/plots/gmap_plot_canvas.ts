@@ -2,23 +2,27 @@ import {Signal0} from "core/signaling"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
-import {PlotCanvas, PlotCanvasView, RangeInfo, FrameBox} from "./plot_canvas"
+import {PlotView, RangeInfo, FrameBox} from "./plot_canvas"
 
-declare let _bokeh_gmaps_callback: () => void
+declare global {
+  interface Window {
+    _bokeh_gmaps_callback: () => void
+  }
+}
 
 const gmaps_ready = new Signal0({}, "gmaps_ready")
 
 const load_google_api = function(api_key: string): void {
-  _bokeh_gmaps_callback = () => gmaps_ready.emit()
+  window._bokeh_gmaps_callback = () => gmaps_ready.emit()
 
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=3.36&key=${api_key}&callback=_bokeh_gmaps_callback`
   document.body.appendChild(script)
 }
 
-export class GMapPlotCanvasView extends PlotCanvasView {
-  model: GMapPlotCanvas
+export class GMapPlotView extends PlotView {
+  model: GMapPlot
 
   protected _tiles_loaded: boolean
 
@@ -28,18 +32,18 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   protected initial_lat: number
   protected initial_lng: number
 
-  protected map: google.maps.Map
+  private map: google.maps.Map
   protected map_types: any
 
-  initialize(options: any): void {
+  initialize(): void {
     this.pause()
 
-    super.initialize(options)
+    super.initialize()
 
     this._tiles_loaded = false
     this.zoom_count = 0
 
-    const {zoom, lat, lng} = this.model.plot.map_options
+    const {zoom, lat, lng} = this.model.map_options
     this.initial_zoom = zoom
     this.initial_lat = lat
     this.initial_lng = lng
@@ -47,8 +51,8 @@ export class GMapPlotCanvasView extends PlotCanvasView {
     this.canvas_view.map_el!.style.position = "absolute"
 
     if (typeof google === "undefined" || google.maps == null) {
-      if (typeof _bokeh_gmaps_callback === "undefined") {
-        load_google_api(this.model.plot.api_key)
+      if (typeof window._bokeh_gmaps_callback === "undefined") {
+        load_google_api(this.model.api_key)
       }
       gmaps_ready.connect(() => this.request_render())
     }
@@ -96,7 +100,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
         this.map.setZoom(new_map_zoom)
 
         // Check we haven't gone out of bounds, and if we have undo the zoom
-        const [proj_xstart, proj_xend,,] = this._get_projected_bounds()
+        const [proj_xstart, proj_xend,, ] = this._get_projected_bounds()
         if (proj_xend - proj_xstart < 0) {
           this.map.setZoom(old_map_zoom)
         }
@@ -119,7 +123,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
       hybrid    : maps.MapTypeId.HYBRID,
     }
 
-    const mo = this.model.plot.map_options
+    const mo = this.model.map_options
     const map_options: google.maps.MapOptions = {
       center: new maps.LatLng(mo.lat, mo.lng),
       zoom: mo.zoom,
@@ -144,14 +148,14 @@ export class GMapPlotCanvasView extends PlotCanvasView {
     maps.event.addListenerOnce(this.map, 'tilesloaded', () => this._render_finished())
 
     // wire up listeners so that changes to properties are reflected
-    this.connect(this.model.plot.properties.map_options.change, () => this._update_options())
-    this.connect(this.model.plot.map_options.properties.styles.change, () => this._update_styles())
-    this.connect(this.model.plot.map_options.properties.lat.change, () => this._update_center('lat'))
-    this.connect(this.model.plot.map_options.properties.lng.change, () => this._update_center('lng'))
-    this.connect(this.model.plot.map_options.properties.zoom.change, () => this._update_zoom())
-    this.connect(this.model.plot.map_options.properties.map_type.change, () => this._update_map_type())
-    this.connect(this.model.plot.map_options.properties.scale_control.change, () => this._update_scale_control())
-    this.connect(this.model.plot.map_options.properties.tilt.change, () => this._update_tilt())
+    this.connect(this.model.properties.map_options.change, () => this._update_options())
+    this.connect(this.model.map_options.properties.styles.change, () => this._update_styles())
+    this.connect(this.model.map_options.properties.lat.change, () => this._update_center('lat'))
+    this.connect(this.model.map_options.properties.lng.change, () => this._update_center('lng'))
+    this.connect(this.model.map_options.properties.zoom.change, () => this._update_zoom())
+    this.connect(this.model.map_options.properties.map_type.change, () => this._update_map_type())
+    this.connect(this.model.map_options.properties.scale_control.change, () => this._update_scale_control())
+    this.connect(this.model.map_options.properties.tilt.change, () => this._update_tilt())
   }
 
   protected _render_finished(): void {
@@ -190,21 +194,21 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
   protected _update_center(fld: "lat" | "lng"): void {
     const c = this.map.getCenter().toJSON()
-    c[fld] = this.model.plot.map_options[fld]
+    c[fld] = this.model.map_options[fld]
     this.map.setCenter(c)
     this._set_bokeh_ranges()
   }
 
   protected _update_map_type(): void {
-    this.map.setOptions({mapTypeId: this.map_types[this.model.plot.map_options.map_type] })
+    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type] })
   }
 
   protected _update_scale_control(): void {
-    this.map.setOptions({scaleControl: this.model.plot.map_options.scale_control })
+    this.map.setOptions({scaleControl: this.model.map_options.scale_control })
   }
 
   protected _update_tilt(): void {
-    this.map.setOptions({tilt: this.model.plot.map_options.tilt })
+    this.map.setOptions({tilt: this.model.map_options.tilt })
   }
 
   protected _update_options(): void {
@@ -216,15 +220,15 @@ export class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   protected _update_styles(): void {
-    this.map.setOptions({styles: JSON.parse(this.model.plot.map_options.styles) })
+    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles) })
   }
 
   protected _update_zoom(): void {
-    this.map.setOptions({zoom: this.model.plot.map_options.zoom})
+    this.map.setOptions({zoom: this.model.map_options.zoom})
     this._set_bokeh_ranges()
   }
 
-  // this method is expected and called by PlotCanvasView.render
+  // this method is expected and called by PlotView.render
   protected _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
     const [left, top, width, height] = frame_box
     this.canvas_view.map_el!.style.top    = `${top}px`
@@ -238,8 +242,8 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
   // this overrides the standard _paint_empty to make the inner canvas transparent
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const ow = this.canvas._width.value
-    const oh = this.canvas._height.value
+    const ow = this.layout._width.value
+    const oh = this.layout._height.value
     const [left, top, iw, ih] = frame_box
 
     ctx.clearRect(0, 0, ow, oh)
@@ -258,37 +262,9 @@ export class GMapPlotCanvasView extends PlotCanvasView {
     ctx.lineTo(left,    top)
     ctx.closePath()
 
-    ctx.fillStyle = this.model.plot.border_fill_color
-    ctx.fill()
+    if (this.model.border_fill_color != null) {
+      ctx.fillStyle = this.model.border_fill_color
+      ctx.fill()
+    }
   }
 }
-
-export namespace GMapPlotCanvas {
-  export interface Attrs extends PlotCanvas.Attrs {}
-
-  export interface Props extends PlotCanvas.Props {}
-}
-
-export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
-
-export class GMapPlotCanvas extends PlotCanvas {
-
-  properties: GMapPlotCanvas.Props
-
-  plot: GMapPlot
-
-  constructor(attrs?: Partial<GMapPlotCanvas.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'GMapPlotCanvas'
-    this.prototype.default_view = GMapPlotCanvasView
-  }
-
-  initialize(): void {
-    this.use_map = true
-    super.initialize()
-  }
-}
-GMapPlotCanvas.initClass()

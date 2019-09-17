@@ -1,24 +1,71 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2015, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function
 
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import mock
 from mock import patch
-import pytest
 
+# External imports
+
+# Bokeh imports
 from bokeh.core.validation import check_integrity
 from bokeh.plotting import figure
-from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis
+
+from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis, CustomJS
 from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
 from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool
 
+# Module under test
+import bokeh.models.plots as bmp
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+_LEGEND_EMPTY_WARNING = """
+You are attempting to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
+
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+"""
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+class TestPlotLegendProperty(object):
+
+    def test_basic(self):
+        plot = figure(tools='')
+        x = plot.legend
+        assert isinstance(x, bmp._list_attr_splat)
+        assert len(x) == 0
+        plot.circle([1,2], [3,4], legend="foo")
+        x = plot.legend
+        assert isinstance(x, bmp._list_attr_splat)
+        assert len(x) == 1
+
+    def test_warnign(self):
+        plot = figure(tools='')
+        with pytest.warns(UserWarning) as warns:
+            plot.legend.location = "above"
+            assert len(warns) == 1
+            assert warns[0].message.args[0] == _LEGEND_EMPTY_WARNING
 
 class TestPlotSelect(object):
 
@@ -82,7 +129,7 @@ class TestPlotValidation(object):
     def test_missing_renderers(self):
         p = figure()
         p.renderers = []
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.warning.call_count == 1
         assert mock_logger.warning.call_args[0][0].startswith("W-1000 (MISSING_RENDERERS): Plot has no renderers")
@@ -90,13 +137,13 @@ class TestPlotValidation(object):
     def test_missing_scale(self):
         p = figure()
         p.x_scale = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale")
 
         p.y_scale = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale, y_scale")
@@ -104,13 +151,13 @@ class TestPlotValidation(object):
     def test_missing_range(self):
         p = figure()
         p.x_range = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range")
 
         p.y_range = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range, y_range")
@@ -118,7 +165,7 @@ class TestPlotValidation(object):
     def test_bad_extra_range_name(self):
         p = figure()
         p.xaxis.x_range_name="junk"
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
@@ -128,7 +175,7 @@ class TestPlotValidation(object):
         p = figure()
         p.extra_x_ranges['foo'] = Range1d()
         p.grid.x_range_name="junk"
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
@@ -136,36 +183,40 @@ class TestPlotValidation(object):
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
+        # test whether adding a figure (*and* it's extra ranges)
+        # to another's references doesn't create a false positive
+        p, dep = figure(), figure()
+        dep.extra_x_ranges['foo'] = Range1d()
+        dep.grid.x_range_name="foo"
+        p.x_range.callback = CustomJS(code = "", args = {"dep": dep})
+        assert dep in p.references()
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+            check_integrity([p])
+        assert mock_logger.error.call_count == 0
+
 def test_plot_add_layout_raises_error_if_not_render():
     plot = figure()
     with pytest.raises(ValueError):
         plot.add_layout(Range1d())
 
 
-def test_plot_add_layout_raises_error_if_plot_already_on_annotation():
-    plot = figure()
-    with pytest.raises(ValueError):
-        plot.add_layout(Label(plot=plot))
-
-
 def test_plot_add_layout_adds_label_to_plot_renderers():
     plot = figure()
     label = Label()
     plot.add_layout(label)
-    assert label in plot.renderers
+    assert label in plot.center
 
 
 def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
     plot = figure()
     axis = LinearAxis()
     plot.add_layout(axis, 'left')
-    assert axis in plot.renderers
     assert axis in plot.left
 
 
 def test_sizing_mode_property_is_fixed_by_default():
     plot = figure()
-    assert plot.sizing_mode is 'fixed'
+    assert plot.sizing_mode is None
 
 
 class BaseTwinAxis(object):
@@ -257,3 +308,15 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
     plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

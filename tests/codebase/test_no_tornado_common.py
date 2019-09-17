@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # Standard library imports
 from subprocess import PIPE, Popen
+from sys import executable
 
 # External imports
 
@@ -44,7 +45,7 @@ def test_no_tornado_common():
 
     '''
     proc = Popen([
-        "python", "-c", "import sys; %s; sys.exit(1 if any('tornado' in x for x in sys.modules.keys()) else 0)" % ";".join(BASIC_IMPORTS)
+        executable, "-c", "import sys; %s; sys.exit(1 if any('tornado' in x for x in sys.modules.keys()) else 0)" % ";".join(BASIC_IMPORTS)
     ],stdout=PIPE)
     proc.communicate()
     proc.wait()

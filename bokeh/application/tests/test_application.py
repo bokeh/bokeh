@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -53,6 +52,8 @@ class SomeModelInTestApplication(Model):
 #-----------------------------------------------------------------------------
 
 class Test_Application(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_empty(self):
         a = baa.Application()
@@ -138,7 +139,7 @@ class Test_Application(object):
         handler2._static = "bar"
         with pytest.raises(RuntimeError) as e:
             a.add(handler2)
-        assert "More than one static path" in str(e)
+        assert "More than one static path" in str(e.value)
 
     @mock.patch('bokeh.document.document.check_integrity')
     def test_application_validates_document_by_default(self, check_integrity):
@@ -163,6 +164,8 @@ class Test_Application(object):
 
 class Test_ServerContext(object):
 
+    # Public methods ----------------------------------------------------------
+
     def test_abstract(self):
         with pytest.raises(TypeError):
             baa.ServerContext()
@@ -175,4 +178,8 @@ class Test_SessionContext(object):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

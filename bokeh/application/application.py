@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -30,7 +29,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 # External imports
 from tornado import gen
@@ -45,8 +44,18 @@ from ..util.tornado import yield_for_all_futures
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'Application',
+    'ServerContext',
+    'SessionContext',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class Application(object):
@@ -68,7 +77,7 @@ class Application(object):
                 The URL is taken from the first one only.
 
         Keyword Args:
-            metadata (dict): abitrary user-supplied JSON data to make available
+            metadata (dict): arbitrary user-supplied JSON data to make available
                 with the application.
 
                 The server will provide a URL ``http://applicationurl/metadata``
@@ -91,7 +100,7 @@ class Application(object):
         metadata = kwargs.pop('metadata', None)
         if kwargs:
             raise TypeError("Invalid keyword argument: %s" %
-                kwargs.keys()[0])
+                list(kwargs.keys())[0])
         self._static_path = None
         self._handlers = []
         self._metadata = metadata
@@ -229,10 +238,6 @@ class Application(object):
             yield yield_for_all_futures(result)
         raise gen.Return(None)
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
 class ServerContext(with_metaclass(ABCMeta)):
     ''' A harness for server-specific information and tasks related to
     collections of Bokeh sessions.
@@ -243,9 +248,10 @@ class ServerContext(with_metaclass(ABCMeta)):
 
     # Properties --------------------------------------------------------------
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def sessions(self):
-        ''' SessionContext instances belonging to this application.
+        ''' ``SessionContext`` instances belonging to this application.
 
         *Subclasses must implement this method.*
 
@@ -372,7 +378,8 @@ class SessionContext(with_metaclass(ABCMeta)):
 
     # Properties --------------------------------------------------------------
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def destroyed(self):
         ''' If ``True``, the session has been discarded and cannot be used.
 

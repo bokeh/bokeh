@@ -1,36 +1,27 @@
 from __future__ import print_function
 
-from numpy import pi, arange, sin
-import numpy as np
+from numpy import pi, exp, linspace, sin
 import time
 
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
-from bokeh.models import (
-    Plot, DataRange1d, DatetimeAxis,
-    ColumnDataSource, PanTool, WheelZoomTool
-)
+from bokeh.models import Plot, DatetimeAxis, ColumnDataSource, PanTool, WheelZoomTool
 from bokeh.resources import INLINE
 
-x = arange(-2 * pi, 2 * pi, 0.1)
-y = sin(x)
+N = 200
+x = linspace(-2 * pi, 2 * pi, N)
+y = sin(x)*exp(-x)
 
-# Create an array of times, starting at the current time, and extending
-# for len(x) number of hours.
-times = np.arange(len(x)) * 3600000 + time.time()
+# Create an array of synthetic times, starting at the current time, and extending 24hrs
+times = (linspace(0, 24*3600, N) + time.time()) * 1000
 
-source = ColumnDataSource(
-    data=dict(x=x, y=y, times=times)
-)
+source = ColumnDataSource(data=dict(x=x, y=y, times=times))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
+plot = Plot(min_border=80, plot_width=800, plot_height=350, background_fill_color="#efefef")
 
-plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
-
-circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
+circle = Circle(x="times", y="y", fill_color="red", size=3, line_color=None, fill_alpha=0.5)
 plot.add_glyph(source, circle)
 
 plot.add_layout(DatetimeAxis(), 'below')

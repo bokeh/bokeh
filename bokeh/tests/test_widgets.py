@@ -1,7 +1,37 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import inspect
 
+# External imports
+
+# Bokeh imports
+
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def get_prop_set(class_object):
     # all this does is get a list of every property implemented by the object that is not present in the baseclasses of said object
@@ -22,7 +52,7 @@ class TestPanel(object):
         self.panelCls = Panel
 
     def test_expectedprops(self):
-        expected_properties = set(['title', 'child', 'closable'])
+        expected_properties = set(['title', 'child'])
         actual_properties = get_prop_set(self.panelCls)
         assert expected_properties.issubset(actual_properties)
 
@@ -32,7 +62,6 @@ class TestPanel(object):
         assert p1.title == ""
         assert p2.title == ""
         assert p1.child == None
-        assert not p1.closable
 
 
 class TestTabs(object):
@@ -51,3 +80,15 @@ class TestTabs(object):
         tab = self.tabsCls()
         assert tab.tabs == []
         assert tab.active == 0
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

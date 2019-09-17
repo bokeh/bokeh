@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -36,9 +35,6 @@ import bokeh.client.session as bcs
 # General API
 #-----------------------------------------------------------------------------
 
-def test_module_docstring_warning():
-    assert bcs._BOKEH_CLIENT_APP_WARNING_BODY in bcs.__doc__
-
 def test_DEFAULT_SESSION_ID():
     assert bcs.DEFAULT_SESSION_ID == "default"
 
@@ -51,6 +47,7 @@ class Test_ClientSession(object):
         s = bcs.ClientSession()
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert isinstance(s.id, string_types)
         assert len(s.id) == 44
 
@@ -58,12 +55,14 @@ class Test_ClientSession(object):
         s = bcs.ClientSession("sid")
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert s.id == "sid"
 
     def test_creation_with_ws_url(self):
         s = bcs.ClientSession(websocket_url="wsurl")
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert s._connection.url == "wsurl"
         assert isinstance(s.id, string_types)
         assert len(s.id) == 44
@@ -72,8 +71,16 @@ class Test_ClientSession(object):
         s = bcs.ClientSession(io_loop="io_loop")
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert s._connection.io_loop == "io_loop"
         assert isinstance(s.id, string_types)
+        assert len(s.id) == 44
+
+    def test_creation_with_arguments(self):
+        s = bcs.ClientSession(arguments="args")
+        assert s.connected == False
+        assert s.document is None
+        assert s._connection._arguments == "args"
         assert len(s.id) == 44
 
     @patch("bokeh.client.connection.ClientConnection.connect")
@@ -116,30 +123,6 @@ class Test_ClientSession(object):
         assert mock_force_roundtrip.call_args[0] == ()
         assert mock_force_roundtrip.call_args[1] == {}
 
-    @patch("warnings.warn")
-    @patch("bokeh.client.connection.ClientConnection.loop_until_closed")
-    def test_loop_until_closed(self, mock_loop_until_closed, mock_warn):
-        s = bcs.ClientSession()
-        s.loop_until_closed()
-        assert mock_loop_until_closed.call_count == 1
-        assert mock_loop_until_closed.call_args[0] == ()
-        assert mock_loop_until_closed.call_args[1] == {}
-
-        assert mock_warn.call_count == 1
-        assert mock_warn.call_args[0] == (bcs._BOKEH_CLIENT_APP_WARNING_FULL,)
-        assert mock_warn.call_args[1] == {}
-
-    @patch("warnings.warn")
-    @patch("bokeh.client.connection.ClientConnection.loop_until_closed")
-    def test_loop_until_closed_suppress_warnings(self, mock_loop_until_closed, mock_warn):
-        s = bcs.ClientSession()
-        s.loop_until_closed(True)
-        assert mock_loop_until_closed.call_count == 1
-        assert mock_loop_until_closed.call_args[0] == ()
-        assert mock_loop_until_closed.call_args[1] == {}
-
-        assert mock_warn.call_count == 0
-
     @patch("bokeh.client.connection.ClientConnection.request_server_info")
     def test_request_server_info(self, mock_request_server_info):
         s = bcs.ClientSession()
@@ -154,4 +137,8 @@ class Test_ClientSession(object):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

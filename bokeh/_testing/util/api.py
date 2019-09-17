@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -34,6 +33,10 @@ from six import string_types
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'verify_all',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -49,7 +52,7 @@ def verify_all(module, ALL):
             else:
                 mod = module
             assert hasattr(mod, "__all__")
-            assert mod.__all__ == ALL
+            assert mod.__all__ == ALL, "for module %s, expected: %r, actual: %r" % (mod.__name__, set(ALL)-set(mod.__all__), set(mod.__all__)-set(ALL))
 
         @pytest.mark.parametrize('name', ALL)
         @pytest.mark.unit

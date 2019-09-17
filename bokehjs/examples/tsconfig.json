@@ -1,21 +1,32 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
-    "strictNullChecks": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
     "alwaysStrict": true,
+    "noErrorTruncation": true,
     "noEmitOnError": false,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "ES5",
-    "lib": ["es5", "dom", "es2015.collection"],
     "declaration": false,
+    "sourceMap": false,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "types": []
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "ES5",
+    "lib": ["es2015", "dom"],
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["../build/js/lib/*", "../build/js/types/*"]
+    }
   },
-  "compileOnSave": false
+  "include": ["./*/*.ts", "./bokehjs.d.ts"]
 }

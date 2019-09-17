@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {MonthsTicker} from "models/tickers/months_ticker"
-import {ONE_MONTH} from "models/tickers/util"
+import {MonthsTicker} from "@bokehjs/models/tickers/months_ticker"
+import {ONE_MONTH} from "@bokehjs/models/tickers/util"
 
 describe("MonthsTicker Model", () => {
 
@@ -11,7 +11,7 @@ describe("MonthsTicker Model", () => {
   })
 
   it("should configure an interval of (diff)*ONE_MONTH with a multiple months", () => {
-    const ticker = new MonthsTicker({months: [0,3,6,9]})
+    const ticker = new MonthsTicker({months: [0, 3, 6, 9]})
     expect(ticker.interval).to.be.equal(3*ONE_MONTH)
   })
 

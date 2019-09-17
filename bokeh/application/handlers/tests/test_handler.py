@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -34,7 +33,13 @@ import bokeh.application.handlers.handler as bahh
 # General API
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 class Test_Handler(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_create(self):
         h = bahh.Handler()
@@ -65,9 +70,9 @@ class Test_Handler(object):
         assert h.static_path() is None
 
 #-----------------------------------------------------------------------------
-# Dev API
+# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Private API
+# Code
 #-----------------------------------------------------------------------------

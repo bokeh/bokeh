@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -13,7 +12,7 @@ and also deliver this capability with high-performance interactivity over large
 or streaming datasets. Bokeh can help anyone who would like to quickly and
 easily create interactive plots, dashboards, and data applications.
 
-For full documentation, please visit: https://bokeh.pydata.org
+For full documentation, please visit: https://docs.bokeh.org
 
 '''
 
@@ -26,7 +25,17 @@ import logging
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
-# General API
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
@@ -35,8 +44,9 @@ __all__ = (
     'sampledata',
 )
 
-# configure Bokeh version
-from .util.version import __version__; __version__
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def license():
     ''' Print the Bokeh license to the console.
@@ -49,12 +59,23 @@ def license():
     with open(join(__path__[0], 'LICENSE.txt')) as lic:
         print(lic.read())
 
-# expose sample data module
-from . import sampledata; sampledata
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+# configure Bokeh version
+from .util.version import __version__; __version__
+
+# expose sample data module
+from . import sampledata; sampledata
 
 # configure Bokeh logger
 from .util import logconfig

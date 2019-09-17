@@ -1,4 +1,4 @@
-import {Arrayable} from "../types"
+import {Arrayable, ArrayableNew} from "../types"
 
 export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T> {
   const len = array.length
@@ -18,7 +18,7 @@ export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...ite
 
   const n = len - k + items.length
 
-  const result = new (array.constructor as any)(n) as Arrayable<T>
+  const result = new (array.constructor as ArrayableNew)<T>(n)
 
   let i = 0
   for (; i < start; i++) {
@@ -34,6 +34,10 @@ export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...ite
   }
 
   return result
+}
+
+export function head<T>(array: Arrayable<T>, n: number): Arrayable<T> {
+  return splice(array, n, array.length - n)
 }
 
 export function insert<T>(array: Arrayable<T>, item: T, i: number): Arrayable<T> {
@@ -57,13 +61,55 @@ export function indexOf<T>(array: Arrayable<T>, item: T): number {
   return -1
 }
 
+export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
+export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U>
+
 export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U> {
   const n = array.length
-  const result: Arrayable<U> = new (array.constructor as any)(n)
+  const result = new (array.constructor as ArrayableNew)<U>(n)
   for (let i = 0; i < n; i++) {
     result[i] = fn(array[i], i, array)
   }
   return result
+}
+
+export function filter<T>(array: T[], pred: (item: T, i: number, array: Arrayable<T>) => boolean): T[]
+export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T>
+
+export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T> {
+  const n = array.length
+  const result = new (array.constructor as ArrayableNew)<T>(n)
+  let k = 0
+  for (let i = 0; i < n; i++) {
+    const value = array[i]
+    if (pred(value, i, array))
+      result[k++] = value
+  }
+  return head(result, k)
+}
+
+export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, index: number, array: Arrayable<T>) => T, initial?: T): T {
+  const n = array.length
+
+  if (initial === undefined && n == 0)
+    throw new Error("can't reduce an empty array without an initial value")
+
+  let value: T
+  let i: number
+
+  if (initial === undefined) {
+    value = array[0]
+    i = 1
+  } else {
+    value = initial
+    i = 0
+  }
+
+  for (; i < n; i++) {
+    value = fn(value, array[i], i, array)
+  }
+
+  return value
 }
 
 export function min(array: Arrayable<number>): number {
@@ -80,9 +126,9 @@ export function min(array: Arrayable<number>): number {
   return result
 }
 
-export function minBy<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
   if (array.length == 0)
-    throw new Error("minBy() called with an empty array")
+    throw new Error("min_by() called with an empty array")
 
   let result = array[0]
   let resultComputed = key(result)
@@ -113,9 +159,9 @@ export function max(array: Arrayable<number>): number {
   return result
 }
 
-export function maxBy<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function max_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
   if (array.length == 0)
-    throw new Error("maxBy() called with an empty array")
+    throw new Error("max_by() called with an empty array")
 
   let result = array[0]
   let resultComputed = key(result)
@@ -138,4 +184,75 @@ export function sum(array: Arrayable<number>): number {
     result += array[i]
   }
   return result
+}
+
+export function cumsum(array: number[]): number[]
+export function cumsum(array: Arrayable<number>): Arrayable<number>
+
+export function cumsum(array: Arrayable<number>): Arrayable<number> {
+  const result = new (array.constructor as ArrayableNew)<number>(array.length)
+  reduce(array, (a, b, i) => result[i] = a + b, 0)
+  return result
+}
+
+export function every<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
+  for (let i = 0, length = array.length; i < length; i++) {
+    if (!predicate(array[i]))
+      return false
+  }
+  return true
+}
+
+export function some<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
+  for (let i = 0, length = array.length; i < length; i++) {
+    if (predicate(array[i]))
+      return true
+  }
+  return false
+}
+
+export function index_of<T>(array: Arrayable<T>, value: T): number {
+  for (let i = 0, length = array.length; i < length; i++) {
+    if (array[i] === value)
+      return i
+  }
+  return -1
+}
+
+function _find_index(dir: -1 | 1) {
+  return function<T>(array: Arrayable<T>, predicate: (item: T) => boolean): number {
+    const length = array.length
+    let index = dir > 0 ? 0 : length - 1
+    for (; index >= 0 && index < length; index += dir) {
+      if (predicate(array[index]))
+        return index
+    }
+    return -1
+  }
+}
+
+export const find_index = _find_index(1)
+export const find_last_index = _find_index(-1)
+
+export function find<T>(array: Arrayable<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = find_index(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
+export function find_last<T>(array: Arrayable<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = find_last_index(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
+export function sorted_index<T>(array: Arrayable<T>, value: T): number {
+  let low = 0
+  let high = array.length
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2)
+    if (array[mid] < value)
+      low = mid + 1
+    else
+      high = mid
+  }
+  return low
 }

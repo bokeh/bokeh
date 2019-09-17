@@ -1,10 +1,6 @@
-import {GE, Variable, Constraint} from "./solver"
-import {LayoutCanvas} from "./layout_canvas"
+import {Size, Sizeable} from "./types"
+import {ContentLayoutable} from "./layoutable"
 
-import * as p from "../properties"
-import {logger} from "../logging"
-import {HasProps} from "../has_props"
-import {DOMView} from "../dom_view"
 import {Side} from "../enums"
 import {isString} from "../util/types"
 
@@ -77,7 +73,7 @@ const _angle_lookup: {[key in Side]: {[key in Orient]: number}} = {
   },
 }
 
-const _baseline_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
+const _baseline_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextBaseline}} = {
   above: {
     justified  : TOP,
     parallel   : ALPHABETIC,
@@ -108,7 +104,7 @@ const _baseline_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
   },
 }
 
-const _align_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
+const _align_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextAlign}} = {
   above: {
     justified  : CENTER,
     parallel   : CENTER,
@@ -139,120 +135,78 @@ const _align_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
   },
 }
 
-const _align_lookup_negative: {[key in Side]: string} = {
+const _align_lookup_negative: {[key in Side]: CanvasTextAlign} = {
   above  : RIGHT,
   below  : LEFT,
   left   : RIGHT,
   right  : LEFT,
 }
 
-const _align_lookup_positive: {[key in Side]: string} = {
+const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
   above  : LEFT,
   below  : RIGHT,
   left   : RIGHT,
   right  : LEFT,
 }
 
-export type Sizeable = {
-  panel: SidePanel
+export interface Panelable {
+  get_size(): Size
+  rotate?: boolean
 }
 
-export type SizeableView = DOMView & {
-  model: Sizeable
-  get_size(): number
-}
-
-export function isSizeable<T extends HasProps>(model: T): model is T & Sizeable {
-  return "panel" in model
-}
-
-export function isSizeableView<T extends DOMView>(view: T): view is T & SizeableView {
-  return isSizeable(view.model) && "get_size" in view
-}
-
-export const _view_sizes = new WeakMap<SizeableView, number>()
-export const _view_constraints = new WeakMap<SizeableView, Constraint>()
-
-export function update_panel_constraints(view: SizeableView): void {
-  const s = view.solver
-  const size = view.get_size()
-  let constraint = _view_constraints.get(view)
-
-  if (constraint != null && s.has_constraint(constraint)) {
-    if (_view_sizes.get(view) === size)
-      return
-    s.remove_constraint(constraint)
-  }
-
-  constraint = GE((view.model as any).panel._size, -size)
-  s.add_constraint(constraint)
-
-  _view_sizes.set(view, size)
-  _view_constraints.set(view, constraint)
-}
-
-export namespace SidePanel {
-  export interface Attrs extends LayoutCanvas.Attrs {
-    side: Side
-  }
-
-  export interface Props extends LayoutCanvas.Props {
-    side: p.Property<Side>
-  }
-}
-
-export interface SidePanel extends SidePanel.Attrs {}
-
-export class SidePanel extends LayoutCanvas {
-
-  properties: SidePanel.Props
-
-  constructor(attrs?: Partial<SidePanel.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "SidePanel"
-
-    this.internal({
-      side: [ p.String ],
-    })
-  }
+export class SidePanel extends ContentLayoutable {
 
   protected _dim: 0 | 1
   protected _normals: [number, number]
-  protected _size: Variable
 
-  toString(): string {
-    return `${this.type}(${this.id}, ${this.side})`
-  }
+  constructor(readonly side: Side, readonly obj: Panelable) {
+    super()
 
-  initialize(): void {
-    super.initialize()
     switch(this.side) {
       case "above":
         this._dim = 0
         this._normals = [0, -1]
-        this._size = this._height
-        break;
+        break
       case "below":
         this._dim = 0
         this._normals = [0, 1]
-        this._size = this._height
-        break;
+        break
       case "left":
         this._dim = 1
         this._normals = [-1, 0]
-        this._size = this._width
-        break;
+        break
       case "right":
         this._dim = 1
         this._normals = [1, 0]
-        this._size = this._width
-        break;
+        break
       default:
-        logger.error(`unrecognized side: '${this.side}'`)
+        throw new Error("unreachable")
     }
+
+    if (this.is_horizontal)
+      this.set_sizing({width_policy: "max", height_policy: "fixed"})
+    else
+      this.set_sizing({width_policy: "fixed", height_policy: "max"})
+  }
+
+  protected _content_size(): Sizeable {
+    return new Sizeable(this.get_oriented_size())
+  }
+
+  get_oriented_size(): Size {
+    const {width, height} = this.obj.get_size()
+    if (!this.obj.rotate || this.is_horizontal)
+      return {width, height}
+    else
+      return {width: height, height: width}
+  }
+
+  has_size_changed(): boolean {
+    const {width, height} = this.get_oriented_size()
+    if (this.is_horizontal)
+      return this.bbox.height != height
+    else
+      return this.bbox.width != width
   }
 
   get dimension(): 0 | 1 {
@@ -264,26 +218,26 @@ export class SidePanel extends LayoutCanvas {
   }
 
   get is_horizontal(): boolean {
-    return this.side == "above" || this.side == "below"
+    return this._dim == 0
   }
 
   get is_vertical(): boolean {
-    return this.side == "left" || this.side == "right"
+    return this._dim == 1
   }
 
   apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
     const side = this.side
 
-    let baseline: string
-    let align: string
+    let baseline: CanvasTextBaseline
+    let align: CanvasTextAlign
 
     if (isString(orient)) {
       baseline = _baseline_lookup[side][orient]
       align = _align_lookup[side][orient]
     } else {
       if (orient === 0) {
-        baseline = "whatever" // XXX: _baseline_lookup[side][orient]
-        align = "whatever" // XXX: _align_lookup[side][orient]
+        baseline = "whatever" as any // XXX: _baseline_lookup[side][orient]
+        align = "whatever" as any // XXX: _align_lookup[side][orient]
       } else if (orient < 0) {
         baseline = 'middle'
         align = _align_lookup_negative[side]
@@ -301,5 +255,3 @@ export class SidePanel extends LayoutCanvas {
     return _angle_lookup[this.side][orient]
   }
 }
-
-SidePanel.initClass()

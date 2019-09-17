@@ -33,6 +33,8 @@ of Bokeh models, or mark methods on Models as warning or error checks.
 
 .. autofunction:: bokeh.core.validation.check.check_integrity
 
+.. autofunction:: bokeh.core.validation.check.silence
+
 .. autofunction:: bokeh.core.validation.decorators.error
 
 .. autofunction:: bokeh.core.validation.decorators.warning

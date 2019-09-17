@@ -1,93 +1,60 @@
-import {empty, input, label, div} from "core/dom"
+import {ButtonGroup, ButtonGroupView} from "./button_group"
+
+import {Class} from "core/class"
+import {classes} from "core/dom"
+import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
-import {copy, includes, removeBy} from "core/util/array"
 
-import {Widget, WidgetView} from "./widget"
-import {ButtonType} from "./abstract_button"
+import {bk_active} from "styles/mixins"
 
-export class CheckboxButtonGroupView extends WidgetView {
+export class CheckboxButtonGroupView extends ButtonGroupView {
   model: CheckboxButtonGroup
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
+  get active(): Set<number> {
+    return new Set(this.model.active)
   }
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+  change_active(i: number): void {
+    const {active} = this
+    active.toggle(i)
+    this.model.active = active.values
+
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model)
   }
 
-  render(): void {
-    super.render()
+  protected _update_active(): void {
+    const {active} = this
 
-    empty(this.el)
-    const divEl = div({class: "bk-bs-btn-group"})
-    this.el.appendChild(divEl)
-
-    const active = this.model.active
-    const labels = this.model.labels
-
-    for (let i = 0; i < labels.length; i++) {
-      const inputEl = input({type: `checkbox`, value: `${i}`, checked: i in active})
-      inputEl.addEventListener("change", () => this.model.change_input(i))
-      const labelEl = label({class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`]}, inputEl, labels[i])
-      if (includes(active, i))
-        labelEl.classList.add("bk-bs-active")
-      divEl.appendChild(labelEl)
-    }
+    this._buttons.forEach((button, i) => {
+      classes(button).toggle(bk_active, active.has(i))
+    })
   }
-
 }
 
 export namespace CheckboxButtonGroup {
-  export interface Attrs extends Widget.Attrs {
-    active: number[]
-    labels: string[]
-    button_type: ButtonType
-    callback: any // XXX
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = ButtonGroup.Props & {
+    active: p.Property<number[]>
+  }
 }
 
 export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
-export class CheckboxButtonGroup extends Widget {
-
+export class CheckboxButtonGroup extends ButtonGroup {
   properties: CheckboxButtonGroup.Props
+  default_view: Class<CheckboxButtonGroupView>
 
   constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)
   }
 
-  change_input(i: number): void {
-    const active = copy(this.active)
-
-    if (includes(active, i))
-      removeBy(active, (j) => i == j)
-    else
-      active.push(i)
-
-    active.sort()
-
-    this.active = active
-
-    if (this.callback != null)
-      this.callback.execute(this)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "CheckboxButtonGroup"
+  static init_CheckboxButtonGroup(): void {
     this.prototype.default_view = CheckboxButtonGroupView
 
-    this.define({
-      active:      [ p.Array,  []        ],
-      labels:      [ p.Array,  []        ],
-      button_type: [ p.String, "default" ],
-      callback:    [ p.Instance          ],
+    this.define<CheckboxButtonGroup.Props>({
+      active: [ p.Array, [] ],
     })
   }
 }
-
-CheckboxButtonGroup.initClass()

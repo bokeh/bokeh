@@ -1,34 +1,31 @@
 import {TickSpec} from "./ticker"
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
-import {argmin, sortedIndex} from "core/util/array"
+import {argmin, sorted_index} from "core/util/array"
 import {isEmpty} from "core/util/object"
 
 // This Ticker takes a collection of Tickers and picks the one most appropriate
 // for a given range.
 
 export namespace CompositeTicker {
-  export interface Attrs extends ContinuousTicker.Attrs {
-    tickers: ContinuousTicker[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ContinuousTicker.Props {}
+  export type Props = ContinuousTicker.Props & {
+    tickers: p.Property<ContinuousTicker[]>
+  }
 }
 
 export interface CompositeTicker extends CompositeTicker.Attrs {}
 
 export class CompositeTicker extends ContinuousTicker {
-
   properties: CompositeTicker.Props
 
   constructor(attrs?: Partial<CompositeTicker.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CompositeTicker"
-
-    this.define({
+  static init_CompositeTicker(): void {
+    this.define<CompositeTicker.Props>({
       tickers: [p.Array, [] ],
     })
   }
@@ -58,8 +55,8 @@ export class CompositeTicker extends ContinuousTicker {
     const data_range = data_high - data_low
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
     const ticker_ndxs = [
-      sortedIndex(this.min_intervals, ideal_interval) - 1,
-      sortedIndex(this.max_intervals, ideal_interval),
+      sorted_index(this.min_intervals, ideal_interval) - 1,
+      sorted_index(this.max_intervals, ideal_interval),
     ]
     const intervals = [
       this.min_intervals[ticker_ndxs[0]],
@@ -93,5 +90,3 @@ export class CompositeTicker extends ContinuousTicker {
     return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }
 }
-
-CompositeTicker.initClass()

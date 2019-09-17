@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a Base class for all Bokeh properties.
 
 Bokeh properties work by contributing Python descriptor objects to
@@ -39,10 +45,44 @@ details around validation, serialization, and documentation.
 
 '''
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'PropertyDescriptorFactory',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 class PropertyDescriptorFactory(object):
     ''' Base class for all Bokeh properties.
 
-    A Bokeh property really consist of two parts: the familar "property"
+    A Bokeh property really consist of two parts: the familiar "property"
     portion, such as ``Int``, ``String``, etc., as well as an associated
     Python descriptor that delegates attribute access (e.g. ``range.start``)
     to the property instance.
@@ -107,3 +147,11 @@ class PropertyDescriptorFactory(object):
 
         '''
         raise NotImplementedError("make_descriptors not implemented")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

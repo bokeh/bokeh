@@ -1,23 +1,19 @@
 import {MercatorTileSource} from './mercator_tile_source'
+import * as p from "core/properties"
 
 export namespace QUADKEYTileSource {
-  export interface Attrs extends MercatorTileSource.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends MercatorTileSource.Props {}
+  export type Props = MercatorTileSource.Props
 }
 
 export interface QUADKEYTileSource extends QUADKEYTileSource.Attrs {}
 
 export class QUADKEYTileSource extends MercatorTileSource {
-
   properties: QUADKEYTileSource.Props
 
   constructor(attrs?: Partial<QUADKEYTileSource.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'QUADKEYTileSource'
   }
 
   get_image_url(x: number, y: number, z: number): string {
@@ -27,4 +23,3 @@ export class QUADKEYTileSource extends MercatorTileSource {
     return image_url.replace("{Q}", quadKey)
   }
 }
-QUADKEYTileSource.initClass()

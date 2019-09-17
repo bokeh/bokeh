@@ -78,18 +78,18 @@ export class Logger {
     }
   }
 
-  trace(..._args: any[]): void {}
+  trace(..._args: unknown[]): void {}
 
-  debug(..._args: any[]): void {}
+  debug(..._args: unknown[]): void {}
 
-  info(..._args: any[]): void {}
+  info(..._args: unknown[]): void {}
 
-  warn(..._args: any[]): void {}
+  warn(..._args: unknown[]): void {}
 
-  error(..._args: any[]): void {}
+  error(..._args: unknown[]): void {}
 }
 
-function _method_factory(method_name: string, logger_name: string): (...args: any[]) => void  {
+function _method_factory(method_name: string, logger_name: string): (...args: unknown[]) => void  {
   if ((console as any)[method_name] != null)
     return (console as any)[method_name].bind(console, logger_name)
   else if (console.log != null)

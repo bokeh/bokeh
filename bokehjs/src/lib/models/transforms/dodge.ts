@@ -6,28 +6,25 @@ import {Arrayable} from "core/types"
 import {isNumber, isArrayableOf} from "core/util/types"
 
 export namespace Dodge {
-  export interface Attrs extends Transform.Attrs {
-    value: number
-    range: Range
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props & {
+    value: p.Property<number>
+    range: p.Property<Range>
+  }
 }
 
 export interface Dodge extends Dodge.Attrs {}
 
 export class Dodge extends Transform {
-
   properties: Dodge.Props
 
   constructor(attrs?: Partial<Dodge.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Dodge"
-
-    this.define({
+  static init_Dodge(): void {
+    this.define<Dodge.Props>({
       value: [ p.Number,  0 ],
       range: [ p.Instance   ],
     })
@@ -64,4 +61,3 @@ export class Dodge extends Transform {
     return x + this.value
   }
 }
-Dodge.initClass()

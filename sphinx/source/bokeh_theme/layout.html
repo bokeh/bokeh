@@ -1,133 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-  <!-- Basic Page Needs
+    <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta charset="utf-8">
-  <title>{{ title }} &mdash; {{ shorttitle }}</title>
-  <meta name="description" content="{{ DESCRIPTION }}">
-  <meta name="author" content="{{ AUTHOR }}">
+    <meta charset="utf-8">
+    <title>{{ title }} &mdash; {{ shorttitle }}</title>
+    <meta name="description" content="{{ DESCRIPTION }}">
+    <meta name="author" content="{{ AUTHOR }}">
 
-  <!-- Mobile Specific Metas
+    <!-- Mobile Specific Metas
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- FONT
+    <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
-  <script>
-    WebFont.load({
-      google: {
-        families: ['Source Sans Pro']
-      }
-    });
-  </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+    <script>
+        WebFont.load({
+            google: {
+                families: ['Source Sans Pro']
+            }
+        });
+    </script>
 
-  <!-- CSS
+    <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="//{{ css_server }}/theme/css/main.css">
+    <link rel="stylesheet" href="{{ pathto('_static/' + theme_css, 1) }}">
 
-
-  <!-- Scripts
+    <!-- Scripts
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script type="text/javascript">
-    var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
-  </script>
-  <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
+    </script>
+    <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 
-  <!-- Favicon
+    <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
+    <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
 
-  <!-- Canonical
+    <!-- Canonical
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="canonical" href="https://bokeh.pydata.org/en/latest/{{ pagename }}{{ file_suffix }}" />
+    <link rel="canonical" href="https://docs.bokeh.org/en/latest/{{ pagename }}{{ file_suffix }}" />
 
 </head>
+
 <body class="">
 
-  <header class="navigation">
-    <div class="wrapper">
-      <a href="{{ SITE_URL }}" class="logo">
-        <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
-      </a>
-      <a href="{{ SITE_URL }}" class="navigation-menu logo-text">Bokeh</a>
-      <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
-      <nav>
-        <ul id="js-navigation-menu" class="navigation-menu show">
-          {% for name, link in NAV %}
-              <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
-          {% endfor %}
-        </ul>
-      </nav>
-    </div>
-  </header>
-  <div class="second-nav">
-    <nav>
-      <ul class="navigation-menu show">
-        <li class="nav-link more"><a href="{{ pathto('index') }}">{{ version }}</a>
-            <ul class="submenu">
-              {% for version in ALL_VERSIONS %}
-              <li class="version-link"><a href="//bokeh.pydata.org/en/{{ version }}/">{{ version }}</a></li>
-              {% endfor %}
+    <header class="navigation">
+        <div class="wrapper">
+            <a href="{{ SITE_URL }}" class="logo">
+                <img src="{{ pathto('_static/images/logo.png', 1) }}" alt="Bokeh Logo">
+            </a>
+            <a href="{{ SITE_URL }}" class="navigation-menu logo-text">Bokeh</a>
+            <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">Menu</a>
+            <nav>
+                <ul id="js-navigation-menu" class="navigation-menu show">
+                    {% for name, link in NAV %}
+                    <li class="nav-link"><a href="{{ link }}">{{ name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="second-nav">
+        <nav>
+            <ul class="navigation-menu show">
+                <li class="nav-link more"><a href="{{ pathto('index') }}">{{ version }}</a>
+                    <ul class="submenu">
+                        {% for version in ALL_VERSIONS %}
+                        <li class="version-link"><a href="//docs.bokeh.org/en/{{ version }}/">{{ version }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {%- for name, link in NAV_DOCS %} {% if hasdoc('docs/' + link) %}
+                <li class="nav-link doc-head"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+                {% else %}
+                <li class="nav-link doc-head"><a href="{{ link }}">{{ name }}</a></li>
+                {% endif %} {%- endfor %}
             </ul>
-        </li>
-        {%- for name, link in NAV_DOCS  %}
-            {% if hasdoc('docs/' + link) %}
-            <li class="nav-link doc-head"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
-            {% else %}
-            <li class="nav-link doc-head"><a href="{{ link }}">{{ name }}</a></li>
-            {% endif %}
-        {%- endfor %}
-      </ul>
-    </nav>
-  </div>
-
-<!-- MAIN BODY OF DOCS –––––––––––––––––– -->
-  <div class="docs section">
-    <div class="toc">
-      {{ toctree(maxdepth=4, collapse=True, includehidden=True) }}
+        </nav>
     </div>
-    <div class="content">
-        {% block body %}{% endblock %}
+
+    <!-- MAIN BODY OF DOCS –––––––––––––––––– -->
+    <div class="docs section">
+        <div class="toc">
+            {{ toctree(maxdepth=4, collapse=True, includehidden=True) }}
+        </div>
+        <div class="content">
+            {% block body %}{% endblock %}
+        </div>
     </div>
-  </div>
 
-<!-- END MAIN BODY OF DOCS ––––––––––––– -->
+    <!-- END MAIN BODY OF DOCS ––––––––––––– -->
 
-<footer class="footer">
-  <div class="footer-links">
-    <ul>
-      <li><span class="footer-title">About Us</span></li>
-      {% for name, link in ABOUT %}
-          <li><a href="{{ link }}">{{ name }}</a></li>
-      {% endfor %}
-    </ul>
-    <ul>
-      <li><span class="footer-title">Links</span></li>
-      {% for name, link in LINKS %}
-          <li><a href="{{ link }}">{{ name }}</a></li>
-      {% endfor %}
-    </ul>
-    <ul>
-      <li><span class="footer-title">Join Us</span></li>
-      {% for name, link in SOCIAL %}
-          <li><a href="{{ link }}">{{ name }}</a></li>
-      {% endfor %}
-    </ul>
-    <ul class="copyright">
-      <li>{{ copyright }}</li>
-    </ul>
-  </div>
-</footer>
+    <footer class="footer">
+        <div class="footer-links">
+            <ul>
+                <li><span class="footer-title">About Us</span></li>
+                {% for name, link in ABOUT %} {% if hasdoc('docs/' + link) %}
+                <li><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+                {% else %}
+                <li><a href="{{ link }}">{{ name }}</a></li>
+                {% endif %} {% endfor %}
+            </ul>
+            <ul>
+                <li><span class="footer-title">Join Us</span></li>
+                {% for name, link in SOCIAL %} {% if hasdoc('docs/' + link) %}
+                <li><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+                {% else %}
+                <li><a href="{{ link }}">{{ name }}</a></li>
+                {% endif %} {% endfor %}
+            </ul>
+            <ul class="copyright">
+                <li>{{ copyright }}</li>
+            </ul>
+        </div>
+    </footer>
 
-<!-- Google Analytics -->
-{% include 'ga.html' %}
+    <!-- Google Analytics -->
+    {% include 'ga.html' %}
 
-<!-- End Document
+    <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 

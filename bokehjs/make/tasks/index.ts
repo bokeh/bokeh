@@ -1,3 +1,4 @@
+import "./all"
 import "./build"
 import "./clean"
 import "./compiler"

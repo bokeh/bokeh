@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -37,6 +36,7 @@ from tornado.web import RequestHandler
 # Bokeh imports
 from bokeh.io import save
 from bokeh.server.server import Server
+import bokeh.server.views.ws as ws
 from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
 
 #-----------------------------------------------------------------------------
@@ -47,6 +47,16 @@ pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
     "bokeh._testing.plugins.file_server",
     "bokeh._testing.plugins.selenium",
+)
+
+__all__ = (
+    'bokeh_app_info',
+    'bokeh_model_page',
+    'bokeh_server_page',
+    'find_free_port',
+    'output_file_url',
+    'single_plot_page',
+    'test_file_path_and_url',
 )
 
 #-----------------------------------------------------------------------------
@@ -70,6 +80,20 @@ def output_file_url(request, file_server):
 
     return file_server.where_is(url)
 
+@pytest.fixture
+def test_file_path_and_url(request, file_server):
+    filename = request.function.__name__ + '.html'
+    file_obj = request.fspath.dirpath().join(filename)
+    file_path = file_obj.strpath
+    url = file_path.replace('\\', '/')  # Windows-proof
+
+    def tear_down():
+        if file_obj.isfile():
+            file_obj.remove()
+    request.addfinalizer(tear_down)
+
+    return file_path, file_server.where_is(url)
+
 
 class _ExitHandler(RequestHandler):
     def initialize(self, io_loop):
@@ -88,10 +112,23 @@ def find_free_port():
         return s.getsockname()[1]
 
 @pytest.fixture
-def bokeh_app_url(request, driver):
+def bokeh_app_info(request, driver):
+    ''' Start a Bokeh server app and return information needed to test it.
+
+    Returns a tuple (url, message_test_port), where the latter is defined as
+
+        namedtuple('MessageTestPort', ['sent', 'received'])
+
+    and will contain all messages that the Bokeh Server sends/receives while
+    running during the test.
+
+    '''
 
     def func(modify_doc):
 
+        from collections import namedtuple
+        MessageTestPort = namedtuple('MessageTestPort', ['sent', 'received'])
+        ws._message_test_port = MessageTestPort([], [])
         port = find_free_port()
         def worker():
             io_loop = IOLoop()
@@ -112,11 +149,12 @@ def bokeh_app_url(request, driver):
             # and should be removed when that issue is resolved
             driver.get_log('browser')
 
+            ws._message_test_port = None
             t.join()
 
         request.addfinalizer(cleanup)
 
-        return "http://localhost:%d/" % port
+        return "http://localhost:%d/" % port, ws._message_test_port
 
     return func
 
@@ -226,11 +264,11 @@ def single_plot_page(driver, output_file_url, has_no_console_errors):
 
 class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 
-    def __init__(self, modify_doc, driver, bokeh_app_url, has_no_console_errors):
+    def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors):
         self._driver = driver
         self._has_no_console_errors = has_no_console_errors
 
-        self._app_url = bokeh_app_url(modify_doc)
+        self._app_url, self.message_test_port = bokeh_app_info(modify_doc)
         time.sleep(0.1)
         self._driver.get(self._app_url)
 
@@ -241,9 +279,9 @@ class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 
 
 @pytest.fixture()
-def bokeh_server_page(driver, bokeh_app_url, has_no_console_errors):
+def bokeh_server_page(driver, bokeh_app_info, has_no_console_errors):
     def func(modify_doc):
-        return _BokehServerPage(modify_doc, driver, bokeh_app_url, has_no_console_errors)
+        return _BokehServerPage(modify_doc, driver, bokeh_app_info, has_no_console_errors)
     return func
 
 #-----------------------------------------------------------------------------

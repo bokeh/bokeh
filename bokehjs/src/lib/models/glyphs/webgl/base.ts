@@ -56,7 +56,7 @@ export abstract class BaseGLGlyph {
     const {width, height} = this.glyph.renderer.plot_view.gl!.canvas
     const trans = {
       pixel_ratio: this.glyph.renderer.plot_view.canvas.pixel_ratio,  // pass pixel_ratio to webgl
-      width: width, height: height,
+      width, height,
       dx: dx[0]/sx, dy: dy[0]/sy, sx, sy,
     }
     this.draw(indices, mainglyph, trans)
@@ -138,7 +138,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
   if (!visual.doit) {
     // Don't draw (draw transparent)
     vbo.used = false
-    prog.set_attribute(att_name, 'vec4', [0,0,0,0])
+    prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
   } else if (visual_prop_is_singular(visual, colorname) && visual_prop_is_singular(visual, alphaname)) {
     // Nice and simple; both color and alpha are singular
     vbo.used = false

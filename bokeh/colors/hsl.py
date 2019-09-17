@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -33,12 +32,16 @@ from .color import Color
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'HSL',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 class HSL(Color):
-    ''' Represent colors by specifying their Hue, Saturation, and Value.
+    ''' Represent colors by specifying their Hue, Saturation, and lightness.
 
     Alpha values may also optionally be provided. Otherwise, alpha values
     default to 1.
@@ -50,13 +53,13 @@ class HSL(Color):
 
         Args:
             h (int) :
-                The Hue, in [0, 255]
+                The Hue, in [0, 360]
 
-            h (int) :
+            s (int) :
                 The Saturation, in [0, 1]
 
-            h (int) :
-                The Value, in [0, 1]
+            l (int) :
+                The lightness, in [0, 1]
 
             a (float, optional) :
                 An alpha value for this color in [0, 1] (default: 1.0)

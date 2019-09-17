@@ -1,32 +1,28 @@
 import {TickFormatter} from "./tick_formatter"
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
-import {Axis} from "../axes/axis"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
 export namespace LogTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    ticker: LogTicker | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    ticker: p.Property<LogTicker | null>
+  }
 }
 
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
-
   properties: LogTickFormatter.Props
 
   constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'LogTickFormatter'
-
-    this.define({
+  static init_LogTickFormatter(): void {
+    this.define<LogTickFormatter.Props>({
       ticker: [ p.Instance, null ],
     })
   }
@@ -40,7 +36,7 @@ export class LogTickFormatter extends TickFormatter {
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
   }
 
-  doFormat(ticks: number[], axis: Axis): string[] {
+  doFormat(ticks: number[], opts: {loc: number}): string[] {
     if (ticks.length == 0)
       return []
 
@@ -57,9 +53,8 @@ export class LogTickFormatter extends TickFormatter {
     }
 
     if (small_interval)
-      return this.basic_formatter.doFormat(ticks, axis)
+      return this.basic_formatter.doFormat(ticks, opts)
     else
       return labels
   }
 }
-LogTickFormatter.initClass()

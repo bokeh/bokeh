@@ -1,12 +1,33 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for describing different kinds of ranges of values
 in different kinds of spaces (e.g., continuous or categorical)
 and with options for "auto sizing".
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from collections import Counter
 
+# External imports
+
+# Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance,
@@ -18,6 +39,21 @@ from ..model import Model
 from .callbacks import Callback
 from .renderers import Renderer
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'DataRange',
+    'DataRange1d',
+    'FactorRange',
+    'Range',
+    'Range1d',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Range(Model):
@@ -75,18 +111,21 @@ class Range1d(Range):
 
     Examples:
 
+    .. code-block:: python
+
         Range1d(0, 1, bounds='auto')  # Auto-bounded to 0 and 1 (Default behavior)
         Range1d(start=0, end=1, bounds=(0, None))  # Maximum is unbounded, minimum bounded to 0
+
     """)
 
     min_interval = Either(Float, TimeDelta, default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
     minimum visible interval. If set to ``None`` (default), the minimum
-    interval is not bound. Can be a timedelta. """)
+    interval is not bound. Can be a ``TimeDelta``. """)
 
     max_interval = Either(Float, TimeDelta, default=None, help="""
     The level that the range is allowed to zoom out, expressed as the
-    maximum visible interval. Can be a timedelta. Note that ``bounds`` can
+    maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
     def __init__(self, *args, **kwargs):
@@ -122,7 +161,9 @@ class DataRange(Range):
 
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.
-    The upper and lower bounds are set to the min and max of the data.
+
+    By default the ``start`` and ``end`` of the range automatically
+    assume min and max values of the data for associated renderers.
 
     '''
 
@@ -157,7 +198,7 @@ class DataRange1d(DataRange):
 
     By default, the bounds will be None, allowing your plot to pan/zoom as far
     as you want. If bounds are 'auto' they will be computed to be the same as
-    the start and end of the DataRange1d.
+    the start and end of the ``DataRange1d``.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether
     your range is increasing or decreasing, the first item should be the
@@ -268,7 +309,7 @@ class FactorRange(Range):
     Factors may have 1, 2, or 3 levels. For 1-level factors, each factor is
     simply a string. For example:
 
-    .. code-block: python
+    .. code-block:: python
 
         FactorRange(factors=["sales", "marketing", "engineering"])
 
@@ -325,7 +366,7 @@ class FactorRange(Range):
         FactorRange(factors=[["foo", "1'], ["foo", "2'], ["bar", "1"]])
 
     The top level groups correspond to ``"foo"` and ``"bar"``, and the
-    group padding will be applied between the factors``["foo", "2']`` and
+    group padding will be applied between the factors ``["foo", "2']`` and
     ``["bar", "1"]``
     """)
 
@@ -375,7 +416,7 @@ class FactorRange(Range):
 
     By default, the bounds will be None, allowing your plot to pan/zoom as far
     as you want. If bounds are 'auto' they will be computed to be the same as
-    the start and end of the FactorRange.
+    the start and end of the ``FactorRange``.
     """)
 
     min_interval = Float(default=None, help="""
@@ -410,3 +451,15 @@ class FactorRange(Range):
         dupes = [item for item, count in Counter(self.factors).items() if count > 1]
         if dupes:
             return "duplicate factors found: %s" % ', '.join(repr(x) for x in dupes)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

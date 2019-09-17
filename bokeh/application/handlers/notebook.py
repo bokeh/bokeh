@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -30,6 +29,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import io
+import re
+import sys
 
 # External imports
 
@@ -41,8 +43,16 @@ from .code import CodeHandler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'NotebookHandler',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class NotebookHandler(CodeHandler):
@@ -67,19 +77,60 @@ class NotebookHandler(CodeHandler):
 
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to NotebookHandler')
+
+
+        class StripMagicsProcessor(nbconvert.preprocessors.Preprocessor):
+            """
+            Preprocessor to convert notebooks to Python source while stripping
+            out all magics (i.e IPython specific syntax).
+            """
+
+            _magic_pattern = re.compile(r'^\s*(?P<magic>%%\w\w+)($|(\s+))')
+
+            def strip_magics(self, source):
+                """
+                Given the source of a cell, filter out all cell and line magics.
+                """
+                filtered=[]
+                for line in source.splitlines():
+                    match = self._magic_pattern.match(line)
+                    if match is None:
+                        filtered.append(line)
+                    else:
+                        msg = 'Stripping out IPython magic {magic} in code cell {cell}'
+                        message = msg.format(cell=self._cell_counter, magic=match.group('magic'))
+                        log.warning(message)
+                return '\n'.join(filtered)
+
+            def preprocess_cell(self, cell, resources, index):
+                if cell['cell_type'] == 'code':
+                    self._cell_counter += 1
+                    cell['source'] = self.strip_magics(cell['source'])
+                return cell, resources
+
+            def __call__(self, nb, resources):
+                self._cell_counter = 0
+                return self.preprocess(nb,resources)
+
+        preprocessors=[StripMagicsProcessor()]
         filename = kwargs['filename']
 
-        with open(filename) as f:
+        with io.open(filename, encoding="utf-8") as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
+
+            for preprocessor in preprocessors:
+                exporter.register_preprocessor(preprocessor)
+
             source, _ = exporter.from_notebook_node(nb)
+            source = source.replace('get_ipython().run_line_magic', '')
+            source = source.replace('get_ipython().magic', '')
+
+            if sys.version_info.major == 2 and isinstance(source, unicode): # NOQA
+                source = source.encode('utf-8')
             kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

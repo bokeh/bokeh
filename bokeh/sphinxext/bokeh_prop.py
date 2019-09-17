@@ -1,12 +1,19 @@
-""" Thoroughly document Bokeh property attributes.
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Thoroughly document Bokeh property attributes.
 
-The ``bokeh-prop`` directive generates useful type information
-for the property attribute, including cross links to the relevant
-property types. Additionally, any per-attribute docstrings are
-also displayed.
+The ``bokeh-prop`` directive generates documentation for Bokeh model properties,
+including cross links to the relevant property types. Additionally, any
+per-attribute help strings are also displayed.
 
-This directive takes the path to an attribute on a Bokeh
-model class as an argument::
+This directive takes the name *(class.attr)* of a Bokeh property as its
+argument and the module as an option:
+
+.. code-block:: rest
 
     .. bokeh-prop:: Bar.thing
         :module: bokeh.sphinxext.sample
@@ -14,10 +21,12 @@ model class as an argument::
 Examples
 --------
 
-For the following definition of ``bokeh.sphinxext.sample.Bar``::
+For the following definition of ``bokeh.sphinxext.sample.Bar``:
+
+.. code-block:: python
 
     class Bar(Model):
-        ''' This is a Bar model. '''
+        """ This is a Bar model. """
         thing = List(Int, help="doc for thing")
 
 the above usage yields the output:
@@ -25,25 +34,59 @@ the above usage yields the output:
     .. bokeh-prop:: Bar.thing
         :module: bokeh.sphinxext.sample
 
-"""
-from __future__ import absolute_import, print_function
 
+The ``bokeh-prop`` direction may be used explicitly, but it can also be used
+in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
+
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import importlib
 import textwrap
 
+# External imports
 from docutils.parsers.rst.directives import unchanged
 
 from sphinx.errors import SphinxError
 
+# Bokeh imports
 from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BokehPropDirective',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehPropDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
-    optional_arguments = 2
-
+    optional_arguments = 1
     option_spec = {
         'module': unchanged
     }
@@ -78,4 +121,13 @@ class BokehPropDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-prop>")
 
 def setup(app):
+    ''' Required Sphinx extension setup function. '''
     app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

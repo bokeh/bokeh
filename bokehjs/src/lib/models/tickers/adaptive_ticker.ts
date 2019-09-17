@@ -1,6 +1,6 @@
 import {ContinuousTicker} from "./continuous_ticker"
-import * as p from "core/properties"
 import {argmin, nth} from "core/util/array"
+import * as p from "core/properties"
 
 // Forces a number x into a specified range [min_val, max_val].
 function clamp(x: number, min_val: number, max_val: number): number {
@@ -17,30 +17,27 @@ function log(x: number, base=Math.E): number {
 // following:
 // ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
 export namespace AdaptiveTicker {
-  export interface Attrs extends ContinuousTicker.Attrs {
-    base: number
-    mantissas: number[]
-    min_interval: number
-    max_interval: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ContinuousTicker.Props {}
+  export type Props = ContinuousTicker.Props & {
+    base: p.Property<number>
+    mantissas: p.Property<number[]>
+    min_interval: p.Property<number>
+    max_interval: p.Property<number>
+  }
 }
 
 export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 
 export class AdaptiveTicker extends ContinuousTicker {
-
   properties: AdaptiveTicker.Props
 
   constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "AdaptiveTicker"
-
-    this.define({
+  static init_AdaptiveTicker(): void {
+    this.define<AdaptiveTicker.Props>({
       base:         [ p.Number, 10.0      ],
       mantissas:    [ p.Array,  [1, 2, 5] ],
       min_interval: [ p.Number, 0.0       ],
@@ -78,7 +75,7 @@ export class AdaptiveTicker extends ContinuousTicker {
 
     // An untested optimization.
     //   const ideal_mantissa = ideal_interval / ideal_magnitude
-    //   index = sortedIndex(this.extended_mantissas, ideal_mantissa)
+    //   index = sorted_index(this.extended_mantissas, ideal_mantissa)
     //   candidate_mantissas = this.extended_mantissas[index..index + 1]
     const candidate_mantissas = this.extended_mantissas
 
@@ -91,5 +88,3 @@ export class AdaptiveTicker extends ContinuousTicker {
     return clamp(interval, this.get_min_interval(), this.get_max_interval())
   }
 }
-
-AdaptiveTicker.initClass()

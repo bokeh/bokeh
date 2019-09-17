@@ -1,6 +1,10 @@
-import {View, ViewOptions} from "./view"
-import {Solver} from "./layout/solver"
+import {View} from "./view"
 import * as DOM from "./dom"
+import {bk_root} from "styles/root"
+
+export namespace DOMView {
+  export type Options = View.Options
+}
 
 export class DOMView extends View {
 
@@ -8,12 +12,10 @@ export class DOMView extends View {
 
   protected _has_finished: boolean
 
-  protected _solver: Solver
-
   el: HTMLElement
 
-  initialize(options: ViewOptions): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._has_finished = false
     this.el = this._createElement()
   }
@@ -31,13 +33,11 @@ export class DOMView extends View {
     return null
   }
 
-  layout(): void {}
-
   render(): void {}
 
   renderTo(element: HTMLElement): void {
     element.appendChild(this.el)
-    this.layout()
+    this.render()
   }
 
   on_hit?(sx: number, sy: number): boolean
@@ -47,11 +47,7 @@ export class DOMView extends View {
   }
 
   protected get _root_element(): HTMLElement {
-    return DOM.parent(this.el, ".bk-root") || document.body
-  }
-
-  get solver(): Solver {
-    return this.is_root ? this._solver : (this.parent as DOMView).solver
+    return DOM.parent(this.el, `.${bk_root}`) || document.body
   }
 
   get is_idle(): boolean {
@@ -59,7 +55,7 @@ export class DOMView extends View {
   }
 
   protected _createElement(): HTMLElement {
-    return DOM.createElement(this.tagName, {id: this.id, class: this.css_classes()})
+    return DOM.createElement(this.tagName, {class: this.css_classes()})
   }
 }
 

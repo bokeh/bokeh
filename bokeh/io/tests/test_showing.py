@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -50,7 +49,7 @@ def test_show_with_default_args(mock__show_with_state):
     assert mock__show_with_state.call_count == 1
     assert mock__show_with_state.call_args[0] == (p, curstate(), None, "tab")
     assert mock__show_with_state.call_args[1] == {'notebook_handle': False}
-    assert p in curdoc().roots
+    assert curdoc().roots == []
 
 @patch('bokeh.io.showing._show_with_state')
 def test_show_with_explicit_args(mock__show_with_state):
@@ -61,10 +60,10 @@ def test_show_with_explicit_args(mock__show_with_state):
     assert mock__show_with_state.call_count == 1
     assert mock__show_with_state.call_args[0] == (p, curstate(), "browser", "new")
     assert mock__show_with_state.call_args[1] == {'notebook_handle': True}
-    assert p in curdoc().roots
+    assert curdoc().roots == []
 
 @patch('bokeh.io.showing.run_notebook_hook')
-def test_show_with_app(mock_run_notebook_hook):
+def test_show_with_app(mock_run_notebook_hook, ipython):
     curstate().reset()
     app = Application()
     output_notebook()
@@ -76,22 +75,15 @@ def test_show_with_app(mock_run_notebook_hook):
     assert mock_run_notebook_hook.call_args[1] == {}
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_adds_obj_to_document_if_not_already_there(m):
+def test_show_doesn_not_adds_obj_to_curdoc(m):
     curstate().reset()
     assert curstate().document.roots == []
     p = Plot()
     bis.show(p)
-    assert p in curstate().document.roots
-
-@patch('bokeh.io.showing._show_with_state')
-def test_show_doesnt_duplicate_if_already_there(m):
-    curstate().reset()
     assert curstate().document.roots == []
     p = Plot()
     bis.show(p)
-    assert curstate().document.roots == [p]
-    bis.show(p)
-    assert curstate().document.roots == [p]
+    assert curstate().document.roots == []
 
 @pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer()])
 @pytest.mark.unit
@@ -190,3 +182,7 @@ def test(mock_save, mock_abspath):
     assert controller.open.call_count == 2
     assert controller.open.call_args[0] == ("file://savepath",)
     assert controller.open.call_args[1] == {"new": 2}
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

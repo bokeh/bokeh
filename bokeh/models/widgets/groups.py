@@ -1,8 +1,30 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Bool, Instance, Int, List, String
 
@@ -10,6 +32,24 @@ from ..callbacks import Callback
 
 from .buttons import ButtonLike
 from .widget import Widget
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AbstractGroup',
+    'ButtonGroup',
+    'CheckboxButtonGroup',
+    'CheckboxGroup',
+    'Group',
+    'RadioButtonGroup',
+    'RadioGroup',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class AbstractGroup(Widget):
@@ -60,6 +100,10 @@ class Group(AbstractGroup):
     in-line (``True``).
     """)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 class CheckboxGroup(Group):
     ''' A group of check boxes.
 
@@ -97,3 +141,11 @@ class RadioButtonGroup(ButtonGroup):
     The index of the selected radio box, or ``None`` if nothing is
     selected.
     """)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

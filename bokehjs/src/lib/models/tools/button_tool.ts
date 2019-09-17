@@ -5,24 +5,25 @@ import {empty} from "core/dom"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
+import {bk_toolbar_button} from "styles/toolbar"
 
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.connect(this.model.change, () => this.render())
     this.el.addEventListener("click", () => this._clicked())
-    this.render()
+    this.render() // XXX: this isn't governed by layout, for now
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-toolbar-button")
+    return super.css_classes().concat(bk_toolbar_button)
   }
 
   render(): void {
     empty(this.el)
-    const icon = this.model.icon
+    const icon = this.model.computed_icon
     if (isString(icon)) {
       if (startsWith(icon, "data:image"))
         this.el.style.backgroundImage = "url('" + icon + "')"
@@ -40,26 +41,23 @@ export abstract class ButtonToolView extends ToolView {
 }
 
 export namespace ButtonTool {
-  export interface Attrs extends Tool.Attrs {
-    disabled: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Tool.Props {}
+  export type Props = Tool.Props & {
+    disabled: p.Property<boolean>
+  }
 }
 
 export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
-
   properties: ButtonTool.Props
 
   constructor(attrs?: Partial<ButtonTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ButtonTool"
-
+  static init_ButtonTool(): void {
     this.internal({
       disabled:    [ p.Boolean,    false ],
     })
@@ -74,6 +72,8 @@ export abstract class ButtonTool extends Tool {
   get tooltip(): string {
     return this.tool_name
   }
-}
 
-ButtonTool.initClass()
+  get computed_icon(): string {
+    return this.icon
+  }
+}

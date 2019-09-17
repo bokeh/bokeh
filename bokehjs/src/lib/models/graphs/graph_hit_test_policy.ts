@@ -3,28 +3,24 @@ import {indexOf} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
 import {create_empty_hit_test_result, HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
+import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace GraphHitTestPolicy {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface GraphHitTestPolicy extends Model.Attrs {}
 
 export abstract class GraphHitTestPolicy extends Model {
-
   properties: GraphHitTestPolicy.Props
 
   constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "GraphHitTestPolicy"
   }
 
   abstract hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult
@@ -59,23 +55,18 @@ export abstract class GraphHitTestPolicy extends Model {
 }
 
 export namespace NodesOnly {
-  export interface Attrs extends GraphHitTestPolicy.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GraphHitTestPolicy.Props {}
+  export type Props = GraphHitTestPolicy.Props
 }
 
 export interface NodesOnly extends NodesOnly.Attrs {}
 
 export class NodesOnly extends GraphHitTestPolicy {
-
   properties: NodesOnly.Props
 
   constructor(attrs?: Partial<NodesOnly.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'NodesOnly'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -102,31 +93,25 @@ export class NodesOnly extends GraphHitTestPolicy {
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry}])
 
     return !node_inspection.is_empty()
   }
 }
-NodesOnly.initClass()
 
 export namespace NodesAndLinkedEdges {
-  export interface Attrs extends GraphHitTestPolicy.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GraphHitTestPolicy.Props {}
+  export type Props = GraphHitTestPolicy.Props
 }
 
 export interface NodesAndLinkedEdges extends NodesAndLinkedEdges.Attrs {}
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
-
   properties: NodesAndLinkedEdges.Props
 
   constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'NodesAndLinkedEdges'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -185,31 +170,25 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     //silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry}])
 
     return !node_inspection.is_empty()
   }
 }
-NodesAndLinkedEdges.initClass()
 
 export namespace EdgesAndLinkedNodes {
-  export interface Attrs extends GraphHitTestPolicy.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GraphHitTestPolicy.Props {}
+  export type Props = GraphHitTestPolicy.Props
 }
 
 export interface EdgesAndLinkedNodes extends EdgesAndLinkedNodes.Attrs {}
 
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
-
   properties: EdgesAndLinkedNodes.Props
 
   constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'EdgesAndLinkedNodes'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -264,9 +243,8 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
-    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry: geometry}])
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry}])
 
     return !edge_inspection.is_empty()
   }
 }
-EdgesAndLinkedNodes.initClass()

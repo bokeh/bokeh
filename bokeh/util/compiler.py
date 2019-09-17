@@ -1,90 +1,72 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide functions and classes to help with various JS and CSS compilation.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
-import re
-import os
-import sys
-import six
 import json
-import hashlib
+import os
 from os.path import dirname, join, abspath, exists, isabs
+import re
 from subprocess import Popen, PIPE
+from collections import OrderedDict
+import sys
 
+# External imports
+import hashlib
+import six
+
+# Bokeh imports
 from ..model import Model
 from ..settings import settings
 from .string import snakify
 
-_plugin_umd = \
-"""\
-(function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    factory(require("Bokeh"));
-//  else if(typeof define === 'function' && define.amd)
-//    define(["Bokeh"], factory);
-//  else if(typeof exports === 'object')
-//    factory(require("Bokeh"));
-//  else
-    factory(root["Bokeh"]);
-})(this, function(Bokeh) {
-  var define;
-  return %(content)s;
-});
-"""
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-# XXX: this is the same as bokehjs/src/js/plugin-prelude.js
-_plugin_prelude = \
-"""\
-(function outer(modules, entry) {
-  if (Bokeh != null) {
-    return Bokeh.register_plugin(modules, {}, entry);
-  } else {
-    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
-  }
-})
-"""
+__all__ = (
+    'AttrDict',
+    'bundle_all_models',
+    'bundle_models',
+    'calc_cache_key',
+    'CoffeeScript',
+    'CompilationError',
+    'CustomModel',
+    'FromFile',
+    'get_cache_hook',
+    'Implementation',
+    'Inline',
+    'JavaScript',
+    'Less',
+    'nodejs_compile',
+    'nodejs_version',
+    'npmjs_version',
+    'set_cache_hook',
+    'TypeScript',
+)
 
-_plugin_template = \
-"""\
-%(prelude)s\
-({
-  "custom/main": function(require, module, exports) {
-    var models = {
-      %(exports)s
-    };
-    require("base").register_models(models);
-    module.exports = models;
-  },
-  %(modules)s
-}, "custom/main");
-"""
-
-_style_template = \
-"""\
-(function() {
-  var head = document.getElementsByTagName('head')[0];
-  var style = document.createElement('style');
-  style.type = 'text/css';
-  var css = %(css)s;
-  if (style.styleSheet) {
-    style.styleSheet.cssText = css;
-  } else {
-    style.appendChild(document.createTextNode(css));
-  }
-  head.appendChild(style);
-}());
-"""
-
-_export_template = \
-""""%(name)s": require("%(module)s").%(name)s"""
-
-_module_template = \
-""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class AttrDict(dict):
     ''' Provide a dict subclass that supports access by named attributes.
@@ -94,89 +76,25 @@ class AttrDict(dict):
         return self[key]
 
 class CompilationError(RuntimeError):
-    ''' A RuntimeError subclass for reporting JS compilation errors.
+    ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
     def __init__(self, error):
         super(CompilationError, self).__init__()
-        self.line = error.get("line")
-        self.column = error.get("column")
-        self.message = error.get("message")
-        self.text = error.get("text")
-        self.annotated = error.get("annotated")
+        if isinstance(error, dict):
+            self.line = error.get("line")
+            self.column = error.get("column")
+            self.message = error.get("message")
+            self.text = error.get("text")
+            self.annotated = error.get("annotated")
+        else:
+            self.text = error
 
     def __str__(self):
-        return self.text
+        return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjsdir()
 nodejs_min_version = (6, 10, 0)
-
-def _detect_nodejs():
-    if settings.nodejs_path() is not None:
-        nodejs_paths = [settings.nodejs_path()]
-    else:
-        nodejs_paths = ["nodejs", "node"]
-
-    for nodejs_path in nodejs_paths:
-        try:
-            proc = Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
-            (stdout, _) = proc.communicate()
-        except OSError:
-            continue
-
-        if proc.returncode != 0:
-            continue
-
-        match = re.match(r"^v(\d+)\.(\d+)\.(\d+).*$", stdout.decode("utf-8"))
-
-        if match is not None:
-            version = tuple(int(v) for v in match.groups())
-
-            if version >= nodejs_min_version:
-                return nodejs_path
-
-    # if we've reached here, no valid version was found
-    version = ".".join(map(str, nodejs_min_version))
-    raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
-                       '("conda install nodejs" or follow https://nodejs.org/en/download/)')
-
-_nodejs = None
-_npmjs = None
-
-def _nodejs_path():
-    global _nodejs
-    if _nodejs is None:
-        _nodejs = _detect_nodejs()
-    return _nodejs
-
-def _npmjs_path():
-    global _npmjs
-    if _npmjs is None:
-        _npmjs = join(dirname(_nodejs_path()), "npm")
-    return _npmjs
-
-def _run(app, argv, input=None):
-    proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
-
-    if proc.returncode != 0:
-        raise RuntimeError(errout)
-    else:
-        return stdout.decode('utf-8')
-
-def _run_nodejs(argv, input=None):
-    return _run(_nodejs_path(), argv, input)
-
-def _run_npmjs(argv, input=None):
-    return _run(_npmjs_path(), argv, input)
-
-def _version(run_app):
-    try:
-        version = run_app(["--version"])
-    except RuntimeError:
-        return None
-    else:
-        return version.strip()
 
 def nodejs_version():
     return _version(_run_nodejs)
@@ -185,9 +103,23 @@ def npmjs_version():
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
+    if lang == "coffeescript":
+        from bokeh.util.deprecation import deprecated
+        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use JavaScript or TypeScript directly instead.")
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
-    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
-    return AttrDict(json.loads(output))
+    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
+    lines = output.split("\n")
+    for i, line in enumerate(lines):
+        if not line.startswith("LOG"):
+            break
+        else:
+            print(line)
+    obj = json.loads("\n".join(lines[i:]))
+    if isinstance(obj, dict):
+        return AttrDict(obj)
+    else:
+        return dict(error=obj)
 
 class Implementation(object):
     ''' Base class for representing Bokeh custom model implementations.
@@ -212,7 +144,7 @@ class Inline(Implementation):
         self.file = file
 
 class CoffeeScript(Inline):
-    ''' An implementation for a Bokeh custom model in CoffeeSript.
+    ''' An implementation for a Bokeh custom model in CoffeeScript.
 
     Example:
 
@@ -231,19 +163,25 @@ class CoffeeScript(Inline):
 
     '''
 
+    def __init__(self, *args, **kw):
+        from bokeh.util.deprecation import deprecated
+        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use JavaScript or TypeScript directly instead.")
+        super(CoffeeScript, self).__init__(*args, **kw)
+
     @property
     def lang(self):
         return "coffeescript"
 
 class TypeScript(Inline):
-    ''' An implementation for a Bokeh custom model in TypeSript
+    ''' An implementation for a Bokeh custom model in TypeScript
 
     Example:
 
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = TypeScript(""" <TypeSctipt code> """)
+                __implementation__ = TypeScript(""" <TypeScript code> """)
 
     '''
     @property
@@ -251,14 +189,14 @@ class TypeScript(Inline):
         return "typescript"
 
 class JavaScript(Inline):
-    ''' An implementation for a Bokeh custom model in JavaSript
+    ''' An implementation for a Bokeh custom model in JavaScript
 
     Example:
 
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = Javacript(""" <Javactipt code> """)
+                __implementation__ = JavaScript(""" <JavaScript code> """)
 
     '''
     @property
@@ -347,7 +285,8 @@ class CustomModel(object):
                 impl = CoffeeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
-            impl = impl.__class__(impl.code, (self.file or "<string>") + ":" + self.name)
+            file = "%s%s.ts" % (self.file + ":" if self.file else "", self.name)
+            impl = impl.__class__(impl.code, file)
 
         return impl
 
@@ -359,10 +298,205 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def bundle_models(models):
-    """Create a bundle of `models`. """
-    custom_models = {}
+def get_cache_hook():
+    '''Returns the current cache hook used to look up the compiled
+       code given the CustomModel and Implementation'''
+    return _CACHING_IMPLEMENTATION
 
+def set_cache_hook(hook):
+    '''Sets a compiled model cache hook used to look up the compiled
+       code given the CustomModel and Implementation'''
+    global _CACHING_IMPLEMENTATION
+    _CACHING_IMPLEMENTATION = hook
+
+def calc_cache_key(custom_models):
+    ''' Generate a key to cache a custom extension implementation with.
+
+    There is no metadata other than the Model classes, so this is the only
+    base to generate a cache key.
+
+    We build the model keys from the list of ``model.full_name``. This is
+    not ideal but possibly a better solution can be found found later.
+
+    '''
+    model_names = {model.full_name for model in custom_models.values()}
+    encoded_names = ",".join(sorted(model_names)).encode('utf-8')
+    return hashlib.sha256(encoded_names).hexdigest()
+
+_bundle_cache = {}
+
+def bundle_models(models):
+    """Create a bundle of selected `models`. """
+    custom_models = _get_custom_models(models)
+    if custom_models is None:
+        return None
+
+    key = calc_cache_key(custom_models)
+    bundle = _bundle_cache.get(key, None)
+    if bundle is None:
+        try:
+            _bundle_cache[key] = bundle = _bundle_models(custom_models)
+        except CompilationError as error:
+            print("Compilation failed:", file=sys.stderr)
+            print(str(error), file=sys.stderr)
+            sys.exit(1)
+    return bundle
+
+def bundle_all_models():
+    """Create a bundle of all models. """
+    return bundle_models(None)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_plugin_umd = \
+"""\
+(function(root, factory) {
+    factory(root["Bokeh"]);
+})(this, function(Bokeh) {
+  var define;
+  return %(content)s;
+});
+"""
+
+# XXX: this is (almost) the same as bokehjs/src/js/plugin-prelude.js
+_plugin_prelude = \
+"""\
+(function outer(modules, entry) {
+  if (Bokeh != null) {
+    return Bokeh.register_plugin(modules, entry);
+  } else {
+    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
+  }
+})
+"""
+
+_plugin_template = \
+"""\
+%(prelude)s\
+({
+  "custom/main": function(require, module, exports) {
+    var models = {
+      %(exports)s
+    };
+    require("base").register_models(models);
+    module.exports = models;
+  },
+  %(modules)s
+}, "custom/main");
+"""
+
+_style_template = \
+"""\
+(function() {
+  var head = document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+  var css = %(css)s;
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
+  head.appendChild(style);
+}());
+"""
+
+_export_template = \
+""""%(name)s": require("%(module)s").%(name)s"""
+
+_module_template = \
+""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+
+def _detect_nodejs():
+    if settings.nodejs_path() is not None:
+        nodejs_paths = [settings.nodejs_path()]
+    else:
+        nodejs_paths = ["nodejs", "node"]
+
+    for nodejs_path in nodejs_paths:
+        try:
+            proc = Popen([nodejs_path, "--version"], stdout=PIPE, stderr=PIPE)
+            (stdout, _) = proc.communicate()
+        except OSError:
+            continue
+
+        if proc.returncode != 0:
+            continue
+
+        match = re.match(r"^v(\d+)\.(\d+)\.(\d+).*$", stdout.decode("utf-8"))
+
+        if match is not None:
+            version = tuple(int(v) for v in match.groups())
+
+            if version >= nodejs_min_version:
+                return nodejs_path
+
+    # if we've reached here, no valid version was found
+    version = ".".join(map(str, nodejs_min_version))
+    raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
+                       '("conda install nodejs" or follow https://nodejs.org/en/download/)')
+
+_nodejs = None
+_npmjs = None
+
+def _nodejs_path():
+    global _nodejs
+    if _nodejs is None:
+        _nodejs = _detect_nodejs()
+    return _nodejs
+
+def _npmjs_path():
+    global _npmjs
+    if _npmjs is None:
+        _npmjs = join(dirname(_nodejs_path()), "npm")
+        if sys.platform == "win32":
+            _npmjs += '.cmd'
+    return _npmjs
+
+def _crlf_cr_2_lf(s):
+    return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
+
+def _run(app, argv, input=None):
+    proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
+
+    if proc.returncode != 0:
+        raise RuntimeError(errout.decode('utf-8'))
+    else:
+        return _crlf_cr_2_lf(stdout.decode('utf-8'))
+
+def _run_nodejs(argv, input=None):
+    return _run(_nodejs_path(), argv, input)
+
+def _run_npmjs(argv, input=None):
+    return _run(_npmjs_path(), argv, input)
+
+def _version(run_app):
+    try:
+        version = run_app(["--version"])
+    except RuntimeError:
+        return None
+    else:
+        return version.strip()
+
+def _model_cache_no_op(model, implementation):
+    """Return cached compiled implementation"""
+    return None
+
+_CACHING_IMPLEMENTATION = _model_cache_no_op
+
+def _get_custom_models(models):
+    """Returns CustomModels for models with a custom `__implementation__`"""
+    if models is None:
+        models = Model.model_class_reverse_map.values()
+
+    custom_models = OrderedDict()
     for cls in models:
         impl = getattr(cls, "__implementation__", None)
 
@@ -372,19 +506,11 @@ def bundle_models(models):
 
     if not custom_models:
         return None
+    return custom_models
 
+def _compile_models(custom_models):
+    """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
-
-    exports = []
-    modules = []
-
-    def read_json(name):
-        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
-
-
-    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    known_modules = set(sum([ read_json(name) for name in bundles ], []))
     custom_impls = {}
 
     dependencies = []
@@ -397,12 +523,29 @@ def bundle_models(models):
 
     for model in ordered_models:
         impl = model.implementation
-        compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
+        compiled = _CACHING_IMPLEMENTATION(model, impl)
+        if compiled is None:
+            compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
         if "error" in compiled:
             raise CompilationError(compiled.error)
 
         custom_impls[model.full_name] = compiled
+
+    return custom_impls
+
+def _bundle_models(custom_models):
+    """ Create a JavaScript bundle with selected `models`. """
+    exports = []
+    modules = []
+
+    def read_json(name):
+        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
+            return json.loads(f.read())
+
+    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    known_modules = set(sum([ read_json(name) for name in bundles ], []))
+    custom_impls = _compile_models(custom_models)
 
     extra_modules = {}
 
@@ -447,7 +590,9 @@ def bundle_models(models):
                     extra_modules[sig] = True
                     modules.append((sig, code, deps_map))
             else:
-                raise RuntimeError("no such module: %s" % module)
+                index = module + ("" if module.endswith("/") else "/") + "index"
+                if index not in known_modules:
+                    raise RuntimeError("no such module: %s" % module)
 
         return resolved
 
@@ -481,35 +626,6 @@ def bundle_models(models):
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)
 
-def calc_cache_key():
-    ''' Generate a key to cache a custom extension implementation with.
-
-    There is no metadata other than the Model classes, so this is the only
-    base to generate a cache key.
-
-    We build the model keys from the list of ``model.full_name``. This is
-    not ideal but possibly a better solution can be found found later.
-
-    '''
-
-    models = Model.model_class_reverse_map.values()
-    custom_model_names = ""
-
-    for cls in models:
-        impl = getattr(cls, "__implementation__", None)
-
-        if impl is not None:
-            model = CustomModel(cls)
-            custom_model_names += model.full_name
-
-    key = hashlib.sha256(custom_model_names.encode('utf-8')).hexdigest()
-    return key
-
-_bundle_cache = {}
-
-def bundle_all_models():
-    key = calc_cache_key()
-    bundle = _bundle_cache.get(key, None)
-    if bundle is None:
-        _bundle_cache[key] = bundle = bundle_models(Model.model_class_reverse_map.values()) or ""
-    return bundle
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

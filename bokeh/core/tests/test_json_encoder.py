@@ -1,19 +1,50 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from collections import deque
 import datetime as dt
 import decimal
 
+# External imports
+import dateutil.relativedelta as rd
 import numpy as np
-import pytest
 from six import string_types
 
-import dateutil.relativedelta as rd
-
+# Bokeh imports
 from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import Int, String
 from bokeh.models import Range1d
+
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class HP(HasProps):
     foo = Int(default=10)
@@ -247,3 +278,11 @@ class TestSerializeJson(object):
             self.serialize([1], separators=("a", "b"))
         with pytest.raises(ValueError):
             self.serialize([1], sort_keys=False)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

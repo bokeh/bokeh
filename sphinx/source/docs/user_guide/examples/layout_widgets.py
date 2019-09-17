@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.layouts import widgetbox
+from bokeh.layouts import column
 from bokeh.models.widgets import Button, RadioButtonGroup, Select, Slider
 
 output_file("layout_widgets.html")
@@ -11,5 +11,4 @@ select = Select(title="Option:", value="foo", options=["foo", "bar", "baz", "quu
 button_1 = Button(label="Button 1")
 button_2 = Button(label="Button 2")
 
-# put the results in a row
-show(widgetbox(button_1, slider, button_group, select, button_2, width=300))
+show(column(button_1, slider, button_group, select, button_2, width=300))

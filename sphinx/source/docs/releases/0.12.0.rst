@@ -1,7 +1,9 @@
-0.12.0 (Jun 2016)
-=================
+.. _release-0-12-0:
 
-Bokeh Version ``0.12.0`` is a large release with many new
+0.12.0
+======
+
+Bokeh Version ``0.12.0`` (Jun 2016) is a large release with many new
 improvements:
 
 * Responsive layout and styling improvements throughout
@@ -34,11 +36,16 @@ improvements:
   - left aligned title, closer in, by default
   - smaller, italic axes labels
 
-* New hosted demos at https://demo.bokehplots.com
+* New hosted demos at https://demo.bokeh.org
 * Many small bug fixes
 
+.. _release-0-12-0-migration:
+
+`Migration Guide <releases.html#release-0-12-0-migration>`__
+------------------------------------------------------------
+
 Known Issues
-------------
+~~~~~~~~~~~~
 
 Currently the most reliable sizing modes for layouts are "fixed" and
 "scale_width". Other modes may work, or may produce undesired effects.
@@ -46,9 +53,6 @@ Work on layout is still ongoing. Support for "mixes" sizing modes
 will come in a future release. Additionally, the ``ResizeTool`` does
 not function reliably with responsive layout, and will most likely
 be deprecated in a future release.
-
-Migration Guide
----------------
 
 Google Maps
 ~~~~~~~~~~~
@@ -90,7 +94,7 @@ will continue to function, while issuing deprecation  warnings. However,
 there are newer functions that should be preferred. The most up-to-date
 guidance for layout going forward is at:
 
-    https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html
+    https://docs.bokeh.org/en/latest/docs/user_guide/layout.html
 
 In most cases it was possible to move forward with a deprecation, for the
 time being, but there are two small hard compatibility breaks that could

@@ -22,12 +22,12 @@ $(document).ready(function() {
       dev = /^\/en\/dev/
       if (dev.exec(loc)) {
         $("body").css({"padding-top":"60px"})
-        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>').attr('style', style);
         $('html:first').prepend(content);
       }
       else if (v != window._BOKEH_CURRENT_VERSION) {
         $("body").css({"padding-top":"60px"})
-        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>').attr('style', style);
         $('body').prepend(content);
       }
     }
@@ -35,19 +35,29 @@ $(document).ready(function() {
 
   var loc = window.location.pathname;
 
+  // If index.html hide toc
   if (loc.split('docs/').length == 1 ) {
-    // If index.html hide toc
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
 
-  } else if (loc.split('gallery').length > 1) {
-    // If gallery, dispense with toc, and manually add current under second nav
+  }
+
+  // If orphan page, dispense with toc, and manually add current under second nav
+  else if ((loc.split('citation').length > 1) ||
+           (loc.split('contact').length > 1) ||
+           (loc.split('contribute').length > 1) ||
+           (loc.split('gallery').length > 1) ||
+           (loc.split('team').length > 1) ||
+           (loc.split('vision').length > 1)) {
+
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
     $('.second-nav .nav-link a[href="#"]').addClass('current');
 
-  } else {
-    // Else, selectively hide toc
+  }
+
+  // Else, selectively hide toc
+  else {
     var loc_part = loc.split('docs/')[1].split('.html')[0];
 
     if (loc_part.split('/').length > 1) {
@@ -77,7 +87,7 @@ $(document).ready(function() {
     nav_links.each(function(i, nav_link) {
       var href = nav_link.href;
       // skip links to external sites
-      if (href.startsWith("https://bokeh.pydata.org")) {
+      if (href.startsWith("https://docs.bokeh.org")) {
         var href_part = href.split('docs/')[1].split('.html')[0];
         if (href_part.split('/').length > 1) {
           href_part = href_part.split('/')[0]

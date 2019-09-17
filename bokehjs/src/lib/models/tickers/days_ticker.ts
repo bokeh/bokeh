@@ -1,6 +1,6 @@
 import {TickSpec} from "./ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
-import {copy_date,last_month_no_later_than,ONE_DAY} from "./util"
+import {copy_date, last_month_no_later_than, ONE_DAY} from "./util"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
 
@@ -33,27 +33,24 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 // month.
 
 export namespace DaysTicker {
-  export interface Attrs extends SingleIntervalTicker.Attrs {
-    days: number[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SingleIntervalTicker.Props {}
+  export type Props = SingleIntervalTicker.Props & {
+    days: p.Property<number[]>
+  }
 }
 
 export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
-
   properties: DaysTicker.Props
 
   constructor(attrs?: Partial<DaysTicker.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DaysTicker"
-
-    this.define({
+  static init_DaysTicker(): void {
+    this.define<DaysTicker.Props>({
       days: [ p.Array, [] ],
     })
 
@@ -108,5 +105,3 @@ export class DaysTicker extends SingleIntervalTicker {
     }
   }
 }
-
-DaysTicker.initClass()

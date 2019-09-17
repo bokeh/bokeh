@@ -1,8 +1,30 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for displaying maps in Bokeh plots.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import MapType
 from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Float, Instance, Int, JSON, Override, String
@@ -10,7 +32,23 @@ from ..core.validation import error, warning
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..core.validation.errors import INCOMPATIBLE_MAP_RANGE_TYPE, REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
 from ..model import Model
+from ..models.ranges import Range1d
 from .plots import Plot
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'GMapOptions',
+    'GMapPlot',
+    'MapOptions',
+    'MapPlot',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class MapOptions(Model):
@@ -52,12 +90,12 @@ class MapPlot(Plot):
             return "%s.y_range" % str(self)
 
 class GMapOptions(MapOptions):
-    ''' Options for GMapPlot objects.
+    ''' Options for ``GMapPlot`` objects.
 
     '''
 
     map_type = Enum(MapType, default="roadmap", help="""
-    The `map type`_ to use for the GMapPlot.
+    The `map type`_ to use for the ``GMapPlot``.
 
     .. _map type: https://developers.google.com/maps/documentation/javascript/reference#MapTypeId
 
@@ -68,7 +106,7 @@ class GMapOptions(MapOptions):
     """)
 
     styles = JSON(help="""
-    A JSON array of `map styles`_ to use for the GMapPlot. Many example styles can
+    A JSON array of `map styles`_ to use for the ``GMapPlot``. Many example styles can
     `be found here`_.
 
     .. _map styles: https://developers.google.com/maps/documentation/javascript/reference#MapTypeStyle
@@ -93,7 +131,14 @@ class GMapPlot(MapPlot):
     e.g. ``(37.123, -122.404)``. It will be automatically converted into the
     web mercator projection to display properly over google maps tiles.
 
-    Please also note that only ``Range1d`` ranges are supported by ``GMapPlot``.
+    Note that Google Maps exert explicit control over aspect ratios at all
+    times, which imposes some limitations on ``GMapPlot``:
+
+    * Only ``Range1d`` ranges are supported. Attempting to use other range
+      types will result in an error.
+
+    * Usage of ``BoxZoomTool`` is incompatible with ``GMapPlot``. Adding a
+      ``BoxZoomTool`` will have no effect.
 
     .. _Google Map: https://www.google.com/maps/
 
@@ -123,3 +168,19 @@ class GMapPlot(MapPlot):
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
     """)
+
+    x_range = Override(default=lambda: Range1d())
+
+    y_range = Override(default=lambda: Range1d())
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

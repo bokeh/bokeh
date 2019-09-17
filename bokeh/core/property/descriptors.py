@@ -1,3 +1,9 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide Python descriptors for delegating to Bokeh properties.
 
 The Python `descriptor protocol`_ allows fine-grained control over all
@@ -6,7 +12,7 @@ descriptor protocol to provide easy-to-use, declarative, type-based
 class properties that can automatically validate and serialize their
 values, as well as help provide sophisticated documentation.
 
-A Bokeh property really consist of two parts: a familar "property"
+A Bokeh property really consist of two parts: a familiar "property"
 portion, such as ``Int``, ``String``, etc., as well as an associated
 Python descriptor that delegates attribute access to the property instance.
 
@@ -69,13 +75,48 @@ that can be used to attach Bokeh properties to Bokeh models.
 .. _descriptor protocol: https://docs.python.org/3/howto/descriptor.html
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+
+# Standard library imports
 from copy import copy
 
+# External imports
 from six import string_types
 
-from .containers import PropertyValueContainer
+# Bokeh imports
+from .wrappers import PropertyValueContainer
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BasicPropertyDescriptor',
+    'ColumnDataPropertyDescriptor',
+    'DataSpecPropertyDescriptor',
+    'PropertyDescriptor',
+    'UnitsSpecPropertyDescriptor',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class PropertyDescriptor(object):
     ''' Base class for a python descriptor that delegates access for a named
@@ -208,7 +249,8 @@ class PropertyDescriptor(object):
             None
 
         '''
-        from ..properties import DataSpec, ContainerProperty
+        from .bases import ContainerProperty
+        from .dataspec import DataSpec
         name = self.name
         if name in new_class_attrs:
             raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
@@ -393,7 +435,7 @@ class PropertyDescriptor(object):
         raise NotImplementedError("Implement _internal_set()")
 
 class BasicPropertyDescriptor(PropertyDescriptor):
-    ''' A PropertyDescriptor for basic Bokeh properties (e.g, ``Int``,
+    ''' A ``PropertyDescriptor`` for basic Bokeh properties (e.g, ``Int``,
     ``String``, ``Float``, etc.) with simple get/set and serialization
     behavior.
 
@@ -874,7 +916,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
 
 class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
-    ''' A PropertyDescriptor specialized to handling ``ColumnData`` properties.
+    ''' A ``PropertyDescriptor`` specialized to handling ``ColumnData`` properties.
 
     '''
 
@@ -931,7 +973,7 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         self._internal_set(obj, value, hint=hint, setter=setter)
 
 class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
-    ''' A PropertyDescriptor for Bokeh |DataSpec| properties that serialize to
+    ''' A ``PropertyDescriptor`` for Bokeh |DataSpec| properties that serialize to
     field/value dictionaries.
 
     '''
@@ -986,7 +1028,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
         super(DataSpecPropertyDescriptor, self).set_from_json(obj, json, models, setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    ''' A PropertyDecscriptor for Bokeh |UnitsSpec| properties that contribute
+    ''' A ``PropertyDecscriptor`` for Bokeh |UnitsSpec| properties that contribute
     associated ``_units`` properties automatically as a side effect.
 
     '''
@@ -1106,3 +1148,11 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
             if units:
                 self.units_prop.__set__(obj, units)
         return value
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

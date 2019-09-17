@@ -15,7 +15,7 @@ def bkapp_page():
         # update or customize that session
         session.document.roots[0].title.text = "Special Plot Title For A Specific User!"
 
-        # generate a script to load the customized sessi
+        # generate a script to load the customized session
         script = server_session(session_id=session.id, url=app_url)
 
         # use the script in the rendered page

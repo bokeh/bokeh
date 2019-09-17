@@ -1,13 +1,44 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.models import Plot, Button, Div
+
+# Module under test
 from bokeh import events
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 concrete_events = set([v for v in globals().values()
                       if isinstance(v,type) and issubclass(v, events.Event) and v.event_name is not None])
 
 point_events = set([v for v in globals().values()
                     if isinstance(v,type) and issubclass(v, events.PointEvent)])
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class EventCallback(object):
     def __init__(self, attributes=[]):
@@ -82,22 +113,22 @@ def test_pinchevent_decode_json():
 def test_event_constructor_button():
     model = Button()
     event = events.Event(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_event_constructor_div():
     model = Div()
     event = events.Event(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_event_constructor_plot():
     model = Plot()
     event = events.Event(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_buttonclick_constructor_button():
     model = Button()
     event = events.ButtonClick(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_buttonclick_constructor_div():
     with pytest.raises(ValueError):
@@ -118,7 +149,7 @@ def test_lodstart_constructor_div():
 def test_lodstart_constructor_plot():
     model = Plot()
     event = events.LODStart(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_lodend_constructor_button():
     with pytest.raises(ValueError):
@@ -131,7 +162,7 @@ def test_lodend_constructor_div():
 def test_lodend_constructor_plot():
     model = Plot()
     event = events.LODEnd(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 
 def test_plotevent_constructor_button():
@@ -145,7 +176,7 @@ def test_plotevent_constructor_div():
 def test_plotevent_constructor_plot():
     model = Plot()
     event = events.PlotEvent(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_pointEvent_constructor_plot():
     model = Plot()
@@ -154,7 +185,7 @@ def test_pointEvent_constructor_plot():
     assert event.sy == -2
     assert event.x == 10
     assert event.y == 100
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_pointevent_constructor_button():
     with pytest.raises(ValueError):
@@ -172,7 +203,7 @@ def test_pointevent_subclass_constructor_plot():
         assert event.sy == -2
         assert event.x == 10
         assert event.y == 100
-        assert event._model_id == model._id
+        assert event._model_id == model.id
 
 def test_pointevent_subclass_constructor_button():
     model = Button()
@@ -246,3 +277,15 @@ def test_pinch_callbacks():
     plot._trigger_event(events.Pinch(plot, **payload))
     assert test_callback.event_name == events.Pinch.event_name
     assert test_callback.payload == payload
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

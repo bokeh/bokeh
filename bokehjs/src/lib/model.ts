@@ -5,40 +5,32 @@ import * as p from "./core/properties"
 import {isString} from "./core/util/types"
 import {isEmpty} from "./core/util/object"
 import {logger} from "./core/logging"
-import {CustomJS} from "./models/callbacks/customjs"
+import {CallbackLike0} from "./models/callbacks/callback"
 
 export namespace Model {
-  export interface Attrs extends HasProps.Attrs {
-    tags: string[]
-    name: string | null
-    js_property_callbacks: {[key: string]: CustomJS[]}
-    js_event_callbacks: {[key: string]: CustomJS[]}
-    subscribed_events: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends HasProps.Props {
-    tags: p.Array
-    name: p.String
-    js_property_callbacks: p.Any
-    js_event_callbacks: p.Any
-    subscribed_events: p.Array
+  export type Props = HasProps.Props & {
+    tags: p.Property<string[]>
+    name: p.Property<string | null>
+    js_property_callbacks: p.Property<{[key: string]: CallbackLike0<Model>[]}>
+    js_event_callbacks: p.Property<{[key: string]: CallbackLike0<BokehEvent>[]}>
+    subscribed_events: p.Property<string[]>
   }
 }
 
 export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
-
   properties: Model.Props
+  private _js_callbacks: {[key: string]: (() => void)[]}
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Model"
-
-    this.define({
+  static init_Model(): void {
+    this.define<Model.Props>({
       tags:                  [ p.Array, [] ],
       name:                  [ p.String    ],
       js_property_callbacks: [ p.Any,   {} ],
@@ -50,36 +42,25 @@ export class Model extends HasProps {
   connect_signals(): void {
     super.connect_signals()
 
-    for (const base_evt in this.js_property_callbacks) {
-      const callbacks = this.js_property_callbacks[base_evt]
-      const [evt, attr=null] = base_evt.split(':')
-      for (const cb of callbacks) {
-        const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
-        this.connect(signal, () => cb.execute(this, {}))
-      }
-    }
-
-    this.connect(this.properties.js_event_callbacks.change, () => this._update_event_callbacks)
-    this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks)
+    this._update_property_callbacks()
+    this.connect(this.properties.js_property_callbacks.change, () => this._update_property_callbacks())
+    this.connect(this.properties.js_event_callbacks.change, () => this._update_event_callbacks())
+    this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks())
   }
 
   /*protected*/ _process_event(event: BokehEvent): void {
-    if (event.is_applicable_to(this)) {
-      event = event._customize_event(this)
+    for (const callback of this.js_event_callbacks[event.event_name] || [])
+      callback.execute(event)
 
-      for (const callback of this.js_event_callbacks[event.event_name] || [])
-        callback.execute(event, {})
-
-      if (this.document != null) {
-        if (this.subscribed_events.some((m) => m == event.event_name))
-          this.document.event_manager.send_event(event)
-      }
-    }
+    if (this.document != null && this.subscribed_events.some((m) => m == event.event_name))
+      this.document.event_manager.send_event(event)
   }
 
   trigger_event(event: BokehEvent): void {
-    if (this.document != null)
-      this.document.event_manager.trigger(event.set_model_id(this.id))
+    if (this.document != null) {
+      event.origin = this
+      this.document.event_manager.trigger(event)
+    }
   }
 
   protected _update_event_callbacks(): void {
@@ -88,7 +69,31 @@ export class Model extends HasProps {
       logger.warn('WARNING: Document not defined for updating event callbacks')
       return
     }
-    this.document.event_manager.subscribed_models.push(this.id)
+    this.document.event_manager.subscribed_models.add(this.id)
+  }
+
+  protected _update_property_callbacks(): void {
+    const signal_for = (event: string) => {
+      const [evt, attr=null] = event.split(":")
+      return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+    }
+
+    for (const event in this._js_callbacks) {
+      const callbacks = this._js_callbacks[event]
+      const signal = signal_for(event)
+      for (const cb of callbacks)
+        this.disconnect(signal, cb)
+    }
+    this._js_callbacks = {}
+
+    for (const event in this.js_property_callbacks) {
+      const callbacks = this.js_property_callbacks[event]
+      const wrappers = callbacks.map((cb) => () => cb.execute(this))
+      this._js_callbacks[event] = wrappers
+      const signal = signal_for(event)
+      for (const cb of wrappers)
+        this.connect(signal, cb)
+    }
   }
 
   protected _doc_attached(): void {
@@ -117,4 +122,3 @@ export class Model extends HasProps {
     }
   }
 }
-Model.initClass()

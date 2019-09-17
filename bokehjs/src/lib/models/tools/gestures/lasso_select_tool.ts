@@ -1,17 +1,20 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike1} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
-import {GestureEvent, KeyEvent} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
+import {bk_tool_icon_lasso_select} from "styles/icons"
 
 export class LassoSelectToolView extends SelectToolView {
   model: LassoSelectTool
 
   protected data: {sx: number[], sy: number[]} | null
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.data = null
   }
 
@@ -30,14 +33,14 @@ export class LassoSelectToolView extends SelectToolView {
       this._clear_overlay()
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     this.data = {sx: [sx], sy: [sy]}
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const {sx: _sx, sy: _sy} = ev
-    const [sx, sy] = this.plot_model.frame.bbox.clip(_sx, _sy)
+    const [sx, sy] = this.plot_view.frame.bbox.clip(_sx, _sy)
 
     this.data!.sx.push(sx)
     this.data!.sy.push(sy)
@@ -51,7 +54,7 @@ export class LassoSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._clear_overlay()
     const append = ev.shiftKey
     this._do_select(this.data!.sx, this.data!.sy, true, append)
@@ -63,17 +66,13 @@ export class LassoSelectToolView extends SelectToolView {
   }
 
   _do_select(sx: number[], sy: number[], final: boolean, append: boolean): void {
-    const geometry: PolyGeometry = {
-      type: 'poly',
-      sx: sx,
-      sy: sy,
-    }
+    const geometry: PolyGeometry = {type: 'poly', sx, sy}
     this._select(geometry, final, append)
   }
 
   _emit_callback(geometry: PolyGeometry): void {
     const r = this.computed_renderers[0]
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const xscale = frame.xscales[r.x_range_name]
     const yscale = frame.yscales[r.y_range_name]
@@ -82,7 +81,8 @@ export class LassoSelectToolView extends SelectToolView {
     const y = yscale.v_invert(geometry.sy)
     const g = {x, y, ...geometry}
 
-    this.model.callback.execute(this.model, {geometry: g})
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model, {geometry: g})
   }
 }
 
@@ -101,41 +101,40 @@ const DEFAULT_POLY_OVERLAY = () => {
 }
 
 export namespace LassoSelectTool {
-  export interface Attrs extends SelectTool.Attrs {
-    select_every_mousemove: boolean
-    callback: any // XXX
-    overlay: PolyAnnotation
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    select_every_mousemove: p.Property<boolean>
+    callback: p.Property<CallbackLike1<LassoSelectTool, {
+      geometry: PolyGeometry & {x: Arrayable<number>, y: Arrayable<number>}
+    }> | null>
+    overlay: p.Property<PolyAnnotation>
+  }
 }
 
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
-
   properties: LassoSelectTool.Props
+
+  /*override*/ overlay: PolyAnnotation
 
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LassoSelectTool"
-
+  static init_LassoSelectTool(): void {
     this.prototype.default_view = LassoSelectToolView
 
-    this.define({
-      select_every_mousemove: [ p.Bool,    true                  ],
-      callback:               [ p.Instance                       ],
+    this.define<LassoSelectTool.Props>({
+      select_every_mousemove: [ p.Boolean, true                  ],
+      callback:               [ p.Any                            ],
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }
 
   tool_name = "Lasso Select"
-  icon = "bk-tool-icon-lasso-select"
+  icon = bk_tool_icon_lasso_select
   event_type = "pan" as "pan"
   default_order = 12
 }
-
-LassoSelectTool.initClass()

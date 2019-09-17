@@ -1,32 +1,33 @@
-const {Grid: SlickGrid} = require("slickgrid")
-type SlickGrid = typeof SlickGrid
-
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
+const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
 
+import {Grid as SlickGrid, DataProvider} from "slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
-import {any, range} from "core/util/array"
+import {isString} from "core/util/types"
+import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
+import {LayoutItem} from "core/layout"
 
 import {TableWidget} from "./table_widget"
-import {Column, TableColumn} from "./table_column"
+import {TableColumn, ColumnType, Item} from "./table_column"
 import {WidgetView} from "../widget"
-import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
+
+import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "styles/widgets/tables"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare var $: any
 
-export type Item = {[key: string]: any}
-
-export class DataProvider {
+export class TableDataProvider implements DataProvider<Item> {
 
   readonly index: number[]
 
-  constructor(readonly source: ColumnarDataSource, readonly view: CDSView) {
+  constructor(readonly source: ColumnDataSource, readonly view: CDSView) {
     if (DTINDEX_NAME in this.source.data)
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
 
@@ -46,18 +47,8 @@ export class DataProvider {
     return item
   }
 
-  setItem(offset: number, item: Item): void {
-    for (const field in item) {
-      // internal index is maintained independently, ignore
-      const value = item[field]
-      if (field != DTINDEX_NAME) {
-        this.source.data[field][this.index[offset]] = value
-      }
-    }
-    this._update_source_inplace()
-  }
-
   getField(offset: number, field: string): any {
+    // offset is the
     if (field == DTINDEX_NAME) {
       return this.index[offset]
     }
@@ -66,8 +57,8 @@ export class DataProvider {
 
   setField(offset: number, field: string, value: any): void {
     // field assumed never to be internal index name (ctor would throw)
-    this.source.data[field][this.index[offset]] = value
-    this._update_source_inplace()
+    const index = this.index[offset]
+    this.source.patch({[field]: [[index, value]]})
   }
 
   getItemMetadata(_index: number): any {
@@ -99,17 +90,13 @@ export class DataProvider {
       return 0
     })
   }
-
-  protected _update_source_inplace(): void {
-    this.source.properties.data.change.emit()
-  }
 }
 
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  private data: DataProvider
-  private grid: SlickGrid
+  protected data: TableDataProvider
+  protected grid: SlickGrid<Item>
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false
@@ -117,29 +104,47 @@ export class DataTableView extends WidgetView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
+
     this.connect(this.model.source.streaming, () => this.updateGrid())
     this.connect(this.model.source.patching, () => this.updateGrid())
-    this.connect(this.model.source.change, () => this.updateGrid(true))
+    this.connect(this.model.source.change, () => this.updateGrid())
     this.connect(this.model.source.properties.data.change, () => this.updateGrid())
+
     this.connect(this.model.source.selected.change, () => this.updateSelection())
+    this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
-  updateGrid(from_source_change=false): void {
-    // TODO (bev) This is to enure that CDSView indices are properly computed
+  _update_layout(): void {
+    this.layout = new LayoutItem()
+    this.layout.set_sizing(this.box_sizing())
+  }
+
+  update_position(): void {
+    super.update_position()
+    this.grid.resizeCanvas()
+  }
+
+  updateGrid(): void {
+    // TODO (bev) This is to ensure that CDSView indices are properly computed
     // before passing to the DataProvider. This will result in extra calls to
     // compute_indices. This "over execution" will be addressed in a more
     // general look at events
     this.model.view.compute_indices()
-
     this.data.constructor(this.model.source, this.model.view)
+
+    // This is obnoxious but there is no better way to programmatically force
+    // a re-sort on the existing sorted columns until/if we start using DataView
+    const columns = this.grid.getColumns()
+    const sorters = this.grid.getSortColumns().map((x: any) => ({
+      sortCol: {
+        field: columns[this.grid.getColumnIndex(x.columnId)].field,
+      },
+      sortAsc: x.sortAsc,
+    }))
+    this.data.sort(sorters)
+
     this.grid.invalidate()
     this.grid.render()
-
-    if (!from_source_change) {
-      // This is only needed to call @_tell_document_about_change()
-      this.model.source.data = this.model.source.data
-      this.model.source.change.emit()
-    }
   }
 
   updateSelection(): void {
@@ -148,7 +153,7 @@ export class DataTableView extends WidgetView {
 
     const {selected} = this.model.source
 
-    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x))
+    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x)).sort()
 
     this._in_selection_update = true
     this.grid.setSelectedRows(permuted_indices)
@@ -165,7 +170,7 @@ export class DataTableView extends WidgetView {
       this.grid.scrollRowToTop(scroll_index)
   }
 
-  newIndexColumn(): Column {
+  newIndexColumn(): ColumnType {
     return {
       id: uniqueId(),
       name: this.model.index_header,
@@ -176,13 +181,13 @@ export class DataTableView extends WidgetView {
       resizable: false,
       selectable: false,
       sortable: true,
-      cssClass: "bk-cell-index",
-      headerCssClass: "bk-header-index",
+      cssClass: bk_cell_index,
+      headerCssClass: bk_header_index,
     }
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-data-table")
+    return super.css_classes().concat(bk_data_table)
   }
 
   render(): void {
@@ -190,7 +195,7 @@ export class DataTableView extends WidgetView {
     let columns = this.model.columns.map((column) => column.toColumn())
 
     if (this.model.selectable == "checkbox") {
-      checkboxSelector = new CheckboxSelectColumn({cssClass: "bk-cell-select"})
+      checkboxSelector = new CheckboxSelectColumn({cssClass: bk_cell_select})
       columns.unshift(checkboxSelector.getColumnDefinition())
     }
 
@@ -199,15 +204,12 @@ export class DataTableView extends WidgetView {
       const index = this.newIndexColumn()
       // This is to be able to provide negative index behaviour that
       // matches what python users will expect
-      if (index_position == -1) {
+      if (index_position == -1)
         columns.push(index)
-      }
-      else if (index_position < -1) {
+      else if (index_position < -1)
         columns.splice(index_position+1, 0, index)
-      }
-      else {
+      else
         columns.splice(index_position, 0, index)
-      }
     }
 
     let { reorderable } = this.model
@@ -224,21 +226,13 @@ export class DataTableView extends WidgetView {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
       forceFitColumns: this.model.fit_columns,
-      autoHeight: (this.model.height as any) == "auto",
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
       autoEdit: false,
+      rowHeight: this.model.row_height,
     }
 
-    if (this.model.width != null)
-      this.el.style.width = `${this.model.width}px`
-    else
-      this.el.style.width = `${this.model.default_width}px`
-
-    if (this.model.height != null && (this.model.height as any) != "auto")
-      this.el.style.height = `${this.model.height}px`
-
-    this.data = new DataProvider(this.model.source, this.model.view)
+    this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
@@ -250,6 +244,7 @@ export class DataTableView extends WidgetView {
       if (!this.model.header_row) {
         this._hide_header()
       }
+      this.model.update_sort_columns(columns)
     })
 
     if (this.model.selectable !== false) {
@@ -257,11 +252,24 @@ export class DataTableView extends WidgetView {
       if (checkboxSelector != null)
         this.grid.registerPlugin(checkboxSelector)
 
+      const pluginOptions = {
+        dataItemColumnValueExtractor(val: Item, col: TableColumn) {
+          // As defined in this file, Item can contain any type values
+          let value: any = val[col.field]
+          if (isString(value)) {
+            value = value.replace(/\n/g, "\\n")
+          }
+          return value
+        },
+        includeHeaderWhenCopying: false,
+      }
+
+      this.grid.registerPlugin(new CellExternalCopyManager(pluginOptions))
+
       this.grid.onSelectedRowsChanged.subscribe((_event: any, args: any) => {
         if (this._in_selection_update) {
           return
         }
-
         this.model.source.selected.indices = args.rows.map((i: number) => this.data.index[i])
       })
 
@@ -283,67 +291,73 @@ export class DataTableView extends WidgetView {
 }
 
 export namespace DataTable {
-  export interface Attrs extends TableWidget.Attrs {
-    columns: TableColumn[]
-    fit_columns: boolean
-    sortable: boolean
-    reorderable: boolean
-    editable: boolean
-    selectable: boolean | "checkbox"
-    index_position: number | null
-    index_header: string
-    index_width: number
-    scroll_to_selection: boolean
-    header_row: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TableWidget.Props {}
+  export type Props = TableWidget.Props & {
+    columns: p.Property<TableColumn[]>
+    fit_columns: p.Property<boolean>
+    sortable: p.Property<boolean>
+    reorderable: p.Property<boolean>
+    editable: p.Property<boolean>
+    selectable: p.Property<boolean | "checkbox">
+    index_position: p.Property<number | null>
+    index_header: p.Property<string>
+    index_width: p.Property<number>
+    scroll_to_selection: p.Property<boolean>
+    header_row: p.Property<boolean>
+    row_height: p.Property<number>
+  }
 }
 
 export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
-
   properties: DataTable.Props
+
+  private _sort_columns: any[] = []
+  get sort_columns(): any[] { return this._sort_columns }
 
   constructor(attrs?: Partial<DataTable.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'DataTable'
+  static init_DataTable(): void {
     this.prototype.default_view = DataTableView
 
-    this.define({
-      columns:             [ p.Array,  []    ],
-      fit_columns:         [ p.Bool,   true  ],
-      sortable:            [ p.Bool,   true  ],
-      reorderable:         [ p.Bool,   true  ],
-      editable:            [ p.Bool,   false ],
-      selectable:          [ p.Any,    true  ], // boolean or "checkbox"
-      index_position:      [ p.Int,    0     ],
-      index_header:        [ p.String, "#"   ],
-      index_width:         [ p.Int,    40    ],
-      scroll_to_selection: [ p.Bool,   true  ],
-      header_row:          [ p.Bool,   true  ],
+    this.define<DataTable.Props>({
+      columns:             [ p.Array,   []    ],
+      fit_columns:         [ p.Boolean, true  ],
+      sortable:            [ p.Boolean, true  ],
+      reorderable:         [ p.Boolean, true  ],
+      editable:            [ p.Boolean, false ],
+      selectable:          [ p.Any,     true  ], // boolean or "checkbox"
+      index_position:      [ p.Int,     0     ],
+      index_header:        [ p.String,  "#"   ],
+      index_width:         [ p.Int,     40    ],
+      scroll_to_selection: [ p.Boolean, true  ],
+      header_row:          [ p.Boolean, true  ],
+      row_height:          [ p.Int,     25    ],
     })
 
     this.override({
+      width: 600,
       height: 400,
     })
   }
 
-  readonly default_width = 600
+  update_sort_columns(sortCols: any): null {
+    this._sort_columns=sortCols.map((x: any) => ({field:x.sortCol.field, sortAsc:x.sortAsc}))
+    return null
+  }
 
   get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: number[]): number | null {
     if (!this.scroll_to_selection || (selected_indices.length == 0))
       return null
 
-    if (!any(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
+    if (!some(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
       return Math.max(0, Math.min(...selected_indices) - 1)
     }
 
     return null
   }
 }
-DataTable.initClass()

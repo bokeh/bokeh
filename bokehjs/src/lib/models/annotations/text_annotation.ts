@@ -1,20 +1,23 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Text, Line, Fill} from "core/visuals"
-import {show, hide} from "core/dom"
+import {display, undisplay} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {get_text_height} from "core/util/text"
+import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
+import {bk_annotation} from "styles/annotations"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
   visuals: TextAnnotation.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  readonly rotate: boolean = true
+
+  initialize(): void {
+    super.initialize()
 
     if (this.model.render_mode == 'css') {
-      this.el.classList.add('bk-annotation')
+      this.el.classList.add(bk_annotation)
       this.plot_view.canvas_overlays.appendChild(this.el)
     }
   }
@@ -31,7 +34,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = get_text_height(this.visuals.text.font_value())
+    const {height} = measure_font(this.visuals.text.font_value())
     return [width, height]
   }
 
@@ -98,7 +101,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   protected _css_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    hide(this.el)
+    undisplay(this.el)
 
     this.visuals.text.set_value(ctx)
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
@@ -116,7 +119,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     this.el.style.color = `${this.visuals.text.text_color.value()}`
     this.el.style.opacity = `${this.visuals.text.text_alpha.value()}`
     this.el.style.font = `${this.visuals.text.font_value()}`
-    this.el.style.lineHeight = "normal"; // needed to prevent ipynb css override
+    this.el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
       this.el.style.transform = `rotate(${angle}rad)`
@@ -133,16 +136,16 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
 
     this.el.textContent = text
-    show(this.el)
+    display(this.el)
   }
 }
 
 export namespace TextAnnotation {
-  export interface Attrs extends Annotation.Attrs {
-    render_mode: RenderMode
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {}
+  export type Props = Annotation.Props & {
+    render_mode: p.Property<RenderMode>
+  }
 
   export type Visuals = Annotation.Visuals & {
     text: Text
@@ -154,19 +157,15 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
-
   properties: TextAnnotation.Props
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "TextAnnotation"
-
-    this.define({
+  static init_TextAnnotation(): void {
+    this.define<TextAnnotation.Props>({
       render_mode: [ p.RenderMode, "canvas" ],
     })
   }
 }
-TextAnnotation.initClass()

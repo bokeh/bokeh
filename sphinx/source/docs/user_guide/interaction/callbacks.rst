@@ -108,7 +108,7 @@ variable:
     callback = CustomJS(code="""
     // the event that triggered the callback is cb_obj:
     // The event type determines the relevant attributes
-    console.log('Tap event occured at x-position: ' + cb_obj.x)
+    console.log('Tap event occurred at x-position: ' + cb_obj.x)
     """)
 
     p = figure()
@@ -195,7 +195,7 @@ a line through that value.
 CustomJS for Hover
 ''''''''''''''''''
 
-The HoverTool has a callback which comes with two pieces of built-in data: the
+The ``HoverTool`` has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
 hover tool is over.
 
@@ -206,7 +206,7 @@ CustomJS for Range Update
 '''''''''''''''''''''''''
 
 With Bokeh, ranges have a callback attribute that accept a Callback instance
-and execute javascript code on range updates that are triggered by tool
+and execute Javascript code on range updates that are triggered by tool
 interactions such as a box zoom, wheel scroll or pan.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
@@ -228,13 +228,18 @@ the same ``args`` and ``code`` parameters:
 CustomJS with a Python function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. warning::
+    Support for converting Python to JS is deprecated and all the "from_py_func"
+    functions will be removed in an eventual Bokeh 2.0 release. Use CustomJS
+    classes instead.
+
 A CustomJS callback can also be implemented as a Python function, which
 is then translated to JavaScript using PScript. This makes it easier
 for users to define client-side interactions without having to learn
 JavaScript. To use this functionality you need the PScript library
 (install with ``conda install -c conda-forge pscript`` or ``pip install pscript``).
 
-.. warning::
+.. note::
     It is critical to note that **no python code is ever executed when
     a CustomJS callback is used**. This is true even when the callback is
     supplied as python code to be translated to JavaScript as described in

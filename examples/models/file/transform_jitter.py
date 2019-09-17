@@ -4,7 +4,7 @@ from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models import CustomJS, Button, LabelSet
 from bokeh.models.transforms import Jitter
-from bokeh.models.layouts import Column, WidgetBox
+from bokeh.models.layouts import Column
 
 N = 1000
 
@@ -38,8 +38,8 @@ callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code
     source.change.emit();
 """)
 
-button = Button(label='Press to apply Jitter!', callback=callback)
+button = Button(label='Press to apply Jitter!', width=300, callback=callback)
 
 output_file("transform_jitter.html", title="Example Jitter Transform")
 
-show(Column(WidgetBox(button,width=300), p))
+show(Column(button, p))
