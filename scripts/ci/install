@@ -7,9 +7,6 @@ if  [ "${NO_GIT_FETCH}" != "1" ]; then
     git fetch --quiet origin master
 fi
 
-# install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
-wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash
-
 # install Miniconda
 PYTHON="${PYTHON:-3.7}"
 MINICONDA_FILENAME=Miniconda${PYTHON:0:1}-latest-Linux-x86_64.sh

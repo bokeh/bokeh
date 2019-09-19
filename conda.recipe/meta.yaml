@@ -104,6 +104,5 @@ about:
 extra:
   deploy:
     - anaconda-client
-    - fabric3
     - setuptools >=0.39
     - twine >=1.11

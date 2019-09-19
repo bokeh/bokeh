@@ -383,10 +383,9 @@ def upload_pypi(token):
 def upload_docs():
     cd("sphinx")
     if V(CONFIG.version).is_prerelease:
-        run("fab deploy:dev")
+        pass
     else:
-        run("fab deploy:%s" % CONFIG.version)
-        run("fab latest:%s" % CONFIG.version)
+        pass
     cd("..")
 
 @upload_wrapper('examples')
