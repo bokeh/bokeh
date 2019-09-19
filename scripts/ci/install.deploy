@@ -16,6 +16,9 @@ bash scripts/ci/install
 # install all build, test, deploy, and run dependencies
 conda install -n testenv --yes --quiet `python scripts/deps.py build test run deploy`
 
+# awscli not available from conda defaults
+pip install awscli
+
 npm install -g npm
 
 # install NPM dependencies

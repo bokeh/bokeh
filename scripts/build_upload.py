@@ -382,10 +382,17 @@ def upload_pypi(token):
 @upload_wrapper('docs')
 def upload_docs():
     cd("sphinx")
+    sync_cmd = "aws s3 sync build/html s3://docs.bokeh.org/en/%s/ --acl bucket-owner-full-control --cache-control max-age=31536000,public"
+    invalidate_cmd = "aws cloudfront create-invalidation --distribution-id E2OC6Q27H5UQ63 --paths %s"
+
     if V(CONFIG.version).is_prerelease:
-        pass
+        run(sync_cmd % "dev")
+        run(invalidate_cmd % "/en/dev")
     else:
-        pass
+        run(sync_cmd % CONFIG.version)
+        run(sync_cmd % "latest")
+        paths =  "/en/%s /en/latest /versions.json" % CONFIG.version
+        run(invalidate_cmd % paths)
     cd("..")
 
 @upload_wrapper('examples')
