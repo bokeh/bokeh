@@ -391,7 +391,7 @@ def upload_docs():
     else:
         run(sync_cmd % CONFIG.version)
         run(sync_cmd % "latest")
-        paths =  "/en/%s /en/latest /versions.json" % CONFIG.version
+        paths =  "/en/latest /versions.json" % CONFIG.version
         run(invalidate_cmd % paths)
     cd("..")
 
