@@ -184,6 +184,15 @@ The box select tool may be configured to select across only one dimension by
 setting the ``dimensions`` property to ``width`` or ``height`` instead of the
 default ``both``.
 
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
+
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the
     selection, press the ESC key.
@@ -206,6 +215,15 @@ LassoSelectTool
 
 The lasso selection tool allows the user to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
+
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
 
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the selection,
@@ -243,6 +261,15 @@ The polygon selection tool allows the user to define an arbitrary polygonal
 region for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
+
 .. note::
     Complete the selection by making a double left-click or tapping. To make a
     multiple selection, press the SHIFT key. To clear the selection, press the
@@ -256,6 +283,15 @@ TapTool
 
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
+
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
 
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the selection,
@@ -966,6 +1002,8 @@ properties on |Plot| objects that control LOD behavior:
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+
+.. |Selection| replace:: :class:`~bokeh.models.selections.Selection`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 
