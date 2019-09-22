@@ -9,7 +9,8 @@ import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
 import {Linker} from "./linker"
 
 function npm_install(base_dir: Path) {
-  const {status} = cp.spawnSync("npm", ["install"], {stdio: "inherit", cwd: base_dir})
+  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
+  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir})
   if (status !== 0)
     process.exit(status)
 }
