@@ -76,10 +76,10 @@ export class DatePickerView extends InputWidgetView {
   }
 
   _unlocal_date(date: Date): Date {
-    //Get the UTC offset (in minutes) of Date (will be based on the timezone of the user's system).
+    //Get the UTC offset (in minutes) of date (will be based on the timezone of the user's system).
     //Then multiply to get the offset in ms.
-    //This way it can be used to recreate the user specified Date, agnostic to their local systems's timezone.
-    var timeOffsetInMS = date.getTimezoneOffset() * 60000
+    //This way it can be used to recreate the user specified date, agnostic to their local systems's timezone.
+    const timeOffsetInMS = date.getTimezoneOffset() * 60000
     date.setTime(date.getTime() - timeOffsetInMS)
 
     const datestr = date.toISOString().substr(0, 10)
