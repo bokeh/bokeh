@@ -11,7 +11,7 @@ p = figure(plot_width=800, plot_height=250, x_axis_type="datetime")
 for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "GOOG"], Spectral4):
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
-    p.line(df['date'], df['close'], line_width=2, color=color, legend=name)
+    p.line(df['date'], df['close'], line_width=2, color=color, legend_label=name)
 
 p.legend.location = "top_left"
 p.legend.title = 'Stock'

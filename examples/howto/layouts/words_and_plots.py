@@ -36,7 +36,7 @@ def scatter():
     s.xaxis.axis_label = 'Petal Length'
     s.yaxis.axis_label = 'Petal Width'
     s.circle("petal_length", "petal_width", color="colors", source=source,
-             fill_alpha=0.2, size=10, legend="species")
+             fill_alpha=0.2, size=10, legend_group="species")
     # Lets move the legend off-canvas!
     legend = s.legend[0]
     legend.border_line_color = None

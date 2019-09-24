@@ -10,8 +10,8 @@ def make_plot(title, hist, edges, x, pdf, cdf):
     p = figure(title=title, tools='', background_fill_color="#fafafa")
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color="navy", line_color="white", alpha=0.5)
-    p.line(x, pdf, line_color="#ff8888", line_width=4, alpha=0.7, legend="PDF")
-    p.line(x, cdf, line_color="orange", line_width=2, alpha=0.7, legend="CDF")
+    p.line(x, pdf, line_color="#ff8888", line_width=4, alpha=0.7, legend_label="PDF")
+    p.line(x, cdf, line_color="orange", line_width=2, alpha=0.7, legend_label="CDF")
 
     p.y_range.start = 0
     p.legend.location = "center_right"

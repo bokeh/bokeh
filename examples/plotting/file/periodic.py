@@ -40,7 +40,7 @@ p = figure(title="Periodic Table (omitting LA and AC Series)", plot_width=1000, 
            x_range=groups, y_range=list(reversed(periods)),
            tools="hover", toolbar_location=None, tooltips=TOOLTIPS)
 
-r = p.rect("group", "period", 0.95, 0.95, source=df, fill_alpha=0.6, legend="metal",
+r = p.rect("group", "period", 0.95, 0.95, source=df, fill_alpha=0.6, legend_field="metal",
            color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
 
 text_props = {"source": df, "text_align": "left", "text_baseline": "middle"}

@@ -36,12 +36,12 @@ line_opts = dict(
 )
 
 rt_plot = figure(tools=[HoverTool(**hover_opts), TapTool()], **figure_opts)
-rt_plot.multi_line(xs='RT', ys='RT_intensity', legend="Intensity_tip", **line_opts)
+rt_plot.multi_line(xs='RT', ys='RT_intensity', legend_field="Intensity_tip", **line_opts)
 rt_plot.xaxis.axis_label = "Retention Time (sec)"
 rt_plot.yaxis.axis_label = "Intensity"
 
 mz_plot = figure(tools=[HoverTool(**hover_opts), TapTool()], **figure_opts)
-mz_plot.multi_line(xs='MZ', ys='MZ_intensity', legend="Intensity_tip", **line_opts)
+mz_plot.multi_line(xs='MZ', ys='MZ_intensity', legend_field="Intensity_tip", **line_opts)
 mz_plot.legend.location = "top_center"
 mz_plot.xaxis.axis_label = "MZ"
 mz_plot.yaxis.axis_label = "Intensity"

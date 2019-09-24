@@ -10,9 +10,9 @@ output_file("span.html", title="span.py example")
 p = figure(x_axis_type="datetime", y_axis_type="datetime")
 
 p.line(daylight_warsaw_2013.Date, daylight_warsaw_2013.Sunset,
-       line_dash='solid', line_width=2, legend="Sunset")
+       line_dash='solid', line_width=2, legend_label="Sunset")
 p.line(daylight_warsaw_2013.Date, daylight_warsaw_2013.Sunrise,
-       line_dash='dotted', line_width=2, legend="Sunrise")
+       line_dash='dotted', line_width=2, legend_label="Sunrise")
 
 start_date = time.mktime(dt(2013, 3, 31, 2, 0, 0).timetuple())*1000
 daylight_savings_start = Span(location=start_date,

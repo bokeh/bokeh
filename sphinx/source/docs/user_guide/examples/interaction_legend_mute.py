@@ -11,7 +11,7 @@ for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "G
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     p.line(df['date'], df['close'], line_width=2, color=color, alpha=0.8,
-           muted_color=color, muted_alpha=0.2, legend=name)
+           muted_color=color, muted_alpha=0.2, legend_label=name)
 
 p.legend.location = "top_left"
 p.legend.click_policy="mute"
