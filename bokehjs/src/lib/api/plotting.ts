@@ -640,16 +640,16 @@ export class Figure extends Plot {
     }
     const _is_visual = function(ft: string): boolean {
       [feature, trait] = _split_feature_trait(ft)
-      return (feature in ['line', 'fill', 'text']) && (trait != null)
+      return ['line', 'fill', 'text'].includes(feature) && (trait != null)
     }
 
     const defaults : Attrs = {...defaults}
-    if ( !('text_color' in defaults) ) {
+    if ( !defaults.includes('text_color') ) {
       defaults['text_color'] = 'black' }
     const trait_defaults : Attrs = {...trait_defaults}
-    if ( !('color' in trait_defaults) ) {
+    if ( !trait_defaults.includes('color') ) {
       trait_defaults['color'] = _default_color }
-    if ( !('alpha' in trait_defaults) ){
+    if ( !trait_defaults.includes('alpha') ){
       trait_defaults['alpha'] = _default_alpha }
 
     const result: Attrs = {}
@@ -657,14 +657,14 @@ export class Figure extends Plot {
     for (pname in cls.properties) {
       if (_is_visual(pname)) {
         [_, trait] = _split_feature_trait(pname)
-        if (prefix+pname in props) {
+        if (props.includes(prefix+pname)) {
             result[pname] = props[prefix+pname]
             delete props[prefix+pname] }
-        else if (prefix+trait in props) {
+        else if (props.includes(prefix+trait)) {
             result[pname] = props[prefix+trait] }
-        else if (pname in defaults) {
+        else if (defaults.includes(pname)) {
             result[pname] = defaults[pname] }
-        else if (trait in trait_defaults) {
+        else if (trait_defaults.includes(trait)) {
             result[pname] = trait_defaults[trait] }
         traits.add(trait)
       }
