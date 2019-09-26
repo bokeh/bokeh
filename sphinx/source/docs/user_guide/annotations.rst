@@ -92,9 +92,9 @@ passing the ``legend_group`` keyword argument to a glyph method:
 
     p.circle('x', 'y', legend_group="colname", source=source)
 
-With this method is used, Python code will see immediately be able to see the
-individual legend items in ``Legend.items`` property. If desired, these items
-can be re-arranged or modified.
+With this method is used, ther grouping is performed immediately in Python, and
+subsequent Python code will be able to see the individual legend items in
+``Legend.items`` property. If desired, these ite can be re-arranged or modified.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_group.py
     :source-position: above
@@ -109,7 +109,7 @@ Automatic Grouping (Browser)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is also possible to specify that the grouping should happen on the JavaScript
-side, in the browser. This may be desirable, e.g. if the groping should happen
+side, in the browser. This may be desirable, e.g. if the grouping should happen
 on a column that is only computed on the JavaScript side.
 
 .. code-block:: python
