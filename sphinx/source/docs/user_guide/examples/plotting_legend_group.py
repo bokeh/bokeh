@@ -14,6 +14,7 @@ source = ColumnDataSource(dict(
 
 p = figure(x_range=(0, 7), y_range=(0, 3), plot_height=300, tools='save')
 
-# Note legend field matches the column in `source`
-p.circle( x='x', y='y', radius=0.5, color='color', legend_field='label', source=source)
+# legend field matches the column in the source
+p.circle( x='x', y='y', radius=0.5, color='color', legend_group='label', source=source)
+
 show(p)
