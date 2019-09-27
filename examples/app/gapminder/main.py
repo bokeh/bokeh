@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-from bokeh.core.properties import field
 from bokeh.io import curdoc
 from bokeh.layouts import layout
 from bokeh.models import (ColumnDataSource, HoverTool, SingleIntervalTicker,
@@ -48,7 +47,7 @@ plot.circle(
     line_color='#7c7e71',
     line_width=0.5,
     line_alpha=0.5,
-    legend=field('region'),
+    legend_group='region',
 )
 plot.add_tools(HoverTool(tooltips="@Country", show_arrow=False, point_policy='follow_mouse'))
 

@@ -61,7 +61,7 @@ region = figure(plot_height=350, toolbar_location=None, outline_line_color=None,
 
 region.annular_wedge(x=-0, y=1, inner_radius=0.2, outer_radius=0.32,
                   start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
-                  line_color="white", fill_color='color', legend='country', source=data)
+                  line_color="white", fill_color='color', legend_group='country', source=data)
 
 region.axis.axis_label=None
 region.axis.visible=False

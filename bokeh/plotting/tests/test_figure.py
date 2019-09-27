@@ -337,7 +337,7 @@ class Test_hbar_stack(object):
 
         p = bpf.figure()
         renderers = p.hbar_stack(years, y='fruits', height=0.9, color=colors, source=source,
-                            legend=[value(x) for x in years], name=years)
+                            legend_label=years, name=years)
         assert len(renderers) == 3
         assert renderers[0].name == "2015"
         assert renderers[1].name == "2016"
@@ -357,20 +357,19 @@ class Test_vbar_stack(object):
 
         p = bpf.figure()
         renderers = p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
-                            legend=[value(x) for x in years], name=years)
+                            legend_label=years, name=years)
         assert len(renderers) == 3
         assert renderers[0].name == "2015"
         assert renderers[1].name == "2016"
         assert renderers[2].name == "2017"
 
-def Test_figure_legends(obejct):
+def Test_figure_legends_DEPRECATED(obejct):
 
     def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(self, p, source):
         p.circle(x='x', y='y', legend='label', source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].label == {'field': 'label'}
-
 
     def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(self, p, source):
         p.circle(x='x', y='y', legend='milk', source=source)
@@ -399,12 +398,10 @@ def Test_figure_legends(obejct):
         assert len(legends) == 1
         assert legends[0].items[0].label == {'field': 'milk'}
 
-
     def test_no_legend_if_legend_is_none(self, p, source):
         p.circle(x='x', y='y', legend=None, source=source)
         legends = p.select(Legend)
         assert len(legends) == 0
-
 
     def test_legend_added_when_legend_set(self, p, source):
         renderer = p.circle(x='x', y='y', legend='label', source=source)
@@ -412,19 +409,16 @@ def Test_figure_legends(obejct):
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [renderer]
 
-
     def test_legend_not_added_when_no_legend(self, p, source):
         p.circle(x='x', y='y', source=source)
         legends = p.select(Legend)
         assert len(legends) == 0
-
 
     def test_adding_legend_doesnt_work_when_legends_already_added(self, p, source):
         p.add_layout(Legend())
         p.add_layout(Legend())
         with pytest.raises(RuntimeError):
             p.circle(x='x', y='y', legend='label', source=source)
-
 
     def test_multiple_renderers_correctly_added_to_legend(self, p, source):
         square = p.square(x='x', y='y', legend='square', source=source)
@@ -436,7 +430,6 @@ def Test_figure_legends(obejct):
         assert legends[0].items[1].renderers == [circle]
         assert legends[0].items[1].label == value('circle')
 
-
     def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(self, p, source):
         # 'compound legend string' is just a value
         square = p.square(x='x', y='y', legend='compound legend string')
@@ -444,8 +437,7 @@ def Test_figure_legends(obejct):
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == {'value': 'compound legend string'}
-
+        assert legends[0].items[0].label == value('compound legend string')
 
     def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(self, p, source):
         # label is a field
@@ -456,18 +448,82 @@ def Test_figure_legends(obejct):
         assert legends[0].items[0].renderers == [square, circle]
         assert legends[0].items[0].label == {'field': 'label'}
 
+
+def Test_figure_legends(obejct):
+
+    def test_glyph_legend_field(self, p, source):
+        p.circle(x='x', y='y', legend_field='label', source=source)
+        legends = p.select(Legend)
+        assert len(legends) == 1
+        assert legends[0].items[0].label == {'field': 'label'}
+
+    def test_no_legend_if_legend_is_none(self, p, source):
+        p.circle(x='x', y='y', legend_label=None, source=source)
+        legends = p.select(Legend)
+        assert len(legends) == 0
+
+    def test_legend_added_when_legend_set(self, p, source):
+        renderer = p.circle(x='x', y='y', legend_label='label', source=source)
+        legends = p.select(Legend)
+        assert len(legends) == 1
+        assert legends[0].items[0].renderers == [renderer]
+
+    def test_legend_not_added_when_no_legend(self, p, source):
+        p.circle(x='x', y='y', source=source)
+        legends = p.select(Legend)
+        assert len(legends) == 0
+
+    def test_adding_legend_doesnt_work_when_legends_already_added(self, p, source):
+        p.add_layout(Legend())
+        p.add_layout(Legend())
+        with pytest.raises(RuntimeError):
+            p.circle(x='x', y='y', legend_label='label', source=source)
+        with pytest.raises(RuntimeError):
+            p.circle(x='x', y='y', legend_field='label', source=source)
+        with pytest.raises(RuntimeError):
+            p.circle(x='x', y='y', legend_group='label', source=source)
+
+    def test_multiple_renderers_correctly_added_to_legend(self, p, source):
+        square = p.square(x='x', y='y', legend_label='square', source=source)
+        circle = p.circle(x='x', y='y', legend_label='circle', source=source)
+        legends = p.select(Legend)
+        assert len(legends) == 1
+        assert legends[0].items[0].renderers == [square]
+        assert legends[0].items[0].label == value('square')
+        assert legends[0].items[1].renderers == [circle]
+        assert legends[0].items[1].label == value('circle')
+
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(self, p, source):
+        # 'compound legend string' is just a value
+        square = p.square(x='x', y='y', legend_label='compound legend string')
+        circle = p.circle(x='x', y='y', legend_label='compound legend string')
+        legends = p.select(Legend)
+        assert len(legends) == 1
+        assert legends[0].items[0].renderers == [square, circle]
+        assert legends[0].items[0].label == value('compound legend string')
+
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(self, p, source):
+        # label is a field
+        square = p.square(x='x', y='y', legend_field='label', source=source)
+        circle = p.circle(x='x', y='y', legend_field='label', source=source)
+        legends = p.select(Legend)
+        assert len(legends) == 1
+        assert legends[0].items[0].renderers == [square, circle]
+        assert legends[0].items[0].label == {'field': 'label'}
+
     # XXX (bev) this doesn't work yet because compound behaviour depends on renderer sources
     # matching, but passing a df means every renderer gets its own new source
     # def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field_with_df_source(self, p, pd):
     #     source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
     #     # label is a field
-    #     square = p.square(x='x', y='y', legend='label', source=source)
-    #     circle = p.circle(x='x', y='y', legend='label', source=source)
+    #     square = p.square(x='x', y='y', legend_label='label', source=source)
+    #     circle = p.circle(x='x', y='y', legend_label='label', source=source)
     #     legends = p.select(Legend)
     #     assert len(legends) == 1
     #     print(legends[0].items[0].renderers)
     #     assert legends[0].items[0].renderers == [square, circle]
     #     assert legends[0].items[0].label == {'field': 'label'}
+
 
 #-----------------------------------------------------------------------------
 # Dev API

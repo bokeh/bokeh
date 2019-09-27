@@ -62,31 +62,73 @@ visually overlap in way that is not desirable.
 Legends
 -------
 
-It is possible to create |Legend| annotations easily by specifying a legend
-argument to the glyph methods, when creating a plot.
+It is possible to create |Legend| annotations easily by specifying legend
+arguments to the glyph methods, when creating a plot.
 
-.. note::
-    This example depends on the open source NumPy library in order to more
-    easily generate better data suitable for demonstrating legends.
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_legends.py
-    :source-position: above
-
-Automatic Grouping
+Basic Legend Label
 ~~~~~~~~~~~~~~~~~~
 
-It is also possible to create multiple legend items for the same glyph when
-if needed by passing a legend that is the column of the column data source.
+To provide a simple explicit label for a glypy, pass the ``legend_label``
+keyword argument:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_legends_by_source.py
+.. code-block:: python
+
+    p.circle('x', 'y', legend_label="some label")
+
+If multiple glyphs are given the same label, they will all be combined in to a
+single legend item with that label.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
     :source-position: above
 
-If you do not want this automatic behavior, you can use the ``field()`` or
-``value()`` functions from :ref:`bokeh.core.properties`, to be explicit about
-your  intentions. See :bokeh-tree:`examples/app/gapminder/main.py` for an
-example. Alternatively, you can not specify any legend argument, and manually
-build a :class:`~bokeh.models.annotations.Legend` by hand. You can see an
-example of this in :bokeh-tree:`examples/models/file/legends.py`:
+Automatic Grouping (Python)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is often desirable to generate multiple legend items by grouping the values
+in a data source column. It is possible for Bokeh to perform such a grouping by
+passing the ``legend_group`` keyword argument to a glyph method:
+
+.. code-block:: python
+
+    p.circle('x', 'y', legend_group="colname", source=source)
+
+With this method is used, ther grouping is performed immediately in Python, and
+subsequent Python code will be able to see the individual legend items in
+``Legend.items`` property. If desired, these ite can be re-arranged or modified.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_legend_group.py
+    :source-position: above
+
+.. note::
+
+    To use this feature, a ``source`` argument *must also be provided* to the
+    glyph method. Additionally, the column to be grouped must already be present
+    in the data source at that point.
+
+Automatic Grouping (Browser)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is also possible to specify that the grouping should happen on the JavaScript
+side, in the browser. This may be desirable, e.g. if the grouping should happen
+on a column that is only computed on the JavaScript side.
+
+.. code-block:: python
+
+    p.circle('x', 'y', legend_field="colname", source=source)
+
+In this case the Python code does *not* see multiple items in ``Legend.items``.
+Instead there is only a single item that represents the grouping to perform in
+the browser.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
+    :source-position: above
+
+Manual Legends
+~~~~~~~~~~~~~~
+
+It is also possible to not specify any of the legend arguments, and manually
+build a :class:`~bokeh.models.annotations.Legend` by hand. An example of this
+can be found in :bokeh-tree:`examples/models/file/legends.py`:
 
 Explicit Index
 ~~~~~~~~~~~~~~

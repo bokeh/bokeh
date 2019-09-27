@@ -138,13 +138,13 @@ def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, c
         _sources.append(sources)
 
         if i:
-            legend = "4sin(%(c)sx)/%(c)spi" % {'c': i*2+1}
+            legend_label = "4sin(%(c)sx)/%(c)spi" % {'c': i*2+1}
         else:
-            legend = "4sin(x)/pi"
+            legend_label = "4sin(x)/pi"
 
         p.line('base_x','y', color=palette[i], line_width=2, source=sources['curve'])
         p.line('line_x', 'line_y', color=palette[i], line_width=2,
-                source=sources['lines'], legend=legend)
+                source=sources['lines'], legend_label=legend_label)
 
         create_circle_glyphs(p, palette[i], sources)
 
