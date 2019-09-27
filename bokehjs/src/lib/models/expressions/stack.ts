@@ -29,9 +29,11 @@ export class Stack extends Expression {
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
     const result = new Float64Array(source.get_length() || 0)
     for (const f of this.fields) {
-      for (let i = 0; i < source.data[f].length; i++) {
-        const x = source.data[f][i]
-        result[i] += x
+      if (Object.keys(source.data).length != 0) {
+        for (let i = 0; i < source.data[f].length; i++) {
+          const x = source.data[f][i]
+          result[i] += x
+        }
       }
     }
     return result
