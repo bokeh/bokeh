@@ -14,6 +14,7 @@ for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "G
 
 p.legend.location = 'top_left'
 p.legend.click_policy = 'hide'
+p.x_range.only_visible = True
 
 output_file('interactive_legend.html', title='interactive_legend.py example')
 

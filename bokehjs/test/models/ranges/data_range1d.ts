@@ -295,6 +295,38 @@ describe("datarange1d module", () => {
       expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
       expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
+
+    it("should use invisble renderers by default", () => {
+      const r = new DataRange1d()
+
+      const g1 = new GlyphRenderer({id: "1", visible: false})
+      const g2 = new GlyphRenderer({id: "2"})
+
+      const bds = {
+        1: {x0: 0, x1: 10, y0: 5, y1: 6},
+        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
+        3: {x0: -10, x1: 15, y0: 0, y1: 2},
+      }
+
+      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
+    })
+
+    it("should skip invisble renderers if only_visible=false", () => {
+      const r = new DataRange1d({only_visible: true})
+
+      const g1 = new GlyphRenderer({id: "1"})
+      const g2 = new GlyphRenderer({id: "2", visible: false})
+
+      const bds = {
+        1: {x0: 0, x1: 10, y0: 5, y1: 6},
+        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
+        3: {x0: -10, x1: 15, y0: 0, y1: 2},
+      }
+
+      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+    })
   })
 
   describe("update", () => {

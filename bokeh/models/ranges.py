@@ -258,6 +258,11 @@ class DataRange1d(DataRange):
     (if used with a log axis, default_span is in powers of 10).
     """)
 
+    only_visible = Bool(default=False, help="""
+    If True, renderers that that are not visible will be excluded from automatic
+    bounds computations.
+    """)
+
     def __init__(self, *args, **kwargs):
         if kwargs.get('follow') is not None:
             kwargs['bounds'] = None
