@@ -197,7 +197,8 @@ class BaseResources(object):
 
         return (files, raw)
 
-    def _inline(self, path):
+    @staticmethod
+    def _inline(path):
         begin = "/* BEGIN %s */" % basename(path)
         with open(path, 'rb') as f:
             middle = f.read().decode("utf-8")
