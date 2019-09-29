@@ -189,7 +189,6 @@ export class LegendView extends AnnotationView {
               break
             }
           }
-          this.plot_view.update_dataranges()
           return true
         }
 

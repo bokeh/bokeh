@@ -22,7 +22,8 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, DataRange1d, Plot
+from bokeh.layouts import column
+from bokeh.models import Button, Circle, ColumnDataSource, CustomAction, CustomJS, DataRange1d, Plot
 from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
@@ -78,6 +79,37 @@ class Test_DataRange1d(object):
         plot, glyph = _make_plot(only_visible=True)
 
         page = single_plot_page(plot)
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results['yrstart'] <= 0
+        assert results['yrend'] < 5
+
+        assert page.has_no_console_errors()
+
+
+    def test_updates_when_visibility_is_toggled(self, single_plot_page):
+        source = ColumnDataSource(dict(x=[1, 2], y1=[0, 1], y2=[10,11]))
+        plot = Plot(plot_height=400, plot_width=400, x_range=DataRange1d(), y_range=DataRange1d(only_visible=True), min_border=0)
+        plot.add_glyph(source, Circle(x='x', y='y1'))
+        glyph = plot.add_glyph(source, Circle(x='x', y='y2'))
+        code = RECORD("yrstart", "p.y_range.start") + RECORD("yrend", "p.y_range.end")
+        plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
+        plot.toolbar_sticky = False
+        button = Button(css_classes=['foo'])
+        button.js_on_click(CustomJS(args=dict(glyph=glyph), code="glyph.visible=false"))
+
+        page = single_plot_page(column(plot, button))
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results['yrstart'] <= 0
+        assert results['yrend'] >= 11
+
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
+        button.click()
 
         page.click_custom_action()
 
