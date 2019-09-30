@@ -244,9 +244,10 @@ class MetaModel(MetaHasProps):
 
         module = class_dict["__view_module__"]
         model = class_dict.get("__subtype__", class_dict["__view_model__"])
+        impl = class_dict.get("__implementation__", None)
 
         head = module.split(".")[0]
-        if head == "bokeh" or head == "__main__":
+        if head == "bokeh" or head == "__main__" or impl is not None:
             qualified = model
         else:
             qualified = module + "." + model
