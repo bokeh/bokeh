@@ -35,7 +35,7 @@
     "yargs": "^13.2.2",
     "jsdom": "^9.8.3",
     "websocket": "^1.0.28",
-    "typescript": "3.6.2",
+    "typescript": "3.6.3",
     "tslint": "^5.16.0",
     "tsconfig-paths": "^3.8.0",
     "coffeescript": "^2.3.2",
