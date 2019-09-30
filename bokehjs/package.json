@@ -69,8 +69,8 @@
     "@types/eslint": "^4.16.8",
     "eslint": "^5.16.0",
     "acorn": "^6.2.1",
-    "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0",
+    "@typescript-eslint/eslint-plugin": "^2.3.1",
+    "@typescript-eslint/parser": "^2.3.1",
     "@jupyter-widgets/base": "^1.1.10"
   },
   "dependencies": {
