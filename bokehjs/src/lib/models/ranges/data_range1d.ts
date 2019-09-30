@@ -23,6 +23,7 @@ export namespace DataRange1d {
     follow: p.Property<StartEnd>
     follow_interval: p.Property<number>
     default_span: p.Property<number>
+    only_visible: p.Property<boolean>
 
     scale_hint: p.Property<"log" | "auto">
   }
@@ -47,6 +48,7 @@ export class DataRange1d extends DataRange {
       follow:              [ p.StartEnd                ],
       follow_interval:     [ p.Number                  ],
       default_span:        [ p.Number,       2         ],
+      only_visible:        [ p.Boolean,      false     ],
     })
 
     this.internal({
@@ -113,7 +115,7 @@ export class DataRange1d extends DataRange {
     let result = bbox.empty()
 
     for (const r of renderers) {
-      if (bounds[r.id] != null)
+      if (bounds[r.id] != null && (r.visible || !this.only_visible))
         result = bbox.union(result, bounds[r.id])
     }
 
