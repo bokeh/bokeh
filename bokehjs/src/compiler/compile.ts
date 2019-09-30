@@ -20,7 +20,10 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
     outDir: undefined,
   }
 
-  const tsconfig = parse_tsconfig(tsconfig_json, base_dir, preconfigure)
+  // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.
+  const json = {...tsconfig_json, include: undefined, files: ["dummy.ts"]}
+
+  const tsconfig = parse_tsconfig(json, base_dir, preconfigure)
   if (tsconfig.diagnostics != null)
     return {diagnostics: tsconfig.diagnostics}
 
