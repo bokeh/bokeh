@@ -120,8 +120,12 @@ export class ImageBaseView extends XYGlyphView {
     const height = this._height[index]
     const dx = (r - l) / width
     const dy = (t - b) / height
-    const dim1 = Math.floor((x - l) / dx)
-    const dim2 = Math.floor((y - b) / dy)
+    let dim1 = Math.floor((x - l) / dx)
+    let dim2 = Math.floor((y - b) / dy)
+    if (this.renderer.xscale.source_range.is_reversed)
+      dim1 = width-dim1-1
+    if (this.renderer.yscale.source_range.is_reversed)
+      dim2 = height-dim2-1
     return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
