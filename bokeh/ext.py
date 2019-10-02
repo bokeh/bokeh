@@ -43,16 +43,14 @@ def build(base_dir, debug=False, rebuild=False): # TODO: at 2.0, keyword only
     else:
         compiler_script = join(bokehjs_dir, "js", "compiler.js")
 
-    cmd = [compiler_script, "build", "--base-dir", base_dir, "--bokehjs-dir", bokehjs_dir, "--bokeh-version", __version__]
+    cmd = ["--no-deprecation", compiler_script, "build", "--base-dir", base_dir, "--bokehjs-dir", bokehjs_dir, "--bokeh-version", __version__]
     if debug:
         cmd.insert(0, "--inspect-brk")
     if rebuild:
         cmd.append("--rebuild")
 
-    proc = Popen([_nodejs_path()] + cmd, stderr=PIPE)
+    proc = Popen([_nodejs_path()] + cmd)
     (_, stderr) = proc.communicate()
-    if debug:
-        print(stderr.encode("utf-8"))
 
     return proc.returncode == 0
 

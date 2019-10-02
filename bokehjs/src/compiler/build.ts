@@ -8,11 +8,22 @@ import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
         default_transformers, compiler_host, report_diagnostics} from "./compiler"
 import {Linker} from "./linker"
 
-function npm_install(base_dir: Path) {
+import * as tsconfig_json from "./tsconfig.ext.json"
+
+import chalk from "chalk"
+const {cyan, magenta, red} = chalk
+
+function print(str: string): void {
+  console.log(str)
+}
+
+function npm_install(base_dir: Path): void {
   const npm = process.platform != "win32" ? "npm" : "npm.cmd"
   const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir})
-  if (status !== 0)
+  if (status !== 0) {
+    print(`${cyan("npm install")} failed with exit code ${red(`${status}`)}.`)
     process.exit(status)
+  }
 }
 
 type Metadata = {
@@ -43,15 +54,6 @@ function needs_install(base_dir: Path, metadata: Metadata): string | null {
   else
     return null
 }
-
-import * as tsconfig_json from "./tsconfig.ext.json"
-
-function print(str: string): void {
-  console.log(str)
-}
-
-import chalk from "chalk"
-const {cyan, magenta} = chalk
 
 export type BuildOptions = {
   rebuild?: boolean
