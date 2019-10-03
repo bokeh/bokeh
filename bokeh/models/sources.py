@@ -786,6 +786,10 @@ class AjaxDataSource(RemoteSource):
     callback can be provided to convert the REST response into Bokeh format,
     via the ``adapter`` property of this data source.
 
+    Initial data can be set by specifying the ``data`` property directly.
+    This is necessary when used in conjunction with a ``FactorRange``, even
+    if the columns in `data`` are empty.
+
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
     '''
