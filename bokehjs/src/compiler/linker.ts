@@ -410,22 +410,31 @@ export class Linker {
   protected readonly ext = ".js"
 
   resolve_package(dir: string): string | null {
-    let index = "index" + this.ext
+    const index = (() => {
+      const pkg_path = join(dir, "package.json")
+      if (file_exists(pkg_path)) {
+        const pkg = JSON.parse(read(pkg_path)!)
+        if (pkg.main != null)
+          return pkg.main
+      }
+      return "index.js"
+    })()
 
-    const pkg_path = join(dir, "package.json")
-    if (file_exists(pkg_path)) {
-      const pkg = JSON.parse(read(pkg_path)!)
-      if (pkg.main != null)
-        index = pkg.main
-    }
+    const path = join(dir, index)
+    if (file_exists(path))
+      return path
 
-    let file = join(dir, index)
-    if (file_exists(file))
-      return file
-    else {
-      file += this.ext
-      if (file_exists(file))
-        return file
+    const js_file = path + ".js"
+    if (file_exists(js_file))
+      return js_file
+    const json_file = path + ".json"
+    if (file_exists(json_file))
+      return json_file
+
+    if (directory_exists(path)) {
+      const index = join(path, "index.js")
+      if (file_exists(index))
+        return index
     }
 
     return null
@@ -437,8 +446,11 @@ export class Linker {
     if (file_exists(path))
       return path
 
-    const file = path + this.ext
-    const has_file = file_exists(file)
+    const js_file = path + ".js"
+    const json_file = path + ".json"
+    const has_js_file = file_exists(js_file)
+    const has_json_file = file_exists(json_file)
+    const has_file = has_js_file || has_json_file
 
     if (directory_exists(path)) {
       const pkg_file = this.resolve_package(path)
@@ -446,12 +458,14 @@ export class Linker {
         if (!has_file)
           return pkg_file
         else
-          throw new Error(`both ${file} and ${pkg_file} exist`)
+          throw new Error(`both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
       }
     }
 
-    if (has_file)
-      return file
+    if (has_js_file)
+      return js_file
+    else if (has_json_file)
+      return json_file
     else
       throw new Error(`can't resolve '${dep}' from '${parent.file}'`)
   }
@@ -459,10 +473,15 @@ export class Linker {
   protected resolve_absolute(dep: string, parent: Parent): string {
     for (const base of this.bases) {
       let path = join(base, dep)
-      const file = path + this.ext
+      if (file_exists(path))
+        return path
 
-      if (file_exists(file))
-        return file
+      const js_file = path + ".js"
+      if (file_exists(js_file))
+        return js_file
+      const json_file = path + ".json"
+      if (file_exists(json_file))
+        return json_file
 
       if (directory_exists(path)) {
         const file = this.resolve_package(path)
