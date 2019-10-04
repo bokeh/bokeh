@@ -4,4 +4,3 @@ bokeh.palettes
 ==============
 
 .. automodule:: bokeh.palettes
-  :members:
