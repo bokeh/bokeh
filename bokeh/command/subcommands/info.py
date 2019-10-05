@@ -93,7 +93,7 @@ class Info(Subcommand):
     #: name for this subcommand
     name = "info"
 
-    help = "print information about Bokeh and Bokeh server configuration"
+    help = "Print information about Bokeh and Bokeh server configuration"
 
     args = (
 

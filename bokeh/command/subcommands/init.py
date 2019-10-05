@@ -23,13 +23,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # Bokeh imports
 from ..subcommand import Subcommand
-from bokeh.ext import build
+from bokeh.ext import init
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = ['Build']
+__all__ = ['Init']
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -39,14 +39,14 @@ __all__ = ['Build']
 # General API
 #-----------------------------------------------------------------------------
 
-class Build(Subcommand):
+class Init(Subcommand):
     '''
-    Build a bokeh extension in the given directory.
+    Initialize a directory as a new bokeh extension.
     '''
 
-    name = "build"
+    name = "init"
 
-    help = "Manage and build a bokeh extension"
+    help = "Initialize a bokeh extension"
 
     args = (
         ("base_dir", dict(
@@ -55,9 +55,13 @@ class Build(Subcommand):
             nargs="?",
             default=".",
         )),
-        ("--rebuild", dict(
+        ("--interactive", dict(
             action="store_true",
-            help="Ignore all caches and perform a full rebuild",
+            help="Walk the user through creating an extension",
+        )),
+        ("--bokehjs_version", dict(
+            action="store_true",
+            help="Use a specific version of bokehjs",
         )),
         ("--debug", dict(
             action="store_true",
@@ -66,7 +70,8 @@ class Build(Subcommand):
     )
 
     def invoke(self, args):
-        return build(args.base_dir, rebuild=args.rebuild, debug=args.debug)
+        return init(args.base_dir, interactive=args.interactive,
+            bokehjs_version=args.bokehjs_version, debug=args.debug)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -50,7 +50,7 @@ def test_name():
     assert scinfo.Info.name == "info"
 
 def test_help():
-    assert scinfo.Info.help == "print information about Bokeh and Bokeh server configuration"
+    assert scinfo.Info.help == "Print information about Bokeh and Bokeh server configuration"
 
 def test_args():
     assert scinfo.Info.args == (

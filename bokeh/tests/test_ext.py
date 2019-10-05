@@ -4,73 +4,78 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pytest ; pytest
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 
 # External imports
 
 # Bokeh imports
-from ..subcommand import Subcommand
-from bokeh.ext import build
+
+# Module under test
+import bokeh.ext as ext
 
 #-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-__all__ = ['Build']
-
-#-----------------------------------------------------------------------------
-# Private API
+# Setup
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Build(Subcommand):
-    '''
-    Build a bokeh extension in the given directory.
-    '''
+def test_ext_commands(tmpdir):
+    tmp = str(tmpdir.mkdir("bk_ext_01"))
 
-    name = "build"
+    assert _names(tmp) == []
 
-    help = "Manage and build a bokeh extension"
+    assert ext.init(tmp, bokehjs_version="1.3.4") is True
+    assert _names(tmp) == [
+        "bokeh.ext.json",
+        "index.ts",
+        "package.json",
+        "tsconfig.json",
+    ]
 
-    args = (
-        ("base_dir", dict(
-            metavar="BASE_DIR",
-            type=str,
-            nargs="?",
-            default=".",
-        )),
-        ("--rebuild", dict(
-            action="store_true",
-            help="Ignore all caches and perform a full rebuild",
-        )),
-        ("--debug", dict(
-            action="store_true",
-            help="Run nodejs in debug mode (use --inspect-brk)",
-        )),
-    )
+    assert ext.build(tmp) is True
+    assert _names(tmp) == [
+        ".bokeh",
+        "bokeh.ext.json",
+        "dist",
+        "index.ts",
+        "node_modules",
+        "package-lock.json",
+        "package.json",
+        "tsconfig.json",
+    ]
 
-    def invoke(self, args):
-        return build(args.base_dir, rebuild=args.rebuild, debug=args.debug)
+    assert ext.init(tmp) is False
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# TODO: restore when support for Python 2.x is removed
+#def _entries(path):
+#    return sorted(os.scandir(path), key=lambda entry: entry.name)
+
+def _names(path):
+    #return [ entry.name for entry in _entries(path) ]
+    return sorted(os.listdir(path))
 
 #-----------------------------------------------------------------------------
 # Code

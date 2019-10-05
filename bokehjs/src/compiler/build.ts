@@ -1,7 +1,7 @@
 import * as ts from "typescript"
 
 import * as cp from "child_process"
-import {join, basename} from "path"
+import {join, basename, relative} from "path"
 
 import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, Path} from "./sys"
 import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
@@ -12,6 +12,13 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk
+
+import {CLIEngine} from "eslint"
+
+import "@typescript-eslint/eslint-plugin"
+import "@typescript-eslint/parser"
+
+import * as readline from "readline"
 
 function print(str: string): void {
   console.log(str)
@@ -53,6 +60,136 @@ function needs_install(base_dir: Path, metadata: Metadata): string | null {
     return `package-lock.json has changed.`
   else
     return null
+}
+
+function lint(config_file: Path, paths: Path[]): boolean {
+  const engine = new CLIEngine({
+    configFile: config_file,
+    extensions: [".ts", ".js"],
+  })
+
+  const report = engine.executeOnFiles(paths)
+  CLIEngine.outputFixes(report)
+
+  const ok = report.errorCount == 0
+  if (!ok) {
+    const formatter = engine.getFormatter()
+    const output = formatter(report.results)
+
+    for (const line of output.trim().split("\n"))
+      print(line)
+  }
+
+  return ok
+}
+
+export type InitOptions = {
+  interactive?: boolean
+  bokehjs_version?: string
+  bokeh_version: string
+}
+
+export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitOptions): Promise<boolean> {
+  print(`Working directory: ${cyan(base_dir)}`)
+
+  const setup: Required<InitOptions> = {
+    interactive: !!base_setup.interactive,
+    bokehjs_version: base_setup.bokehjs_version != null ? base_setup.bokehjs_version : base_setup.bokeh_version.split("-")[0],
+    bokeh_version: base_setup.bokeh_version,
+  }
+
+  const paths = {
+    bokeh_ext: join(base_dir, "bokeh.ext.json"),
+    package: join(base_dir, "package.json"),
+    package_lock: join(base_dir, "package-lock.json"),
+    tsconfig: join(base_dir, "tsconfig.json"),
+    index: join(base_dir, "index.ts"),
+  }
+
+  const is_extension = file_exists(paths.bokeh_ext)
+  if (is_extension) {
+    print("Already a bokeh extension. Quitting.")
+    return false
+  }
+
+  function write_json(path: Path, json: object): void {
+    write(path, JSON.stringify(json, undefined, 2))
+    print(`Wrote ${cyan(path)}`)
+  }
+
+  const bokeh_ext_json = {}
+  write_json(paths.bokeh_ext, bokeh_ext_json)
+
+  const package_json = {
+    name: basename(base_dir),
+    version: "0.0.1",
+    description: "",
+    license: "BSD-3-Clause",
+    keywords: [],
+    repository: {},
+    dependencies: {
+      bokehjs: `^${setup.bokehjs_version}`,
+    },
+    devDependencies: {},
+  }
+
+  if (setup.interactive) {
+    const rl = readline.createInterface({input: process.stdin, output: process.stdout})
+
+    async function ask(question: string, default_value?: string): Promise<string> {
+      return new Promise((resolve, _reject) => {
+        rl.question(`${question} `, (answer) => {
+          resolve(answer.length != 0 ? answer : default_value)
+        })
+      })
+    }
+
+    async function ask_yn(question: string): Promise<boolean> {
+      const ret = await ask(`${question} [y/n]`, "y")
+
+      switch (ret) {
+        case "y":
+          return true
+        case "n":
+          return false
+        default: {
+          print(`${red("Invalid input")}. Assuming no.`)
+          return false
+        }
+      }
+    }
+
+    if (await ask_yn(`Create ${cyan("package.json")}? This will allow you to specify external dependencies.`)) {
+      const {name} = package_json
+      package_json.name = await ask(`  What's the extension's name? [${name}]`, name)
+
+      const {version} = package_json
+      package_json.version = await ask(`  What's the extension's version? [${version}]`, version)
+
+      const {description} = package_json
+      package_json.description = await ask(`  What's the extension's description? [${description}]`, description)
+
+      write_json(paths.package, package_json)
+    }
+
+    if (await ask_yn(`Create ${cyan("tsconfig.json")}? This will allow for customized configuration and improved IDE experience.`)) {
+      write_json(paths.tsconfig, tsconfig_json)
+    }
+
+    rl.close()
+  } else {
+    write_json(paths.package, package_json)
+    write_json(paths.tsconfig, tsconfig_json)
+  }
+
+  write(paths.index, "")
+  print(`Created empty ${cyan("index.ts")}. This is the entry point of your extension.`)
+
+  const rel = relative(process.cwd(), base_dir)
+  print(`You can build your extension with ${magenta(`bokeh build ${rel}`)}`)
+
+  print("All done.")
+  return true
 }
 
 export type BuildOptions = {
@@ -149,6 +286,12 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
     if (options.noEmitOnError)
       return false
+  }
+
+  const lint_config = join(base_dir, "eslint.json")
+  if (file_exists(lint_config)) {
+    print(`Linting sources`)
+    lint(lint_config, files)
   }
 
   const dist_dir = join(base_dir, "dist")

@@ -2,7 +2,7 @@ import {argv} from "yargs"
 import {resolve} from "path"
 
 import {read} from "./sys"
-import {build} from "./build"
+import {init, build} from "./build"
 import {compile_and_resolve_deps} from "./compile"
 
 async function read_stdin() {
@@ -40,13 +40,27 @@ async function compile() {
 }
 
 async function main() {
-  if (argv._[0] == "build") {
+  const cmd = argv._[0]
+  if (cmd == "build") {
     try {
       const base_dir = resolve(argv.baseDir as string)
       const bokehjs_dir = resolve(argv.bokehjsDir as string)
       const rebuild = argv.rebuild as boolean | undefined
       const bokeh_version = argv.bokehVersion as string
       const result = await build(base_dir, bokehjs_dir, {rebuild, bokeh_version})
+      process.exit(result ? 0 : 1)
+    } catch (error) {
+      console.log(error.stack)
+      process.exit(1)
+    }
+  } else if (cmd == "init") {
+    try {
+      const base_dir = resolve(argv.baseDir as string)
+      const bokehjs_dir = resolve(argv.bokehjsDir as string)
+      const interactive = argv.interactive as boolean | undefined
+      const bokehjs_version = argv.bokehjsVersion as string | undefined
+      const bokeh_version = argv.bokehVersion as string
+      const result = await init(base_dir, bokehjs_dir, {interactive, bokehjs_version, bokeh_version})
       process.exit(result ? 0 : 1)
     } catch (error) {
       console.log(error.stack)

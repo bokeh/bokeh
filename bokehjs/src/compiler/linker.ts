@@ -180,6 +180,7 @@ export interface LinkerOpts {
   transpile?: boolean
   minify?: boolean
   plugin?: boolean
+  export_all?: boolean
 }
 
 export class Linker {
@@ -194,6 +195,7 @@ export class Linker {
   readonly transpile: boolean
   readonly minify: boolean
   readonly plugin: boolean
+  readonly export_all: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -202,6 +204,7 @@ export class Linker {
     this.externals = new Set(opts.externals || [])
     this.excluded = opts.excluded || (() => false)
     this.builtins = opts.builtins || false
+    this.export_all = opts.export_all || false
 
     if (this.builtins) {
       this.externals.add("module")
@@ -539,15 +542,19 @@ export class Linker {
     const [base, base_path, canonical] = ((): [string, string, string | undefined] => {
       const [primary, ...secondary] = this.bases
 
+      function canonicalize(path: Path): string {
+        return path.replace(/\.js$/, "").replace(/\\/g, "/")
+      }
+
       const path = relative(primary, file)
       if (!path.startsWith("..")) {
-        return [primary, path, path.replace(/\.js$/, "").replace(/\\/g, "/")]
+        return [primary, path, canonicalize(path)]
       }
 
       for (const base of secondary) {
         const path = relative(base, file)
         if (!path.startsWith("..")) {
-          return [base, path, undefined]
+          return [base, path, this.export_all ? canonicalize(path) : undefined]
         }
       }
 

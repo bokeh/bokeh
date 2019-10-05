@@ -306,3 +306,27 @@ and improvements to this section for future users.
 .. _CoffeeScript: http://coffeescript.org
 .. _KaTeX: https://khan.github.io/KaTeX/
 .. _TypeScript: https://www.typescriptlang.org/
+
+.. _userguide_extensions_prebuilt:
+
+Pre-built extensions
+--------------------
+
+So far we covered simple, typically inline extensions. Those are great for
+adhoc additions to bokeh, but serious development like this gets pretty
+tedious very quickly. For example, writing extension's TypeScript or
+JavaScript files in an IDE doesn't allow to take full advantage of such
+IDE's capabilities, due to implicit nature of certain configuration files
+like ``package.json`` or ``tsconfig.json``. This can be fixed by using
+another approach to bokeh extensions, which are pre-built extensions.
+
+To create a pre-built extension one can use ``bokeh init`` command, which
+creates all the necessary files, including ``bokeh.ext.json``, ``package.json``
+and ``tsconfig.json``, and possibly other. Additionally using ``bokeh init
+--interactive`` allows to create and customize an extension step-by-step.
+Later such extension can be build with ``bokeh build`` command. This runs
+``npm install`` if necessary, compiles TypeScript files, transpiles JavaScript
+files, resolves modules and links them together in distributable bundles.
+Compilation products are cached for improved performance. If this causes
+issues, one can rebuild an extension from scratch by using ``bokeh build
+--rebuild`` command.
