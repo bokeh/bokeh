@@ -299,9 +299,13 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const artifact = basename(base_dir)
 
+  const bases = [lib_dir]
+  if (is_package)
+    bases.push(join(base_dir, "node_modules"))
+
   const linker = new Linker({
     entries: [join(lib_dir, "index.js")],
-    bases: [lib_dir, join(base_dir, "node_modules")],
+    bases,
     cache: join(dist_dir, `${artifact}.json`),
     excluded: (dep) => dep.startsWith("@bokehjs/"),
     plugin: true,
