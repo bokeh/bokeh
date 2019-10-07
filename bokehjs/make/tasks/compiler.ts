@@ -22,9 +22,12 @@ task("compiler:build", ["compiler:ts"], async () => {
   const externals = ["babel-core", "@babel/core", "@microsoft/typescript-etw"] // XXX: remove together with coffeescript
   const builtins = true
   const minify = false
-  const cache = argv.cache !== false ? join(build_dir.js, "compiler-cache.json") : undefined
+  const cache = argv.cache !== false ? join(build_dir.js, "compiler.json") : undefined
+  const export_all = true
 
-  const linker = new Linker({entries, bases, externals, builtins, minify, cache})
+  const linker = new Linker({entries, bases, externals, builtins, minify, cache, export_all})
+
+  if (!argv.rebuild) linker.load_cache()
   const [bundle] = linker.link()
   linker.store_cache()
 

@@ -13,31 +13,23 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import join
 
 # External imports
 
 # Bokeh imports
-from bokeh.settings import settings
-from bokeh.util.compiler import _run_nodejs
-
 from ..subcommand import Subcommand
+from bokeh.ext import build
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'Build',
-)
+__all__ = ['Build']
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -49,7 +41,7 @@ __all__ = (
 
 class Build(Subcommand):
     '''
-
+    Build a bokeh extension in the given directory.
     '''
 
     name = "build"
@@ -63,14 +55,18 @@ class Build(Subcommand):
             nargs="?",
             default=".",
         )),
+        ("--rebuild", dict(
+            action="store_true",
+            help="Ignore all caches and perform a full rebuild",
+        )),
+        ("--debug", dict(
+            action="store_true",
+            help="Run nodejs in debug mode (use --inspect-brk)",
+        )),
     )
 
     def invoke(self, args):
-        bokehjs_dir = settings.bokehjsdir()
-        print(bokehjs_dir)
-        compiler_script = join(bokehjs_dir, "js", "compiler.js")
-        output = _run_nodejs([compiler_script, "build", "--base-dir", args.base_dir, "--bokehjs-dir", bokehjs_dir])
-        print(output)
+        return build(args.base_dir, rebuild=args.rebuild, debug=args.debug)
 
 #-----------------------------------------------------------------------------
 # Dev API

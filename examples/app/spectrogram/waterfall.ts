@@ -1,9 +1,9 @@
-import {Renderer, RendererView} from "models/renderers/renderer"
-import {LinearColorMapper} from "models/mappers/linear_color_mapper"
-import {Scale} from "models/scales/scale"
-import {Color} from "core/types"
-import {canvas} from "core/dom"
-import * as p from "core/properties"
+import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {Scale} from "@bokehjs/models/scales/scale"
+import {Color} from "@bokehjs/core/types"
+import {canvas} from "@bokehjs/core/dom"
+import * as p from "@bokehjs/core/properties"
 
 export class WaterfallRendererView extends RendererView {
   model: WaterfallRenderer
@@ -127,6 +127,8 @@ export class WaterfallRenderer extends Renderer {
   constructor(attrs?: Partial<WaterfallRenderer.Attrs>) {
     super(attrs)
   }
+
+  static __module__ = "spectrogram"
 
   static init_WaterfallRenderer(): void {
     this.prototype.default_view = WaterfallRendererView

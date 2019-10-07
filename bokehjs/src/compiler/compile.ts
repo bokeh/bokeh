@@ -3,8 +3,8 @@ import * as ts from "typescript"
 const coffee = require("coffeescript")
 import * as lesscss from "less"
 
-import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs, Path} from "./compiler"
-import {rename} from "./sys"
+import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs} from "./compiler"
+import {rename, Path} from "./sys"
 import * as transforms from "./transforms"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
@@ -20,7 +20,10 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
     outDir: undefined,
   }
 
-  const tsconfig = parse_tsconfig(tsconfig_json, base_dir, preconfigure)
+  // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.
+  const json = {...tsconfig_json, include: undefined, files: ["dummy.ts"]}
+
+  const tsconfig = parse_tsconfig(json, base_dir, preconfigure)
   if (tsconfig.diagnostics != null)
     return {diagnostics: tsconfig.diagnostics}
 

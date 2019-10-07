@@ -3,7 +3,8 @@ const cp = require("child_process")
 const fs = require("fs")
 
 function npm_install() {
-  const {status} = cp.spawnSync("npm", ["install"], {stdio: "inherit"})
+  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
+  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit"})
   if (status !== 0)
     process.exit(status)
 }

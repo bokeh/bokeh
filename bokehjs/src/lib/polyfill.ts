@@ -1,14 +1,10 @@
-declare function require(moduleName: string): any
+import "es5-ext/object/assign/implement"
+import "es5-ext/number/is-integer/implement"
+import "es5-ext/string/#/repeat/implement"
+import "es5-ext/array/from/implement"
+import "es5-ext/math/log10/implement"
+import "es6-set/implement"
+import "es6-map/implement"
+import "es6-weak-map/implement"
 
-require("es5-ext/object/assign/implement")
-require("es5-ext/number/is-integer/implement")
-require("es5-ext/string/#/repeat/implement")
-require("es5-ext/array/from/implement")
-require("es5-ext/math/log10/implement")
-require("es6-set/implement")
-require("es6-map/implement")
-require("es6-weak-map/implement")
-
-if (typeof Promise === "undefined") {
-  require("es6-promise").polyfill()
-}
+import "es6-promise/auto"

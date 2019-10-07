@@ -20,10 +20,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "target": "ES5",
+    "target": "ES2015",
     "lib": ["es2015", "dom"],
     "baseUrl": ".",
-    "outDir": "./dist"
+    "outDir": "./dist/lib"
   },
   "include": ["./**/*.ts"]
 }

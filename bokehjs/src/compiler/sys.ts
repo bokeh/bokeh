@@ -1,5 +1,9 @@
 import * as ts from "typescript"
+
+import * as crypto from "crypto"
 import {parse, format, normalize} from "path"
+
+export type Path = string
 
 export function scan(path: string,
                      extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[] {
@@ -36,4 +40,26 @@ export function rename(path: string, options: RenameOptions): string {
   if (options.ext != null)
     ext = options.ext
   return format({dir, name, ext})
+}
+
+export function hash(data: string): string {
+  return crypto.createHash("sha256").update(data).digest("hex")
+}
+
+export function hash_file(path: Path): string | null {
+  const contents = read(path)
+  return contents != null ? hash(contents) : null
+}
+
+export function read_json(path: Path): unknown | undefined {
+  const data = read(path)
+  if (data == null)
+    return undefined
+  else {
+    try {
+      return JSON.parse(data)
+    } catch {
+      return undefined
+    }
+  }
 }

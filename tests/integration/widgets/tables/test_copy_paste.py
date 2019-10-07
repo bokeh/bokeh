@@ -129,7 +129,7 @@ class Test_DataTableCopyPaste(object):
         enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
         #enter_text_in_element(page.driver, input_el, "")
 
-        sleep(0.5)
+        sleep(2.0)
         results = page.results
 
         assert results['value'] == '0\t1\t0\tfoo\n1\t2\t1\tbar\n2\t3\t2\tbaz\n'

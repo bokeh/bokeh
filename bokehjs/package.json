@@ -35,7 +35,7 @@
     "yargs": "^13.2.2",
     "jsdom": "^9.8.3",
     "websocket": "^1.0.28",
-    "typescript": "3.6.2",
+    "typescript": "3.6.3",
     "tslint": "^5.16.0",
     "tsconfig-paths": "^3.8.0",
     "coffeescript": "^2.3.2",
@@ -69,8 +69,9 @@
     "@types/eslint": "^4.16.8",
     "eslint": "^5.16.0",
     "acorn": "^6.2.1",
-    "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0"
+    "@typescript-eslint/eslint-plugin": "^2.3.1",
+    "@typescript-eslint/parser": "^2.3.1",
+    "@jupyter-widgets/base": "^1.1.10"
   },
   "dependencies": {
     "tslib": "^1.10.0",
@@ -90,8 +91,7 @@
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#8e993bf",
     "sprintf-js": "^1.1.2",
     "timezone": "^1.0.22",
-    "underscore.template": "^0.1.7",
-    "@jupyter-widgets/base": "^1.1.10"
+    "underscore.template": "^0.1.7"
   },
   "scripts": {
     "prepare": "node ./prepare.js",

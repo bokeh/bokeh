@@ -29,10 +29,11 @@ task("scripts:bundle-es6", ["scripts:compile"], async () => {
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "cache-es6.json") : undefined,
+    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh-es6.json") : undefined,
     externals: ["@jupyter-widgets/base"],
   })
 
+  if (!argv.rebuild) linker.load_cache()
   const bundles = linker.link()
   linker.store_cache()
 
@@ -50,18 +51,19 @@ task("scripts:bundle-es6", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:bundle-es5", ["scripts:compile"], async () => {
+task("scripts:bundle", ["scripts:compile"], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.legacy || pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "cache-es5.json") : undefined,
+    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
     externals: ["@jupyter-widgets/base"],
     transpile: true,
   })
 
+  if (!argv.rebuild) linker.load_cache()
   const bundles = linker.link()
   linker.store_cache()
 
@@ -77,7 +79,7 @@ task("scripts:bundle-es5", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:build", ["scripts:bundle-es6", "scripts:bundle-es5"])
+task("scripts:build", ["scripts:bundle-es6", "scripts:bundle"])
 
 task("scripts:minify", ["scripts:build"])
 

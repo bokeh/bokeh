@@ -6,3 +6,5 @@ declare module "path" {
   export function join(...paths: string[]): string
   export function dirname(p: string): string
 }
+
+declare function require(name: string): any

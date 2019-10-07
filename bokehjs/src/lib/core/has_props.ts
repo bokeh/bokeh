@@ -32,7 +32,11 @@ export module HasProps {
 }
 
 export interface HasProps extends HasProps.Attrs {
-  constructor: Function & {__name__: string}
+  constructor: Function & {
+    __name__: string
+    __module__?: string
+    __qualified__: string
+  }
 
   // XXX: this may indicate a bug in the compiler, because --project and
   // --build disagree whether this is necessary or not (it shouldn't).
@@ -42,8 +46,22 @@ export interface HasProps extends HasProps.Attrs {
 export abstract class HasProps extends Signalable() {
 
   // XXX: setter is only required for backwards compatibility
-  set type(name: string) { this.constructor.__name__ = name }
-  get type(): string     { return this.constructor.__name__ }
+  set type(name: string) {
+    console.warn("prototype.type = 'ModelName' is deprecated, use static __name__ instead")
+    this.constructor.__name__ = name
+  }
+
+  get type(): string {
+    return this.constructor.__qualified__
+  }
+
+  static __name__: string
+  static __module__?: string
+
+  static get __qualified__(): string {
+    const {__module__, __name__} = this
+    return __module__ != null ? `${__module__}.${__name__}` : __name__
+  }
 
   static init_HasProps(): void {
     this.prototype.props = {}

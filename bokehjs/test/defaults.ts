@@ -226,7 +226,7 @@ describe("Defaults", () => {
     const all_view_model_names = concat([keys(models_defaults), keys(widget_defaults)])
     for (const name of all_view_model_names) {
       const model = Models(name)
-      const instance = new model({__deferred__: true})
+      const instance = new (model as any)({__deferred__: true})
       const attrs = instance.attributes_as_json(true, deep_value_to_json)
       strip_ids(attrs)
 

@@ -60,7 +60,7 @@ def test_no_subcommand(capsys):
     with pytest.raises(SystemExit):
         main(["bokeh"])
     out, err = capsys.readouterr()
-    assert err == "ERROR: Must specify subcommand, one of: build, html, info, json, png, sampledata, secret, serve, static or svg\n"
+    assert err == "ERROR: Must specify subcommand, one of: build, html, info, init, json, png, sampledata, secret, serve, static or svg\n"
     assert out == ""
 
 def test_version(capsys):
