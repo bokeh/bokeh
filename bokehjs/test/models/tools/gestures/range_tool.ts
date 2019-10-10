@@ -146,7 +146,7 @@ describe("range_tool module", () => {
   describe("compute_end_side", () => {
     it("should not flip if new end > start", () => {
       const r = new Range1d({start: 0, end: 1})
-      const side = compute_end_side(1.5, r, Side.Top)
+      const side = update_range_end_side(1.5, r, Side.Top)
       expect(r.start).to.be.equal(0)
       expect(r.end).to.be.equal(1.5)
       expect(side).to.be.equal(Side.Top)
@@ -154,7 +154,7 @@ describe("range_tool module", () => {
 
     it("should flip if new end <= start", () => {
       const r = new Range1d({start: 0, end: 1})
-      const side = compute_end_side(-0.5, r, Side.Top)
+      const side = update_range_end_side(-0.5, r, Side.Top)
       expect(r.start).to.be.equal(-0.5)
       expect(r.end).to.be.equal(0)
       expect(side).to.be.equal(Side.Bottom)
