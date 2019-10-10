@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side, compute_end_side, compute_start_side} from "@bokehjs/models/tools/gestures/range_tool"
+import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side, update_range_end_side, compute_start_side} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 
