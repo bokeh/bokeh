@@ -64,7 +64,7 @@ export function compute_value(value: number, scale: Scale, sdelta: number, range
   return value
 }
 
-export function update_range_end_side(end: number, range: Range, side: Side):  Side {
+export function update_range_end_side(end: number, range: Range, side: Side): Side {
   if (end > range.start) {
     range.end = end
     return side
