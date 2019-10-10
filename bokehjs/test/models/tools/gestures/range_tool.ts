@@ -143,7 +143,7 @@ describe("range_tool module", () => {
 
   })
 
-  describe("compute_end_side", () => {
+  describe("update_range_end_side", () => {
     it("should not flip if new end > start", () => {
       const r = new Range1d({start: 0, end: 1})
       const side = update_range_end_side(1.5, r, Side.Top)
