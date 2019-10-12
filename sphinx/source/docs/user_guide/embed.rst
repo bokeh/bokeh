@@ -315,7 +315,7 @@ Then inserting the script and div elements into this boilerplate:
             <meta charset="utf-8">
             <title>Bokeh Scatter Plots</title>
 
-            <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
+            <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
 
             <!-- COPY/PASTE SCRIPT HERE -->
 

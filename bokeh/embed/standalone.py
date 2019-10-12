@@ -114,9 +114,9 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     .. code-block:: html
 
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
     Note that in Jupyter Notebooks, it is not possible to use components and show in
     the same notebook cell.
