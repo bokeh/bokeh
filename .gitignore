@@ -60,3 +60,4 @@ examples.log
 *.tar
 *.tgz
 *.zip
+.nyc_output/
