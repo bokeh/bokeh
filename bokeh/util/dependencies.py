@@ -85,8 +85,8 @@ def import_required(mod_name, error_msg):
     '''
     try:
         return import_module(mod_name)
-    except ImportError:
-        raise RuntimeError(error_msg)
+    except ImportError as e:
+        raise RuntimeError(error_msg) from e
 
 def detect_phantomjs(version='2.1'):
     ''' Detect if PhantomJS is avaiable in PATH, at a minimum version.
