@@ -188,10 +188,10 @@ versions of BokehJS are available for download from CDN at pydata.org, under
 the following naming scheme::
 
     # Javascript files
-    http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
-    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
-    http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
-    http://cdn.pydata.org/bokeh/release/bokeh-api-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-api-x.y.z.min.js
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
@@ -201,10 +201,10 @@ and must be loaded *after* the core BokehJS library.
 
 As a concrete example, the links for version ``1.0.0`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _anaconda.org: http://anaconda.org

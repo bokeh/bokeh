@@ -236,7 +236,7 @@ class JSResources(BaseResources):
     The following **mode** values are available for configuring a Resource object:
 
     * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified assets
     * ``'relative'`` configure to load relative to the given directory
@@ -308,7 +308,7 @@ class CSSResources(BaseResources):
     The following **mode** values are available for configuring a Resource object:
 
     * ``'inline'`` configure to provide entire BokehJS code and CSS inline
-    * ``'cdn'`` configure to load Bokeh CSS from ``http://cdn.pydata.org``
+    * ``'cdn'`` configure to load Bokeh CSS from ``https://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified CSS
     * ``'relative'`` configure to load relative to the given directory
@@ -377,7 +377,7 @@ class Resources(JSResources, CSSResources):
     The following **mode** values are available for configuring a Resource object:
 
     * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified assets
     * ``'relative'`` configure to load relative to the given directory
