@@ -1,4 +1,5 @@
 import numpy as np
+import collections.abc
 
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure, show, output_file
@@ -33,8 +34,12 @@ def streamlines(x, y, u, v, density=1):
     v *= NGY
     ## Now u and v in grid-coordinates.
 
-    NBX = int(30*density)
-    NBY = int(30*density)
+    if isinstance(density, collections.abc.Sequence):
+        NBX = int(30 * density[0])
+        NBY = int(30 * density[1])
+    else:
+        NBX = int(30*density)
+        NBY = int(30*density)
     blank = np.zeros((NBY,NBX))
 
     bx_spacing = NGX/float(NBX-1)
