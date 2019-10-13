@@ -41,7 +41,7 @@ Color Mappers allow you to encode some data sequence into a palette of colors ba
     66 >= x < 99 : 'blue'
     99 >= x      : 'blue'    # values > high are clamped
 
-* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors.
+* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natural log scale to map the colors.
 
 These mapper functions return a ``DataSpec`` property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a ``ColorBar`` as in the example below:
 

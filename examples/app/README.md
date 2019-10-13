@@ -3,7 +3,7 @@
 The examples in this directory all make use of the Bokeh server, to create data visualization web apps from simple
 python scripts.
 
-To run any of these examples, excute `bokeh serve --show` and the name of the script or dirctory that contains the
+To run any of these examples, execute `bokeh serve --show` and the name of the script or directory that contains the
 demo. For example,
 
     bokeh serve --show sliders.py
@@ -17,7 +17,7 @@ The demos container here are:
   <tr><td colspan="2">clustering</td></tr>
   <tr>
     <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/clustering"><img src="https://docs.bokeh.org/static/clustering_t.png" width=400></img></a></td>
-    <td>Demonstrates different <a href=http://scikit-learn.org/stable>scikit-learn</a> clustering alorithms on a few different data sets.</td>
+    <td>Demonstrates different <a href=http://scikit-learn.org/stable>scikit-learn</a> clustering algorithms on a few different data sets.</td>
   </tr>
 
   <tr><td colspan="2">crossfilter</td></tr>
@@ -59,7 +59,7 @@ The demos container here are:
   <tr><td colspan="2">ohlc</td></tr>
   <tr>
     <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/ohlc"><img src="https://docs.bokeh.org/static/ohlc_t.png" width=400></img></a></td>
-    <td>A simulated streaming <a href=https://en.wikipedia.org/wiki/Open-high-low-close_chart>OHLC chart</a> with <a href=https://en.wikipedia.org/wiki/MACD>MACD indicator</a> and selectable moving averages using periodic callbacks nad the efficient streaming API</td>
+    <td>A simulated streaming <a href=https://en.wikipedia.org/wiki/Open-high-low-close_chart>OHLC chart</a> with <a href=https://en.wikipedia.org/wiki/MACD>MACD indicator</a> and selectable moving averages using periodic callbacks and the efficient streaming API</td>
   </tr>
 
   <tr><td colspan="2">pivot</td></tr>
@@ -71,7 +71,7 @@ The demos container here are:
   <tr><td colspan="2">selection_histogram</td></tr>
   <tr>
     <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/selection_histogram.py"><img src="https://docs.bokeh.org/static/selection_histogram_t.png" width=400></img></a></td>
-    <td>Shows axis histograms for selected <em>and</em> nonselected points in a scatter plot</td>
+    <td>Shows axis histograms for selected <em>and</em> unselected points in a scatter plot</td>
   </tr>
 
   <tr><td colspan="2">sliders</td></tr>
