@@ -25,8 +25,7 @@ and let everybody know that you intend to work on it.
    the [Discourse](https://discourse.bokeh.org) for similar or identical issues. Keyword
    searches for your error messages are usually effective.
 
-2. The issue may already be resolved. Always try to reproduce the issue by building and
-   installed from the `master` branch.
+2. The issue may already be resolved. Always try to reproduce the issue in the latest stable release.
 
 3. Always include a *minimal*, self-contained, reproducible test case or example. It is not
    possible to investigate issues that cannot be reproduced.
