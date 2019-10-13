@@ -6,7 +6,7 @@ should be made. Please read these guidelines in order to avoid surprises down th
 ## Getting Set Up
 
 For information about setting up a development environment, building from source, etc.,
-see the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html)
+see the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
 
 ## Choosing something to work on
 
@@ -25,9 +25,7 @@ and let everybody know that you intend to work on it.
    the [Discourse](https://discourse.bokeh.org) for similar or identical issues. Keyword
    searches for your error messages are usually effective.
 
-2. The issue may already be resolved. Always try to reproduce the issue using most recent
-   [development build](http://bokeh.pydata.org/docs/installation.html#developer-builds) of
-   Bokeh, or even better, by building and installed from the `master` branch.
+2. The issue may already be resolved. Always try to reproduce the issue in the latest stable release.
 
 3. Always include a *minimal*, self-contained, reproducible test case or example. It is not
    possible to investigate issues that cannot be reproduced.
