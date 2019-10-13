@@ -23,21 +23,20 @@ cr = p.circle(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hove
 
 # Add a hover tool, that sets the link data for a hovered circle
 code = """
-var links = %s;
-var data = {'x0': [], 'y0': [], 'x1': [], 'y1': []};
-var cdata = circle.data;
-var indices = cb_data.index['1d'].indices;
+const links = %s
+const data = {'x0': [], 'y0': [], 'x1': [], 'y1': []}
+const indices = cb_data.index.indices
 for (var i = 0; i < indices.length; i++) {
-    var ind0 = indices[i]
-    for (var j = 0; j < links[ind0].length; j++) {
-        var ind1 = links[ind0][j];
-        data['x0'].push(cdata.x[ind0]);
-        data['y0'].push(cdata.y[ind0]);
-        data['x1'].push(cdata.x[ind1]);
-        data['y1'].push(cdata.y[ind1]);
+    const start = indices[i]
+    for (var j = 0; j < links[start].length; j++) {
+        const end = links[start][j]
+        data['x0'].push(circle.data.x[start])
+        data['y0'].push(circle.data.y[start])
+        data['x1'].push(circle.data.x[end])
+        data['y1'].push(circle.data.y[end])
     }
 }
-segment.data = data;
+segment.data = data
 """ % links
 
 callback = CustomJS(args={'circle': cr.data_source, 'segment': sr.data_source}, code=code)
