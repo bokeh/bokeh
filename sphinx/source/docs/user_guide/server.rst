@@ -1215,7 +1215,7 @@ Websocket Origin
 
 When an HTTP request is made to the Bokeh server, it immediately returns a
 script that will initiate a websocket connection, and all subsequent
-commumication happens over the websocket. To reduce the risk of cross-site
+communication happens over the websocket. To reduce the risk of cross-site
 misuse, the bokeh server will only initiate websocket connections from
 origins that are explicitly whitelisted. Requests with Origin headers that
 do not match the whitelist will generate HTTP 403 error responses.
@@ -1261,7 +1261,7 @@ origin than  ``acme.com``, and the Bokeh server will reject them.
 .. warning::
     Bear in mind that this only prevents *other web pages* from surreptitiously
     embedding our Bokeh app to an audience using standard web browsers. A
-    determined and knowledgeble attacker can spoof Origin headers.
+    determined and knowledgeable attacker can spoof Origin headers.
 
 If multiple allowed origins are required, then multiple instances of
 ``--allow-websocket-origin`` can be passed on the command line.
