@@ -19,7 +19,7 @@ function mocha(files: string[]): Promise<void> {
   if (!argv.coverage)
     args = [_mocha]
   else
-    args = ["node_modules/.bin/istanbul", "cover", _mocha, "--"]
+    args = ['node_modules/.bin/nyc', _mocha]
 
   if (argv.debug) {
     if (argv.debug === true)
