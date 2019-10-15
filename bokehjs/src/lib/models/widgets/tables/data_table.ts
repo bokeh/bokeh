@@ -134,14 +134,17 @@ export class DataTableView extends WidgetView {
 
     // This is obnoxious but there is no better way to programmatically force
     // a re-sort on the existing sorted columns until/if we start using DataView
-    const columns = this.grid.getColumns()
-    const sorters = this.grid.getSortColumns().map((x: any) => ({
-      sortCol: {
-        field: columns[this.grid.getColumnIndex(x.columnId)].field,
-      },
-      sortAsc: x.sortAsc,
-    }))
-    this.data.sort(sorters)
+    if (this.model.sortable) {
+      const columns = this.grid.getColumns()
+      const sorters = this.grid.getSortColumns().map((x) => ({
+        sortCol: {
+          field: columns[this.grid.getColumnIndex(x.columnId)].field,
+        },
+        sortAsc: x.sortAsc,
+      }))
+
+      this.data.sort(sorters)
+    }
 
     this.grid.invalidate()
     this.grid.render()
@@ -236,6 +239,8 @@ export class DataTableView extends WidgetView {
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
+      if (!this.model.sortable)
+        return
       columns = args.sortCols
       this.data.sort(columns)
       this.grid.invalidate()
