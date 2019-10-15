@@ -71,6 +71,7 @@ point_attributes = ['x','y','sx','sy']
 p.js_on_event(events.Tap,       display_event(div, attributes=point_attributes))
 p.js_on_event(events.DoubleTap, display_event(div, attributes=point_attributes))
 p.js_on_event(events.Press,     display_event(div, attributes=point_attributes))
+p.js_on_event(events.PressUp,   display_event(div, attributes=point_attributes))
 
 # Mouse wheel event
 p.js_on_event(events.MouseWheel, display_event(div,attributes=point_attributes+['delta']))

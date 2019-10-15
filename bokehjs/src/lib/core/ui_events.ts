@@ -45,7 +45,7 @@ export type RotateEvent = {
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
 
 export type TapEvent = {
-  type: "tap" | "doubletap" | "press"
+  type: "tap" | "doubletap" | "press" | "pressup"
   sx: number
   sy: number
   shiftKey: boolean
@@ -71,7 +71,7 @@ export type KeyEvent = {
   keyCode: Keys
 }
 
-export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "scroll"
+export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "pressup" | "scroll"
 
 export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
 
@@ -92,6 +92,7 @@ export class UIEvents implements EventListenerObject {
   readonly tap:          UISignal<TapEvent>     = new Signal(this, 'tap')
   readonly doubletap:    UISignal<TapEvent>     = new Signal(this, 'doubletap')
   readonly press:        UISignal<TapEvent>     = new Signal(this, 'press')
+  readonly pressup:      UISignal<TapEvent>     = new Signal(this, 'pressup')
 
   readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, 'move:enter')
   readonly move:         UISignal<MoveEvent>    = new Signal(this, 'move')
@@ -147,6 +148,7 @@ export class UIEvents implements EventListenerObject {
     this.hammer.on('doubletap', (e) => this._doubletap(e))
     this.hammer.on('tap', (e) => this._tap(e))
     this.hammer.on('press', (e) => this._press(e))
+    this.hammer.on('pressup', (e) => this._pressup(e))
 
     this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
     this.hammer.on('panstart', (e) => this._pan_start(e))
@@ -220,6 +222,7 @@ export class UIEvents implements EventListenerObject {
       }
       case "press": {
         if (v._press != null)        v.connect(this.press,        conditionally(v._press.bind(v)))
+        if (v._pressup != null)      v.connect(this.pressup,      conditionally(v._pressup.bind(v)))
         break
       }
       case "scroll": {
@@ -389,6 +392,8 @@ export class UIEvents implements EventListenerObject {
           return new events.DoubleTap(sx, sy, x, y)
         case "press":
           return new events.Press(sx, sy, x, y)
+        case "pressup":
+          return new events.PressUp(sx, sy, x, y)
         case "pan":
           return new events.Pan(sx, sy, x, y, e.deltaX, e.deltaY)
         case "panstart":
@@ -539,6 +544,10 @@ export class UIEvents implements EventListenerObject {
 
   private _press(e: HammerEvent): void {
     this._trigger(this.press, this._tap_event(e), e.srcEvent)
+  }
+
+  private _pressup(e: HammerEvent): void {
+    this._trigger(this.pressup, this._tap_event(e), e.srcEvent)
   }
 
   private _mouse_enter(e: MouseEvent): void {

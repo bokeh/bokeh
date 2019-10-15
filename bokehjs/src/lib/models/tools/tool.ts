@@ -53,6 +53,7 @@ export abstract class ToolView extends View {
   _tap?(e: TapEvent): void
   _doubletap?(e: TapEvent): void
   _press?(e: TapEvent): void
+  _pressup?(e: TapEvent): void
 
   _move_enter?(e: MoveEvent): void
   _move?(e: MoveEvent): void

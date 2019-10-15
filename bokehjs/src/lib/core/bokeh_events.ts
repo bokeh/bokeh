@@ -163,6 +163,9 @@ export class DoubleTap extends PointEvent {}
 @event("press")
 export class Press extends PointEvent {}
 
+@event("pressup")
+export class PressUp extends PointEvent {}
+
 @event("panstart")
 export class PanStart extends PointEvent {}
 
