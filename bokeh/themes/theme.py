@@ -64,10 +64,12 @@ class Theme(object):
     to be easily applied to Bokeh documents.
 
     The ``Theme`` class can be constructed either from a YAML file or from a
-    JSON dict (but not both). The data should have a top level ``attrs``
-    key, followed by
+    JSON dict (but not both). Examples of both formats are shown below.
 
-    Examples of both formats are shown below.
+    The plotting API's defaults override some theme properties. Namely:
+    `fill_alpha`, `fill_color`, `line_alpha`, `line_color`, `text_alpha` and
+    `text_color`. Those properties should therefore be set explicitly when
+    using the plotting API.
 
     Args:
         filename (str, optional) : path to a YAML theme file
