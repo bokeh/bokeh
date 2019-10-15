@@ -136,14 +136,14 @@ export class DataTableView extends WidgetView {
     // a re-sort on the existing sorted columns until/if we start using DataView
     if (this.model.sortable) {
       const columns = this.grid.getColumns()
-      const sorters = this.grid.getSortColumns().map((x: any) => ({
+      const sorters = this.grid.getSortColumns().map((x) => ({
         sortCol: {
           field: columns[this.grid.getColumnIndex(x.columnId)].field,
         },
         sortAsc: x.sortAsc,
       }))
 
-        this.data.sort(sorters)
+      this.data.sort(sorters)
     }
 
     this.grid.invalidate()
