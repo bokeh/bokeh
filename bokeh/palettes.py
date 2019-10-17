@@ -1356,7 +1356,7 @@ class _PalettesModule(_types.ModuleType):
                 list [str] : a list of hex RGB color strings
 
         Raises:
-            ``ValueError`` if ``n > len(palette)``
+            ``ValueError`` if ``n > combined length of diverging palette (function of n and midpoint)``
         '''
 
         # flip palette2 so that perceptually light colors are joined
