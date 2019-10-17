@@ -554,7 +554,30 @@ class _PalettesModule(_types.ModuleType):
     def Reds7(self): return ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9"]
     def Reds8(self): return ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
     def Reds9(self): return ["#67000d", "#a50f15", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
-    def Reds256(self): return []
+    def Reds256(self):
+        return [
+            "#67000d", "#69000d", "#6b010e", "#6d010e", "#6f020e", "#71020e", "#73030f", "#75030f", "#77040f", "#79040f", "#7a0510", "#7c0510",
+            "#7e0610", "#800610", "#820711", "#840711", "#860811", "#880811", "#8a0812", "#8c0912", "#8e0912", "#900a12", "#920a13", "#940b13",
+            "#960b13", "#980c13", "#9a0c14", "#9c0d14", "#9d0d14", "#9f0e14", "#a10e15", "#a30f15", "#a50f15", "#a60f15", "#a81016", "#a91016",
+            "#aa1016", "#ab1016", "#ac1117", "#ad1117", "#af1117", "#b01217", "#b11218", "#b21218", "#b31218", "#b51318", "#b61319", "#b71319",
+            "#b81419", "#b91419", "#bb141a", "#bc141a", "#bd151a", "#be151a", "#bf151b", "#c1161b", "#c2161b", "#c3161b", "#c4161c", "#c5171c",
+            "#c7171c", "#c8171c", "#c9181d", "#ca181d", "#cb181d", "#cc191e", "#ce1a1e", "#cf1c1f", "#d01d1f", "#d11e1f", "#d21f20", "#d32020",
+            "#d42121", "#d52221", "#d72322", "#d82422", "#d92523", "#da2723", "#db2824", "#dc2924", "#dd2a25", "#de2b25", "#e02c26", "#e12d26",
+            "#e22e27", "#e32f27", "#e43027", "#e53228", "#e63328", "#e83429", "#e93529", "#ea362a", "#eb372a", "#ec382b", "#ed392b", "#ee3a2c",
+            "#ef3c2c", "#f03d2d", "#f03f2e", "#f0402f", "#f14130", "#f14331", "#f14432", "#f24633", "#f24734", "#f34935", "#f34a36", "#f34c37",
+            "#f44d38", "#f44f39", "#f4503a", "#f5523a", "#f5533b", "#f6553c", "#f6563d", "#f6583e", "#f7593f", "#f75b40", "#f75c41", "#f85d42",
+            "#f85f43", "#f96044", "#f96245", "#f96346", "#fa6547", "#fa6648", "#fa6849", "#fb694a", "#fb6b4b", "#fb6c4c", "#fb6d4d", "#fb6e4e",
+            "#fb7050", "#fb7151", "#fb7252", "#fb7353", "#fb7555", "#fb7656", "#fb7757", "#fb7858", "#fb7a5a", "#fb7b5b", "#fb7c5c", "#fb7d5d",
+            "#fc7f5f", "#fc8060", "#fc8161", "#fc8262", "#fc8464", "#fc8565", "#fc8666", "#fc8767", "#fc8969", "#fc8a6a", "#fc8b6b", "#fc8d6d",
+            "#fc8e6e", "#fc8f6f", "#fc9070", "#fc9272", "#fc9373", "#fc9474", "#fc9576", "#fc9777", "#fc9879", "#fc997a", "#fc9b7c", "#fc9c7d",
+            "#fc9d7f", "#fc9e80", "#fca082", "#fca183", "#fca285", "#fca486", "#fca588", "#fca689", "#fca78b", "#fca98c", "#fcaa8d", "#fcab8f",
+            "#fcad90", "#fcae92", "#fcaf93", "#fcb095", "#fcb296", "#fcb398", "#fcb499", "#fcb69b", "#fcb79c", "#fcb89e", "#fcb99f", "#fcbba1",
+            "#fcbca2", "#fcbda4", "#fcbea5", "#fcbfa7", "#fcc1a8", "#fcc2aa", "#fcc3ab", "#fcc4ad", "#fdc5ae", "#fdc6b0", "#fdc7b2", "#fdc9b3",
+            "#fdcab5", "#fdcbb6", "#fdccb8", "#fdcdb9", "#fdcebb", "#fdd0bc", "#fdd1be", "#fdd2bf", "#fdd3c1", "#fdd4c2", "#fdd5c4", "#fdd7c6",
+            "#fed8c7", "#fed9c9", "#fedaca", "#fedbcc", "#fedccd", "#fedecf", "#fedfd0", "#fee0d2", "#fee1d3", "#fee1d4", "#fee2d5", "#fee3d6",
+            "#fee3d7", "#fee4d8", "#fee5d8", "#fee5d9", "#fee6da", "#fee7db", "#fee7dc", "#fee8dd", "#fee8de", "#fee9df", "#feeae0", "#feeae1",
+            "#ffebe2", "#ffece3", "#ffece4", "#ffede5", "#ffeee6", "#ffeee7", "#ffefe8", "#fff0e8", "#fff0e9", "#fff1ea", "#fff2eb", "#fff2ec",
+            "#fff3ed", "#fff4ee", "#fff4ef", "#fff5f0"]
 
     def Greys3(self):  return ["#636363", "#bdbdbd", "#f0f0f0"]
     def Greys4(self):  return ["#525252", "#969696", "#cccccc", "#f7f7f7"]
