@@ -370,6 +370,16 @@ describe("ui_events module", () => {
       // assert(spy_uievent.calledOnce)
     })
 
+    it("_pressup method should handle pressup event", () => {
+      const e: any = new Event("pressup") // XXX: not a hammerjs event
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      ANY_ui_events._pressup(e)
+
+      assert(spy_plot.calledOnce)
+    })
+
     it("_pan_start method should handle panstart event", () => {
       const e: any = new Event("panstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"

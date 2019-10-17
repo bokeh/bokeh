@@ -99,6 +99,7 @@ __all__ = (
     'PlotEvent',
     'PointEvent',
     'Press',
+    'PressUp',
     'Reset',
     'SelectionGeometry',
     'Tap',
@@ -331,6 +332,18 @@ class Press(PointEvent):
 
     '''
     event_name = 'press'
+
+class PressUp(PointEvent):
+    ''' Announce a pressup event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    '''
+    event_name = 'pressup'
 
 class MouseEnter(PointEvent):
     ''' Announce a mouse enter event onto a Bokeh plot.

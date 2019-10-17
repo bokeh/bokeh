@@ -48,7 +48,7 @@ pan_attributes = point_attributes + ['delta_x', 'delta_y'] # Pan event
 pinch_attributes = point_attributes + ['scale']            # Pinch event
 
 point_events = [
-    events.Tap, events.DoubleTap, events.Press,
+    events.Tap, events.DoubleTap, events.Press, events.PressUp,
     events.MouseMove, events.MouseEnter, events.MouseLeave,
     events.PanStart, events.PanEnd, events.PinchStart, events.PinchEnd,
 ]
