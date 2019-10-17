@@ -1174,11 +1174,11 @@ class _PalettesModule(_types.ModuleType):
     def OrRd(self):     return { 3: self.OrRd3,     4: self.OrRd4,     5: self.OrRd5,     6: self.OrRd6,     7: self.OrRd7,     8: self.OrRd8,     9: self.OrRd9 }
     def YlOrRd(self):   return { 3: self.YlOrRd3,   4: self.YlOrRd4,   5: self.YlOrRd5,   6: self.YlOrRd6,   7: self.YlOrRd7,   8: self.YlOrRd8,   9: self.YlOrRd9 }
     def YlOrBr(self):   return { 3: self.YlOrBr3,   4: self.YlOrBr4,   5: self.YlOrBr5,   6: self.YlOrBr6,   7: self.YlOrBr7,   8: self.YlOrBr8,   9: self.YlOrBr9 }
-    def Purples(self):  return { 3: self.Purples3,  4: self.Purples4,  5: self.Purples5,  6: self.Purples6,  7: self.Purples7,  8: self.Purples8,  9: self.Purples9,  256: self.Purples256 }
-    def Blues(self):    return { 3: self.Blues3,    4: self.Blues4,    5: self.Blues5,    6: self.Blues6,    7: self.Blues7,    8: self.Blues8,    9: self.Blues9,    256: self.Blues256 }
-    def Greens(self):   return { 3: self.Greens3,   4: self.Greens4,   5: self.Greens5,   6: self.Greens6,   7: self.Greens7,   8: self.Greens8,   9: self.Greens9,   256: self.Greens256 }
-    def Oranges(self):  return { 3: self.Oranges3,  4: self.Oranges4,  5: self.Oranges5,  6: self.Oranges6,  7: self.Oranges7,  8: self.Oranges8,  9: self.Oranges9,  256: self.Oranges256 }
-    def Reds(self):     return { 3: self.Reds3,     4: self.Reds4,     5: self.Reds5,     6: self.Reds6,     7: self.Reds7,     8: self.Reds8,     9: self.Reds9,     256: self.Reds256 }
+    def Purples(self):  return { 3: self.Purples3,  4: self.Purples4,  5: self.Purples5,  6: self.Purples6,  7: self.Purples7,  8: self.Purples8,  9: self.Purples9,  256: self.Purples256 } # NOQA
+    def Blues(self):    return { 3: self.Blues3,    4: self.Blues4,    5: self.Blues5,    6: self.Blues6,    7: self.Blues7,    8: self.Blues8,    9: self.Blues9,    256: self.Blues256 } # NOQA
+    def Greens(self):   return { 3: self.Greens3,   4: self.Greens4,   5: self.Greens5,   6: self.Greens6,   7: self.Greens7,   8: self.Greens8,   9: self.Greens9,   256: self.Greens256 } # NOQA
+    def Oranges(self):  return { 3: self.Oranges3,  4: self.Oranges4,  5: self.Oranges5,  6: self.Oranges6,  7: self.Oranges7,  8: self.Oranges8,  9: self.Oranges9,  256: self.Oranges256 } # NOQA
+    def Reds(self):     return { 3: self.Reds3,     4: self.Reds4,     5: self.Reds5,     6: self.Reds6,     7: self.Reds7,     8: self.Reds8,     9: self.Reds9,     256: self.Reds256 } # NOQA
     def Greys(self):    return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9,    256: self.Greys256 } # NOQA
     def PuOr(self):     return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,     10: self.PuOr10,     11: self.PuOr11 } # NOQA
     def BrBG(self):     return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,     10: self.BrBG10,     11: self.BrBG11 } # NOQA
@@ -1363,8 +1363,8 @@ class _PalettesModule(_types.ModuleType):
         palette2 = palette2[::-1]
 
         # determine number of colors from each palette
-        n1 = round(midpoint * n)
-        n2 = round((1 - midpoint) * n)
+        n1 = int(round(midpoint * n))
+        n2 = int(round((1 - midpoint) * n))
 
         # return piecewise linear interpolation of colors
         return self.linear_palette(palette1, n1) + self.linear_palette(palette2, n2)
