@@ -985,6 +985,12 @@ class Title(TextAnnotation):
     Alignment of the text in its enclosing space, *along* the direction of the text.
     """)
 
+    text_line_height = Float(default=1.0, help="""
+    How much additional space should be allocated for the title. The value is provided
+    as a number, but should be treated as a percentage of font size. The default is
+    100%, which means no additional space will be used.
+    """)
+
     offset = Float(default=0, help="""
     Offset the text by a number of pixels (can be positive or negative). Shifts the text in
     different directions based on the location of the title:
