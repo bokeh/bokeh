@@ -399,7 +399,7 @@ import types as _types
 def _autoprop(cls):
     for k, v in cls.__dict__.items():
         if k.startswith('_'): continue
-        if k in ['linear_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray', 'turbo']:
+        if k in ['linear_palette', 'diverging_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray', 'turbo']:
             continue
         setattr(cls, k, property(v))
     return cls
@@ -1334,6 +1334,40 @@ class _PalettesModule(_types.ModuleType):
         if n > len(palette):
             raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % dict(r=n, l=len(palette)))
         return [ palette[int(math.floor(i))] for i in np.linspace(0, len(palette)-1, num=n) ]
+
+    def diverging_palette(self, palette1, palette2, n=256, midpoint=0.5):
+        ''' Generate a new palette by combining exactly two input palettes.
+
+        Given an input ``palette1`` and ``palette2``, take a combined ``n`` colors,
+        and combine input palettes at the relative ``midpoint``.
+        ``palette1`` and ``palette2`` are meant to be sequential palettes that proceed
+        left to right from perceptually dark to light colors.  In that case the returned
+        palette is comprised of the input palettes connected at perceptually light ends.
+        Palettes are combined by piecewise linear interpolation.
+
+        Args:
+
+            palette1 (list[str]) : a list of hex RGB color strings
+            palette2 (list[str]) : a list of hex RGB color strings
+            n (int) : the size of the output palette to generate
+            midpoint (float) : relative position in the returned palette where input palettes are connected
+
+        Returns:
+                list [str] : a list of hex RGB color strings
+
+        Raises:
+            ``ValueError`` if ``n > len(palette)``
+        '''
+
+        # flip palette2 so that perceptually light colors are joined
+        palette2 = palette2[::-1]
+
+        # determine number of colors from each palette
+        n1 = round(midpoint * n)
+        n2 = round((1 - midpoint) * n)
+
+        # return piecewise linear interpolation of colors
+        return self.linear_palette(palette1, n1) + self.linear_palette(palette2, n2)
 
     def magma(self, n):
         ''' Generate a palette of colors or from the Magma palette.
