@@ -21,9 +21,7 @@ export class MercatorTileSource extends TileSource {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'MercatorTileSource'
-
+  static init_MercatorTileSource(): void {
     this.define<MercatorTileSource.Props>({
       snap_to_zoom: [ p.Boolean, false ],
       wrap_around:  [ p.Boolean, true  ],
@@ -287,7 +285,7 @@ export class MercatorTileSource extends TileSource {
       quadkey = quadkey.substring(0, quadkey.length - 1)
       ;[x, y, z] = this.quadkey_to_tile_xyz(quadkey)
       ;[x, y, z] = this.denormalize_xyz(x, y, z, world_x)
-      if (this.tile_xyz_to_key(x, y, z) in this.tiles)
+      if (this.tiles.has(this.tile_xyz_to_key(x, y, z)))
         return [x, y, z]
     }
     return [0, 0, 0]
@@ -314,4 +312,3 @@ export class MercatorTileSource extends TileSource {
     return Math.floor(x / Math.pow(2, z))
   }
 }
-MercatorTileSource.initClass()

@@ -52,32 +52,7 @@ some = require('some/module');
 """, deps=["some/module"])
 
     assert buc.nodejs_compile("""(a, b) -> a + b +""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            message="unexpected end of input",
-            text="some.coffee:unexpected end of input"))
-
-    assert buc.nodejs_compile("""some = require some/module'""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            line=1,
-            column=27,
-            message="missing '",
-            text="some.coffee:1:27:missing '",
-            extract="some = require some/module'",
-            annotated="some.coffee:1:27:missing '\n  some = require some/module'\n                            ^"))
-
-    assert buc.nodejs_compile("""(a, b) -> a + b +""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            message="unexpected end of input",
-            text="some.coffee:unexpected end of input"))
-
-    assert buc.nodejs_compile("""some = require some/module'""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            line=1,
-            column=27,
-            message="missing '",
-            text="some.coffee:1:27:missing '",
-            extract="some = require some/module'",
-            annotated="some.coffee:1:27:missing '\n  some = require some/module'\n                            ^"))
+        dict(error="SyntaxError: unexpected end of input")
 
 def test_nodejs_compile_javascript():
     assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
@@ -104,13 +79,7 @@ def test_nodejs_compile_less():
         dict(code=""".bk-some-style{color:#800080}""")
 
     assert buc.nodejs_compile(""".bk-some-style color: green; }""", "less", "some.less") == \
-        dict(error=dict(
-            line=1,
-            column=21,
-            message="Unrecognised input",
-            text="some.less:1:21:Unrecognised input",
-            extract=".bk-some-style color: green; }",
-            annotated="some.less:1:21:Unrecognised input\n  .bk-some-style color: green; }"))
+        dict(error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n")
 
 def test_Implementation():
     obj = buc.Implementation()
@@ -180,7 +149,7 @@ def test_jsons():
                 assert all(['\\' not in mod for mod in json.loads(f.read())])
 
 def test_inline_extension():
-    from bokeh.io import show
+    from bokeh.io import save
     from bokeh.models import TickFormatter
     from bokeh.plotting import figure
     from bokeh.util.compiler import TypeScript
@@ -202,12 +171,7 @@ def test_inline_extension():
           return formatted
         }
       }
-
-      static initClass(): void {
-        this.prototype.type = "TestFormatter"
-      }
     }
-    TestFormatter.initClass()
     """
 
     class TestFormatter(TickFormatter):
@@ -221,7 +185,7 @@ def test_inline_extension():
     p = figure()
     p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
     p.xaxis.formatter = TestFormatter()
-    show(p)
+    save(p)
 
 #-----------------------------------------------------------------------------
 # Dev API

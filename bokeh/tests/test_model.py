@@ -100,20 +100,20 @@ class Test_js_link(object):
         m2 = SomeModel()
         with pytest.raises(ValueError) as e:
             m1.js_link('junk', m2, 'b')
-        assert str(e).endswith("ValueError: %r is not a property of self (%r)" % ("junk", m1))
+        assert str(e.value).endswith("%r is not a property of self (%r)" % ("junk", m1))
 
     def test_value_error_on_bad_other(self):
         m1 = SomeModel()
         with pytest.raises(ValueError) as e:
             m1.js_link('a', 'junk', 'b')
-        assert str(e).endswith("ValueError: 'other' is not a Bokeh model: %r" % "junk")
+        assert str(e.value).endswith("'other' is not a Bokeh model: %r" % "junk")
 
     def test_value_error_on_bad_other_attr(self):
         m1 = SomeModel()
         m2 = SomeModel()
         with pytest.raises(ValueError) as e:
             m1.js_link('a', m2, 'junk')
-        assert str(e).endswith("ValueError: %r is not a property of other (%r)" % ("junk", m2))
+        assert str(e.value).endswith("%r is not a property of other (%r)" % ("junk", m2))
 
     def test_creates_customjs(self):
         m1 = SomeModel()

@@ -18,7 +18,11 @@ import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {ImageIndex} from "../../glyphs/image_base"
+import {ImageIndex} from "../../selections/selection"
+import {bk_tool_icon_hover} from "styles/icons"
+import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from "styles/tooltips"
+
+export type TooltipVars = {index: number} & Vars
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
@@ -357,7 +361,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: Vars): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
@@ -374,10 +378,10 @@ export class HoverToolView extends InspectToolView {
 
         let cell: HTMLElement
 
-        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-label'}, label.length != 0 ? `${label}: ` : "")
+        cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
         row.appendChild(cell)
 
-        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-value'})
+        cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_value})
         row.appendChild(cell)
 
         if (value.indexOf("$color") >= 0) {
@@ -401,7 +405,7 @@ export class HoverToolView extends InspectToolView {
           let el = span({}, color)
           cell.appendChild(el)
           if (swatch) {
-            el = span({class: 'bk-tooltip-color-block', style: {backgroundColor: color}}, " ")
+            el = span({class: bk_tooltip_color_block, style: {backgroundColor: color}}, " ")
             cell.appendChild(el)
           }
         } else {
@@ -420,7 +424,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)>
+    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<any> // XXX
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
@@ -443,8 +447,7 @@ export class HoverTool extends InspectTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "HoverTool"
+  static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>({
@@ -467,6 +470,5 @@ export class HoverTool extends InspectTool {
   }
 
   tool_name = "Hover"
-  icon = "bk-tool-icon-hover"
+  icon = bk_tool_icon_hover
 }
-HoverTool.initClass()

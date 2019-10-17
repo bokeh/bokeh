@@ -93,7 +93,9 @@ Basic Properties
 .. autoclass:: JSON
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
+.. autoclass:: NonNegativeInt
 .. autoclass:: Percent
+.. autoclass:: PositiveInt
 .. autoclass:: RGB
 .. autoclass:: Regex
 .. autoclass:: Size
@@ -139,6 +141,12 @@ Special Properties
 
 .. autoclass:: Include
 .. autoclass:: Override
+
+Validation-only Properties
+--------------------------
+
+.. autoclass:: PandasDataFrame
+.. autoclass:: PandasGroupBy
 
 Validation Control
 ------------------
@@ -215,9 +223,13 @@ __all__ = (
     'MarkerSpec',
     'MarkerType',
     'MinMaxBounds',
+    'NonNegativeInt',
     'NumberSpec',
     'Override',
+    'PandasDataFrame',
+    'PandasGroupBy',
     'Percent',
+    'PositiveInt',
     'RGB',
     'Regex',
     'RelativeDelta',
@@ -293,9 +305,13 @@ from .property.numeric import Byte; Byte
 from .property.numeric import Interval; Interval
 from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
+from .property.numeric import PositiveInt; PositiveInt
 from .property.numeric import Size; Size
 
 from .property.override import Override ; Override
+
+from .property.pandas import PandasDataFrame ; PandasDataFrame
+from .property.pandas import PandasGroupBy ; PandasGroupBy
 
 from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex

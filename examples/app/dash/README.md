@@ -6,7 +6,7 @@ This is a bokeh directory application. To run it, enter the following command at
 bokeh serve --show dash
 ```
 
-See also the [users guide on bokeh directory applications](https://bokeh.pydata.org/en/latest/docs/user_guide/server.html#directory-format), for more detail.
+See also the [users guide on bokeh directory applications](https://docs.bokeh.org/en/latest/docs/user_guide/server.html#directory-format), for more detail.
 
 # Licences
 

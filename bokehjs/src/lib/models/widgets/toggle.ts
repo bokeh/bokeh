@@ -2,6 +2,8 @@ import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_active} from "styles/mixins"
+
 export class ToggleView extends AbstractButtonView {
   model: Toggle
 
@@ -21,7 +23,7 @@ export class ToggleView extends AbstractButtonView {
   }
 
   protected _update_active(): void {
-    classes(this.button_el).toggle("bk-active", this.model.active)
+    classes(this.button_el).toggle(bk_active, this.model.active)
   }
 }
 
@@ -42,8 +44,7 @@ export class Toggle extends AbstractButton {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Toggle"
+  static init_Toggle(): void {
     this.prototype.default_view = ToggleView
 
     this.define<Toggle.Props>({
@@ -55,4 +56,3 @@ export class Toggle extends AbstractButton {
     })
   }
 }
-Toggle.initClass()

@@ -33,7 +33,7 @@ p = figure(plot_height=350, title="Pie Chart", toolbar_location=None,
 
 p.wedge(x=0, y=1, radius=0.4,
         start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
-        line_color="white", fill_color='color', legend='country', source=data)
+        line_color="white", fill_color='color', legend_field='country', source=data)
 
 p.axis.axis_label=None
 p.axis.visible=False

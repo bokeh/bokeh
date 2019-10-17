@@ -5,6 +5,7 @@ import {empty} from "core/dom"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
+import {bk_toolbar_button} from "styles/toolbar"
 
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
@@ -17,7 +18,7 @@ export abstract class ButtonToolButtonView extends DOMView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-toolbar-button")
+    return super.css_classes().concat(bk_toolbar_button)
   }
 
   render(): void {
@@ -56,9 +57,7 @@ export abstract class ButtonTool extends Tool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ButtonTool"
-
+  static init_ButtonTool(): void {
     this.internal({
       disabled:    [ p.Boolean,    false ],
     })
@@ -78,4 +77,3 @@ export abstract class ButtonTool extends Tool {
     return this.icon
   }
 }
-ButtonTool.initClass()

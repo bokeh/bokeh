@@ -17,7 +17,6 @@ RUN git clone --depth=50 https://github.com/bokeh/bokeh.git $BOKEH_SOURCE_DIR
 #Increase build number to force rebuild
 ENV build 0
 WORKDIR $BOKEH_SOURCE_DIR
-#RUN git fetch origin $BOKEH_VERSION
 RUN sh -c 'if [[ ! -z "$BOKEH_VERSION" ]]; then echo Fetching $BOKEH_VERSION; git fetch origin $BOKEH_VERSION; git checkout -f FETCH_HEAD; fi'
 
 ENV CONDA_REQS="conda-build"
@@ -50,27 +49,21 @@ RUN conda build conda.recipe --quiet --no-test --no-anaconda-upload --dirty
 ################################
 FROM frolvlad/alpine-miniconda3 AS install
 COPY --from=build /opt/conda/conda-bld/noarch/ /opt/conda/conda-bld/noarch/
-## We need a recent conda version for --use-local
-RUN conda install --quiet --yes \
-    conda
+
+RUN apk add --no-cache \
+    bash
 
 RUN conda install --quiet --yes --use-local \
     bokeh \
     nodejs
-## Remove the build environment
-#RUN conda remove --yes --name bokeh_build --all
-#
+
 # Clean the conda environment
 RUN conda clean -ay
-#
+
 RUN python3 -c "import tornado; print('tornado version=' + tornado.version)"
 RUN bokeh info
 
-#FROM install AS test
-#COPY --from=build $BOKEH_SOURCE_DIR/scripts/deps.py $BOKEH_SOURCE_DIR/scripts/deps.py
-#
-#ENV BOKEH_EXAMPLE_DIR bokeh_examples
-#COPY hello_world.py $BOKEH_EXAMPLE_DIR/hello_world.py
-#COPY hello_nodejs.py $BOKEH_EXAMPLE_DIR/hello_nodejs.py
-## Build with 'sudo docker build . --tag bokeh'
-## Run with 'sudo docker run -p 5006:5006 -it bokeh bokeh serve bokeh_examples/hello_world.py'
+# Add some bokeh examples to be run
+ENV BOKEH_EXAMPLE_DIR /root/bokeh_examples
+COPY examples/models $BOKEH_EXAMPLE_DIR/models
+COPY examples/app $BOKEH_EXAMPLE_DIR/app

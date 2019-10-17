@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -48,7 +48,7 @@ export class ArcView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -75,8 +75,7 @@ export class Arc extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Arc'
+  static init_Arc(): void {
     this.prototype.default_view = ArcView
 
     this.mixins(['line'])
@@ -88,4 +87,3 @@ export class Arc extends XYGlyph {
     })
   }
 }
-Arc.initClass()

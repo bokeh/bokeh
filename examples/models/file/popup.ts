@@ -21,9 +21,7 @@ export class Popup extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Popup"
-
+  static init_Popup(): void {
     this.define<Popup.Props>({
       message: [ p.String, "" ]
     })
@@ -36,4 +34,3 @@ export class Popup extends Model {
     }
   }
 }
-Popup.initClass()

@@ -30,12 +30,11 @@ from six import string_types
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
-from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
-from .bundle import bundle_for_objs_and_resources
+from .bundle import bundle_for_objs_and_resources, Script
 from .elements import html_page_for_render_items, script_for_render_items
 from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json, standalone_docs_json_and_render_items
-from .wrappers import wrap_in_onload, wrap_in_script_tag
+from .wrappers import wrap_in_onload
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -88,18 +87,12 @@ def autoload_static(model, resources, script_path):
     with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
-    bundle = bundle_all_models() or ""
-    script = script_for_render_items(docs_json, [render_item])
+    bundle = bundle_for_objs_and_resources(None, resources)
+    bundle.add(Script(script_for_render_items(docs_json, [render_item])))
 
-    (modelid, elementid) = list(render_item.roots.to_json().items())[0]
+    (_, elementid) = list(render_item.roots.to_json().items())[0]
 
-    js = wrap_in_onload(AUTOLOAD_JS.render(
-        js_urls = resources.js_files,
-        css_urls = resources.css_files,
-        js_raw = resources.js_raw + [bundle, script],
-        css_raw = resources.css_raw_str,
-        elementid = elementid,
-    ))
+    js = wrap_in_onload(AUTOLOAD_JS.render(bundle=bundle, elementid=elementid))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
@@ -116,24 +109,14 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     The returned components assume that BokehJS resources are **already loaded**.
     The html template in which they will be embedded needs to include the following
-    links and scripts tags. The widgets and tables resources are only necessary if
-    the components make use of widgets and tables.
+    scripts tags. The widgets and tables resources are only necessary if the components
+    make use of widgets and tables.
 
     .. code-block:: html
 
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
     Note that in Jupyter Notebooks, it is not possible to use components and show in
     the same notebook cell.
@@ -222,10 +205,10 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     with OutputDocumentFor(models, apply_theme=theme):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
-    script  = bundle_all_models() or ""
-    script += script_for_render_items(docs_json, [render_item])
-    if wrap_script:
-        script = wrap_in_script_tag(script)
+    bundle = bundle_for_objs_and_resources(None, None)
+    bundle.add(Script(script_for_render_items(docs_json, [render_item])))
+
+    script = bundle.scripts(tag=wrap_script)
     script = encode_utf8(script)
 
     def div_for_root(root):

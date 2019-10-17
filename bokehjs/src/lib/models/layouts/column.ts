@@ -31,8 +31,7 @@ export class Column extends Box {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Column"
+  static init_Column(): void {
     this.prototype.default_view = ColumnView
 
     this.define<Column.Props>({
@@ -40,4 +39,3 @@ export class Column extends Box {
     })
   }
 }
-Column.initClass()

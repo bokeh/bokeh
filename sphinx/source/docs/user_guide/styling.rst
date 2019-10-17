@@ -41,7 +41,7 @@ Color Mappers allow you to encode some data sequence into a palette of colors ba
     66 >= x < 99 : 'blue'
     99 >= x      : 'blue'    # values > high are clamped
 
-* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors.
+* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natural log scale to map the colors.
 
 These mapper functions return a ``DataSpec`` property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a ``ColorBar`` as in the example below:
 
@@ -79,6 +79,11 @@ Fill Properties
 .. include:: ../includes/fill_props.txt
 
 .. _userguide_styling_text_properties:
+
+Hatch Properties
+~~~~~~~~~~~~~~~~
+
+.. include:: ../includes/hatch_props.txt
 
 Text Properties
 ~~~~~~~~~~~~~~~
@@ -243,7 +248,6 @@ plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 
 .. _userguide_styling_plot_title:
 
@@ -699,13 +703,20 @@ lines are hidden (i.e., their line color is set to ``None``).
 Bands
 ~~~~~
 
-It is also possible to display filled, shaded bands between adjacent
-grid lines. The visual appearance of these bands is controlled by a
-collection of `Fill Properties`_, prefixed with ``band_``. For instance,
-to set the color of grid bands, use ``band_fill_color``. To hide grid
+It is possible to display filled, shaded bands between adjacent grid lines.
+The visual appearance of these bands is controlled by a collection of
+`Fill Properties`_, and `Hatch Properties`_, prefixed with ``band_``. For
+instance, to set the color of grid bands, use ``band_fill_color``. To hide grid
 bands, set their fill color to ``None`` (this is the default).
 
+Here is an example demonstrating bands filled with a solid color:
+
 .. bokeh-plot:: docs/user_guide/examples/styling_grid_band_fill.py
+    :source-position: above
+
+And here is an example demonstrating bands filled with a hatch pattern:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_grid_band_hatch.py
     :source-position: above
 
 .. _userguide_styling_grid_bounds:
@@ -749,10 +760,6 @@ for every element of the list:
 .. code-block:: python
 
     p.legend.label_text_font = "times"
-
-.. note::
-    The examples in this section use NumPy to more easily generate better
-    data suitable for demonstrating legends.
 
 Location
 ~~~~~~~~
@@ -802,6 +809,25 @@ object directly:
 
 In this use-case, the location must be specified absolutely. Future releases
 will add additional options for laying out legend positions.
+
+Title
+~~~~~
+
+Legends can have a title, specified by the ``title`` property:
+
+.. code:: python
+
+    plot.legend.title = "Division"
+
+The visual appearance of the legend title is controlled by a collection of
+`Text Properties`_, prefixed with ``title_``. For instance, to set the font
+style of the legend, use ``title_text_font_style``.
+
+The distance to separate the title from the rest of the legend (in pixels)
+is controlled by the ``title_standoff`` property.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_title.py
+    :source-position: above
 
 Orientation
 ~~~~~~~~~~~

@@ -80,8 +80,8 @@ function fixup_ellipse(ctx: any): void {
 
     ctx.moveTo(-rx, 0) // start point of first curve
     ctx.bezierCurveTo(-rx,  ry * c, -rx * c,  ry, 0,  ry)
-    ctx.bezierCurveTo( rx * c,  ry,  rx,  ry * c,  rx, 0)
-    ctx.bezierCurveTo( rx, -ry * c,  rx * c, -ry, 0, -ry)
+    ctx.bezierCurveTo(rx * c,  ry,  rx,  ry * c,  rx, 0)
+    ctx.bezierCurveTo(rx, -ry * c,  rx * c, -ry, 0, -ry)
     ctx.bezierCurveTo(-rx * c, -ry, -rx, -ry * c, -rx, 0)
 
     ctx.rotate(-rotation)

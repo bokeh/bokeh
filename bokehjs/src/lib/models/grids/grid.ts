@@ -37,16 +37,26 @@ export class GridView extends GuideRendererView {
   }
 
   protected _draw_regions(ctx: Context2d): void {
-    if (!this.visuals.band_fill.doit)
+    if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit)
       return
-    const [xs, ys] = this.grid_coords('major', false)
+
     this.visuals.band_fill.set_value(ctx)
+
+    const [xs, ys] = this.grid_coords('major', false)
     for (let i = 0; i < xs.length-1; i++) {
-      if (i % 2 == 1) {
-        const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this._x_range_name, this._y_range_name)
-        const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this._x_range_name, this._y_range_name)
+      if (i % 2 != 1)
+        continue
+
+      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this._x_range_name, this._y_range_name)
+      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this._x_range_name, this._y_range_name)
+
+      if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
-      }
+
+      this.visuals.band_hatch.doit2(ctx, i, () => {
+        ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
+      }, () => this.request_render())
+
     }
   }
 
@@ -89,7 +99,7 @@ export class GridView extends GuideRendererView {
   }
 
   computed_bounds(): [number, number] {
-    const [range,] = this.ranges()
+    const [range] = this.ranges()
 
     const user_bounds = this.model.bounds
     const range_bounds = [range.min, range.max]
@@ -186,11 +196,13 @@ export namespace Grid {
   } & mixins.GridLine
     & mixins.MinorGridLine
     & mixins.BandFill
+    & mixins.BandHatch
 
   export type Visuals = GuideRenderer.Visuals & {
     grid_line: visuals.Line
     minor_grid_line: visuals.Line
     band_fill: visuals.Fill
+    band_hatch: visuals.Hatch
   }
 }
 
@@ -203,11 +215,10 @@ export class Grid extends GuideRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Grid"
+  static init_Grid(): void {
     this.prototype.default_view = GridView
 
-    this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
+    this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_', 'hatch:band_'])
 
     this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
@@ -226,4 +237,3 @@ export class Grid extends GuideRenderer {
     })
   }
 }
-Grid.initClass()

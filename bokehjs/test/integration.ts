@@ -37,14 +37,14 @@ const spacer =
    width: number | null, height: number | null,
    min_width?: number, min_height?: number,
    max_width?: number, max_height?: number) => (color: Color): Spacer => {
-  return new Spacer({
-    width_policy, height_policy,
-    width, height,
-    min_width, min_height,
-    max_width, max_height,
-    background: color,
-  })
-}
+    return new Spacer({
+      width_policy, height_policy,
+      width, height,
+      min_width, min_height,
+      max_width, max_height,
+      background: color,
+    })
+  }
 
 describe("Row", () => {
   it("should allow to expand when child policy is max", async () => {

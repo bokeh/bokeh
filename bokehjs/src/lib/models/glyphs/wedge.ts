@@ -3,7 +3,7 @@ import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Direction} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -85,8 +85,7 @@ export class WedgeView extends XYGlyphView {
 
     const candidates = []
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for (const i of this.index.indices(bbox)) {
+    for (const i of this.index.indices({x0, x1, y0, y1})) {
       const r2 = Math.pow(this.sradius[i], 2)
       ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
       ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
@@ -109,7 +108,7 @@ export class WedgeView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -150,8 +149,7 @@ export class Wedge extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Wedge'
+  static init_Wedge(): void {
     this.prototype.default_view = WedgeView
 
     this.mixins(['line', 'fill'])
@@ -163,4 +161,3 @@ export class Wedge extends XYGlyph {
     })
   }
 }
-Wedge.initClass()

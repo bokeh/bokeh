@@ -11,7 +11,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {PointDrawTool, PointDrawToolView} from "@bokehjs/models/tools/edit/point_draw_tool"
 
-import {make_gesture_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
 
 export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
@@ -182,15 +182,15 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
-      let drag_event = make_gesture_event(300, 300)
+      let drag_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
 
-      drag_event = make_gesture_event(200, 200)
+      drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
 
-      drag_event = make_gesture_event(200, 200)
+      drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
@@ -208,15 +208,15 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       hit_test_stub.returns(null)
-      let drag_event = make_gesture_event(300, 300)
+      let drag_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
 
-      drag_event = make_gesture_event(200, 200)
+      drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
 
-      drag_event = make_gesture_event(200, 200)
+      drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
@@ -234,15 +234,15 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]))
-      let drag_event = make_gesture_event(300, 300, true)
+      let drag_event = make_pan_event(300, 300, true)
       testcase.draw_tool_view._pan_start(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
 
-      drag_event = make_gesture_event(200, 200)
+      drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
 
-      drag_event = make_gesture_event(200, 200)
+      drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])

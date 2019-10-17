@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 import argparse
 
 # External imports
@@ -50,6 +51,7 @@ import argparse
 # Bokeh imports
 from bokeh import __version__
 from bokeh.util.string import nice_join
+from bokeh.settings import settings
 
 from .util import die
 from . import subcommands
@@ -110,9 +112,17 @@ def main(argv):
 
     args = parser.parse_args(argv[1:])
     try:
-        args.invoke(args)
+        ret = args.invoke(args)
     except Exception as e:
-        die("ERROR: " + str(e))
+        if settings.dev:
+            raise
+        else:
+            die("ERROR: " + str(e))
+
+    if ret is False:
+        sys.exit(1)
+    elif ret is not True and isinstance(ret, int) and ret != 0:
+        sys.exit(ret)
 
 #-----------------------------------------------------------------------------
 # Dev API

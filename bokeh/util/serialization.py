@@ -251,7 +251,7 @@ def make_id():
     '''
     global _simple_id
 
-    if settings.simple_ids(True):
+    if settings.simple_ids():
         with _simple_id_lock:
             _simple_id += 1
             return str(_simple_id)

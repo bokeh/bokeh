@@ -14,7 +14,10 @@ else {
   const tasks = _.length != 0 ? _ : ["default"]
 
   run(...tasks).catch((err) => {
-    log(`${chalk.red("failed:")} ${err.message}`)
+    const [first, ...rest] = err.stack.split("\n")
+    log(`${chalk.red("failed:")} ${first}`)
+    for (const line of rest)
+      log(line)
     process.exit(1)
   })
 }

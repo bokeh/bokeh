@@ -11,7 +11,7 @@ describe("MonthsTicker Model", () => {
   })
 
   it("should configure an interval of (diff)*ONE_MONTH with a multiple months", () => {
-    const ticker = new MonthsTicker({months: [0,3,6,9]})
+    const ticker = new MonthsTicker({months: [0, 3, 6, 9]})
     expect(ticker.interval).to.be.equal(3*ONE_MONTH)
   })
 

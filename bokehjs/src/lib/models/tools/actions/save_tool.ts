@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
+import {bk_tool_icon_save} from "styles/icons"
 
 export class SaveToolView extends ActionToolView {
   model: SaveTool
@@ -24,12 +25,10 @@ export class SaveTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "SaveTool"
+  static init_SaveTool(): void {
     this.prototype.default_view = SaveToolView
   }
 
   tool_name = "Save"
-  icon = "bk-tool-icon-save"
+  icon = bk_tool_icon_save
 }
-SaveTool.initClass()

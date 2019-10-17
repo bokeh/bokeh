@@ -8,19 +8,19 @@ import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
-function _horz(ctx: Context2d , h: number, h2: number): void {
+function _horz(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(0, h2+0.5)
   ctx.lineTo(h, h2+0.5)
   ctx.stroke()
 }
 
-function _vert(ctx: Context2d , h: number, h2: number): void {
+function _vert(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(h2+0.5, 0)
   ctx.lineTo(h2+0.5, h)
   ctx.stroke()
 }
 
-function _x(ctx: Context2d , h: number): void {
+function _x(ctx: Context2d, h: number): void {
   ctx.moveTo(0, h)
   ctx.lineTo(h, 0)
   ctx.stroke()
@@ -37,149 +37,149 @@ function _get_canvas(size: number): HTMLCanvasElement {
 }
 
 export type Color = string
-function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight:number ): HTMLCanvasElement {
-    const h = hatch_scale
-    const h2 = h / 2
-    const h4 = h2 / 2
+function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight: number): HTMLCanvasElement {
+  const h = hatch_scale
+  const h2 = h / 2
+  const h4 = h2 / 2
 
-    const canvas = _get_canvas(hatch_scale)
+  const canvas = _get_canvas(hatch_scale)
 
-    const ctx = canvas.getContext("2d")! as Context2d
-    ctx.strokeStyle = hatch_color
-    ctx.lineCap="square"
-    ctx.fillStyle = hatch_color
-    ctx.lineWidth = hatch_weight
+  const ctx = canvas.getContext("2d")! as Context2d
+  ctx.strokeStyle = hatch_color
+  ctx.lineCap="square"
+  ctx.fillStyle = hatch_color
+  ctx.lineWidth = hatch_weight
 
-    switch (hatch_pattern) {
-      // we should not need these if code conditions on hatch.doit, but
-      // include them here just for completeness
-      case " ":
-      case "blank":
-        break
+  switch (hatch_pattern) {
+    // we should not need these if code conditions on hatch.doit, but
+    // include them here just for completeness
+    case " ":
+    case "blank":
+      break
 
-      case ".":
-      case "dot":
-        ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
-        ctx.fill()
-        break
+    case ".":
+    case "dot":
+      ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
+      ctx.fill()
+      break
 
-      case "o":
-      case "ring":
-        ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
-        ctx.stroke()
-        break
+    case "o":
+    case "ring":
+      ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
+      ctx.stroke()
+      break
 
-      case "-":
-      case "horizontal_line":
-        _horz(ctx, h, h2)
-        break
+    case "-":
+    case "horizontal_line":
+      _horz(ctx, h, h2)
+      break
 
-      case "|":
-      case "vertical_line":
-        _vert(ctx, h, h2)
-        break
+    case "|":
+    case "vertical_line":
+      _vert(ctx, h, h2)
+      break
 
-      case "+":
-      case "cross":
-        _horz(ctx, h, h2)
-        _vert(ctx, h, h2)
-        break
+    case "+":
+    case "cross":
+      _horz(ctx, h, h2)
+      _vert(ctx, h, h2)
+      break
 
-      case "\"":
-      case "horizontal_dash":
-        _horz(ctx, h2, h2)
-        break
+    case "\"":
+    case "horizontal_dash":
+      _horz(ctx, h2, h2)
+      break
 
-      case ":":
-      case "vertical_dash":
-        _vert(ctx, h2, h2)
-        break
+    case ":":
+    case "vertical_dash":
+      _vert(ctx, h2, h2)
+      break
 
-      case "@":
-      case "spiral":
-        const h30 = h/30
-        ctx.moveTo(h2, h2)
-        for (let i = 0; i < 360; i++) {
-          const angle = 0.1 * i
-          const x = h2 + (h30 * angle) * Math.cos(angle)
-          const y = h2 + (h30 * angle) * Math.sin(angle)
-          ctx.lineTo(x, y)
-        }
-        ctx.stroke()
-        break
+    case "@":
+    case "spiral":
+      const h30 = h/30
+      ctx.moveTo(h2, h2)
+      for (let i = 0; i < 360; i++) {
+        const angle = 0.1 * i
+        const x = h2 + (h30 * angle) * Math.cos(angle)
+        const y = h2 + (h30 * angle) * Math.sin(angle)
+        ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+      break
 
-      case "/":
-      case "right_diagonal_line":
-        ctx.moveTo(-h4+0.5, h)
-        ctx.lineTo(h4+0.5, 0)
-        ctx.stroke()
-        ctx.moveTo(h4+0.5, h)
-        ctx.lineTo(3*h4+0.5, 0)
-        ctx.stroke()
-        ctx.moveTo(3*h4+0.5, h)
-        ctx.lineTo(5*h4+0.5, 0)
-        ctx.stroke()
-        ctx.stroke()
-        break
+    case "/":
+    case "right_diagonal_line":
+      ctx.moveTo(-h4+0.5, h)
+      ctx.lineTo(h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(h4+0.5, h)
+      ctx.lineTo(3*h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(3*h4+0.5, h)
+      ctx.lineTo(5*h4+0.5, 0)
+      ctx.stroke()
+      ctx.stroke()
+      break
 
-        case "\\":
-        case "left_diagonal_line":
-        ctx.moveTo(h4+0.5, h)
-        ctx.lineTo(-h4+0.5, 0)
-        ctx.stroke()
-        ctx.moveTo(3*h4+0.5, h)
-        ctx.lineTo(h4+0.5, 0)
-        ctx.stroke()
-        ctx.moveTo(5*h4+0.5, h)
-        ctx.lineTo(3*h4+0.5, 0)
-        ctx.stroke()
-        ctx.stroke()
-        break
+    case "\\":
+    case "left_diagonal_line":
+      ctx.moveTo(h4+0.5, h)
+      ctx.lineTo(-h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(3*h4+0.5, h)
+      ctx.lineTo(h4+0.5, 0)
+      ctx.stroke()
+      ctx.moveTo(5*h4+0.5, h)
+      ctx.lineTo(3*h4+0.5, 0)
+      ctx.stroke()
+      ctx.stroke()
+      break
 
-      case "x":
-      case "diagonal_cross":
-        _x(ctx, h)
-        break
+    case "x":
+    case "diagonal_cross":
+      _x(ctx, h)
+      break
 
-      case ",":
-      case "right_diagonal_dash":
-        ctx.moveTo(h4+0.5, 3*h4+0.5)
-        ctx.lineTo(3*h4+0.5, h4+0.5)
-        ctx.stroke()
-        break
+    case ",":
+    case "right_diagonal_dash":
+      ctx.moveTo(h4+0.5, 3*h4+0.5)
+      ctx.lineTo(3*h4+0.5, h4+0.5)
+      ctx.stroke()
+      break
 
-      case "`":
-      case "left_diagonal_dash":
-        ctx.moveTo(h4+0.5, h4+0.5)
-        ctx.lineTo(3*h4+0.5, 3*h4+0.5)
-        ctx.stroke()
-        break
+    case "`":
+    case "left_diagonal_dash":
+      ctx.moveTo(h4+0.5, h4+0.5)
+      ctx.lineTo(3*h4+0.5, 3*h4+0.5)
+      ctx.stroke()
+      break
 
-      case "v":
-      case "horizontal_wave":
-        ctx.moveTo(0, h4)
-        ctx.lineTo(h2, 3*h4)
-        ctx.lineTo(h, h4)
-        ctx.stroke()
-        break
+    case "v":
+    case "horizontal_wave":
+      ctx.moveTo(0, h4)
+      ctx.lineTo(h2, 3*h4)
+      ctx.lineTo(h, h4)
+      ctx.stroke()
+      break
 
-      case ">":
-      case "vertical_wave":
-        ctx.moveTo(h4, 0)
-        ctx.lineTo(3*h4, h2)
-        ctx.lineTo(h4, h)
-        ctx.stroke()
-        break
+    case ">":
+    case "vertical_wave":
+      ctx.moveTo(h4, 0)
+      ctx.lineTo(3*h4, h2)
+      ctx.lineTo(h4, h)
+      ctx.stroke()
+      break
 
-      case "*":
-      case "criss_cross":
-        _x(ctx, h)
-        _horz(ctx, h, h2)
-        _vert(ctx, h, h2)
-        break
-    }
+    case "*":
+    case "criss_cross":
+      _x(ctx, h)
+      _horz(ctx, h, h2)
+      _vert(ctx, h, h2)
+      break
+  }
 
-    return canvas
+  return canvas
 }
 
 export abstract class ContextProperties {
@@ -344,7 +344,7 @@ export class Hatch extends ContextProperties {
       this.cache_select("hatch_pattern", i)
       this.cache_select("hatch_weight", i)
       const {hatch_color, hatch_scale, hatch_pattern, hatch_weight, hatch_extra} = this.cache
-      if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern) ) {
+      if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
         const custom = hatch_extra[hatch_pattern]
         this.cache.pattern = custom.get_pattern(hatch_color, hatch_scale, hatch_weight)
       } else {
@@ -359,9 +359,9 @@ export class Hatch extends ContextProperties {
     return value
   }
 
-  private _try_defer(defer_func: () => void):void {
+  private _try_defer(defer_func: () => void): void {
     const {hatch_pattern, hatch_extra} = this.cache
-    if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern) ) {
+    if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
       const custom = hatch_extra[hatch_pattern]
       custom.onload(defer_func)
     }

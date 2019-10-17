@@ -14,7 +14,7 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Legend} from "@bokehjs/models/annotations/legend"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {UIEvents, UIEvent, GestureEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {UIEvents, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 
 describe("ui_events module", () => {
 
@@ -239,10 +239,9 @@ describe("ui_events module", () => {
     })
 
     describe("normally propagate other gesture base_types", () => {
-
       let e: UIEvent
       beforeEach(() => {
-        e = {type: "pan", sx: 0, sy: 0, deltaX: 0, deltaY: 0, scale: 1, shiftKey: false}
+        e = {type: "pan", sx: 0, sy: 0, deltaX: 0, deltaY: 0, shiftKey: false}
       })
 
       it("should not trigger event if no active tool", () => {
@@ -371,10 +370,20 @@ describe("ui_events module", () => {
       // assert(spy_uievent.calledOnce)
     })
 
+    it("_pressup method should handle pressup event", () => {
+      const e: any = new Event("pressup") // XXX: not a hammerjs event
+      e.pointerType = "mouse"
+      e.srcEvent = {pageX: 100, pageY: 200}
+
+      ANY_ui_events._pressup(e)
+
+      assert(spy_plot.calledOnce)
+    })
+
     it("_pan_start method should handle panstart event", () => {
       const e: any = new Event("panstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
         assert.ok(true, 'preventDefault ref')
       }}
 
@@ -390,7 +399,7 @@ describe("ui_events module", () => {
     it("_pan method should handle pan event", () => {
       const e: any = new Event("pan") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
         assert.ok(true, 'preventDefault ref')
       }}
 
@@ -406,7 +415,7 @@ describe("ui_events module", () => {
     it("_pan_end method should handle pan end event", () => {
       const e: any = new Event("panend") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
         assert.ok(true, 'preventDefault ref')
       }}
 
@@ -540,7 +549,7 @@ describe("ui_events module", () => {
     it("multi-gesture tool should receive multiple events", () => {
       class MultiToolView extends SelectToolView {
         _tap(_e: TapEvent): void {}
-        _pan(_e: GestureEvent): void {}
+        _pan(_e: PanEvent): void {}
       }
 
       class MultiTool extends SelectTool {
@@ -556,7 +565,7 @@ describe("ui_events module", () => {
 
       const etap: any = new Event("tap") // XXX: not a hammerjs event
       etap.pointerType = "mouse"
-      etap.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+      etap.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
         assert.ok(true, 'preventDefault ref')
       }}
 
@@ -565,7 +574,7 @@ describe("ui_events module", () => {
 
       const epan: any = new Event("pan") // XXX: not a hammerjs event
       epan.pointerType = "mouse"
-      epan.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+      epan.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
         assert.ok(true, 'preventDefault ref')
       }}
       ANY_ui_events._pan(epan)

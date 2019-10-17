@@ -63,4 +63,4 @@ longer than necessary. It is not expected this change should affect any
 users, but if you need this value, the ``bokeh.util.version.base_version``
 function can be used.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

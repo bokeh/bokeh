@@ -25,9 +25,7 @@ export class CDSView extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CDSView'
-
+  static init_CDSView(): void {
     this.define<CDSView.Props>({
       filters: [ p.Array, [] ],
       source:  [ p.Instance  ],
@@ -80,8 +78,9 @@ export class CDSView extends Model {
   }
 
   compute_indices(): void {
-    const indices = this.filters.map((filter) => filter.compute_indices(this.source))
-                                .filter((indices) => indices != null)
+    const indices = this.filters
+      .map((filter) => filter.compute_indices(this.source))
+      .filter((indices) => indices != null)
 
     if (indices.length > 0)
       this.indices = intersection.apply(this, indices)
@@ -120,4 +119,3 @@ export class CDSView extends Model {
     return indices.map((i) => this.indices[i])
   }
 }
-CDSView.initClass()

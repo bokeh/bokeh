@@ -135,7 +135,8 @@ class Test_DataRange1d(object):
             "end",
             "bounds",
             "min_interval",
-            "max_interval"],
+            "max_interval",
+            "only_visible"],
         )
 
     def test_init_with_no_arguments(self):

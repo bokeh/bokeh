@@ -83,7 +83,7 @@ Summarizing the object graph:
   - has 1 path used to identify it in URLs
   - has 1 ``ServerContext`` representing the aspects of
     the server visible to application code
-  - has N ``ServerSesssion``
+  - has N ``ServerSession``
 
    - has 1 session ID which is a string naming the session
    - has 1 ``Document`` representing the session state
@@ -332,7 +332,7 @@ Some Current Protocol Caveats
    over binary websocket frames.  However, NumPy arrays of
    dtype ``float32``, ``float64`` and integer types smaller than ``int32``
    are base64 encoded in content frame to avoid performance
-   limitations of naiive JSON string searliazation.
+   limitations of naiive JSON string serialization.
    JavaScript's lack of native 64-bit integer support precludes
    them from inclusion in this optimization.
    The base64 encoding should be entirely transparent to all

@@ -191,6 +191,7 @@ export type FigureAttrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
 }
 
 export class Figure extends Plot {
+  static __name__ = "Plot"
 
   get xgrid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
@@ -414,7 +415,7 @@ export class Figure extends Plot {
     ys: MultiPolygonsArgs["ys"],
     args?: Partial<MultiPolygonsArgs>): GlyphRenderer
   multi_polygons(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.MultiPolygons,"xs,ys", args)
+    return this._glyph(models.MultiPolygons, "xs,ys", args)
   }
 
   oval(args: Partial<OvalArgs>): GlyphRenderer

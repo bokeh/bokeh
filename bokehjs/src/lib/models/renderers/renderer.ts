@@ -48,6 +48,10 @@ export abstract class RendererView extends DOMView {
   notify_finished(): void {
     this.plot_view.notify_finished()
   }
+
+  get has_webgl(): boolean {
+    return false
+  }
 }
 
 export namespace Renderer {
@@ -70,13 +74,10 @@ export abstract class Renderer extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Renderer"
-
+  static init_Renderer(): void {
     this.define<Renderer.Props>({
       level: [ p.RenderLevel ],
       visible: [ p.Boolean, true ],
     })
   }
 }
-Renderer.initClass()

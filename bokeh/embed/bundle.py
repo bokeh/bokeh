@@ -22,20 +22,23 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from warnings import warn
+from os.path import join, dirname, exists
 
 # External imports
 
 # Bokeh imports
+from ..core.templates import JS_RESOURCES, CSS_RESOURCES
 from ..document.document import Document
 from ..resources import BaseResources
+from ..model import Model
 from ..util.compiler import bundle_models
-from .wrappers import wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Bundle',
     'bundle_for_objs_and_resources',
 )
 
@@ -47,6 +50,74 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+class ScriptRef(object):
+
+    def __init__(self, url, type="text/javascript"):
+        self.url = url
+        self.type = type
+
+class Script(object):
+
+    def __init__(self, content, type="text/javascript"):
+        self.content = content
+        self.type = type
+
+class StyleRef(object):
+
+    def __init__(self, url):
+        self.url = url
+
+class Style(object):
+
+    def __init__(self, content):
+        self.content = content
+
+class Bundle(object):
+
+    @classmethod
+    def of(cls, js_files, js_raw, css_files, css_raw):
+        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw)
+
+    def __init__(self, **kwargs):
+        self.js_files = kwargs.get("js_files", [])
+        self.js_raw = kwargs.get("js_raw", [])
+        self.css_files = kwargs.get("css_files", [])
+        self.css_raw = kwargs.get("css_raw", [])
+
+    def __iter__(self):
+        yield self._render_js()
+        yield self._render_css()
+
+    def _render_js(self):
+        return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw)
+
+    def _render_css(self):
+        return CSS_RESOURCES.render(css_files=self.css_files, css_raw=self.css_raw)
+
+    def scripts(self, tag=True):
+        if tag:
+            return JS_RESOURCES.render(js_raw=self.js_raw, js_files=[])
+        else:
+            return "\n".join(self.js_raw)
+
+    @property
+    def js_urls(self):
+        return self.js_files
+
+    @property
+    def css_urls(self):
+        return self.css_files
+
+    def add(self, artifact):
+        if isinstance(artifact, ScriptRef):
+            self.js_files.append(artifact.url)
+        elif isinstance(artifact, Script):
+            self.js_raw.append(artifact.content)
+        elif isinstance(artifact, StyleRef):
+            self.css_files.append(artifact.url)
+        elif isinstance(artifact, Style):
+            self.css_raw.append(artifact.content)
+
 def bundle_for_objs_and_resources(objs, resources):
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
@@ -57,10 +128,10 @@ def bundle_for_objs_and_resources(objs, resources):
         resources (BaseResources or tuple[BaseResources])
 
     Returns:
-        tuple
+        Bundle
 
     '''
-    if isinstance(resources, BaseResources):
+    if resources is None or isinstance(resources, BaseResources):
         js_resources = css_resources = resources
     elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
         js_resources, css_resources = resources
@@ -80,6 +151,11 @@ def bundle_for_objs_and_resources(objs, resources):
     use_tables  = _use_tables(objs)  if objs else True
     use_gl      = _use_gl(objs)      if objs else True
 
+    js_files = []
+    js_raw = []
+    css_files = []
+    css_raw = []
+
     if js_resources:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.js_components:
@@ -88,20 +164,9 @@ def bundle_for_objs_and_resources(objs, resources):
             js_resources.js_components.remove("bokeh-tables")
         if not use_gl and "bokeh-gl" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-gl")
-        bokeh_js = js_resources.render_js()
-    else:
-        bokeh_js = None
 
-    models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
-    custom_bundle = bundle_models(models)
-
-    if custom_bundle is not None:
-        custom_bundle = wrap_in_script_tag(custom_bundle)
-
-        if bokeh_js is not None:
-            bokeh_js += "\n" + custom_bundle
-        else:
-            bokeh_js = custom_bundle
+        js_files.extend(js_resources.js_files)
+        js_raw.extend(js_resources.js_raw)
 
     if css_resources:
         css_resources = deepcopy(css_resources)
@@ -109,15 +174,44 @@ def bundle_for_objs_and_resources(objs, resources):
             css_resources.css_components.remove("bokeh-widgets")
         if not use_tables and "bokeh-tables" in css_resources.css_components:
             css_resources.css_components.remove("bokeh-tables")
-        bokeh_css = css_resources.render_css()
-    else:
-        bokeh_css = None
 
-    return bokeh_js, bokeh_css
+        css_files.extend(css_resources.css_files)
+        css_raw.extend(css_resources.css_raw)
+
+    js_raw.extend(_bundle_extensions(objs, resources))
+
+    models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
+    ext = bundle_models(models)
+    if ext is not None:
+        js_raw.append(ext)
+
+    return Bundle.of(js_files, js_raw, css_files, css_raw)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _bundle_extensions(objs, resources):
+    names = set()
+    extensions = []
+
+    for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
+        if hasattr(obj, "__implementation__"):
+            continue
+        name = obj.__view_module__.split(".")[0]
+        if name == "bokeh":
+            continue
+        if name in names:
+            continue
+        names.add(name)
+        module = __import__(name)
+        ext = ".min.js" if resources is None or resources.minified else ".js"
+        artifact = join(dirname(module.__file__), "dist", name + ext)
+        if exists(artifact):
+            bundle = BaseResources._inline(artifact)
+            extensions.append(bundle)
+
+    return extensions
 
 def _all_objs(objs):
     all_objs = set()

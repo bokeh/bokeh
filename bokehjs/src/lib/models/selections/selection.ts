@@ -4,16 +4,28 @@ import {union, intersection} from "core/util/array"
 import {merge} from "core/util/object"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 
+export type Indices = number[]
+
+export type MultiIndices = {[key: string]: Indices}
+
+export type ImageIndex = {
+  index: number
+  dim1: number
+  dim2: number
+  flat_index: number
+}
+
 export namespace Selection {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    indices: p.Property<number[]>
+    indices: p.Property<Indices>
     final: p.Property<boolean>
-    line_indices: p.Property<number[]>
+    line_indices: p.Property<Indices>
     selected_glyphs: p.Property<Glyph[]>
     get_view: p.Property<() => GlyphView | null>
-    multiline_indices: p.Property<{[key: string]: number[]}>
+    multiline_indices: p.Property<MultiIndices>
+    image_indices: p.Property<ImageIndex[]>
   }
 }
 
@@ -26,9 +38,7 @@ export class Selection extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Selection"
-
+  static init_Selection(): void {
     this.define<Selection.Props>({
       indices:           [ p.Array,   [] ],
       line_indices:      [ p.Array,   [] ],
@@ -43,14 +53,16 @@ export class Selection extends Model {
     })
   }
 
-  [key: string]: any
+  '0d': {glyph: Glyph | null, indices: Indices, flag: boolean, get_view: () => GlyphView | null}
+  '1d': {indices: Indices}
+  '2d': {indices: MultiIndices}
 
   initialize(): void {
     super.initialize()
 
     this['0d'] = {glyph: null, indices: [], flag: false, get_view: () => null}
-    this['2d'] = {indices: {}}
     this['1d'] = {indices: this.indices}
+    this['2d'] = {indices: {}}
 
     this.get_view = () => null
 
@@ -58,11 +70,8 @@ export class Selection extends Model {
       this['1d'].indices = this.indices)
     this.connect(this.properties.line_indices.change, () => {
       this['0d'].indices = this.line_indices
-      if(this.line_indices.length == 0)
-        this['0d'].flag = false
-      else
-        this['0d'].flag = true
-      })
+      this['0d'].flag = this.line_indices.length != 0
+    })
     this.connect(this.properties.selected_glyphs.change, () =>
       this['0d'].glyph = this.selected_glyph)
     this.connect(this.properties.get_view.change, () =>
@@ -72,10 +81,7 @@ export class Selection extends Model {
   }
 
   get selected_glyph(): Glyph | null {
-    if(this.selected_glyphs.length > 0)
-      return this.selected_glyphs[0]
-    else
-      return null
+    return this.selected_glyphs.length > 0 ? this.selected_glyphs[0] : null
   }
 
   add_to_selected_glyphs(glyph: Glyph): void {
@@ -96,7 +102,7 @@ export class Selection extends Model {
     }
   }
 
-  clear (): void {
+  clear(): void {
     this.final = true
     this.indices = []
     this.line_indices = []
@@ -105,7 +111,7 @@ export class Selection extends Model {
     this.selected_glyphs = []
   }
 
-  is_empty (): boolean {
+  is_empty(): boolean {
     return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
   }
 
@@ -128,4 +134,3 @@ export class Selection extends Model {
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
 }
-Selection.initClass()

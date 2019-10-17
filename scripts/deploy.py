@@ -353,21 +353,6 @@ def update_bokehjs_versions():
             passed("Updated version from %r to %r in file %r" % (CONFIG.last_any_version, CONFIG.new_version, filename))
             commit(filename, CONFIG.new_version)
 
-def update_docs_versions():
-
-    # Update all_versions.txt
-
-    filename = 'sphinx/source/all_versions.txt'
-    path = join(CONFIG.top_dir, filename)
-    try:
-        with open(path, 'a') as f:
-            f.write("{version}\n".format(version=CONFIG.new_version))
-    except Exception as e:
-        failed("Could not write new version to file %r" % filename, str(e).split("\n"))
-    else:
-        passed("Appended version %r to %r" % (CONFIG.new_version, filename))
-        commit(filename, CONFIG.new_version)
-
 def update_changelog():
     try:
         out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
@@ -522,7 +507,6 @@ if __name__ == '__main__':
     if V(CONFIG.new_version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating docs version or change log for pre-releases")
     else:
-        update_docs_versions()
         update_changelog()
 
     if CONFIG.problems:

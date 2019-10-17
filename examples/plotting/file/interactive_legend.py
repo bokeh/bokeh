@@ -10,10 +10,11 @@ p.title.text = 'Click on legend entries to hide lines'
 for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "GOOG"], Spectral4):
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
-    p.line(df['date'], df['close'], line_width=2, color=color, alpha=0.8, legend=name)
+    p.line(df['date'], df['close'], line_width=2, color=color, alpha=0.8, legend_label=name)
 
 p.legend.location = 'top_left'
 p.legend.click_policy = 'hide'
+p.y_range.only_visible = True
 
 output_file('interactive_legend.html', title='interactive_legend.py example')
 

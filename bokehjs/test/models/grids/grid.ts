@@ -75,7 +75,7 @@ describe("Grid", () => {
     const grid_view = plot_view.renderer_views[grid.id] as GridView
 
     expect(grid_view.grid_coords('major')).to.be.deep.equal([
-      [[2,2],      [4,4],      [6,6],      [8,8]     ],
+      [[2, 2],     [4, 4],     [6, 6],     [8, 8]    ],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
   })

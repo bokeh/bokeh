@@ -21,10 +21,10 @@ p = figure(y_range=fruits, plot_height=250, x_range=(-16, 16), title="Fruit impo
            toolbar_location=None)
 
 p.hbar_stack(years, y='fruits', height=0.9, color=GnBu3, source=ColumnDataSource(exports),
-             legend=["%s exports" % x for x in years])
+             legend_label=["%s exports" % x for x in years])
 
 p.hbar_stack(years, y='fruits', height=0.9, color=OrRd3, source=ColumnDataSource(imports),
-             legend=["%s imports" % x for x in years])
+             legend_label=["%s imports" % x for x in years])
 
 p.y_range.range_padding = 0.1
 p.ygrid.grid_line_color = None

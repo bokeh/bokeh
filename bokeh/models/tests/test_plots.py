@@ -55,7 +55,7 @@ class TestPlotLegendProperty(object):
         x = plot.legend
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 0
-        plot.circle([1,2], [3,4], legend="foo")
+        plot.circle([1,2], [3,4], legend_label="foo")
         x = plot.legend
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 1

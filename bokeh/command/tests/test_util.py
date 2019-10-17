@@ -55,12 +55,12 @@ def test_build_single_handler_application_unknown_file():
     with pytest.raises(ValueError) as e:
         f = tempfile.NamedTemporaryFile(suffix=".bad")
         util.build_single_handler_application(f.name)
-    assert "Expected a '.py' script or '.ipynb' notebook, got: " in str(e)
+    assert "Expected a '.py' script or '.ipynb' notebook, got: " in str(e.value)
 
 def test_build_single_handler_application_nonexistent_file():
     with pytest.raises(ValueError) as e:
         util.build_single_handler_application("junkjunkjunk")
-    assert "Path for Bokeh server application does not exist: " in str(e)
+    assert "Path for Bokeh server application does not exist: " in str(e.value)
 
 DIRSTYLE_MAIN_WARNING_COPY = """
 It looks like you might be running the main.py of a directory app directly.
@@ -69,7 +69,7 @@ call "bokeh serve" on the directory instead. For example:
 
     bokeh serve my_app_dir/
 
-If this is not the case, renaming main.py will supress this warning.
+If this is not the case, renaming main.py will suppress this warning.
 """
 
 @patch('warnings.warn')

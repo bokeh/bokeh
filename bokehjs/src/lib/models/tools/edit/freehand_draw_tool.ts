@@ -1,8 +1,9 @@
 import {Keys} from "core/dom"
-import {UIEvent, GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
+import {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {EditTool, EditToolView} from "./edit_tool"
+import {bk_tool_icon_freehand_draw} from "styles/icons"
 
 export class FreehandDrawToolView extends EditToolView {
   model: FreehandDrawTool
@@ -48,15 +49,15 @@ export class FreehandDrawToolView extends EditToolView {
     this._emit_cds_changes(cds, true, true, emit)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this._draw(ev, 'new')
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     this._draw(ev, 'add')
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._draw(ev, 'add', true)
   }
 
@@ -64,7 +65,7 @@ export class FreehandDrawToolView extends EditToolView {
     this._select_event(ev, ev.shiftKey, this.model.renderers)
   }
 
- _keyup(ev: KeyEvent): void {
+  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
@@ -94,8 +95,7 @@ export class FreehandDrawTool extends EditTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "FreehandDrawTool"
+  static init_FreehandDrawTool(): void {
     this.prototype.default_view = FreehandDrawToolView
 
     this.define<FreehandDrawTool.Props>({
@@ -103,8 +103,7 @@ export class FreehandDrawTool extends EditTool {
     })
   }
   tool_name = "Freehand Draw Tool"
-  icon = "bk-tool-icon-freehand-draw"
+  icon = bk_tool_icon_freehand_draw
   event_type = ["pan" as "pan", "tap" as "tap"]
   default_order = 3
 }
-FreehandDrawTool.initClass()

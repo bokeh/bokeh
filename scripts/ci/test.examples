@@ -14,6 +14,5 @@ py.test -s -v -m examples       \
     --tb line                   \
     --diff-ref FETCH_HEAD       \
     --self-contained-html       \
-    --upload                    \
     --report-path=examples.html \
     ${EXTRA_CMD}

@@ -18,13 +18,14 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime
+import itertools
 from mock import mock
 
 # External imports
 import numpy as np
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, CDSView, Marker
+from bokeh.models import ColumnDataSource, CDSView, GlyphRenderer, Legend, LegendItem, Marker
 from bokeh.models.axes import CategoricalAxis, LinearAxis, LogAxis, MercatorAxis, DatetimeAxis
 from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
@@ -36,6 +37,13 @@ import bokeh.plotting.helpers as bph
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+def all_combinations(lst):
+    return itertools.chain.from_iterable(
+        itertools.combinations(lst, i + 1)
+        for i in range(2, len(lst)))
+
+LEGEND_KWS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 
 #-----------------------------------------------------------------------------
 # General API
@@ -49,63 +57,173 @@ import bokeh.plotting.helpers as bph
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__get_legend_item_label(object):
+@pytest.mark.parametrize('key', LEGEND_KWS)
+def test__pop_legend_kwarg(key):
+    kws = {'foo': 10, key: 'bar'}
+    assert bph._pop_legend_kwarg(kws) == {key: "bar"}
 
-    def test_legend_None(self):
-        kwargs = {
-            'legend': None
-        }
-        assert bph._get_legend_item_label(kwargs) is None
+@pytest.mark.parametrize('keys', all_combinations(LEGEND_KWS))
+def test__pop_legend_kwarg_error(keys):
+    kws = dict(zip(keys, range(len(keys))))
+    with pytest.raises(ValueError):
+        bph._pop_legend_kwarg(kws)
+
+def test__find_legend_item():
+    legend = Legend(items=[LegendItem(label=dict(value="foo")), LegendItem(label=dict(field="bar"))])
+    assert bph._find_legend_item(dict(value="baz"), legend) is None
+    assert bph._find_legend_item(dict(value="foo"), legend) is legend.items[0]
+    assert bph._find_legend_item(dict(field="bar"), legend) is legend.items[1]
+
+class Test__handle_legend_deprecated(object):
+
+    @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {'junk': 10}, {'label': 'foo', 'junk': 10}, {'value': 'foo', 'junk': 10}])
+    def test_bad_arg(self, arg):
+        with pytest.raises(ValueError):
+            bph._handle_legend_deprecated(arg, "legend", "renderer")
+
+    def test_value_string(self):
+        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
+        renderer = GlyphRenderer(data_source=ColumnDataSource())
+        bph._handle_legend_deprecated("foo", legend, renderer)
+        assert len(legend.items) == 1
+        assert all("value" in item.label for item in legend.items)
+        bph._handle_legend_deprecated("bar", legend, renderer)
+        assert len(legend.items) == 2
+        assert all("value" in item.label for item in legend.items)
+
+    def test_value_dict(self):
+        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
+        renderer = GlyphRenderer(data_source=ColumnDataSource())
+        bph._handle_legend_deprecated(dict(value="foo"), legend, renderer)
+        assert len(legend.items) == 1
+        assert all("value" in item.label for item in legend.items)
+        bph._handle_legend_deprecated(dict(value="bar"), legend, renderer)
+        assert len(legend.items) == 2
+        assert all("value" in item.label for item in legend.items)
+
+    def test_field_string(self):
+        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
+        renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
+        bph._handle_legend_deprecated("foo", legend, renderer)
+        assert len(legend.items) == 1
+        assert all("field" in item.label for item in legend.items)
+        bph._handle_legend_deprecated("bar", legend, renderer)
+        assert len(legend.items) == 2
+        assert all("field" in item.label for item in legend.items)
+
+    def test_field_dict(self):
+        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
+        renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
+        bph._handle_legend_deprecated(dict(field="foo"), legend, renderer)
+        assert len(legend.items) == 1
+        assert all("field" in item.label for item in legend.items)
+        bph._handle_legend_deprecated(dict(field="bar"), legend, renderer)
+        assert len(legend.items) == 2
+        assert all("field" in item.label for item in legend.items)
 
 
-    def test_if_legend_is_something_exotic_that_it_is_passed_directly_to_label(self):
-        kwargs = {
-            'legend': {'field': 'milk'}
-        }
-        label = bph._get_legend_item_label(kwargs)
-        assert label == {'field': 'milk'}
+class Test__handle_legend_field(object):
 
-    def test_if_legend_is_a_string_but_no_source_then_label_is_set_as_value(self):
-        kwargs = {
-            'legend': 'label'
-        }
-        label = bph._get_legend_item_label(kwargs)
-        assert label == {'value': 'label'}
+    @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
+    def test_bad_arg(self, arg):
+        with pytest.raises(ValueError):
+            bph._handle_legend_field(arg, "legend", "renderer")
 
-    def test_if_legend_is_a_string_and_source_with_that_column_then_field(self):
-        kwargs = {
-            'legend': 'label',
-            'source': ColumnDataSource(dict(label=[1, 2]))
-        }
-        label = bph._get_legend_item_label(kwargs)
-        assert label == {'field': 'label'}
+    def test_label_already_exists(self):
+        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
+        renderer = GlyphRenderer()
+        bph._handle_legend_field("foo", legend, renderer)
+        assert len(legend.items) == 1
+        assert legend.items[0].label == dict(field="foo")
+        assert legend.items[0].renderers == [renderer]
 
+    def test_label_not_already_exists(self):
+        legend = Legend(items=[LegendItem(label=dict(field="foo"))])
+        renderer = GlyphRenderer()
+        bph._handle_legend_field("bar", legend, renderer)
+        assert len(legend.items) == 2
+        assert legend.items[0].label == dict(field="foo")
+        assert legend.items[0].renderers == []
+        assert legend.items[1].label == dict(field="bar")
+        assert legend.items[1].renderers == [renderer]
 
-    def test_if_legend_is_a_string_and_source_without_column_name_then_value(self):
-        kwargs = {
-            'legend': 'not_a_column_label',
-            'source': ColumnDataSource(dict(label=[1, 2]))
-        }
-        label = bph._get_legend_item_label(kwargs)
-        assert label == {'value': 'not_a_column_label'}
+class Test__handle_legend_group(object):
+
+    @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
+    def test_bad_arg(self, arg):
+        with pytest.raises(ValueError):
+            bph._handle_legend_group(arg, "legend", "renderer")
+
+    def test_bad_source(self):
+        with pytest.raises(ValueError):
+            bph._handle_legend_group("foo", "legend", GlyphRenderer())
+        with pytest.raises(ValueError):
+            bph._handle_legend_group("foo", "legend", GlyphRenderer(data_source=ColumnDataSource(data=dict(bar=[]))))
+
+    def test_items(self):
+        source = ColumnDataSource(data=dict(foo=[10,10,20,30,20,30,40]))
+        renderer = GlyphRenderer(data_source=source)
+        legend = Legend(items=[])
+        bph._handle_legend_group("foo", legend, renderer)
+        assert len(legend.items) == 4
+        assert legend.items[0].label == dict(value="10")
+        assert legend.items[0].renderers == [renderer]
+        assert legend.items[0].index == 0
+
+        assert legend.items[1].label == dict(value="20")
+        assert legend.items[1].renderers == [renderer]
+        assert legend.items[1].index == 2
+
+        assert legend.items[2].label == dict(value="30")
+        assert legend.items[2].renderers == [renderer]
+        assert legend.items[2].index == 3
+
+        assert legend.items[3].label == dict(value="40")
+        assert legend.items[3].renderers == [renderer]
+        assert legend.items[3].index == 6
+
+class Test__handle_legend_label(object):
+
+    @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
+    def test_bad_arg(self, arg):
+        with pytest.raises(ValueError):
+            bph._handle_legend_label(arg, "legend", "renderer")
+
+    def test_label_already_exists(self):
+        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
+        renderer = GlyphRenderer()
+        bph._handle_legend_label("foo", legend, renderer)
+        assert len(legend.items) == 1
+        assert legend.items[0].label == dict(value="foo")
+        assert legend.items[0].renderers == [renderer]
+
+    def test_label_not_already_exists(self):
+        legend = Legend(items=[LegendItem(label=dict(value="foo"))])
+        renderer = GlyphRenderer()
+        bph._handle_legend_label("bar", legend, renderer)
+        assert len(legend.items) == 2
+        assert legend.items[0].label == dict(value="foo")
+        assert legend.items[0].renderers == []
+        assert legend.items[1].label == dict(value="bar")
+        assert legend.items[1].renderers == [renderer]
 
 def test__single_stack_raises_when_spec_in_kwargs():
     with pytest.raises(ValueError) as e:
         bph._single_stack(['a', 'b'], 'foo', foo=10)
 
-    assert str(e).endswith("Stack property 'foo' cannot appear in keyword args")
+    assert str(e.value).endswith("Stack property 'foo' cannot appear in keyword args")
 
 def test__single_stack_raises_when_kwargs_list_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._single_stack(['a', 'b'], 'foo', baz=[1, 2], quux=[3,4,5])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
 
 def test__single_stack_raises_when_kwargs_list_lengths_and_stackers_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._single_stack(['a', 'b', 'c'], 'foo',  baz=[1, 2], quux=[3,4])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
 
 def test__single_stack_broadcast_with_no_kwargs():
     stackers = ['a', 'b', 'c', 'd']
@@ -164,24 +282,24 @@ def test__double_stack_raises_when_spec_in_kwargs():
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b'], 'foo', 'bar', foo=10)
 
-    assert str(e).endswith("Stack property 'foo' cannot appear in keyword args")
+    assert str(e.value).endswith("Stack property 'foo' cannot appear in keyword args")
 
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b'], 'foo', 'bar', bar=10)
 
-    assert str(e).endswith("Stack property 'bar' cannot appear in keyword args")
+    assert str(e.value).endswith("Stack property 'bar' cannot appear in keyword args")
 
 def test__double_stack_raises_when_kwargs_list_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b'], 'foo', 'bar', baz=[1, 2], quux=[3,4,5])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
 
 def test__double_stack_raises_when_kwargs_list_lengths_and_stackers_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b', 'c'], 'foo', 'bar', baz=[1, 2], quux=[3,4])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
 
 def test__double_stack_broadcast_with_no_kwargs():
     stackers = ['a', 'b', 'c', 'd']

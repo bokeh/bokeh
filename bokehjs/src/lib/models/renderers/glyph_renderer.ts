@@ -1,5 +1,8 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
+import {PatchView} from "../glyphs/patch"
+import {HAreaView} from "../glyphs/harea"
+import {VAreaView} from "../glyphs/varea"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Scale} from "../scales/scale"
@@ -8,7 +11,7 @@ import {Color} from "core/types"
 import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {indexOf} from "core/util/arrayable"
+import {indexOf, map, filter} from "core/util/arrayable"
 import {difference, includes, range} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import * as hittest from "core/hittest"
@@ -123,6 +126,7 @@ export class GlyphRendererView extends DataRendererView {
       this.connect(this.model.data_source.inspect, () => this.request_render())
     this.connect(this.model.properties.view.change, () => this.set_data())
     this.connect(this.model.view.change, () => this.set_data())
+    this.connect(this.model.properties.visible.change, () => this.plot_view.update_dataranges())
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 
@@ -187,13 +191,17 @@ export class GlyphRendererView extends DataRendererView {
       this.request_render()
   }
 
+  get has_webgl(): boolean {
+    return this.glyph.glglyph != null
+  }
+
   render(): void {
     if (!this.model.visible)
       return
 
     const t0 = Date.now()
 
-    const glsupport = this.glyph.glglyph
+    const glsupport = this.has_webgl
 
     this.glyph.map_data()
     const dtmap = Date.now() - t0
@@ -213,46 +221,32 @@ export class GlyphRendererView extends DataRendererView {
     // selected is in full set space
     const {selected} = this.model.data_source
     let selected_full_indices: number[]
-    if (!selected || selected.is_empty()) {
+    if (!selected || selected.is_empty())
       selected_full_indices = []
-    } else {
-      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model) {
+    else {
+      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
         selected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      } else {
+      else
         selected_full_indices = selected.indices
-      }
     }
 
     // inspected is in full set space
     const {inspected} = this.model.data_source
-    let inspected_full_indices: number[]
-    if (!inspected || (inspected.length === 0)) {
-      inspected_full_indices = []
-    } else {
-      if (inspected['0d'].glyph) {
-        inspected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      } else if (inspected['1d'].indices.length > 0) {
-        inspected_full_indices = inspected['1d'].indices
-      } else {
-        inspected_full_indices = ((() => {
-          const result = []
-          for (const i of Object.keys(inspected["2d"].indices)) {
-            result.push(parseInt(i))
-          }
-          return result
-        })())
+    const inspected_full_indices = new Set((() => {
+      if (!inspected || inspected.is_empty())
+        return []
+      else {
+        if (inspected['0d'].glyph)
+          return this.model.view.convert_indices_from_subset(indices)
+        else if (inspected['1d'].indices.length > 0)
+          return inspected['1d'].indices
+        else
+          return map(Object.keys(inspected["2d"].indices), (i) => parseInt(i))
       }
-    }
+    })())
 
     // inspected is transformed to subset space
-    const inspected_subset_indices: number[] = ((() => {
-      const result = []
-      for (const i of indices) {
-        if (includes(inspected_full_indices, this.all_indices[i]))
-          result.push(i)
-      }
-      return result
-    })())
+    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(this.all_indices[i]))
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView
@@ -284,6 +278,15 @@ export class GlyphRendererView extends DataRendererView {
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
         else
           glyph.render(ctx, this.all_indices, this.glyph)
+      } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
+        if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
+          glyph.render(ctx, this.all_indices, this.glyph)
+        } else {
+          for (const sglyph of inspected.selected_glyphs) {
+            if (sglyph.id == this.glyph.model.id)
+              this.hover_glyph.render(ctx, this.all_indices, this.glyph)
+          }
+        }
       } else {
         glyph.render(ctx, indices, this.glyph)
         if (this.hover_glyph && inspected_subset_indices.length)
@@ -343,7 +346,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     logger.trace(` - glyph renders finished in  : ${dtrender}ms`)
 
-    return ctx.restore()
+    ctx.restore()
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
@@ -391,8 +394,7 @@ export class GlyphRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'GlyphRenderer'
+  static init_GlyphRenderer(): void {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props>({
@@ -433,4 +435,3 @@ export class GlyphRenderer extends DataRenderer {
     return this.data_source.selection_manager
   }
 }
-GlyphRenderer.initClass()

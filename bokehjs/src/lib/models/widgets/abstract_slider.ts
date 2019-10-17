@@ -10,6 +10,8 @@ import {SliderCallbackPolicy} from "core/enums"
 import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
 
+import {bk_slider_value, bk_slider_title, bk_input_group} from "styles/widgets/sliders"
+
 const prefix = 'bk-noUi-'
 
 export interface SliderSpec {
@@ -19,7 +21,7 @@ export interface SliderSpec {
   step: number
 }
 
-export abstract class AbstractSliderView extends ControlView {
+abstract class AbstractBaseSliderView extends ControlView {
   model: AbstractSlider
 
   protected group_el: HTMLElement
@@ -42,7 +44,7 @@ export abstract class AbstractSliderView extends ControlView {
     const {callback, callback_policy, callback_throttle} = this.model.properties
     this.on_change([callback, callback_policy, callback_throttle], () => this._init_callback())
 
-    const {start, end, value, step} = this.model.properties
+    const {start, end, value, step, title} = this.model.properties
     this.on_change([start, end, value, step], () => {
       const {start, end, value, step} = this._calc_to()
       this.noUiSlider.updateOptions({
@@ -57,26 +59,28 @@ export abstract class AbstractSliderView extends ControlView {
       this._set_bar_color()
     })
 
-    this.on_change(value, () => this._update_title())
+    this.on_change([value, title], () => this._update_title())
   }
 
   protected _init_callback(): void {
     const {callback} = this.model
-    if (callback != null) {
-      const fn = () => callback.execute(this.model)
+    const fn = () => {
+      if (callback != null)
+        callback.execute(this.model)
+      this.model.value_throttled = this.model.value
+    }
 
-      switch (this.model.callback_policy) {
-        case 'continuous': {
-          this.callback_wrapper = fn
-          break
-        }
-        case 'throttle': {
-          this.callback_wrapper = throttle(fn, this.model.callback_throttle)
-          break
-        }
-        default:
-          this.callback_wrapper = undefined
+    switch (this.model.callback_policy) {
+      case 'continuous': {
+        this.callback_wrapper = fn
+        break
       }
+      case 'throttle': {
+        this.callback_wrapper = throttle(fn, this.model.callback_throttle)
+        break
+      }
+      default:
+        this.callback_wrapper = undefined
     }
   }
 
@@ -93,22 +97,56 @@ export abstract class AbstractSliderView extends ControlView {
       if (this.model.show_value) {
         const {value} = this._calc_to()
         const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
-        this.title_el.appendChild(span({class: "bk-slider-value"}, pretty))
+        this.title_el.appendChild(span({class: bk_slider_value}, pretty))
       }
     }
   }
 
   protected _set_bar_color(): void {
     if (!this.model.disabled) {
-      this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
-                    .style
-                    .backgroundColor = this.model.bar_color
+      const connect_el = this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
+      connect_el.style.backgroundColor = this.model.bar_color
     }
   }
 
   protected abstract _calc_to(): SliderSpec
 
   protected abstract _calc_from(values: number[]): number | number[]
+
+  protected abstract _set_keypress_handles(): void
+
+  protected _keypress_handle(e: KeyboardEvent, idx: 0 | 1 = 0): void {
+    const {start, value, end, step} = this._calc_to()
+    const is_range = value.length==2
+    let low = start
+    let high = end
+    if (is_range && idx==0) {
+      high = value[1]
+    } else if (is_range && idx==1) {
+      low = value[0]
+    }
+    switch (e.which) {
+      case 37: {
+        value[idx] = Math.max(value[idx] - step, low)
+        break
+      }
+      case 39: {
+        value[idx] = Math.min(value[idx] + step, high)
+        break
+      }
+      default:
+        return
+    }
+    if (is_range) {
+      this.model.value = value
+      this.model.properties.value.change.emit()
+    } else {
+      this.model.value = value[0]
+    }
+    this.noUiSlider.set(value)
+    if (this.callback_wrapper != null)
+      this.callback_wrapper()
+  }
 
   render(): void {
     super.render()
@@ -143,34 +181,11 @@ export abstract class AbstractSliderView extends ControlView {
       this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
       this.noUiSlider.on('change', (_, __, values) => this._change(values))
 
-      // Add keyboard support
-      const keypress = (e: KeyboardEvent): void => {
-        const current = this._calc_to()
-        let value = current.value[0]
-        switch (e.which) {
-          case 37: {
-            value = Math.max(value - step, start)
-            break
-          }
-          case 39: {
-            value = Math.min(value + step, end)
-            break
-          }
-          default:
-            return
-        }
-
-        this.model.value = value
-        this.noUiSlider.set(value)
-        if (this.callback_wrapper != null)
-          this.callback_wrapper()
-      }
-
-      const handle = this.slider_el.querySelector(`.${prefix}handle`)!
-      handle.setAttribute('tabindex', '0')
-      handle.addEventListener('keydown', keypress)
+      this._set_keypress_handles()
 
       const toggleTooltip = (i: number, show: boolean): void => {
+        if (!tooltips)
+          return
         const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)[i]
         const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)!
         tooltip.style.display = show ? 'block' : ''
@@ -193,10 +208,10 @@ export abstract class AbstractSliderView extends ControlView {
     else
       this.slider_el.removeAttribute('disabled')
 
-    this.title_el = div({class: "bk-slider-title"})
+    this.title_el = div({class: bk_slider_title})
     this._update_title()
 
-    this.group_el = div({class: "bk-input-group"}, this.title_el, this.slider_el)
+    this.group_el = div({class: bk_input_group}, this.title_el, this.slider_el)
     this.el.appendChild(this.group_el)
   }
 
@@ -208,6 +223,7 @@ export abstract class AbstractSliderView extends ControlView {
 
   protected _change(values: number[]): void {
     this.model.value = this._calc_from(values)
+    this.model.value_throttled = this.model.value
     switch (this.model.callback_policy) {
       case 'mouseup':
       case 'throttle': {
@@ -216,6 +232,57 @@ export abstract class AbstractSliderView extends ControlView {
         break
       }
     }
+  }
+}
+
+export abstract class AbstractSliderView extends AbstractBaseSliderView{
+
+  protected _calc_to(): SliderSpec {
+    return {
+      start: this.model.start,
+      end: this.model.end,
+      value: [this.model.value],
+      step: this.model.step,
+    }
+  }
+
+  protected _calc_from([value]: number[]): number {
+    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step))
+      return Math.round(value)
+    else
+      return value
+  }
+
+  protected _set_keypress_handles(): void{
+    // Add single cursor event
+    const handle = this.slider_el.querySelector(`.${prefix}handle`)!
+    handle.setAttribute('tabindex', '0')
+    handle.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e))
+  }
+}
+
+export abstract class AbstractRangeSliderView extends AbstractBaseSliderView{
+
+  protected _calc_to(): SliderSpec {
+    return {
+      start: this.model.start,
+      end: this.model.end,
+      value: this.model.value,
+      step: this.model.step,
+    }
+  }
+
+  protected _calc_from(values: number[]): number[] {
+    return values
+  }
+
+  protected _set_keypress_handles(): void{
+    const handle_lower = this.slider_el.querySelector(`.${prefix}handle-lower`)!
+    const handle_upper = this.slider_el.querySelector(`.${prefix}handle-upper`)!
+    handle_lower.setAttribute('tabindex', '0')
+    handle_lower.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 0))
+    handle_upper.setAttribute('tabindex', '1')
+    handle_upper.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 1))
   }
 }
 
@@ -228,6 +295,7 @@ export namespace AbstractSlider {
     start: p.Property<any> // XXX
     end: p.Property<any> // XXX
     value: p.Property<any> // XXX
+    value_throttled: p.Property<any> // XXX
     step: p.Property<number>
     format: p.Property<string>
     direction: p.Property<"ltr" | "rtl">
@@ -248,15 +316,14 @@ export abstract class AbstractSlider extends Control {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "AbstractSlider"
-
+  static init_AbstractSlider(): void {
     this.define<AbstractSlider.Props>({
       title:             [ p.String,               ""           ],
       show_value:        [ p.Boolean,              true         ],
       start:             [ p.Any                                ],
       end:               [ p.Any                                ],
       value:             [ p.Any                                ],
+      value_throttled:   [ p.Any                                ],
       step:              [ p.Number,               1            ],
       format:            [ p.String                             ],
       direction:         [ p.Any,                  "ltr"        ],
@@ -279,4 +346,3 @@ export abstract class AbstractSlider extends Control {
     return this._formatter(value, this.format)
   }
 }
-AbstractSlider.initClass()

@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
+import {bk_tool_icon_undo} from "styles/icons"
 
 export class UndoToolView extends ActionToolView {
   model: UndoTool
@@ -29,8 +30,7 @@ export class UndoTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "UndoTool"
+  static init_UndoTool(): void {
     this.prototype.default_view = UndoToolView
 
     this.override({
@@ -39,6 +39,5 @@ export class UndoTool extends ActionTool {
   }
 
   tool_name = "Undo"
-  icon = "bk-tool-icon-undo"
+  icon = bk_tool_icon_undo
 }
-UndoTool.initClass()

@@ -27,7 +27,7 @@ export abstract class XYGlyphView extends GlyphView {
       if (isNaN(x + y) || !isFinite(x + y))
         continue
 
-      points.push({minX: x, minY: y, maxX: x, maxY: y, i})
+      points.push({x0: x, y0: y, x1: x, y1: y, i})
     }
 
     return new SpatialIndex(points)
@@ -40,6 +40,7 @@ export abstract class XYGlyphView extends GlyphView {
   scentery(i: number): number {
     return this.sy[i]
   }
+
 }
 
 export namespace XYGlyph {
@@ -62,10 +63,7 @@ export abstract class XYGlyph extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "XYGlyph"
-
+  static init_XYGlyph(): void {
     this.coords([['x', 'y']])
   }
 }
-XYGlyph.initClass()

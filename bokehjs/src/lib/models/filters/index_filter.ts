@@ -22,9 +22,7 @@ export class IndexFilter extends Filter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'IndexFilter'
-
+  static init_IndexFilter(): void {
     this.define<IndexFilter.Props>({
       indices: [ p.Array, null ],
     })
@@ -44,4 +42,3 @@ export class IndexFilter extends Filter {
     }
   }
 }
-IndexFilter.initClass()

@@ -16,7 +16,7 @@ Generating output for Bokeh plots requires coordinating several things:
 
 :class:`~bokeh.document.Document`
     Groups together Bokeh models that may be shared between plots (e.g.,
-    range or data source objects) into one common strucure.
+    range or data source objects) into one common structure.
 
 :class:`~bokeh.resources.Resources`
     Control how JavaScript and CSS for the client library BokehJS are
@@ -132,7 +132,7 @@ class State(object):
 
     # Public methods ----------------------------------------------------------
 
-    def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", mode=None, root_dir=None):
         ''' Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to

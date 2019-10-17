@@ -49,8 +49,7 @@ export class FontAwesomeIcon extends AbstractIcon {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "FontAwesomeIcon"
+  static init_FontAwesomeIcon(): void {
     this.prototype.default_view = FontAwesomeIconView
 
     this.define<FontAwesomeIcon.Props>({
@@ -61,4 +60,3 @@ export class FontAwesomeIcon extends AbstractIcon {
     })
   }
 }
-FontAwesomeIcon.initClass()

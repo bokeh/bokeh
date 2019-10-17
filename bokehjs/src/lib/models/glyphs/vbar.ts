@@ -69,7 +69,7 @@ export namespace VBar {
   export type Props = Box.Props & {
     x: p.CoordinateSpec
     bottom: p.CoordinateSpec
-    width: p.DistanceSpec
+    width: p.NumberSpec
     top: p.CoordinateSpec
   }
 
@@ -85,13 +85,12 @@ export class VBar extends Box {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'VBar'
+  static init_VBar(): void {
     this.prototype.default_view = VBarView
 
     this.coords([['x', 'bottom']])
     this.define<VBar.Props>({
-      width:  [ p.DistanceSpec   ],
+      width:  [ p.NumberSpec     ],
       top:    [ p.CoordinateSpec ],
     })
     this.override({
@@ -99,4 +98,3 @@ export class VBar extends Box {
     })
   }
 }
-VBar.initClass()

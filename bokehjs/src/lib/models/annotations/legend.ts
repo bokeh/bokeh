@@ -255,11 +255,13 @@ export class LegendView extends AnnotationView {
       if (labels.length == 0)
         continue
 
-      const active = (() => { switch (this.model.click_policy) {
-        case "none": return true
-        case "hide": return every(item.renderers, r => r.visible)
-        case "mute": return every(item.renderers, r => !r.muted)
-      } })()
+      const active = (() => {
+        switch (this.model.click_policy) {
+          case "none": return true
+          case "hide": return every(item.renderers, r => r.visible)
+          case "mute": return every(item.renderers, r => !r.muted)
+        }
+      })()
 
       for (const label of labels) {
         const x1 = bbox.x + xoffset
@@ -364,8 +366,7 @@ export class Legend extends Annotation {
     this.item_change = new Signal0(this, "item_change")
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Legend'
+  static init_Legend(): void {
     this.prototype.default_view = LegendView
 
     this.mixins([
@@ -379,7 +380,7 @@ export class Legend extends Annotation {
     this.define<Legend.Props>({
       orientation:      [ p.Orientation,    'vertical'  ],
       location:         [ p.Any,            'top_right' ], // TODO (bev)
-      title:            [ p.String,                     ],
+      title:            [ p.String                      ],
       title_standoff:   [ p.Number,         5           ],
       label_standoff:   [ p.Number,         5           ],
       glyph_height:     [ p.Number,         20          ],
@@ -417,4 +418,3 @@ export class Legend extends Annotation {
     return legend_names
   }
 }
-Legend.initClass()

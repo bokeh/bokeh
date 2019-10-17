@@ -56,6 +56,7 @@ class TestBokehSessionContext(object):
         assert c.session is None
         assert c.request is None
         assert not c.destroyed
+        assert c.logout_url is None
 
     def test_destroyed(self):
         class FakeSession(object):
@@ -68,6 +69,15 @@ class TestBokehSessionContext(object):
         assert not c.destroyed
         sess.destroyed = True
         assert c.destroyed
+
+    def test_logout_url(self):
+        ac = bsc.ApplicationContext("app", io_loop="ioloop")
+        sc = bsc.BokehServerContext(ac)
+        c = bsc.BokehSessionContext("id", sc, "doc", logout_url="/logout")
+        assert c.session is None
+        assert c.request is None
+        assert not c.destroyed
+        assert c.logout_url == "/logout"
 
 class TestApplicationContext(object):
 
@@ -97,7 +107,7 @@ class TestApplicationContext(object):
         c._sessions = dict(foo=1, bar=2)
         with pytest.raises(bsc.ProtocolError) as e:
             c.get_session("bax")
-        assert str(e).endswith("No such session bax")
+        assert str(e.value).endswith("No such session bax")
 
     def test_create_session_if_needed_new(self):
         app = Application()
@@ -127,7 +137,18 @@ class TestApplicationContext(object):
         r = c.create_session_if_needed("", request=req)
         with pytest.raises(bsc.ProtocolError) as e:
             r.result()
-        assert str(e).endswith("Session ID must not be empty")
+        assert str(e.value).endswith("Session ID must not be empty")
+
+    def test_create_session_if_needed_logout_url(self):
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop="ioloop", logout_url="/logout")
+        class FakeRequest(object):
+            arguments = dict(foo=10)
+        req = FakeRequest()
+        s = c.create_session_if_needed("foo", request=req)
+        session = c.get_session("foo")
+        assert session == s.result()
+        assert c._session_contexts[session.id].logout_url == "/logout"
 
 #-----------------------------------------------------------------------------
 # Dev API

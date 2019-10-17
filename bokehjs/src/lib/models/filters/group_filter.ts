@@ -22,9 +22,7 @@ export class GroupFilter extends Filter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'GroupFilter'
-
+  static init_GroupFilter(): void {
     this.define<GroupFilter.Props>({
       column_name: [ p.String  ],
       group:       [ p.String  ],
@@ -47,4 +45,3 @@ export class GroupFilter extends Filter {
     }
   }
 }
-GroupFilter.initClass()

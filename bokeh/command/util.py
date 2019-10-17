@@ -71,7 +71,7 @@ call "bokeh serve" on the directory instead. For example:
 
     bokeh serve my_app_dir/
 
-If this is not the case, renaming main.py will supress this warning.
+If this is not the case, renaming main.py will suppress this warning.
 """
 
 def build_single_handler_application(path, argv=None):
@@ -161,7 +161,7 @@ def build_single_handler_applications(paths, argvs=None):
 
     '''
     applications = {}
-    argvs = {} or argvs
+    argvs = argvs or {}
 
     for path in paths:
         application = build_single_handler_application(path, argvs.get(path, []))

@@ -5,27 +5,27 @@ import * as bbox from "@bokehjs/core/util/bbox"
 describe("bbox module", () => {
   describe("empty", () => {
     it("should be an unbounded box", () => {
-      expect(bbox.empty()).to.deep.equal({minX: Infinity, minY: Infinity, maxX: -Infinity, maxY:-Infinity})
+      expect(bbox.empty()).to.deep.equal({x0: Infinity, y0: Infinity, x1: -Infinity, y1:-Infinity})
     })
   })
 
   describe("positive_x", () => {
     it("should be box covering the area where x is positive", () => {
-      expect(bbox.positive_x()).to.deep.equal({minX: Number.MIN_VALUE, minY: -Infinity, maxX: Infinity, maxY: Infinity})
+      expect(bbox.positive_x()).to.deep.equal({x0: Number.MIN_VALUE, y0: -Infinity, x1: Infinity, y1: Infinity})
     })
   })
 
   describe("positive_y", () => {
     it("should be box covering the area where y is positive", () => {
-      expect(bbox.positive_y()).to.deep.equal({minX: -Infinity, minY: Number.MIN_VALUE, maxX: Infinity, maxY: Infinity})
+      expect(bbox.positive_y()).to.deep.equal({x0: -Infinity, y0: Number.MIN_VALUE, x1: Infinity, y1: Infinity})
     })
   })
 
   describe("union", () => {
     const empty    = bbox.empty()
-    const outside  = {minX: 0, maxX: 10, minY:  0, maxY: 10}
-    const inside   = {minX: 4, maxX:  5, minY:  4, maxY: 5 }
-    const overlaps = {minX:-5, maxX:  5, minY: -5, maxY: 5 }
+    const outside  = {x0: 0, x1: 10, y0:  0, y1: 10}
+    const inside   = {x0: 4, x1:  5, y0:  4, y1: 5 }
+    const overlaps = {x0:-5, x1:  5, y0: -5, y1: 5 }
 
     it("should return empty when inputs are empty", () => {
       expect(bbox.union(empty, empty)).to.deep.equal(empty)
@@ -42,13 +42,13 @@ describe("bbox module", () => {
     })
 
     it("should return the envelope of overlapping bboxes", () => {
-      expect(bbox.union(overlaps, outside)).to.deep.equal({minX: -5, maxX: 10, minY: -5, maxY: 10})
-      expect(bbox.union(outside, overlaps)).to.deep.equal({minX: -5, maxX: 10, minY: -5, maxY: 10})
+      expect(bbox.union(overlaps, outside)).to.deep.equal({x0: -5, x1: 10, y0: -5, y1: 10})
+      expect(bbox.union(outside, overlaps)).to.deep.equal({x0: -5, x1: 10, y0: -5, y1: 10})
     })
 
     it("should return the envelope of disjoint bboxes", () => {
-      expect(bbox.union(overlaps, outside)).to.deep.equal({minX: -5, maxX: 10, minY: -5, maxY: 10})
-      expect(bbox.union(outside, overlaps)).to.deep.equal({minX: -5, maxX: 10, minY: -5, maxY: 10})
+      expect(bbox.union(overlaps, outside)).to.deep.equal({x0: -5, x1: 10, y0: -5, y1: 10})
+      expect(bbox.union(outside, overlaps)).to.deep.equal({x0: -5, x1: 10, y0: -5, y1: 10})
     })
   })
 })

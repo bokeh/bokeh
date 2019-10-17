@@ -129,7 +129,7 @@ def _create_baseline(items):
             line = "%s%s" % ("  "*level, type)
 
             if bbox is not None:
-                line += " bbox=[%s, %s, %s, %s]" % (bbox["left"], bbox["top"], bbox["width"], bbox["height"])
+                line += " bbox=[%s, %s, %s, %s]" % (bbox["x"], bbox["y"], bbox["width"], bbox["height"])
 
             line += "\n"
 

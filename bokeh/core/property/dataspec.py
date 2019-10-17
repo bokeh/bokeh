@@ -140,7 +140,7 @@ class DataSpec(Either):
         glyph.x = { 'value': 10, 'transform': Jitter(width=0.4) }
 
     Note that ``DataSpec`` is not normally useful on its own. Typically,
-    a model will define properties using one of the sublclasses such
+    a model will define properties using one of the subclasses such
     as :class:`~bokeh.core.properties.NumberSpec` or
     :class:`~bokeh.core.properties.ColorSpec`. For example, a Bokeh
     model with ``x``, ``y`` and ``color`` properties that can handle

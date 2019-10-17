@@ -20,9 +20,7 @@ export class FixedTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "FixedTicker"
-
+  static init_FixedTicker(): void {
     this.define<FixedTicker.Props>({
       ticks: [ p.Array, [] ],
       minor_ticks: [ p.Array, [] ],
@@ -36,7 +34,7 @@ export class FixedTicker extends ContinuousTicker {
     }
   }
 
-  // XXX: whatever, because FixedTicker needs to fullfill the interface somehow
+  // XXX: whatever, because FixedTicker needs to fulfill the interface somehow
   get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
     return 0
   }
@@ -45,4 +43,3 @@ export class FixedTicker extends ContinuousTicker {
   max_interval: number = 0
   //
 }
-FixedTicker.initClass()

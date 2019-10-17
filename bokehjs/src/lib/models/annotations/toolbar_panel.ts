@@ -73,8 +73,7 @@ export class ToolbarPanel extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ToolbarPanel'
+  static init_ToolbarPanel(): void {
     this.prototype.default_view = ToolbarPanelView
 
     this.define<ToolbarPanel.Props>({
@@ -82,4 +81,3 @@ export class ToolbarPanel extends Annotation {
     })
   }
 }
-ToolbarPanel.initClass()

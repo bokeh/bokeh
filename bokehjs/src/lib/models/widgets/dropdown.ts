@@ -6,6 +6,10 @@ import {div, display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
+import {bk_below, bk_down} from "styles/mixins"
+import {bk_dropdown_toggle} from "styles/buttons"
+import {bk_menu, bk_caret, bk_divider} from "styles/menus"
+
 export class DropdownView extends AbstractButtonView {
   model: Dropdown
 
@@ -16,20 +20,20 @@ export class DropdownView extends AbstractButtonView {
   render(): void {
     super.render()
 
-    const caret = div({class: ["bk-caret", "bk-down"]})
+    const caret = div({class: [bk_caret, bk_down]})
 
     if (!this.model.is_split)
       this.button_el.appendChild(caret)
     else {
       const toggle = this._render_button(caret)
-      toggle.classList.add("bk-dropdown-toggle")
+      toggle.classList.add(bk_dropdown_toggle)
       toggle.addEventListener("click", () => this._toggle_menu())
       this.group_el.appendChild(toggle)
     }
 
     const items = this.model.menu.map((item, i) => {
       if (item == null)
-        return div({class: "bk-divider"})
+        return div({class: bk_divider})
       else {
         const label = isString(item) ? item : item[0]
         const el = div({}, label)
@@ -38,7 +42,7 @@ export class DropdownView extends AbstractButtonView {
       }
     })
 
-    this.menu = div({class: ["bk-menu", "bk-below"]}, items)
+    this.menu = div({class: [bk_menu, bk_below]}, items)
     this.el.appendChild(this.menu)
     undisplay(this.menu)
   }
@@ -128,15 +132,14 @@ export class Dropdown extends AbstractButton {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Dropdown"
+  static init_Dropdown(): void {
     this.prototype.default_view = DropdownView
 
     this.define<Dropdown.Props>({
       split:         [ p.Boolean, false ],
       menu:          [ p.Array,   []    ],
-      value:         [ p.String,        ], // deprecated
-      default_value: [ p.String,        ], // deprecated
+      value:         [ p.String         ], // deprecated
+      default_value: [ p.String         ], // deprecated
     })
 
     this.override({
@@ -148,4 +151,3 @@ export class Dropdown extends AbstractButton {
     return this.split || this.default_value != null
   }
 }
-Dropdown.initClass()

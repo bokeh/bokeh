@@ -1,4 +1,4 @@
-import {EventManager, ModelChangedEvent} from "document"
+import {Document, EventManager, DocumentChangedEvent, ModelChangedEvent} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
 import {BokehEvent} from "core/bokeh_events"
@@ -6,11 +6,11 @@ import {logger} from "core/logging"
 
 export class ClientSession {
 
-  protected _document_listener: (event: any) => void = (event) => this._document_changed(event)
+  protected _document_listener: (event: DocumentChangedEvent) => void = (event) => this._document_changed(event)
 
   readonly event_manager: EventManager
 
-  constructor(protected readonly _connection: ClientConnection, readonly document: any /*Document*/, readonly id: string) {
+  constructor(protected readonly _connection: ClientConnection, readonly document: Document, readonly id: string) {
     this.document.on_change(this._document_listener)
 
     this.event_manager = this.document.event_manager
@@ -46,7 +46,7 @@ export class ClientSession {
   // Sends a request to the server for info about the server, such as its Bokeh
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
-  request_server_info(): Promise<any> {
+  request_server_info(): Promise<unknown> {
     const message = Message.create('SERVER-INFO-REQ', {})
     const promise = this._connection.send_with_reply(message)
     return promise.then((reply) => reply.content)
@@ -61,13 +61,13 @@ export class ClientSession {
   // results of that processing without a race condition. (This assumes the
   // server processes events in sequence, which it mostly has to semantically,
   // since reordering events might change the final state.)
-  force_roundtrip(): Promise<undefined> {
+  force_roundtrip(): Promise<void> {
     return this.request_server_info().then((_) => undefined)
   }
 
-  protected _document_changed(event: any): void {
+  protected _document_changed(event: DocumentChangedEvent): void {
     // Filter out events that were initiated by the ClientSession itself
-    if (event.setter_id === this.id)
+    if ((event as any).setter_id === this.id) // XXX: not all document events define this
       return
 
     // Filter out changes to attributes that aren't server-visible

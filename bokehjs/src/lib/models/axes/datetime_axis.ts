@@ -25,8 +25,7 @@ export class DatetimeAxis extends LinearAxis {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DatetimeAxis"
+  static init_DatetimeAxis(): void {
     this.prototype.default_view = DatetimeAxisView
 
     this.override({
@@ -35,4 +34,3 @@ export class DatetimeAxis extends LinearAxis {
     })
   }
 }
-DatetimeAxis.initClass()

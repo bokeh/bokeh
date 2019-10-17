@@ -22,9 +22,7 @@ export class BooleanFilter extends Filter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'BooleanFilter'
-
+  static init_BooleanFilter(): void {
     this.define<BooleanFilter.Props>({
       booleans: [ p.Array, null ],
     })
@@ -51,4 +49,3 @@ export class BooleanFilter extends Filter {
     }
   }
 }
-BooleanFilter.initClass()

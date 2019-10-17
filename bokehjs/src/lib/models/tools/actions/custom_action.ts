@@ -1,12 +1,13 @@
 import {ActionTool, ActionToolView, ActionToolButtonView} from "./action_tool"
 import {CallbackLike0} from "../../callbacks/callback"
 import * as p from "core/properties"
+import {bk_toolbar_button_custom_action} from "styles/toolbar"
 
 export class CustomActionButtonView extends ActionToolButtonView {
   model: CustomAction
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-toolbar-button-custom-action")
+    return super.css_classes().concat(bk_toolbar_button_custom_action)
   }
 }
 
@@ -38,14 +39,13 @@ export class CustomAction extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CustomAction"
+  static init_CustomAction(): void {
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>({
       action_tooltip: [ p.String, 'Perform a Custom Action'],
       callback:       [ p.Any                              ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-      icon:           [ p.String,                          ],
+      icon:           [ p.String                           ],
     })
   }
 
@@ -57,4 +57,3 @@ export class CustomAction extends ActionTool {
     return this.action_tooltip
   }
 }
-CustomAction.initClass()

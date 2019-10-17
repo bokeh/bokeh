@@ -49,6 +49,7 @@ __all__ = (
     'get_page_element',
     'get_table_cell',
     'get_table_column_cells',
+    'get_table_header',
     'get_table_row',
     'get_table_selected_rows',
     'hover_element',
@@ -57,6 +58,7 @@ __all__ = (
     'RECORD',
     'RESULTS',
     'SCROLL',
+    'select_element_and_press_key',
     'shift_click',
     'sort_table_column',
     'wait_for_canvas_resize',
@@ -91,6 +93,7 @@ def alt_click(driver, element):
     actions.perform()
 
 class ButtonWrapper(object):
+
     def __init__(self, label, callback):
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
@@ -103,6 +106,7 @@ class ButtonWrapper(object):
 class element_to_start_resizing(object):
     ''' An expectation for checking if an element has started resizing
     '''
+
     def __init__(self, element):
         self.element = element
         self.previous_width = self.element.size['width']
@@ -119,6 +123,7 @@ class element_to_finish_resizing(object):
     ''' An expectation for checking if an element has finished resizing
 
     '''
+
     def __init__(self, element):
         self.element = element
         self.previous_width = self.element.size['width']
@@ -131,18 +136,27 @@ class element_to_finish_resizing(object):
             self.previous_width = current_width
             return False
 
+def select_element_and_press_key(driver, element, key, press_number=1):
+    actions = ActionChains(driver)
+    actions.send_keys_to_element(element, key * press_number)
+    actions.perform()
+
 def hover_element(driver, element):
     hover = ActionChains(driver).move_to_element(element)
     hover.perform()
 
-def enter_text_in_element(driver, element, text, click=1, enter=True):
+def enter_text_in_element(driver, element, text, click=1, enter=True, mod=None):
     actions = ActionChains(driver)
     actions.move_to_element(element)
     if click == 1: actions.click()
     elif click == 2: actions.double_click()
     if enter:
         text += Keys.ENTER
+    if mod:
+        actions.key_down(mod)
     actions.send_keys(text)
+    if mod:
+        actions.key_up(mod)
     actions.perform()
 
 def enter_text_in_cell(driver, cell, text):
@@ -173,7 +187,7 @@ def copy_table_rows(driver, rows):
     actions.key_down(Keys.CONTROL)
     actions.send_keys(Keys.INSERT)
     actions.key_up(Keys.CONTROL)
-    #actions.send_keys(Keys.CONTROL, 'c')
+    # actions.send_keys(Keys.CONTROL, 'c')
     actions.perform()
 
 def paste_values(driver, el=None):
@@ -183,7 +197,7 @@ def paste_values(driver, el=None):
     actions.key_down(Keys.SHIFT)
     actions.send_keys(Keys.INSERT)
     actions.key_up(Keys.SHIFT)
-      #actions.send_keys(Keys.CONTROL, 'v')
+    # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
 def get_table_column_cells(driver, col):
@@ -210,6 +224,9 @@ def get_table_selected_rows(driver):
 
 def get_table_cell(driver, row, col):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
+
+def get_table_header(driver, col):
+    return driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
 
 def get_page_element(driver, element_selector):
     return driver.find_element_by_css_selector(element_selector)

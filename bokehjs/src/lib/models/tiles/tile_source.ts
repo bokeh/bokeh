@@ -1,9 +1,8 @@
 import {Model} from "../../model"
-import {ImagePool} from "./image_pool"
 import {Extent, Bounds} from "./tile_utils"
 import * as p from "core/properties"
 
-export interface Tile {
+export type Tile = {
   tile_coords: [number, number, number]
 }
 
@@ -32,9 +31,7 @@ export abstract class TileSource extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'TileSource'
-
+  static init_TileSource(): void {
     this.define<TileSource.Props>({
       url:                [ p.String, ''  ],
       tile_size:          [ p.Number, 256 ],
@@ -48,14 +45,11 @@ export abstract class TileSource extends Model {
     })
   }
 
-  tiles: {[key: string]: Tile}
-
-  protected pool: ImagePool
+  tiles: Map<string, Tile>
 
   initialize(): void {
     super.initialize()
-    this.tiles = {}
-    this.pool = new ImagePool()
+    this.tiles = new Map()
     this._normalize_case()
   }
 
@@ -78,19 +72,19 @@ export abstract class TileSource extends Model {
      * Note: should probably be refactored into subclasses.
      */
     const url = this.url
-      .replace('{x}','{X}')
-      .replace('{y}','{Y}')
-      .replace('{z}','{Z}')
-      .replace('{q}','{Q}')
-      .replace('{xmin}','{XMIN}')
-      .replace('{ymin}','{YMIN}')
-      .replace('{xmax}','{XMAX}')
-      .replace('{ymax}','{YMAX}')
+      .replace('{x}', '{X}')
+      .replace('{y}', '{Y}')
+      .replace('{z}', '{Z}')
+      .replace('{q}', '{Q}')
+      .replace('{xmin}', '{XMIN}')
+      .replace('{ymin}', '{YMIN}')
+      .replace('{xmax}', '{XMAX}')
+      .replace('{ymax}', '{YMAX}')
     this.url = url
   }
 
   protected _clear_cache(): void {
-    this.tiles = {}
+    this.tiles = new Map()
   }
 
   tile_xyz_to_key(x: number, y: number, z: number): string {
@@ -115,9 +109,10 @@ export abstract class TileSource extends Model {
 
   get_image_url(x: number, y: number, z: number): string {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
-    return image_url.replace("{X}", x.toString())
-                    .replace('{Y}', y.toString())
-                    .replace("{Z}", z.toString())
+    return image_url
+      .replace("{X}", x.toString())
+      .replace('{Y}', y.toString())
+      .replace("{Z}", z.toString())
   }
 
   abstract tile_xyz_to_quadkey(x: number, y: number, z: number): string
@@ -136,4 +131,3 @@ export abstract class TileSource extends Model {
 
   abstract normalize_xyz(x: number, y: number, z: number): [number, number, number]
 }
-TileSource.initClass()

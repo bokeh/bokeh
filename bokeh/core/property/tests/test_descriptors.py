@@ -122,7 +122,7 @@ class Test_PropertyDescriptor(object):
         new_class_attrs = {'foo': 10}
         with pytest.raises(RuntimeError) as e:
             d.add_prop_descriptor_to_class("bar", new_class_attrs, [], [], {})
-        assert str(e).endswith("Two property generators both created bar.foo")
+        assert str(e.value).endswith("Two property generators both created bar.foo")
 
 class Test_BasicPropertyDescriptor(object):
 
@@ -148,7 +148,7 @@ class Test_BasicPropertyDescriptor(object):
         d = bcpd.BasicPropertyDescriptor("foo", f)
         with pytest.raises(ValueError) as e:
             d.__get__(None, None)
-        assert str(e).endswith("both 'obj' and 'owner' are None, don't know what to do")
+        assert str(e.value).endswith("both 'obj' and 'owner' are None, don't know what to do")
 
     @pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to unicode literals")
     def test___set__improper(self):
@@ -157,7 +157,7 @@ class Test_BasicPropertyDescriptor(object):
         d = bcpd.BasicPropertyDescriptor("foo", f)
         with pytest.raises(RuntimeError) as e:
             d.__set__("junk", None)
-        assert str(e).endswith("Cannot set a property value 'foo' on a str instance before HasProps.__init__")
+        assert str(e.value).endswith("Cannot set a property value 'foo' on a str instance before HasProps.__init__")
 
     def test___delete__(self):
         class Foo(Model):

@@ -125,9 +125,9 @@ setup(
     description='Interactive plots and applications in the browser from Python',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    license='New BSD',
-    author='Anaconda',
-    author_email='info@anaconda.com',
+    license='BSD-3-Clause',
+    author='Bokeh Team',
+    author_email='info@bokeh.org',
     url='http://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 

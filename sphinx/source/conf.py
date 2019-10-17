@@ -46,6 +46,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_releases',
+    'bokeh.sphinxext.bokeh_settings',
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',
     'bokeh.sphinxext.collapsible_code_block',
@@ -161,7 +162,7 @@ html_theme = 'bokeh_theme'
 html_theme_path = ['.']
 
 html_context = {
-    'SITEMAP_BASE_URL': 'https://bokeh.pydata.org/en/', # Trailing slash is needed
+    'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
     'VERSION': version,
@@ -169,14 +170,14 @@ html_context = {
         ('Github', '//github.com/bokeh/bokeh'),
     ),
     'ABOUT': (
-        ('Vision and Work', 'vision'),
-        ('Team',            'team'),
-        ('Citation',        'citation'),
-        ('Contact',         'contact'),
+        ('Roadmap',         '//bokeh.org/roadmap'),
+        ('Team',            '//bokeh.org/team'),
+        ('Citation',        '//bokeh.org/citation'),
+        ('Contact',         '//bokeh.org'),
     ),
     'SOCIAL': (
         ('Contribute', 'contribute'),
-        ('Mailing list', '//groups.google.com/a/anaconda.com/forum/#!forum/bokeh'),
+        ('Discourse', '//discourse.bokeh.org'),
         ('Github', '//github.com/bokeh/bokeh'),
         ('Twitter', '//twitter.com/BokehPlots'),
     ),

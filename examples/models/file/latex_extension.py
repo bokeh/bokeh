@@ -65,12 +65,10 @@ export class LatexLabelView extends LabelView {
 }
 
 export class LatexLabel extends Label {
-  static initClass(): void {
-    this.prototype.type = "LatexLabel"
+  static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
   }
 }
-LatexLabel.initClass()
 """)
 
 p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
@@ -80,7 +78,7 @@ p.x_range.range_padding = 0
 x = np.arange(0.0, 20.0, 0.02)
 
 for i, n in enumerate([0, 1, 4, 7]):
-    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend="𝜈=%d" % n)
+    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend_label="𝜈=%d" % n)
 
 
 text = (r"\text{Bessel Functions of the First Kind: }" +

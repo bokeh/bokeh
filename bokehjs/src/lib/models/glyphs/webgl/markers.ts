@@ -108,8 +108,8 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
       // next renderer update.
       const ua = window.navigator.userAgent
       if ((ua.indexOf("MSIE ") + ua.indexOf("Trident/") + ua.indexOf("Edge/")) > 0) {
-         logger.warn('WebGL warning: IE is known to produce 1px sprites whith selections.')
-       }
+        logger.warn('WebGL warning: IE is known to produce 1px sprites whith selections.')
+      }
       this.index_buffer.set_size(indices.length*2)
       this.index_buffer.set_data(0, new Uint16Array(indices))
       this.prog.draw(this.gl.POINTS, this.index_buffer)
@@ -119,7 +119,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
       const chunksize = 64000  // 65536
       const chunks: number[][] = []
       for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
-         chunks.push([])
+        chunks.push([])
       }
       for (let i = 0, end = indices.length; i < end; i++) {
         const uint16_index = indices[i] % chunksize
@@ -166,8 +166,8 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     const xx = new Float64Array(this.glyph._x)
     const yy = new Float64Array(this.glyph._y)
     for (let i = 0, end = nvertices; i < end; i++) {
-       xx[i] += this._baked_offset[0]
-       yy[i] += this._baked_offset[1]
+      xx[i] += this._baked_offset[0]
+      yy[i] += this._baked_offset[1]
     }
     this.vbo_x.set_data(0, new Float32Array(xx))
     this.vbo_y.set_data(0, new Float32Array(yy))
@@ -175,7 +175,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     if (this.glyph._angle != null) {
       this.vbo_a.set_data(0, new Float32Array(this.glyph._angle))
     }
-    // Radius is special; some markes allow radius in data-coords instead of screen coords
+    // Radius is special; some markers allow radius in data-coords instead of screen coords
     // @radius tells us that radius is in units, sradius is the pre-calculated screen radius
     if (this.glyph instanceof CircleView && this.glyph._radius != null)
       this.vbo_s.set_data(0, new Float32Array(map(this.glyph.sradius, (s) => s*2)))

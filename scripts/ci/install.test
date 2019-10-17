@@ -11,7 +11,7 @@ if  [[ ! -z "${TRAVIS_TAG}" ]]; then
 fi
 
 # if this is an external contributor then build assets were not uploaded
-if [[ -z "${SAUCE_USERNAME}" ]]; then
+if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
     echo
     echo "RE-RUNNING BUILD STEPS --- external committer"
     echo

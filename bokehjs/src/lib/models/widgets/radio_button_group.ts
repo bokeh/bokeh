@@ -4,6 +4,8 @@ import {Class} from "core/class"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_active} from "styles/mixins"
+
 export class RadioButtonGroupView extends ButtonGroupView {
   model: RadioButtonGroup
 
@@ -20,7 +22,7 @@ export class RadioButtonGroupView extends ButtonGroupView {
     const {active} = this.model
 
     this._buttons.forEach((button, i) => {
-      classes(button).toggle("bk-active", active === i)
+      classes(button).toggle(bk_active, active === i)
     })
   }
 }
@@ -43,8 +45,7 @@ export class RadioButtonGroup extends ButtonGroup {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "RadioButtonGroup"
+  static init_RadioButtonGroup(): void {
     this.prototype.default_view = RadioButtonGroupView
 
     this.define<RadioButtonGroup.Props>({
@@ -52,4 +53,3 @@ export class RadioButtonGroup extends ButtonGroup {
     })
   }
 }
-RadioButtonGroup.initClass()

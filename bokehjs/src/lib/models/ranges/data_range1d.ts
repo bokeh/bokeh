@@ -23,6 +23,7 @@ export namespace DataRange1d {
     follow: p.Property<StartEnd>
     follow_interval: p.Property<number>
     default_span: p.Property<number>
+    only_visible: p.Property<boolean>
 
     scale_hint: p.Property<"log" | "auto">
   }
@@ -37,18 +38,17 @@ export class DataRange1d extends DataRange {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DataRange1d"
-
+  static init_DataRange1d(): void {
     this.define<DataRange1d.Props>({
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],
       range_padding:       [ p.Number,       0.1       ],
       range_padding_units: [ p.PaddingUnits, "percent" ],
       flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd,               ],
+      follow:              [ p.StartEnd                ],
       follow_interval:     [ p.Number                  ],
       default_span:        [ p.Number,       2         ],
+      only_visible:        [ p.Boolean,      false     ],
     })
 
     this.internal({
@@ -115,24 +115,24 @@ export class DataRange1d extends DataRange {
     let result = bbox.empty()
 
     for (const r of renderers) {
-      if (bounds[r.id] != null)
+      if (bounds[r.id] != null && (r.visible || !this.only_visible))
         result = bbox.union(result, bounds[r.id])
     }
 
     return result
   }
 
-   adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
+  adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
     const result = bbox.empty()
 
-    let width = bounds.maxX - bounds.minX
+    let width = bounds.x1 - bounds.x0
     if (width <= 0) { width = 1.0 }
 
-    let height = bounds.maxY - bounds.minY
+    let height = bounds.y1 - bounds.y0
     if (height <= 0) { height = 1.0 }
 
-    const xcenter = 0.5*(bounds.maxX + bounds.minX)
-    const ycenter = 0.5*(bounds.maxY + bounds.minY)
+    const xcenter = 0.5*(bounds.x1 + bounds.x0)
+    const ycenter = 0.5*(bounds.y1 + bounds.y0)
 
     if (width < ratio*height) {
       width = ratio*height
@@ -140,10 +140,10 @@ export class DataRange1d extends DataRange {
       height = width/ratio
     }
 
-    result.maxX = xcenter+0.5*width
-    result.minX = xcenter-0.5*width
-    result.maxY = ycenter+0.5*height
-    result.minY = ycenter-0.5*height
+    result.x1 = xcenter+0.5*width
+    result.x0 = xcenter-0.5*width
+    result.y1 = ycenter+0.5*height
+    result.y0 = ycenter-0.5*height
 
     return result
   }
@@ -157,9 +157,9 @@ export class DataRange1d extends DataRange {
 
     let min, max: number
     if (dimension == 0)
-      [min, max] = [overall.minX, overall.maxX]
+      [min, max] = [overall.x0, overall.x1]
     else
-      [min, max] = [overall.minY, overall.maxY]
+      [min, max] = [overall.y0, overall.y1]
 
     return [min, max]
   }
@@ -300,4 +300,3 @@ export class DataRange1d extends DataRange {
     this.change.emit()
   }
 }
-DataRange1d.initClass()

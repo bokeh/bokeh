@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
+import {bk_tool_icon_help} from "styles/icons"
 
 export class HelpToolView extends ActionToolView {
   model: HelpTool
@@ -27,21 +28,19 @@ export class HelpTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "HelpTool"
+  static init_HelpTool(): void {
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>({
       help_tooltip: [ p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
-      redirect:     [ p.String, 'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'],
+      redirect:     [ p.String, 'https://docs.bokeh.org/en/latest/docs/user_guide/tools.html'],
     })
   }
 
   tool_name = "Help"
-  icon = "bk-tool-icon-help"
+  icon = bk_tool_icon_help
 
   get tooltip(): string {
     return this.help_tooltip
   }
 }
-HelpTool.initClass()

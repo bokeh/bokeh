@@ -29,8 +29,7 @@ export class MercatorAxis extends LinearAxis {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "MercatorAxis"
+  static init_MercatorAxis(): void {
     this.prototype.default_view = MercatorAxisView
 
     this.override({
@@ -39,4 +38,3 @@ export class MercatorAxis extends LinearAxis {
     })
   }
 }
-MercatorAxis.initClass()

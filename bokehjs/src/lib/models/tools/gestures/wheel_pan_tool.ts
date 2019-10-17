@@ -2,6 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
+import {bk_tool_icon_wheel_pan} from "styles/icons"
 
 export class WheelPanToolView extends GestureToolView {
   model: WheelPanTool
@@ -99,8 +100,7 @@ export class WheelPanTool extends GestureTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'WheelPanTool'
+  static init_WheelPanTool(): void {
     this.prototype.default_view = WheelPanToolView
 
     this.define<WheelPanTool.Props>({
@@ -113,7 +113,7 @@ export class WheelPanTool extends GestureTool {
   }
 
   tool_name = "Wheel Pan"
-  icon = "bk-tool-icon-wheel-pan"
+  icon = bk_tool_icon_wheel_pan
   event_type = "scroll" as "scroll"
   default_order = 12
 
@@ -121,4 +121,3 @@ export class WheelPanTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimension)
   }
 }
-WheelPanTool.initClass()

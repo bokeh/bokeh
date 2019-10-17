@@ -29,7 +29,7 @@ export function create_ref(obj: HasProps): Ref {
 // Determine whether an object has the proper format of a Bokeh reference
 //
 // @param arg [Object] the object to test
-// @return [bool] whether the object is a refererence
+// @return [bool] whether the object is a reference
 //
 // @note this function does not check that the id and types are valid,
 //   only that the format is correct (all required keys are present)

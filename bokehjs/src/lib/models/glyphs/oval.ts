@@ -49,9 +49,7 @@ export class Oval extends EllipseOval {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Oval'
+  static init_Oval(): void {
     this.prototype.default_view = OvalView
   }
 }
-Oval.initClass()

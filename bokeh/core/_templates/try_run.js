@@ -9,13 +9,14 @@
     var attempts = 0;
     var timer = setInterval(function(root) {
       if (root.Bokeh !== undefined) {
+        clearInterval(timer);
         embed_document(root);
-        clearInterval(timer);
-      }
-      attempts++;
-      if (attempts > 100) {
-        console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
-        clearInterval(timer);
+      } else {
+        attempts++;
+        if (attempts > 100) {
+          clearInterval(timer);
+          console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+        }
       }
     }, 10, root)
   }

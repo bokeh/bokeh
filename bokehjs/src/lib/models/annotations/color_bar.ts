@@ -617,8 +617,7 @@ export class ColorBar extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ColorBar'
+  static init_ColorBar(): void {
     this.prototype.default_view = ColorBarView
 
     this.mixins([
@@ -634,7 +633,7 @@ export class ColorBar extends Annotation {
     this.define<ColorBar.Props>({
       location:                [ p.Any,         'top_right' ],
       orientation:             [ p.Orientation, 'vertical'  ],
-      title:                   [ p.String,                  ],
+      title:                   [ p.String                   ],
       title_standoff:          [ p.Number,      2           ],
       width:                   [ p.Any,         'auto'      ],
       height:                  [ p.Any,         'auto'      ],
@@ -667,4 +666,3 @@ export class ColorBar extends Annotation {
     })
   }
 }
-ColorBar.initClass()

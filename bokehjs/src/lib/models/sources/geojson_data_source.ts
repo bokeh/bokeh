@@ -31,6 +31,10 @@ export namespace GeoJSONDataSource {
 
 export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 
+function orNaN(v: number | undefined): number {
+  return v != null ? v : NaN
+}
+
 export class GeoJSONDataSource extends ColumnarDataSource {
   properties: GeoJSONDataSource.Props
 
@@ -38,9 +42,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'GeoJSONDataSource'
-
+  static init_GeoJSONDataSource(): void {
     this.define<GeoJSONDataSource.Props>({
       geojson: [ p.Any ], // TODO (bev)
     })
@@ -77,15 +79,12 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     for (const property in properties) {
       if (!data.hasOwnProperty(property))
         data[property] = this._get_new_nan_array(item_count)
-      data[property][i] = properties[property]
+      // orNaN necessary here to prevent null values from ending up in the column
+      data[property][i] = orNaN(properties[property])
     }
   }
 
   private _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
-
-    function orNaN(v: number | undefined) {
-      return v != null ? v : NaN
-    }
 
     function flatten(acc: Position[], item: Position[]) {
       return acc.concat([[NaN, NaN, NaN]]).concat(item)
@@ -227,4 +226,3 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     return data
   }
 }
-GeoJSONDataSource.initClass()

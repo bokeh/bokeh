@@ -2,10 +2,11 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import {CallbackLike1} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
-import {GestureEvent, KeyEvent} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
+import {bk_tool_icon_lasso_select} from "styles/icons"
 
 export class LassoSelectToolView extends SelectToolView {
   model: LassoSelectTool
@@ -32,12 +33,12 @@ export class LassoSelectToolView extends SelectToolView {
       this._clear_overlay()
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     this.data = {sx: [sx], sy: [sy]}
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const {sx: _sx, sy: _sy} = ev
     const [sx, sy] = this.plot_view.frame.bbox.clip(_sx, _sy)
 
@@ -53,7 +54,7 @@ export class LassoSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._clear_overlay()
     const append = ev.shiftKey
     this._do_select(this.data!.sx, this.data!.sy, true, append)
@@ -122,9 +123,7 @@ export class LassoSelectTool extends SelectTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LassoSelectTool"
-
+  static init_LassoSelectTool(): void {
     this.prototype.default_view = LassoSelectToolView
 
     this.define<LassoSelectTool.Props>({
@@ -135,8 +134,7 @@ export class LassoSelectTool extends SelectTool {
   }
 
   tool_name = "Lasso Select"
-  icon = "bk-tool-icon-lasso-select"
+  icon = bk_tool_icon_lasso_select
   event_type = "pan" as "pan"
   default_order = 12
 }
-LassoSelectTool.initClass()

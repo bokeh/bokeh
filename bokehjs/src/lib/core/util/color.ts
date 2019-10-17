@@ -24,7 +24,7 @@ export function color2hex(color: string): string {
   else if (is_svg_color(color))
     return svg_colors[color]
   else if (color.indexOf('rgb') == 0) {
-    const rgb = color.replace(/^rgba?\(|\s+|\)$/g,'').split(',')
+    const rgb = color.replace(/^rgba?\(|\s+|\)$/g, '').split(',')
     let hex = rgb.slice(0, 3).map(_component2hex).join('')
     if (rgb.length == 4)
       hex += _component2hex(Math.floor(parseFloat(rgb[3]) * 255))

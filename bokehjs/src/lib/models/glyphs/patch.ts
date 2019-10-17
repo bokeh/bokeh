@@ -1,10 +1,13 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
+import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Line, Fill, Hatch} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {Selection} from "../selections/selection"
 
 export interface PatchData extends XYGlyphData {}
 
@@ -45,9 +48,21 @@ export class PatchView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
+
+  protected _hit_point(geometry: PointGeometry): Selection {
+    const result = hittest.create_empty_hit_test_result()
+
+    if (hittest.point_in_poly(geometry.sx, geometry.sy, this.sx, this.sy)) {
+      result.add_to_selected_glyphs(this.model)
+      result.get_view = () => this
+    }
+
+    return result
+  }
+
 }
 
 export namespace Patch {
@@ -67,11 +82,9 @@ export class Patch extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Patch'
+  static init_Patch(): void {
     this.prototype.default_view = PatchView
 
     this.mixins(['line', 'fill', 'hatch'])
   }
 }
-Patch.initClass()

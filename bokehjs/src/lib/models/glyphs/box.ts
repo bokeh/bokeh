@@ -1,5 +1,6 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
+import {Anchor} from "core/enums"
 import {Line, Fill, Hatch} from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
@@ -28,6 +29,26 @@ export abstract class BoxView extends GlyphView {
   model: Box
   visuals: Box.Visuals
 
+  get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
+    const left = Math.min(this.sleft[i], this.sright[i])
+    const right = Math.max(this.sright[i], this.sleft[i])
+    const top = Math.min(this.stop[i], this.sbottom[i])     // screen coordinates !!!
+    const bottom = Math.max(this.sbottom[i], this.stop[i])  //
+
+    switch (anchor) {
+      case "top_left":      return {x: left,             y: top             }
+      case "top_center":    return {x: (left + right)/2, y: top             }
+      case "top_right":     return {x: right,            y: top             }
+      case "bottom_left":   return {x: left,             y: bottom          }
+      case "bottom_center": return {x: (left + right)/2, y: bottom          }
+      case "bottom_right":  return {x: right,            y: bottom          }
+      case "center_left":   return {x: left,             y: (top + bottom)/2}
+      case "center":        return {x: (left + right)/2, y: (top + bottom)/2}
+      case "center_right":  return {x: right,            y: (top + bottom)/2}
+      default:              return null
+    }
+  }
+
   protected abstract _lrtb(i: number): [number, number, number, number]
 
   protected _index_box(len: number): SpatialIndex {
@@ -38,10 +59,10 @@ export abstract class BoxView extends GlyphView {
       if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
         continue
       points.push({
-        minX: Math.min(l, r),
-        minY: Math.min(t, b),
-        maxX: Math.max(r, l),
-        maxY: Math.max(t, b),
+        x0: Math.min(l, r),
+        y0: Math.min(t, b),
+        x1: Math.max(r, l),
+        y1: Math.max(t, b),
         i,
       })
     }
@@ -103,7 +124,7 @@ export abstract class BoxView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const hits = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const hits = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const result = hittest.create_empty_hit_test_result()
     result.indices = hits
@@ -117,13 +138,13 @@ export abstract class BoxView extends GlyphView {
     if (geometry.direction == 'v') {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
-      const [minX, maxX] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      hits = this.index.indices({minX, minY: y, maxX, maxY: y})
+      const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+      hits = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
       const x = this.renderer.xscale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
-      const [minY, maxY] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      hits = this.index.indices({minX: x, minY, maxX: x, maxY})
+      const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+      hits = this.index.indices({x0: x, y0, x1: x, y1})
     }
 
     const result = hittest.create_empty_hit_test_result()
@@ -131,7 +152,7 @@ export abstract class BoxView extends GlyphView {
     return result
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -153,10 +174,7 @@ export abstract class Box extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Box"
-
+  static init_Box(): void {
     this.mixins(['line', 'fill', 'hatch'])
   }
 }
-Box.initClass()

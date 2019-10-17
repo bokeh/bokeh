@@ -25,9 +25,7 @@ export class ToolProxy extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ToolProxy"
-
+  static init_ToolProxy(): void {
     this.define<ToolProxy.Props>({
       tools:    [ p.Array,   []    ],
       active:   [ p.Boolean, false ],
@@ -98,4 +96,3 @@ export class ToolProxy extends Model {
   }
   */
 }
-ToolProxy.initClass()

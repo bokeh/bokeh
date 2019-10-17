@@ -2,11 +2,11 @@ import {spawn} from "child_process"
 import {argv} from "yargs"
 
 import {task, log, BuildError} from "../task"
-import {compileTypeScript} from "../compiler"
+import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
 
 task("test:compile", async () => {
-  const success = compileTypeScript("./test/tsconfig.json", {log})
+  const success = compile_typescript("./test/tsconfig.json", {log})
 
   if (argv.emitError && !success)
     process.exit(1)
@@ -19,10 +19,14 @@ function mocha(files: string[]): Promise<void> {
   if (!argv.coverage)
     args = [_mocha]
   else
-    args = ["node_modules/.bin/istanbul", "cover", _mocha, "--"]
+    args = ['node_modules/.bin/nyc', _mocha]
 
-  if (argv.debug)
-    args.unshift("--inspect-brk")
+  if (argv.debug) {
+    if (argv.debug === true)
+      args.unshift("--inspect-brk")
+    else
+      args.unshift(`--inspect-brk=${argv.debug}`)
+  }
 
   if (argv.k)
     args.push("--grep", argv.k as string)

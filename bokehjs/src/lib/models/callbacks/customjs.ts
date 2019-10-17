@@ -22,9 +22,7 @@ export class CustomJS extends Callback {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CustomJS'
-
+  static init_CustomJS(): void {
     this.define<CustomJS.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
@@ -49,4 +47,3 @@ export class CustomJS extends Callback {
     return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}))
   }
 }
-CustomJS.initClass()

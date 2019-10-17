@@ -24,7 +24,7 @@ import warnings
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
+from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, PandasDataFrame, PandasGroupBy, Seq, String
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
@@ -41,7 +41,6 @@ pd = import_optional('pandas')
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'ServerSentDataSource',
     'AjaxDataSource',
     'CDSView',
     'ColumnarDataSource',
@@ -49,6 +48,8 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'RemoteSource',
+    'ServerSentDataSource',
+    'WebSource',
 )
 
 #-----------------------------------------------------------------------------
@@ -156,9 +157,17 @@ class ColumnDataSource(ColumnarDataSource):
     '''
 
     data = ColumnData(String, Seq(Any), help="""
-    Mapping of column names to sequences of data. The data can be, e.g,
+    Mapping of column names to sequences of data. The columns can be, e.g,
     Python lists or tuples, NumPy arrays, etc.
-    """).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
+
+    The .data attribute can also be set from Pandas DataFrames or GroupBy
+    objects. In these cases, the behaviour is identical to passing the objects
+    to the ``ColumnDataSource`` initializer.
+    """).accepts(
+        PandasDataFrame, lambda x: ColumnDataSource._data_from_df(x)
+    ).accepts(
+        PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x)
+    ).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
                  lambda obj, name, data: warnings.warn(
                     "ColumnDataSource's columns must be of the same length. " +
                     "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
@@ -776,6 +785,10 @@ class AjaxDataSource(RemoteSource):
     Alternatively, if the REST API returns a different format, a ``CustomJS``
     callback can be provided to convert the REST response into Bokeh format,
     via the ``adapter`` property of this data source.
+
+    Initial data can be set by specifying the ``data`` property directly.
+    This is necessary when used in conjunction with a ``FactorRange``, even
+    if the columns in `data`` are empty.
 
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 

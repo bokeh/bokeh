@@ -7,7 +7,7 @@ import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Plot, PlotView} from "../plots/plot"
 import {Annotation} from "../annotations/annotation"
-import {EventType, GestureEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
+import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
 export abstract class ToolView extends View {
   model: Tool
@@ -38,19 +38,22 @@ export abstract class ToolView extends View {
   // deactivate is triggered by toolbar ui actions
   deactivate(): void {}
 
-  _pan_start?(e: GestureEvent): void
-  _pan?(e: GestureEvent): void
-  _pan_end?(e: GestureEvent): void
-  _pinch_start?(e: GestureEvent): void
-  _pinch?(e: GestureEvent): void
-  _pinch_end?(e: GestureEvent): void
-  _rotate_start?(e: GestureEvent): void
-  _rotate?(e: GestureEvent): void
-  _rotate_end?(e: GestureEvent): void
+  _pan_start?(e: PanEvent): void
+  _pan?(e: PanEvent): void
+  _pan_end?(e: PanEvent): void
+
+  _pinch_start?(e: PinchEvent): void
+  _pinch?(e: PinchEvent): void
+  _pinch_end?(e: PinchEvent): void
+
+  _rotate_start?(e: RotateEvent): void
+  _rotate?(e: RotateEvent): void
+  _rotate_end?(e: RotateEvent): void
 
   _tap?(e: TapEvent): void
   _doubletap?(e: TapEvent): void
   _press?(e: TapEvent): void
+  _pressup?(e: TapEvent): void
 
   _move_enter?(e: MoveEvent): void
   _move?(e: MoveEvent): void
@@ -81,9 +84,7 @@ export abstract class Tool extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Tool"
-
+  static init_Tool(): void {
     this.internal({
       active: [ p.Boolean, false ],
     })
@@ -96,7 +97,7 @@ export abstract class Tool extends Model {
   }
 
   // utility function to return a tool name, modified
-  // by the active dimenions. Used by tools that have dimensions
+  // by the active dimensions. Used by tools that have dimensions
   protected _get_dim_tooltip(name: string, dims: Dimensions): string {
     switch (dims) {
       case "width":  return `${name} (x-axis)`
@@ -129,4 +130,3 @@ export abstract class Tool extends Model {
     return [sxlim, sylim]
   }
 }
-Tool.initClass()

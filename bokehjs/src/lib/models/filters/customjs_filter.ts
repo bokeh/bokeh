@@ -23,9 +23,7 @@ export class CustomJSFilter extends Filter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CustomJSFilter'
-
+  static init_CustomJSFilter(): void {
     this.define<CustomJSFilter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
@@ -51,4 +49,3 @@ export class CustomJSFilter extends Filter {
     return super.compute_indices(source)
   }
 }
-CustomJSFilter.initClass()

@@ -67,8 +67,7 @@ export interface MyPlot extends MyPlot.Attrs {
 export class MyPlot extends Plot {
   properties: MyPlot.Props
 
-  static initClass(): void {
-    this.prototype.type = "MyPlot"
+  static init_MyPlot(): void {
     this.prototype.default_view = MyPlotView
 
     this.define<MyPlot.Props>({
@@ -83,7 +82,6 @@ export class MyPlot extends Plot {
     })
   }
 }
-MyPlot.initClass()
 """)
 
     gradient_angle = Float(default=0)

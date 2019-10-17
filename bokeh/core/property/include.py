@@ -62,7 +62,10 @@ class Include(PropertyDescriptorFactory):
         descriptors = []
         delegate = self.delegate
         if self.use_prefix:
-            prefix = re.sub("_props$", "", base_name) + "_"
+            if isinstance(self.use_prefix, bool):
+                prefix = re.sub("_props$", "", base_name) + "_"
+            else:
+                prefix = self.use_prefix + "_"
         else:
             prefix = ""
 

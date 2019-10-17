@@ -3,7 +3,8 @@ const cp = require("child_process")
 const fs = require("fs")
 
 function npm_install() {
-  const {status} = cp.spawnSync("npm", ["install"], {stdio: "inherit"})
+  const npm = process.platform != "win32" ? "npm" : "npm.cmd"
+  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit"})
   if (status !== 0)
     process.exit(status)
 }
@@ -57,7 +58,16 @@ process.on('uncaughtException', function(err) {
   process.exit(1)
 })
 
-register({project: "./make/tsconfig.json", cache: false})
+register({project: "./make/tsconfig.json", cache: false, logError: true})
+
+const tsconfig_paths = require("tsconfig-paths")
+
+tsconfig_paths.register({
+  baseUrl: __dirname,
+  paths: {
+    "@compiler/*": ["../src/compiler/*"],
+  },
+})
 
 if (require.main != null)
   require("./main")

@@ -1,20 +1,36 @@
+import os
+from os.path import abspath, dirname, join
+import platform
 import sys
+
 import jinja2
+import setuptools
 import yaml
 
+data = {}
+setup_src = open("setup.py").read()
+os.environ['CONDA_BUILD_STATE'] = 'RENDER'
+def _setup(**kw): data.update(kw)
+setuptools.setup = _setup
+sys.path.append(abspath(join(dirname(__file__), "..")))
+exec(setup_src)
 
 def load_setup_py_data():
-    import os
-    import setuptools
-    os.environ['CONDA_BUILD_STATE'] = 'RENDER'
-    data = {}
-
-    def _setup(**kw): data.update(kw)
-    setuptools.setup = _setup
     return data
 
 meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
-meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
+try:
+    meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data),
+                         Loader=yaml.FullLoader)
+except AttributeError as e:
+    # Loader=yaml.FullLoader added in pyyaml 5.1 because of:
+    # https://github.com/yaml/pyyaml/wiki/PyYAML-yaml.load(input)-Deprecation
+    # isn't available on conda for python=3.5
+    # fall back to calling without loader if it isn't available
+    if 'FullLoader' in repr(e):
+        meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
+    else:
+        raise
 
 section = {
     "build"  : meta_src["requirements"]["build"],
@@ -29,6 +45,10 @@ for name in sys.argv[1:]:
 
 # bare python unpins python version causing upgrade to latest
 if 'python' in spec: spec.remove('python')
+
+# add double quotes to specs for windows, fixes #9065
+if "windows" in platform.platform().lower():
+    spec = ['"{}"'.format(s) for s in spec]
 
 deps = ""
 deps += " ".join(s for s in spec)

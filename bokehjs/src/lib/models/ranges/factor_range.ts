@@ -98,7 +98,7 @@ export function map_three_levels(factors: L3Factor[],
     for (const f1 of submids_order)
       mids_order.push([f0, f1])
     total_subpad += subpad
-    const subtot = sum(tops[f0].map(([f1,]) => submap[f1].value))
+    const subtot = sum(tops[f0].map(([f1]) => submap[f1].value))
     mapping[f0] = {value: subtot/n, mapping: submap}
     suboffset += n + outer_pad + subpad
   }
@@ -135,9 +135,7 @@ export class FactorRange extends Range {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "FactorRange"
-
+  static init_FactorRange(): void {
     this.define<FactorRange.Props>({
       factors:             [ p.Array,        []        ],
       factor_padding:      [ p.Number,       0         ],
@@ -236,13 +234,13 @@ export class FactorRange extends Range {
   protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
-    if (every(this.factors as any, isString)) {
+    if (every(this.factors, isString)) {
       levels = 1;
       [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
-    } else if (every(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
+    } else if (every(this.factors, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
       levels = 2;
       [this._mapping, this.tops, inside_padding] = map_two_levels(this.factors as [string, string][], this.group_padding, this.factor_padding)
-    } else if (every(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
+    } else if (every(this.factors, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
       levels = 3;
       [this._mapping, this.tops, this.mids, inside_padding] = map_three_levels(this.factors as [string, string, string][], this.group_padding, this.subgroup_padding, this.factor_padding)
     } else
@@ -266,4 +264,3 @@ export class FactorRange extends Range {
       this.setv({bounds: [start, end]}, {silent: true})
   }
 }
-FactorRange.initClass()

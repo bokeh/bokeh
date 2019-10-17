@@ -20,9 +20,7 @@ export abstract class CanvasTexture extends Texture {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CanvasTexture"
-
+  static init_CanvasTexture(): void {
     this.define<CanvasTexture.Props>({
       code: [ p.String ],
     })
@@ -45,4 +43,3 @@ export abstract class CanvasTexture extends Texture {
   }
 
 }
-CanvasTexture.initClass()

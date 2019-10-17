@@ -178,39 +178,6 @@ from its TypeScript sources. Some additional toolchain support is required.
 Please consult the :ref:`devguide_setup` section of the :ref:`devguide` for
 detailed instructions.
 
-.. _install_devbuild:
-
-Developer Builds
-----------------
-
-An easier way to obtain the most recent Bokeh updates without having to worry
-about building Bokeh yourself is to install a developer build. Developer builds
-are not published on any particular schedule but often come out a few times a
-month or more.
-
-These builds are made available on the "bokeh" channel of `anaconda.org`_. If
-you are using Anaconda, you can install with conda by issuing the command from a
-Bash or Windows command prompt:
-
-.. code-block:: sh
-
-    conda install -c bokeh/channel/dev bokeh
-
-Alternatively you can install with pip from a Bash or Windows command prompt:
-
-.. code-block:: sh
-
-    pip install --pre -i https://pypi.anaconda.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/
-
-We attempt to make sure the developer builds are relatively stable, however please
-be aware they they are not tested as rigorously as standard releases. Any problems
-or issues reported on the GitHub issue tracker are appreciated.
-
-.. warning::
-    **BokehJS resources for developer builds are not guaranteed to be
-    permanently available**. You should never use any artifacts made by a
-    developer build "in production".
-
 .. _install_bokehjs:
 
 BokehJS
@@ -220,16 +187,11 @@ If you would like to use BokehJS as a standalone JavaScript library, released
 versions of BokehJS are available for download from CDN at pydata.org, under
 the following naming scheme::
 
-    # CSS files
-    http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
-    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
-    http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css
-
     # Javascript files
-    http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
-    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
-    http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
-    http://cdn.pydata.org/bokeh/release/bokeh-api-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
+    https://cdn.pydata.org/bokeh/release/bokeh-api-x.y.z.min.js
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
@@ -239,16 +201,10 @@ and must be loaded *after* the core BokehJS library.
 
 As a concrete example, the links for version ``1.0.0`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.css
-
-and
-
-* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
+* https://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _anaconda.org: http://anaconda.org

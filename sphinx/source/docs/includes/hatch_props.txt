@@ -1,0 +1,122 @@
+``hatch_color``
+    color to use to stroke hatch patterns with
+
+``hatch_alpha``
+    floating point between 0 (transparent) and 1 (opaque)
+
+``hatch_weight``
+    line stroke width in units of pixels
+
+``hatch_scale``
+    a rough measure of the "size" of a pattern. This value has different
+    specific meanings, depending on the pattern.
+
+``hatch_pattern``
+    a string name (or abbreviation) for a built-in pattern, or a string name
+    of a pattern provided in ``hatch_extra``. The built-in patterns are:
+
+    .. list-table:: Built in Hatch Patterns
+        :widths: 35 25 40
+        :header-rows: 1
+
+        * - FullName
+          - Abbreviation
+          - Example
+
+        * - ``blank``
+          - ``" "``
+          - |blank|
+        * - ``dot``
+          - ``"."``
+          - |dot|
+        * - ``ring``
+          - ``"o"``
+          - |ring|
+        * - ``horizontal_line``
+          - ``"-"``
+          - |horizontal_line|
+        * - ``vertical_line``
+          - ``"|"``
+          - |vertical_line|
+        * - ``cross``
+          - ``"+"``
+          - |cross|
+        * - ``horizontal_dash``
+          - ``'"'``
+          - |horizontal_dash|
+        * - ``vertical_dash``
+          - ``":"``
+          - |vertical_dash|
+        * - ``spiral``
+          - ``"@"``
+          - |spiral|
+        * - ``right_diagonal_line``
+          - ``"/"``
+          - |right_diagonal_line|
+        * - ``left_diagonal_line``
+          - ``"\\"``
+          - |left_diagonal_line|
+        * - ``diagonal_cross``
+          - ``"x"``
+          - |diagonal_cross|
+        * - ``right_diagonal_dash``
+          - ``","``
+          - |right_diagonal_dash|
+        * - ``left_diagonal_dash``
+          - ``"`"``
+          - |left_diagonal_dash|
+        * - ``horizontal_wave``
+          - ``"v"``
+          - |horizontal_wave|
+        * - ``vertical_wave``
+          - ``">"``
+          - |vertical_wave|
+        * - ``criss_cross``
+          - ``"*"``
+          - |criss_cross|
+
+``hatch_extra``
+    a dict mapping string names to custom pattern implementations. The name
+    can be referred to by ``hatch_pattern``. For example, if the follwing value
+    is set for ``hatch_extra``:
+
+    .. code-block:: python
+
+        hatch_extra={ 'mycustom': ImageURLTexture(url=...) }
+
+    then the name ``"mycustom"`` may be set as a ``hatch_pattern``.
+
+.. |blank| image:: /_images/patterns/blank.png
+    :height: 30
+.. |dot| image:: /_images/patterns/dot.png
+    :height: 30
+.. |ring| image:: /_images/patterns/ring.png
+    :height: 30
+.. |horizontal_line| image:: /_images/patterns/horizontal_line.png
+    :height: 30
+.. |vertical_line| image:: /_images/patterns/vertical_line.png
+    :height: 30
+.. |cross| image:: /_images/patterns/cross.png
+    :height: 30
+.. |horizontal_dash| image:: /_images/patterns/horizontal_dash.png
+    :height: 30
+.. |vertical_dash| image:: /_images/patterns/vertical_dash.png
+    :height: 30
+.. |spiral| image:: /_images/patterns/spiral.png
+    :height: 30
+.. |right_diagonal_line| image:: /_images/patterns/right_diagonal_line.png
+    :height: 30
+.. |left_diagonal_line| image:: /_images/patterns/left_diagonal_line.png
+    :height: 30
+.. |diagonal_cross| image:: /_images/patterns/diagonal_cross.png
+    :height: 30
+.. |right_diagonal_dash| image:: /_images/patterns/right_diagonal_dash.png
+    :height: 30
+.. |left_diagonal_dash| image:: /_images/patterns/left_diagonal_dash.png
+    :height: 30
+.. |horizontal_wave| image:: /_images/patterns/horizontal_wave.png
+    :height: 30
+.. |vertical_wave| image:: /_images/patterns/vertical_wave.png
+    :height: 30
+.. |criss_cross| image:: /_images/patterns/criss_cross.png
+    :height: 30

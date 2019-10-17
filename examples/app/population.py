@@ -30,7 +30,7 @@ pyramid = figure(plot_width=600, plot_height=500, toolbar_location=None, y_range
                  title="Population Breakdown by Age Group and Gender",
                  x_axis_label="Population (Millions)",y_axis_label="Age Group")
 pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
-             source=ages, legend="Sex", line_color="white",
+             source=ages, legend_field="Sex", line_color="white",
              fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
 
 pyramid.ygrid.grid_line_color = None
@@ -46,8 +46,8 @@ predicted = ColumnDataSource(data=dict(x=[], y=[]))
 population = figure(plot_width=600, plot_height=180, toolbar_location=None,
                     title="Total Population by Year",
                     x_axis_label="Year",y_axis_label="Population")
-population.line("x", "y", color="violet", line_width=2, source=known, legend="known")
-population.line("x", "y", color="violet", line_width=2, line_dash="dashed", source=predicted, legend="predicted")
+population.line("x", "y", color="violet", line_width=2, source=known, legend_label="known")
+population.line("x", "y", color="violet", line_width=2, line_dash="dashed", source=predicted, legend_label="predicted")
 
 population.xaxis.major_label_orientation = pi/4
 population.xgrid.grid_line_color = None
@@ -64,8 +64,7 @@ year = Select(title="Year:", value="2010", options=years)
 location = Select(title="Location:", value="World", options=locations)
 
 def update():
-    age =  df[(df.Location == location.value) & (df.Year == int(year.value))]
-    ages.data = ColumnDataSource.from_df(age)
+    ages.data = df[(df.Location == location.value) & (df.Year == int(year.value))]
 
     pop = df[df.Location == location.value].groupby(df.Year).Value.sum()
     new_known = pop[pop.index <= 2010]

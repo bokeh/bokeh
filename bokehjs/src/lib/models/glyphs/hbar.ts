@@ -69,7 +69,7 @@ export namespace HBar {
   export type Props = Box.Props & {
     left: p.CoordinateSpec
     y: p.CoordinateSpec
-    height: p.DistanceSpec
+    height: p.NumberSpec
     right: p.CoordinateSpec
   }
 
@@ -85,16 +85,14 @@ export class HBar extends Box {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'HBar'
+  static init_HBar(): void {
     this.prototype.default_view = HBarView
 
     this.coords([['left', 'y']])
     this.define<HBar.Props>({
-      height: [ p.DistanceSpec   ],
+      height: [ p.NumberSpec     ],
       right:  [ p.CoordinateSpec ],
     })
     this.override({ left: 0 })
   }
 }
-HBar.initClass()

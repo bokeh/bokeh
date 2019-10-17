@@ -50,7 +50,7 @@ def test_name():
     assert scinfo.Info.name == "info"
 
 def test_help():
-    assert scinfo.Info.help == "print information about Bokeh and Bokeh server configuration"
+    assert scinfo.Info.help == "Print information about Bokeh and Bokeh server configuration"
 
 def test_args():
     assert scinfo.Info.args == (
@@ -81,7 +81,7 @@ def test_run_static(capsys):
     assert err == ""
     assert out.endswith(join('bokeh', 'server', 'static') + '\n')
 
-def test__version_missing():
+def test__version_missing(ipython):
     assert scinfo._version('bokeh', '__version__') is not None
     assert scinfo._version('IPython', '__version__') is not None
     assert scinfo._version('tornado', 'version') is not None

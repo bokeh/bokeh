@@ -1,6 +1,8 @@
-function test(){
-    conda install $(python scripts/deps.py run test).split() | % {$_}
-    conda install phantomjs
+set-psdebug -trace 2
+
+function test() {
+    conda install --quiet $(python scripts/deps.py run test).split()
+    conda install --quiet phantomjs
     bokeh sampledata
 }
 

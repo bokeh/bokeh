@@ -4,6 +4,7 @@ import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
+import {bk_input} from "styles/widgets/inputs"
 
 export class MultiSelectView extends InputWidgetView {
   model: MultiSelect
@@ -35,7 +36,7 @@ export class MultiSelectView extends InputWidgetView {
 
     this.select_el = select({
       multiple: true,
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, options)
@@ -96,8 +97,7 @@ export class MultiSelect extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "MultiSelect"
+  static init_MultiSelect(): void {
     this.prototype.default_view = MultiSelectView
 
     this.define<MultiSelect.Props>({
@@ -107,4 +107,3 @@ export class MultiSelect extends InputWidget {
     })
   }
 }
-MultiSelect.initClass()

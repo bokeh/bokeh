@@ -142,8 +142,7 @@ export class Title extends TextAnnotation {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Title'
+  static init_Title(): void {
     this.prototype.default_view = TitleView
 
     this.mixins(['line:border_', 'fill:background_'])
@@ -172,4 +171,3 @@ export class Title extends TextAnnotation {
     })
   }
 }
-Title.initClass()

@@ -22,9 +22,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ContinuousColorMapper"
-
+  static init_ContinuousColorMapper(): void {
     this.define<ContinuousColorMapper.Props>({
       high:       [ p.Number ],
       low:        [ p.Number ],
@@ -44,4 +42,3 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   protected abstract _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
     palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void
 }
-ContinuousColorMapper.initClass()

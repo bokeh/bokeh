@@ -74,9 +74,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'DatetimeTickFormatter'
-
+  static init_DatetimeTickFormatter(): void {
     this.define<DatetimeTickFormatter.Props>({
       microseconds: [ p.Array, ['%fus'] ],
       milliseconds: [ p.Array, ['%3Nms', '%S.%3Ns'] ],
@@ -244,4 +242,3 @@ export class DatetimeTickFormatter extends TickFormatter {
     return labels
   }
 }
-DatetimeTickFormatter.initClass()

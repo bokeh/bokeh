@@ -219,7 +219,7 @@ def layout(*args, **kwargs):
     children = _handle_children(*args, children=children)
 
     # Make the grid
-    return _create_grid(children, sizing_mode)
+    return _create_grid(children, sizing_mode, **kwargs)
 
 def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
              plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
@@ -590,7 +590,7 @@ def _handle_children(*args, **kwargs):
     return children
 
 
-def _create_grid(iterable, sizing_mode, layer=0):
+def _create_grid(iterable, sizing_mode, layer=0, **kwargs):
     """Recursively create grid from input lists."""
     return_list = []
     for item in iterable:
@@ -606,8 +606,8 @@ def _create_grid(iterable, sizing_mode, layer=0):
                 Tried to insert: %s of type %s""" % (item, type(item))
             )
     if layer % 2 == 0:
-        return column(children=return_list, sizing_mode=sizing_mode)
-    return row(children=return_list, sizing_mode=sizing_mode)
+        return column(children=return_list, sizing_mode=sizing_mode, **kwargs)
+    return row(children=return_list, sizing_mode=sizing_mode, **kwargs)
 
 
 def _chunks(l, ncols):

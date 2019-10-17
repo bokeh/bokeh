@@ -15,7 +15,7 @@ export class Message {
 
   readonly buffers: [Header, any][] = []
 
-  constructor(readonly header: Header, readonly metadata: any, readonly content: any) {}
+  private constructor(readonly header: Header, readonly metadata: any, readonly content: any) {}
 
   static assemble(header_json: string, metadata_json: string, content_json: string): Message {
     const header = JSON.parse(header_json)

@@ -19,15 +19,14 @@ extra:
 
 requirements:
   build:
-    - certifi
     - jinja2
     - nodejs >=8.8
     - numpy
     - packaging
-    - pycurl
     - python
     - python-dateutil
     - pyyaml
+    - ripgrep
     - setuptools
     - six
     - tornado >=4.3
@@ -70,7 +69,7 @@ test:
     - pandas
     - pillow
     - psutil
-    - pytest >=3.3.0
+    - pytest
     - pytest-cov >=1.8.1
     - pytest-html
     - pytest-xdist
@@ -80,9 +79,9 @@ test:
 
     # examples
     - flask >=1.0
+    - django
     - h5py
     - icalendar
-    - ipywidgets
     - networkx
     - notebook
     - opencv
@@ -105,6 +104,5 @@ about:
 extra:
   deploy:
     - anaconda-client
-    - fabric3
     - setuptools >=0.39
     - twine >=1.11

@@ -4,6 +4,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
+import {bk_input} from "styles/widgets/inputs"
 
 export class SelectView extends InputWidgetView {
   model: Select
@@ -44,7 +45,7 @@ export class SelectView extends InputWidgetView {
     }
 
     this.select_el = select({
-      class: "bk-input",
+      class: bk_input,
       id: this.model.id,
       name: this.model.name,
       disabled: this.model.disabled}, contents)
@@ -79,8 +80,7 @@ export class Select extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Select"
+  static init_Select(): void {
     this.prototype.default_view = SelectView
 
     this.define<Select.Props>({
@@ -89,4 +89,3 @@ export class Select extends InputWidget {
     })
   }
 }
-Select.initClass()

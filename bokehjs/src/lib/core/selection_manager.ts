@@ -25,9 +25,7 @@ export class SelectionManager extends HasProps {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "SelectionManager"
-
+  static init_SelectionManager(): void {
     this.internal({
       source: [ p.Any ],
     })
@@ -94,4 +92,3 @@ export class SelectionManager extends HasProps {
     return this.inspectors[rmodel.id]
   }
 }
-SelectionManager.initClass()

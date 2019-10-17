@@ -292,8 +292,9 @@ export abstract class ContentLayoutable extends Layoutable {
   protected _measure(viewport: Sizeable): SizeHint {
     const content_size = this._content_size()
 
-    const bounds = viewport.bounded_to(this.sizing.size)
-                           .bounded_to(content_size)
+    const bounds = viewport
+      .bounded_to(this.sizing.size)
+      .bounded_to(content_size)
 
     const width = (() => {
       switch (this.sizing.width_policy) {

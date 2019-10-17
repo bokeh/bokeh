@@ -4,6 +4,7 @@
 from __future__ import print_function
 
 import shutil
+from glob import glob
 from os.path import dirname, exists, join, realpath, relpath
 import os, re, subprocess, sys, time
 
@@ -317,19 +318,13 @@ def build_js():
             return os.stat(join("bokehjs", "build", *path)).st_size / 2**10
 
         print("  - bokeh.js              : %6.1f KB" % size("js", "bokeh.js"))
-        print("  - bokeh.css             : %6.1f KB" % size("css", "bokeh.css"))
         print("  - bokeh.min.js          : %6.1f KB" % size("js", "bokeh.min.js"))
-        print("  - bokeh.min.css         : %6.1f KB" % size("css", "bokeh.min.css"))
 
         print("  - bokeh-widgets.js      : %6.1f KB" % size("js", "bokeh-widgets.js"))
-        print("  - bokeh-widgets.css     : %6.1f KB" % size("css", "bokeh-widgets.css"))
         print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
-        print("  - bokeh-widgets.min.css : %6.1f KB" % size("css", "bokeh-widgets.min.css"))
 
         print("  - bokeh-tables.js       : %6.1f KB" % size("js", "bokeh-tables.js"))
-        print("  - bokeh-tables.css      : %6.1f KB" % size("css", "bokeh-tables.css"))
         print("  - bokeh-tables.min.js   : %6.1f KB" % size("js", "bokeh-tables.min.js"))
-        print("  - bokeh-tables.min.css  : %6.1f KB" % size("css", "bokeh-tables.min.css"))
 
         print("  - bokeh-api.js          : %6.1f KB" % size("js", "bokeh-api.js"))
         print("  - bokeh-api.min.js      : %6.1f KB" % size("js", "bokeh-api.min.js"))
@@ -369,16 +364,9 @@ def install_js():
     if exists(target_tslibdir):
         shutil.rmtree(target_tslibdir)
     if exists(TSLIB):
-        # keep in sync with bokehjs/src/compiler/compile.ts
-        lib = {
-            "lib.es5.d.ts",
-            "lib.dom.d.ts",
-            "lib.es2015.core.d.ts",
-            "lib.es2015.promise.d.ts",
-            "lib.es2015.symbol.d.ts",
-            "lib.es2015.iterable.d.ts",
-        }
-        shutil.copytree(TSLIB, target_tslibdir, ignore=lambda _, files: [ f for f in files if f not in lib ])
+        os.mkdir(target_tslibdir)
+        for lib_file in glob(join(TSLIB, "lib.*.d.ts")):
+            shutil.copy(lib_file, target_tslibdir)
 
 # -----------------------------------------------------------------------------
 # Helpers for collecting package data
@@ -424,7 +412,7 @@ ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
 
 
 Please build BokehJS by running setup.py with the `--build-js` option.
-  Dev Guide: https://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+  Dev Guide: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html.
 """
 
 BUILD_EXEC_FAIL_MSG = bright(red("Failed.")) + """
@@ -436,7 +424,7 @@ ERROR: subprocess.Popen(%r) failed to execute:
 Have you run `npm install --no-save` from the bokehjs subdirectory?
 For more information, see the Dev Guide:
 
-    https://bokeh.pydata.org/en/latest/docs/dev_guide.html
+    https://docs.bokeh.org/en/latest/docs/dev_guide.html
 """
 
 BUILD_FAIL_MSG = bright(red("Failed.")) + """

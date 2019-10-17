@@ -9,19 +9,19 @@ output_file('tool.html')
 TS_CODE = """
 import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import * as p from "core/properties"
 
 export class DrawToolView extends GestureToolView {
   model: DrawTool
 
   //this is executed when the pan/drag event starts
-  _pan_start(_ev: GestureEvent): void {
+  _pan_start(_ev: PanEvent): void {
     this.model.source.data = {x: [], y: []}
   }
 
   //this is executed on subsequent mouse/touch moves
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const {frame} = this.plot_view
 
     const {sx, sy} = ev
@@ -38,7 +38,7 @@ export class DrawToolView extends GestureToolView {
   }
 
   // this is executed then the pan/drag ends
-  _pan_end(_ev: GestureEvent): void {}
+  _pan_end(_ev: PanEvent): void {}
 }
 
 export namespace DrawTool {
@@ -63,8 +63,7 @@ export class DrawTool extends GestureTool {
   event_type = "pan" as "pan"
   default_order = 12
 
-  static initClass(): void {
-    this.prototype.type = "DrawTool"
+  static init_DrawTool(): void {
     this.prototype.default_view = DrawToolView
 
     this.define<DrawTool.Props>({
@@ -72,7 +71,6 @@ export class DrawTool extends GestureTool {
     })
   }
 }
-DrawTool.initClass()
 """
 
 

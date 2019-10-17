@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {min, max} from "core/util/array"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -39,13 +39,7 @@ export class MultiPolygonsView extends GlyphView {
         if (xs.length == 0)
           continue
 
-        points.push({
-          minX: min(xs),
-          minY: min(ys),
-          maxX: max(xs),
-          maxY: max(ys),
-          i,
-        })
+        points.push({x0: min(xs), y0: min(ys), x1: max(xs), y1: max(ys), i})
       }
     }
     this.hole_index = this._index_hole_data()  // should this be set here?
@@ -57,7 +51,7 @@ export class MultiPolygonsView extends GlyphView {
     const points = []
     for (let i = 0, end = this._xs.length; i < end; i++) {
       for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
-        if (this._xs[i][j].length > 1 ) {
+        if (this._xs[i][j].length > 1) {
           for (let k = 1, endk = this._xs[i][j].length; k < endk; k++) {
             const xs = this._xs[i][j][k]  // only use holes
             const ys = this._ys[i][j][k]  // only use holes
@@ -65,13 +59,7 @@ export class MultiPolygonsView extends GlyphView {
             if (xs.length == 0)
               continue
 
-            points.push({
-              minX: min(xs),
-              minY: min(ys),
-              maxX: max(xs),
-              maxY: max(ys),
-              i,
-            })
+            points.push({x0: min(xs), y0: min(ys), x1: max(xs), y1: max(ys), i})
           }
         }
       }
@@ -86,8 +74,7 @@ export class MultiPolygonsView extends GlyphView {
     const yr = this.renderer.plot_view.frame.y_ranges.default
     const [y0, y1] = [yr.min, yr.max]
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const indices = this.index.indices(bbox)
+    const indices = this.index.indices({x0, x1, y0, y1})
 
     // TODO this is probably needed in patches as well so that we don't draw glyphs multiple times
     return indices.sort((a, b) => a - b).filter((value, index, array) => {
@@ -146,8 +133,8 @@ export class MultiPolygonsView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const candidates = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
-    const hole_candidates = this.hole_index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
+    const hole_candidates = this.hole_index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const hits = []
     for (let i = 0, end = candidates.length; i < end; i++) {
@@ -219,8 +206,8 @@ export class MultiPolygonsView extends GlyphView {
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-      if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
-        return this._get_snap_coord(sys[j][0])
+        if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
+          return this._get_snap_coord(sys[j][0])
       }
     }
 
@@ -261,7 +248,7 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -286,12 +273,10 @@ export class MultiPolygons extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'MultiPolygons'
+  static init_MultiPolygons(): void {
     this.prototype.default_view = MultiPolygonsView
 
     this.coords([['xs', 'ys']])
     this.mixins(['line', 'fill', 'hatch'])
   }
 }
-MultiPolygons.initClass()

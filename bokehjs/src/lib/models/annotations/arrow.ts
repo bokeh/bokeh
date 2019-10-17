@@ -83,7 +83,7 @@ export class ArrowView extends AnnotationView {
     // Next we call .clip on all the arrow heads, inside an initial canvas sized
     // rect, to create an "inverted" clip region for the arrow heads
     ctx.beginPath()
-    const {left: x, top: y, width, height} = this.plot_view.layout.bbox.rect
+    const {x, y, width, height} = this.plot_view.layout.bbox
     ctx.rect(x, y, width, height)
     if (this.model.end != null)
       this._arrow_head(ctx, "clip", this.model.end, start, end)
@@ -162,19 +162,18 @@ export class Arrow extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Arrow'
+  static init_Arrow(): void {
     this.prototype.default_view = ArrowView
 
     this.mixins(['line'])
 
     this.define<Arrow.Props>({
-      x_start:      [ p.NumberSpec,                          ],
-      y_start:      [ p.NumberSpec,                          ],
+      x_start:      [ p.NumberSpec                           ],
+      y_start:      [ p.NumberSpec                           ],
       start_units:  [ p.SpatialUnits, 'data'                 ],
       start:        [ p.Instance,     null                   ],
-      x_end:        [ p.NumberSpec,                          ],
-      y_end:        [ p.NumberSpec,                          ],
+      x_end:        [ p.NumberSpec                           ],
+      y_end:        [ p.NumberSpec                           ],
       end_units:    [ p.SpatialUnits, 'data'                 ],
       end:          [ p.Instance,     () => new OpenHead({}) ],
       source:       [ p.Instance                             ],
@@ -183,4 +182,3 @@ export class Arrow extends Annotation {
     })
   }
 }
-Arrow.initClass()

@@ -6,8 +6,11 @@
 set -x # echo commands
 
 pushd `python -c "import site; print(site.getsitepackages()[0])"`
-py.test distributed/bokeh
+py.test distributed/dashboard
 nosetests holoviews/tests/plotting/bokeh
+git clone https://github.com/PatrikHlobil/Pandas-Bokeh.git
+pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
+pytest Pandas-Bokeh/Tests/test_GeoPandasBokeh.py
 popd
 
 exit 0

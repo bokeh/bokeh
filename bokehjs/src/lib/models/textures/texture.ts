@@ -20,9 +20,7 @@ export abstract class Texture extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Texture"
-
+  static init_Texture(): void {
     this.define<Texture.Props>({
       repetition: [ p.TextureRepetition, "repeat" ],
     })
@@ -30,9 +28,8 @@ export abstract class Texture extends Model {
 
   abstract get_pattern(color: any, alpha: number, scale: number, weight: number):  (ctx: Context2d) => CanvasPattern | null
 
-  onload(defer_func: () => void) : void {
+  onload(defer_func: () => void): void {
     defer_func()
   }
 
 }
-Texture.initClass()

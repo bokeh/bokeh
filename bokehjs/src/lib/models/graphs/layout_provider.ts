@@ -17,12 +17,7 @@ export abstract class LayoutProvider extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LayoutProvider"
-  }
-
   abstract get_node_coordinates(graph_source: ColumnarDataSource): [number[], number[]]
 
   abstract get_edge_coordinates(graph_source: ColumnarDataSource): [[number, number][], [number, number][]]
 }
-LayoutProvider.initClass()

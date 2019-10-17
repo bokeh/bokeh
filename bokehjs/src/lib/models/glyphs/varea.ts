@@ -1,8 +1,11 @@
+import {PointGeometry} from 'core/geometry'
 import {Arrayable} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {Selection} from "../selections/selection"
 
 export interface VAreaData extends AreaData {
   _x: Arrayable<number>
@@ -17,7 +20,7 @@ export interface VAreaData extends AreaData {
 export interface VAreaView extends VAreaData {}
 
 export class VAreaView extends AreaView {
-  model:VArea
+  model: VArea
   visuals: VArea.Visuals
 
   protected _index_data(): SpatialIndex {
@@ -31,7 +34,7 @@ export class VAreaView extends AreaView {
       if (isNaN(x + y1 + y2) || !isFinite(x + y1 + y2))
         continue
 
-      points.push({minX: x, minY: Math.min(y1, y2), maxX: x, maxY: Math.max(y1, y2), i})
+      points.push({x0: x, y0: Math.min(y1, y2), x1: x, y1: Math.max(y1, y2), i})
     }
 
     return new SpatialIndex(points)
@@ -69,6 +72,28 @@ export class VAreaView extends AreaView {
     return (this.sy1[i] + this.sy2[i])/2
   }
 
+  protected _hit_point(geometry: PointGeometry): Selection {
+    const result = hittest.create_empty_hit_test_result()
+
+    const L = this.sx.length
+    const sx = new Float64Array(2*L)
+    const sy = new Float64Array(2*L)
+
+    for (let i = 0, end = L; i < end; i++) {
+      sx[i] = this.sx[i]
+      sy[i] = this.sy1[i]
+      sx[L+i] = this.sx[L-i-1]
+      sy[L+i] = this.sy2[L-i-1]
+    }
+
+    if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
+      result.add_to_selected_glyphs(this.model)
+      result.get_view = () => this
+    }
+
+    return result
+  }
+
   protected _map_data(): void {
     this.sx  = this.renderer.xscale.v_compute(this._x)
     this.sy1 = this.renderer.yscale.v_compute(this._y1)
@@ -97,8 +122,7 @@ export class VArea extends Area {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'VArea'
+  static init_VArea(): void {
     this.prototype.default_view = VAreaView
 
     this.define<VArea.Props>({
@@ -108,4 +132,3 @@ export class VArea extends Area {
     })
   }
 }
-VArea.initClass()

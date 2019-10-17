@@ -5,6 +5,9 @@ import * as p from "core/properties"
 
 import * as Pikaday from "pikaday"
 
+import {bk_input} from "styles/widgets/inputs"
+import "styles/widgets/pikaday"
+
 Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.PikadayOptions}): void {
   if (this._o.container)
     return
@@ -22,7 +25,7 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
   let left = clientRect.left + window.pageXOffset
   let top = clientRect.bottom + window.pageYOffset
 
-  // adjust left/top origin to bk-root
+  // adjust left/top origin to .bk-root
   left -= this.el.parentElement!.offsetLeft
   top -= this.el.parentElement!.offsetTop
 
@@ -46,25 +49,42 @@ export class DatePickerView extends InputWidgetView {
 
   private _picker: Pikaday
 
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
+
   render(): void {
     if (this._picker != null)
       this._picker.destroy()
 
     super.render()
 
-    this.input_el = input({type: "text", class: "bk-input", disabled: this.model.disabled})
+    this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
 
     this._picker = new Pikaday({
       field: this.input_el,
-      defaultDate: new Date(this.model.value),
+      defaultDate: this._unlocal_date(new Date(this.model.value)),
       setDefaultDate: true,
-      minDate: this.model.min_date != null ? new Date(this.model.min_date) : undefined,
-      maxDate: this.model.max_date != null ? new Date(this.model.max_date) : undefined,
+      minDate: this.model.min_date != null ? this._unlocal_date(new Date(this.model.min_date)) : undefined,
+      maxDate: this.model.max_date != null ? this._unlocal_date(new Date(this.model.max_date)) : undefined,
       onSelect: (date) => this._on_select(date),
     })
 
     this._root_element.appendChild(this._picker.el)
+  }
+
+  _unlocal_date(date: Date): Date {
+    //Get the UTC offset (in minutes) of date (will be based on the timezone of the user's system).
+    //Then multiply to get the offset in ms.
+    //This way it can be used to recreate the user specified date, agnostic to their local systems's timezone.
+    const timeOffsetInMS = date.getTimezoneOffset() * 60000
+    date.setTime(date.getTime() - timeOffsetInMS)
+
+    const datestr = date.toISOString().substr(0, 10)
+    const tup = datestr.split('-')
+    return new Date(Number(tup[0]), Number(tup[1])-1, Number(tup[2]))
   }
 
   _on_select(date: Date): void {
@@ -96,8 +116,7 @@ export class DatePicker extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DatePicker"
+  static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({
@@ -108,4 +127,3 @@ export class DatePicker extends InputWidget {
     })
   }
 }
-DatePicker.initClass()

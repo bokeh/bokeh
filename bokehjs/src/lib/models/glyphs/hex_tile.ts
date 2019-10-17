@@ -4,7 +4,7 @@ import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {Line, Fill} from "core/visuals"
@@ -27,11 +27,6 @@ export interface HexTileData extends GlyphData {
 
   svx: number[]
   svy: number[]
-
-  minX: number
-  maxX: number
-  minY: number
-  maxY: number
 
   ssize: number
 }
@@ -84,7 +79,7 @@ export class HexTileView extends GlyphView {
       const y = this._y[i]
       if (isNaN(x+y) || !isFinite(x+y))
         continue
-      points.push({minX: x-xsize, minY: y-ysize, maxX: x+xsize, maxY: y+ysize, i})
+      points.push({x0: x-xsize, y0: y-ysize, x1: x+xsize, y1: y+ysize, i})
     }
     return new SpatialIndex(points)
   }
@@ -92,7 +87,7 @@ export class HexTileView extends GlyphView {
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   map_data(): void {
-     [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
+    [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
 
@@ -158,7 +153,7 @@ export class HexTileView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const candidates = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const hits = []
     for (const i of candidates) {
@@ -181,13 +176,13 @@ export class HexTileView extends GlyphView {
     if (geometry.direction == 'v') {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
-      const [minX, maxX] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      hits = this.index.indices({minX, minY: y, maxX, maxY: y})
+      const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+      hits = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
       const x = this.renderer.xscale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
-      const [minY, maxY] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      hits = this.index.indices({minX: x, minY, maxX: x, maxY})
+      const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+      hits = this.index.indices({x0: x, y0, x1: x, y1})
     }
 
     const result = hittest.create_empty_hit_test_result()
@@ -199,13 +194,12 @@ export class HexTileView extends GlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices(bbox)
+    result.indices = this.index.indices({x0, x1, y0, y1})
     return result
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -235,8 +229,7 @@ export class HexTile extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'HexTile'
+  static init_HexTile(): void {
     this.prototype.default_view = HexTileView
 
     this.coords([['r', 'q']])
@@ -250,4 +243,3 @@ export class HexTile extends Glyph {
     this.override({ line_color: null })
   }
 }
-HexTile.initClass()

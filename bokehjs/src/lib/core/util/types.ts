@@ -3,44 +3,44 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-import {Anything, Arrayable, TypedArray} from "../types"
+import {Arrayable, TypedArray} from "../types"
 import {every} from "./array"
 
 const toString = Object.prototype.toString
 
-export function isBoolean(obj: Anything): obj is boolean {
+export function isBoolean(obj: unknown): obj is boolean {
   return obj === true || obj === false || toString.call(obj) === '[object Boolean]'
 }
 
-export function isNumber(obj: Anything): obj is number {
+export function isNumber(obj: unknown): obj is number {
   return toString.call(obj) === "[object Number]"
 }
 
-export function isInteger(obj: Anything): obj is number {
+export function isInteger(obj: unknown): obj is number {
   return isNumber(obj) && isFinite(obj) && Math.floor(obj) === obj
 }
 
-export function isString(obj: Anything): obj is string {
+export function isString(obj: unknown): obj is string {
   return toString.call(obj) === "[object String]"
 }
 
-export function isStrictNaN(obj: Anything): obj is number {
+export function isStrictNaN(obj: unknown): obj is number {
   return isNumber(obj) && obj !== +obj
 }
 
-export function isFunction(obj: Anything): obj is Function {
+export function isFunction(obj: unknown): obj is Function {
   return toString.call(obj) === "[object Function]"
 }
 
-export function isArray<T>(obj: Anything): obj is T[] {
+export function isArray<T>(obj: unknown): obj is T[] {
   return Array.isArray(obj)
 }
 
-export function isArrayOf<T>(arr: Anything[], predicate: (item: Anything) => item is T): arr is T[] {
+export function isArrayOf<T>(arr: unknown[], predicate: (item: unknown) => item is T): arr is T[] {
   return every(arr, predicate)
 }
 
-export function isArrayableOf<T>(arr: Arrayable, predicate: (item: Anything) => item is T): arr is Arrayable<T> {
+export function isArrayableOf<T>(arr: Arrayable, predicate: (item: unknown) => item is T): arr is Arrayable<T> {
   for (let i = 0, end = arr.length; i < end; i++) {
     if (!predicate(arr[i]))
       return false
@@ -48,15 +48,15 @@ export function isArrayableOf<T>(arr: Arrayable, predicate: (item: Anything) => 
   return true
 }
 
-export function isTypedArray(obj: Anything): obj is TypedArray {
-  return obj != null && obj.buffer != null && obj.buffer instanceof ArrayBuffer
+export function isTypedArray(obj: unknown): obj is TypedArray {
+  return obj != null && (obj as any).buffer instanceof ArrayBuffer
 }
 
-export function isObject(obj: Anything): obj is object {
+export function isObject(obj: unknown): obj is object {
   const tp = typeof obj
   return tp === 'function' || tp === 'object' && !!obj
 }
 
-export function isPlainObject(obj: Anything): obj is {[key: string]: unknown} {
+export function isPlainObject(obj: unknown): obj is {[key: string]: unknown} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
 }

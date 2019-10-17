@@ -51,9 +51,7 @@ export class StringFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'StringFormatter'
-
+  static init_StringFormatter(): void {
     this.define<StringFormatter.Props>({
       font_style: [ p.FontStyle, "normal" ],
       text_align: [ p.TextAlign, "left"   ],
@@ -82,7 +80,6 @@ export class StringFormatter extends CellFormatter {
     return text.outerHTML
   }
 }
-StringFormatter.initClass()
 
 export namespace NumberFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -103,8 +100,7 @@ export class NumberFormatter extends StringFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'NumberFormatter'
+  static init_NumberFormatter(): void {
 
     this.define<NumberFormatter.Props>({
       format:   [ p.String,           '0,0'   ], // TODO (bev)
@@ -115,16 +111,17 @@ export class NumberFormatter extends StringFormatter {
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {format, language} = this
-    const rounding = (() => { switch (this.rounding) {
-      case "round": case "nearest":   return Math.round
-      case "floor": case "rounddown": return Math.floor
-      case "ceil":  case "roundup":   return Math.ceil
-    } })()
+    const rounding = (() => {
+      switch (this.rounding) {
+        case "round": case "nearest":   return Math.round
+        case "floor": case "rounddown": return Math.floor
+        case "ceil":  case "roundup":   return Math.ceil
+      }
+    })()
     value = Numbro.format(value, format, language, rounding)
     return super.doFormat(row, cell, value, columnDef, dataContext)
   }
 }
-NumberFormatter.initClass()
 
 export namespace BooleanFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -143,8 +140,7 @@ export class BooleanFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'BooleanFormatter'
+  static init_BooleanFormatter(): void {
 
     this.define<BooleanFormatter.Props>({
       icon: [ p.String, 'check' ],
@@ -155,7 +151,6 @@ export class BooleanFormatter extends CellFormatter {
     return !!value ? i({class: this.icon}).outerHTML : ""
   }
 }
-BooleanFormatter.initClass()
 
 export namespace DateFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -174,15 +169,14 @@ export class DateFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'DateFormatter'
+  static init_DateFormatter(): void {
 
     this.define<DateFormatter.Props>({
       format: [ p.String, 'ISO-8601' ],
     })
   }
 
-   getFormat(): string | undefined {
+  getFormat(): string | undefined {
     // using definitions provided here: https://api.jqueryui.com/datepicker/
     // except not implementing TICKS
     switch (this.format) {
@@ -215,7 +209,6 @@ export class DateFormatter extends CellFormatter {
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
-DateFormatter.initClass()
 
 export namespace HTMLTemplateFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -234,8 +227,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'HTMLTemplateFormatter'
+  static init_HTMLTemplateFormatter(): void {
 
     this.define<HTMLTemplateFormatter.Props>({
       template: [ p.String, '<%= value %>' ],
@@ -253,4 +245,3 @@ export class HTMLTemplateFormatter extends CellFormatter {
     }
   }
 }
-HTMLTemplateFormatter.initClass()

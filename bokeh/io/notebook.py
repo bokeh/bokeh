@@ -374,15 +374,15 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
+    from ..resources import Resources
+    from ..settings import settings
     from ..util.serialization import make_id
-    from ..resources import CDN
-    from ..util.compiler import bundle_all_models
+    from ..embed.bundle import bundle_for_objs_and_resources
 
     if resources is None:
-        resources = CDN
+        resources = Resources(mode=settings.resources())
 
     if not hide_banner:
-
         if resources.mode == 'inline':
             js_info = 'inline'
             css_info = 'inline'
@@ -410,16 +410,16 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     _NOTEBOOK_LOADED = resources
 
-    custom_models_js = bundle_all_models() or ""
+    bundle = bundle_for_objs_and_resources(None, resources)
 
-    nb_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=True)
-    jl_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=False)
+    nb_js = _loading_js(bundle, element_id, load_timeout, register_mime=True)
+    jl_js = _loading_js(bundle, element_id, load_timeout, register_mime=False)
 
     if not hide_banner:
         publish_display_data({'text/html': html})
     publish_display_data({
         JS_MIME_TYPE   : nb_js,
-        LOAD_MIME_TYPE : jl_js
+        LOAD_MIME_TYPE : jl_js,
     })
 
 def publish_display_data(*args, **kw):
@@ -531,18 +531,15 @@ _HOOKS = {}
 
 _NOTEBOOK_LOADED = None
 
-def _loading_js(resources, element_id, custom_models_js, load_timeout=5000, register_mime=True):
+def _loading_js(bundle, element_id, load_timeout=5000, register_mime=True):
     '''
 
     '''
     from ..core.templates import AUTOLOAD_NB_JS
 
     return AUTOLOAD_NB_JS.render(
+        bundle    = bundle,
         elementid = element_id,
-        js_urls   = resources.js_files,
-        css_urls  = resources.css_files,
-        js_raw    = resources.js_raw + [custom_models_js],
-        css_raw   = resources.css_raw_str,
         force     = True,
         timeout   = load_timeout,
         register_mime = register_mime

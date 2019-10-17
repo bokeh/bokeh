@@ -22,12 +22,12 @@ $(document).ready(function() {
       dev = /^\/en\/dev/
       if (dev.exec(loc)) {
         $("body").css({"padding-top":"60px"})
-        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        content = $('<div>The documentation on this page refers to a DEVELOPMENT VERSION. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>').attr('style', style);
         $('html:first').prepend(content);
       }
       else if (v != window._BOKEH_CURRENT_VERSION) {
         $("body").css({"padding-top":"60px"})
-        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></div>').attr('style', style);
+        content = $('<div>The documentation on this page refers to a PREVIOUS VERSION. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>').attr('style', style);
         $('body').prepend(content);
       }
     }
@@ -87,7 +87,7 @@ $(document).ready(function() {
     nav_links.each(function(i, nav_link) {
       var href = nav_link.href;
       // skip links to external sites
-      if (href.startsWith("https://bokeh.pydata.org")) {
+      if (href.startsWith("https://docs.bokeh.org")) {
         var href_part = href.split('docs/')[1].split('.html')[0];
         if (href_part.split('/').length > 1) {
           href_part = href_part.split('/')[0]

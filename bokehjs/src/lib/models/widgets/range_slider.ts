@@ -1,23 +1,10 @@
 import * as numbro from "numbro"
 
-import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
+import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
 import * as p from "core/properties"
 
-export class RangeSliderView extends AbstractSliderView {
+export class RangeSliderView extends AbstractRangeSliderView {
   model: RangeSlider
-
-  protected _calc_to(): SliderSpec {
-    return {
-      start: this.model.start,
-      end: this.model.end,
-      value: this.model.value,
-      step: this.model.step,
-    }
-  }
-
-  protected _calc_from(values: number[]): number[] {
-    return values
-  }
 }
 
 export namespace RangeSlider {
@@ -35,8 +22,7 @@ export class RangeSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "RangeSlider"
+  static init_RangeSlider(): void {
     this.prototype.default_view = RangeSliderView
 
     this.override({
@@ -51,4 +37,3 @@ export class RangeSlider extends AbstractSlider {
     return numbro.format(value, format)
   }
 }
-RangeSlider.initClass()

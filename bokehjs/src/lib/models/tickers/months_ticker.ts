@@ -46,9 +46,7 @@ export class MonthsTicker extends SingleIntervalTicker {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "MonthsTicker"
-
+  static init_MonthsTicker(): void {
     this.define<MonthsTicker.Props>({
       months: [ p.Array, [] ],
     })
@@ -86,4 +84,3 @@ export class MonthsTicker extends SingleIntervalTicker {
     }
   }
 }
-MonthsTicker.initClass()

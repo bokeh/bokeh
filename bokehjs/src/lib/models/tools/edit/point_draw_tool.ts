@@ -1,8 +1,9 @@
 import {Keys} from "core/dom"
-import {GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
+import {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
+import {bk_tool_icon_point_draw} from "styles/icons"
 
 export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
@@ -47,20 +48,20 @@ export class PointDrawToolView extends EditToolView {
     }
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._select_event(ev, true, this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     if (!this.model.drag || this._basepoint == null)
       return
     this._drag_points(ev, this.model.renderers)
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._pan(ev)
@@ -92,8 +93,7 @@ export class PointDrawTool extends EditTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "PointDrawTool"
+  static init_PointDrawTool(): void {
     this.prototype.default_view = PointDrawToolView
 
     this.define<PointDrawTool.Props>({
@@ -104,8 +104,7 @@ export class PointDrawTool extends EditTool {
   }
 
   tool_name = "Point Draw Tool"
-  icon = "bk-tool-icon-point-draw"
+  icon = bk_tool_icon_point_draw
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 2
 }
-PointDrawTool.initClass()

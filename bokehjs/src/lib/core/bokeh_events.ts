@@ -87,10 +87,10 @@ export abstract class PointEvent extends UIEvent {
 @event("pan")
 export class Pan extends PointEvent {
 
+  /* TODO: direction: -1 | 1 */
   constructor(readonly sx: number, readonly sy: number,
               readonly x: number, readonly y: number,
-              readonly delta_x: number, readonly delta_y: number,
-              /*readonly direction: -1 | 1*/) {
+              readonly delta_x: number, readonly delta_y: number) {
     super(sx, sy, x, y)
   }
 
@@ -112,6 +112,21 @@ export class Pinch extends PointEvent {
   protected _to_json(): JSON {
     const {scale} = this
     return {...super._to_json(), scale}
+  }
+}
+
+@event("rotate")
+export class Rotate extends PointEvent {
+
+  constructor(readonly sx: number, readonly sy: number,
+              readonly x: number, readonly y: number,
+              readonly rotation: number) {
+    super(sx, sy, x, y)
+  }
+
+  protected _to_json(): JSON {
+    const {rotation} = this
+    return {...super._to_json(), rotation}
   }
 }
 
@@ -148,6 +163,9 @@ export class DoubleTap extends PointEvent {}
 @event("press")
 export class Press extends PointEvent {}
 
+@event("pressup")
+export class PressUp extends PointEvent {}
+
 @event("panstart")
 export class PanStart extends PointEvent {}
 
@@ -159,3 +177,9 @@ export class PinchStart extends PointEvent {}
 
 @event("pinchend")
 export class PinchEnd extends PointEvent {}
+
+@event("rotatestart")
+export class RotateStart extends PointEvent {}
+
+@event("rotateend")
+export class RotateEnd extends PointEvent {}

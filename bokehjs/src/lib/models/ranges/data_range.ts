@@ -20,13 +20,10 @@ export abstract class DataRange extends Range {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DataRange"
-
+  static init_DataRange(): void {
     this.define<DataRange.Props>({
       names:     [ p.Array, [] ],
       renderers: [ p.Array, [] ],
     })
   }
 }
-DataRange.initClass()

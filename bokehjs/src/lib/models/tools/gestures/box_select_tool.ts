@@ -3,8 +3,9 @@ import {CallbackLike1} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin} from "core/enums"
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
+import {bk_tool_icon_box_select} from "styles/icons"
 
 export class BoxSelectToolView extends SelectToolView {
   model: BoxSelectTool
@@ -25,12 +26,12 @@ export class BoxSelectToolView extends SelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     this._base_point = [sx, sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -43,7 +44,7 @@ export class BoxSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -123,8 +124,7 @@ export class BoxSelectTool extends SelectTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "BoxSelectTool"
+  static init_BoxSelectTool(): void {
     this.prototype.default_view = BoxSelectToolView
 
     this.define<BoxSelectTool.Props>({
@@ -137,7 +137,7 @@ export class BoxSelectTool extends SelectTool {
   }
 
   tool_name = "Box Select"
-  icon = "bk-tool-icon-box-select"
+  icon = bk_tool_icon_box_select
   event_type = "pan" as "pan"
   default_order = 30
 
@@ -145,4 +145,3 @@ export class BoxSelectTool extends SelectTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-BoxSelectTool.initClass()

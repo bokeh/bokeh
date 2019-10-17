@@ -26,9 +26,4 @@ export abstract class Control extends Widget {
   constructor(attrs?: Partial<Control.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "Control"
-  }
 }
-Control.initClass()

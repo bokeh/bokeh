@@ -11,7 +11,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {FreehandDrawTool, FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 
-import {make_gesture_event, make_tap_event, make_key_event, make_move_event} from "./utils"
+import {make_pan_event, make_tap_event, make_key_event, make_move_event} from "./utils"
 
 export interface FreehandDrawTestCase {
   data: {[key: string]: (number[] | null)[]}
@@ -147,9 +147,9 @@ describe("FreehandDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._pan_start(make_gesture_event(300, 300))
-      testcase.draw_tool_view._pan(make_gesture_event(290, 290))
-      testcase.draw_tool_view._pan_end(make_gesture_event(290, 290))
+      testcase.draw_tool_view._pan_start(make_pan_event(300, 300))
+      testcase.draw_tool_view._pan(make_pan_event(290, 290))
+      testcase.draw_tool_view._pan_end(make_pan_event(290, 290))
       const new_xs = [0.04424778761061947, 0.008849557522123894, 0.008849557522123894]
       const new_ys = [-0, 0.03389830508474576, 0.03389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
@@ -164,9 +164,9 @@ describe("FreehandDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._pan_start(make_gesture_event(300, 300))
-      testcase.draw_tool_view._pan(make_gesture_event(290, 290))
-      testcase.draw_tool_view._pan_end(make_gesture_event(290, 290))
+      testcase.draw_tool_view._pan_start(make_pan_event(300, 300))
+      testcase.draw_tool_view._pan(make_pan_event(290, 290))
+      testcase.draw_tool_view._pan_end(make_pan_event(290, 290))
 
       const xdata = [[0.04424778761061947, 0.008849557522123894, 0.008849557522123894]]
       const ydata = [[-0, 0.03389830508474576, 0.03389830508474576]]
@@ -179,9 +179,9 @@ describe("FreehandDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._pan_start(make_gesture_event(300, 300))
-      testcase.draw_tool_view._pan(make_gesture_event(290, 290))
-      testcase.draw_tool_view._pan_end(make_gesture_event(290, 290))
+      testcase.draw_tool_view._pan_start(make_pan_event(300, 300))
+      testcase.draw_tool_view._pan(make_pan_event(290, 290))
+      testcase.draw_tool_view._pan_end(make_pan_event(290, 290))
 
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null, "Test"])
     })
@@ -190,9 +190,9 @@ describe("FreehandDrawTool", (): void => {
       const testcase = make_testcase()
       testcase.draw_tool_view.model.active = false
 
-      testcase.draw_tool_view._pan_start(make_gesture_event(300, 300))
-      testcase.draw_tool_view._pan(make_gesture_event(290, 290))
-      testcase.draw_tool_view._pan_end(make_gesture_event(290, 290))
+      testcase.draw_tool_view._pan_start(make_pan_event(300, 300))
+      testcase.draw_tool_view._pan(make_pan_event(290, 290))
+      testcase.draw_tool_view._pan_end(make_pan_event(290, 290))
 
       const xdata = [[0, 0.5, 1], [0, 0.5, 1]]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1]]

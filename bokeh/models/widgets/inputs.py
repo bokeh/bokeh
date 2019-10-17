@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, ColorHex
+from ...core.properties import ColorHex, Date, Dict, Either, Float, Instance, Int, List, PositiveInt, String, Tuple
 
 from ..callbacks import Callback
 
@@ -40,6 +40,7 @@ __all__ = (
     'AutocompleteInput',
     'ColorPicker',
     'DatePicker',
+    'FileInput',
     'InputWidget',
     'MultiSelect',
     'PasswordInput',
@@ -80,6 +81,47 @@ class InputWidget(Widget):
 # General API
 #-----------------------------------------------------------------------------
 
+class FileInput(Widget):
+    ''' Present a file-chooser dialog to users and return the contents of a
+    selected file.
+
+    '''
+
+    value = String(default="", readonly=True, help="""
+    A base64-encoded string of the contents of the selected file.
+    """)
+
+    mime_type = String(default="", readonly=True, help="""
+    The mime type of the selected file.
+    """)
+
+    filename = String(default="", readonly=True, help="""
+    The filename of the selected file.
+    The file path is not included as browsers do not allow access to it.
+    """)
+
+    accept = String(default="", help="""
+    Comma-separated list of standard HTML file input filters that restrict what
+    files the user can pick from. Values can be:
+
+    `<file extension>`:
+        Specific file extension(s) (e.g: .gif, .jpg, .png, .doc) are pickable
+
+    `audio/*`:
+        all sound files are pickable
+
+    `video/*`:
+        all video files are pickable
+
+    `image/*`:
+        all image files are pickable
+
+    `<media type>`:
+        A valid `IANA Media Type`_, with no parameters.
+
+    .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+    """)
+
 
 class TextInput(InputWidget):
     ''' Single-line input widget.
@@ -90,14 +132,20 @@ class TextInput(InputWidget):
     Initial or entered text value.
     """)
 
+    value_input = String(default="", help="""
+    Initial or entered text value that triggers a callback whenever the value changes.
+    """)
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the
     ``TextInput`` widget by hitting Enter or clicking outside of the text box
     area.
+
+    DEPRECATED: use .js_on_change or .on_change with "value" or "value_input"
     """)
 
     placeholder = String(default="", help="""
-    Placeholder for empty input field
+    Placeholder for empty input field.
     """)
 
 
@@ -138,6 +186,10 @@ class AutocompleteInput(TextInput):
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
     user upon typing the beginning of a desired value.
+    """)
+
+    min_characters = PositiveInt(default=2, help="""
+    The number of characters a user must type before completions are presented.
     """)
 
 

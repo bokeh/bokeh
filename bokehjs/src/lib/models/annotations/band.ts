@@ -163,8 +163,7 @@ export class Band extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Band'
+  static init_Band(): void {
     this.prototype.default_view = BandView
 
     this.mixins(['line', 'fill'])
@@ -187,4 +186,3 @@ export class Band extends Annotation {
     })
   }
 }
-Band.initClass()

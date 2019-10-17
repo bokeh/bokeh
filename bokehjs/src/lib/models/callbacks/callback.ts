@@ -23,10 +23,5 @@ export abstract class Callback extends Model implements CallbackLike<unknown, an
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Callback'
-  }
-
   abstract execute(cb_obj: unknown, cb_data?: {[key: string]: unknown}): unknown
 }
-Callback.initClass()

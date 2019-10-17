@@ -20,9 +20,7 @@ export class Stack extends Expression {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Stack"
-
+  static init_Stack(): void {
     this.define<Stack.Props>({
       fields: [ p.Array, [] ],
     })
@@ -39,4 +37,3 @@ export class Stack extends Expression {
     return result
   }
 }
-Stack.initClass()

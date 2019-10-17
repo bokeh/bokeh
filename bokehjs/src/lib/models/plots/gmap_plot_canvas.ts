@@ -17,7 +17,7 @@ const load_google_api = function(api_key: string): void {
 
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=3.36&key=${api_key}&callback=_bokeh_gmaps_callback`
   document.body.appendChild(script)
 }
 
@@ -100,7 +100,7 @@ export class GMapPlotView extends PlotView {
         this.map.setZoom(new_map_zoom)
 
         // Check we haven't gone out of bounds, and if we have undo the zoom
-        const [proj_xstart, proj_xend,,] = this._get_projected_bounds()
+        const [proj_xstart, proj_xend,, ] = this._get_projected_bounds()
         if (proj_xend - proj_xstart < 0) {
           this.map.setZoom(old_map_zoom)
         }

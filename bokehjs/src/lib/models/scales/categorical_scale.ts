@@ -18,10 +18,6 @@ export class CategoricalScale extends LinearScale {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CategoricalScale"
-  }
-
   source_range: FactorRange
 
   compute(x: any): number {
@@ -32,4 +28,3 @@ export class CategoricalScale extends LinearScale {
     return super.v_compute(this.source_range.v_synthetic(xs))
   }
 }
-CategoricalScale.initClass()

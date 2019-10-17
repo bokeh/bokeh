@@ -51,6 +51,7 @@ from ..models.renderers import GlyphRenderer
 from ..core.properties import ColorSpec, Datetime, value, field
 from ..transform import stack
 from ..util.dependencies import import_optional
+from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 #-----------------------------------------------------------------------------
@@ -315,21 +316,13 @@ def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
     return result
 
 
-def _get_legend_item_label(kwargs):
-    legend = kwargs.pop('legend', None)
-    source = kwargs.get('source')
-    legend_item_label = None
-    if legend:
-        if isinstance(legend, string_types):
-            # Do the simple thing first
-            legend_item_label = value(legend)
-            # But if there's a source - try and do something smart
-            if source is not None and hasattr(source, 'column_names'):
-                if legend in source.column_names:
-                    legend_item_label = field(legend)
-        else:
-            legend_item_label = legend
-    return legend_item_label
+_LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
+
+def _pop_legend_kwarg(kwargs):
+    result = {attr: kwargs.pop(attr) for attr in _LEGEND_ARGS if attr in kwargs}
+    if len(result) > 1:
+        raise ValueError("Only one of %s may be provided, got: %s" % (nice_join(_LEGEND_ARGS), nice_join(result.keys())))
+    return result
 
 
 _GLYPH_SOURCE_MSG = """
@@ -398,34 +391,102 @@ def _make_glyph(glyphclass, kws, extra):
     return glyphclass(**kws)
 
 
-def _update_legend(plot, legend_item_label, glyph_renderer):
-    # Get the plot's legend
+def _get_or_create_legend(plot):
     legends = plot.select(type=Legend)
     if not legends:
         legend = Legend()
         plot.add_layout(legend)
-    elif len(legends) == 1:
-        legend = legends[0]
-    else:
-        raise RuntimeError("Plot %s configured with more than one legend renderer" % plot)
+        return legend
+    if len(legends) == 1:
+        return legends[0]
+    raise RuntimeError("Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments" % plot)
 
-    # If there is an existing legend with a matching label, then put the
-    # renderer on that (if the source matches). Otherwise add a new one.
-    added = False
+
+def _find_legend_item(label, legend):
     for item in legend.items:
-        if item.label == legend_item_label:
-            if item.label.get('value'):
-                item.renderers.append(glyph_renderer)
-                added = True
-                break
-            if item.label.get('field') and \
-                    glyph_renderer.data_source is item.renderers[0].data_source:
-                item.renderers.append(glyph_renderer)
-                added = True
-                break
-    if not added:
-        new_item = LegendItem(label=legend_item_label, renderers=[glyph_renderer])
+        if item.label == label:
+            return item
+    return None
+
+
+def _handle_legend_deprecated(label, legend, glyph_renderer):
+    deprecated("'legend' keyword is deprecated, use explicit 'legend_label', 'legend_field', or 'legend_group' keywords instead")
+
+    if not isinstance(label, (string_types, dict)):
+        raise ValueError("Bad 'legend' parameter value: %s" % label)
+
+    if isinstance(label, dict):
+        if "field" in label and len(label) == 1:
+            label = label['field']
+            _handle_legend_field(label, legend, glyph_renderer)
+        elif "value" in label and len(label) == 1:
+            label = label['value']
+            _handle_legend_label(label, legend, glyph_renderer)
+
+        else:
+            raise ValueError("Bad 'legend' parameter value: %s" % label)
+    else:
+        source = glyph_renderer.data_source
+        if source is not None and hasattr(source, 'column_names') and label in source.column_names:
+            _handle_legend_field(label, legend, glyph_renderer)
+        else:
+            _handle_legend_label(label, legend, glyph_renderer)
+
+
+def _handle_legend_field(label, legend, glyph_renderer):
+    if not isinstance(label, string_types):
+        raise ValueError("legend_field value must be a string")
+    label = field(label)
+    item = _find_legend_item(label, legend)
+    if item:
+        item.renderers.append(glyph_renderer)
+    else:
+        new_item = LegendItem(label=label, renderers=[glyph_renderer])
         legend.items.append(new_item)
+
+
+def _handle_legend_group(label, legend, glyph_renderer):
+    if not isinstance(label, string_types):
+        raise ValueError("legend_group value must be a string")
+
+    source = glyph_renderer.data_source
+    if source is None:
+        raise ValueError("Cannot use 'legend_group' on a glyph without a data source already configured")
+    if not (hasattr(source, 'column_names') and label in source.column_names):
+        raise ValueError("Column to be grouped does not exist in glyph data source")
+
+    column = source.data[label]
+    vals, inds = np.unique(column, return_index=1)
+    for val, ind in zip(vals, inds):
+        label = value(str(val))
+        new_item = LegendItem(label=label, renderers=[glyph_renderer], index=ind)
+        legend.items.append(new_item)
+
+
+def _handle_legend_label(label, legend, glyph_renderer):
+    if not isinstance(label, string_types):
+        raise ValueError("legend_label value must be a string")
+    label = value(label)
+    item = _find_legend_item(label, legend)
+    if item:
+        item.renderers.append(glyph_renderer)
+    else:
+        new_item = LegendItem(label=label, renderers=[glyph_renderer])
+        legend.items.append(new_item)
+
+
+_LEGEND_KWARG_HANDLERS = {
+    'legend'       : _handle_legend_deprecated,
+    'legend_label' : _handle_legend_label,
+    'legend_field' : _handle_legend_field,
+    'legend_group' : _handle_legend_group,
+}
+
+def _update_legend(plot, legend_kwarg, glyph_renderer):
+    legend = _get_or_create_legend(plot)
+    kwarg, value = list(legend_kwarg.items())[0]
+
+    _LEGEND_KWARG_HANDLERS[kwarg](value, legend, glyph_renderer)
 
 
 def _get_range(range_input):
@@ -796,7 +857,7 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, **kwargs):
 
-        # Convert data source, if necesary
+        # Convert data source, if necessary
         is_user_source = kwargs.get('source', None) is not None
         if is_user_source:
             source = kwargs['source']
@@ -814,8 +875,8 @@ def _glyph_function(glyphclass, extra_docs=None):
                 # update reddered_kws so that others can use the new source
                 kwargs['source'] = source
 
-        # Process legend kwargs and remove legend before we get going
-        legend_item_label = _get_legend_item_label(kwargs)
+        # Save off legend kwargs before we get going
+        legend_kwarg = _pop_legend_kwarg(kwargs)
 
         # Need to check if user source is present before _pop_renderer_args
         renderer_kws = _pop_renderer_args(kwargs)
@@ -867,8 +928,8 @@ def _glyph_function(glyphclass, extra_docs=None):
                                        muted_glyph=mglyph,
                                        **renderer_kws)
 
-        if legend_item_label:
-            _update_legend(self, legend_item_label, glyph_renderer)
+        if legend_kwarg:
+            _update_legend(self, legend_kwarg, glyph_renderer)
 
         self.renderers.append(glyph_renderer)
 

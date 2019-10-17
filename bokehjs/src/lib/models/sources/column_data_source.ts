@@ -30,7 +30,7 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
       // resize col if it is shorter than the rollover length
       let result: TypedArray
       if (col.length < rollover) {
-        result = new ((col as any).constructor)(rollover)
+        result = new col.constructor(rollover)
         result.set(col, 0)
       } else
         result = col
@@ -47,7 +47,7 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
 
       return result
     } else {
-      const tmp = new ((col as any).constructor)(new_col)
+      const tmp = new col.constructor(new_col)
       return typed_array.concat(col, tmp)
     }
   } else
@@ -156,9 +156,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ColumnDataSource'
-
+  static init_ColumnDataSource(): void {
     this.define<ColumnDataSource.Props>({
       data: [ p.Any, {} ],
     })
@@ -220,4 +218,3 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
   }
 }
-ColumnDataSource.initClass()

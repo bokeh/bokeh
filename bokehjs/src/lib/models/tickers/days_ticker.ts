@@ -1,6 +1,6 @@
 import {TickSpec} from "./ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
-import {copy_date,last_month_no_later_than,ONE_DAY} from "./util"
+import {copy_date, last_month_no_later_than, ONE_DAY} from "./util"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
 
@@ -49,9 +49,7 @@ export class DaysTicker extends SingleIntervalTicker {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DaysTicker"
-
+  static init_DaysTicker(): void {
     this.define<DaysTicker.Props>({
       days: [ p.Array, [] ],
     })
@@ -107,4 +105,3 @@ export class DaysTicker extends SingleIntervalTicker {
     }
   }
 }
-DaysTicker.initClass()

@@ -1,23 +1,10 @@
 import tz = require("timezone")
 
-import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
+import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
 import * as p from "core/properties"
 
-export class DateRangeSliderView extends AbstractSliderView {
+export class DateRangeSliderView extends AbstractRangeSliderView {
   model: DateRangeSlider
-
-  protected _calc_to(): SliderSpec {
-    return {
-      start: this.model.start,
-      end: this.model.end,
-      value: this.model.value,
-      step: this.model.step,
-    }
-  }
-
-  protected _calc_from(values: number[]): number[] {
-    return values
-  }
 }
 
 export namespace DateRangeSlider {
@@ -35,8 +22,7 @@ export class DateRangeSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "DateRangeSlider"
+  static init_DateRangeSlider(): void {
     this.prototype.default_view = DateRangeSliderView
 
     this.override({
@@ -51,4 +37,3 @@ export class DateRangeSlider extends AbstractSlider {
     return tz(value, format)
   }
 }
-DateRangeSlider.initClass()

@@ -89,9 +89,10 @@ class BokehServerContext(ServerContext):
         self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
-    def __init__(self, session_id, server_context, document):
+    def __init__(self, session_id, server_context, document, logout_url=None):
         self._document = document
         self._session = None
+        self._logout_url = logout_url
         super(BokehSessionContext, self).__init__(server_context,
                                                   session_id)
         # request arguments used to instantiate this session
@@ -118,6 +119,10 @@ class BokehSessionContext(SessionContext):
             return self._session.destroyed
 
     @property
+    def logout_url(self):
+        return self._logout_url
+
+    @property
     def request(self):
         return self._request
 
@@ -132,7 +137,7 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, io_loop=None, url=None):
+    def __init__(self, application, io_loop=None, url=None, logout_url=None):
         self._application = application
         self._loop = io_loop
         self._sessions = dict()
@@ -140,6 +145,7 @@ class ApplicationContext(object):
         self._session_contexts = dict()
         self._server_context = None
         self._url = url
+        self._logout_url = logout_url
 
     @property
     def io_loop(self):
@@ -198,7 +204,8 @@ class ApplicationContext(object):
 
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,
-                                                  doc)
+                                                  doc,
+                                                  logout_url=self._logout_url)
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request)
 
@@ -302,13 +309,23 @@ class ApplicationContext(object):
 
 class _RequestProxy(object):
     def __init__(self, request):
-        args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
-        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
-        self._args = args_copy
+        self._request = request
+
+        arguments = dict(request.arguments)
+        if 'bokeh-protocol-version' in arguments: del arguments['bokeh-protocol-version']
+        if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
+        self._arguments = arguments
+
     @property
     def arguments(self):
-        return self._args
+        return self._arguments
+
+    def __getattr__(self, name):
+        if not name.startswith("_"):
+            val = getattr(self._request, name, None)
+            if val is not None:
+                return val
+        return super.__getattr__(name)
 
 #-----------------------------------------------------------------------------
 # Code

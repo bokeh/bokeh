@@ -111,8 +111,7 @@ export class Plot extends LayoutDOM {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Plot"
+  static init_Plot(): void {
     this.prototype.default_view = PlotView
 
     this.mixins(["line:outline_", "fill:background_", "fill:border_"])
@@ -253,4 +252,3 @@ export class Plot extends LayoutDOM {
     return concat([above, below, left, right])
   }
 }
-Plot.initClass()

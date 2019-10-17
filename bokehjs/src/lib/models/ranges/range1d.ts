@@ -21,9 +21,7 @@ export class Range1d extends Range {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Range1d"
-
+  static init_Range1d(): void {
     this.define<Range1d.Props>({
       start:  [ p.Number, 0 ],
       end:    [ p.Number, 1 ],
@@ -67,4 +65,3 @@ export class Range1d extends Range {
       this.change.emit()
   }
 }
-Range1d.initClass()

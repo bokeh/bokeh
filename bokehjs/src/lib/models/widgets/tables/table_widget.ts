@@ -21,9 +21,7 @@ export class TableWidget extends Widget {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "TableWidget"
-
+  static init_TableWidget(): void {
     this.define<TableWidget.Props>({
       source: [ p.Instance ],
       view:   [ p.Instance, () => new CDSView() ],
@@ -39,4 +37,3 @@ export class TableWidget extends Widget {
     }
   }
 }
-TableWidget.initClass()

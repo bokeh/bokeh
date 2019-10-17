@@ -17,18 +17,35 @@ import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import * as events from "./bokeh_events"
 
-export type GestureEvent = {
-  type: "pan" | "panstart" | "panend" | "pinch" | "pinchstart" | "pinchend"
+export type PanEvent = {
+  type: "pan" | "panstart" | "panend"
   sx: number
   sy: number
   deltaX: number
   deltaY: number
+  shiftKey: boolean
+}
+
+export type PinchEvent = {
+  type: "pinch" | "pinchstart" | "pinchend"
+  sx: number
+  sy: number
   scale: number
   shiftKey: boolean
 }
 
+export type RotateEvent = {
+  type: "rotate" | "rotatestart" | "rotateend"
+  sx: number
+  sy: number
+  rotation: number
+  shiftKey: boolean
+}
+
+export type GestureEvent = PanEvent | PinchEvent | RotateEvent
+
 export type TapEvent = {
-  type: "tap" | "doubletap" | "press"
+  type: "tap" | "doubletap" | "press" | "pressup"
   sx: number
   sy: number
   shiftKey: boolean
@@ -54,34 +71,37 @@ export type KeyEvent = {
   keyCode: Keys
 }
 
-export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "scroll"
+export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "pressup" | "scroll"
 
 export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
 
 export class UIEvents implements EventListenerObject {
 
-  readonly pan_start    : UISignal<GestureEvent> = new Signal(this, 'pan:start')
-  readonly pan          : UISignal<GestureEvent> = new Signal(this, 'pan')
-  readonly pan_end      : UISignal<GestureEvent> = new Signal(this, 'pan:end')
-  readonly pinch_start  : UISignal<GestureEvent> = new Signal(this, 'pinch:start')
-  readonly pinch        : UISignal<GestureEvent> = new Signal(this, 'pinch')
-  readonly pinch_end    : UISignal<GestureEvent> = new Signal(this, 'pinch:end')
-  readonly rotate_start : UISignal<GestureEvent> = new Signal(this, 'rotate:start')
-  readonly rotate       : UISignal<GestureEvent> = new Signal(this, 'rotate')
-  readonly rotate_end   : UISignal<GestureEvent> = new Signal(this, 'rotate:end')
+  readonly pan_start:    UISignal<PanEvent> = new Signal(this, 'pan:start')
+  readonly pan:          UISignal<PanEvent> = new Signal(this, 'pan')
+  readonly pan_end:      UISignal<PanEvent> = new Signal(this, 'pan:end')
 
-  readonly tap          : UISignal<TapEvent>     = new Signal(this, 'tap')
-  readonly doubletap    : UISignal<TapEvent>     = new Signal(this, 'doubletap')
-  readonly press        : UISignal<TapEvent>     = new Signal(this, 'press')
+  readonly pinch_start:  UISignal<PinchEvent> = new Signal(this, 'pinch:start')
+  readonly pinch:        UISignal<PinchEvent> = new Signal(this, 'pinch')
+  readonly pinch_end:    UISignal<PinchEvent> = new Signal(this, 'pinch:end')
 
-  readonly move_enter   : UISignal<MoveEvent>    = new Signal(this, 'move:enter')
-  readonly move         : UISignal<MoveEvent>    = new Signal(this, 'move')
-  readonly move_exit    : UISignal<MoveEvent>    = new Signal(this, 'move:exit')
+  readonly rotate_start: UISignal<RotateEvent> = new Signal(this, 'rotate:start')
+  readonly rotate:       UISignal<RotateEvent> = new Signal(this, 'rotate')
+  readonly rotate_end:   UISignal<RotateEvent> = new Signal(this, 'rotate:end')
 
-  readonly scroll       : UISignal<ScrollEvent>  = new Signal(this, 'scroll')
+  readonly tap:          UISignal<TapEvent>     = new Signal(this, 'tap')
+  readonly doubletap:    UISignal<TapEvent>     = new Signal(this, 'doubletap')
+  readonly press:        UISignal<TapEvent>     = new Signal(this, 'press')
+  readonly pressup:      UISignal<TapEvent>     = new Signal(this, 'pressup')
 
-  readonly keydown      : UISignal<KeyEvent>     = new Signal(this, 'keydown')
-  readonly keyup        : UISignal<KeyEvent>     = new Signal(this, 'keyup')
+  readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, 'move:enter')
+  readonly move:         UISignal<MoveEvent>    = new Signal(this, 'move')
+  readonly move_exit:    UISignal<MoveEvent>    = new Signal(this, 'move:exit')
+
+  readonly scroll:       UISignal<ScrollEvent>  = new Signal(this, 'scroll')
+
+  readonly keydown:      UISignal<KeyEvent>     = new Signal(this, 'keydown')
+  readonly keyup:        UISignal<KeyEvent>     = new Signal(this, 'keyup')
 
   private readonly hammer = new Hammer(this.hit_area, {touchAction: 'auto'})
 
@@ -128,6 +148,7 @@ export class UIEvents implements EventListenerObject {
     this.hammer.on('doubletap', (e) => this._doubletap(e))
     this.hammer.on('tap', (e) => this._tap(e))
     this.hammer.on('press', (e) => this._press(e))
+    this.hammer.on('pressup', (e) => this._pressup(e))
 
     this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
     this.hammer.on('panstart', (e) => this._pan_start(e))
@@ -201,6 +222,7 @@ export class UIEvents implements EventListenerObject {
       }
       case "press": {
         if (v._press != null)        v.connect(this.press,        conditionally(v._press.bind(v)))
+        if (v._pressup != null)      v.connect(this.pressup,      conditionally(v._pressup.bind(v)))
         break
       }
       case "scroll": {
@@ -370,6 +392,8 @@ export class UIEvents implements EventListenerObject {
           return new events.DoubleTap(sx, sy, x, y)
         case "press":
           return new events.Press(sx, sy, x, y)
+        case "pressup":
+          return new events.PressUp(sx, sy, x, y)
         case "pan":
           return new events.Pan(sx, sy, x, y, e.deltaX, e.deltaY)
         case "panstart":
@@ -382,12 +406,19 @@ export class UIEvents implements EventListenerObject {
           return new events.PinchStart(sx, sy, x, y)
         case "pinchend":
           return new events.PinchEnd(sx, sy, x, y)
+        case "rotate":
+          return new events.Rotate(sx, sy, x, y, e.rotation)
+        case "rotatestart":
+          return new events.RotateStart(sx, sy, x, y)
+        case "rotateend":
+          return new events.RotateEnd(sx, sy, x, y)
         default:
-          throw new Error("unreachable")
+          return undefined
       }
     })()
 
-    this.plot_view.model.trigger_event(ev)
+    if (ev != null)
+      this.plot_view.model.trigger_event(ev)
   }
 
   private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
@@ -403,13 +434,30 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  private _gesture_event(e: HammerEvent): GestureEvent {
+  private _pan_event(e: HammerEvent): PanEvent {
     return {
-      type: e.type as GestureEvent["type"],
+      type: e.type as PanEvent["type"],
       ...this._get_sxy(e.srcEvent),
       deltaX: e.deltaX,
       deltaY: e.deltaY,
+      shiftKey: e.srcEvent.shiftKey,
+    }
+  }
+
+  private _pinch_event(e: HammerEvent): PinchEvent {
+    return {
+      type: e.type as PinchEvent["type"],
+      ...this._get_sxy(e.srcEvent),
       scale: e.scale,
+      shiftKey: e.srcEvent.shiftKey,
+    }
+  }
+
+  private _rotate_event(e: HammerEvent): RotateEvent {
+    return {
+      type: e.type as RotateEvent["type"],
+      ...this._get_sxy(e.srcEvent),
+      rotation: e.rotation,
       shiftKey: e.srcEvent.shiftKey,
     }
   }
@@ -444,7 +492,7 @@ export class UIEvents implements EventListenerObject {
   }
 
   private _pan_start(e: HammerEvent): void {
-    const ev = this._gesture_event(e)
+    const ev = this._pan_event(e)
     // back out delta to get original center point
     ev.sx -= e.deltaX
     ev.sy -= e.deltaY
@@ -452,35 +500,35 @@ export class UIEvents implements EventListenerObject {
   }
 
   private _pan(e: HammerEvent): void {
-    this._trigger(this.pan, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.pan, this._pan_event(e), e.srcEvent)
   }
 
   private _pan_end(e: HammerEvent): void {
-    this._trigger(this.pan_end, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.pan_end, this._pan_event(e), e.srcEvent)
   }
 
   private _pinch_start(e: HammerEvent): void {
-    this._trigger(this.pinch_start, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.pinch_start, this._pinch_event(e), e.srcEvent)
   }
 
   private _pinch(e: HammerEvent): void {
-    this._trigger(this.pinch, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.pinch, this._pinch_event(e), e.srcEvent)
   }
 
   private _pinch_end(e: HammerEvent): void {
-    this._trigger(this.pinch_end, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.pinch_end, this._pinch_event(e), e.srcEvent)
   }
 
   private _rotate_start(e: HammerEvent): void {
-    this._trigger(this.rotate_start, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.rotate_start, this._rotate_event(e), e.srcEvent)
   }
 
   private _rotate(e: HammerEvent): void {
-    this._trigger(this.rotate, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.rotate, this._rotate_event(e), e.srcEvent)
   }
 
   private _rotate_end(e: HammerEvent): void {
-    this._trigger(this.rotate_end, this._gesture_event(e), e.srcEvent)
+    this._trigger(this.rotate_end, this._rotate_event(e), e.srcEvent)
   }
 
   private _tap(e: HammerEvent): void {
@@ -496,6 +544,10 @@ export class UIEvents implements EventListenerObject {
 
   private _press(e: HammerEvent): void {
     this._trigger(this.press, this._tap_event(e), e.srcEvent)
+  }
+
+  private _pressup(e: HammerEvent): void {
+    this._trigger(this.pressup, this._tap_event(e), e.srcEvent)
   }
 
   private _mouse_enter(e: MouseEvent): void {

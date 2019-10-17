@@ -26,8 +26,10 @@ import json
 
 # External imports
 from tornado import gen
+from tornado.web import authenticated
 
 # Bokeh imports
+from .auth_mixin import AuthMixin
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
@@ -46,12 +48,13 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class MetadataHandler(SessionHandler):
+class MetadataHandler(SessionHandler, AuthMixin):
     ''' Implements a custom Tornado handler for document display page
 
     '''
 
     @gen.coroutine
+    @authenticated
     def get(self, *args, **kwargs):
         url = self.application_context.url
         userdata = self.application_context.application.metadata

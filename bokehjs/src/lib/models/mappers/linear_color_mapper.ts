@@ -18,10 +18,6 @@ export class LinearColorMapper extends ContinuousColorMapper {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LinearColorMapper"
-  }
-
   protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
       palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
     const {nan_color, low_color, high_color} = colors
@@ -60,4 +56,3 @@ export class LinearColorMapper extends ContinuousColorMapper {
     }
   }
 }
-LinearColorMapper.initClass()

@@ -1,10 +1,8 @@
-const {Grid: SlickGrid} = require("slickgrid")
-type SlickGrid = typeof SlickGrid
-
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
 const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
 
+import {Grid as SlickGrid, DataProvider} from "slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
@@ -14,18 +12,18 @@ import {logger} from "core/logging"
 import {LayoutItem} from "core/layout"
 
 import {TableWidget} from "./table_widget"
-import {Column, TableColumn} from "./table_column"
+import {TableColumn, ColumnType, Item} from "./table_column"
 import {WidgetView} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
+
+import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "styles/widgets/tables"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare var $: any
 
-export type Item = {[key: string]: any}
-
-export class DataProvider {
+export class TableDataProvider implements DataProvider<Item> {
 
   readonly index: number[]
 
@@ -97,8 +95,8 @@ export class DataProvider {
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  private data: DataProvider
-  private grid: SlickGrid
+  protected data: TableDataProvider
+  protected grid: SlickGrid<Item>
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false
@@ -136,14 +134,17 @@ export class DataTableView extends WidgetView {
 
     // This is obnoxious but there is no better way to programmatically force
     // a re-sort on the existing sorted columns until/if we start using DataView
-    const columns = this.grid.getColumns()
-    const sorters = this.grid.getSortColumns().map((x: any) => ({
-      sortCol: {
-        field: columns[this.grid.getColumnIndex(x.columnId)].field,
-      },
-      sortAsc: x.sortAsc,
-    }))
-    this.data.sort(sorters)
+    if (this.model.sortable) {
+      const columns = this.grid.getColumns()
+      const sorters = this.grid.getSortColumns().map((x) => ({
+        sortCol: {
+          field: columns[this.grid.getColumnIndex(x.columnId)].field,
+        },
+        sortAsc: x.sortAsc,
+      }))
+
+      this.data.sort(sorters)
+    }
 
     this.grid.invalidate()
     this.grid.render()
@@ -155,7 +156,7 @@ export class DataTableView extends WidgetView {
 
     const {selected} = this.model.source
 
-    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x))
+    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x)).sort()
 
     this._in_selection_update = true
     this.grid.setSelectedRows(permuted_indices)
@@ -172,7 +173,7 @@ export class DataTableView extends WidgetView {
       this.grid.scrollRowToTop(scroll_index)
   }
 
-  newIndexColumn(): Column {
+  newIndexColumn(): ColumnType {
     return {
       id: uniqueId(),
       name: this.model.index_header,
@@ -183,13 +184,13 @@ export class DataTableView extends WidgetView {
       resizable: false,
       selectable: false,
       sortable: true,
-      cssClass: "bk-cell-index",
-      headerCssClass: "bk-header-index",
+      cssClass: bk_cell_index,
+      headerCssClass: bk_header_index,
     }
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-data-table")
+    return super.css_classes().concat(bk_data_table)
   }
 
   render(): void {
@@ -197,7 +198,7 @@ export class DataTableView extends WidgetView {
     let columns = this.model.columns.map((column) => column.toColumn())
 
     if (this.model.selectable == "checkbox") {
-      checkboxSelector = new CheckboxSelectColumn({cssClass: "bk-cell-select"})
+      checkboxSelector = new CheckboxSelectColumn({cssClass: bk_cell_select})
       columns.unshift(checkboxSelector.getColumnDefinition())
     }
 
@@ -234,10 +235,12 @@ export class DataTableView extends WidgetView {
       rowHeight: this.model.row_height,
     }
 
-    this.data = new DataProvider(this.model.source, this.model.view)
+    this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
+      if (!this.model.sortable)
+        return
       columns = args.sortCols
       this.data.sort(columns)
       this.grid.invalidate()
@@ -247,7 +250,7 @@ export class DataTableView extends WidgetView {
         this._hide_header()
       }
       this.model.update_sort_columns(columns)
-   })
+    })
 
     if (this.model.selectable !== false) {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkboxSelector == null}))
@@ -272,7 +275,6 @@ export class DataTableView extends WidgetView {
         if (this._in_selection_update) {
           return
         }
-
         this.model.source.selected.indices = args.rows.map((i: number) => this.data.index[i])
       })
 
@@ -324,8 +326,7 @@ export class DataTable extends TableWidget {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'DataTable'
+  static init_DataTable(): void {
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>({
@@ -350,7 +351,7 @@ export class DataTable extends TableWidget {
   }
 
   update_sort_columns(sortCols: any): null {
-    this._sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))
+    this._sort_columns=sortCols.map((x: any) => ({field:x.sortCol.field, sortAsc:x.sortAsc}))
     return null
   }
 
@@ -365,4 +366,3 @@ export class DataTable extends TableWidget {
     return null
   }
 }
-DataTable.initClass()

@@ -46,9 +46,9 @@ DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
 ## Test JSResources
 
-def test_js_resources_default_mode_is_inline():
+def test_js_resources_default_mode_is_cdn():
     r = resources.JSResources()
-    assert r.mode == "inline"
+    assert r.mode == "cdn"
 
 
 def test_js_resources_inline_has_no_css_resources():
@@ -64,9 +64,9 @@ def test_js_resources_inline_has_no_css_resources():
 
 ## Test CSSResources
 
-def test_css_resources_default_mode_is_inline():
+def test_css_resources_default_mode_is_cdn():
     r = resources.CSSResources()
-    assert r.mode == "inline"
+    assert r.mode == "cdn"
 
 
 def test_inline_css_resources():
@@ -74,7 +74,7 @@ def test_inline_css_resources():
     assert r.mode == "inline"
     assert r.dev is False
 
-    assert len(r.css_raw) == 3
+    assert len(r.css_raw) == 0
     assert hasattr(r, 'js_raw') is False
     assert r.messages == []
 
@@ -83,7 +83,7 @@ class TestResources(object):
 
     def test_basic(self):
         r = resources.Resources()
-        assert r.mode == "inline"
+        assert r.mode == "cdn"
 
     def test_log_level(self):
         r = resources.Resources()
@@ -106,7 +106,7 @@ class TestResources(object):
 
         assert len(r.js_raw) == 5
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
-        assert len(r.css_raw) == 3
+        assert len(r.css_raw) == 0
         assert r.messages == []
 
     def test_get_cdn_urls(self):
@@ -146,10 +146,6 @@ class TestResources(object):
                               'http://localhost:5006/static/js/bokeh-tables.min.js',
                               'http://localhost:5006/static/js/bokeh-gl.min.js']
 
-        assert r.css_files == ['http://localhost:5006/static/css/bokeh.min.css',
-                               'http://localhost:5006/static/css/bokeh-widgets.min.css',
-                               'http://localhost:5006/static/css/bokeh-tables.min.css']
-
     def test_server_root_url(self):
         r = resources.Resources(mode="server", root_url="http://foo/")
 
@@ -161,10 +157,6 @@ class TestResources(object):
                               'http://foo/static/js/bokeh-widgets.min.js',
                               'http://foo/static/js/bokeh-tables.min.js',
                               'http://foo/static/js/bokeh-gl.min.js']
-
-        assert r.css_files == ['http://foo/static/css/bokeh.min.css',
-                               'http://foo/static/css/bokeh-widgets.min.css',
-                               'http://foo/static/css/bokeh-tables.min.css']
 
     def test_server_root_url_empty(self):
         r = resources.Resources(mode="server", root_url="")
@@ -178,10 +170,6 @@ class TestResources(object):
                               'static/js/bokeh-tables.min.js',
                               'static/js/bokeh-gl.min.js']
 
-        assert r.css_files == ['static/css/bokeh.min.css',
-                               'static/css/bokeh-widgets.min.css',
-                               'static/css/bokeh-tables.min.css']
-
 
     def test_server_with_versioner(self):
         def versioner(path):
@@ -194,10 +182,6 @@ class TestResources(object):
                               'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
                               'http://foo/static/js/bokeh-tables.min.js?v=VERSIONED',
                               'http://foo/static/js/bokeh-gl.min.js?v=VERSIONED']
-
-        assert r.css_files == ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
-                               'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED',
-                               'http://foo/static/css/bokeh-tables.min.css?v=VERSIONED']
 
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")

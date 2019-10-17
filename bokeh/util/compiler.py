@@ -357,13 +357,6 @@ def bundle_all_models():
 _plugin_umd = \
 """\
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    factory(require("Bokeh"));
-//  else if(typeof define === 'function' && define.amd)
-//    define(["Bokeh"], factory);
-//  else if(typeof exports === 'object')
-//    factory(require("Bokeh"));
-//  else
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
@@ -371,12 +364,12 @@ _plugin_umd = \
 });
 """
 
-# XXX: this is the same as bokehjs/src/js/plugin-prelude.js
+# XXX: this is (almost) the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
 """\
 (function outer(modules, entry) {
   if (Bokeh != null) {
-    return Bokeh.register_plugin(modules, {}, entry);
+    return Bokeh.register_plugin(modules, entry);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
@@ -546,12 +539,15 @@ def _bundle_models(custom_models):
     exports = []
     modules = []
 
-    def read_json(name):
-        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
+    with io.open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
+        bokeh = json.loads(f.read())
 
-    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    known_modules = set(sum([ read_json(name) for name in bundles ], []))
+    known_modules = set()
+    for artifact in bokeh["artifacts"]:
+        canonical = artifact["module"].get("canonical")
+        if canonical is not None:
+            known_modules.add(canonical)
+
     custom_impls = _compile_models(custom_models)
 
     extra_modules = {}

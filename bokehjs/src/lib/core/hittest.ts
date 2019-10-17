@@ -1,10 +1,10 @@
-import {Rect} from "./types"
+import {Arrayable} from "./types"
 import {sort_by} from "./util/array"
 import {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null
 
-export function point_in_poly(x: number, y: number, px: number[], py: number[]): boolean {
+export function point_in_poly(x: number, y: number, px: Arrayable<number>, py: Arrayable<number>): boolean {
   let inside = false
 
   let x1 = px[px.length-1]
@@ -41,13 +41,6 @@ export function create_hit_test_result_from_hits(hits: [number, number][]): Sele
   const result = new Selection()
   result.indices = sort_by(hits, ([_i, dist]) => dist).map(([i, _dist]) => i)
   return result
-}
-
-export function validate_bbox_coords([x0, x1]: [number, number], [y0, y1]: [number, number]): Rect {
-  // spatial index (flatbush) expects x0, y0 to be min, x1, y1 max
-  if (x0 > x1) [x0, x1] = [x1, x0]
-  if (y0 > y1) [y0, y1] = [y1, y0]
-  return {minX: x0, minY: y0, maxX: x1, maxY: y1}
 }
 
 function sqr(x: number): number {

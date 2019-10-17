@@ -7,13 +7,11 @@ import * as p from "@bokehjs/core/properties"
 import {keys, extend} from "@bokehjs/core/util/object"
 
 class TestModel extends HasProps {}
-TestModel.prototype.type = "TestModel"
 
 class SubclassWithProps extends HasProps {
   foo: number
   bar: boolean
 }
-SubclassWithProps.prototype.type = "SubclassWithProps"
 SubclassWithProps.define<any>({
   foo: [ p.Number,  0    ],
   bar: [ p.Boolean, true ],
@@ -22,28 +20,23 @@ SubclassWithProps.define<any>({
 class SubSubclassWithProps extends SubclassWithProps {
   baz: string
 }
-SubSubclassWithProps.prototype.type = "SubSubclassWithProps"
 SubSubclassWithProps.define<any>({
   baz: [ p.String, '' ],
 })
 
 class SubclassWithMixins extends HasProps {}
-SubclassWithMixins.prototype.type = "SubclassWithMixins"
 SubclassWithMixins.mixin('line')
 
 class SubSubclassWithMixins extends SubclassWithMixins {}
-SubSubclassWithMixins.prototype.type = "SubSubclassWithMixins"
 SubSubclassWithMixins.mixin('fill:foo_')
 
 class SubclassWithMultipleMixins extends HasProps {}
-SubclassWithMultipleMixins.prototype.type = "SubclassWithMultipleMixins"
 SubclassWithMultipleMixins.mixin('line', 'text:bar_')
 
 class SubclassWithNumberSpec extends HasProps {
   foo: any // XXX
   bar: boolean
 }
-SubclassWithNumberSpec.prototype.type = "SubclassWithNumberSpec"
 SubclassWithNumberSpec.define<any>({
   foo: [ p.NumberSpec, {field: 'colname'} ],
   bar: [ p.Boolean,    true               ],
@@ -53,7 +46,6 @@ class SubclassWithDistanceSpec extends HasProps {
   foo: any // XXX
   bar: boolean
 }
-SubclassWithDistanceSpec.prototype.type = "SubclassWithDistanceSpec"
 SubclassWithDistanceSpec.define<any>({
   foo: [ p.DistanceSpec, {field: 'colname'} ],
   bar: [ p.Boolean,      true               ],
@@ -63,7 +55,6 @@ class SubclassWithTransformSpec extends HasProps {
   foo: any // XX
   bar: boolean
 }
-SubclassWithTransformSpec.prototype.type = "SubclassWithTransformSpec"
 SubclassWithTransformSpec.define<any>({
   foo: [ p.NumberSpec, {field: 'colname', transform: new TestModel()} ],
   bar: [ p.Boolean,    true               ],
@@ -74,7 +65,6 @@ class SubclassWithOptionalSpec extends HasProps {
   bar: boolean
   baz: any // XXX
 }
-SubclassWithOptionalSpec.prototype.type = "SubclassWithOptionalSpec"
 SubclassWithOptionalSpec.define<any>({
   foo: [ p.NumberSpec, {value: null}      ],
   bar: [ p.Boolean,    true               ],

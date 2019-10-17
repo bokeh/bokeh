@@ -30,8 +30,7 @@ export class Button extends AbstractButton {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Button"
+  static init_Button(): void {
     this.prototype.default_view = ButtonView
 
     this.define<Button.Props>({
@@ -43,4 +42,3 @@ export class Button extends AbstractButton {
     })
   }
 }
-Button.initClass()

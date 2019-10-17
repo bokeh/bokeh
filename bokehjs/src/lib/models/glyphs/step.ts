@@ -3,7 +3,7 @@ import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import * as p from "core/properties"
-import {Area} from "core/types"
+import {Rect} from "core/types"
 import {StepMode} from "core/enums"
 import {Context2d} from "core/util/canvas"
 
@@ -33,12 +33,12 @@ export class StepView extends XYGlyphView {
       let y1: number, y2: number
       switch (this.model.mode) {
         case "before": {
-           [x1, y1] = [sx[i-1], sy[i]]
+          [x1, y1] = [sx[i-1], sy[i]]
           ;[x2, y2] = [sx[i],   sy[i]]
           break
         }
         case "after": {
-           [x1, y1] = [sx[i], sy[i-1]]
+          [x1, y1] = [sx[i], sy[i-1]]
           ;[x2, y2] = [sx[i], sy[i]  ]
           break
         }
@@ -83,7 +83,7 @@ export class StepView extends XYGlyphView {
     ctx.stroke()
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -107,8 +107,7 @@ export class Step extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'Step'
+  static init_Step(): void {
     this.prototype.default_view = StepView
 
     this.mixins(['line'])
@@ -117,4 +116,3 @@ export class Step extends XYGlyph {
     })
   }
 }
-Step.initClass()

@@ -85,13 +85,13 @@ describe("tile sources", () => {
     const source = new AbstractTileSource(tile_options)
 
     it("should convert tile xyz into a tile key", () => {
-      const k = source.tile_xyz_to_key(1,1,1)
+      const k = source.tile_xyz_to_key(1, 1, 1)
       expect(k).to.be.equal("1:1:1")
     })
 
     it("should convert tile key to tile xyz", () => {
       const xyz = source.key_to_tile_xyz('1:1:1')
-      expect(xyz).to.be.eql([1,1,1])
+      expect(xyz).to.be.eql([1, 1, 1])
     })
 
     it("should successfully set x_origin_offset and y_origin_offset", () => {
@@ -119,7 +119,7 @@ describe("tile sources", () => {
       const expect_url = 'http://test_value/test_value2/0/0/0.png'
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
       expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
-      expect(tile_source.get_image_url(0,0,0)).to.be.equal(expect_url)
+      expect(tile_source.get_image_url(0, 0, 0)).to.be.equal(expect_url)
     })
 
     it("should handle case-insensitive url parameters (template url)", () => {
@@ -129,13 +129,13 @@ describe("tile sources", () => {
         url: 'http://mock/{x}/{y}/{z}.png',
       }
       const tile_source0 = new AbstractTileSource(tile_options0)
-      expect(tile_source0.get_image_url(0,0,0)).to.be.equal(expect_url)
+      expect(tile_source0.get_image_url(0, 0, 0)).to.be.equal(expect_url)
 
       const tile_options1 = {
         url: 'http://mock/{X}/{Y}/{Z}.png',
       }
       const tile_source1 = new AbstractTileSource(tile_options1)
-      expect(tile_source1.get_image_url(0,0,0)).to.be.equal(expect_url)
+      expect(tile_source1.get_image_url(0, 0, 0)).to.be.equal(expect_url)
     })
 
     it("should return tiles in ascending distance from center tile", () => {
@@ -270,7 +270,7 @@ describe("tile sources", () => {
     it("should handle case-insensitive url parameters (template url)", () => {
       const tile_options0 = {url: 'http://mock?bbox={xmin},{ymin},{xmax},{ymax}'}
       const tile_source0 = new BBoxTileSource(tile_options0)
-      const url0 = tile_source0.get_image_url(0,0,0)
+      const url0 = tile_source0.get_image_url(0, 0, 0)
       expect(url0.indexOf('{xmin}')).to.be.equal(-1)
       expect(url0.indexOf('{ymin}')).to.be.equal(-1)
       expect(url0.indexOf('{xmax}')).to.be.equal(-1)
@@ -278,7 +278,7 @@ describe("tile sources", () => {
 
       const tile_options1 = {url: 'http://mock?bbox={XMIN},{YMIN},{XMAX},{YMAX}'}
       const tile_source1 = new BBoxTileSource(tile_options1)
-      const url1 = tile_source1.get_image_url(0,0,0)
+      const url1 = tile_source1.get_image_url(0, 0, 0)
       expect(url1.indexOf('{XMIN}')).to.be.equal(-1)
       expect(url1.indexOf('{YMIN}')).to.be.equal(-1)
       expect(url1.indexOf('{XMAX}')).to.be.equal(-1)
@@ -302,18 +302,18 @@ describe("tile sources", () => {
 
     it("should convert cache key into tile x,y,z", () => {
       const source = new MercatorTileSource()
-      expect(source.key_to_tile_xyz("1:1:1")).to.be.eql([1,1,1])
+      expect(source.key_to_tile_xyz("1:1:1")).to.be.eql([1, 1, 1])
     })
 
     it("should successfully wrap around (x-axis) for normalized tile coordinates", () => {
       const source = new MercatorTileSource()
-      expect(source.normalize_xyz(-1, 1, 2)).to.be.eql([3,1,2])
+      expect(source.normalize_xyz(-1, 1, 2)).to.be.eql([3, 1, 2])
     })
 
     it("should successfully get closest parent tile by xyz", () => {
       const source = new MercatorTileSource()
-      source.tiles[source.tile_xyz_to_key(0,1,1)] = {tile_coords: [0, 0, 0]}
-      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.eql([0,1,1])
+      source.tiles.set(source.tile_xyz_to_key(0, 1, 1), {tile_coords: [0, 0, 0]})
+      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.eql([0, 1, 1])
     })
 
     it("should verify whether tile xyz's are valid", () => {
@@ -365,8 +365,8 @@ describe("tile sources", () => {
 
     it("should convert pixel x/y to tile x/y", () => {
       const source = new MercatorTileSource()
-      expect(source.pixels_to_tile(1, 1)).to.be.eql([0,0])
-      expect(source.pixels_to_tile(0, 0)).to.be.eql([0,0])
+      expect(source.pixels_to_tile(1, 1)).to.be.eql([0, 0])
+      expect(source.pixels_to_tile(0, 0)).to.be.eql([0, 0])
     })
 
     it("should convert pixel x/y to meters x/y", () => {

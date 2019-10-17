@@ -12,7 +12,7 @@ export class GridBoxView extends LayoutDOMView {
   }
 
   get child_models(): LayoutDOM[] {
-    return this.model.children.map(([child,]) => child)
+    return this.model.children.map(([child]) => child)
   }
 
   _update_layout(): void {
@@ -50,8 +50,7 @@ export class GridBox extends LayoutDOM {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "GridBox"
+  static init_GridBox(): void {
     this.prototype.default_view = GridBoxView
 
     this.define<GridBox.Props>({
@@ -62,4 +61,3 @@ export class GridBox extends LayoutDOM {
     })
   }
 }
-GridBox.initClass()

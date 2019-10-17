@@ -67,9 +67,9 @@ class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
-    def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, log_level="info", root_url=None,
-                 path_versioner=None, components=None):
+    def __init__(self, mode=None, version=None, root_dir=None,
+                 minified=None, log_level=None, root_url=None,
+                 path_versioner=None, components=None, base_dir=None):
 
         self._components = components
 
@@ -115,6 +115,8 @@ class BaseResources(object):
             server = self._server_urls()
             self.messages.extend(server['messages'])
 
+        self.base_dir = base_dir or bokehjsdir(self.dev)
+
     # Properties --------------------------------------------------------------
 
     @property
@@ -146,10 +148,9 @@ class BaseResources(object):
         return components
 
     def _file_paths(self, kind):
-        bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
         files = [ "%s%s.%s" % (component, minified, kind) for component in self.components(kind) ]
-        paths = [ join(bokehjs_dir, kind, file) for file in files ]
+        paths = [ join(self.base_dir, kind, file) for file in files ]
         return paths
 
     def _collect_external_resources(self, resource_attr):
@@ -196,7 +197,8 @@ class BaseResources(object):
 
         return (files, raw)
 
-    def _inline(self, path):
+    @staticmethod
+    def _inline(path):
         begin = "/* BEGIN %s */" % basename(path)
         with open(path, 'rb') as f:
             middle = f.read().decode("utf-8")
@@ -234,7 +236,7 @@ class JSResources(BaseResources):
     The following **mode** values are available for configuring a Resource object:
 
     * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified assets
     * ``'relative'`` configure to load relative to the given directory
@@ -306,7 +308,7 @@ class CSSResources(BaseResources):
     The following **mode** values are available for configuring a Resource object:
 
     * ``'inline'`` configure to provide entire BokehJS code and CSS inline
-    * ``'cdn'`` configure to load Bokeh CSS from ``http://cdn.pydata.org``
+    * ``'cdn'`` configure to load Bokeh CSS from ``https://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified CSS
     * ``'relative'`` configure to load relative to the given directory
@@ -325,7 +327,7 @@ class CSSResources(BaseResources):
 
     '''
 
-    _css_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
+    _css_components = []
 
     # Properties --------------------------------------------------------------
 
@@ -375,7 +377,7 @@ class Resources(JSResources, CSSResources):
     The following **mode** values are available for configuring a Resource object:
 
     * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``http://cdn.pydata.org``
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.pydata.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified assets
     * ``'relative'`` configure to load relative to the given directory

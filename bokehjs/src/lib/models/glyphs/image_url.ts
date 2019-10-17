@@ -2,11 +2,11 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, Rect} from "core/types"
 import {Class} from "core/class"
 import {Anchor} from "core/enums"
-import {logger} from "core/logging"
 import * as p from "core/properties"
 import {map, min, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
+import {ImageLoader} from "core/util/image"
 
 export type CanvasImage = HTMLImageElement
 
@@ -34,7 +34,6 @@ export class ImageURLView extends XYGlyphView {
   model: ImageURL
   visuals: ImageURL.Visuals
 
-  protected retries: Arrayable<number>
   protected _images_rendered = false
 
   initialize(): void {
@@ -52,29 +51,20 @@ export class ImageURLView extends XYGlyphView {
 
     const {retry_attempts, retry_timeout} = this.model
 
-    this.retries = map(this._url, () => retry_attempts)
-
     for (let i = 0, end = this._url.length; i < end; i++) {
       const url = this._url[i]
 
       if (url == null || url == "")
         continue
 
-      const img: CanvasImage = new Image()
-      img.onerror = () => {
-        if (this.retries[i] > 0) {
-          logger.trace(`ImageURL failed to load ${url} image, retrying in ${retry_timeout} ms`)
-          setTimeout(() => img.src = url, retry_timeout)
-        } else
-          logger.warn(`ImageURL unable to load ${url} image after ${retry_attempts} retries`)
-
-        this.retries[i] -= 1
-      }
-      img.onload = () => {
-        this.image[i] = img
-        this.renderer.request_render()
-      }
-      img.src = url
+      new ImageLoader(url, {
+        loaded: (image) => {
+          this.image[i] = image
+          this.renderer.request_render()
+        },
+        attempts: retry_attempts + 1,
+        timeout: retry_timeout,
+      })
     }
 
     const w_data = this.model.properties.w.units == "data"
@@ -100,12 +90,12 @@ export class ImageURLView extends XYGlyphView {
         ys[n + i] = this._y[i] + this._h[i]
     }
 
-    const minX = min(xs)
-    const maxX = max(xs)
-    const minY = min(ys)
-    const maxY = max(ys)
+    const x0 = min(xs)
+    const x1 = max(xs)
+    const y0 = min(ys)
+    const y1 = max(ys)
 
-    this._bounds_rect = {minX, maxX, minY, maxY}
+    this._bounds_rect = {x0, x1, y0, y1}
   }
 
   has_finished(): boolean {
@@ -176,14 +166,14 @@ export class ImageURLView extends XYGlyphView {
 
   protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
     switch (anchor) {
-      case 'top_left':      return [sx         , sy         ]
+      case 'top_left':      return [sx, sy         ]
       case 'top_center':    return [sx - (sw/2), sy         ]
-      case 'top_right':     return [sx - sw    , sy         ]
-      case 'center_right':  return [sx - sw    , sy - (sh/2)]
-      case 'bottom_right':  return [sx - sw    , sy - sh    ]
+      case 'top_right':     return [sx - sw, sy         ]
+      case 'center_right':  return [sx - sw, sy - (sh/2)]
+      case 'bottom_right':  return [sx - sw, sy - sh    ]
       case 'bottom_center': return [sx - (sw/2), sy - sh    ]
-      case 'bottom_left':   return [sx         , sy - sh    ]
-      case 'center_left':   return [sx         , sy - (sh/2)]
+      case 'bottom_left':   return [sx, sy - sh    ]
+      case 'center_left':   return [sx, sy - (sh/2)]
       case 'center':        return [sx - (sw/2), sy - (sh/2)]
     }
   }
@@ -246,8 +236,7 @@ export class ImageURL extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ImageURL'
+  static init_ImageURL(): void {
     this.prototype.default_view = ImageURLView
 
     this.define<ImageURL.Props>({
@@ -263,4 +252,3 @@ export class ImageURL extends XYGlyph {
     })
   }
 }
-ImageURL.initClass()

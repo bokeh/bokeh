@@ -4,6 +4,7 @@
   no_diff: ["graphs.py", "dateaxis.py"]
 
 - path: "examples/custom"
+  slow: ["latex_extension_full"]
 
 - path: "examples/webgl"
 

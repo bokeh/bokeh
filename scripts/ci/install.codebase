@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# XXX: until channels is avialable on conda-forge
+pip install channels
+
 set -e # exit on error
 set -x # echo commands
 

@@ -40,8 +40,8 @@ describe("GraphHitTestPolicy", () => {
     const doc = new Document()
 
     const plot = new Plot({
-       x_range: new Range1d({start: 0, end: 1}),
-       y_range: new Range1d({start: 0, end: 1}),
+      x_range: new Range1d({start: 0, end: 1}),
+      y_range: new Range1d({start: 0, end: 1}),
     })
     doc.add_root(plot)
     const plot_view = new plot.default_view({model: plot, parent: null}).build()
@@ -227,7 +227,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = new EdgesAndLinkedNodes()
         policy.do_selection(hit_test_result, gr, true, false)
 
-        expect(node_source.selected.indices).to.be.deep.equal( [0, 2] )
+        expect(node_source.selected.indices).to.be.deep.equal([0, 2])
       })
     })
 
@@ -253,7 +253,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
 
         expect(did_hit).to.be.true
-        expect(node_source.inspected.indices).to.be.deep.equal( [0, 2] )
+        expect(node_source.inspected.indices).to.be.deep.equal([0, 2])
       })
     })
   })

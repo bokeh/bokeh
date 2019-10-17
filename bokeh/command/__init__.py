@@ -8,11 +8,17 @@
 
 The following subcommands are available:
 
+build
+    Manage and build a bokeh extension
+
 html
     Create standalone HTML files for one or more applications
 
 info
-    print information about Bokeh and Bokeh server configuration
+    Print information about Bokeh and Bokeh server configuration
+
+init
+    Initialize a bokeh extension
 
 json
     Create JSON files for one or more applications

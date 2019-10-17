@@ -131,6 +131,7 @@ dataset_select = Select(value='Noisy Circles',
                         options=datasets_names)
 
 samples_slider = Slider(title="Number of samples",
+                        callback_policy="mouseup",
                         value=1500.0,
                         start=1000.0,
                         end=3000.0,
@@ -138,6 +139,7 @@ samples_slider = Slider(title="Number of samples",
                         width=400)
 
 clusters_slider = Slider(title="Number of clusters",
+                         callback_policy="mouseup",
                          value=2.0,
                          start=2.0,
                          end=10.0,
@@ -173,10 +175,10 @@ def update_samples_or_dataset(attrname, old, new):
     source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
 algorithm_select.on_change('value', update_algorithm_or_clusters)
-clusters_slider.on_change('value', update_algorithm_or_clusters)
+clusters_slider.on_change('value_throttled', update_algorithm_or_clusters)
 
 dataset_select.on_change('value', update_samples_or_dataset)
-samples_slider.on_change('value', update_samples_or_dataset)
+samples_slider.on_change('value_throttled', update_samples_or_dataset)
 
 # set up layout
 selects = row(dataset_select, algorithm_select, width=420)

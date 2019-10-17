@@ -21,6 +21,7 @@ export const build_dir = {
 
 export const src_dir = {
   lib: join(base_dir, "src", "lib"),
+  less: join(base_dir, "src", "less"),
   compiler: join(base_dir, "src", "compiler"),
   test: join(base_dir, "test"),
   examples: join(base_dir, "examples"),
@@ -29,23 +30,28 @@ export const src_dir = {
 export const lib = {
   bokehjs: {
     main: join(build_dir.lib, "main.js"),
+    legacy: join(build_dir.lib, "legacy.js"),
     output: join(build_dir.js, "bokeh.js"),
+  },
+  gl: {
+    main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
+    legacy: undefined,
+    output: join(build_dir.js, "bokeh-gl.js"),
   },
   api: {
     main: join(build_dir.lib, "api/main.js"),
+    legacy: undefined,
     output: join(build_dir.js, "bokeh-api.js"),
   },
   widgets: {
     main: join(build_dir.lib, "models/widgets/main.js"),
+    legacy: undefined,
     output: join(build_dir.js, "bokeh-widgets.js"),
   },
   tables: {
     main: join(build_dir.lib, "models/widgets/tables/main.js"),
+    legacy: undefined,
     output: join(build_dir.js, "bokeh-tables.js"),
-  },
-  gl: {
-    main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
-    output: join(build_dir.js, "bokeh-gl.js"),
   },
 }
 
@@ -54,13 +60,5 @@ export const css = {
     join(build_dir.css, "bokeh.css"),
     join(build_dir.css, "bokeh-widgets.css"),
     join(build_dir.css, "bokeh-tables.css"),
-  ],
-}
-
-export const less = {
-  sources: [
-    join(base_dir, "src/less/bokeh.less"),
-    join(base_dir, "src/less/bokeh-widgets.less"),
-    join(base_dir, "src/less/bokeh-tables.less"),
   ],
 }

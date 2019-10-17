@@ -17,6 +17,7 @@ bash scripts/ci/install
 BUILD_DEPS=`python scripts/deps.py build`
 conda install -n testenv --yes --quiet ${BUILD_DEPS}
 
+
 npm install -g npm
 
 # install NPM dependencies

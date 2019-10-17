@@ -50,45 +50,40 @@ p1.text(0, 0, text='color', text_color='text_color',
         alpha=0.6667, text_font_size='36pt', text_baseline='middle',
         text_align='center', source=source)
 
+red_slider = Slider(title="R", start=0, end=255, value=255, step=1)
+green_slider = Slider(title="G", start=0, end=255, value=255, step=1)
+blue_slider = Slider(title="B", start=0, end=255, value=255, step=1)
+
 # the callback function to update the color of the block and associated label text
 # NOTE: the JS functions for converting RGB to hex are taken from the excellent answer
 # by Tim Down at http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-callback = CustomJS(args=dict(source=source), code="""
+callback = CustomJS(args=dict(source=source, red=red_slider, blue=blue_slider, green=green_slider), code="""
     function componentToHex(c) {
-        var hex = c.toString(16);
-        return hex.length == 1 ? "0" + hex : hex;
+        var hex = c.toString(16)
+        return hex.length == 1 ? "0" + hex : hex
     }
     function rgbToHex(r, g, b) {
-        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b)
     }
     function toInt(v) {
-       return v | 0;
+       return v | 0
     }
-    var data = source.data;
-    var color = data['color'];
-    var text_color = data['text_color'];
-    var R = toInt(red_slider.value);
-    var G = toInt(green_slider.value);
-    var B = toInt(blue_slider.value);
-    color[0] = rgbToHex(R, G, B);
-    text_color[0] = '#ffffff';
+    const color = source.data['color']
+    const text_color = source.data['text_color']
+    const R = toInt(red.value)
+    const G = toInt(green.value)
+    const B = toInt(blue.value)
+    color[0] = rgbToHex(R, G, B)
+    text_color[0] = '#ffffff'
     if ((R > 127) || (G > 127) || (B > 127)) {
-        text_color[0] = '#000000';
+        text_color[0] = '#000000'
     }
-    source.change.emit();
+    source.change.emit()
 """)
 
-# create slider tool objects with a callback to control the RGB levels for first plot
-SLIDER_ARGS = dict(start=0, end=255, value=255, step=1, callback=callback)
-
-red_slider = Slider(title="R", **SLIDER_ARGS)
-callback.args['red_slider'] = red_slider
-
-green_slider = Slider(title="G", **SLIDER_ARGS)
-callback.args['green_slider'] = green_slider
-
-blue_slider = Slider(title="B", **SLIDER_ARGS)
-callback.args['blue_slider'] = blue_slider
+red_slider.js_on_change('value', callback)
+blue_slider.js_on_change('value', callback)
+green_slider.js_on_change('value', callback)
 
 # plot 2: create a color spectrum with a hover-over tool to inspect hex codes
 

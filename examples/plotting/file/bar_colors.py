@@ -13,7 +13,7 @@ source = ColumnDataSource(data=dict(fruits=fruits, counts=counts, color=Spectral
 p = figure(x_range=fruits, y_range=(0,9), plot_height=350, title="Fruit Counts",
            toolbar_location=None, tools="")
 
-p.vbar(x='fruits', top='counts', width=0.9, color='color', legend="fruits", source=source)
+p.vbar(x='fruits', top='counts', width=0.9, color='color', legend_field="fruits", source=source)
 
 p.xgrid.grid_line_color = None
 p.legend.orientation = "horizontal"

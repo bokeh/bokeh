@@ -20,6 +20,7 @@ import pytest ; pytest
 # Standard library imports
 import os
 from subprocess import PIPE, Popen
+from sys import executable
 
 # External imports
 
@@ -29,6 +30,8 @@ from . import TOP_PATH
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
+
+blacklist = {"bokeh.embed.notebook.widgets"}
 
 @pytest.mark.codebase
 def test_python_execution_with_OO():
@@ -58,12 +61,15 @@ def test_python_execution_with_OO():
             else:
                 mod = path.replace(os.sep, ".") + "." + file[:-3]
 
+            if mod in blacklist:
+                continue
+
             imports.append("import " + mod)
 
     test_env = os.environ.copy()
     test_env['BOKEH_DOCS_MISSING_API_KEY_OK'] = 'yes'
 
-    proc = Popen(["python", "-OO", "-"], stdout=PIPE, stdin=PIPE, env=test_env)
+    proc = Popen([executable, "-OO", "-"], stdout=PIPE, stdin=PIPE, env=test_env)
     proc.communicate("\n".join(imports).encode("utf-8"))
     proc.wait()
 

@@ -42,7 +42,7 @@ ALL =  (
 )
 
 _LICENSE = """\
-Copyright (c) 2012 - 2018, Anaconda, Inc., and Bokeh Contributors
+Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,

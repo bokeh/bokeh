@@ -759,7 +759,7 @@ class Document(object):
             None
 
         Raises:
-            ValueError, if the callback was never added or has alraedy been run or removed
+            ValueError, if the callback was never added or has already been run or removed
 
         '''
         self._remove_session_callback(callback_obj, self.add_timeout_callback)

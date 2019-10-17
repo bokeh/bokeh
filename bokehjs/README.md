@@ -12,8 +12,8 @@ supplied by a separate Bokeh Plot server.
 Building
 --------
 
-Please refer to the [BokehJS section](https://bokeh.pydata.org/docs/dev_guide.html#bokehjs)
-of the [Bokeh Developer Guide](https://bokeh.pydata.org/docs/dev_guide.html)
+Please refer to the [BokehJS section](https://docs.bokeh.org/en/latest/docs/dev_guide/bokehjs.html)
+of the [Bokeh Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
 for information about building, testing and demoing BokehJS.
 
 Contributing
@@ -24,4 +24,4 @@ working hard towards applying Bokeh and BokehJS towards some specific projects,
 so the development priorities will tend to center around those tasks, until the
 project reaches a point of stability.
 
-Please join the discussion on the [Bokeh mailing list](https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh).
+Please join the discussion on the [Bokeh project Discourse](https://discourse.bokeh.org).

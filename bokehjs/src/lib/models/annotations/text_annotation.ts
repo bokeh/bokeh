@@ -5,6 +5,7 @@ import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
+import {bk_annotation} from "styles/annotations"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
@@ -16,7 +17,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.initialize()
 
     if (this.model.render_mode == 'css') {
-      this.el.classList.add('bk-annotation')
+      this.el.classList.add(bk_annotation)
       this.plot_view.canvas_overlays.appendChild(this.el)
     }
   }
@@ -162,12 +163,9 @@ export abstract class TextAnnotation extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "TextAnnotation"
-
+  static init_TextAnnotation(): void {
     this.define<TextAnnotation.Props>({
       render_mode: [ p.RenderMode, "canvas" ],
     })
   }
 }
-TextAnnotation.initClass()
