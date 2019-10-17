@@ -554,6 +554,7 @@ class _PalettesModule(_types.ModuleType):
     def Reds7(self): return ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9"]
     def Reds8(self): return ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
     def Reds9(self): return ["#67000d", "#a50f15", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
+    def Reds256(self): return []
 
     def Greys3(self):  return ["#636363", "#bdbdbd", "#f0f0f0"]
     def Greys4(self):  return ["#525252", "#969696", "#cccccc", "#f7f7f7"]
