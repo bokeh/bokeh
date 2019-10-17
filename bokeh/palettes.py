@@ -522,6 +522,30 @@ class _PalettesModule(_types.ModuleType):
     def Purples7(self): return ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#f2f0f7"]
     def Purples8(self): return ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd"]
     def Purples9(self): return ["#3f007d", "#54278f", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd"]
+    def Purples256(self):
+        return [
+            "#3f007d", "#40017e", "#40027e", "#41047f", "#42057f", "#420680", "#430780", "#440981", "#440a82", "#450b82", "#460c83", "#460d83",
+            "#470f84", "#481084", "#481185", "#491285", "#4a1486", "#4a1587", "#4b1687", "#4c1788", "#4c1888", "#4d1a89", "#4d1b89", "#4e1c8a",
+            "#4f1d8b", "#4f1f8b", "#50208c", "#51218c", "#51228d", "#52238d", "#53258e", "#53268f", "#54278f", "#552890", "#552a90", "#562b91",
+            "#572c92", "#582e92", "#582f93", "#593093", "#5a3294", "#5a3395", "#5b3495", "#5c3696", "#5c3797", "#5d3897", "#5e3a98", "#5e3b98",
+            "#5f3c99", "#603e9a", "#613f9a", "#61409b", "#62429c", "#63439c", "#63449d", "#64459e", "#65479e", "#65489f", "#66499f", "#674ba0",
+            "#674ca1", "#684da1", "#694fa2", "#6950a3", "#6a51a3", "#6b53a4", "#6c54a5", "#6c55a5", "#6d57a6", "#6e58a7", "#6e5aa8", "#6f5ba8",
+            "#705ca9", "#705eaa", "#715faa", "#7261ab", "#7262ac", "#7363ad", "#7465ad", "#7566ae", "#7567af", "#7669af", "#776ab0", "#776cb1",
+            "#786db2", "#796eb2", "#7970b3", "#7a71b4", "#7b72b4", "#7b74b5", "#7c75b6", "#7d77b7", "#7d78b7", "#7e79b8", "#7f7bb9", "#807cba",
+            "#807dba", "#817ebb", "#827fbb", "#8380bb", "#8481bc", "#8582bc", "#8683bd", "#8784bd", "#8885be", "#8986be", "#8a86bf", "#8b87bf",
+            "#8c88bf", "#8d89c0", "#8e8ac0", "#8e8bc1", "#8f8cc1", "#908dc2", "#918ec2", "#928fc3", "#9390c3", "#9490c3", "#9591c4", "#9692c4",
+            "#9793c5", "#9894c5", "#9995c6", "#9a96c6", "#9b97c6", "#9c98c7", "#9d99c7", "#9e9ac8", "#9e9bc8", "#9f9cc9", "#a09dca", "#a19eca",
+            "#a29fcb", "#a3a0cb", "#a4a1cc", "#a5a2cd", "#a6a3cd", "#a7a4ce", "#a8a6cf", "#a9a7cf", "#aaa8d0", "#aba9d0", "#acaad1", "#adabd2",
+            "#aeacd2", "#aeadd3", "#afaed4", "#b0afd4", "#b1b1d5", "#b2b2d5", "#b3b3d6", "#b4b4d7", "#b5b5d7", "#b6b6d8", "#b7b7d9", "#b8b8d9",
+            "#b9b9da", "#babadb", "#bbbbdb", "#bcbddc", "#bdbedc", "#bebedd", "#bebfdd", "#bfc0de", "#c0c1de", "#c1c2df", "#c2c3df", "#c3c4e0",
+            "#c4c5e0", "#c5c6e1", "#c6c7e1", "#c7c8e1", "#c8c8e2", "#c9c9e2", "#cacae3", "#cbcbe3", "#cccce4", "#cdcde4", "#cecee5", "#cecfe5",
+            "#cfd0e6", "#d0d1e6", "#d1d2e7", "#d2d2e7", "#d3d3e8", "#d4d4e8", "#d5d5e9", "#d6d6e9", "#d7d7e9", "#d8d8ea", "#d9d9ea", "#dadaeb",
+            "#dadaeb", "#dbdbec", "#dcdcec", "#dcdcec", "#ddddec", "#dedded", "#dedeed", "#dfdfed", "#e0dfee", "#e0e0ee", "#e1e0ee", "#e2e1ef",
+            "#e2e2ef", "#e3e2ef", "#e4e3f0", "#e4e3f0", "#e5e4f0", "#e6e5f1", "#e6e5f1", "#e7e6f1", "#e8e6f2", "#e8e7f2", "#e9e8f2", "#eae8f2",
+            "#eae9f3", "#ebe9f3", "#eceaf3", "#ecebf4", "#edebf4", "#eeecf4", "#eeecf5", "#efedf5", "#efedf5", "#f0eef5", "#f0eef6", "#f1eff6",
+            "#f1eff6", "#f1f0f6", "#f2f0f7", "#f2f0f7", "#f3f1f7", "#f3f1f7", "#f3f2f8", "#f4f2f8", "#f4f3f8", "#f5f3f8", "#f5f4f9", "#f5f4f9",
+            "#f6f4f9", "#f6f5f9", "#f7f5fa", "#f7f6fa", "#f8f6fa", "#f8f7fa", "#f8f7fb", "#f9f7fb", "#f9f8fb", "#faf8fb", "#faf9fc", "#faf9fc",
+            "#fbfafc", "#fbfafc", "#fcfbfd", "#fcfbfd"]
 
     def Blues3(self): return ["#3182bd", "#9ecae1", "#deebf7"]
     def Blues4(self): return ["#2171b5", "#6baed6", "#bdd7e7", "#eff3ff"]
@@ -530,6 +554,30 @@ class _PalettesModule(_types.ModuleType):
     def Blues7(self): return ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff"]
     def Blues8(self): return ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]
     def Blues9(self): return ["#08306b", "#08519c", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]
+    def Blues256(self):
+        return [
+            "#08306b", "#08316d", "#08326e", "#083370", "#083471", "#083573", "#083674", "#083776", "#083877", "#083979", "#083a7a", "#083b7c",
+            "#083c7d", "#083d7f", "#083e81", "#084082", "#084184", "#084285", "#084387", "#084488", "#08458a", "#08468b", "#08478d", "#08488e",
+            "#084990", "#084a91", "#084b93", "#084c95", "#084d96", "#084e98", "#084f99", "#08509b", "#08519c", "#09529d", "#0a539e", "#0a549e",
+            "#0b559f", "#0c56a0", "#0d57a1", "#0e58a2", "#0e59a2", "#0f5aa3", "#105ba4", "#115ca5", "#125da6", "#125ea6", "#135fa7", "#1460a8",
+            "#1561a9", "#1562a9", "#1663aa", "#1764ab", "#1865ac", "#1966ad", "#1967ad", "#1a68ae", "#1b69af", "#1c6ab0", "#1c6bb0", "#1d6cb1",
+            "#1e6db2", "#1f6eb3", "#206fb4", "#2070b4", "#2171b5", "#2272b6", "#2373b6", "#2474b7", "#2575b7", "#2676b8", "#2777b8", "#2979b9",
+            "#2a7ab9", "#2b7bba", "#2c7cba", "#2d7dbb", "#2e7ebc", "#2f7fbc", "#3080bd", "#3181bd", "#3282be", "#3383be", "#3484bf", "#3585bf",
+            "#3686c0", "#3787c0", "#3888c1", "#3989c1", "#3a8ac2", "#3b8bc2", "#3c8cc3", "#3d8dc4", "#3e8ec4", "#3f8fc5", "#4090c5", "#4191c6",
+            "#4292c6", "#4493c7", "#4594c7", "#4695c8", "#4896c8", "#4997c9", "#4a98c9", "#4b98ca", "#4d99ca", "#4e9acb", "#4f9bcb", "#519ccc",
+            "#529dcc", "#539ecd", "#549fcd", "#56a0ce", "#57a0ce", "#58a1cf", "#5aa2cf", "#5ba3d0", "#5ca4d0", "#5da5d1", "#5fa6d1", "#60a7d2",
+            "#61a7d2", "#63a8d3", "#64a9d3", "#65aad4", "#66abd4", "#68acd5", "#69add5", "#6aaed6", "#6caed6", "#6dafd7", "#6fb0d7", "#71b1d7",
+            "#72b2d8", "#74b3d8", "#75b4d8", "#77b5d9", "#79b5d9", "#7ab6d9", "#7cb7da", "#7db8da", "#7fb9da", "#81badb", "#82bbdb", "#84bcdb",
+            "#85bcdc", "#87bddc", "#89bedc", "#8abfdd", "#8cc0dd", "#8dc1dd", "#8fc2de", "#91c3de", "#92c4de", "#94c4df", "#95c5df", "#97c6df",
+            "#99c7e0", "#9ac8e0", "#9cc9e1", "#9dcae1", "#9fcae1", "#a0cbe2", "#a1cbe2", "#a3cce3", "#a4cce3", "#a5cde3", "#a6cee4", "#a8cee4",
+            "#a9cfe5", "#aacfe5", "#abd0e6", "#add0e6", "#aed1e7", "#afd1e7", "#b0d2e7", "#b2d2e8", "#b3d3e8", "#b4d3e9", "#b5d4e9", "#b7d4ea",
+            "#b8d5ea", "#b9d6ea", "#bad6eb", "#bcd7eb", "#bdd7ec", "#bed8ec", "#bfd8ed", "#c1d9ed", "#c2d9ee", "#c3daee", "#c4daee", "#c6dbef",
+            "#c7dbef", "#c7dcef", "#c8dcf0", "#c9ddf0", "#caddf0", "#cadef0", "#cbdef1", "#ccdff1", "#cddff1", "#cde0f1", "#cee0f2", "#cfe1f2",
+            "#d0e1f2", "#d0e2f2", "#d1e2f3", "#d2e3f3", "#d3e3f3", "#d3e4f3", "#d4e4f4", "#d5e5f4", "#d6e5f4", "#d6e6f4", "#d7e6f5", "#d8e7f5",
+            "#d9e7f5", "#d9e8f5", "#dae8f6", "#dbe9f6", "#dce9f6", "#dceaf6", "#ddeaf7", "#deebf7", "#dfebf7", "#dfecf7", "#e0ecf8", "#e1edf8",
+            "#e2edf8", "#e3eef8", "#e3eef9", "#e4eff9", "#e5eff9", "#e6f0f9", "#e7f0fa", "#e7f1fa", "#e8f1fa", "#e9f2fa", "#eaf2fb", "#eaf3fb",
+            "#ebf3fb", "#ecf4fb", "#edf4fc", "#eef5fc", "#eef5fc", "#eff6fc", "#f0f6fd", "#f1f7fd", "#f2f7fd", "#f2f8fd", "#f3f8fe", "#f4f9fe",
+            "#f5f9fe", "#f5fafe", "#f6faff", "#f7fbff"]
 
     def Greens3(self): return ["#31a354", "#a1d99b", "#e5f5e0"]
     def Greens4(self): return ["#238b45", "#74c476", "#bae4b3", "#edf8e9"]
