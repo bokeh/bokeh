@@ -1348,17 +1348,17 @@ class _PalettesModule(_types.ModuleType):
 
         Args:
 
-            palette1 (list[str]) : 
+            palette1 (list[str]) :
                 A list of hex RGB color strings for the first palette
-            
-            palette2 (list[str]) : 
+
+            palette2 (list[str]) :
                 A list of hex RGB color strings for the second palette
-            
-            n (int) : 
+
+            n (int) :
                 The size of the output palette to generate
-            
-            midpoint (float, optional) : 
-                Relative position in the returned palette where input palettes are 
+
+            midpoint (float, optional) :
+                Relative position in the returned palette where input palettes are
                 connected (default: 0.5)
 
         Returns:
