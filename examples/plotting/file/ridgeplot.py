@@ -37,7 +37,7 @@ p.xaxis.formatter = PrintfTickFormatter(format="%d%%")
 
 p.ygrid.grid_line_color = None
 p.xgrid.grid_line_color = "#dddddd"
-p.xgrid.ticker = p.xaxis[0].ticker
+p.xgrid.ticker = p.xaxis.ticker
 
 p.axis.minor_tick_line_color = None
 p.axis.major_tick_line_color = None

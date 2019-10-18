@@ -11,8 +11,8 @@ p.line(x, y)
 ticks = np.linspace(0, 6*np.pi, 13)
 
 labels = dict(zip(ticks[1:], ["π/2", "π", "3π/2", "2π", "5π/2", "3π", "7π/2", "4π", "9π/2", "5π",  "11π/2", "6π",]))
-p.xaxis[0].ticker = ticks
-p.xgrid[0].ticker = ticks[1::2]
+p.xaxis.ticker = ticks
+p.xgrid.ticker = ticks[1::2]
 p.xaxis.major_label_overrides = labels
 
 p.ygrid.grid_line_color = None

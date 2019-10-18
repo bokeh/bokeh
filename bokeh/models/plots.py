@@ -737,6 +737,15 @@ class _list_attr_splat(list):
     def __setattr__(self, attr, value):
         for x in self:
             setattr(x, attr, value)
+    def __getattribute__(self, attr):
+        if len(self) == 0:
+            raise AttributeError("Trying to access %r attribute on an empty 'splattable' list" % attr)
+        if len(self) == 1:
+            return getattr(self[0], attr)
+        try:
+            return _list_attr_splat([getattr(x, attr) for x in self])
+        except Exception:
+            raise AttributeError("Trying to access %r attribute on a 'splattable' list, but list items have no %r attribute" % (attr, attr))
 
     def __dir__(self):
         if len(set(type(x) for x in self)) == 1:
@@ -747,7 +756,7 @@ class _list_attr_splat(list):
 _LEGEND_EMPTY_WARNING = """
 You are attempting to set `plot.legend.%s` on a plot that has zero legends added, this will have no effect.
 
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
 """
 
 class _legend_attr_splat(_list_attr_splat):

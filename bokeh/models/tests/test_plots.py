@@ -41,7 +41,7 @@ import bokeh.models.plots as bmp
 _LEGEND_EMPTY_WARNING = """
 You are attempting to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
 
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
 """
 
 #-----------------------------------------------------------------------------
@@ -316,6 +316,65 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+class Test_list_attr_splat(object):
+
+    def test_set(self):
+        obj = bmp._list_attr_splat([DataRange1d(), DataRange1d()])
+        assert len(obj) == 2
+        assert obj[0].start == None
+        assert obj[1].start == None
+        obj.start = 10
+        assert obj[0].start == 10
+        assert obj[1].start == 10
+
+    def test_set_empty(self):
+        obj = bmp._list_attr_splat([])
+        assert len(obj) == 0
+        obj.start = 10
+        assert len(obj) == 0
+
+    def test_get_set_single(self):
+        p = figure()
+        assert len(p.xaxis) == 1
+
+        # check both ways to access
+        assert p.xaxis.formatter.power_limit_low != 100
+        assert p.xaxis[0].formatter.power_limit_low != 100
+
+        p.axis.formatter.power_limit_low = 100
+
+        assert p.xaxis.formatter.power_limit_low == 100
+        assert p.xaxis[0].formatter.power_limit_low == 100
+
+    def test_get_set_multi(self):
+        p = figure()
+        assert len(p.axis) == 2
+
+        # check both ways to access
+        assert p.axis[0].formatter.power_limit_low != 100
+        assert p.axis[1].formatter.power_limit_low != 100
+        assert p.axis.formatter[0].power_limit_low != 100
+        assert p.axis.formatter[1].power_limit_low != 100
+
+        p.axis.formatter.power_limit_low = 100
+
+        assert p.axis[0].formatter.power_limit_low == 100
+        assert p.axis[1].formatter.power_limit_low == 100
+        assert p.axis.formatter[0].power_limit_low == 100
+        assert p.axis.formatter[1].power_limit_low == 100
+
+    def test_get_set_multi_mismatch(self):
+        obj = bmp._list_attr_splat([LinearAxis(), FactorRange()])
+        with pytest.raises(AttributeError) as e:
+            obj.formatter.power_limit_low == 10
+        assert str(e.value).endswith("list items have no %r attribute" % "formatter")
+
+    def test_get_empty(self):
+        obj = bmp._list_attr_splat([])
+        with pytest.raises(AttributeError) as e:
+            obj.start
+        assert str(e.value).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
 
 #-----------------------------------------------------------------------------
 # Code

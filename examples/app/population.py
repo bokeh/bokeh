@@ -34,7 +34,7 @@ pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
              fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
 
 pyramid.ygrid.grid_line_color = None
-pyramid.xaxis[0].formatter = FuncTickFormatter(code="""
+pyramid.xaxis.formatter = FuncTickFormatter(code="""
     return (Math.abs(tick) / 1e6) + " M"
 """)
 
@@ -54,7 +54,7 @@ population.xgrid.grid_line_color = None
 population.legend.location = "center_right"
 population.x_range.end = 2150
 population.yaxis.minor_tick_line_color = None
-population.yaxis[0].formatter = FuncTickFormatter(code="""
+population.yaxis.formatter = FuncTickFormatter(code="""
     return (Math.abs(tick) / 1e9) + " B"
 """)
 
