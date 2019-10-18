@@ -6,7 +6,7 @@ from bokeh.themes import Theme
 
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
-def modify_doc(doc):
+def bkapp(doc):
     df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
@@ -31,7 +31,7 @@ def modify_doc(doc):
 # Setting num_procs here means we can't touch the IOLoop before now, we must
 # let Server handle that. If you need to explicitly handle IOLoops then you
 # will need to use the lower level BaseServer class.
-server = Server({'/': modify_doc}, num_procs=4)
+server = Server({'/': bkapp}, num_procs=4)
 server.start()
 
 if __name__ == '__main__':
