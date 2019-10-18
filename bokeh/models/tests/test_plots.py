@@ -368,13 +368,13 @@ class Test_list_attr_splat(object):
         obj = bmp._list_attr_splat([LinearAxis(), FactorRange()])
         with pytest.raises(AttributeError) as e:
             obj.formatter.power_limit_low == 10
-        assert str(e).endswith("list items have no %r attribute" % "formatter")
+        assert str(e.value).endswith("list items have no %r attribute" % "formatter")
 
     def test_get_empty(self):
         obj = bmp._list_attr_splat([])
         with pytest.raises(AttributeError) as e:
             obj.start
-        assert str(e).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
+        assert str(e.value).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
 
 #-----------------------------------------------------------------------------
 # Code
