@@ -32,7 +32,7 @@ from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 app = Flask(__name__)
 
-def modify_doc(doc):
+def bkapp(doc):
     df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
@@ -55,7 +55,7 @@ def modify_doc(doc):
     doc.theme = Theme(filename="theme.yaml")
 
 # can't use shortcuts here, since we are passing to low level BokehTornado
-bkapp = Application(FunctionHandler(modify_doc))
+bkapp = Application(FunctionHandler(bkapp))
 
 # This is so that if this app is run using something like "gunicorn -w 4" then
 # each process will listen on its own port
