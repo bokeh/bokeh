@@ -16,6 +16,6 @@ names = ["y%d" % i for i in range(N)]
 p.varea_stack(stackers=names, x='index', color=brewer['Spectral'][N], legend_label=names, source=df)
 
 # reverse the legend entries to match the stacked order
-p.legend[0].items.reverse()
+p.legend.items.reverse()
 
 show(p)
