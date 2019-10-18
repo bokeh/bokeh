@@ -309,6 +309,7 @@ The ``bokeh.palettes`` module also has several functions that can be used
 to generate palettes of arbitrary size.
 
 .. autofunction:: bokeh.palettes.cividis(n)
+.. autofunction:: bokeh.palettes.diverging_palette(palette1, palette2, n, midpoint)
 .. autofunction:: bokeh.palettes.gray(n)
 .. autofunction:: bokeh.palettes.grey(n)
 .. autofunction:: bokeh.palettes.inferno(n)
@@ -1335,7 +1336,7 @@ class _PalettesModule(_types.ModuleType):
             raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % dict(r=n, l=len(palette)))
         return [ palette[int(math.floor(i))] for i in np.linspace(0, len(palette)-1, num=n) ]
 
-    def diverging_palette(self, palette1, palette2, n=256, midpoint=0.5):
+    def diverging_palette(self, palette1, palette2, n, midpoint=0.5):
         ''' Generate a new palette by combining exactly two input palettes.
 
         Given an input ``palette1`` and ``palette2``, take a combined ``n`` colors,
@@ -1347,16 +1348,24 @@ class _PalettesModule(_types.ModuleType):
 
         Args:
 
-            palette1 (list[str]) : a list of hex RGB color strings
-            palette2 (list[str]) : a list of hex RGB color strings
-            n (int) : the size of the output palette to generate
-            midpoint (float) : relative position in the returned palette where input palettes are connected
+            palette1 (list[str]) : 
+                A list of hex RGB color strings for the first palette
+            
+            palette2 (list[str]) : 
+                A list of hex RGB color strings for the second palette
+            
+            n (int) : 
+                The size of the output palette to generate
+            
+            midpoint (float, optional) : 
+                Relative position in the returned palette where input palettes are 
+                connected (default: 0.5)
 
         Returns:
                 list [str] : a list of hex RGB color strings
 
         Raises:
-            ``ValueError`` if ``n > combined length of diverging palette (function of n and midpoint)``
+            ``ValueError`` if n is greater than the possible combined length the input palettes
         '''
 
         # flip palette2 so that perceptually light colors are joined
