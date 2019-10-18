@@ -744,8 +744,8 @@ class _list_attr_splat(list):
             return getattr(self[0], attr)
         try:
             return _list_attr_splat([getattr(x, attr) for x in self])
-        except:
-            raise AttributeError("Trying to access %r attribute on a  'splattable' list, but list items have no %r attribute" % (attr, attr))
+        except Exception:
+            raise AttributeError("Trying to access %r attribute on a 'splattable' list, but list items have no %r attribute" % (attr, attr))
 
     def __dir__(self):
         if len(set(type(x) for x in self)) == 1:
