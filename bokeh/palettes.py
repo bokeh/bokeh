@@ -309,6 +309,7 @@ The ``bokeh.palettes`` module also has several functions that can be used
 to generate palettes of arbitrary size.
 
 .. autofunction:: bokeh.palettes.cividis(n)
+.. autofunction:: bokeh.palettes.diverging_palette(palette1, palette2, n, midpoint)
 .. autofunction:: bokeh.palettes.gray(n)
 .. autofunction:: bokeh.palettes.grey(n)
 .. autofunction:: bokeh.palettes.inferno(n)
@@ -399,7 +400,7 @@ import types as _types
 def _autoprop(cls):
     for k, v in cls.__dict__.items():
         if k.startswith('_'): continue
-        if k in ['linear_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray', 'turbo']:
+        if k in ['linear_palette', 'diverging_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray', 'turbo']:
             continue
         setattr(cls, k, property(v))
     return cls
@@ -522,6 +523,30 @@ class _PalettesModule(_types.ModuleType):
     def Purples7(self): return ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#f2f0f7"]
     def Purples8(self): return ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd"]
     def Purples9(self): return ["#3f007d", "#54278f", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd"]
+    def Purples256(self):
+        return [
+            "#3f007d", "#40017e", "#40027e", "#41047f", "#42057f", "#420680", "#430780", "#440981", "#440a82", "#450b82", "#460c83", "#460d83",
+            "#470f84", "#481084", "#481185", "#491285", "#4a1486", "#4a1587", "#4b1687", "#4c1788", "#4c1888", "#4d1a89", "#4d1b89", "#4e1c8a",
+            "#4f1d8b", "#4f1f8b", "#50208c", "#51218c", "#51228d", "#52238d", "#53258e", "#53268f", "#54278f", "#552890", "#552a90", "#562b91",
+            "#572c92", "#582e92", "#582f93", "#593093", "#5a3294", "#5a3395", "#5b3495", "#5c3696", "#5c3797", "#5d3897", "#5e3a98", "#5e3b98",
+            "#5f3c99", "#603e9a", "#613f9a", "#61409b", "#62429c", "#63439c", "#63449d", "#64459e", "#65479e", "#65489f", "#66499f", "#674ba0",
+            "#674ca1", "#684da1", "#694fa2", "#6950a3", "#6a51a3", "#6b53a4", "#6c54a5", "#6c55a5", "#6d57a6", "#6e58a7", "#6e5aa8", "#6f5ba8",
+            "#705ca9", "#705eaa", "#715faa", "#7261ab", "#7262ac", "#7363ad", "#7465ad", "#7566ae", "#7567af", "#7669af", "#776ab0", "#776cb1",
+            "#786db2", "#796eb2", "#7970b3", "#7a71b4", "#7b72b4", "#7b74b5", "#7c75b6", "#7d77b7", "#7d78b7", "#7e79b8", "#7f7bb9", "#807cba",
+            "#807dba", "#817ebb", "#827fbb", "#8380bb", "#8481bc", "#8582bc", "#8683bd", "#8784bd", "#8885be", "#8986be", "#8a86bf", "#8b87bf",
+            "#8c88bf", "#8d89c0", "#8e8ac0", "#8e8bc1", "#8f8cc1", "#908dc2", "#918ec2", "#928fc3", "#9390c3", "#9490c3", "#9591c4", "#9692c4",
+            "#9793c5", "#9894c5", "#9995c6", "#9a96c6", "#9b97c6", "#9c98c7", "#9d99c7", "#9e9ac8", "#9e9bc8", "#9f9cc9", "#a09dca", "#a19eca",
+            "#a29fcb", "#a3a0cb", "#a4a1cc", "#a5a2cd", "#a6a3cd", "#a7a4ce", "#a8a6cf", "#a9a7cf", "#aaa8d0", "#aba9d0", "#acaad1", "#adabd2",
+            "#aeacd2", "#aeadd3", "#afaed4", "#b0afd4", "#b1b1d5", "#b2b2d5", "#b3b3d6", "#b4b4d7", "#b5b5d7", "#b6b6d8", "#b7b7d9", "#b8b8d9",
+            "#b9b9da", "#babadb", "#bbbbdb", "#bcbddc", "#bdbedc", "#bebedd", "#bebfdd", "#bfc0de", "#c0c1de", "#c1c2df", "#c2c3df", "#c3c4e0",
+            "#c4c5e0", "#c5c6e1", "#c6c7e1", "#c7c8e1", "#c8c8e2", "#c9c9e2", "#cacae3", "#cbcbe3", "#cccce4", "#cdcde4", "#cecee5", "#cecfe5",
+            "#cfd0e6", "#d0d1e6", "#d1d2e7", "#d2d2e7", "#d3d3e8", "#d4d4e8", "#d5d5e9", "#d6d6e9", "#d7d7e9", "#d8d8ea", "#d9d9ea", "#dadaeb",
+            "#dadaeb", "#dbdbec", "#dcdcec", "#dcdcec", "#ddddec", "#dedded", "#dedeed", "#dfdfed", "#e0dfee", "#e0e0ee", "#e1e0ee", "#e2e1ef",
+            "#e2e2ef", "#e3e2ef", "#e4e3f0", "#e4e3f0", "#e5e4f0", "#e6e5f1", "#e6e5f1", "#e7e6f1", "#e8e6f2", "#e8e7f2", "#e9e8f2", "#eae8f2",
+            "#eae9f3", "#ebe9f3", "#eceaf3", "#ecebf4", "#edebf4", "#eeecf4", "#eeecf5", "#efedf5", "#efedf5", "#f0eef5", "#f0eef6", "#f1eff6",
+            "#f1eff6", "#f1f0f6", "#f2f0f7", "#f2f0f7", "#f3f1f7", "#f3f1f7", "#f3f2f8", "#f4f2f8", "#f4f3f8", "#f5f3f8", "#f5f4f9", "#f5f4f9",
+            "#f6f4f9", "#f6f5f9", "#f7f5fa", "#f7f6fa", "#f8f6fa", "#f8f7fa", "#f8f7fb", "#f9f7fb", "#f9f8fb", "#faf8fb", "#faf9fc", "#faf9fc",
+            "#fbfafc", "#fbfafc", "#fcfbfd", "#fcfbfd"]
 
     def Blues3(self): return ["#3182bd", "#9ecae1", "#deebf7"]
     def Blues4(self): return ["#2171b5", "#6baed6", "#bdd7e7", "#eff3ff"]
@@ -530,6 +555,30 @@ class _PalettesModule(_types.ModuleType):
     def Blues7(self): return ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff"]
     def Blues8(self): return ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]
     def Blues9(self): return ["#08306b", "#08519c", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]
+    def Blues256(self):
+        return [
+            "#08306b", "#08316d", "#08326e", "#083370", "#083471", "#083573", "#083674", "#083776", "#083877", "#083979", "#083a7a", "#083b7c",
+            "#083c7d", "#083d7f", "#083e81", "#084082", "#084184", "#084285", "#084387", "#084488", "#08458a", "#08468b", "#08478d", "#08488e",
+            "#084990", "#084a91", "#084b93", "#084c95", "#084d96", "#084e98", "#084f99", "#08509b", "#08519c", "#09529d", "#0a539e", "#0a549e",
+            "#0b559f", "#0c56a0", "#0d57a1", "#0e58a2", "#0e59a2", "#0f5aa3", "#105ba4", "#115ca5", "#125da6", "#125ea6", "#135fa7", "#1460a8",
+            "#1561a9", "#1562a9", "#1663aa", "#1764ab", "#1865ac", "#1966ad", "#1967ad", "#1a68ae", "#1b69af", "#1c6ab0", "#1c6bb0", "#1d6cb1",
+            "#1e6db2", "#1f6eb3", "#206fb4", "#2070b4", "#2171b5", "#2272b6", "#2373b6", "#2474b7", "#2575b7", "#2676b8", "#2777b8", "#2979b9",
+            "#2a7ab9", "#2b7bba", "#2c7cba", "#2d7dbb", "#2e7ebc", "#2f7fbc", "#3080bd", "#3181bd", "#3282be", "#3383be", "#3484bf", "#3585bf",
+            "#3686c0", "#3787c0", "#3888c1", "#3989c1", "#3a8ac2", "#3b8bc2", "#3c8cc3", "#3d8dc4", "#3e8ec4", "#3f8fc5", "#4090c5", "#4191c6",
+            "#4292c6", "#4493c7", "#4594c7", "#4695c8", "#4896c8", "#4997c9", "#4a98c9", "#4b98ca", "#4d99ca", "#4e9acb", "#4f9bcb", "#519ccc",
+            "#529dcc", "#539ecd", "#549fcd", "#56a0ce", "#57a0ce", "#58a1cf", "#5aa2cf", "#5ba3d0", "#5ca4d0", "#5da5d1", "#5fa6d1", "#60a7d2",
+            "#61a7d2", "#63a8d3", "#64a9d3", "#65aad4", "#66abd4", "#68acd5", "#69add5", "#6aaed6", "#6caed6", "#6dafd7", "#6fb0d7", "#71b1d7",
+            "#72b2d8", "#74b3d8", "#75b4d8", "#77b5d9", "#79b5d9", "#7ab6d9", "#7cb7da", "#7db8da", "#7fb9da", "#81badb", "#82bbdb", "#84bcdb",
+            "#85bcdc", "#87bddc", "#89bedc", "#8abfdd", "#8cc0dd", "#8dc1dd", "#8fc2de", "#91c3de", "#92c4de", "#94c4df", "#95c5df", "#97c6df",
+            "#99c7e0", "#9ac8e0", "#9cc9e1", "#9dcae1", "#9fcae1", "#a0cbe2", "#a1cbe2", "#a3cce3", "#a4cce3", "#a5cde3", "#a6cee4", "#a8cee4",
+            "#a9cfe5", "#aacfe5", "#abd0e6", "#add0e6", "#aed1e7", "#afd1e7", "#b0d2e7", "#b2d2e8", "#b3d3e8", "#b4d3e9", "#b5d4e9", "#b7d4ea",
+            "#b8d5ea", "#b9d6ea", "#bad6eb", "#bcd7eb", "#bdd7ec", "#bed8ec", "#bfd8ed", "#c1d9ed", "#c2d9ee", "#c3daee", "#c4daee", "#c6dbef",
+            "#c7dbef", "#c7dcef", "#c8dcf0", "#c9ddf0", "#caddf0", "#cadef0", "#cbdef1", "#ccdff1", "#cddff1", "#cde0f1", "#cee0f2", "#cfe1f2",
+            "#d0e1f2", "#d0e2f2", "#d1e2f3", "#d2e3f3", "#d3e3f3", "#d3e4f3", "#d4e4f4", "#d5e5f4", "#d6e5f4", "#d6e6f4", "#d7e6f5", "#d8e7f5",
+            "#d9e7f5", "#d9e8f5", "#dae8f6", "#dbe9f6", "#dce9f6", "#dceaf6", "#ddeaf7", "#deebf7", "#dfebf7", "#dfecf7", "#e0ecf8", "#e1edf8",
+            "#e2edf8", "#e3eef8", "#e3eef9", "#e4eff9", "#e5eff9", "#e6f0f9", "#e7f0fa", "#e7f1fa", "#e8f1fa", "#e9f2fa", "#eaf2fb", "#eaf3fb",
+            "#ebf3fb", "#ecf4fb", "#edf4fc", "#eef5fc", "#eef5fc", "#eff6fc", "#f0f6fd", "#f1f7fd", "#f2f7fd", "#f2f8fd", "#f3f8fe", "#f4f9fe",
+            "#f5f9fe", "#f5fafe", "#f6faff", "#f7fbff"]
 
     def Greens3(self): return ["#31a354", "#a1d99b", "#e5f5e0"]
     def Greens4(self): return ["#238b45", "#74c476", "#bae4b3", "#edf8e9"]
@@ -538,6 +587,30 @@ class _PalettesModule(_types.ModuleType):
     def Greens7(self): return ["#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#edf8e9"]
     def Greens8(self): return ["#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0", "#f7fcf5"]
     def Greens9(self): return ["#00441b", "#006d2c", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0", "#f7fcf5"]
+    def Greens256(self):
+        return [
+            "#00441b", "#00451c", "#00471c", "#00481d", "#00491d", "#004a1e", "#004c1e", "#004d1f", "#004e1f", "#005020", "#005120", "#005221",
+            "#005321", "#005522", "#005622", "#005723", "#005924", "#005a24", "#005b25", "#005c25", "#005e26", "#005f26", "#006027", "#006227",
+            "#006328", "#006428", "#006529", "#006729", "#00682a", "#00692a", "#006b2b", "#006c2c", "#006d2c", "#016e2d", "#026f2e", "#03702e",
+            "#05712f", "#067230", "#077331", "#087432", "#097532", "#0a7633", "#0b7734", "#0c7735", "#0d7836", "#0e7936", "#107a37", "#117b38",
+            "#127c39", "#137d39", "#147e3a", "#157f3b", "#16803c", "#17813d", "#18823d", "#19833e", "#1a843f", "#1c8540", "#1d8640", "#1e8741",
+            "#1f8742", "#208843", "#218944", "#228a44", "#238b45", "#248c46", "#258d47", "#268e47", "#278f48", "#289049", "#29914a", "#2a924a",
+            "#2b934b", "#2c944c", "#2d954d", "#2e964d", "#2f974e", "#2f984f", "#309950", "#319a50", "#329b51", "#339c52", "#349d53", "#359e53",
+            "#369f54", "#37a055", "#38a156", "#39a257", "#3aa357", "#3ba458", "#3ca559", "#3da65a", "#3ea75a", "#3fa85b", "#3fa95c", "#40aa5d",
+            "#42ab5d", "#43ac5e", "#45ad5f", "#46ae60", "#48ae60", "#4aaf61", "#4bb062", "#4db163", "#4eb264", "#50b264", "#52b365", "#53b466",
+            "#55b567", "#56b567", "#58b668", "#5ab769", "#5bb86a", "#5db96b", "#5eb96b", "#60ba6c", "#62bb6d", "#63bc6e", "#65bd6f", "#66bd6f",
+            "#68be70", "#6abf71", "#6bc072", "#6dc072", "#6ec173", "#70c274", "#72c375", "#73c476", "#75c477", "#76c578", "#78c679", "#79c67a",
+            "#7ac77b", "#7cc87c", "#7dc87e", "#7fc97f", "#80ca80", "#81ca81", "#83cb82", "#84cc83", "#86cc85", "#87cd86", "#88ce87", "#8ace88",
+            "#8bcf89", "#8dd08a", "#8ed08b", "#90d18d", "#91d28e", "#92d28f", "#94d390", "#95d391", "#97d492", "#98d594", "#99d595", "#9bd696",
+            "#9cd797", "#9ed798", "#9fd899", "#a0d99b", "#a2d99c", "#a3da9d", "#a4da9e", "#a5db9f", "#a7dba0", "#a8dca2", "#a9dca3", "#aadda4",
+            "#abdda5", "#acdea6", "#aedea7", "#afdfa8", "#b0dfaa", "#b1e0ab", "#b2e0ac", "#b4e1ad", "#b5e1ae", "#b6e2af", "#b7e2b1", "#b8e3b2",
+            "#bae3b3", "#bbe4b4", "#bce4b5", "#bde5b6", "#bee5b8", "#c0e6b9", "#c1e6ba", "#c2e7bb", "#c3e7bc", "#c4e8bd", "#c6e8bf", "#c7e9c0",
+            "#c8e9c1", "#c9eac2", "#caeac3", "#cbeac4", "#cbebc5", "#ccebc6", "#cdecc7", "#ceecc8", "#cfecc9", "#d0edca", "#d1edcb", "#d2edcc",
+            "#d3eecd", "#d4eece", "#d5efcf", "#d6efd0", "#d7efd1", "#d8f0d2", "#d9f0d3", "#daf0d4", "#dbf1d5", "#dbf1d6", "#dcf2d7", "#ddf2d8",
+            "#def2d9", "#dff3da", "#e0f3db", "#e1f3dc", "#e2f4dd", "#e3f4de", "#e4f5df", "#e5f5e0", "#e5f5e1", "#e6f5e1", "#e7f6e2", "#e7f6e3",
+            "#e8f6e3", "#e8f6e4", "#e9f7e5", "#e9f7e5", "#eaf7e6", "#ebf7e7", "#ebf7e7", "#ecf8e8", "#ecf8e8", "#edf8e9", "#edf8ea", "#eef8ea",
+            "#eff9eb", "#eff9ec", "#f0f9ec", "#f0f9ed", "#f1faee", "#f1faee", "#f2faef", "#f2faf0", "#f3faf0", "#f4fbf1", "#f4fbf2", "#f5fbf2",
+            "#f5fbf3", "#f6fcf4", "#f6fcf4", "#f7fcf5"]
 
     def Oranges3(self): return ["#e6550d", "#fdae6b", "#fee6ce"]
     def Oranges4(self): return ["#d94701", "#fd8d3c", "#fdbe85", "#feedde"]
@@ -546,6 +619,30 @@ class _PalettesModule(_types.ModuleType):
     def Oranges7(self): return ["#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#feedde"]
     def Oranges8(self): return ["#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#fee6ce", "#fff5eb"]
     def Oranges9(self): return ["#7f2704", "#a63603", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#fee6ce", "#fff5eb"]
+    def Oranges256(self):
+        return [
+            "#7f2704", "#802704", "#812804", "#832804", "#842904", "#852904", "#862a04", "#882a04", "#892b04", "#8a2b04", "#8b2c04", "#8c2c04",
+            "#8e2d04", "#8f2d04", "#902e04", "#912e04", "#932f03", "#942f03", "#952f03", "#963003", "#973003", "#993103", "#9a3103", "#9b3203",
+            "#9c3203", "#9e3303", "#9f3303", "#a03403", "#a13403", "#a23503", "#a43503", "#a53603", "#a63603", "#a83703", "#a93703", "#ab3803",
+            "#ad3803", "#ae3903", "#b03903", "#b13a03", "#b33b02", "#b53b02", "#b63c02", "#b83c02", "#b93d02", "#bb3d02", "#bd3e02", "#be3f02",
+            "#c03f02", "#c14002", "#c34002", "#c54102", "#c64102", "#c84202", "#c94202", "#cb4302", "#cd4401", "#ce4401", "#d04501", "#d14501",
+            "#d34601", "#d54601", "#d64701", "#d84801", "#d94801", "#da4902", "#db4a02", "#db4b03", "#dc4c03", "#dd4d04", "#de4e05", "#de5005",
+            "#df5106", "#e05206", "#e15307", "#e15407", "#e25508", "#e35608", "#e45709", "#e4580a", "#e5590a", "#e65a0b", "#e75b0b", "#e75c0c",
+            "#e85d0c", "#e95e0d", "#ea5f0e", "#eb600e", "#eb610f", "#ec620f", "#ed6310", "#ee6410", "#ee6511", "#ef6612", "#f06712", "#f16813",
+            "#f16913", "#f26b15", "#f26c16", "#f26d17", "#f36e19", "#f36f1a", "#f3701b", "#f4711c", "#f4721e", "#f5741f", "#f57520", "#f57622",
+            "#f67723", "#f67824", "#f67925", "#f77a27", "#f77b28", "#f87d29", "#f87e2b", "#f87f2c", "#f9802d", "#f9812e", "#f98230", "#fa8331",
+            "#fa8532", "#fb8634", "#fb8735", "#fb8836", "#fc8937", "#fc8a39", "#fc8b3a", "#fd8c3b", "#fd8e3d", "#fd8f3e", "#fd9040", "#fd9141",
+            "#fd9243", "#fd9344", "#fd9446", "#fd9547", "#fd9649", "#fd974a", "#fd984b", "#fd994d", "#fd9a4e", "#fd9b50", "#fd9c51", "#fd9d53",
+            "#fd9e54", "#fd9f56", "#fda057", "#fda159", "#fda25a", "#fda35c", "#fda45d", "#fda55f", "#fda660", "#fda762", "#fda863", "#fda965",
+            "#fdab66", "#fdac67", "#fdad69", "#fdae6a", "#fdaf6c", "#fdb06e", "#fdb170", "#fdb271", "#fdb373", "#fdb475", "#fdb576", "#fdb678",
+            "#fdb77a", "#fdb87c", "#fdb97d", "#fdba7f", "#fdbb81", "#fdbd83", "#fdbe84", "#fdbf86", "#fdc088", "#fdc189", "#fdc28b", "#fdc38d",
+            "#fdc48f", "#fdc590", "#fdc692", "#fdc794", "#fdc895", "#fdc997", "#fdca99", "#fdcb9b", "#fdcd9c", "#fdce9e", "#fdcfa0", "#fdd0a2",
+            "#fdd1a3", "#fdd1a4", "#fdd2a6", "#fdd3a7", "#fdd3a9", "#fdd4aa", "#fdd5ab", "#fdd5ad", "#fdd6ae", "#fdd7af", "#fdd7b1", "#fdd8b2",
+            "#fdd9b4", "#fdd9b5", "#fddab6", "#fddbb8", "#fedcb9", "#fedcbb", "#feddbc", "#fedebd", "#fedebf", "#fedfc0", "#fee0c1", "#fee0c3",
+            "#fee1c4", "#fee2c6", "#fee2c7", "#fee3c8", "#fee4ca", "#fee5cb", "#fee5cc", "#fee6ce", "#fee6cf", "#fee7d0", "#fee7d1", "#fee8d2",
+            "#fee8d2", "#fee9d3", "#fee9d4", "#feead5", "#feead6", "#feebd7", "#feebd8", "#feecd9", "#feecda", "#feeddb", "#feeddc", "#feeddc",
+            "#ffeedd", "#ffeede", "#ffefdf", "#ffefe0", "#fff0e1", "#fff0e2", "#fff1e3", "#fff1e4", "#fff2e5", "#fff2e6", "#fff3e6", "#fff3e7",
+            "#fff4e8", "#fff4e9", "#fff5ea", "#fff5eb"]
 
     def Reds3(self): return ["#de2d26", "#fc9272", "#fee0d2"]
     def Reds4(self): return ["#cb181d", "#fb6a4a", "#fcae91", "#fee5d9"]
@@ -554,6 +651,30 @@ class _PalettesModule(_types.ModuleType):
     def Reds7(self): return ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9"]
     def Reds8(self): return ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
     def Reds9(self): return ["#67000d", "#a50f15", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
+    def Reds256(self):
+        return [
+            "#67000d", "#69000d", "#6b010e", "#6d010e", "#6f020e", "#71020e", "#73030f", "#75030f", "#77040f", "#79040f", "#7a0510", "#7c0510",
+            "#7e0610", "#800610", "#820711", "#840711", "#860811", "#880811", "#8a0812", "#8c0912", "#8e0912", "#900a12", "#920a13", "#940b13",
+            "#960b13", "#980c13", "#9a0c14", "#9c0d14", "#9d0d14", "#9f0e14", "#a10e15", "#a30f15", "#a50f15", "#a60f15", "#a81016", "#a91016",
+            "#aa1016", "#ab1016", "#ac1117", "#ad1117", "#af1117", "#b01217", "#b11218", "#b21218", "#b31218", "#b51318", "#b61319", "#b71319",
+            "#b81419", "#b91419", "#bb141a", "#bc141a", "#bd151a", "#be151a", "#bf151b", "#c1161b", "#c2161b", "#c3161b", "#c4161c", "#c5171c",
+            "#c7171c", "#c8171c", "#c9181d", "#ca181d", "#cb181d", "#cc191e", "#ce1a1e", "#cf1c1f", "#d01d1f", "#d11e1f", "#d21f20", "#d32020",
+            "#d42121", "#d52221", "#d72322", "#d82422", "#d92523", "#da2723", "#db2824", "#dc2924", "#dd2a25", "#de2b25", "#e02c26", "#e12d26",
+            "#e22e27", "#e32f27", "#e43027", "#e53228", "#e63328", "#e83429", "#e93529", "#ea362a", "#eb372a", "#ec382b", "#ed392b", "#ee3a2c",
+            "#ef3c2c", "#f03d2d", "#f03f2e", "#f0402f", "#f14130", "#f14331", "#f14432", "#f24633", "#f24734", "#f34935", "#f34a36", "#f34c37",
+            "#f44d38", "#f44f39", "#f4503a", "#f5523a", "#f5533b", "#f6553c", "#f6563d", "#f6583e", "#f7593f", "#f75b40", "#f75c41", "#f85d42",
+            "#f85f43", "#f96044", "#f96245", "#f96346", "#fa6547", "#fa6648", "#fa6849", "#fb694a", "#fb6b4b", "#fb6c4c", "#fb6d4d", "#fb6e4e",
+            "#fb7050", "#fb7151", "#fb7252", "#fb7353", "#fb7555", "#fb7656", "#fb7757", "#fb7858", "#fb7a5a", "#fb7b5b", "#fb7c5c", "#fb7d5d",
+            "#fc7f5f", "#fc8060", "#fc8161", "#fc8262", "#fc8464", "#fc8565", "#fc8666", "#fc8767", "#fc8969", "#fc8a6a", "#fc8b6b", "#fc8d6d",
+            "#fc8e6e", "#fc8f6f", "#fc9070", "#fc9272", "#fc9373", "#fc9474", "#fc9576", "#fc9777", "#fc9879", "#fc997a", "#fc9b7c", "#fc9c7d",
+            "#fc9d7f", "#fc9e80", "#fca082", "#fca183", "#fca285", "#fca486", "#fca588", "#fca689", "#fca78b", "#fca98c", "#fcaa8d", "#fcab8f",
+            "#fcad90", "#fcae92", "#fcaf93", "#fcb095", "#fcb296", "#fcb398", "#fcb499", "#fcb69b", "#fcb79c", "#fcb89e", "#fcb99f", "#fcbba1",
+            "#fcbca2", "#fcbda4", "#fcbea5", "#fcbfa7", "#fcc1a8", "#fcc2aa", "#fcc3ab", "#fcc4ad", "#fdc5ae", "#fdc6b0", "#fdc7b2", "#fdc9b3",
+            "#fdcab5", "#fdcbb6", "#fdccb8", "#fdcdb9", "#fdcebb", "#fdd0bc", "#fdd1be", "#fdd2bf", "#fdd3c1", "#fdd4c2", "#fdd5c4", "#fdd7c6",
+            "#fed8c7", "#fed9c9", "#fedaca", "#fedbcc", "#fedccd", "#fedecf", "#fedfd0", "#fee0d2", "#fee1d3", "#fee1d4", "#fee2d5", "#fee3d6",
+            "#fee3d7", "#fee4d8", "#fee5d8", "#fee5d9", "#fee6da", "#fee7db", "#fee7dc", "#fee8dd", "#fee8de", "#fee9df", "#feeae0", "#feeae1",
+            "#ffebe2", "#ffece3", "#ffece4", "#ffede5", "#ffeee6", "#ffeee7", "#ffefe8", "#fff0e8", "#fff0e9", "#fff1ea", "#fff2eb", "#fff2ec",
+            "#fff3ed", "#fff4ee", "#fff4ef", "#fff5f0"]
 
     def Greys3(self):  return ["#636363", "#bdbdbd", "#f0f0f0"]
     def Greys4(self):  return ["#525252", "#969696", "#cccccc", "#f7f7f7"]
@@ -1054,11 +1175,11 @@ class _PalettesModule(_types.ModuleType):
     def OrRd(self):     return { 3: self.OrRd3,     4: self.OrRd4,     5: self.OrRd5,     6: self.OrRd6,     7: self.OrRd7,     8: self.OrRd8,     9: self.OrRd9 }
     def YlOrRd(self):   return { 3: self.YlOrRd3,   4: self.YlOrRd4,   5: self.YlOrRd5,   6: self.YlOrRd6,   7: self.YlOrRd7,   8: self.YlOrRd8,   9: self.YlOrRd9 }
     def YlOrBr(self):   return { 3: self.YlOrBr3,   4: self.YlOrBr4,   5: self.YlOrBr5,   6: self.YlOrBr6,   7: self.YlOrBr7,   8: self.YlOrBr8,   9: self.YlOrBr9 }
-    def Purples(self):  return { 3: self.Purples3,  4: self.Purples4,  5: self.Purples5,  6: self.Purples6,  7: self.Purples7,  8: self.Purples8,  9: self.Purples9 }
-    def Blues(self):    return { 3: self.Blues3,    4: self.Blues4,    5: self.Blues5,    6: self.Blues6,    7: self.Blues7,    8: self.Blues8,    9: self.Blues9 }
-    def Greens(self):   return { 3: self.Greens3,   4: self.Greens4,   5: self.Greens5,   6: self.Greens6,   7: self.Greens7,   8: self.Greens8,   9: self.Greens9 }
-    def Oranges(self):  return { 3: self.Oranges3,  4: self.Oranges4,  5: self.Oranges5,  6: self.Oranges6,  7: self.Oranges7,  8: self.Oranges8,  9: self.Oranges9 }
-    def Reds(self):     return { 3: self.Reds3,     4: self.Reds4,     5: self.Reds5,     6: self.Reds6,     7: self.Reds7,     8: self.Reds8,     9: self.Reds9 }
+    def Purples(self):  return { 3: self.Purples3,  4: self.Purples4,  5: self.Purples5,  6: self.Purples6,  7: self.Purples7,  8: self.Purples8,  9: self.Purples9,  256: self.Purples256 } # NOQA
+    def Blues(self):    return { 3: self.Blues3,    4: self.Blues4,    5: self.Blues5,    6: self.Blues6,    7: self.Blues7,    8: self.Blues8,    9: self.Blues9,    256: self.Blues256 } # NOQA
+    def Greens(self):   return { 3: self.Greens3,   4: self.Greens4,   5: self.Greens5,   6: self.Greens6,   7: self.Greens7,   8: self.Greens8,   9: self.Greens9,   256: self.Greens256 } # NOQA
+    def Oranges(self):  return { 3: self.Oranges3,  4: self.Oranges4,  5: self.Oranges5,  6: self.Oranges6,  7: self.Oranges7,  8: self.Oranges8,  9: self.Oranges9,  256: self.Oranges256 } # NOQA
+    def Reds(self):     return { 3: self.Reds3,     4: self.Reds4,     5: self.Reds5,     6: self.Reds6,     7: self.Reds7,     8: self.Reds8,     9: self.Reds9,     256: self.Reds256 } # NOQA
     def Greys(self):    return { 3: self.Greys3,    4: self.Greys4,    5: self.Greys5,    6: self.Greys6,    7: self.Greys7,    8: self.Greys8,    9: self.Greys9,    256: self.Greys256 } # NOQA
     def PuOr(self):     return { 3: self.PuOr3,     4: self.PuOr4,     5: self.PuOr5,     6: self.PuOr6,     7: self.PuOr7,     8: self.PuOr8,     9: self.PuOr9,     10: self.PuOr10,     11: self.PuOr11 } # NOQA
     def BrBG(self):     return { 3: self.BrBG3,     4: self.BrBG4,     5: self.BrBG5,     6: self.BrBG6,     7: self.BrBG7,     8: self.BrBG8,     9: self.BrBG9,     10: self.BrBG10,     11: self.BrBG11 } # NOQA
@@ -1214,6 +1335,48 @@ class _PalettesModule(_types.ModuleType):
         if n > len(palette):
             raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % dict(r=n, l=len(palette)))
         return [ palette[int(math.floor(i))] for i in np.linspace(0, len(palette)-1, num=n) ]
+
+    def diverging_palette(self, palette1, palette2, n, midpoint=0.5):
+        ''' Generate a new palette by combining exactly two input palettes.
+
+        Given an input ``palette1`` and ``palette2``, take a combined ``n`` colors,
+        and combine input palettes at the relative ``midpoint``.
+        ``palette1`` and ``palette2`` are meant to be sequential palettes that proceed
+        left to right from perceptually dark to light colors.  In that case the returned
+        palette is comprised of the input palettes connected at perceptually light ends.
+        Palettes are combined by piecewise linear interpolation.
+
+        Args:
+
+            palette1 (list[str]) :
+                A list of hex RGB color strings for the first palette
+
+            palette2 (list[str]) :
+                A list of hex RGB color strings for the second palette
+
+            n (int) :
+                The size of the output palette to generate
+
+            midpoint (float, optional) :
+                Relative position in the returned palette where input palettes are
+                connected (default: 0.5)
+
+        Returns:
+                list [str] : a list of hex RGB color strings
+
+        Raises:
+            ``ValueError`` if n is greater than the possible combined length the input palettes
+        '''
+
+        # flip palette2 so that perceptually light colors are joined
+        palette2 = palette2[::-1]
+
+        # determine number of colors from each palette
+        n1 = int(round(midpoint * n))
+        n2 = int(round((1 - midpoint) * n))
+
+        # return piecewise linear interpolation of colors
+        return self.linear_palette(palette1, n1) + self.linear_palette(palette2, n2)
 
     def magma(self, n):
         ''' Generate a palette of colors or from the Magma palette.
