@@ -30,7 +30,6 @@ task("scripts:bundle-es6", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh-es6.json") : undefined,
-    externals: ["@jupyter-widgets/base"],
   })
 
   if (!argv.rebuild) linker.load_cache()
@@ -59,7 +58,6 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.legacy || pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    externals: ["@jupyter-widgets/base"],
     transpile: true,
   })
 

@@ -31,7 +31,7 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-blacklist = {"bokeh.embed.notebook.widgets"}
+blacklist = {}
 
 @pytest.mark.codebase
 def test_python_execution_with_OO():

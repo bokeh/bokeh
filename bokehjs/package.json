@@ -70,8 +70,7 @@
     "eslint": "^5.16.0",
     "acorn": "^6.2.1",
     "@typescript-eslint/eslint-plugin": "^2.3.1",
-    "@typescript-eslint/parser": "^2.3.1",
-    "@jupyter-widgets/base": "^1.1.10"
+    "@typescript-eslint/parser": "^2.3.1"
   },
   "dependencies": {
     "tslib": "^1.10.0",
