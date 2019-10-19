@@ -3,48 +3,39 @@
 
 <head>
 
-    <!-- Basic Page Needs
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <meta charset="utf-8">
-    <title>{{ title }} &mdash; {{ shorttitle }}</title>
-    <meta name="description" content="{{ DESCRIPTION }}">
-    <meta name="author" content="{{ AUTHOR }}">
+  <!-- Basic Page Needs -->
+  <meta charset="utf-8">
+  <title>{{ title }} &mdash; {{ shorttitle }}</title>
+  <meta name="description" content="{{ DESCRIPTION }}">
+  <meta name="author" content="{{ AUTHOR }}">
 
-    <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Mobile Specific Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- FONT
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
-    <script>
-        WebFont.load({
-            google: {
-                families: ['Source Sans Pro']
-            }
-        });
-    </script>
+  <!-- Fonts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+  <script>
+    WebFont.load({ google: { families: ['Source Sans Pro'] } });
+  </script>
 
-    <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <link rel="stylesheet" href="{{ pathto('_static/' + theme_css, 1) }}">
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ pathto('_static/' + theme_css, 1) }}">
 
-    <!-- Scripts
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- Scripts -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
+  </script>
+  <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script type="text/javascript">
-        var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
-    </script>
-    <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
 
-    <!-- Favicon
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
+  <!-- Canonical -->
+  <link rel="canonical" href="https://docs.bokeh.org/en/latest/{{ pagename }}{{ file_suffix }}" />
 
-    <!-- Canonical
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <link rel="canonical" href="https://docs.bokeh.org/en/latest/{{ pagename }}{{ file_suffix }}" />
+  <!-- Google Analytics  -->
+{% include 'ga.html' %}
 
 </head>
 
@@ -120,9 +111,6 @@
             </ul>
         </div>
     </footer>
-
-    <!-- Google Analytics -->
-    {% include 'ga.html' %}
 
     <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
