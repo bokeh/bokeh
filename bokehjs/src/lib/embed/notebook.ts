@@ -10,7 +10,7 @@ import {_resolve_element, _resolve_root_elements} from "./dom"
 import "styles/logo"
 import "styles/notebook"
 
-// This exists to allow the jupyterlab_bokeh extension to store the
+// This exists to allow the @bokeh/jupyter_bokeh extension to store the
 // notebook kernel so that _init_comms can register the comms target.
 // This has to be available at window.Bokeh.embed.kernels in JupyterLab.
 export const kernels: {[key: string]: unknown} = {}
@@ -52,7 +52,7 @@ function _init_comms(target: string, doc: Document): void {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else {
-    console.warn(`Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest jupyterlab_bokeh extension is installed. In an exported notebook this warning is expected.`)
+    console.warn(`Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest @bokeh/jupyter_bokeh extension is installed. In an exported notebook this warning is expected.`)
   }
 }
 
