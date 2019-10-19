@@ -46,8 +46,10 @@ __all__ = (
     'GridBox',
     'HTMLBox',
     'LayoutDOM',
+    'Panel',
     'Row',
     'Spacer',
+    'Tabs',
     'WidgetBox',
 )
 
