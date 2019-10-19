@@ -387,11 +387,11 @@ def upload_docs():
 
     if V(CONFIG.version).is_prerelease:
         run(sync_cmd % "dev")
-        run(invalidate_cmd % '/en/dev\\*')
+        run(invalidate_cmd % '/en/dev*')
     else:
         run(sync_cmd % CONFIG.version)
         run(sync_cmd % "latest")
-        paths = '/en/latest\\* /versions.json'
+        paths = '/en/latest* /versions.json'
         run(invalidate_cmd % paths)
     cd("..")
 
