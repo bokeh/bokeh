@@ -188,6 +188,12 @@ export class Plot extends LayoutDOM {
     return height != null ? height : this.plot_height
   }
 
+  protected _doc_attached(): void {
+    super._doc_attached()
+    this._tell_document_about_change('inner_height', null, this.inner_height, {})
+    this._tell_document_about_change('inner_width', null, this.inner_width, {})
+  }
+
   initialize(): void {
     super.initialize()
 
