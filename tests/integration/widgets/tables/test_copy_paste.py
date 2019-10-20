@@ -21,6 +21,7 @@ import pytest ; pytest
 from time import sleep
 
 # External imports
+from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
@@ -40,6 +41,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_DataTableCopyPaste(object):
 
+    @flaky(max_runs=5)
     def test_single_row_copy(self, bokeh_model_page):
         data = {'x': [1,2,3,4], 'y': [1, 1, 1, 1], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
@@ -102,6 +104,7 @@ class Test_DataTableCopyPaste(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_multi_row_copy(self, bokeh_model_page):
         data = {'x': [1,2,3,4], 'y': [0, 1, 2, 3], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
