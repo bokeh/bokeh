@@ -376,6 +376,15 @@ class Test_list_attr_splat(object):
             obj.start
         assert str(e.value).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
 
+    def test_get_index(self):
+        obj = bmp._list_attr_splat([1, 2, 3])
+        assert obj.index(2) == 1
+
+    def test_pop_value(self):
+        obj = bmp._list_attr_splat([1, 2, 3])
+        obj.pop(1)
+        assert obj == [1, 3]
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
