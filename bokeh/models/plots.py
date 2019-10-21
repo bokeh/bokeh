@@ -738,6 +738,8 @@ class _list_attr_splat(list):
         for x in self:
             setattr(x, attr, value)
     def __getattribute__(self, attr):
+        if attr in dir(list):
+            return list.__getattribute__(self, attr)
         if len(self) == 0:
             raise AttributeError("Trying to access %r attribute on an empty 'splattable' list" % attr)
         if len(self) == 1:
