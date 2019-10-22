@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
-import {isString} from "core/util/types"
+import {isNumber, isString} from "core/util/types"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
@@ -78,6 +78,67 @@ export class StringFormatter extends CellFormatter {
       text.style.color = text_color
 
     return text.outerHTML
+  }
+}
+
+export namespace BasicNumberFormatter {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = StringFormatter.Props & {
+    precision: p.Property<number | 10>
+    use_scientific: p.Property<boolean>
+    power_limit_high: p.Property<number>
+    power_limit_low: p.Property<number>
+  }
+}
+
+export interface BasicNumberFormatter extends BasicNumberFormatter.Attrs {}
+
+export abstract class BasicNumberFormatter extends StringFormatter {
+  properties: BasicNumberFormatter.Props
+
+  constructor(attrs?: Partial<BasicNumberFormatter.Attrs>) {
+    super(attrs)
+  }
+
+  static init_BasicNumberFormatter(): void {
+    this.define<BasicNumberFormatter.Props>({
+      precision:        [ p.Any,     10     ],
+      use_scientific:   [ p.Boolean, true   ],
+      power_limit_high: [ p.Number,  5      ],
+      power_limit_low:  [ p.Number,  -3     ],
+    })
+  }
+
+  get scientific_limit_low(): number {
+    return Math.pow(10.0, this.power_limit_low)
+  }
+
+  get scientific_limit_high(): number {
+    return Math.pow(10.0, this.power_limit_high)
+  }
+
+  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+    let need_sci = false
+    if (this.use_scientific) {
+      need_sci = value >= this.scientific_limit_high || value <= this.scientific_limit_low
+    }
+
+    let precision = this.precision
+    if (precision == null || isNumber(precision)) {
+      // toExponential does not handle precision values < 0 correctly
+      if (precision < 1) {
+        precision = 1
+      }
+      if (need_sci) {
+          value = value.toExponential(precision || undefined)
+      } else {
+        value = value.toFixed(precision || undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+      }
+    }
+
+    // add StringFormatter formatting
+    return super.doFormat(row, cell, value, columnDef, dataContext)
   }
 }
 
