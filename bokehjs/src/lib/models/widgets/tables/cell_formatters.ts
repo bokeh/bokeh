@@ -131,7 +131,7 @@ export abstract class BasicNumberFormatter extends StringFormatter {
         precision = 1
       }
       if (need_sci) {
-          value = value.toExponential(precision || undefined)
+        value = value.toExponential(precision || undefined)
       } else {
         value = value.toFixed(precision || undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
       }
