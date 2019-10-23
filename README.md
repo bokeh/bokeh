@@ -283,7 +283,7 @@ Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots)
 Sponsors
 --------
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.salsalabs.org/donate-to-bokeh/index.html) as well as sponsorship by the organizations and companies below:
+The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) as well as sponsorship by the organizations and companies below:
 
 <table>
 <tr>
