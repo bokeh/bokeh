@@ -23,8 +23,8 @@ export class SpanView extends AnnotationView {
 
     const {frame} = this.plot_view
 
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const xscale = this.scope.x_scale
+    const yscale = this.scope.y_scale
 
     const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
       if (this.model.location_units == 'data')

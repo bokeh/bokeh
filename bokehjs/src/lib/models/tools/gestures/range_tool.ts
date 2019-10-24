@@ -128,9 +128,9 @@ export class RangeToolView extends GestureToolView {
     const xr = this.model.x_range
     const yr = this.model.y_range
 
-    const frame = this.plot_view.frame
-    const xscale = frame.xscales.default
-    const yscale = frame.yscales.default
+    const {frame} = this.plot_view
+    const xscale = frame.x_scale
+    const yscale = frame.y_scale
 
     const overlay = this.model.overlay
     const {left, right, top, bottom} = overlay
@@ -170,8 +170,8 @@ export class RangeToolView extends GestureToolView {
     const xr = this.model.x_range
     const yr = this.model.y_range
 
-    const xscale = frame.xscales.default
-    const yscale = frame.yscales.default
+    const xscale = frame.x_scale
+    const yscale = frame.y_scale
 
     if (xr != null) {
       if (this.side == Side.LeftRight || this.side == Side.LeftRightBottomTop)

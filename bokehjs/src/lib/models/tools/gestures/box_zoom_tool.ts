@@ -4,6 +4,7 @@ import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
+import {Interval} from "core/types"
 import {bk_tool_icon_box_zoom} from "styles/icons"
 
 export class BoxZoomToolView extends GestureToolView {
@@ -126,20 +127,18 @@ export class BoxZoomToolView extends GestureToolView {
     if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5)
       return
 
-    const {xscales, yscales} = this.plot_view.frame
+    const {x_scales, y_scales} = this.plot_view.frame
 
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
+    const xrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of x_scales) {
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
+      xrs.set(name, {start, end})
     }
 
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
+    const yrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of y_scales) {
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
+      yrs.set(name, {start, end})
     }
 
     const zoom_info = {xrs, yrs}

@@ -5,7 +5,6 @@ import {HAreaView} from "../glyphs/harea"
 import {VAreaView} from "../glyphs/varea"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Scale} from "../scales/scale"
 import {CDSView} from "../sources/cds_view"
 import {Color} from "core/types"
 import {logger} from "core/logging"
@@ -18,7 +17,7 @@ import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
 import {Context2d} from "core/util/canvas"
-import {FactorRange} from '../ranges/factor_range'
+import {FactorRange} from "../ranges/factor_range"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -49,9 +48,6 @@ export class GlyphRendererView extends DataRendererView {
   hover_glyph?: GlyphView
   muted_glyph?: GlyphView
   decimated_glyph: GlyphView
-
-  xscale: Scale
-  yscale: Scale
 
   protected all_indices: number[]
   protected decimated: number[]
@@ -102,9 +98,6 @@ export class GlyphRendererView extends DataRendererView {
     const decimated_glyph = mk_glyph(decimated_defaults)
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
-    this.xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    this.yscale = this.plot_view.frame.yscales[this.model.y_range_name]
-
     this.set_data(false)
   }
 
@@ -140,16 +133,14 @@ export class GlyphRendererView extends DataRendererView {
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 
-    for (const name in x_ranges) {
-      const rng = x_ranges[name]
-      if (rng instanceof FactorRange)
-        this.connect(rng.change, () => this.set_data())
+    for (const [, range] of x_ranges) {
+      if (range instanceof FactorRange)
+        this.connect(range.change, () => this.set_data())
     }
 
-    for (const name in y_ranges) {
-      const rng = y_ranges[name]
-      if (rng instanceof FactorRange)
-        this.connect(rng.change, () => this.set_data())
+    for (const [, range] of y_ranges) {
+      if (range instanceof FactorRange)
+        this.connect(range.change, () => this.set_data())
     }
 
     this.connect(this.model.glyph.transformchange, () => this.set_data())
@@ -167,10 +158,6 @@ export class GlyphRendererView extends DataRendererView {
 
     this.all_indices = this.model.view.indices
 
-    // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
-    // mapping functions on the base Renderer class
-    this.glyph.model.setv({x_range_name: this.model.x_range_name,
-                           y_range_name: this.model.y_range_name}, {silent: true})
     this.glyph.set_data(source, this.all_indices, indices)
 
     this.glyph.set_visuals(source, this.all_indices)

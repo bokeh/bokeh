@@ -89,7 +89,7 @@ export class HexTileView extends GlyphView {
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   map_data(): void {
-    [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
+    [this.sx, this.sy] = this.renderer.scope.map_to_screen(this._x, this._y)
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
 

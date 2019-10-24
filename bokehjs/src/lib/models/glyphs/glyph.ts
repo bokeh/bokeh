@@ -221,8 +221,8 @@ export abstract class GlyphView extends View {
 
   protected _hit_rect_against_index(geometry: geometry.RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     const indices = this.index.indices({x0, x1, y0, y1})
     return new Selection({indices})
   }
@@ -280,38 +280,36 @@ export abstract class GlyphView extends View {
 
     // if we have any coordinates that are categorical, convert them to
     // synthetic coords here
-    if (this.renderer.plot_view.frame.x_ranges != null) {   // XXXX JUST TEMP FOR TESTS TO PASS
-      const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name]
-      const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name]
+    const xr = this.renderer.scope.x_range
+    const yr = this.renderer.scope.y_range
 
-      // XXX: MultiPolygons is a special case of special cases
-      if (this.model.type != "MultiPolygons") {
-        for (let [xname, yname] of this.model._coords) {
-          xname = `_${xname}`
-          yname = `_${yname}`
+    // XXX: MultiPolygons is a special case of special cases
+    if (this.model.type != "MultiPolygons") {
+      for (let [xname, yname] of this.model._coords) {
+        xname = `_${xname}`
+        yname = `_${yname}`
 
-          // TODO (bev) more robust detection of multi-glyph case
-          // hand multi glyph case
-          if (self._xs != null) {
-            if (xr instanceof FactorRange)
-              self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
-            else
-              self[xname] = map(self[xname], num_array)
-            if (yr instanceof FactorRange)
-              self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
-            else
-              self[yname] = map(self[yname], num_array)
-          } else {
-            // hand standard glyph case
-            if (xr instanceof FactorRange)
-              self[xname] = xr.v_synthetic(self[xname])
-            else
-              self[xname] = num_array(self[xname])
-            if (yr instanceof FactorRange)
-              self[yname] = yr.v_synthetic(self[yname])
-            else
-              self[yname] = num_array(self[yname])
-          }
+        // TODO (bev) more robust detection of multi-glyph case
+        // hand multi glyph case
+        if (self._xs != null) {
+          if (xr instanceof FactorRange)
+            self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
+          else
+            self[xname] = map(self[xname], num_array)
+          if (yr instanceof FactorRange)
+            self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
+          else
+            self[yname] = map(self[yname], num_array)
+        } else {
+          // hand standard glyph case
+          if (xr instanceof FactorRange)
+            self[xname] = xr.v_synthetic(self[xname])
+          else
+            self[xname] = num_array(self[xname])
+          if (yr instanceof FactorRange)
+            self[yname] = yr.v_synthetic(self[yname])
+          else
+            self[yname] = num_array(self[yname])
         }
       }
     }
@@ -367,12 +365,12 @@ export abstract class GlyphView extends View {
         self[syname] = new Array(n)
 
         for (let i = 0; i < n; i++) {
-          const [sx, sy] = this.map_to_screen(self[xname][i], self[yname][i])
+          const [sx, sy] = this.renderer.scope.map_to_screen(self[xname][i], self[yname][i])
           self[sxname][i] = sx
           self[syname][i] = sy
         }
       } else
-        [self[sxname], self[syname]] = this.map_to_screen(self[xname], self[yname])
+        [self[sxname], self[syname]] = this.renderer.scope.map_to_screen(self[xname], self[yname])
     }
 
     this._map_data()
@@ -380,19 +378,12 @@ export abstract class GlyphView extends View {
 
   // This is where specs not included in coords are computed, e.g. radius.
   protected _map_data(): void {}
-
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
-    return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
-  }
 }
 
 export namespace Glyph {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
-  }
+  export type Props = Model.Props
 
   export type Visuals = visuals.Visuals
 }
@@ -411,11 +402,6 @@ export abstract class Glyph extends Model {
 
   static init_Glyph(): void {
     this.prototype._coords = []
-
-    this.internal({
-      x_range_name: [ p.String, 'default' ],
-      y_range_name: [ p.String, 'default' ],
-    })
   }
 
   static coords(coords: [string, string][]): void {

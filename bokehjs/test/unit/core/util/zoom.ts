@@ -46,11 +46,11 @@ describe("zoom module", () => {
         source_range: new FactorRange({factors: ['foo', 'bar', 'baz'], range_padding: 0}),
         target_range: new Range1d({start: 20, end: 80}),
       })
-      const info0 = zoom.get_info({foo: cm}, [20, 80])
-      expect(info0).to.be.equal({foo: {start: 0, end: 3}})
+      const info0 = zoom.get_info(new Map([["foo", cm]]), [20, 80])
+      expect(info0).to.be.equal(new Map([["foo", {start: 0, end: 3}]]))
 
-      const info1 = zoom.get_info({foo: cm}, [50, 60])
-      expect(info1).to.be.equal({foo: {start: 1.5, end: 2}})
+      const info1 = zoom.get_info(new Map([["foo", cm]]), [50, 60])
+      expect(info1).to.be.equal(new Map([["foo", {start: 1.5, end: 2}]]))
     })
   })
 })

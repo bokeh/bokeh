@@ -46,8 +46,8 @@ export class ArrowView extends AnnotationView {
 
     let sx_start, sy_start
     if (this.model.start_units == 'data') {
-      sx_start = frame.xscales[this.model.x_range_name].v_compute(this._x_start)
-      sy_start = frame.yscales[this.model.y_range_name].v_compute(this._y_start)
+      sx_start = this.scope.x_scale.v_compute(this._x_start)
+      sy_start = this.scope.y_scale.v_compute(this._y_start)
     } else {
       sx_start = frame.xview.v_compute(this._x_start)
       sy_start = frame.yview.v_compute(this._y_start)
@@ -55,8 +55,8 @@ export class ArrowView extends AnnotationView {
 
     let sx_end, sy_end
     if (this.model.end_units == 'data') {
-      sx_end = frame.xscales[this.model.x_range_name].v_compute(this._x_end)
-      sy_end = frame.yscales[this.model.y_range_name].v_compute(this._y_end)
+      sx_end = this.scope.x_scale.v_compute(this._x_end)
+      sy_end = this.scope.y_scale.v_compute(this._y_end)
     } else {
       sx_end = frame.xview.v_compute(this._x_end)
       sy_end = frame.yview.v_compute(this._y_end)

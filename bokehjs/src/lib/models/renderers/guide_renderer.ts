@@ -9,7 +9,10 @@ export abstract class GuideRendererView extends RendererView {
 export namespace GuideRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Renderer.Props
+  export type Props = Renderer.Props & {
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+  }
 
   export type Visuals = Renderer.Visuals
 }
@@ -25,6 +28,11 @@ export abstract class GuideRenderer extends Renderer {
   }
 
   static init_GuideRenderer(): void {
+    this.define<GuideRenderer.Props>({
+      x_range_name: [ p.String, "default" ],
+      y_range_name: [ p.String, "default" ],
+    })
+
     this.override({
       level: "guide",
     })

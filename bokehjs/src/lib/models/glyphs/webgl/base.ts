@@ -42,7 +42,7 @@ export abstract class BaseGLGlyph {
     const [a, b, c] = [0, 1, 2]
     let wx = 1   // Weights to scale our vectors
     let wy = 1
-    let [dx, dy] = this.glyph.renderer.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
+    let [dx, dy] = this.glyph.renderer.scope.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
     if (isNaN(dx[0] + dx[1] + dx[2] + dy[0] + dy[1] + dy[2])) {
       logger.warn(`WebGL backend (${this.glyph.model.type}): falling back to canvas rendering`)
       return false
@@ -50,7 +50,7 @@ export abstract class BaseGLGlyph {
     // Try again, but with weighs so we're looking at ~100 in screen coordinates
     wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
     wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
-    ;[dx, dy] = this.glyph.renderer.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
+    ;[dx, dy] = this.glyph.renderer.scope.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
     // Test how linear it is
     if ((Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6) ||
         (Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)) {

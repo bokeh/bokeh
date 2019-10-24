@@ -15,7 +15,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable, NumberArray, Interval} from "core/types"
+import {Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
@@ -25,7 +25,6 @@ import {Side, RenderLevel} from "core/enums"
 import {throttle} from "core/util/throttle"
 import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
-import {values} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
 import {HStack, VStack} from "core/layout/alignments"
@@ -35,8 +34,8 @@ import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
 
 export type RangeInfo = {
-  xrs: {[key: string]: Interval}
-  yrs: {[key: string]: Interval}
+  xrs: Map<string, Interval>
+  yrs: Map<string, Interval>
 }
 
 export type StateInfo = {
@@ -380,11 +379,13 @@ export class PlotView extends LayoutDOMView {
     const log_bounds: Bounds = new Map()
 
     let calculate_log_bounds = false
-    for (const r of values(this.frame.x_ranges).concat(values(this.frame.y_ranges))) {
-      if (r instanceof DataRange1d) {
-        if (r.scale_hint == "log")
-          calculate_log_bounds = true
-      }
+    for (const [, xr] of this.frame.x_ranges) {
+      if (xr instanceof DataRange1d && xr.scale_hint == "log")
+        calculate_log_bounds = true
+    }
+    for (const [, yr] of this.frame.y_ranges) {
+      if (yr instanceof DataRange1d && yr.scale_hint == "log")
+        calculate_log_bounds = true
     }
 
     for (const [renderer, renderer_view] of this.renderer_views) {
@@ -409,7 +410,7 @@ export class PlotView extends LayoutDOMView {
     if (this.model.match_aspect !== false && width != 0 && height != 0)
       r = (1/this.model.aspect_scale)*(width/height)
 
-    for (const xr of values(this.frame.x_ranges)) {
+    for (const [, xr] of this.frame.x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.model, r)
@@ -421,7 +422,7 @@ export class PlotView extends LayoutDOMView {
         has_bounds = true
     }
 
-    for (const yr of values(this.frame.y_ranges)) {
+    for (const [, yr] of this.frame.y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.model, r)
@@ -435,20 +436,15 @@ export class PlotView extends LayoutDOMView {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.')
-      for (const xr of values(this.frame.x_ranges)) {
+      for (const [, xr] of this.frame.x_ranges) {
         xr.bounds = null
       }
-      for (const yr of values(this.frame.y_ranges)) {
+      for (const [, yr] of this.frame.y_ranges) {
         yr.bounds = null
       }
     }
 
     this.range_update_timestamp = Date.now()
-  }
-
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
-                x_name: string = "default", y_name: string = "default"): [NumberArray, NumberArray] {
-    return this.frame.map_to_screen(x, y, x_name, y_name)
   }
 
   push_state(type: string, new_info: Partial<StateInfo>): void {
@@ -663,24 +659,20 @@ export class PlotView extends LayoutDOMView {
     this.pause()
     const {x_ranges, y_ranges} = this.frame
     if (range_info == null) {
-      for (const name in x_ranges) {
-        const rng = x_ranges[name]
-        rng.reset()
+      for (const [, range] of x_ranges) {
+        range.reset()
       }
-      for (const name in y_ranges) {
-        const rng = y_ranges[name]
-        rng.reset()
+      for (const [, range] of y_ranges) {
+        range.reset()
       }
       this.update_dataranges()
     } else {
       const range_info_iter: [Range, Interval][] = []
-      for (const name in x_ranges) {
-        const rng = x_ranges[name]
-        range_info_iter.push([rng, range_info.xrs[name]])
+      for (const [name, range] of x_ranges) {
+        range_info_iter.push([range, range_info.xrs.get(name)!])
       }
-      for (const name in y_ranges) {
-        const rng = y_ranges[name]
-        range_info_iter.push([rng, range_info.yrs[name]])
+      for (const [name, range] of y_ranges) {
+        range_info_iter.push([range, range_info.yrs.get(name)!])
       }
       if (is_scrolling) {
         this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
@@ -745,13 +737,11 @@ export class PlotView extends LayoutDOMView {
 
     const {x_ranges, y_ranges} = this.frame
 
-    for (const name in x_ranges) {
-      const rng = x_ranges[name]
-      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
+    for (const [, range] of x_ranges) {
+      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
     }
-    for (const name in y_ranges) {
-      const rng = y_ranges[name]
-      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
+    for (const [, range] of y_ranges) {
+      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
     const {plot_width, plot_height} = this.model.properties
@@ -773,24 +763,24 @@ export class PlotView extends LayoutDOMView {
     // check for good values for ranges before setting initial range
     let good_vals = true
     const {x_ranges, y_ranges} = this.frame
-    const xrs: {[key: string]: Interval} = {}
-    const yrs: {[key: string]: Interval} = {}
-    for (const name in x_ranges) {
-      const {start, end} = x_ranges[name]
+    const xrs: Map<string, Interval> = new Map()
+    const yrs: Map<string, Interval> = new Map()
+    for (const [name, range] of x_ranges) {
+      const {start, end} = range
       if (start == null || end == null || isNaN(start + end)) {
         good_vals = false
         break
       }
-      xrs[name] = {start, end}
+      xrs.set(name, {start, end})
     }
     if (good_vals) {
-      for (const name in y_ranges) {
-        const {start, end} = y_ranges[name]
+      for (const [name, range] of y_ranges) {
+        const {start, end} = range
         if (start == null || end == null || isNaN(start + end)) {
           good_vals = false
           break
         }
-        yrs[name] = {start, end}
+        yrs.set(name, {start, end})
       }
     }
     if (good_vals) {

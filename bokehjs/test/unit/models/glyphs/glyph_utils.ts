@@ -2,7 +2,7 @@ import {Arrayable} from "@bokehjs/core/types"
 import {Document} from "@bokehjs/document"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
-import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
+import {Glyph} from "@bokehjs/models/glyphs/glyph"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Scale} from "@bokehjs/models/scales/scale"
@@ -13,11 +13,18 @@ import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {build_view} from "@bokehjs/core/build_views"
 import {ViewOf} from "@bokehjs/core/view"
 
-export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): Promise<GlyphRendererView> {
+export type Options = {axis_type?: AxisType, reversed?: boolean}
+
+export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<GlyphRendererView> {
+  const axis_type = options?.axis_type ?? "linear"
+  const reversed = options?.reversed ?? false
+
   const doc = new Document()
   const plot = new Plot({
     x_range: new Range1d({start: 0, end: 1}),
     y_range: new Range1d({start: 0, end: 1}),
+    x_scale: make_scale("x", axis_type, reversed),
+    y_scale: make_scale("y", axis_type, reversed),
   })
   const plot_view = (await build_view(plot)).build()
   doc.add_root(plot)
@@ -30,8 +37,8 @@ export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: stri
   return glyph_renderer_view
 }
 
-export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): Promise<ViewOf<G>> {
-  return (await create_glyph_renderer_view(glyph, data)).glyph /* glyph_view */ // as unknown as ViewOf<G> // XXX: investigate this
+export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<ViewOf<G>> {
+  return (await create_glyph_renderer_view(glyph, data, options)).glyph /* glyph_view */ // as unknown as ViewOf<G> // XXX: investigate this
 }
 
 export type AxisType = "linear" | "log" | "categorical"
@@ -75,15 +82,4 @@ function make_scale(axis: "x" | "y", axis_type: AxisType, reversed: boolean): Sc
     default:
       throw new Error(`unknown scale type: ${axis_type}`)
   }
-}
-
-export function set_scales(glyph_view: GlyphView, axis_type: AxisType, reversed: boolean = false): void {
-  const xscale = make_scale("x", axis_type, reversed)
-  const yscale = make_scale("y", axis_type, reversed)
-
-  glyph_view.renderer.xscale = xscale
-  glyph_view.renderer.yscale = yscale
-
-  glyph_view.renderer.plot_view.frame.xscales.default = xscale
-  glyph_view.renderer.plot_view.frame.yscales.default = yscale
 }

@@ -1,10 +1,19 @@
 import {Renderer, RendererView} from "./renderer"
+import {Scale} from "../scales/scale"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 
 export abstract class DataRendererView extends RendererView {
   model: DataRenderer
   visuals: DataRenderer.Visuals
+
+  get xscale(): Scale {
+    return this.scope.x_scale
+  }
+
+  get yscale(): Scale {
+    return this.scope.y_scale
+  }
 }
 
 export namespace DataRenderer {

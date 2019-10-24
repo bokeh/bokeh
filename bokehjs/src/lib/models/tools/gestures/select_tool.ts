@@ -100,37 +100,35 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   _emit_selection_event(geometry: Geometry, final: boolean = true): void {
-    const {frame} = this.plot_view
-    const xm = frame.xscales.default
-    const ym = frame.yscales.default
+    const {x_scale, y_scale} = this.plot_view.frame
 
     let geometry_data: GeometryData
     switch (geometry.type) {
       case "point": {
         const {sx, sy} = geometry
-        const x = xm.invert(sx)
-        const y = ym.invert(sy)
+        const x = x_scale.invert(sx)
+        const y = y_scale.invert(sy)
         geometry_data = {...geometry, x, y}
         break
       }
       case "span": {
         const {sx, sy} = geometry
-        const x = xm.invert(sx)
-        const y = ym.invert(sy)
+        const x = x_scale.invert(sx)
+        const y = y_scale.invert(sy)
         geometry_data = {...geometry, x, y}
         break
       }
       case "rect": {
         const {sx0, sx1, sy0, sy1} = geometry
-        const [x0, x1] = xm.r_invert(sx0, sx1)
-        const [y0, y1] = ym.r_invert(sy0, sy1)
+        const [x0, x1] = x_scale.r_invert(sx0, sx1)
+        const [y0, y1] = y_scale.r_invert(sy0, sy1)
         geometry_data = {...geometry, x0, y0, x1, y1}
         break
       }
       case "poly": {
         const {sx, sy} = geometry
-        const x = xm.v_invert(sx)
-        const y = ym.v_invert(sy)
+        const x = x_scale.v_invert(sx)
+        const y = y_scale.v_invert(sy)
         geometry_data = {...geometry, x, y}
         break
       }

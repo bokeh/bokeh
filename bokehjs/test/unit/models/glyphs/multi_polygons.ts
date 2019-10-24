@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 
-import {create_glyph_view, set_scales} from "./glyph_utils"
-import {MultiPolygons, MultiPolygonsView} from "@bokehjs/models/glyphs/multi_polygons"
+import {create_glyph_view} from "./glyph_utils"
+import {MultiPolygons} from "@bokehjs/models/glyphs/multi_polygons"
 import {Geometry} from "@bokehjs/core/geometry"
 import {assert} from "@bokehjs/core/util/assert"
 
@@ -15,16 +15,14 @@ describe("MultiPolygons", () => {
         ys: {field: "ys"},
       })
 
-      const glyph_view = (await create_glyph_view(glyph, data) as MultiPolygonsView)
-      set_scales(glyph_view, "linear")
-      glyph_view.map_data()
+      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
-      const geometry1: Geometry = { type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 179}
-      const geometry2: Geometry = { type: "rect", sx0: 1,  sy0: 200, sx1: 20, sy1: 180}
-      const geometry3: Geometry = { type: "rect", sx0: 9,  sy0: 181, sx1: 21, sy1: 159}
-      const geometry4: Geometry = { type: "rect", sx0: 10, sy0: 180, sx1: 19, sy1: 165}
-      const geometry5: Geometry = { type: "rect", sx0: 5,  sy0: 190, sx1: 15, sy1: 170}
-      const geometry6: Geometry = { type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 159}
+      const geometry1: Geometry = {type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 179}
+      const geometry2: Geometry = {type: "rect", sx0: 1,  sy0: 200, sx1: 20, sy1: 180}
+      const geometry3: Geometry = {type: "rect", sx0: 9,  sy0: 181, sx1: 21, sy1: 159}
+      const geometry4: Geometry = {type: "rect", sx0: 10, sy0: 180, sx1: 19, sy1: 165}
+      const geometry5: Geometry = {type: "rect", sx0: 5,  sy0: 190, sx1: 15, sy1: 170}
+      const geometry6: Geometry = {type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 159}
 
       const result1 = glyph_view.hit_test(geometry1)
       const result2 = glyph_view.hit_test(geometry2)

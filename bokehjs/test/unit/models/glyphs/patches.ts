@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 
-import {create_glyph_view, set_scales} from "./glyph_utils"
-import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
+import {create_glyph_view} from "./glyph_utils"
+import {Patches} from "@bokehjs/models/glyphs/patches"
 import {Geometry} from "@bokehjs/core/geometry"
 import {assert} from "@bokehjs/core/util/assert"
 
@@ -15,9 +15,7 @@ describe("Patches", () => {
         ys: {field: "ys"},
       })
 
-      const glyph_view = (await create_glyph_view(glyph, data) as PatchesView)
-      set_scales(glyph_view, "linear")
-      glyph_view.map_data()
+      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
       const geometry1: Geometry = { type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 179}
       const geometry2: Geometry = { type: "rect", sx0: 1,  sy0: 200, sx1: 20, sy1: 180}

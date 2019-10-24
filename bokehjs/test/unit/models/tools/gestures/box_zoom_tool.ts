@@ -49,10 +49,10 @@ describe("BoxZoomTool", () => {
       const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 500, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
       box_zoom_view._pan_end(zoom_event1)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-0.30973, 0.39823])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.67796, 0.67796])
     })
 
@@ -69,10 +69,10 @@ describe("BoxZoomTool", () => {
       const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 300, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
       box_zoom_view._pan_end(zoom_event1)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-0.30973, 0.39823])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.36898, 0.33898])
     })
   })
