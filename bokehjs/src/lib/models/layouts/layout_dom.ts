@@ -80,10 +80,10 @@ export abstract class LayoutDOMView extends DOMView {
       p.width_policy, p.height_policy, p.sizing_mode,
       p.aspect_ratio,
       p.visible,
-      p.background,
     ], () => this.invalidate_layout())
 
     this.on_change([
+      p.background,
       p.css_classes,
     ], () => this.invalidate_render())
   }
