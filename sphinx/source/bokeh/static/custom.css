@@ -386,3 +386,10 @@ a.headerlink:hover {
     color: white;
     opacity:0.5;
 }
+
+a.nav-external:after {
+    font-family: 'FontAwesome';
+    font-size:0.6rem;
+    vertical-align: middle;
+    content: " \f08e";
+}

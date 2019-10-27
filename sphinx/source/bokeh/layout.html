@@ -32,23 +32,17 @@
 
     <div class="row flex-xl-nowrap">
 
-      {% if not pagename == 'index' and not pagename == 'docs/gallery' %}
-        {%- include "docs-sidebar.html" %}
-      {% endif %}
-
-      {% if not pagename == 'index' and not pagename == 'docs/gallery' %}
-        {%- include "docs-toc.html" %}
-      {% endif %}
-
-      {% if not pagename == 'index' and not pagename == 'docs/gallery' %}
-      <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+      {% if pagename == 'index' or pagename == 'docs/gallery' %}
+        <main class="col-12 col-md-12 col-sm-12 col-lg-12 col-xl-12 py-md-3 bd-content" role="main">
       {% else %}
-      <main class="col-12 col-md-12 col-sm-12 col-lg-12 col-xl-12 py-md-3 bd-content" role="main">
+        {%- include "docs-sidebar.html" %}
+        {%- include "docs-toc.html" %}
+        <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
       {% endif %}
-        <div>
-          {% block body %} {% endblock %}
-        </div>
-      </main>
+          <div>
+            {% block body %} {% endblock %}
+          </div>
+        </main>
 
     </div>
   </div>
