@@ -368,3 +368,7 @@ h4 { font-family: "Work Sans", sans-serif; }
   text-decoration: underline;
   color: #444;
 }
+
+div.bk-root {
+  padding-bottom: 1.5em;
+}
