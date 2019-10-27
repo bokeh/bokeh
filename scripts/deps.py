@@ -19,18 +19,7 @@ def load_setup_py_data():
     return data
 
 meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
-try:
-    meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data),
-                         Loader=yaml.FullLoader)
-except AttributeError as e:
-    # Loader=yaml.FullLoader added in pyyaml 5.1 because of:
-    # https://github.com/yaml/pyyaml/wiki/PyYAML-yaml.load(input)-Deprecation
-    # isn't available on conda for python=3.5
-    # fall back to calling without loader if it isn't available
-    if 'FullLoader' in repr(e):
-        meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
-    else:
-        raise
+meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data), Loader=yaml.FullLoader)
 
 section = {
     "build"  : meta_src["requirements"]["build"],

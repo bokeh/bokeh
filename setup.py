@@ -64,8 +64,8 @@ from shutil import copy
 import sys
 
 # immediately bail on unsupported Python versions
-if sys.version_info[:2] < (3, 5):
-    raise RuntimeError("Bokeh requires python >= 3.5")
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError("Bokeh requires python >= 3.6")
 
 from setuptools import find_packages, setup
 
@@ -75,10 +75,6 @@ from _setup_support import (
     install_js, package_files, package_path, ROOT, SERVER, show_bokehjs,
     show_help
 )
-
-# immediately bail for ancient pythons
-if sys.version_info[:2] < (3, 4):
-    raise RuntimeError("Bokeh requires python >= 3.5")
 
 # immediately handle lightweight "python setup.py --install-js"
 if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
@@ -117,7 +113,6 @@ package_path(join(ROOT, 'bokeh', 'sampledata', '_data'))
 package_files('LICENSE.txt', 'themes/*.yaml', 'themes/*.json')
 
 setup(
-
     # basic package metadata
     name='bokeh',
     version=get_version(),
@@ -132,13 +127,12 @@ setup(
 
     # details needed by setup
     install_requires=REQUIRES,
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     packages=find_packages(exclude=["scripts*", "tests*"]),
     package_data=get_package_data(),
-    entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
+    entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
     zip_safe=False,
-    cmdclass=get_cmdclass()
-
+    cmdclass=get_cmdclass(),
 )
 
 # if this is just conda-build skimming information, skip all this actual work

@@ -16,7 +16,7 @@ And several other bug fixes and docs additions. For full details see the
 Minimum Python Version
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh now requires Python 3.5 or higher.
+Bokeh now requires Python 3.6 or higher.
 
 Minimum Tornado Version
 ~~~~~~~~~~~~~~~~~~~~~~~
