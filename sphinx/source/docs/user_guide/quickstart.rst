@@ -3,10 +3,11 @@
 Quickstart
 ##########
 
-Bokeh is an interactive visualization library that targets modern web
-browsers for presentation. Bokeh provides elegant, concise construction of
-versatile graphics with high-performance interactivity over very large or
-streaming datasets in a quick and easy way from Python (or other languages).
+Bokeh is an interactive visualization library for modern web browsers. It
+provides elegant, concise construction of versatile graphics, and affords
+high-performance interactivity over large or streaming datasets. Bokeh can help
+anyone who would like to quickly and easily make interactive plots, dashboards,
+and data applications.
 
 To offer both simplicity and the powerful and flexible features needed for
 advanced customizations, Bokeh exposes two interface levels to users:
@@ -191,19 +192,6 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
     Note that Bokeh plots cannot be displayed inline in notebook previews on
     GitHub. Bokeh uses JavaScript code to render plots and GitHub scrubs all
     JavaScript from previewed content.
-
-.. _userguide_quickstart_other_languages:
-
-Other Languages
-===============
-
-Bokeh's architecture makes it possible to create bindings for Bokeh in other
-languages, and in fact several already exist. The core are heavily invested in
-Python, but having many language options is a compelling feature. Here are some
-of the other ways to use Bokeh:
-
-* `Bokeh for R`_
-* `Bokeh for Scala`_
 
 .. _userguide_quickstart_sample_data:
 
@@ -499,8 +487,8 @@ of interest to look out for in this example:
 
 .. _userguide_quickstart_server:
 
-Bokeh Application Server
-========================
+Bokeh Applications
+==================
 
 Bokeh also comes with an optional server component, the Bokeh Server. It is
 possible to create many interesting and interactive visualizations without
@@ -570,14 +558,11 @@ Visit the `Bokeh GitHub repository`_ and try the examples.
 Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
 
 .. _Anaconda Python distribution: http://anaconda.com/anaconda
-.. _Bokeh for R: http://hafen.github.io/rbokeh/
-.. _Bokeh for Scala: https://github.com/bokeh/bokeh-scala
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
 .. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Twitter: http://twitter.com/BokehPlots
-.. _Apache Zeppelin: http://zeppelin.apache.org
 
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`
