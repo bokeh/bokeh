@@ -393,3 +393,7 @@ a.nav-external:after {
     vertical-align: middle;
     content: " \f08e";
 }
+
+span.highlighted {
+  background-color: #ECD078;
+}

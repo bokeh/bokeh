@@ -18,6 +18,16 @@ For detailed information about specific Bokeh components, consult the
 If you are interested in contributing to Bokeh, or extending the library,
 check out the :ref:`devguide` Guide.
 
+If you'd like to search for a particular topic, use the search box below:
+
+.. raw:: html
+
+    <form class="bd-search align-items-center" action="search.html" method="get">
+      <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
+    </form>
+
+|
+
 .. include:: docs/includes/hero.txt
 
 |
