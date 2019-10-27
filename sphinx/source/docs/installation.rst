@@ -122,49 +122,7 @@ interpreter:
     >>> bokeh.sampledata.download()
 
 Finally, the location that the sample data is stored can be configured.
-By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``.
-(The directory is created if it does not already exist.) Bokeh looks for
-a YAML configuration file at ``$HOME/.bokeh/config``. The YAML key
-``sampledata_dir`` can be set to the absolute path of a directory where
-the data should be stored. For instance adding the following line to the
-config file:
-
-.. code-block:: sh
-
-    sampledata_dir: /tmp/bokeh_data
-
-will cause the sample data to be stored in ``/tmp/bokeh_data``.
-
-Verifying Installation
-======================
-
-The first check you can make is to make sure you can ``import bokeh`` and
-verify ``bokeh.__version__`` from a running python interpreter. If you
-execute both of those lines in a python interpreter, the result should
-look something like this:
-
-.. image:: /_images/bokeh_import.png
-    :scale: 50 %
-    :align: center
-
-The next check you can make is to produce a very simple plot. Execute the
-following few lines of python code, either by copying them into a script and
-executing the script, or by running the lines by hand in a python interpreter:
-
-.. code-block:: python
-
-    from bokeh.plotting import figure, output_file, show
-    output_file("test.html")
-    p = figure()
-    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
-    show(p)
-
-This should save a ``test.html`` file locally, and open a browser tab to
-view the file. The result should look like this:
-
-.. image:: /_images/bokeh_simple_test.png
-    :scale: 30 %
-    :align: center
+See the |bokeh.sampledata| reference for details.
 
 Advanced Cases
 ==============
@@ -188,14 +146,14 @@ BokehJS
 -------
 
 If you would like to use BokehJS as a standalone JavaScript library, released
-versions of BokehJS are available for download from CDN at pydata.org, under
-the following naming scheme::
+versions of BokehJS are available for download from CDN at ``cdn.bokeh.org``,
+under the following naming scheme::
 
     # Javascript files
-    https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
-    https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
-    https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
-    https://cdn.pydata.org/bokeh/release/bokeh-api-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-api-x.y.z.min.js
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
@@ -203,14 +161,14 @@ built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
 and must be loaded *after* the core BokehJS library.
 
-As a concrete example, the links for version ``1.0.0`` are:
+As a concrete example, the links for version ``1.4.0`` are:
 
-* https://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
-* https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
-* https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
-* https://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-1.4.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-api-1.4.0.min.js
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
-.. _anaconda.org: http://anaconda.org
 .. _Anaconda, Inc.: http://anaconda.com
-.. _npmjs.org: https://www.npmjs.org/package/bokehjs
+
+.. |bokeh.sampledata| replace:: :ref:`bokeh.sampledata <bokeh.sampledata>`
