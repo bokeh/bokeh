@@ -399,13 +399,13 @@ PaletteMap = Dict[str, PaletteCollection]
 
 class _PalettesModule(_types.ModuleType):
 
-    __file__ = __file__ # type: str
+    __file__ = __file__
 
-    __all__ = [] # type: List[str]
+    __all__: List[str] = []
 
     @property
     def __palettes__(self) -> List[str]:
-        __palettes__ = [] # type: List[str]
+        __palettes__: List[str] = []
         for name, palettes in sorted(self.all_palettes.items(), key=lambda arg: arg[0]):
             name = name + "_" if name[-1].isdigit() else name
             __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
