@@ -9,8 +9,11 @@
 
   <div id="navbar-menu" class="collapse navbar-collapse">
     <ul id="navbar-main-elements" class="navbar-nav mr-auto">
-      <li class="nav-item">
-          <a class="nav-link" href="{{ pathto('index') }}">Home</a>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ VERSION }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="version-menu"></div>
       </li>
       {% set nav = get_nav_object(maxdepth=1) %}
       {% for main_nav_item in nav %}

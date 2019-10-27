@@ -25,6 +25,10 @@
             content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
             $('#banner').append(content);
           }
+          for (var i = 0; i < data.menu.length; i++) {
+            const link = "https://docs.bokeh.org/en/" + data.menu[i]
+            $('#version-menu').append('<a class="dropdown-item" href="' + link + '">' + data.menu[i] + '</a>')
+          }
        })
     })
   </script>
