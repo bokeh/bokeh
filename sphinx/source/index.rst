@@ -1,26 +1,22 @@
-Welcome to Bokeh
-================
-
 .. _about:
 
-Bokeh is an interactive visualization library that targets modern
-web browsers for presentation. Its goal is to provide elegant, concise
-construction of versatile graphics, and to extend this capability with
-high-performance interactivity over very large or streaming datasets.
-Bokeh can help anyone who would like to quickly and easily create
-interactive plots, dashboards, and data applications.
+Bokeh is an interactive visualization library for modern web browsers. It
+provides elegant, concise construction of versatile graphics, and affords
+high-performance interactivity over large or streaming datasets. Bokeh can help
+anyone who would like to quickly and easily make interactive plots, dashboards,
+and data applications.
 
-To get started using Bokeh to make your visualizations, start with the
+To get started using Bokeh to make your visualizations, begin with the
 :ref:`userguide`.
 
-For examples of how you might use Bokeh with your own data, check out
+For examples of how you might use Bokeh with your own data, peruse
 the :ref:`gallery`.
 
 For detailed information about specific Bokeh components, consult the
 :ref:`refguide`.
 
-If you are interested in contributing to Bokeh, or extending the library, see
-the :ref:`devguide`.
+If you are interested in contributing to Bokeh, or extending the library,
+check out the :ref:`devguide` Guide.
 
 .. include:: docs/includes/hero.txt
 
@@ -37,6 +33,3 @@ the :ref:`devguide`.
     docs/reference
     docs/dev_guide
     docs/releases
-
-.. _NumFOCUS: https://numfocus.org
-.. _donation: https://numfocus.org/donate-to-bokeh

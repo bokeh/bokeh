@@ -556,7 +556,7 @@ documents, check out the :ref:`userguide`. For detailed information about
 all modules, classes, models, and objects, consult the :ref:`refguide`.
 If you are interested in learning how to build and develop Bokeh, or for
 information about how to create a new language binding, see the
-:ref:`devguide`.
+:ref:`devguide` Guide.
 
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
