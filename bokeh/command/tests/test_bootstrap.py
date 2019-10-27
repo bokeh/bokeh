@@ -15,7 +15,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 
 # External imports
 
@@ -29,20 +28,14 @@ from bokeh.command.bootstrap import main
 # Setup
 #-----------------------------------------------------------------------------
 
-is_python2 = sys.version_info[0] == 2
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
 def _assert_version_output(capsys):
     out, err = capsys.readouterr()
-    if is_python2:
-        err_expected = ("%s\n" % __version__)
-        out_expected = ""
-    else:
-        err_expected = ""
-        out_expected = ("%s\n" % __version__)
+    err_expected = ""
+    out_expected = ("%s\n" % __version__)
     assert err == err_expected
     assert out == out_expected
 

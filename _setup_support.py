@@ -26,10 +26,6 @@ except ImportError:
     def green(text) :  return text
     def yellow(text) : return text
 
-# some functions prompt for user input, handle input vs raw_input (py2 vs py3)
-if sys.version_info[0] < 3:
-    input = raw_input # NOQA
-
 # -----------------------------------------------------------------------------
 # Module global variables
 # -----------------------------------------------------------------------------

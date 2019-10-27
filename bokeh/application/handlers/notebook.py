@@ -29,7 +29,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import re
-import sys
 
 # External imports
 
@@ -124,8 +123,6 @@ class NotebookHandler(CodeHandler):
             source = source.replace('get_ipython().run_line_magic', '')
             source = source.replace('get_ipython().magic', '')
 
-            if sys.version_info.major == 2 and isinstance(source, unicode): # NOQA
-                source = source.encode('utf-8')
             kwargs['source'] = source
 
         super().__init__(*args, **kwargs)

@@ -18,7 +18,6 @@ import pytest ; pytest
 import argparse
 from mock import patch
 import os
-import sys
 
 # External imports
 
@@ -34,8 +33,6 @@ import bokeh.command.subcommands.html as schtml
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-is_python2 = sys.version_info[0] == 2
 
 #-----------------------------------------------------------------------------
 # General API
@@ -95,10 +92,7 @@ def test_no_script(capsys):
             with pytest.raises(SystemExit):
                 main(["bokeh", "html"])
         out, err = capsys.readouterr()
-        if is_python2:
-            too_few = "too few arguments"
-        else:
-            too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
+        too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
         assert err == """usage: bokeh html [-h] [--show] [-o FILENAME] [--args ...]
                   DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
 bokeh html: error: %s
