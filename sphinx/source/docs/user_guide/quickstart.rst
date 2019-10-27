@@ -269,7 +269,7 @@ Resources
 
 To generate plots, the client library BokehJS JavaScript and CSS code must
 be loaded into the browser. By default, the |output_file| function will
-load BokehJS from https://cdn.pydata.org . However, you can also configure Bokeh
+load BokehJS from ``cdn.bokeh.org``. However, you can also configure Bokeh
 to generate static HTML files with BokehJS resources embedded directly inside,
 by passing the argument ``mode="inline"`` to the |output_file| function.
 
