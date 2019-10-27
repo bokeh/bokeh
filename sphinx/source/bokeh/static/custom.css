@@ -203,7 +203,7 @@
   .bd-sidebar .nav > li > ul > .active > a,
   .bd-sidebar .nav > li > ul > .active:hover > a {
     font-weight: 400;
-    color: #130654;
+    color: #542437;
   }
 
 /* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
@@ -237,7 +237,7 @@ body {
 
 .toc-entry > .nav-link.active {
     font-weight: 400;
-    color: #130654;
+    color: #542437;
     background-color: transparent;
     border-left: 2px solid #563d7c;
 }
@@ -371,4 +371,18 @@ h4 { font-family: "Work Sans", sans-serif; }
 
 div.bk-root {
   padding-bottom: 1.5em;
+}
+
+code {
+  color: #D95B43;
+}
+
+a.headerlink {
+  color: #53777A;
+}
+
+a.headerlink:hover {
+    background-color: #53777A;
+    color: white;
+    opacity:0.5;
 }
