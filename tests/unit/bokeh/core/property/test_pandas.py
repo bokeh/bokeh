@@ -19,7 +19,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from . import _TestHasProps, _TestModel
+from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
