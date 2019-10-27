@@ -88,43 +88,43 @@ def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
     return controller
 
 def view(location: str, browser: Optional[str] = None, new: Literal["same", "window", "tab"] = "same", autoraise: bool = True) -> None:
-        ''' Open a browser to view the specified location.
+    ''' Open a browser to view the specified location.
 
-        Args:
-            location (str) : Location to open
-                If location does not begin with "http:" it is assumed
-                to be a file path on the local filesystem.
-            browser (str or None) : what browser to use (default: None)
-                If ``None``, use the system default browser.
-            new (str) : How to open the location. Valid values are:
+    Args:
+        location (str) : Location to open
+            If location does not begin with "http:" it is assumed
+            to be a file path on the local filesystem.
+        browser (str or None) : what browser to use (default: None)
+            If ``None``, use the system default browser.
+        new (str) : How to open the location. Valid values are:
 
-                ``'same'`` - open in the current tab
+            ``'same'`` - open in the current tab
 
-                ``'tab'`` - open a new tab in the current window
+            ``'tab'`` - open a new tab in the current window
 
-                ``'window'`` - open in a new window
-            autoraise (bool) : Whether to automatically raise the location
-                in a new browser window (default: True)
+            ``'window'`` - open in a new window
+        autoraise (bool) : Whether to automatically raise the location
+            in a new browser window (default: True)
 
-        Returns:
-            None
+    Returns:
+        None
 
-        '''
-        try:
-            new_id = {"same": 0, "window": 1, "tab": 2}[new]
-        except KeyError:
-            raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
+    '''
+    try:
+        new_id = {"same": 0, "window": 1, "tab": 2}[new]
+    except KeyError:
+        raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
 
-        if location.startswith("http"):
-            url = location
-        else:
-            url = "file://" + abspath(location)
+    if location.startswith("http"):
+        url = location
+    else:
+        url = "file://" + abspath(location)
 
-        try:
-            controller = get_browser_controller(browser)
-            controller.open(url, new=new_id, autoraise=autoraise)
-        except Exception:
-            pass
+    try:
+        controller = get_browser_controller(browser)
+        controller.open(url, new=new_id, autoraise=autoraise)
+    except Exception:
+        pass
 
 #-----------------------------------------------------------------------------
 # Dev API
