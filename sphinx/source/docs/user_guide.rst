@@ -28,7 +28,6 @@ User Guide
     user_guide/compat
     user_guide/webgl
     user_guide/bokehjs
-    user_guide/info
 
 This user guide is intended to walk you through many common tasks that
 you might want to accomplish using Bokeh. The guide is arranged by
@@ -106,9 +105,6 @@ topic:
 
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.
-
-:ref:`userguide_info`
-    See where to go next for more information and examples.
 
 The examples in the user guide are written to be as minimal as possible, while
 illustrating how to accomplish a single task within Bokeh. With a handful of

@@ -274,10 +274,6 @@ creating a custom extensions. However, creating extensions is a somewhat
 advanced topic. In many cases, it will be required to study the source code
 of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
 
-For any questions that remain, please contact any of the sources in
-:ref:`userguide_info`.Collaborating with the community will help make additions
-and improvements to this section for future users.
-
 .. toctree::
 
     extensions_gallery/ticking
