@@ -249,9 +249,3 @@ cases of using the |bokeh.plotting| interface.
 .. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
-
-.. |Bar|        replace:: :func:`~bokeh.plotting.Bar`
-.. |BoxPlot|    replace:: :func:`~bokeh.plotting.BoxPlot`
-.. |Histogram|  replace:: :func:`~bokeh.plotting.Histogram`
-.. |Scatter|    replace:: :func:`~bokeh.plotting.Scatter`
-.. |TimeSeries| replace:: :func:`~bokeh.plotting.TimeSeries`
