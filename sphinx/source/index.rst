@@ -27,16 +27,6 @@ the :ref:`devguide`.
 |
 |
 
-.. figure:: /_images/NumFocus_2C_CMYK.svg
-    :align: left
-    :width: 25%
-    :target: https://numfocus.org
-
-    Bokeh is a fiscally sponsored project of `NumFOCUS`_, a nonprofit
-    dedicated to supporting the open source scientific computing community.
-    If you like Bokeh and want to support our mission, please consider making
-    a `donation`_ to support our efforts.
-
 .. toctree::
     :maxdepth: 3
     :hidden:
