@@ -290,7 +290,7 @@ separate ``test:<GROUP>`` script for each of the following test groups:
 
 ``unit``
     This job runs all the Python unit tests (i.e. ``py.test -m unit``). The
-    tests are run on different jobs for Python versions 3.5+.
+    tests are run on different jobs for Python versions 3.6+.
 
 ``docs``
     This job runs the documentation build. For more information about building

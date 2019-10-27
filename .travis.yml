@@ -86,7 +86,7 @@ jobs:
       script: scripts/ci/test
       env:
       - GROUP=unit
-      - PYTHON=3.5
+      - PYTHON=3.6
       - TORNADO=5
       - MINIMAL=1
 
