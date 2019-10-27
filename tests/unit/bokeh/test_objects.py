@@ -111,7 +111,7 @@ class TestMetaModel(object):
     def test_get_class(self):
         from bokeh.model import get_class
         self.mkclass()
-        tclass = get_class('Test_Class')
+        tclass = get_class('test_objects.Test_Class')
         assert hasattr(tclass, 'foo')
         with pytest.raises(KeyError):
             get_class('Imaginary_Class')
@@ -232,7 +232,7 @@ class TestModel(object):
                               foo=42, bar="world")
         json = obj.to_json(include_defaults=True)
         json_string = obj.to_json_string(include_defaults=True)
-        assert { "child" : { "id" : child_obj.id, "type" : "SomeModelToJson" },
+        assert { "child" : { "id" : child_obj.id, "type" : "test_objects.SomeModelToJson" },
                            "id" : obj.id,
                            "name" : None,
                            "tags" : [],
@@ -242,7 +242,7 @@ class TestModel(object):
                            "foo" : 42,
                            "bar" : "world" } == json
         assert ('{"bar":"world",' +
-                '"child":{"id":"%s","type":"SomeModelToJson"},' +
+                '"child":{"id":"%s","type":"test_objects.SomeModelToJson"},' +
                 '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
                 '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj.id, obj.id) == json_string
 
