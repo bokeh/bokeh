@@ -1,7 +1,7 @@
 .. _devguide:
 
-Developer Guide
-###############
+Developers
+##########
 
 .. toctree::
     :maxdepth: 2
