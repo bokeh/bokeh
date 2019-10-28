@@ -101,16 +101,8 @@
 
 </table>
 
-Bokeh is an interactive visualization library for Python that enables beautiful
-and meaningful visual presentation of data in modern web browsers. With Bokeh,
-you can quickly and easily create interactive plots, dashboards, and data
-applications.
+Bokeh is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
 
-Bokeh provides an elegant and concise way to construct versatile graphics while
-delivering **high-performance** interactivity for large or streamed datasets.
-
-[Interactive gallery](https://docs.bokeh.org/en/latest/docs/gallery.html)
----------------------------------------------------------------------------
 
 <p>
 <table cellspacing="10">
