@@ -22,7 +22,7 @@ from mock import patch
 from PIL import Image
 
 # Bokeh imports
-from bokeh.io.webdriver import terminate_webdriver, webdriver_control
+from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
 from bokeh.plotting import figure
@@ -39,7 +39,7 @@ import bokeh.io.export as bie # isort:skip
 def webdriver():
     driver = webdriver_control.create()
     yield driver
-    terminate_webdriver(driver)
+    webdriver_control.terminate(driver)
 
 #-----------------------------------------------------------------------------
 # General API

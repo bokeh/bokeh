@@ -53,7 +53,6 @@ _expected_settings = (
     'minified',
     'nodejs_path',
     'perform_document_validation',
-    'phantomjs_path',
     'pretty',
     'py_log_level',
     'resources',

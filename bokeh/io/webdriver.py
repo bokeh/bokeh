@@ -20,21 +20,29 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import atexit
-import signal
-import sys
-import warnings
+import shutil
 from os.path import devnull
+from typing import Any, Optional
+
+# External imports
+from typing_extensions import Literal
 
 # Bokeh imports
-from ..util.dependencies import detect_phantomjs, import_optional, import_required
+from ..util.dependencies import import_optional, import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+webdriver = import_required('selenium.webdriver',
+                            'To use bokeh.io image export functions you need selenium ' +
+                            '("conda install selenium" or "pip install selenium")')
+
+DriverKind = Literal["firefox", "chromium"]
+
+WebDriver = Any
+
 __all__ = (
-    'create_phantomjs_webdriver',
-    'terminate_webdriver',
     'webdriver_control',
 )
 
@@ -46,98 +54,140 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+def create_firefox_webdriver() -> WebDriver:
+    options = webdriver.firefox.options.Options()
+    options.add_argument("--headless")
+    return webdriver.Firefox(options=options, log_path=devnull)
 
-def kill_proc_tree(pid, including_parent=True):
-    psutil = import_optional('psutil')
-    if psutil is not None:
-        parent = psutil.Process(pid)
-        children = parent.children(recursive=True)
-        for child in children:
-            child.kill()
-        psutil.wait_procs(children)
-        if including_parent:
-            parent.kill()
-            parent.wait(5)
+def create_chromium_webdriver() -> WebDriver:
+    options = webdriver.chrome.options.Options()
+    options.add_argument("--headless")
+    return webdriver.Chrome(options=options) # log_path=devnull
 
+"""
+import shutil
+from subprocess import Popen, PIPE
+from packaging.version import Version as V
+from ..settings import settings
+def detect_phantomjs(version='2.1'):
+    ''' Detect if PhantomJS is avaiable in PATH, at a minimum version.
 
-def create_phantomjs_webdriver():
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
+    Args:
+        version (str, optional) :
+            Required minimum version for PhantomJS (mostly for testing)
 
-        webdriver = import_required('selenium.webdriver',
-                                    'To use bokeh.io image export functions you need selenium ' +
-                                    '("conda install -c bokeh selenium" or "pip install selenium")')
+    Returns:
+        str, path to PhantomJS
 
-        phantomjs_path = detect_phantomjs()
-        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
-
-
-def terminate_webdriver(driver):
-    if driver.name == "phantomjs":
-        # https://github.com/seleniumhq/selenium/issues/767
-        if driver.service.process:
-            if sys.platform == 'win32':
-                kill_proc_tree(driver.service.process.pid, including_parent=False)
-            driver.service.process.send_signal(signal.SIGTERM)
+    '''
+    if settings.phantomjs_path() is not None:
+        phantomjs_path = settings.phantomjs_path()
+    else:
+        phantomjs_path = shutil.which("phantomjs") or "phantomjs"
 
     try:
-        driver.quit()
+        proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE)
+        (stdout, stderr) = proc.communicate()
+
+        if len(stderr) > 0:
+            raise RuntimeError('Error encountered in PhantomJS detection: %r' % stderr.decode('utf8'))
+
+        required = V(version)
+        installed = V(stdout.decode('utf8'))
+        if installed < required:
+            raise RuntimeError('PhantomJS version to old. Version>=%s required, installed: %s' % (required, installed))
+
     except OSError:
-        pass
+        raise RuntimeError('PhantomJS is not present in PATH or BOKEH_PHANTOMJS_PATH. Try "conda install phantomjs" or \
+            "npm install -g phantomjs-prebuilt"')
+
+    return phantomjs_path
+
+class Test_detect_phantomjs(object):
+
+    def test_detect_phantomjs_success(self):
+        assert dep.detect_phantomjs() is not None
+
+    def test_detect_phantomjs_bad_path(self, monkeypatch):
+        monkeypatch.setenv("BOKEH_PHANTOMJS_PATH", "bad_path")
+        with pytest.raises(RuntimeError):
+            dep.detect_phantomjs()
+
+    def test_detect_phantomjs_bad_version(self):
+        with pytest.raises(RuntimeError) as e:
+            dep.detect_phantomjs('10.1')
+        assert str(e.value).endswith("PhantomJS version to old. Version>=10.1 required, installed: 2.1.1")
+
+    def test_detect_phantomjs_default_required_version(self):
+        assert dep.detect_phantomjs.__defaults__ == ('2.1',)
+
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.???.webdriver")
+"""
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
 
 class _WebdriverState(object):
     '''
 
     '''
 
-    def __init__(self, reuse=True, kind="phantomjs"):
+    _reuse: bool
+    _kind: DriverKind
+
+    current: Optional[WebDriver]
+
+    def __init__(self, reuse: bool = True, kind: DriverKind = "firefox"):
         self.reuse = reuse
         self.kind = kind
         self.current = None
 
-    def reset(self):
+    @staticmethod
+    def terminate(driver: WebDriver) -> None:
+        driver.quit()
+
+    def reset(self) -> None:
         if self.current is not None:
-            terminate_webdriver(self.current)
+            self.terminate(self.current)
             self.current = None
 
-    def get(self):
+    def get(self) -> WebDriver:
         if not self.reuse or self.current is None:
             if self.current is not None:
-                terminate_webdriver(self.current)
+                self.terminate(self.current)
             self.current = self.create()
         return self.current
 
-    def create(self):
-        if self.kind == "phantomjs":
-            return create_phantomjs_webdriver()
-        raise ValueError("Unknown webdriver kind %r" % self.kind)
+    def create(self) -> WebDriver:
+        if self.kind == "firefox":
+            return create_firefox_webdriver()
+        elif self.kind == "chromium":
+            return create_chromium_webdriver()
+        else:
+            raise ValueError(f"Unknown webdriver kind {self.kind}")
 
     @property
-    def reuse(self):
+    def reuse(self) -> bool:
         return self._reuse
 
     @reuse.setter
-    def reuse(self, value):
+    def reuse(self, value: bool) -> None:
         self._reuse = value
 
     @property
-    def kind(self):
+    def kind(self) -> DriverKind:
         return self._kind
 
     @kind.setter
-    def kind(self, value):
-        # TODO (bev) enum/value check when more are added
+    def kind(self, value: DriverKind) -> None:
         self._kind = value
 
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
 
 webdriver_control = _WebdriverState()
 

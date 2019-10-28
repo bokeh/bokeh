@@ -133,7 +133,7 @@ can view at ``examples.log`` in the same directory that you the tests
 were run from.
 
 .. warning::
-    Server examples do get run, but phantomJS cannot currently capture
+    Server examples do get run, but selenium cannot currently capture
     the output, so they are always blank in the test results
 
 Integration tests
