@@ -1,0 +1,41 @@
+name: Bokeh-CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: [10, 12]
+        os: [windows-2019, macos-10.14]
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Set Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install conda stuff
+        run: |
+          bash scripts/ci/azure/install_conda.sh
+
+      - name: Install npm dependencies
+        run: |
+          npm install -g npm
+          cd bokehjs
+          npm install --no-save --no-progress
+
+      - name: Install bokeh-python package
+        run: |
+          bash scripts/ci/azure/install_bokeh.sh
+
+      - name: Setup tests
+        run: |
+          bash scripts/ci/azure/setup_tests.sh
+
+      - name: Run tests
+        run: |
+          bash scripts/ci/azure/run_tests.sh
