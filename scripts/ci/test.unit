@@ -10,6 +10,9 @@ else
     selector='unit'
 fi
 
+# don't run from the top level dir, make sure tests run on installed package
+pushd tests
 py.test -m "$selector"              \
     --cov=bokeh                     \
-    --cov-config=bokeh/.coveragerc
+    --cov-config=.coveragerc
+popd
