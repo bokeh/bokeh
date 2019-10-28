@@ -27,14 +27,14 @@ export class Stack extends Expression {
   }
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
-    const result = new Float64Array(source.get_length() || 0)
+    const n = source.get_length() || 0 // TODO: use ?? in TS 3.7
+    const result = new Float64Array(n)
     for (const f of this.fields) {
-      if (Object.keys(source.data).length == 0) {
-        break;
-      }
-      for (let i = 0; i < source.data[f].length; i++) {
-        const x = source.data[f][i]
-        result[i] += x
+      const column = source.data[f]
+      if (column != null) {
+        for (let i = 0, k = Math.min(n, column.length); i < k; i++) {
+          result[i] += column[i]
+        }
       }
     }
     return result
