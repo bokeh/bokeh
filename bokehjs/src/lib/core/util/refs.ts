@@ -1,6 +1,7 @@
 import {HasProps} from "../has_props"
 import {Attrs} from "../types"
-import {isObject} from "./types"
+import {isPlainObject} from "./types"
+import {keys} from "./object"
 
 export interface Ref {
   id: string
@@ -40,9 +41,9 @@ export function create_ref(obj: HasProps): Ref {
 //   only that the format is correct (all required keys are present)
 //
 export function is_ptr(arg: unknown): arg is Ptr {
-  if (isObject(arg)) {
-    const keys = Object.keys(arg)
-    return keys.length == 1 && keys[0] == "id"
+  if (isPlainObject(arg)) {
+    const attrs = keys(arg)
+    return attrs.length == 1 && attrs[0] == "id"
   }
   return false
 }
