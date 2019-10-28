@@ -22,14 +22,14 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 import shutil
 from subprocess import Popen, PIPE
-
 from packaging.version import Version as V
+from typing import Optional
+from types import ModuleType
 
 # External imports
 
 # Bokeh imports
 from ..settings import settings
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +45,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def import_optional(mod_name):
+def import_optional(mod_name: str) -> Optional[ModuleType]:
     ''' Attempt to import an optional dependency.
 
     Silently returns None if the requested module is not available.
@@ -65,7 +65,10 @@ def import_optional(mod_name):
         msg = "Failed to import optional module `{}`".format(mod_name)
         log.exception(msg)
 
-def import_required(mod_name, error_msg):
+    return None
+
+
+def import_required(mod_name: str, error_msg: str) -> ModuleType:
     ''' Attempt to import a required dependency.
 
     Raises a RuntimeError if the requested module is not available.
@@ -86,7 +89,8 @@ def import_required(mod_name, error_msg):
     except ImportError as e:
         raise RuntimeError(error_msg) from e
 
-def detect_phantomjs(version='2.1'):
+
+def detect_phantomjs(version: str = '2.1') -> str:
     ''' Detect if PhantomJS is avaiable in PATH, at a minimum version.
 
     Args:
