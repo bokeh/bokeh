@@ -1,0 +1,26 @@
+{% set page_toc = get_page_toc_object() %}
+
+<div class="d-none d-xl-block col-xl-2 bd-toc">
+  <nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    {% if pagename == "docs/releases" %}
+      {% for item in page_toc.children %}
+        <li class="nav-item toc-entry toc-h2">
+          <a href="{{ item.url }}" class="nav-link">{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    {% else %}
+      {% for item in page_toc.children recursive %}
+        <li class="nav-item toc-entry toc-h{{ loop.depth + 1 }}">
+          <a href="{{ item.url }}" class="nav-link">{{ item.title }}</a>
+        {%- if item.children -%}
+          <ul class="nav section-nav flex-column">
+            {{ loop(item.children) }}
+          </ul>
+        {%- endif %}
+        </li>
+      {% endfor %}
+    {% endif %}
+    </ul>
+  </nav>
+</div>
