@@ -12,4 +12,4 @@ line.glyph.line_color = cb_obj.color
 """)
 w.js_on_change('color', cb)
 
-show(row([column(w, width=100), p]))
+show(row(column(w, width=100), p))

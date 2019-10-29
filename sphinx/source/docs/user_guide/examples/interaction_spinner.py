@@ -19,4 +19,4 @@ points.glyph.size = w.value
 
 w.js_on_change('value', cb)
 
-show(row([column(w, width=100), p]))
+show(row(column(w, width=100), p))
