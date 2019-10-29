@@ -64,16 +64,6 @@ To display plots horizontally, use the |row| function.
 .. bokeh-plot:: docs/user_guide/examples/layout_horizontal.py
     :source-position: above
 
-.. _userguide_layout_widgets:
-
-Widgets
--------
-
-Layout a group of widgets with the  function.
-
-.. bokeh-plot:: docs/user_guide/examples/layout_widgets.py
-    :source-position: above
-
 .. _userguide_layout_layout_gridplot:
 
 Grids Layout for Plots
