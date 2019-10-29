@@ -100,6 +100,47 @@ Sizing Mode
 Modes
 ~~~~~
 
+Layout-able Bokeh objects may be configured individually with the following
+sizing modes:
+
+``"fixed"``
+    Component is not responsive. It will retain its original width and height
+    regardless of any subsequent browser window resize events.
+
+``"stretch_width"``
+    Component will responsively resize to stretch to the available width, without
+    maintaining any aspect ratio. The height of the component depends on the type
+    of the component and may be fixed or fit to component's contents.
+
+``"stretch_height"``
+    Component will responsively resize to stretch to the available height, without
+    maintaining any aspect ratio. The width of the component depends on the type
+    of the component and may be fixed or fit to component's contents.
+
+``"stretch_both"``
+    Component is completely responsive, independently in width and height, and
+    will occupy all the available horizontal and vertical space, even if this
+    changes the aspect ratio of the component.
+
+``"scale_width"``
+    Component will responsively resize to stretch to the available width, while
+    maintaining the original or provided aspect ratio.
+
+``"scale_height"``
+    Component will responsively resize to stretch to the available height, while
+    maintaining the original or provided aspect ratio.
+
+``"scale_both"``
+    Component will responsively resize to both the available width and height,
+    while maintaining the original or provided aspect ratio.
+
+In general, either or both of ``width`` and ``height`` may also need to be
+provided, depending on the mode. (e.g. for a ``stretch_width`` mode, the desired
+fixed ``height`` must be provided).
+
+Note that layout objects such as rows and columns will pass on their configured
+sizing mode to any of their children that do not themselves have an explicitly
+set ``sizing_mode`` of their own.
 
 Single Object
 ~~~~~~~~~~~~~
@@ -117,8 +158,31 @@ how a single plot responds to different modes:
 Mulitple Objects
 ~~~~~~~~~~~~~~~~
 
+Below is a more sophisticated (but fairly typical) example of a nested layout
+with different sizing modes:
+
 .. bokeh-plot:: docs/user_guide/examples/layout_sizing_mode_multiple.py
     :source-position: none
+
+In the example above, the layout nests different subcomponents with various
+differnet sizing modes:
+
+.. code-block:: python
+
+    # plot scales original aspect based on available width
+    plot = figure(..., sizing_mode="scale_width")
+
+    # sliders fill the space they are in
+    amp = Slider(..., sizing_mode="stretch_both")
+
+    # fixed sized for the entire column of sliders
+    widgets = column(..., sizing_mode="fixed", height=250, width=150)
+
+    # heading fills available width
+    heading = Div(..., height=80, sizing_mode="stretch_width")
+
+    # entire layout can fill the space it is in
+    layout = column(heading, row(widgets, plot), sizing_mode="stretch_both")
 
 .. _userguide_layout_limits:
 
@@ -128,9 +192,10 @@ Limitations
 The Bokeh layout system is not a completely generic, general purpose layout
 engine. It is intentionally sacrifices some capability in order to make common
 use cases and scenarios simple to express. Extremely nested layouts with
-many different sizing modes may yield undesirable results. For such cases it
-is recommended to use the methods in :ref:`userguide_embed` along with your own
-custom templates.
+many different sizing modes may yield undesirable results, either in terms of
+perfomance, or visual appearance. For such cases it is recommended to use the
+methods in :ref:`userguide_embed` along with your own custom HTML templates in
+order to take advantage of more sophisticated CSS layout possibilities.
 
 .. |column|    replace:: :func:`~bokeh.layouts.column`
 .. |gridplot|  replace:: :func:`~bokeh.layouts.gridplot`

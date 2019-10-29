@@ -13,12 +13,12 @@ plot = figure(y_range=(-10, 10), plot_width=400, plot_height=200, background_fil
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-amp = Slider(start=0.1, end=10, value=1, step=.1, title="Amplitude", width=80)
-freq = Slider(start=0.1, end=10, value=1, step=.1, title="Frequency", width=80)
-phase = Slider(start=0, end=6.4, value=0, step=.1, title="Phase", width=80)
-offset = Slider(start=-5, end=5, value=0, step=.1, title="Offset", width=80)
+amp = Slider(start=0.1, end=10, value=1, step=.1, title="Amplitude", sizing_mode="stretch_both")
+freq = Slider(start=0.1, end=10, value=1, step=.1, title="Frequency", sizing_mode="stretch_both")
+phase = Slider(start=0, end=6.4, value=0, step=.1, title="Phase", sizing_mode="stretch_both")
+offset = Slider(start=-5, end=5, value=0, step=.1, title="Offset", sizing_mode="stretch_both")
 
-widgets = column(amp, freq, phase, offset, sizing_mode="fixed", width=100, height=100)
+widgets = column(amp, freq, phase, offset, sizing_mode="fixed", height=250, width=150)
 
 callback = CustomJS(args=dict(source=source, amp=amp, freq=freq, phase=phase, offset=offset),
                     code="""
