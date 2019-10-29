@@ -79,7 +79,7 @@ size.on_change('value', update)
 color = Select(title='Color', value='None', options=['None'] + continuous)
 color.on_change('value', update)
 
-controls = column([x, y, color, size], width=200)
+controls = column(x, y, color, size, width=200)
 layout = row(controls, create_figure())
 
 curdoc().add_root(layout)

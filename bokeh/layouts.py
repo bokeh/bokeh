@@ -76,8 +76,8 @@ def row(*args, **kwargs):
 
     Examples:
 
-        >>> row([plot_1, plot_2])
-        >>> row(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
+        >>> row(plot1, plot2)
+        >>> row(children=[widgets, plot], sizing_mode='stretch_both')
     """
 
     sizing_mode = kwargs.pop('sizing_mode', None)
@@ -121,8 +121,8 @@ def column(*args, **kwargs):
 
     Examples:
 
-        >>> column([plot_1, plot_2])
-        >>> column(children=[widget_1, plot_1], sizing_mode='stretch_both')
+        >>> column(plot1, plot2)
+        >>> column(children=[widgets, plot], sizing_mode='stretch_both')
     """
 
     sizing_mode = kwargs.pop('sizing_mode', None)
