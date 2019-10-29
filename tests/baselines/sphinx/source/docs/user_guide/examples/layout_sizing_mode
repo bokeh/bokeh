@@ -1,0 +1,7 @@
+Column bbox=[0, 0, 600, 660]
+  Select bbox=[5, 5, 300, 50]
+  Plot bbox=[0, 60, 600, 600]
+    LinearAxis bbox=[27, 576, 543, 24]
+    LinearAxis bbox=[0, 5, 27, 571]
+    Title bbox=[27, 5, 543, 0]
+    ToolbarPanel bbox=[570, 5, 30, 571]
