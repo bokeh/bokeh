@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.io import show
 from bokeh.plotting import Figure
 from bokeh.models import ColumnDataSource, CustomJS, Spinner
-from bokeh.layouts import row, widgetbox
+from bokeh.layouts import row, column
 
 data = np.random.rand(10, 2)
 cds = ColumnDataSource(data=dict(x=data[:, 0], y=data[:, 1]))
@@ -19,4 +19,4 @@ points.glyph.size = w.value
 
 w.js_on_change('value', cb)
 
-show(row([widgetbox(w, width=100), p]))
+show(row([column(w, width=100), p]))
