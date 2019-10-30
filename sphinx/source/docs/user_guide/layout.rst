@@ -1,7 +1,7 @@
 .. _userguide_layout:
 
-Laying out Plots and Widgets
-============================
+Creating Layouts
+================
 
 Bokeh includes several layout options for arranging plots and widgets. They make
 it possible to arrange multiple components to create interactive dashboards or

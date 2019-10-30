@@ -7,6 +7,24 @@
 ''' Control global configuration options with environment variables.
 A global settings object that other parts of Bokeh can refer to.
 
+Defined Settings
+~~~~~~~~~~~~~~~~
+
+Settings are accessible on the ``bokeh.settings.settings`` instance, via
+accessor methods. For instance:
+
+.. code-block:: python
+
+    settings.minified()
+
+Bokeh provides the following defined settings:
+
+.. bokeh-settings:: settings
+    :module: bokeh.settings
+
+Precedence
+~~~~~~~~~~
+
 Setting values are always looked up in the following prescribed order:
 
 immediately supplied values
@@ -67,22 +85,10 @@ implicit defaults
 If no value is obtained after searching all of these locations, then a
 RuntimeError will be raised.
 
-Defined Settings
-~~~~~~~~~~~~~~~~
+API
+~~~
 
-Settings are accessible on the ``bokeh.settings.settings`` instance, via
-accessor methods. For instance:
-
-.. code-block:: python
-
-    settings.minified()
-
-Bokeh provides the following defined settings:
-
-.. bokeh-settings:: settings
-    :module: bokeh.settings
-
-Additionally, there are a few methods on the ``settings`` object:
+There are a few methods on the ``settings`` object:
 
 .. autoclass:: Settings
     :members:

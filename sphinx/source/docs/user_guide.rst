@@ -25,8 +25,8 @@ User Guide
     user_guide/embed
     user_guide/cli
     user_guide/extensions
-    user_guide/compat
     user_guide/webgl
+    user_guide/compat
     user_guide/bokehjs
 
 This user guide is intended to walk you through many common tasks that
@@ -97,11 +97,11 @@ topic:
 :ref:`userguide_extensions`
     Add new capability to Bokeh with custom user extensions.
 
-:ref:`userguide_compat`
-    Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
-
 :ref:`userguide_webgl`
     Improve performance for large datasets by using WebGL.
+
+:ref:`userguide_compat`
+    Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
 
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.
