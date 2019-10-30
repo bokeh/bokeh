@@ -1,4 +1,4 @@
-import tz = require("timezone")
+import tz from "timezone"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 import * as p from "core/properties"

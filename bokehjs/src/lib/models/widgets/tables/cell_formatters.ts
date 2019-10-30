@@ -1,6 +1,6 @@
 import * as Numbro from "numbro"
-import compile_template = require("underscore.template")
-import tz = require("timezone")
+import compile_template from "underscore.template"
+import tz from "timezone"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"

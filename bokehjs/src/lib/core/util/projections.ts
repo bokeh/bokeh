@@ -1,5 +1,5 @@
-import proj4 = require("proj4/lib/core")
-import Projection = require("proj4/lib/Proj")
+import proj4 from "proj4/lib/core"
+import Projection from "proj4/lib/Proj"
 
 import {LatLon} from "../enums"
 
