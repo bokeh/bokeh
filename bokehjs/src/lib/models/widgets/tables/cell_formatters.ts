@@ -81,30 +81,28 @@ export class StringFormatter extends CellFormatter {
   }
 }
 
-export namespace BasicNumberFormatter {
+export namespace ScientificFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = StringFormatter.Props & {
     precision: p.Property<number | 10>
-    use_scientific: p.Property<boolean>
     power_limit_high: p.Property<number>
     power_limit_low: p.Property<number>
   }
 }
 
-export interface BasicNumberFormatter extends BasicNumberFormatter.Attrs {}
+export interface ScientificFormatter extends ScientificFormatter.Attrs {}
 
-export abstract class BasicNumberFormatter extends StringFormatter {
-  properties: BasicNumberFormatter.Props
+export abstract class ScientificFormatter extends StringFormatter {
+  properties: ScientificFormatter.Props
 
-  constructor(attrs?: Partial<BasicNumberFormatter.Attrs>) {
+  constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
     super(attrs)
   }
 
-  static init_BasicNumberFormatter(): void {
-    this.define<BasicNumberFormatter.Props>({
+  static init_ScientificFormatter(): void {
+    this.define<ScientificFormatter.Props>({
       precision:        [ p.Any,     10     ],
-      use_scientific:   [ p.Boolean, true   ],
       power_limit_high: [ p.Number,  5      ],
       power_limit_low:  [ p.Number,  -3     ],
     })
@@ -119,17 +117,15 @@ export abstract class BasicNumberFormatter extends StringFormatter {
   }
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
-    let need_sci = false
-    if (this.use_scientific) {
-      need_sci = value >= this.scientific_limit_high || value <= this.scientific_limit_low
-    }
-
+    let need_sci = value >= this.scientific_limit_high || value <= this.scientific_limit_low
     let precision = this.precision
+
     if (precision == null || isNumber(precision)) {
       // toExponential does not handle precision values < 0 correctly
       if (precision < 1) {
         precision = 1
       }
+
       if (need_sci) {
         value = value.toExponential(precision || undefined)
       } else {

@@ -40,7 +40,6 @@ from .widget import Widget
 
 __all__ = (
     'AvgAggregator',
-    'BasicNumberFormatter',
     'BooleanFormatter',
     'CellFormatter',
     'CellEditor',
@@ -57,6 +56,7 @@ __all__ = (
     'NumberEditor',
     'NumberFormatter',
     'PercentEditor',
+    'ScientificFormatter',
     'SelectEditor',
     'StringEditor',
     'StringFormatter',
@@ -114,18 +114,12 @@ class StringFormatter(CellFormatter):
     details.
     """)
 
-class BasicNumberFormatter(StringFormatter):
+class ScientificFormatter(StringFormatter):
     ''' Display numeric values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
     '''
     precision = Int(10, help="""
     How many digits of precision to display.
-    """)
-
-    use_scientific = Bool(True, help="""
-    Whether to ever display scientific notation. If ``True``, then
-    when to use scientific notation is controlled by ``power_limit_low``
-    and ``power_limit_high``.
     """)
 
     power_limit_high = Int(5, help="""
