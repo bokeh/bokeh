@@ -22,23 +22,21 @@ function min_js(js: string): string {
   return rename(js, {ext: '.min.js'})
 }
 
-task("scripts:bundle-es6", ["scripts:compile"], async () => {
+task("scripts:bundle", ["scripts:compile"], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh-es6.json") : undefined,
+    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
   })
 
   if (!argv.rebuild) linker.load_cache()
   const bundles = linker.link()
   linker.store_cache()
 
-  const outputs = packages.map((pkg) => {
-    return rename(pkg.output, {name: (name) => name + "-es6"})
-  })
+  const outputs = packages.map((pkg) => pkg.output)
 
   function bundle(minified: boolean, outputs: string[]) {
     bundles
@@ -50,14 +48,14 @@ task("scripts:bundle-es6", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:bundle", ["scripts:compile"], async () => {
-  const {bokehjs, gl, api, widgets, tables} = paths.lib
+task("scripts:bundle-es5", ["scripts:compile"], async () => {
+  const {bokehjs, gl, api, widgets, tables} = paths.lib_es5
   const packages = [bokehjs, gl, api, widgets, tables]
 
   const linker = new Linker({
-    entries: packages.map((pkg) => pkg.legacy || pkg.main),
+    entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
+    cache: argv.cache !== false ? join(paths.build_dir.es5, "bokeh.json") : undefined,
     transpile: true,
   })
 
@@ -77,7 +75,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:build", ["scripts:bundle-es6", "scripts:bundle"])
+task("scripts:build", ["scripts:bundle", "scripts:bundle-es5"])
 
 task("scripts:minify", ["scripts:build"])
 

@@ -6,18 +6,18 @@ import {expect} from "chai"
 const build_dir = path.normalize(`${__dirname}/..`) // build/test -> build
 
 const LIMITS: {[key: string]: number} = {
-  // js
-  "js/bokeh.min.js":             770,
-  "js/bokeh-widgets.min.js":     100,
-  "js/bokeh-tables.min.js":      270,
-  "js/bokeh-api.min.js":          90,
-  "js/bokeh-gl.min.js":           70,
-  // es6
-  "js/bokeh-es6.min.js":         640,
-  "js/bokeh-widgets-es6.min.js":  90,
-  "js/bokeh-tables-es6.min.js":  270,
-  "js/bokeh-api-es6.min.js":      90,
-  "js/bokeh-gl-es6.min.js":       70,
+  // es2017
+  "js/bokeh.min.js":         640,
+  "js/bokeh-widgets.min.js":  90,
+  "js/bokeh-tables.min.js":  270,
+  "js/bokeh-api.min.js":      90,
+  "js/bokeh-gl.min.js":       70,
+  // es5/legacy
+  "js/es5/bokeh.min.js":         770,
+  "js/es5/bokeh-widgets.min.js": 100,
+  "js/es5/bokeh-tables.min.js":  270,
+  "js/es5/bokeh-api.min.js":      90,
+  "js/es5/bokeh-gl.min.js":       70,
 }
 
 describe(`bokehjs/build/*/*.min.js file sizes`, () => {
