@@ -117,8 +117,10 @@ can be processed to trigger more visual updates.
 Notebook Examples
 =================
 
-A large number of static examples may be viewed directly online (or
-downloaded and executed locally) at the `Bokeh NBViewer Gallery`_.
+The best place to immediately experiment with Bokeh in notebooks is in the
+`live tutorial notebooks`_ hosted online by MyBinder. Static versions of these
+may also be viewed online (or downloaded and executed locally) at the
+`Bokeh NBViewer Gallery`_.
 
 
 .. _gallery_static_examples:
@@ -140,3 +142,4 @@ plot.
 .. bokeh-gallery:: gallery.json
 
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
+.. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
