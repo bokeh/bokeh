@@ -21,7 +21,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "target": "ES2017",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2017", "dom", "dom.iterable"],
     "baseUrl": ".",
     "outDir": "./dist/lib"
   },

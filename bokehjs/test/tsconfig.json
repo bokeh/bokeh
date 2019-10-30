@@ -21,7 +21,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ES2017",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2017", "dom", "dom.iterable"],
     "types": ["node", "mocha"],
     "baseUrl": ".",
     "paths": {
