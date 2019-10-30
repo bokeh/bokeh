@@ -1,24 +1,9 @@
-import {__assign} from "tslib"
 import {concat, union} from "./array"
 
-export const keys = Object.keys
-
-export function values<T>(object: {[key: string]: T}): T[] {
-  const keys = Object.keys(object)
-  const length = keys.length
-  const values = new Array<T>(length)
-  for (let i = 0; i < length; i++) {
-    values[i] = object[keys[i]]
-  }
-  return values
-}
-
-export function extend<T1, T2>(dest: T1, src: T2): T1 & T2 {
-  return __assign(dest, src)
-}
+export const {keys, values, assign: extend} = Object
 
 export function clone<T extends object>(obj: T): T {
-  return extend({}, obj) // XXX: can't use {...obj} due to https://github.com/Microsoft/TypeScript/issues/14409
+  return {...obj}
 }
 
 export function merge<T>(obj1: {[key: string]: T[]}, obj2: {[key: string]: T[]}): {[key: string]: T[]} {
