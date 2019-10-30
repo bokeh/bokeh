@@ -189,9 +189,9 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
 
 .. note::
 
-    Note that Bokeh plots cannot be displayed inline in notebook previews on
-    GitHub. Bokeh uses JavaScript code to render plots and GitHub scrubs all
-    JavaScript from previewed content.
+    **Bokeh plots will not display inline in GitHub notebook previews**. Bokeh
+    plots use JavaScript code to render, but GitHub scrubs all JavaScript from
+    previewed content.
 
 .. _userguide_quickstart_sample_data:
 
@@ -205,6 +205,8 @@ commands at a Bash or Windows command prompt:
 .. code-block:: sh
 
     bokeh sampledata
+
+For more information see the |bokeh.sampledata| reference.
 
 .. _userguide_quickstart_concepts:
 
@@ -549,7 +551,7 @@ information about how to create a new language binding, see the
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
-`live Tutorial notebooks`_.
+`live tutorial notebooks`_.
 
 For questions and technical assistance, come join the `Bokeh Discourse`_.
 
@@ -566,6 +568,7 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
 
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`
+.. |bokeh.sampledata| replace:: :ref:`bokeh.sampledata <bokeh.sampledata>`
 
 .. |glyphs|  replace:: :ref:`glyphs <bokeh.models.glyphs>`
 .. |markers| replace:: :ref:`markers <bokeh.models.markers>`
