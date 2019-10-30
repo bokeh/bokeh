@@ -334,7 +334,7 @@ h4 { font-family: "Work Sans", sans-serif; }
     font-variant-ligatures: none;
 }
 
-.contents .local p {
+.contents.local p {
   margin-bottom: 0rem;
 }
 
