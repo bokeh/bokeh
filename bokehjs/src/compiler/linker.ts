@@ -523,8 +523,8 @@ export class Linker {
   }
 
   private parse_module({file, source, type}: {file: Path, source: string, type: ModuleType}): ts.SourceFile {
-    const {ES2015, JSON} = ts.ScriptTarget
-    return transforms.parse_es(file, source, type == "json" ? JSON : ES2015)
+    const {ES2017, JSON} = ts.ScriptTarget
+    return transforms.parse_es(file, source, type == "json" ? JSON : ES2017)
   }
 
   new_module(file: Path): ModuleInfo {

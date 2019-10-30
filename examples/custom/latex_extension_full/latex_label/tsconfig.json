@@ -20,8 +20,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES5",
-    "lib": ["es2015", "dom"],
+    "target": "ES2017",
+    "lib": ["es2017", "dom"],
     "baseUrl": ".",
     "outDir": "./dist/lib",
     "paths": {

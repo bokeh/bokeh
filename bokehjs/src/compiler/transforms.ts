@@ -280,7 +280,7 @@ export function wrap_in_function(module_name: string) {
   }
 }
 
-export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES2015): ts.SourceFile {
+export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES2017): ts.SourceFile {
   return ts.createSourceFile(file, code != null ? code : ts.sys.readFile(file)!, target, true, ts.ScriptKind.JS)
 }
 
