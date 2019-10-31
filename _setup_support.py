@@ -256,8 +256,7 @@ def jsbuild_prompt():
 # -----------------------------------------------------------------------------
 
 def build_js():
-    ''' Build BokehJS files (JS, etc) under the ``bokehjs`` source
-    subdirectory.
+    ''' Build BokehJS files under the ``bokehjs`` source subdirectory.
 
     Also prints a table of statistics about the generated assets (file sizes,
     etc.) or any error messages if the build fails.
