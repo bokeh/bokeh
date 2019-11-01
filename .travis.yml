@@ -74,6 +74,12 @@ jobs:
       script: scripts/ci/test
       env:
       - GROUP=unit
+      - PYTHON=3.8
+
+    - install: scripts/ci/install.test
+      script: scripts/ci/test
+      env:
+      - GROUP=unit
       - PYTHON=3.7
 
     - install: scripts/ci/install.test
