@@ -226,7 +226,7 @@ class JSResources(BaseResources):
             be generated.
 
             ``root_url`` can also be the empty string, in which case relative URLs,
-            e.g., "static/css/bokeh.min.js", are generated.
+            e.g., "static/js/bokeh.min.js", are generated.
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 
