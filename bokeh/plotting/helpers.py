@@ -289,13 +289,16 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
 
         props (dict) :
             Maps properties and prefixed properties to their values.
-            Keys in `props` matching `glyphclass` properties with added `prefix`
-              will get popped, other keys will be ignored.
+            Keys in `props` matching `glyphclass` visual properties (those of
+            'line_', 'fill_' or 'text_') with added `prefix` will get popped,
+            other keys will be ignored.
             Keys take the form '[{prefix}][{feature}_]{trait}'. Only {feature}
               must not contain underscores.
             Keys of the form '{prefix}{trait}' work as lower precedence aliases
-              for {trait} for all {features}.
-            Ex: {'fill_color': 'blue', 'selection_line_width': 4}
+              for {trait} for all {features}, as long as the glyph has no
+              property called {trait}. I.e. this won't apply to "width" in a
+              `rect` glyph.
+            Ex: {'fill_color': 'blue', 'selection_line_width': 0.5}
 
         prefix (str) :
             Prefix used when accessing `props`. Ex: 'selection_'
@@ -333,17 +336,19 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
     trait_defaults.setdefault('alpha', 1.0)
 
     result, traits = dict(), set()
-    for pname in filter(is_visual, glyphclass.properties()):
+    glyphprops = glyphclass.properties()
+    for pname in filter(is_visual, glyphprops):
         _, trait = split_feature_trait(pname)
         if prefix+pname in props:
             result[pname] = props.pop(prefix+pname)
-        elif prefix+trait in props:
+        elif trait not in glyphprops and prefix+trait in props:
             result[pname] = props[prefix+trait]
         elif pname in defaults:
             result[pname] = defaults[pname]
         elif trait in trait_defaults:
             result[pname] = trait_defaults[trait]
-        traits.add(trait)
+        if trait not in glyphprops:
+            traits.add(trait)
     for trait in traits:
         props.pop(prefix+trait, None)
 
