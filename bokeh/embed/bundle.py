@@ -168,11 +168,6 @@ def bundle_for_objs_and_resources(objs, resources):
 
     if css_resources:
         css_resources = deepcopy(css_resources)
-        if not use_widgets and "bokeh-widgets" in css_resources.css_components:
-            css_resources.css_components.remove("bokeh-widgets")
-        if not use_tables and "bokeh-tables" in css_resources.css_components:
-            css_resources.css_components.remove("bokeh-tables")
-
         css_files.extend(css_resources.css_files)
         css_raw.extend(css_resources.css_raw)
 

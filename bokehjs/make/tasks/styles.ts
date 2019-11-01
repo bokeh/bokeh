@@ -31,13 +31,6 @@ task("styles:compile", async () => {
   }
 })
 
-task("styles:phony", async () => {
-  for (const css of paths.css.sources) {
-    write(css, "")
-    write(rename(css, {ext: ".min.css"}), "")
-  }
-})
-
-task("styles:build", ["styles:compile", "styles:phony"])
+task("styles:build", ["styles:compile"])
 
 task("styles", ["styles:build"])

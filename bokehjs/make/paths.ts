@@ -54,11 +54,3 @@ export const lib = {
     output: join(build_dir.js, "bokeh-tables.js"),
   },
 }
-
-export const css = {
-  sources: [
-    join(build_dir.css, "bokeh.css"),
-    join(build_dir.css, "bokeh-widgets.css"),
-    join(build_dir.css, "bokeh-tables.css"),
-  ],
-}
