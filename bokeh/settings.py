@@ -103,6 +103,7 @@ log = logging.getLogger(__name__)
 import codecs
 import os
 from os.path import abspath, expanduser, join
+from typing import Optional
 
 # External imports
 import yaml
@@ -633,7 +634,7 @@ class Settings(object):
         except Exception:
             raise RuntimeError("Could not load Bokeh config file: {}".format(location))
 
-    def secret_key_bytes(self):
+    def secret_key_bytes(self) -> Optional[bytes]:
         ''' Return the secret_key, converted to bytes and cached.
 
         '''

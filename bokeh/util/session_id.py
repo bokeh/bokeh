@@ -28,6 +28,7 @@ import codecs
 import hashlib
 import hmac
 import time
+from typing import Any, Optional, Tuple, Union
 
 # External imports
 
@@ -48,7 +49,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def generate_secret_key():
+def generate_secret_key() -> str:
     """
     Generate a new securely-generated secret key appropriate
     for SHA-256 HMAC signatures. This key could be used to
@@ -56,9 +57,10 @@ def generate_secret_key():
     """
     return _get_random_string()
 
-def generate_session_id(secret_key=settings.secret_key_bytes(), signed=settings.sign_sessions()):
+def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
+                        signed: bool = settings.sign_sessions()
+                        ) -> str:
     """Generate a random session ID.
-
     Typically, each browser tab connected to a Bokeh application
     has its own session ID.  In production deployments of a Bokeh
     app, session IDs should be random and unguessable - otherwise
@@ -86,8 +88,10 @@ def generate_session_id(secret_key=settings.secret_key_bytes(), signed=settings.
     else:
         return _get_random_string(secret_key=secret_key)
 
-def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(),
-                               signed=settings.sign_sessions()):
+def check_session_id_signature(session_id: str,
+                               secret_key: Optional[bytes] = settings.secret_key_bytes(),
+                               signed: Optional[bool] = settings.sign_sessions()
+                               ) -> bool:
     """Check the signature of a session ID, returning True if it's valid.
 
     The server uses this function to check whether a session ID
@@ -112,8 +116,7 @@ def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(
         # hmac.compare_digest() uses a string compare algorithm that doesn't
         # short-circuit so we don't allow timing analysis
         return hmac.compare_digest(expected_signature, provided_signature)
-    else:
-        return True
+    return True
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -123,28 +126,28 @@ def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_sysrandom():
+def _get_sysrandom() -> Tuple[Any, bool]:
     # Use the system PRNG for session id generation (if possible)
     # NOTE: secure random string generation implementation is adapted
     #       from the Django project. Reference:
     #       https://github.com/django/django/blob/0ed7d155635da9f79d4dd67e4889087d3673c6da/django/utils/crypto.py
     import random
     try:
-        random = random.SystemRandom()
+        sysrandom = random.SystemRandom()
         using_sysrandom = True
+        return sysrandom, using_sysrandom
     except NotImplementedError:
         import warnings
         warnings.warn('A secure pseudo-random number generator is not available '
-                    'on your system. Falling back to Mersenne Twister.')
+                      'on your system. Falling back to Mersenne Twister.')
         if settings.secret_key() is None:
             warnings.warn('A secure pseudo-random number generator is not available '
-                        'and no BOKEH_SECRET_KEY has been set. '
-                        'Setting a secret key will mitigate the lack of a secure '
-                        'generator.')
+                          'and no BOKEH_SECRET_KEY has been set. '
+                          'Setting a secret key will mitigate the lack of a secure generator.')
         using_sysrandom = False
-    return random, using_sysrandom
+        return random, using_sysrandom
 
-def _ensure_bytes(secret_key):
+def _ensure_bytes(secret_key: Union[str, bytes, None]) -> Optional[bytes]:
     if secret_key is None:
         return None
     elif isinstance(secret_key, bytes):
@@ -153,7 +156,8 @@ def _ensure_bytes(secret_key):
         return codecs.encode(secret_key, 'utf-8')
 
 # this is broken out for unit testability
-def _reseed_if_needed(using_sysrandom, secret_key):
+def _reseed_if_needed(using_sysrandom: bool,
+                      secret_key: Optional[bytes]) -> None:
     secret_key = _ensure_bytes(secret_key)
     if not using_sysrandom:
         # This is ugly, and a hack, but it makes things better than
@@ -170,24 +174,27 @@ def _reseed_if_needed(using_sysrandom, secret_key):
                     secret_key)).encode('utf-8')
             ).digest())
 
-def _base64_encode(decoded):
+def _base64_encode(decoded: Union[bytes, str]) -> str:
     # base64 encode both takes and returns bytes, we want to work with strings.
     # If 'decoded' isn't bytes already, assume it's utf-8
     decoded_as_bytes = _ensure_bytes(decoded)
-    encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), 'ascii')
+    # TODO: urlsafe_b64encode only accepts bytes input, not Optional[bytes].
+    # Perhaps we can change _ensure_bytes change return type from Optional[bytes] to bytes
+    encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), 'ascii')  # type: ignore
     # remove padding '=' chars that cause trouble
     return str(encoded.rstrip('='))
 
-def _signature(base_id, secret_key):
+def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
     secret_key = _ensure_bytes(secret_key)
-    base_id = codecs.encode(base_id, "utf-8")
-    signer = hmac.new(secret_key, base_id, hashlib.sha256)
+    base_id_encoded = codecs.encode(base_id, "utf-8")
+    signer = hmac.new(secret_key, base_id_encoded, hashlib.sha256)  # type: ignore
     return _base64_encode(signer.digest())
 
-def _get_random_string(length=44,
-                       allowed_chars='abcdefghijklmnopqrstuvwxyz'
+def _get_random_string(length: int = 44,
+                       allowed_chars: str = 'abcdefghijklmnopqrstuvwxyz'
                        'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-                       secret_key=settings.secret_key_bytes()):
+                       secret_key: Optional[bytes] = settings.secret_key_bytes()
+                       ) -> str:
     """
     Return a securely generated random string.
     With the a-z, A-Z, 0-9 character set:
