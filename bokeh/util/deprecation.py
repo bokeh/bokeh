@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
+from typing import Union, Tuple, Optional, overload
 
 # External imports
 
@@ -36,10 +37,18 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def warn(message, stacklevel=2):
+def warn(message: str, stacklevel: int = 2) -> None:
     warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)
 
-def deprecated(since_or_msg, old=None, new=None, extra=None):
+@overload
+def deprecated(since_or_msg: Tuple[int, int, int], old: str, new: str, extra: str) -> None:
+    ...
+
+@overload
+def deprecated(since_or_msg: str) -> None:
+    ...
+
+def deprecated(since_or_msg: Union[Tuple[int, int, int], str], old: Optional[str] = None , new: Optional[str] = None, extra: Optional[str] = None) -> None:
     """ Issue a nicely formatted deprecation warning. """
 
     if isinstance(since_or_msg, tuple):
