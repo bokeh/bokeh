@@ -52,11 +52,11 @@ def modify_doc(doc):
 
 
 def enter_value_in_spinner(driver, el, value, del_prev=True):
+    if del_prev:
+        el.clear()
     actions = ActionChains(driver)
     actions.move_to_element(el)
     actions.click()
-    if del_prev:
-        actions.key_down(Keys.CONTROL).send_keys('a').key_up(Keys.CONTROL)
     actions.send_keys(str(value))
     actions.send_keys(Keys.ENTER)
     actions.perform()
@@ -111,6 +111,7 @@ class Test_Spinner(object):
         enter_value_in_spinner(page.driver, el, 4)
         page.click_custom_action()
         results = page.results
+        print(el.get_attribute('value'))
         assert results['data']['val'] == ["a", "b"]
 
         # new valid value
@@ -123,25 +124,25 @@ class Test_Spinner(object):
         enter_value_in_spinner(page.driver, el, 11)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [5, 11]
+        assert results['data']['val'] == [5, 10]
 
         # new underflow value
         enter_value_in_spinner(page.driver, el, -2)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [11, -2]
+        assert results['data']['val'] == [10, -1]
 
         # new decimal value
         enter_value_in_spinner(page.driver, el, 5.1)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [-2, 5.1]
+        assert results['data']['val'] == [-1, 5.1]
 
         # new decimal value test rounding
-        # enter_value_in_spinner(page.driver, el, 5.19)
-        # page.click_custom_action()
-        # results = page.results
-        # assert results['data']['val'] == [5.1, 5.2]
+        enter_value_in_spinner(page.driver, el, 5.19)
+        page.click_custom_action()
+        results = page.results
+        assert results['data']['val'] == [5.1, 5.2]
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
@@ -150,7 +151,7 @@ class Test_Spinner(object):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        spinner = Spinner(css_classes=['foo'])
+        spinner = Spinner(css_classes=['foo'], step=1, value=0)
         spinner.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
 
         page = single_plot_page(column(spinner, plot))
@@ -163,6 +164,6 @@ class Test_Spinner(object):
 
         enter_value_in_spinner(page.driver, el, -5.1)
         results = page.results
-        assert results['value'] == -5.1
+        assert results['value'] == -5
 
         assert page.has_no_console_errors()
