@@ -93,8 +93,7 @@ REQUIRES = [
     'numpy >=1.7.1',
     'pillow >=4.0',
     'packaging >=16.8',
-    'tornado >=5',
-    'typing-extensions >=3.7'
+    'tornado >=5'
 ]
 
 # if this is just conda-build skimming information, skip all this actual work
