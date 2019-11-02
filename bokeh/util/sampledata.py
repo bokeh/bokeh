@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # imports are generally deferrered in this module
 
 # Standard library imports
-
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
