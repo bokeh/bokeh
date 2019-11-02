@@ -71,6 +71,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from typing_extensions import Literal
 
 # External imports
 
@@ -336,6 +337,7 @@ LineDash = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 LineJoin = enumeration("miter", "round", "bevel")
 
 #: Specify a location in plot layouts
+LocationType = Literal['above', 'below', 'left', 'right']
 Location = enumeration("above", "below", "left", "right")
 
 #: Specify a style for a Google map

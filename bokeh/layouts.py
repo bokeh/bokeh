@@ -21,14 +21,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from collections import namedtuple
+from typing import Any, Callable, Dict, List, Generator, Iterable, Iterator, Optional, Union, Tuple, NoReturn
 
 # External imports
 
 # Bokeh imports
-from .core.enums import Location
-from .models.tools import ProxyToolbar, ToolbarBox
+from .core.enums import Location, LocationType
+from .core.property.primitive import Int
+from .models.tools import ProxyToolbar, Tool, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Box, Row, Column, GridBox, Spacer, WidgetBox
+from .models.widgets.widget import Widget
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,7 +52,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def row(*args, **kwargs):
+
+def assert_never(x: Any) -> NoReturn:
+    assert False, "Unhandled type: {}".format(type(x).__name__)
+
+
+def row(*args: Any,
+        sizing_mode: Any = None,
+        children: Any = None,
+        **kwargs: Any) -> Row:
     """ Create a row of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -77,9 +88,6 @@ def row(*args, **kwargs):
         >>> row(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
     """
 
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
-
     children = _handle_children(*args, children=children)
 
     row_children = []
@@ -94,7 +102,10 @@ def row(*args, **kwargs):
     return Row(children=row_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def column(*args, **kwargs):
+def column(*args: Any,
+           sizing_mode: Any = None,
+           children: Any = None,
+           **kwargs: Any) -> Column:
     """ Create a column of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -122,9 +133,6 @@ def column(*args, **kwargs):
         >>> column(children=[widget_1, plot_1], sizing_mode='stretch_both')
     """
 
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
-
     children = _handle_children(*args, children=children)
 
     col_children = []
@@ -139,7 +147,10 @@ def column(*args, **kwargs):
     return Column(children=col_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def widgetbox(*args, **kwargs):
+def widgetbox(*args: Any,
+              sizing_mode: Any = None,
+              children: Any = None,
+              **kwargs: Any) -> WidgetBox:
     """ Create a column of bokeh widgets with predefined styling.
 
     Args:
@@ -160,9 +171,6 @@ def widgetbox(*args, **kwargs):
         >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
 
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
-
     children = _handle_children(*args, children=children)
 
     col_children = []
@@ -176,7 +184,10 @@ def widgetbox(*args, **kwargs):
     return WidgetBox(children=col_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def layout(*args, **kwargs):
+def layout(*args: LayoutDOM,
+           sizing_mode: Any = None,
+           children: Any = None,
+           **kwargs: Any) -> LayoutDOM:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
@@ -210,16 +221,20 @@ def layout(*args, **kwargs):
             )
 
     """
-    sizing_mode = kwargs.pop('sizing_mode', None)
-    children = kwargs.pop('children', None)
-
     children = _handle_children(*args, children=children)
 
     # Make the grid
     return _create_grid(children, sizing_mode, **kwargs)
 
-def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
-             plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
+
+def gridplot(children: Any,
+             sizing_mode: Any = None,
+             toolbar_location: LocationType = 'above',
+             ncols: Optional[int] = None,
+             plot_width: Optional[Int] = None,
+             plot_height: Optional[Int] = None,
+             toolbar_options: Optional[Dict[str, Any]]=None,
+             merge_tools: bool = True) -> Union[Column, Row, GridBox]:
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -294,7 +309,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         children = []
 
     # Make the grid
-    tools = []
+    tools: List[Tool] = []
     items = []
 
     for y, row in enumerate(children):
@@ -335,8 +350,13 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         return Row(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'right':
         return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
+    assert_never(toolbar_location)  # Used by mypy
 
-def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
+
+def grid(children: Any = [],
+         sizing_mode: Any = None,
+         nrows: int = None,
+         ncols: int = None) -> GridBox:
     """
     Conveniently create a grid of layoutable objects.
 
@@ -388,24 +408,24 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
     row = namedtuple("row", ["children"])
     col = namedtuple("col", ["children"])
 
-    def flatten(layout):
+    def flatten(layout: Any) -> GridBox:
         Item = namedtuple("Item", ["layout", "r0", "c0", "r1", "c1"])
         Grid = namedtuple("Grid", ["nrows", "ncols", "items"])
 
-        def gcd(a, b):
+        def gcd(a: int, b: int) -> int:
             a, b = abs(a), abs(b)
             while b != 0:
                 a, b = b, a % b
             return a
 
-        def lcm(a, *rest):
+        def lcm(a: int, *rest: int) -> int:
             for b in rest:
                 a = (a*b) // gcd(a, b)
             return a
 
         nonempty = lambda child: child.nrows != 0 and child.ncols != 0
 
-        def _flatten(layout):
+        def _flatten(layout: Any) -> Grid:
             if isinstance(layout, row):
                 children = list(filter(nonempty, map(_flatten, layout.children)))
                 if not children:
@@ -460,10 +480,11 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
         if nrows is not None or ncols is not None:
             N = len(children)
             if ncols is None:
-                ncols = math.ceil(N/nrows)
+                # mypy can't tell nrows must be an int so errors on the next line
+                ncols = math.ceil(N/nrows)  # type: ignore
             layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
         else:
-            def traverse(children, level=0):
+            def traverse(children: Any, level: int=0) -> Any:
                 if isinstance(children, list):
                     container = col if level % 2 == 0 else row
                     return container([ traverse(child, level+1) for child in children ])
@@ -472,17 +493,17 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 
             layout = traverse(children)
     elif isinstance(children, LayoutDOM):
-        def is_usable(child):
+        def is_usable(child: Box) -> bool:
             return _has_auto_sizing(child) and child.spacing == 0
 
-        def traverse(item, top_level=False):
+        def traverse_dom(item: Any, top_level: bool = False) -> Any:
             if isinstance(item, Box) and (top_level or is_usable(item)):
                 container = col if isinstance(item, Column) else row
-                return container(list(map(traverse, item.children)))
+                return container(list(map(traverse_dom, item.children)))
             else:
                 return item
 
-        layout = traverse(children, top_level=True)
+        layout = traverse_dom(children, top_level=True)
     elif isinstance(children, str):
         raise NotImplementedError
     else:
@@ -494,9 +515,9 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
         grid.sizing_mode = sizing_mode
 
         for child in grid.children:
-            layout = child[0]
-            if _has_auto_sizing(layout):
-                layout.sizing_mode = sizing_mode
+            child_layout = child[0]
+            if _has_auto_sizing(child_layout):
+                child_layout.sizing_mode = sizing_mode
 
     return grid
 
@@ -507,12 +528,12 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 class GridSpec(object):
     """ Simplifies grid layout specification. """
 
-    def __init__(self, nrows, ncols):
+    def __init__(self, nrows: int, ncols: int):
         self.nrows = nrows
         self.ncols = ncols
-        self._arrangement = {}
+        self._arrangement: Dict[Any, Any] = {}
 
-    def __setitem__(self, key, obj):
+    def __setitem__(self, key: Tuple[Any, Any], obj: Any) -> None:
         k1, k2 = key
 
         if isinstance(k1, slice):
@@ -522,7 +543,8 @@ class GridSpec(object):
                 k1 += self.nrows
             if k1 >= self.nrows or k1 < 0:
                 raise IndexError("index out of range")
-            row1, row2 = k1, None
+            # mypy errors as row2 changes type to None
+            row1, row2 = k1, None  # type: ignore
 
         if isinstance(k2, slice):
             col1, col2, _ = k2.indices(self.ncols)
@@ -531,14 +553,15 @@ class GridSpec(object):
                 k2 += self.ncols
             if k2 >= self.ncols or k2 < 0:
                 raise IndexError("index out of range")
-            col1, col2 = k2, None
+            # mypy errors as col2 changes type to None
+            col1, col2 = k2, None  # type: ignore
 
         # gs[row, col]             = obj
         # gs[row1:row2, col]       = [...]
         # gs[row, col1:col2]       = [...]
         # gs[row1:row2, col1:col2] = [[...], ...]
 
-        def get_or_else(fn, default):
+        def get_or_else(fn: Callable[[], Any], default: None) -> Any:
             try:
                 return fn()
             except IndexError:
@@ -556,7 +579,7 @@ class GridSpec(object):
             for row, col in zip(range(row1, row2), range(col1, col2)):
                 self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[List[Any]]:
         array = [ [ None ]*self.ncols for _ in range(0, self.nrows) ]
         for (row, col), obj in self._arrangement.items():
             array[row][col] = obj
@@ -566,12 +589,13 @@ class GridSpec(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _has_auto_sizing(item):
+def _has_auto_sizing(item: LayoutDOM) -> bool:
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
-def _handle_children(*args, **kwargs):
-    children = kwargs.get('children')
 
+def _handle_children(*args: Any,
+                     children: Optional[Any] = None
+                     ) -> Iterable[Any]:
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -587,7 +611,10 @@ def _handle_children(*args, **kwargs):
     return children
 
 
-def _create_grid(iterable, sizing_mode, layer=0, **kwargs):
+def _create_grid(iterable: Any,  # Can be many-times-nested iterable of LayoutDOM
+                 sizing_mode: Any,
+                 layer: int = 0,
+                 **kwargs: Any) -> LayoutDOM:
     """Recursively create grid from input lists."""
     return_list = []
     for item in iterable:
@@ -607,7 +634,7 @@ def _create_grid(iterable, sizing_mode, layer=0, **kwargs):
     return row(children=return_list, sizing_mode=sizing_mode, **kwargs)
 
 
-def _chunks(l, ncols):
+def _chunks(l: List[LayoutDOM], ncols: int) -> Iterator[List[LayoutDOM]]:
     """Yield successive n-sized chunks from list, l."""
     assert isinstance(ncols, int), "ncols must be an integer"
     for i in range(0, len(l), ncols):
