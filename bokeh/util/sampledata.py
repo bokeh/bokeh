@@ -22,9 +22,11 @@ log = logging.getLogger(__name__)
 # imports are generally deferrered in this module
 
 # Standard library imports
+
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
+from typing import Any, TextIO, cast
 from urllib.parse import urljoin
 from urllib.request import urlopen
 
@@ -40,11 +42,13 @@ __all__ = (
     'download',
 )
 
+DataFrame = Any
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def download(progress=True):
+def download(progress: bool = True) -> None:
     ''' Download larger data sets for various Bokeh examples.
 
     '''
@@ -83,15 +87,15 @@ def download(progress=True):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def external_csv(module, name, **kw):
+def external_csv(module: str, name: str, **kw: Any) -> DataFrame:
     '''
 
     '''
     from .dependencies import import_required
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
-    return pd.read_csv(external_path(name), **kw)
+    return cast(Any, pd).read_csv(external_path(name), **kw)
 
-def external_data_dir(create=False):
+def external_data_dir(create: bool = False) -> str:
     '''
 
     '''
@@ -123,35 +127,35 @@ def external_data_dir(create=False):
 
     return data_dir
 
-def external_path(filename):
+def external_path(filename: str) -> str:
     data_dir = external_data_dir()
     fn = join(data_dir, filename)
     if not exists(fn) and isfile(fn):
-        raise RuntimeError('Could not locate external data file %e. Please execute bokeh.sampledata.download()' % fn)
+        raise RuntimeError('Could not locate external data file %s. Please execute bokeh.sampledata.download()' % fn)
     return fn
 
-def package_csv(module, name, **kw):
+def package_csv(module: str, name: str, **kw: Any) -> DataFrame:
     '''
 
     '''
     from .dependencies import import_required
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
-    return pd.read_csv(package_path(name), **kw)
+    return cast(Any, pd).read_csv(package_path(name), **kw)
 
 
-def package_dir():
+def package_dir() -> str:
     '''
 
     '''
     return abspath(join(dirname(__file__), "..", "sampledata", "_data"))
 
-def package_path(filename):
+def package_path(filename: str) -> str:
     '''
 
     '''
     return join(package_dir(), filename)
 
-def open_csv(filename):
+def open_csv(filename: str) -> TextIO:
     '''
 
     '''
@@ -161,7 +165,7 @@ def open_csv(filename):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _bokeh_dir(create=False):
+def _bokeh_dir(create: bool = False) -> str:
     '''
 
     '''
@@ -178,7 +182,7 @@ def _bokeh_dir(create=False):
             raise RuntimeError("%s exists but is not a directory" % bokeh_dir)
     return bokeh_dir
 
-def _download_file(base_url, filename, data_dir, progress=True):
+def _download_file(base_url: str, filename: str, data_dir: str, progress: bool = True) -> None:
     '''
 
     '''
