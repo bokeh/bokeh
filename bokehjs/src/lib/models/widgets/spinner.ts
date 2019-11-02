@@ -8,7 +8,7 @@ const {floor, max, min} = Math
 
 function _get_sig_dig(num: number): number { // get number of digits
   if (floor(num) !== num)
-    return num.toString().replace('/0+$/','').split(".")[1].length
+    return num.toString().replace('/0+$/', '').split(".")[1].length
   return 0
 }
 
@@ -35,7 +35,7 @@ export class SpinnerView extends InputWidgetView {
     })
     this.connect(this.model.properties.value.change, () => {
       const {value, step} = this.model
-      this.input_el.value = value.toFixed(_get_sig_dig(step)).replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1') //trim last 0
+      this.input_el.value = value.toFixed(_get_sig_dig(step)).replace(/(\.[0-9]*[1-9])0+$|\.0*$/, '$1') //trim last 0
     })
     this.connect(this.model.properties.disabled.change, () => {
       this.input_el.disabled = this.model.disabled
