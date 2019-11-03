@@ -323,6 +323,7 @@ def test_enums_contents():
         'LineCap',
         'LineDash',
         'LineJoin',
+        'Literal',
         'Location',
         'MapType',
         'MarkerType',
