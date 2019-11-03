@@ -111,7 +111,6 @@ class Test_Spinner(object):
         enter_value_in_spinner(page.driver, el, 4)
         page.click_custom_action()
         results = page.results
-        print(el.get_attribute('value'))
         assert results['data']['val'] == ["a", "b"]
 
         # new valid value
