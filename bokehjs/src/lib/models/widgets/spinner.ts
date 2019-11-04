@@ -4,14 +4,12 @@ import * as p from "core/properties"
 
 import {bk_input} from "styles/widgets/inputs"
 
-const {abs, floor, log10} = Math
+const {floor, max, min} = Math
 
-function _get_sig_dig(num: number): number {
-  let x = abs(Number(String(num).replace(".", ""))) // remove decimal and make positive
-  if (x == 0) return 0
-  while (x != 0 && (x % 10 == 0)) x /= 10 // kill the 0s at the end of n
-
-  return floor(log10(x)) + 1 // get number of digits
+function _get_sig_dig(num: number): number { // get number of digits
+  if (floor(num) !== num)
+    return num.toString().replace('/0+$/', '').split(".")[1].length
+  return 0
 }
 
 export class SpinnerView extends InputWidgetView {
@@ -37,7 +35,7 @@ export class SpinnerView extends InputWidgetView {
     })
     this.connect(this.model.properties.value.change, () => {
       const {value, step} = this.model
-      this.input_el.value = value.toFixed(_get_sig_dig(step))
+      this.input_el.value = value.toFixed(_get_sig_dig(step)).replace(/(\.[0-9]*[1-9])0+$|\.0*$/, '$1') //trim last 0
     })
     this.connect(this.model.properties.disabled.change, () => {
       this.input_el.disabled = this.model.disabled
@@ -63,17 +61,16 @@ export class SpinnerView extends InputWidgetView {
   }
 
   change_input(): void {
-    const {step} = this.model
-    const new_value = Number(this.input_el.value)
-    this.model.value = Number(new_value.toFixed(_get_sig_dig(step)))
-
-    if (this.model.value != new_value) {
-      // this is needed when the current value in the input is already at bounded value
-      // and we enter a value outside these bounds. We emit a model change to update
-      // the input text value.
-      this.model.change.emit()
+    if (this.input_el.value){ //if input is empty skip update
+      const {step} = this.model
+      let new_value = Number(this.input_el.value)
+      if (this.model.low != null)
+        new_value = max(new_value, this.model.low)
+      if (this.model.high != null)
+        new_value = min(new_value, this.model.high)
+      this.model.value = Number(new_value.toFixed(_get_sig_dig(step)))
+      super.change_input()
     }
-    super.change_input()
   }
 }
 

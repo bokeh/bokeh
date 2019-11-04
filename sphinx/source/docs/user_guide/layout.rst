@@ -1,83 +1,40 @@
 .. _userguide_layout:
 
-Laying out Plots and Widgets
-============================
+Creating Layouts
+================
 
-Bokeh includes several layout options for arranging plots and widgets. They aim
-to make it quick to create your interactive data applications. At the heart of
-the layouts are three core objects Row, Column, and . While you can
-use these models directly, we recommend using the layout functions |row|,
-|column|, and .
+Bokeh includes several layout options for arranging plots and widgets. They make
+it possible to arrange multiple components to create interactive dashboards or
+data applications.
 
 The layout functions let you build a grid of plots and widgets. You can nest as
-many rows, columns, and plots together as you'd like. In addition, Bokeh
+many rows, columns, or grids of plots together as you'd like. In addition, Bokeh
 layouts support a number of "sizing modes". These sizing modes allow plots and
 widgets to resize based on the browser window.
 
-There are two things to keep in mind for best results using layout:
+.. _userguide_layout_layouts:
 
-* All items must have the same sizing mode.
-* Widgets should be inside a widget box.
+Basic Layouts
+-------------
 
-These guidelines are explained in more detail below:
-
-Consistent sizing mode
-    Every item in a layout must have the same sizing mode for the layout to
-    behave as expected. It is for this reason that we recommend using the
-    layout functions as they help ensure that all the children of the row or
-    column have the same sizing mode. We hope to lift this restriction in
-    future releases.
-
-Widget boxes
-    Widgets are HTML objects like buttons, and dropdown menus. They
-    behave slightly differently to plots and and putting them in a widgetbox
-    is necessary so that they can all work together. In fact, if you try and
-    put a ``Widget`` in ``Row`` or ``Column`` it will be automatically put
-    into a ``WidgetBox``. As a result, it's a good idea to wrap your own
-    widgets in a ``WidgetBox`` using as then you can be sure about
-    how your widgets are getting arranged.
-
-Toolbars
---------
-
-For information about changing the position or orientation of plot toolbars,
-see :ref:`userguide_tools_toolbar` section in the :ref:`userguide_tools`
-chapter of the User's Guide.
-
-.. _userguide_layout_layout_columns:
-
-Columns
--------
+Column Layout
+~~~~~~~~~~~~~
 
 To display plots or widgets in a vertical fashion, use the |column| function:
 
 .. bokeh-plot:: docs/user_guide/examples/layout_vertical.py
     :source-position: above
 
-.. _userguide_layout_layout_rows:
-
-Rows
-----
+Row Layout
+~~~~~~~~~~
 
 To display plots horizontally, use the |row| function.
 
 .. bokeh-plot:: docs/user_guide/examples/layout_horizontal.py
     :source-position: above
 
-.. _userguide_layout_widgets:
-
-Widgets
--------
-
-Layout a group of widgets with the  function.
-
-.. bokeh-plot:: docs/user_guide/examples/layout_widgets.py
-    :source-position: above
-
-.. _userguide_layout_layout_gridplot:
-
 Grids Layout for Plots
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 The |gridplot| function can be used to arrange
 Bokeh Plots in grid layout. |gridplot| also collects all
@@ -93,43 +50,35 @@ number of columns you want in your grid. For example,
 
 .. code-block:: python
 
-    gridplot([[s1, s2], [s3, None]])
-
-and
-
-.. code-block:: python
-
     gridplot([s1, s2, s3], ncols=2)
 
-are equivalent. In addition, you can pass in ``plot_width`` and
-``plot_height`` arguments, and this will set the size of all your plots.
+In addition, you can pass in ``plot_width`` and ``plot_height`` arguments,
+and these will be used to set the size of all your plots.
+
 By default, ``gridplot`` will merge all tools within each child plot
 to a single toolbar attached to the grid. To disable this behavior,
 you can set the option ``merge_tools`` to ``False``.
 
-.. note::
-    You cannot use ``None`` with the ``ncols`` argument. It must only be a list
-    of ``Plot`` objects at once.
-
 .. bokeh-plot:: docs/user_guide/examples/layout_grid_convenient.py
     :source-position: above
 
-.. _userguide_layout_layout:
-
 General Grid Layout
--------------------
+~~~~~~~~~~~~~~~~~~~
 
-The |layout| function can be used to arrange both Plots and Widgets in a grid,
+The |layout| function can be used to arrange both plots and widgets in a grid,
 generating the necessary |row| and |column| layouts automatically. This allows
-for quickly spelling a layout like this:
+for quickly spelling a layouts like this:
 
 .. code-block:: python
 
-  l = layout([
-    [bollinger],
-    [sliders, plot],
-    [p1, p2, p3],
-  ], sizing_mode='stretch_both')
+    sliders = column(amp, freq, phase, offset)
+
+    layout([
+        [bollinger],
+        [sliders, plot],
+        [p1, p2, p3],
+    ])
+
 
 Which produces the following layout:
 
@@ -137,10 +86,116 @@ Which produces the following layout:
     :width: 500px
     :height: 397px
 
+|
+
 The full code for this plot is available at
 :bokeh-tree:`examples/howto/layouts/dashboard.py` in the project GitHub
 repository.
 
+.. _userguide_layout_sizing_mode:
+
+Sizing Mode
+-----------
+
+Modes
+~~~~~
+
+Layout-able Bokeh objects may be configured individually with the following
+sizing modes:
+
+``"fixed"``
+    Component is not responsive. It will retain its original width and height
+    regardless of any subsequent browser window resize events.
+
+``"stretch_width"``
+    Component will responsively resize to stretch to the available width, without
+    maintaining any aspect ratio. The height of the component depends on the type
+    of the component and may be fixed or fit to component's contents.
+
+``"stretch_height"``
+    Component will responsively resize to stretch to the available height, without
+    maintaining any aspect ratio. The width of the component depends on the type
+    of the component and may be fixed or fit to component's contents.
+
+``"stretch_both"``
+    Component is completely responsive, independently in width and height, and
+    will occupy all the available horizontal and vertical space, even if this
+    changes the aspect ratio of the component.
+
+``"scale_width"``
+    Component will responsively resize to stretch to the available width, while
+    maintaining the original or provided aspect ratio.
+
+``"scale_height"``
+    Component will responsively resize to stretch to the available height, while
+    maintaining the original or provided aspect ratio.
+
+``"scale_both"``
+    Component will responsively resize to both the available width and height,
+    while maintaining the original or provided aspect ratio.
+
+In general, either or both of ``width`` and ``height`` may also need to be
+provided, depending on the mode. (e.g. for a ``stretch_width`` mode, the desired
+fixed ``height`` must be provided).
+
+Note that layout objects such as rows and columns will pass on their configured
+sizing mode to any of their children that do not themselves have an explicitly
+set ``sizing_mode`` of their own.
+
+Single Object
+~~~~~~~~~~~~~
+
+The example below allows you to select a sizing mode from a dropdown to see
+how a single plot responds to different modes:
+
+.. bokeh-plot:: docs/user_guide/examples/layout_sizing_mode.py
+    :source-position: none
+
+.. note::
+    If the enclosing DOM element does not define any specific height to fill,
+    sizing modes that scale or stretch to height may shrink to a minimum size.
+
+Mulitple Objects
+~~~~~~~~~~~~~~~~
+
+Below is a more sophisticated (but fairly typical) example of a nested layout
+with different sizing modes:
+
+.. bokeh-plot:: docs/user_guide/examples/layout_sizing_mode_multiple.py
+    :source-position: none
+
+In the example above, the layout nests different subcomponents with various
+differnet sizing modes:
+
+.. code-block:: python
+
+    # plot scales original aspect based on available width
+    plot = figure(..., sizing_mode="scale_width")
+
+    # sliders fill the space they are in
+    amp = Slider(..., sizing_mode="stretch_both")
+
+    # fixed sized for the entire column of sliders
+    widgets = column(..., sizing_mode="fixed", height=250, width=150)
+
+    # heading fills available width
+    heading = Div(..., height=80, sizing_mode="stretch_width")
+
+    # entire layout can fill the space it is in
+    layout = column(heading, row(widgets, plot), sizing_mode="stretch_both")
+
+.. _userguide_layout_limits:
+
+Limitations
+-----------
+
+The Bokeh layout system is not a completely generic, general purpose layout
+engine. It is intentionally sacrifices some capability in order to make common
+use cases and scenarios simple to express. Extremely nested layouts with
+many different sizing modes may yield undesirable results, either in terms of
+perfomance, or visual appearance. For such cases it is recommended to use the
+methods in :ref:`userguide_embed` along with your own custom HTML templates in
+order to take advantage of more sophisticated CSS layout possibilities.
 
 .. |column|    replace:: :func:`~bokeh.layouts.column`
 .. |gridplot|  replace:: :func:`~bokeh.layouts.gridplot`

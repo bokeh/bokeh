@@ -1,16 +1,16 @@
 .. _userguide_compat:
 
-Leveraging Other Libraries
-==========================
+Exploring Other Tools
+=====================
 
 Bokeh integrates well with a wide variety of other libraries, allowing
 you to use the most appropriate tool for each task.
 
-JavaScript
-----------
+BokehJS
+-------
 
 Bokeh generates JavaScript, and so Bokeh output can be combined with a
-wide variety of JavaScript libraries, such as `PhosphorJS`_.  Listing
+wide variety of JavaScript libraries, such as `React`_.  Listing
 such libraries is beyond the scope of this document; it's best just to
 try and see!
 
@@ -37,11 +37,11 @@ in Bokeh, making it practical to work with arbitrarily large datasets
 in a web browser.
 
 .. image:: /_images/ds_sample.png
- :width: 900 px
- :height: 670 px
- :scale: 70 %
- :alt: Datashader Bokeh example
- :align: center
+    :width: 900 px
+    :height: 670 px
+    :scale: 70 %
+    :alt: Datashader Bokeh example
+    :align: center
 
 Datashader works well together with `HoloViews`_ (see below and
 `this_example`_), which allows you to flexibly switch between
@@ -74,17 +74,6 @@ requires only one line of code in HoloViews:
  :alt: HoloViews Bokeh example
  :align: center
 
-.. # Code, for reference, for holoviews 1.4.3:
-..
-.. import numpy as np
-.. import holoviews as hv
-.. hv.notebook_extension('bokeh')
-..
-.. xs = np.linspace(0, np.pi*4, 100)
-.. data = (xs, np.sin(xs))
-..
-.. (hv.Curve(data) + hv.Points(data)[4:10] + hv.Text(2,0,'Some text'))
-
 Adding overlaid plots, slider widgets, selector widgets, selection
 tools, and tabs is similarly straightforward.  HoloViews objects can
 also be rendered using a Matplotlib-based backend, which allows SVG or
@@ -94,7 +83,7 @@ Holoviews `Bokeh_Backend`_ tutorial for more details.
 
 .. _Bokeh_Backend: http://holoviews.org/Tutorials/Bokeh_Backend.html
 .. _HoloViews: http://holoviews.org
-.. _PhosphorJS: http://phosphorjs.github.io
+.. _React: https://reactjs.org
 .. _Datashader: https://github.com/bokeh/datashader
 .. _overplotting: https://anaconda.org/jbednar/plotting_pitfalls
 .. _this_example: https://anaconda.org/jbednar/census-hv
