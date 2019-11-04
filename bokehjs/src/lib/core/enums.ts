@@ -126,9 +126,6 @@ export const Side: Side[] = ["above", "below", "left", "right"]
 export type SizingMode = "stretch_width" | "stretch_height" | "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
 export const SizingMode: SizingMode[] = ["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
 
-export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup"
-export const SliderCallbackPolicy: SliderCallbackPolicy[] = ["continuous", "throttle", "mouseup"]
-
 export type Sort = "ascending" | "descending"
 export const Sort: Sort[] = ["ascending", "descending"]
 

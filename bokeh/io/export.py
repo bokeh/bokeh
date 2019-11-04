@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -28,13 +26,11 @@ from os.path import abspath
 from tempfile import mkstemp
 
 # External imports
-from six import raise_from
+from PIL import Image
 
 # Bokeh imports
 from ..embed import file_html
 from ..resources import INLINE
-from ..util.dependencies import import_required
-from ..util.string import decode_utf8
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -205,14 +201,10 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    Image = import_required('PIL.Image',
-                            'To use bokeh.io.export_png you need pillow ' +
-                            '("conda install pillow" or "pip install pillow")')
-
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(decode_utf8(html))
+            file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
@@ -240,7 +232,7 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(decode_utf8(html))
+            file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
@@ -295,7 +287,7 @@ def wait_until_render_complete(driver, timeout):
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
-        raise_from(RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.'), e)
+        raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
 
     driver.execute_script(_WAIT_SCRIPT)
 

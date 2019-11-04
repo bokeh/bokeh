@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -56,7 +54,7 @@ class ExampleHandler(Handler):
     _io_funcs = ['show', 'save']
 
     def __init__(self, source, filename):
-        super(ExampleHandler, self).__init__(self)
+        super().__init__(self)
         self._runner = CodeRunner(source, filename, [])
 
     def modify_document(self, doc):

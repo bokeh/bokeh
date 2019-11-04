@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from bokeh import __version__
 
 # -- General configuration -----------------------------------------------------

@@ -45,7 +45,7 @@ export class ClientConnection {
     this._current_handler = null
 
     try {
-      let versioned_url = `${this.url}?bokeh-protocol-version=1.0&bokeh-session-id=${this.id}`
+      let versioned_url = `${this.url}?bokeh-session-id=${this.id}`
       if (this.args_string != null && this.args_string.length > 0)
         versioned_url += `&${this.args_string}`
 

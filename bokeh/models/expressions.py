@@ -31,8 +31,6 @@ browser by the JavaScript implementation of ``some_expression`` using a
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -70,10 +68,11 @@ class Expression(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block:: coffeescript
+    .. code-block
 
-        v_compute: (source) ->
-            # compute an array of values
+        v_compute(source: ColumnarDataSource): Arrayable {
+            # compute and return array of values
+        }
 
     .. note::
         If you wish for results to be cached per source and updated only if

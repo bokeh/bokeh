@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 from math import sin, cos, atan2, sqrt, radians
 
 import numpy as np

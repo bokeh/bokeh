@@ -3,8 +3,6 @@
 http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html
 
 '''
-from __future__ import print_function
-
 import numpy as np
 from sklearn import cluster, datasets
 from sklearn.preprocessing import StandardScaler

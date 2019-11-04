@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -163,11 +161,6 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
     async def connect(self):
         log.info('WebSocket connection opened')
 
-        proto_version = self.get_argument("bokeh-protocol-version")
-        if proto_version is None:
-            self.close()
-            raise RuntimeError("No bokeh-protocol-version specified")
-
         session_id = self.get_argument("bokeh-session-id")
         if session_id is None:
             self.close()
@@ -187,7 +180,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
                 # immediately, most likely.
                 log.debug("Failed to fully open connlocksection %r", e)
 
-        future = self._async_open(session_id, proto_version)
+        future = self._async_open(session_id)
 
         # rewrite above line using asyncio
         # this task is scheduled to run soon once context is back to event loop
@@ -207,12 +200,12 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             if work:
                 await self._send_bokeh_message(work)
 
-    async def _async_open(self, session_id: str, proto_version: str) -> None:
+    async def _async_open(self, session_id: str) -> None:
         try:
             await self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
-            protocol = Protocol(proto_version)
+            protocol = Protocol()
             self.receiver = Receiver(protocol)
             log.debug("Receiver created for %r", protocol)
 

@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -26,14 +24,13 @@ from json import loads
 from ...core.json_encoder import serialize_json
 from ...document.util import references_json
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'patch_doc_1',
+    'patch_doc',
     'process_document_events',
 )
 
@@ -45,10 +42,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class patch_doc_1(Message):
-    ''' Define the ``PATCH-DOC`` message (revision 1) for sending Document
-    patch events between remote documents.
+class patch_doc(Message):
+    ''' Define the ``PATCH-DOC`` message for sending Document patch events
+    between remote documents.
 
     The ``content`` fragment of for this message is has the form:
 
@@ -62,10 +58,9 @@ class patch_doc_1(Message):
     '''
 
     msgtype  = 'PATCH-DOC'
-    revision = 1
 
     def __init__(self, header, metadata, content):
-        super(patch_doc_1, self).__init__(header, metadata, content)
+        super().__init__(header, metadata, content)
 
     @classmethod
     def create(cls, events, use_buffers=True, **metadata):

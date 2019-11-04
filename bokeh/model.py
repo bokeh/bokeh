@@ -11,8 +11,6 @@ a Bokeh |Document|.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 
 import logging
 log = logging.getLogger(__name__)
@@ -26,7 +24,6 @@ from json import loads
 from operator import itemgetter
 
 # External imports
-from six import iteritems, string_types
 
 # Bokeh imports
 from .core.json_encoder import serialize_json
@@ -38,7 +35,6 @@ from .events import Event
 from .themes import default as default_theme
 
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
-from .util.future import with_metaclass
 from .util.serialization import make_id
 
 #-----------------------------------------------------------------------------
@@ -255,7 +251,7 @@ class MetaModel(MetaHasProps):
         class_dict["__qualified_model__"] = qualified
 
         # call the parent metaclass to create the new model type
-        newcls = super(MetaModel, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
+        newcls = super().__new__(meta_cls, class_name, bases, class_dict)
 
         # update the mapping of view model names to classes, checking for any duplicates
         # and handling any subtype relationships or custom implementations
@@ -284,13 +280,13 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
+class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=MetaModel):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
 
     def __new__(cls, *args, **kwargs):
-        obj =  super(Model, cls).__new__(cls)
+        obj =  super().__new__(cls)
         obj._id = kwargs.pop("id", make_id())
         obj._document = None
         obj._temp_document = None
@@ -303,7 +299,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         #
         # class Foo(object):
         #     def __new__(cls, *args, **kw):
-        #         obj = super(Foo, cls).__new__(cls)
+        #         obj = super().__new__(cls)
         #         obj.bar = kw.pop("bar", 111)
         #         print("__new__  :", id(kw), kw)
         #         return obj
@@ -315,7 +311,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         # __init__ : 4405522296 {'bar': 10}
         kwargs.pop("id", None)
 
-        super(Model, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         default_theme.apply_to_model(self)
 
     def __str__(self):
@@ -447,7 +443,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     def js_on_event(self, event, *callbacks):
 
-        if not isinstance(event, string_types) and issubclass(event, Event):
+        if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
         if event not in self.js_event_callbacks:
@@ -588,7 +584,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         '''
         if attr not in self.properties():
             raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
-        super(Model, self).on_change(attr, *callbacks)
+        super().on_change(attr, *callbacks)
 
     def references(self):
         ''' Returns all ``Models`` that this object has references to.
@@ -714,7 +710,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint=hint, setter=setter)
+        super().trigger(attr, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.
@@ -865,7 +861,7 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for item in obj:
             _visit_value_and_its_immediate_references(item, visitor)
     elif issubclass(typ, dict):
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
     elif issubclass(typ, HasProps):

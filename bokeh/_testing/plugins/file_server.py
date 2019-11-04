@@ -14,8 +14,6 @@ tests.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -24,15 +22,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import open
 import os
 import socket
 import threading
+from urllib.request import URLopener
 
 # External imports
 import pytest
-from six.moves.BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from six.moves.urllib.request import URLopener
 
 # Bokeh imports
 

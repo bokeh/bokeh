@@ -142,13 +142,6 @@ def confirm(msg):
 #
 #--------------------------------------
 
-def check_py3():
-    if sys.version_info.major == 3:
-        passed("Running Python 3.x")
-    else:
-        failed("This script requires Python 3.x")
-
-
 def check_git():
     try:
         run("which git")
@@ -455,7 +448,6 @@ if __name__ == '__main__':
 
     print("!!! Running pre-checks for release deploy\n")
 
-    check_py3()
     check_git()
     check_maintainers()
     if not args.dry_run:

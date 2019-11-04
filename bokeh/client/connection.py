@@ -15,8 +15,6 @@ instead for standard usage.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,10 +23,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from urllib.parse import quote_plus
 
 # External imports
-from six.moves.urllib.parse import quote_plus
-
 from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
@@ -69,7 +66,7 @@ class ClientConnection(object):
         self._url = websocket_url
         self._session = session
         self._arguments = arguments
-        self._protocol = Protocol("1.0")
+        self._protocol = Protocol()
         self._receiver = Receiver(self._protocol)
         self._socket = None
         self._state = NOT_YET_CONNECTED()
@@ -235,17 +232,17 @@ class ClientConnection(object):
 
     # Private methods ---------------------------------------------------------
 
-    def _versioned_url(self):
-        versioned_url = "%s?bokeh-protocol-version=1.0&bokeh-session-id=%s" % (self._url, self._session.id)
+    def _formatted_url(self):
+        formatted_url = "%s?bokeh-session-id=%s" % (self._url, self._session.id)
         if self._arguments is not None:
             for key, value in self._arguments.items():
-                versioned_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
-        return versioned_url
+                formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
+        return formatted_url
 
     @gen.coroutine
     def _connect_async(self):
-        versioned_url = self._versioned_url()
-        request = HTTPRequest(versioned_url)
+        formatted_url = self._formatted_url()
+        request = HTTPRequest(formatted_url)
         try:
             socket = yield websocket_connect(request)
             self._socket = WebSocketClientConnectionWrapper(socket)

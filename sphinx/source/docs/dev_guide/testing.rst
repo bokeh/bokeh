@@ -279,7 +279,7 @@ separate ``test:<GROUP>`` script for each of the following test groups:
 ``examples``
     This job executes a large portion of the Bokeh examples to ensure that
     they run without any Python or JavaScript errors. Additionally, the job
-    for ``PYTHON=2.7`` generates images for the examples and a report that
+    for ``PYTHON=3.7`` generates images for the examples and a report that
     compares the images to previous versions.
 
 ``integration``
@@ -290,7 +290,7 @@ separate ``test:<GROUP>`` script for each of the following test groups:
 
 ``unit``
     This job runs all the Python unit tests (i.e. ``py.test -m unit``). The
-    tests are run on different jobs for Python versions 2.7 and 3.5+.
+    tests are run on different jobs for Python versions 3.6+.
 
 ``docs``
     This job runs the documentation build. For more information about building

@@ -66,8 +66,6 @@ as well as the ``Theme`` class that can be used to create new Themes.
 .. autoclass:: Theme
 
 '''
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 

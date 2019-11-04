@@ -28,8 +28,7 @@ requirements:
     - pyyaml
     - ripgrep
     - setuptools
-    - six
-    - tornado >=4.3
+    - tornado >=5
     - yaml
 
   run:
@@ -38,10 +37,6 @@ requirements:
     {% for dep in data['install_requires'] %}
     - {{ dep.lower() }}
     {% endfor %}
-
-    # meta-package installs futures for 2.7 but not for 3.x
-    # needed in order to be able to build no-arch conda packages
-    - futures-compat
 
 test:
   requires:
@@ -63,12 +58,12 @@ test:
     - flaky
     - lxml
     - mock
+    - mypy
     - nbconvert >=5.4
     - networkx
     - nodejs >=8.8
     - numba
     - pandas
-    - pillow
     - psutil
     - pytest
     - pytest-cov >=1.8.1

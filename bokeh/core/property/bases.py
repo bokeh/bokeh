@@ -17,8 +17,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -31,7 +29,6 @@ from copy import copy
 import types
 
 # External imports
-from six import string_types
 import numpy as np
 
 # Bokeh imports
@@ -93,9 +90,12 @@ class Property(PropertyDescriptorFactory):
     # This class attribute is controlled by external helper API for validation
     _should_validate = True
 
-    def __init__(self, default=None, help=None, serialized=True, readonly=False):
+    def __init__(self, default=None, help=None, serialized=None, readonly=False):
         # This is how the descriptor is created in the class declaration.
-        self._serialized = False if readonly else serialized
+        if serialized is None:
+            self._serialized = False if readonly else True
+        else:
+            self._serialized = serialized
         self._readonly = readonly
         self._default = default
         self.__doc__ = help
@@ -340,7 +340,7 @@ class Property(PropertyDescriptorFactory):
                 assert isinstance(result, bool)
 
                 if not result:
-                    if isinstance(msg_or_fn, string_types):
+                    if isinstance(msg_or_fn, str):
                         raise ValueError(msg_or_fn)
                     else:
                         msg_or_fn(obj, name, value)
@@ -443,7 +443,7 @@ class PrimitiveProperty(Property):
     _underlying_type = None
 
     def validate(self, value, detail=True):
-        super(PrimitiveProperty, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or isinstance(value, self._underlying_type)):
             msg = "" if not detail else "expected a value of type %s, got %s of type %s" % (

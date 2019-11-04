@@ -24,8 +24,6 @@ figure below:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -35,12 +33,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import defaultdict
+from functools import wraps
 from json import loads
 import sys
 
 # External imports
 import jinja2
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import HoldPolicy
@@ -53,7 +51,6 @@ from ..themes import default as default_theme, built_in_themes
 from ..themes import Theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
-from ..util.future import wraps
 from ..util.version import __version__
 
 from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent
@@ -158,7 +155,7 @@ class Document(object):
 
     @template.setter
     def template(self, template):
-        if not isinstance(template, (jinja2.Template, string_types)):
+        if not isinstance(template, (jinja2.Template, str)):
             raise ValueError("document template must be Jinja2 template or a string")
         self._template = template
 
@@ -191,7 +188,7 @@ class Document(object):
         if self._theme is theme:
             return
 
-        if isinstance(theme, string_types):
+        if isinstance(theme, str):
             try:
                 self._theme = built_in_themes[theme]
             except KeyError:
@@ -983,7 +980,7 @@ class Document(object):
             return False
         if field not in selector:
             return False
-        return isinstance(selector[field], string_types)
+        return isinstance(selector[field], str)
 
     def _notify_change(self, model, attr, old, new, hint=None, setter=None, callback_invoker=None):
         ''' Called by Model when it changes

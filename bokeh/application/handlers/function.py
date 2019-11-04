@@ -32,8 +32,6 @@ For complete examples of this technique, see
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -103,7 +101,7 @@ class FunctionHandler(Handler):
                 modifications in-place.
 
         '''
-        super(FunctionHandler, self).__init__()
+        super().__init__()
 
         _check_callback(func, ('doc',))
 

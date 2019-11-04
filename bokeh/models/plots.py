@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -24,18 +22,16 @@ log = logging.getLogger(__name__)
 import warnings
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
-from ..core.property_mixins import LineProps, FillProps
+from ..core.property_mixins import ScalarLineProps, ScalarFillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
 from ..model import Model, collect_filtered_models
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 from .annotations import Legend, Title
@@ -438,7 +434,7 @@ class Plot(LayoutDOM):
     will be rotated.
     """)
 
-    outline_props = Include(LineProps, help="""
+    outline_props = Include(ScalarLineProps, help="""
     The %s for the plot border outline.
     """)
 
@@ -559,13 +555,13 @@ class Plot(LayoutDOM):
 
     """)
 
-    background_props = Include(FillProps, help="""
+    background_props = Include(ScalarFillProps, help="""
     The %s for the plot background style.
     """)
 
     background_fill_color = Override(default='#ffffff')
 
-    border_props = Include(FillProps, help="""
+    border_props = Include(ScalarFillProps, help="""
     The %s for the plot border style.
     """)
 
@@ -616,23 +612,6 @@ class Plot(LayoutDOM):
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
     """)
-
-
-    @property
-    def h_symmetry(self):
-        deprecated("h_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
-
-    @h_symmetry.setter
-    def h_symmetry(self, _):
-        deprecated("h_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
-
-    @property
-    def v_symmetry(self):
-        deprecated("v_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
-
-    @v_symmetry.setter
-    def v_symmetry(self, _):
-        deprecated("v_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
 
     lod_factor = Int(10, help="""
     Decimation factor to use when applying level-of-detail decimation.
@@ -765,7 +744,7 @@ class _legend_attr_splat(_list_attr_splat):
     def __setattr__(self, attr, value):
         if not len(self):
             warnings.warn(_LEGEND_EMPTY_WARNING % attr)
-        return super(_legend_attr_splat, self).__setattr__(attr, value)
+        return super().__setattr__(attr, value)
 
 def _select_helper(args, kwargs):
     """ Allow flexible selector syntax.
@@ -787,7 +766,7 @@ def _select_helper(args, kwargs):
         arg = args[0]
         if isinstance(arg, dict):
             selector = arg
-        elif isinstance(arg, string_types):
+        elif isinstance(arg, str):
             selector = dict(name=arg)
         elif isinstance(arg, type) and issubclass(arg, Model):
             selector = {"type": arg}

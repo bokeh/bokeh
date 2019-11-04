@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -21,11 +19,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from functools import wraps
 
 # External imports
 
 # Bokeh imports
-from ..util.future import wraps
 
 #-----------------------------------------------------------------------------
 # Globals and constants

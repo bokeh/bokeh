@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -67,7 +65,7 @@ class Auto(Enum):
 
     '''
     def __init__(self):
-        super(Auto, self).__init__("auto")
+        super().__init__("auto")
 
     def __str__(self):
         return self.__class__.__name__

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from bokeh.plotting import figure, save
 from bokeh.layouts import gridplot
 from bokeh.models import Range1d, LinearAxis

@@ -19,8 +19,6 @@ Attributes:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -34,7 +32,6 @@ import json
 from os.path import basename, join, relpath
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from . import __version__
@@ -161,7 +158,7 @@ class BaseResources(object):
         for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external = getattr(cls, resource_attr, None)
 
-            if isinstance(external, string_types):
+            if isinstance(external, str):
                 if external not in external_resources:
                     external_resources.append(external)
             elif isinstance(external, list):
@@ -229,7 +226,7 @@ class JSResources(BaseResources):
             be generated.
 
             ``root_url`` can also be the empty string, in which case relative URLs,
-            e.g., "static/css/bokeh.min.js", are generated.
+            e.g., "static/js/bokeh.min.js", are generated.
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 

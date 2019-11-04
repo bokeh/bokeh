@@ -1,4 +1,3 @@
-from __future__ import print_function
 import json
 
 from bokeh.embed import json_item

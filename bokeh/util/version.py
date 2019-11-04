@@ -27,8 +27,6 @@ Functions:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -54,13 +52,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def base_version():
+def base_version() -> str:
     return _base_version_helper(__version__)
 
-def _base_version_helper(version):
+def _base_version_helper(version: str) -> str:
     import re
     VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
-    return VERSION_PAT.search(version).group(1)
+    match = VERSION_PAT.search(version)
+    assert match is not None
+    return match.group(1)
 
 #-----------------------------------------------------------------------------
 # Dev API
