@@ -23,10 +23,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Tuple, Any
+from typing import Any, Tuple, TYPE_CHECKING
+from typing_extensions import Literal
 
 # External imports
 import numpy as np
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # Bokeh imports
 from .dependencies import import_required
@@ -41,11 +45,14 @@ __all__ = (
     'hexbin',
 )
 
+Orientation = Literal["pointytop", "flattop"]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> Tuple[Any, Any]:
+def axial_to_cartesian(q: np.array[float], r: np.array[float], size: float,
+        orientation: Orientation, aspect_scale: float = 1) -> Tuple[np.array[int], np.array[int]]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
@@ -71,8 +78,7 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
             to a side corner for "flattop" orientation.
 
         orientation (str) :
-            Whether the hex tile orientation should be "pointytop" or
-            "flattop".
+            Whether the hex tile orientation should be "pointytop" or "flattop".
 
         aspect_scale (float, optional) :
             Scale the hexagons in the "cross" dimension.
@@ -96,7 +102,8 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
 
     return (x, y)
 
-def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_scale: float = 1) -> Tuple[Any, Any]:
+def cartesian_to_axial(x: np.array[float], y: np.array[float], size: float,
+        orientation: Orientation, aspect_scale: float = 1) -> Tuple[np.array[int], np.array[int]]:
     ''' Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
 
@@ -119,8 +126,7 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
             to a side corner for "flattop" orientation.
 
         orientation (str) :
-            Whether the hex tile orientation should be "pointytop" or
-            "flattop".
+            Whether the hex tile orientation should be "pointytop" or "flattop".
 
         aspect_scale (float, optional) :
             Scale the hexagons in the "cross" dimension.
@@ -148,7 +154,8 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
 
     return _round_hex(q, r)
 
-def hexbin(x: Any, y: Any, size: float, orientation: str = "pointytop", aspect_scale: float = 1) -> Any:
+def hexbin(x: np.array[float], y: np.array[float], size: float,
+        orientation: Orientation = "pointytop", aspect_scale: float = 1) -> "pd.DataFrame":
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 
     For more sophisticated use cases, e.g. weighted binning or scaling
@@ -195,7 +202,7 @@ def hexbin(x: Any, y: Any, size: float, orientation: str = "pointytop", aspect_s
         Hex binning only functions on linear scales, i.e. not on log plots.
 
     '''
-    pd: Any = import_required('pandas','hexbin requires pandas to be installed')
+    pd: Any = import_required('pandas', 'hexbin requires pandas to be installed')
 
     q, r = cartesian_to_axial(x, y, size, orientation, aspect_scale=aspect_scale)
 
@@ -211,7 +218,7 @@ def hexbin(x: Any, y: Any, size: float, orientation: str = "pointytop", aspect_s
 # Private API
 #-----------------------------------------------------------------------------
 
-def _round_hex(q: Any, r: Any) -> Tuple[Any, Any]:
+def _round_hex(q: np.array[float], r: np.array[float]) -> Tuple[np.array[int], np.array[int]]:
     ''' Round floating point axial hex coordinates to integer *(q,r)*
     coordinates.
 
