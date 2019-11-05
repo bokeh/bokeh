@@ -182,7 +182,7 @@ to install all of BokehJS JavaScript dependencies:
 
 .. code-block:: sh
 
-    npm install --no-save
+    npm ci
 
 This command will install the necessary packages into the ``node_modules``
 subdirectory.
