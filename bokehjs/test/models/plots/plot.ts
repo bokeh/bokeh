@@ -118,18 +118,5 @@ describe("lib.models.plots.plot", () => {
         expect(view.is_paused).to.be.false
       })
     })
-
-    describe("PlotView.get_canvas_element()", () => {
-
-      it("should exist because get_canvas_element depends on it", () => {
-        const view = new_plot_view()
-        expect(view.canvas_view.ctx).to.exist
-      })
-
-      it("should exist to grab the canvas DOM element using canvas_view.ctx", () => {
-        const view = new_plot_view()
-        expect(view.canvas_view.get_canvas_element).to.exist
-      })
-    })
   })
 })

@@ -111,8 +111,7 @@ export class TileRendererView extends DataRendererView {
         },
       })
 
-      const overlays = this.plot_view.canvas_view.events_el
-      overlays.appendChild(this.attribution_el)
+      this.plot_view.canvas_view.add_event(this.attribution_el)
 
       this.attribution_el.innerHTML = attribution
       this.attribution_el.title = this.attribution_el.textContent!.replace(/\s*\n\s*/g, " ")

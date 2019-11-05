@@ -18,7 +18,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     if (this.model.render_mode == 'css') {
       this.el.classList.add(bk_annotation)
-      this.plot_view.canvas_overlays.appendChild(this.el)
+      this.plot_view.canvas_view.add_overlay(this.el)
     }
   }
 
