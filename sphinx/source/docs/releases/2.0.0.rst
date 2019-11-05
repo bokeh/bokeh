@@ -129,3 +129,11 @@ and no longer needed:
 
 * ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and ``escape``
   removed
+
+API Deprecations
+~~~~~~~~~~~~~~~~
+
+The following new deprecations are effective:
+
+* ``bokeh.layouts.WidgetBox`` is deprecated use ``bokeh.layouts.Column``
+  instead.
