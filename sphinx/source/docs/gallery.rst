@@ -3,6 +3,12 @@
 Gallery
 #######
 
+See the sections below for examples of using Bokeh in different ways.
+
+.. contents::
+    :local:
+    :depth: 1
+
 .. _gallery_server_examples:
 
 Server App Examples
