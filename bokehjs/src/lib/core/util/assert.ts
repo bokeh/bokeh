@@ -4,5 +4,9 @@ export function assert(condition: boolean | (() => boolean), message?: string): 
   if (condition === true || (condition !== false && condition()))
     return
 
-  throw new AssertionError(message || "Assertion failed")
+  throw new AssertionError(message ?? "Assertion failed")
+}
+
+export function unreachable(): never {
+  throw new Error("unreachable code")
 }
