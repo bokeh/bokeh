@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from math import sin, cos, atan2, sqrt, radians
 
 import numpy as np

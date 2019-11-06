@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
