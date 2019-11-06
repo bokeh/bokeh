@@ -569,8 +569,9 @@ export class Linker {
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
-      if (type == "js" && this.transpile) {
-        const {output, error} = transpile(source, ts.ScriptTarget.ES5)
+      if (type == "js") {
+        const {ES2017, ES5} = ts.ScriptTarget
+        const {output, error} = transpile(source, !this.transpile ? ES2017 : ES5)
         if (error)
           throw new Error(error)
         else
