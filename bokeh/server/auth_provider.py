@@ -36,7 +36,6 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-# TODO (bev) make this an ABC but wait until Bokeh 2 / drop Python 2.7
 class AuthProvider(object):
     ''' Abstract base class for implementing authorization hooks.
 
