@@ -1,6 +1,6 @@
 export class AssertionError extends Error {}
 
-export function assert(condition: boolean | (() => boolean), message?: string): void {
+export function assert(condition: boolean | (() => boolean), message?: string): asserts condition {
   if (condition === true || (condition !== false && condition()))
     return
 
