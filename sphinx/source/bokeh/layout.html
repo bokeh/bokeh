@@ -4,6 +4,14 @@
 {% include 'styles.html' %}
 {%- endblock %}
 
+{%- block htmltitle %}
+  {% if pagename == 'index'  %}
+  <title>{{ docstitle|e }}</title>
+  {% else %}
+  <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+  {% endif %}
+{%- endblock %}
+
 {%- block extrahead %}
 {% include 'meta.html' %}
 {% include 'fonts.html' %}

@@ -87,6 +87,12 @@ The ``ColumnDataSource.data`` property can only be set from plain Python dicts.
 Attempting to set from another CDS, i.e ``s1.data = s2.data``, will raise an
 error.
 
+Missing Renderers Warning
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``W-1000 (MISSING_RENDERERS)`` validation warning will no longer trigger
+for plots that have added annotations, even if no other glyphs are present.
+
 API Removals
 ~~~~~~~~~~~~
 

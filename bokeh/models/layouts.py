@@ -415,6 +415,8 @@ class Column(Box):
 class WidgetBox(Column):
     ''' Create a column of bokeh widgets with predefined styling.
 
+    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
+
     '''
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
