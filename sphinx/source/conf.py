@@ -2,6 +2,8 @@ from bokeh import __version__
 
 # -- General configuration -----------------------------------------------------
 
+project = 'Bokeh'
+
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.8'
 
@@ -105,6 +107,8 @@ rst_prolog = """
 
 html_theme = 'bokeh'
 html_theme_path = ['.']
+
+html_title = f"{project} {version} Documentation"
 
 html_context = {
     'VERSION': version,
