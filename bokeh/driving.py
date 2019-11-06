@@ -87,7 +87,7 @@ def bounce(sequence: Sequence[int]) -> Callable:
             return sequence[N-mod-1]
     return partial(force, sequence=_advance(f))
 
-def cosine(w: float, A: float =1, phi: float =0, offset: float =0) -> Callable:
+def cosine(w: float, A: float = 1, phi: float = 0, offset: float = 0) -> Callable:
     ''' Return a driver function that can advance a sequence of cosine values.
 
     .. code-block:: none
@@ -128,7 +128,7 @@ def force(f: Callable, sequence: Generator) -> Callable[[], None]:
         f(next(sequence))
     return wrapper
 
-def linear(m: float =1, b: float =0) -> Callable:
+def linear(m: float = 1, b: float = 0) -> Callable:
     ''' Return a driver function that can advance a sequence of linear values.
 
     .. code-block:: none
@@ -162,7 +162,7 @@ def repeat(sequence: Sequence[int]) -> Callable:
         return sequence[i%N]
     return partial(force, sequence=_advance(f))
 
-def sine(w: float, A: float =1, phi: float =0, offset: float =0) -> Callable:
+def sine(w: float, A: float = 1, phi: float = 0, offset: float = 0) -> Callable:
     ''' Return a driver function that can advance a sequence of sine values.
 
     .. code-block:: none
