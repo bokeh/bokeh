@@ -54,17 +54,17 @@ export class Receiver {
     this._check_complete()
   }
 
-  _assume_text(fragment: Fragment): void {
+  private _assume_text(fragment: Fragment): asserts fragment is string {
     if (fragment instanceof ArrayBuffer)
       throw new Error("Expected text fragment but received binary fragment")
   }
 
-  _assume_binary(fragment: Fragment): void {
+  private _assume_binary(fragment: Fragment): asserts fragment is ArrayBuffer {
     if (!(fragment instanceof ArrayBuffer))
       throw new Error("Expected binary fragment but received text fragment")
   }
 
-  _check_complete(): void {
+  private _check_complete(): void {
     if (this._partial!.complete()) {
       this.message = this._partial
       this._current_consumer = this._HEADER

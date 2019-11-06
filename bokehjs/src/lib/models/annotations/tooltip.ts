@@ -102,8 +102,6 @@ export class TooltipView extends AnnotationView {
         top = sy - this.el.offsetHeight - arrow_size
         left = Math.round(sx - this.el.offsetWidth/2)
         break
-      default:
-        throw new Error("unreachable code")
     }
 
     if (this.model.show_arrow)

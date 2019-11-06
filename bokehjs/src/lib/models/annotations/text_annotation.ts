@@ -6,6 +6,7 @@ import * as p from "core/properties"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {bk_annotation} from "styles/annotations"
+import {unreachable} from "core/util/assert"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
@@ -47,7 +48,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       case 'center': x_offset = -width / 2; break
       case 'right':  x_offset = -width;     break
       default:
-        throw new Error("unreachable code")
+        unreachable()
     }
 
     // guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
@@ -60,7 +61,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       case 'hanging':     y_offset = -0.17 * height; break
       case 'ideographic': y_offset = -0.83 * height; break
       default:
-        throw new Error("unreachable code")
+        unreachable()
     }
 
     return [x_offset, y_offset, width, height]

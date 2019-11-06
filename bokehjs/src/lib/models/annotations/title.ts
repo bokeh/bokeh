@@ -29,14 +29,12 @@ export class TitleView extends TextAnnotationView {
           case 'top':    sy = panel._top.value     + vmargin; break
           case 'middle': sy = panel._vcenter.value;           break
           case 'bottom': sy = panel._bottom.value  - vmargin; break
-          default: throw new Error("unreachable code")
         }
 
         switch (this.model.align) {
           case 'left':   sx = panel._left.value    + hmargin; break
           case 'center': sx = panel._hcenter.value;           break
           case 'right':  sx = panel._right.value   - hmargin; break
-          default: throw new Error("unreachable code")
         }
         break
       }
@@ -45,14 +43,12 @@ export class TitleView extends TextAnnotationView {
           case 'top':    sx = panel._left.value    - vmargin; break
           case 'middle': sx = panel._hcenter.value;           break
           case 'bottom': sx = panel._right.value   + vmargin; break
-          default: throw new Error("unreachable code")
         }
 
         switch (this.model.align) {
           case 'left':   sy = panel._bottom.value  - hmargin; break
           case 'center': sy = panel._vcenter.value;           break
           case 'right':  sy = panel._top.value     + hmargin; break
-          default: throw new Error("unreachable code")
         }
         break
       }
@@ -61,18 +57,15 @@ export class TitleView extends TextAnnotationView {
           case 'top':    sx = panel._right.value   - vmargin; break
           case 'middle': sx = panel._hcenter.value;           break
           case 'bottom': sx = panel._left.value    + vmargin; break
-          default: throw new Error("unreachable code")
         }
 
         switch (this.model.align) {
           case 'left':   sy = panel._top.value     + hmargin; break
           case 'center': sy = panel._vcenter.value;           break
           case 'right':  sy = panel._bottom.value  - hmargin; break
-          default: throw new Error("unreachable code")
         }
         break
       }
-      default: throw new Error("unreachable code")
     }
 
     return [sx, sy]
