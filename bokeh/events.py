@@ -106,34 +106,26 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_CONCRETE_EVENT_CLASSES = dict()
-
-class _MetaEvent(type):
-    ''' Metaclass used to keep track of all classes subclassed from Event.
-
-    All Concrete Event classes (i.e. not "abstract" event base classes with
-    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
-    is used to decode event instances from JSON.
-
-    '''
-    def __new__(cls, clsname, bases, attrs):
-        newclass = super().__new__(cls, clsname, bases, attrs)
-        if newclass.event_name is not None:
-            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
-        return newclass
+_CONCRETE_EVENT_CLASSES = {}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Event(object, metaclass=_MetaEvent):
+class Event(object):
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.
 
     '''
-    _event_classes = []
-    event_name = None
+    event_name: str
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        if hasattr(cls, "event_name"):
+            _CONCRETE_EVENT_CLASSES[cls.event_name] = cls
 
     def __init__(self, model):
         ''' Create a new base event.
@@ -213,13 +205,11 @@ class PlotEvent(Event):
     ''' The base class for all events applicable to Plot models.
 
     '''
-
     def __init__(self, model):
         from .models import Plot
         if model is not None and not isinstance(model, Plot):
-            msg ='{clsname} event only applies to Plot models'
-            raise ValueError(msg.format(clsname=self.__class__.__name__))
-        super().__init__(model=model)
+            raise ValueError(f"{self.__class__.__name__} event only applies to Plot models")
+        super().__init__(model)
 
 class LODStart(PlotEvent):
     ''' Announce the start of "interactive level-of-detail" mode on a plot.
@@ -285,8 +275,6 @@ class PointEvent(PlotEvent):
     the HTML canvas.
 
     '''
-    event_name = None
-
     def __init__(self, model, sx=None, sy=None, x=None, y=None):
         self.sx = sx
         self.sy = sy
