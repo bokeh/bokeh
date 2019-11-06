@@ -128,7 +128,7 @@ def force(f: Callable, sequence: Generator) -> Callable[[], None]:
         f(next(sequence))
     return wrapper
 
-def linear(m:float =1, b:float =0) -> Callable:
+def linear(m: float =1, b: float =0) -> Callable:
     ''' Return a driver function that can advance a sequence of linear values.
 
     .. code-block:: none
@@ -140,7 +140,7 @@ def linear(m:float =1, b:float =0) -> Callable:
         x (float) : an offset for the linear driver
 
     '''
-    def f(i:float) -> float:
+    def f(i: float) -> float:
         return m * i + b
     return partial(force, sequence=_advance(f))
 
