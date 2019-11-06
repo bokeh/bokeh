@@ -86,7 +86,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from os import getenv
 from os.path import basename, dirname, join
-import re
 from uuid import uuid4
 
 # External imports
@@ -221,9 +220,6 @@ def setup(app):
 #-----------------------------------------------------------------------------
 
 def _process_script(source, filename, env, js_name, use_relative_paths=False):
-    # This is lame, but seems to be required for python 2
-    source = CODING.sub("", source)
-
     # Explicitly make sure old extensions are not included until a better
     # automatic mechanism is available
     Model._clear_extensions()
@@ -259,4 +255,3 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)

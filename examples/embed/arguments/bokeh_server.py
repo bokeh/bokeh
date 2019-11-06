@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 '''This example demonstrates embedding an autoloaded Bokeh server
 into a simple Flask application, and passing arguments to Bokeh.

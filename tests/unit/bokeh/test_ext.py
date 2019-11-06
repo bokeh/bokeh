@@ -67,13 +67,11 @@ def test_ext_commands(tmpdir):
 # Private API
 #-----------------------------------------------------------------------------
 
-# TODO: restore when support for Python 2.x is removed
-#def _entries(path):
-#    return sorted(os.scandir(path), key=lambda entry: entry.name)
+def _entries(path):
+    return sorted(os.scandir(path), key=lambda entry: entry.name)
 
 def _names(path):
-    #return [ entry.name for entry in _entries(path) ]
-    return sorted(os.listdir(path))
+    return [ entry.name for entry in _entries(path) ]
 
 #-----------------------------------------------------------------------------
 # Code

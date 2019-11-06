@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from bokeh import __version__
 
 # -- General configuration -----------------------------------------------------
