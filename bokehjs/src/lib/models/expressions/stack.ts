@@ -27,7 +27,7 @@ export class Stack extends Expression {
   }
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
-    const n = source.get_length() || 0 // TODO: use ?? in TS 3.7
+    const n = source.get_length() ?? 0
     const result = new Float64Array(n)
     for (const f of this.fields) {
       const column = source.data[f]
