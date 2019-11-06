@@ -33,6 +33,8 @@ __all__ = (
     'warn',
 )
 
+Version = Tuple[int, int, int]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -41,26 +43,27 @@ def warn(message: str, stacklevel: int = 2) -> None:
     warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)
 
 @overload
-def deprecated(since_or_msg: Tuple[int, int, int], old: str, new: str, extra: str) -> None:
+def deprecated(since_or_msg: Version, old: str, new: str, extra: str) -> None:
     ...
 
 @overload
 def deprecated(since_or_msg: str) -> None:
     ...
 
-def deprecated(since_or_msg: Union[Tuple[int, int, int], str], old: Optional[str] = None , new: Optional[str] = None, extra: Optional[str] = None) -> None:
+def deprecated(since_or_msg: Union[Version, str],
+        old: Optional[str] = None, new: Optional[str] = None, extra: Optional[str] = None) -> None:
     """ Issue a nicely formatted deprecation warning. """
 
     if isinstance(since_or_msg, tuple):
         if old is None or new is None:
             raise ValueError("deprecated entity and a replacement are required")
 
-        if len(since_or_msg) != 3 or not all(isinstance(x, int) and x >=0 for x in since_or_msg):
-            raise ValueError("invalid version tuple: %r" % (since_or_msg,))
+        if len(since_or_msg) != 3 or not all(isinstance(x, int) and x >= 0 for x in since_or_msg):
+            raise ValueError(f"invalid version tuple: {since_or_msg!r}")
 
-        since = "%d.%d.%d" % since_or_msg
-        message = "%(old)s was deprecated in Bokeh %(since)s and will be removed, use %(new)s instead."
-        message = message % dict(old=old, since=since, new=new)
+        major, minor, patch = since_or_msg
+        since = f"{major}.{minor}.{patch}"
+        message = f"{old} was deprecated in Bokeh {since} and will be removed, use {new} instead."
         if extra is not None:
             message += " " + extra.strip()
     elif isinstance(since_or_msg, str):

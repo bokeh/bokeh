@@ -196,7 +196,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
-    dict_type = dict # type: Type[Dict[Any, Any]]
+    dict_type: Type[Dict[Any, Any]] = dict
     if isinstance(models, dict):
         model_keys = models.keys()
         dict_type = models.__class__
@@ -224,8 +224,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
         results = render_item.roots
 
     # 3) convert back to the input shape
-
-    result = ... # type: Any
+    result: Any
     if was_single_object:
         result = results[0]
     elif model_keys is not None:
@@ -287,7 +286,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
 
     '''
 
-    models_seq = [] # type: Sequence[Model]
+    models_seq: Sequence[Model] = []
     if isinstance(models, Model):
         models_seq = [models]
     elif isinstance(models, Document):
