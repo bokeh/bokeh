@@ -10,7 +10,7 @@ def _proto(obj, defaults=False):
     return json.dumps(obj.to_json(defaults), sort_keys=True, indent=None)
 
 data = {}
-for name, m in sorted(Model.__class__.model_class_reverse_map.items()):
+for name, m in sorted(Model.model_class_reverse_map.items()):
     item = {
         'name'  : name,
         'bases' : [base.__module__ + '.' + base.__name__ for base in m.__bases__],

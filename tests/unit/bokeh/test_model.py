@@ -131,7 +131,7 @@ from bokeh.models import * # NOQA
 from bokeh.plotting import * # NOQA
 def test_all_builtin_models_default_constructible():
     bad = []
-    for name, cls in Model.__class__.model_class_reverse_map.items():
+    for name, cls in Model.model_class_reverse_map.items():
         try:
             cls()
         except:
