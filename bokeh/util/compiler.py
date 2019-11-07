@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -32,7 +30,6 @@ import sys
 
 # External imports
 import hashlib
-import six
 
 # Bokeh imports
 from ..model import Model
@@ -48,7 +45,6 @@ __all__ = (
     'bundle_all_models',
     'bundle_models',
     'calc_cache_key',
-    'CoffeeScript',
     'CompilationError',
     'CustomModel',
     'FromFile',
@@ -80,7 +76,7 @@ class CompilationError(RuntimeError):
 
     '''
     def __init__(self, error):
-        super(CompilationError, self).__init__()
+        super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
             self.column = error.get("column")
@@ -103,10 +99,6 @@ def npmjs_version():
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
-    if lang == "coffeescript":
-        from bokeh.util.deprecation import deprecated
-        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use JavaScript or TypeScript directly instead.")
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
     lines = output.split("\n")
@@ -142,36 +134,6 @@ class Inline(Implementation):
     def __init__(self, code, file=None):
         self.code = code
         self.file = file
-
-class CoffeeScript(Inline):
-    ''' An implementation for a Bokeh custom model in CoffeeScript.
-
-    Example:
-
-        .. code-block:: python
-
-            class MyExt(Model):
-                __implementation__ = CoffeeScript(""" <CoffeeScript code> """)
-
-    Note that ``CoffeeScript`` is the default implementation language for
-    custom model implementations. The following is equivalent to example above:
-
-    .. code-block:: python
-
-        class MyExt(Model):
-            __implementation__ == """ <some coffeescript code> """
-
-    '''
-
-    def __init__(self, *args, **kw):
-        from bokeh.util.deprecation import deprecated
-        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use JavaScript or TypeScript directly instead.")
-        super(CoffeeScript, self).__init__(*args, **kw)
-
-    @property
-    def lang(self):
-        return "coffeescript"
 
 class TypeScript(Inline):
     ''' An implementation for a Bokeh custom model in TypeScript
@@ -226,8 +188,6 @@ class FromFile(Implementation):
 
     @property
     def lang(self):
-        if self.file.endswith(".coffee"):
-            return "coffeescript"
         if self.file.endswith(".ts"):
             return "typescript"
         if self.file.endswith(".js"):
@@ -236,7 +196,7 @@ class FromFile(Implementation):
             return "less"
 
 #: recognized extensions that can be compiled
-exts = (".coffee", ".ts", ".js", ".css", ".less")
+exts = (".ts", ".js", ".css", ".less")
 
 class CustomModel(object):
     ''' Represent a custom (user-defined) Bokeh model.
@@ -278,11 +238,11 @@ class CustomModel(object):
     def implementation(self):
         impl = self.cls.__implementation__
 
-        if isinstance(impl, six.string_types):
+        if isinstance(impl, str):
             if "\n" not in impl and impl.endswith(exts):
                 impl = FromFile(impl if isabs(impl) else join(self.path, impl))
             else:
-                impl = CoffeeScript(impl)
+                impl = TypeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
             file = "%s%s.ts" % (self.file + ":" if self.file else "", self.name)

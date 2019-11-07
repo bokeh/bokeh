@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -56,6 +54,7 @@ __all__ = (
     'NumberEditor',
     'NumberFormatter',
     'PercentEditor',
+    'ScientificFormatter',
     'SelectEditor',
     'StringEditor',
     'StringFormatter',
@@ -111,6 +110,24 @@ class StringFormatter(CellFormatter):
     text_color = Color(help="""
     An optional text color. See :class:`bokeh.core.properties.Color` for
     details.
+    """)
+
+class ScientificFormatter(StringFormatter):
+    ''' Display numeric values from continuous ranges as "basic numbers",
+    using scientific notation when appropriate by default.
+    '''
+    precision = Int(10, help="""
+    How many digits of precision to display.
+    """)
+
+    power_limit_high = Int(5, help="""
+    Limit the use of scientific notation to when::
+        log(x) >= power_limit_high
+    """)
+
+    power_limit_low = Int(-3, help="""
+    Limit the use of scientific notation to when::
+        log(x) <= power_limit_low
     """)
 
 class NumberFormatter(StringFormatter):
@@ -589,7 +606,7 @@ class TableWidget(Widget):
     """)
 
     def __init__(self, **kw):
-        super(TableWidget, self).__init__(**kw)
+        super().__init__(**kw)
         if "view" not in kw:
             self.view = CDSView(source=self.source)
 

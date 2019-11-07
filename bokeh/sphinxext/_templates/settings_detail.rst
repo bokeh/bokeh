@@ -1,13 +1,13 @@
 {% for setting in settings %}
 
-.. data:: {{ setting['name'] }}
-    :annotation:
+``{{ setting['name'] }}``
+{{ "''''" +  "'" * setting['name']|length }}
 
-    * **Type**: {{ setting['type'] }}
-    * **Env var**: ``{{ setting['env_var'] }}``
-    * **Default**: {{ setting['default'] }}
-    * **Dev Default**: {{ setting['dev_default'] }}
+:**Type**: {{ setting['type'] }}
+:**Env var**: ``{{ setting['env_var'] }}``
+:**Default**: {{ setting['default'] }}
+:**Dev Default**: {{ setting['dev_default'] }}
 
-    {{ setting['help']|indent(4) }}
+{{ setting['help'] }}
 
 {% endfor %}

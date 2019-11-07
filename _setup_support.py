@@ -1,8 +1,6 @@
 '''
 
 '''
-from __future__ import print_function
-
 import shutil
 from glob import glob
 from os.path import dirname, exists, join, realpath, relpath
@@ -28,10 +26,6 @@ except ImportError:
     def green(text) :  return text
     def yellow(text) : return text
 
-# some functions prompt for user input, handle input vs raw_input (py2 vs py3)
-if sys.version_info[0] < 3:
-    input = raw_input # NOQA
-
 # -----------------------------------------------------------------------------
 # Module global variables
 # -----------------------------------------------------------------------------
@@ -39,7 +33,6 @@ if sys.version_info[0] < 3:
 ROOT = dirname(realpath(__file__))
 BOKEHJSROOT = join(ROOT, 'bokehjs')
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
-CSS = join(BOKEHJSBUILD, 'css')
 JS = join(BOKEHJSBUILD, 'js')
 SERVER = join(ROOT, 'bokeh/server')
 TSLIB = join(BOKEHJSROOT , 'node_modules/typescript/lib')
@@ -263,8 +256,7 @@ def jsbuild_prompt():
 # -----------------------------------------------------------------------------
 
 def build_js():
-    ''' Build BokehJS files (CSS, JS, etc) under the ``bokehjs`` source
-    subdirectory.
+    ''' Build BokehJS files under the ``bokehjs`` source subdirectory.
 
     Also prints a table of statistics about the generated assets (file sizes,
     etc.) or any error messages if the build fails.
@@ -340,14 +332,11 @@ def install_js():
 
     '''
     target_jsdir = join(SERVER, 'static', 'js')
-    target_cssdir = join(SERVER, 'static', 'css')
     target_tslibdir = join(SERVER, 'static', 'lib')
 
     STATIC_ASSETS = [
         join(JS,  'bokeh.js'),
         join(JS,  'bokeh.min.js'),
-        join(CSS, 'bokeh.css'),
-        join(CSS, 'bokeh.min.css'),
     ]
     if not all(exists(a) for a in STATIC_ASSETS):
         print(BOKEHJS_INSTALL_FAIL)
@@ -356,10 +345,6 @@ def install_js():
     if exists(target_jsdir):
         shutil.rmtree(target_jsdir)
     shutil.copytree(JS, target_jsdir)
-
-    if exists(target_cssdir):
-        shutil.rmtree(target_cssdir)
-    shutil.copytree(CSS, target_cssdir)
 
     if exists(target_tslibdir):
         shutil.rmtree(target_tslibdir)
@@ -421,7 +406,7 @@ ERROR: subprocess.Popen(%r) failed to execute:
 
     %s
 
-Have you run `npm install --no-save` from the bokehjs subdirectory?
+Have you run `npm ci` from the bokehjs subdirectory?
 For more information, see the Dev Guide:
 
     https://docs.bokeh.org/en/latest/docs/dev_guide.html

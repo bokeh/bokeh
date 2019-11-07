@@ -242,32 +242,48 @@ export class LayoutItem extends Layoutable {
     if (viewport.width == Infinity) {
       width = this.sizing.width != null ? this.sizing.width : 0
     } else {
-      if (width_policy == "fixed")
-        width = this.sizing.width != null ? this.sizing.width : 0
-      else if (width_policy == "min")
-        width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : 0
-      else if (width_policy == "fit")
-        width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : viewport.width
-      else if (width_policy == "max")
-        width = this.sizing.width != null ? max(viewport.width, this.sizing.width) : viewport.width
-      else
-        throw new Error("unrechable")
+      switch (width_policy) {
+        case "fixed": {
+          width = this.sizing.width != null ? this.sizing.width : 0
+          break
+        }
+        case "min": {
+          width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : 0
+          break
+        }
+        case "fit": {
+          width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : viewport.width
+          break
+        }
+        case "max": {
+          width = this.sizing.width != null ? max(viewport.width, this.sizing.width) : viewport.width
+          break
+        }
+      }
     }
 
     let height: number
     if (viewport.height == Infinity) {
       height = this.sizing.height != null ? this.sizing.height : 0
     } else {
-      if (height_policy == "fixed")
-        height = this.sizing.height != null ? this.sizing.height : 0
-      else if (height_policy == "min")
-        height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : 0
-      else if (height_policy == "fit")
-        height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : viewport.height
-      else if (height_policy == "max")
-        height = this.sizing.height != null ? max(viewport.height, this.sizing.height) : viewport.height
-      else
-        throw new Error("unrechable")
+      switch (height_policy) {
+        case "fixed": {
+          height = this.sizing.height != null ? this.sizing.height : 0
+          break
+        }
+        case "min": {
+          height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : 0
+          break
+        }
+        case "fit": {
+          height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : viewport.height
+          break
+        }
+        case "max": {
+          height = this.sizing.height != null ? max(viewport.height, this.sizing.height) : viewport.height
+          break
+        }
+      }
     }
 
     return {width, height}
@@ -306,8 +322,6 @@ export abstract class ContentLayoutable extends Layoutable {
           return bounds.width
         case "max":
           return Math.max(content_size.width, bounds.width)
-        default:
-          throw new Error("unexpected")
       }
     })()
 
@@ -321,8 +335,6 @@ export abstract class ContentLayoutable extends Layoutable {
           return bounds.height
         case "max":
           return Math.max(content_size.height, bounds.height)
-        default:
-          throw new Error("unexpected")
       }
     })()
 

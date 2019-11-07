@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from datetime import date
 
 from bokeh.plotting import save
@@ -20,7 +18,7 @@ from bokeh.models.widgets import (
 
 menu = [("Item 1", "1"), ("Item 2", "2"), ("Item 3", "3")]
 
-layout = column([
+layout = column(
     Button(label="Default Button 1", button_type="default"),
     Button(label="Primary Button 2", button_type="primary"),
     Button(label="Success Button 3", button_type="success"),
@@ -52,7 +50,7 @@ layout = column([
     DatePicker(value=date(2018, 9, 1)),
     DatePicker(value=date(2018, 9, 2)),
     DatePicker(value=date(2018, 9, 3)),
-])
+)
 
     #Slider(value=10, start=0, end=100, step=0.5),
     #RangeSlider(value=[20, 30], start=0, end=100, step=0.5),

@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -170,11 +168,6 @@ def bundle_for_objs_and_resources(objs, resources):
 
     if css_resources:
         css_resources = deepcopy(css_resources)
-        if not use_widgets and "bokeh-widgets" in css_resources.css_components:
-            css_resources.css_components.remove("bokeh-widgets")
-        if not use_tables and "bokeh-tables" in css_resources.css_components:
-            css_resources.css_components.remove("bokeh-tables")
-
         css_files.extend(css_resources.css_files)
         css_raw.extend(css_resources.css_raw)
 
@@ -190,6 +183,26 @@ def bundle_for_objs_and_resources(objs, resources):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _query_extensions(objs, query):
+    names = set()
+
+    for obj in _all_objs(objs):
+        if hasattr(obj, "__implementation__"):
+            continue
+        name = obj.__view_module__.split(".")[0]
+        if name == "bokeh":
+            continue
+        if name in names:
+            continue
+        names.add(name)
+
+        for model in Model.model_class_reverse_map.values():
+            if model.__module__.startswith(name):
+                if query(model):
+                    return True
+
+    return False
 
 def _bundle_extensions(objs, resources):
     names = set()
@@ -271,7 +284,7 @@ def _use_tables(objs):
 
     '''
     from ..models.widgets import TableWidget
-    return _any(objs, lambda obj: isinstance(obj, TableWidget))
+    return _any(objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(objs)
 
 def _use_widgets(objs):
     ''' Whether a collection of Bokeh objects contains a any Widget
@@ -284,7 +297,15 @@ def _use_widgets(objs):
 
     '''
     from ..models.widgets import Widget
-    return _any(objs, lambda obj: isinstance(obj, Widget))
+    return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
+
+def _ext_use_tables(objs):
+    from ..models.widgets import TableWidget
+    return _query_extensions(objs, lambda cls: issubclass(cls, TableWidget))
+
+def _ext_use_widgets(objs):
+    from ..models.widgets import Widget
+    return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 
 #-----------------------------------------------------------------------------
 # Code

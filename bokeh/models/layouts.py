@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -34,6 +32,7 @@ from ..core.validation.warnings import (BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT,
     FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY)
 from ..core.validation.errors import MIN_PREFERRED_MAX_WIDTH, MIN_PREFERRED_MAX_HEIGHT
 from ..model import Model
+from ..util.deprecation import deprecated
 from .callbacks import Callback
 
 #-----------------------------------------------------------------------------
@@ -352,7 +351,7 @@ class Box(LayoutDOM):
         elif len(args) > 0:
             kwargs["children"] = list(args)
 
-        super(Box, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
@@ -412,10 +411,16 @@ class Column(Box):
 
     """)
 
+# TODO (bev) deprecation: 3.0
 class WidgetBox(Column):
     ''' Create a column of bokeh widgets with predefined styling.
 
+    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
+
     '''
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'Column' instead")
 
 class Panel(Model):
     ''' A single-widget container with title bar and controls.

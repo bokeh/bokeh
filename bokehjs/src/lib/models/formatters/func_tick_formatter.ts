@@ -9,7 +9,6 @@ export namespace FuncTickFormatter {
   export type Props = TickFormatter.Props & {
     args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
-    use_strict: p.Property<boolean>
   }
 }
 
@@ -26,7 +25,6 @@ export class FuncTickFormatter extends TickFormatter {
     this.define<FuncTickFormatter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
-      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -39,7 +37,7 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   /*protected*/ _make_func(): Function {
-    const code = this.use_strict ? use_strict(this.code) : this.code
+    const code = use_strict(this.code)
     return new Function("tick", "index", "ticks", ...this.names, "require", "exports", code)
   }
 

@@ -1,7 +1,7 @@
 .. _userguide_embed:
 
-Embedding Plots and Apps
-========================
+Embedding Bokeh Content
+=======================
 
 Bokeh provides a variety of ways to embed plots and data into HTML documents.
 First, a reminder of the distinction between standalone documents and apps:

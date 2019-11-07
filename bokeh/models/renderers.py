@@ -11,8 +11,6 @@ types that Bokeh supports.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from difflib import get_close_matches
 import logging
 log = logging.getLogger(__name__)
@@ -151,7 +149,7 @@ class GlyphRenderer(DataRenderer):
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
     def __init__(self, **kw):
-        super(GlyphRenderer, self).__init__(**kw)
+        super().__init__(**kw)
         if "view" not in kw:
             self.view = CDSView(source=self.data_source)
 

@@ -1,7 +1,7 @@
 .. _userguide_webgl:
 
-Speeding up with WebGL
-======================
+Accelerating with WebGL
+=======================
 
 When visualizing large datasets with Bokeh, the interaction can become
 rather slow. To counter this, one can enable WebGL, which allows

@@ -79,8 +79,6 @@ that can be used to attach Bokeh properties to Bokeh models.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -93,10 +91,9 @@ log = logging.getLogger(__name__)
 from copy import copy
 
 # External imports
-from six import string_types
 
 # Bokeh imports
-from .wrappers import PropertyValueContainer
+from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -449,7 +446,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             property (Property) : A basic property to create a descriptor for
 
         '''
-        super(BasicPropertyDescriptor, self).__init__(name)
+        super().__init__(name)
         self.property = property
         self.__doc__ = self.property.__doc__
 
@@ -613,7 +610,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         '''
-        return super(BasicPropertyDescriptor, self).set_from_json(obj,
+        return super().set_from_json(obj,
                                                         self.property.from_json(json, models),
                                                         models, setter)
 
@@ -915,6 +912,14 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             obj.trigger(self.name, old, value, hint, setter)
 
 
+_CDS_SET_FROM_CDS_ERROR = """
+ColumnDataSource.data properties may only be set from plain Python dicts,
+not other ColumnDataSource.data values.
+
+If you need to copy set from one CDS to another, make a shallow copy by
+calling dict: s1.data = dict(s2.data)
+"""
+
 class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
     ''' A ``PropertyDescriptor`` specialized to handling ``ColumnData`` properties.
 
@@ -962,6 +967,9 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
 
         if self.property._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
+
+        if isinstance(value, PropertyValueColumnData):
+            raise ValueError(_CDS_SET_FROM_CDS_ERROR)
 
         from ...document.events import ColumnDataChangedEvent
 
@@ -1021,11 +1029,11 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
                     if 'value' in json:
                         json = json['value']
                 except ValueError:
-                    if isinstance(old, string_types) and 'field' in json:
+                    if isinstance(old, str) and 'field' in json:
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
-        super(DataSpecPropertyDescriptor, self).set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models, setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
     ''' A ``PropertyDecscriptor`` for Bokeh |UnitsSpec| properties that contribute
@@ -1047,7 +1055,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
                 An associated property to hold units information
 
         '''
-        super(UnitsSpecPropertyDescriptor, self).__init__(name, property)
+        super().__init__(name, property)
         self.units_prop = units_property
 
     def __set__(self, obj, value, setter=None):
@@ -1086,7 +1094,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         '''
         value = self._extract_units(obj, value)
-        super(UnitsSpecPropertyDescriptor, self).__set__(obj, value, setter)
+        super().__set__(obj, value, setter)
 
     def set_from_json(self, obj, json, models=None, setter=None):
         ''' Sets the value of this property from a JSON value.
@@ -1123,7 +1131,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         '''
         json = self._extract_units(obj, json)
-        super(UnitsSpecPropertyDescriptor, self).set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models, setter)
 
     def _extract_units(self, obj, value):
         ''' Internal helper for dealing with units associated units properties

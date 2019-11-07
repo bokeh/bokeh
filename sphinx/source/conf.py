@@ -1,15 +1,22 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from bokeh import __version__
+from bokeh.settings import settings
 
-# -- General configuration -----------------------------------------------------
+# -- Project configuration -----------------------------------------------------
 
-# If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.8'
+author = "Bokeh Contributors"
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+copyright = f"©2019 {author}."
+
+project = 'Bokeh'
+
+version = settings.docs_version() or __version__
+
+# -- Sphinx configuration -----------------------------------------------------
+
+add_module_names = False
+
+exclude_patterns = ['docs/releases/*']
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
@@ -37,60 +44,9 @@ extensions = [
     'bokeh.sphinxext.theme',
 ]
 
-napoleon_include_init_with_doc = True
+needs_sphinx = '1.8'
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
-
-# The suffix of source filenames.
-source_suffix = '.rst'
-
-# The master toctree document.
-master_doc = 'index'
-
-# General information about the project.
-project = 'Bokeh'
-
-# The short X.Y version.
-version = __version__
-
-# The full version, including alpha/beta/rc tags.
-release = __version__
-
-# Check for version override (e.g. when re-deploying a previously released
-# docs, or when pushing test docs that do not have a corresponding BokehJS
-# available on CDN)
-from bokeh.settings import settings
-if settings.docs_version():
-    version = release = settings.docs_version()
-
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-#
-# NOTE: in these docs all .py script are assumed to be bokeh plot scripts!
-# with bokeh_plot_pyfile_include_dirs set desired folder to look for .py files
-bokeh_plot_pyfile_include_dirs = ['docs']
-
-# Whether to allow builds to succeed if a Google API key is not defined and plots
-# containing "GOOGLE_API_KEY" are processed
-bokeh_missing_google_api_key_ok = False
-
-# If true, the current module name will be prepended to all description
-# unit titles (such as .. function::).
-add_module_names = False
-
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
-
-# Sort members by type
-autodoc_member_order = 'groupwise'
-
-# patterns to exclude
-exclude_patterns = ['docs/releases/*']
-
-# This would more properly be done with rst_epilog but something about
-# the combination of this with the bokeh-gallery directive breaks the build
-rst_prolog = """
+rst_epilog = """
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
 .. |Document|           replace:: :py:class:`~bokeh.document.Document`
@@ -104,20 +60,35 @@ rst_prolog = """
 .. |value|              replace:: :py:func:`~bokeh.core.properties.value`
 """
 
-# -- Options for HTML output ---------------------------------------------------
+# -- Extensions configuration --------------------------------------------------
 
-html_theme = 'bokeh'
-html_theme_path = ['.']
+autodoc_member_order = 'groupwise'
 
-html_context = {
-    'VERSION': version,
-    'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
-    'DESCRIPTION': 'Bokeh visualization library, documentation site.',
-    'AUTHOR': 'Bokeh contributors',
-}
+bokeh_missing_google_api_key_ok = False
+
+bokeh_plot_pyfile_include_dirs = ['docs']
 
 intersphinx_mapping = {
     'python' : ('https://docs.python.org/3/', None),
     'pandas' : ('http://pandas.pydata.org/pandas-docs/stable/', None),
     'numpy'  : ('https://docs.scipy.org/doc/numpy/', None)
 }
+
+napoleon_include_init_with_doc = True
+
+pygments_style = 'sphinx'
+
+# -- Options for HTML output ---------------------------------------------------
+
+html_context = {
+    'AUTHOR': author,
+    'DESCRIPTION': 'Bokeh visualization library, documentation site.',
+    'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
+    'VERSION': version,
+}
+
+html_theme = 'bokeh'
+
+html_theme_path = ['.']
+
+html_title = f"{project} {version} Documentation"

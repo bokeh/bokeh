@@ -12,8 +12,6 @@ Bokeh plots
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -29,7 +27,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import TickLabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
-from ..core.property_mixins import LineProps, TextProps
+from ..core.property_mixins import ScalarLineProps, ScalarTextProps
 
 from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter, MercatorTickFormatter
 from .renderers import GuideRenderer
@@ -121,11 +119,11 @@ class Axis(GuideRenderer):
     from the tick labels.
     """)
 
-    axis_label_props = Include(TextProps, help="""
+    axis_label_props = Include(ScalarTextProps, help="""
     The %s of the axis label.
     """)
 
-    axis_label_text_font_size = Override(default={'value': "10pt"})
+    axis_label_text_font_size = Override(default="10pt")
 
     axis_label_text_font_style = Override(default="italic")
 
@@ -144,7 +142,7 @@ class Axis(GuideRenderer):
     override normal formatting.
     """)
 
-    major_label_props = Include(TextProps, help="""
+    major_label_props = Include(ScalarTextProps, help="""
     The %s of the major tick labels.
     """)
 
@@ -152,13 +150,13 @@ class Axis(GuideRenderer):
 
     major_label_text_baseline = Override(default="alphabetic")
 
-    major_label_text_font_size = Override(default={'value': "8pt"})
+    major_label_text_font_size = Override(default="8pt")
 
-    axis_props = Include(LineProps, help="""
+    axis_props = Include(ScalarLineProps, help="""
     The %s of the axis line.
     """)
 
-    major_tick_props = Include(LineProps, help="""
+    major_tick_props = Include(ScalarLineProps, help="""
     The %s of the major ticks.
     """)
 
@@ -172,7 +170,7 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-    minor_tick_props = Include(LineProps, help="""
+    minor_tick_props = Include(ScalarLineProps, help="""
     The %s of the minor ticks.
     """)
 
@@ -233,7 +231,7 @@ class CategoricalAxis(Axis):
 
     formatter = Override(default=lambda: CategoricalTickFormatter())
 
-    separator_props = Include(LineProps, help="""
+    separator_props = Include(ScalarLineProps, help="""
     The %s of the separator line between top-level categorical groups.
 
     This property always applies to factors in the outermost level of nesting.
@@ -242,7 +240,7 @@ class CategoricalAxis(Axis):
     separator_line_color = Override(default="lightgrey")
     separator_line_width = Override(default=2)
 
-    group_props = Include(TextProps, help="""
+    group_props = Include(ScalarTextProps, help="""
     The %s of the group categorical labels.
 
     This property always applies to factors in the outermost level of nesting.
@@ -260,11 +258,11 @@ class CategoricalAxis(Axis):
     property has no effect.
     """)
 
-    group_text_font_size = Override(default={'value': "8pt"})
+    group_text_font_size = Override(default="8pt")
     group_text_font_style = Override(default="bold")
     group_text_color = Override(default="grey")
 
-    subgroup_props = Include(TextProps, help="""
+    subgroup_props = Include(ScalarTextProps, help="""
     The %s of the subgroup categorical labels.
 
     This property always applies to factors in the middle level of nesting.
@@ -282,7 +280,7 @@ class CategoricalAxis(Axis):
     then this property has no effect.
     """)
 
-    subgroup_text_font_size = Override(default={'value': "8pt"})
+    subgroup_text_font_size = Override(default="8pt")
     subgroup_text_font_style = Override(default="bold")
 
 class DatetimeAxis(LinearAxis):
@@ -307,7 +305,7 @@ class MercatorAxis(LinearAxis):
 
     '''
     def __init__(self, dimension='lat', **kw):
-        super(MercatorAxis, self).__init__(**kw)
+        super().__init__(**kw)
 
         # Just being careful. It would be defeat the purpose for anyone to actually
         # configure this axis with differnet kinds of tickers or formatters.

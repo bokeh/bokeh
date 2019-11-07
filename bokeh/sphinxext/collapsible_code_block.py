@@ -13,9 +13,7 @@ This directive takes a heading to use for the collapsible code block:
     .. collapsible-code-block:: python
         :heading: Some Code
 
-        from __future__ import print_function
-
-        print("Hello, Bokeh!")
+                print("Hello, Bokeh!")
 
 This directive is identical to the standard ``code-block`` directive
 that Sphinx supplies, with the addition of one new option:
@@ -34,17 +32,13 @@ The inline example code above produces the following output:
 .. collapsible-code-block:: python
     :heading: Some Code
 
-    from __future__ import print_function
-
-    print("Hello, Bokeh!")
+        print("Hello, Bokeh!")
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 

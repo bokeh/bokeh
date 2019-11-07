@@ -101,16 +101,8 @@
 
 </table>
 
-Bokeh is an interactive visualization library for Python that enables beautiful
-and meaningful visual presentation of data in modern web browsers. With Bokeh,
-you can quickly and easily create interactive plots, dashboards, and data
-applications.
+[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
 
-Bokeh provides an elegant and concise way to construct versatile graphics while
-delivering **high-performance** interactivity for large or streamed datasets.
-
-[Interactive gallery](https://docs.bokeh.org/en/latest/docs/gallery.html)
----------------------------------------------------------------------------
 
 <p>
 <table cellspacing="10">
@@ -266,15 +258,18 @@ pip install bokeh
 ```
 For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
 
+
+
+Resources
+---------
+
 Once Bokeh is installed, check out the [Getting Started](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#getting-started) section of the [Quickstart guide](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html).
 
-Documentation
--------------
-Visit the [Bokeh Front Page](https://bokeh.org) for information and [full documentation](https://docs.bokeh.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
-Contribute to Bokeh
--------------------
-If you would like to contribute to Bokeh, please review the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and say hello on the [`bokeh-dev` chat channel](https://gitter.im/bokeh/bokeh-dev).
+Community support is available on the [Project Discourse](https://discourse.bokeh.org).
+
+If you would like to contribute to Bokeh, please review the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and say hello on the [bokeh-dev chat channel](https://gitter.im/bokeh/bokeh-dev).
 
 Follow us
 ---------

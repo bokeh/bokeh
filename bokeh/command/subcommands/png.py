@@ -47,8 +47,6 @@ For all cases, it's required to explicitly add a Bokeh layout to
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -118,7 +116,7 @@ class PNG(FileOutputSubcommand):
         '''
         self.driver = create_webdriver()
         try:
-            super(PNG, self).invoke(args)
+            super().invoke(args)
         finally:
             terminate_webdriver(self.driver)
 

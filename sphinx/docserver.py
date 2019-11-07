@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import flask
 import os
 import sys
@@ -49,7 +47,7 @@ data = {}
 def serve_http():
     data['ioloop'] = IOLoop()
     http_server.listen(PORT)
-    IOLoop.instance().start()
+    IOLoop.current().start()
 
 def shutdown_server():
     ioloop = data['ioloop']

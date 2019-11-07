@@ -1,3 +1,87 @@
+2019-11-04    1.4.0:
+--------------------
+  * bugfixes:
+    - #8402 [component: bokehjs] No clean way to update vbar_stack
+    - #8778 [component: bokehjs] Hover over image is showing wrong @image tooltip on flipped axis
+    - #8976 [component: bokehjs] [bug] geographical plots cannot be saved with the save tool
+    - #9035 [component: bokehjs] [widgets] [bug] spinner only considers 1 decimal
+    - #9129 [component: bokehjs] [widgets] [bug]datepicker displayed value is not updating correctly
+    - #9136 [component: bokehjs] Inner_width and inner_height not available after display
+    - #9143 [component: docs] [bug] roadmap link on docs page links to a nonexistent page
+    - #9152 [component: bokehjs] [bug] hover tooltip breaks with full-circle wedge
+    - #9174 [component: bokehjs] [bug] nan_color argument in linearcolormapper is not used
+    - #9185 [component: bokehjs] [regression] [bug] exporting google maps pngs sometimes not working properly
+    - #9240 [component: build] [bug] building custom extension breaks in notebook
+    - #9266 [component: bokehjs] [widgets] [bug] datatable sorting broken
+    - #9267 [component: bokehjs] [bug] range_tool selection is over-responsive in y direction
+    - #9309 [API: models] [component: docs] [bug] documentation panels empty
+    - #9317 [regression] [bug] splattable lists no longer allow using list-like methods
+    - #9324 [component: bokehjs] [bug] background property change not  working for widgetbox
+    - #9338 [component: bokehjs] Include license in bokehjs bundles
+    - #9342 [component: bokehjs] [component: server] [regression] [bug] server examples with custom models do not work
+    - #9343 [component: bokehjs] Save does not work with custom models [bug]
+  * features:
+    - #3700 Structured way to get at documents from javascript
+    - #8904 [API: models] Allow to offset plot frame's side panel annotations
+    - #9009 [component: server] Add support django channels
+    - #9135 Be able to order legend items when using groupby legend [feature]
+    - #9137 [API: models] [notebook] Allow to integrate bokeh models with ipywidgets
+    - #9139 [component: server] Support ssl termination
+    - #9140 [component: server] Support tornado get_current_user
+    - #9144 [component: bokehjs] Axis rescaled when legend item visibility changed [feature]
+    - #9196 [component: bokehjs] [component: build] Add support for building bokehjs extensions
+    - #9209 [component: server] Add support for globs to `bokeh serve`
+    - #9241 Add 256-color palettes, add a function to generate diverging palettes
+    - #9298 [feature] provide mouse press up event
+  * tasks:
+    - #8209 [component: docs] Searchable documentation?
+    - #9002 [component: bokehjs] [component: build] Unify bokehjs build system with extensions' compiler
+    - #9070 Improve bokeh/util/logconfig.py call signature
+    - #9073 [component: docs] [docs] page for selection tools does not tell users how to get the values/indices of the selection
+    - #9150 [component: docs] Use bokehjs from cdn when the commit is tagged
+    - #9155 [component: bokehjs] [component: build] Migrate from tslint to (typescript-)eslint
+    - #9157 [component: tests] Remove bokeh.embed.notebook.widgets from -oo blacklist
+    - #9159 [component: build] Unpin python 3.7 version when possible
+    - #9160 [component: bokehjs] Enable more eslint rules
+    - #9163 [component: build] [component: examples] Don't upload to s3 on py27 tests
+    - #9165 [component: examples] Update dataset for parallel coords plot examples
+    - #9167 [component: bokehjs] [component: build] Generate es6 (es2015) compatible bundles
+    - #9170 [component: bokehjs] [component: build] Automatically insert class initialization code
+    - #9173 [component: docs] [bug] "line_color" not applied from yaml theme file
+    - #9175 [component: tests] Make bokeh's tests compatible with pytest >= 5
+    - #9179 Add support for turbo colormap
+    - #9181 [component: docs] [bug] [docs] broken images in custom tooltip example
+    - #9183 [component: docs] Update all docs links
+    - #9192 [component: docs] Pillow is already a bokeh dependency
+    - #9193 [component: bokehjs] [component: build] Bump eslint-utils from 1.4.0 to 1.4.2 in /bokehjs
+    - #9199 [component: docs] [bug] [doc] broken link to examples/app
+    - #9200 [component: docs] Fix typos in docs, comments, etc
+    - #9202 [feature] print full stacktrace on error
+    - #9205 [component: build] Don't depend on ipywidgets
+    - #9206 [component: docs] Outdated sentence removed from docs
+    - #9211 [component: docs] [doc] tpyos
+    - #9212 [component: bokehjs] [typescript] Upgrade to typescript 3.6
+    - #9219 [component: docs] Update layout docs
+    - #9220 [component: docs] Add websource to reference docs
+    - #9226 [bug] update license id to use the proper spdx short license id
+    - #9228 Update current year
+    - #9229 [component: build] Bryanv/update docs automation
+    - #9237 [component: docs] [bug] hovertool indices empty when using glyphrenderer from a graphrenderer
+    - #9239 Improve "splat" list errors
+    - #9258 [component: docs] [bug] ajaxdatasource-based glyphs appear incompatible with factorrange
+    - #9262 [component: docs] Fix structure issues in palette docs
+    - #9264 [component: build] Cdn invalidations too narrow
+    - #9265 [component: docs] Rename modify_doc in notebook app contexts
+    - #9271 [component: bokehjs] Upgrade from deprecated package istanbul 
+    - #9272 [bug] improve exception when import _requires fails
+    - #9274 If import of channels fails, improve error message to install it via pip
+    - #9278 [component: docs] Consistently use https protcol for cdn.pydata.org urls
+    - #9286 [component: docs] Fix user-guide documentation and app example typos
+    - #9289 [component: docs] Fix broken docs links
+    - #9305 [component: docs] Update ga for docs
+    - #9312 [component: docs] Update references to jupyter_bokeh extension
+    - #9340 [component: docs] 1.4.0 misc docs
+
 2019-08-06    1.3.4:
 --------------------
   * tasks:

@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -22,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from typing import Sequence, Optional, Any
 
 # External imports
 
@@ -32,9 +31,6 @@ import re
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'decode_utf8',
-    'encode_utf8',
-    'escape',
     'format_docstring',
     'indent',
     'nice_join',
@@ -45,64 +41,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def encode_utf8(u):
-    ''' Encode a UTF-8 string to a sequence of bytes.
-
-    Args:
-        u (str) : the string to encode
-
-    Returns:
-        bytes
-
-    '''
-    import sys
-    if sys.version_info[0] == 2:
-        u = u.encode('utf-8')
-    return u
-
-def decode_utf8(u):
-    ''' Decode a sequence of bytes to a UTF-8 string
-
-    Args:
-        u (str) : the bytes to decode
-
-    Returns:
-        UTF-8 string
-
-    '''
-    import sys
-    if sys.version_info[0] == 2:
-        u = u.decode('utf-8')
-    return u
-
-# based on `html` stdlib module (3.2+)
-def escape(s, quote=("'", '"')):
-    ''' Perform HTML-safe escaping.
-
-    Replaces special characters "&", "<" and ">" to HTML-safe sequences, and
-    optionally translates quote characters.
-
-    Args:
-        s (str): a string to escape
-
-        quote (seq[str], optional) : which quote characters to replace
-            (default: ("'", '"'))
-
-    Returns:
-        str
-
-    '''
-    s = s.replace("&", "&amp;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    if quote:
-        if '"' in quote:
-            s = s.replace('"', "&quot;")
-        if "'" in quote:
-            s = s.replace("'", "&#x27;")
-    return s
-
-def indent(text, n=2, ch=" "):
+def indent(text: str, n: int = 2, ch: str = " ") -> str:
     ''' Indent all the lines in a given block of text by a specified amount.
 
     Args:
@@ -117,9 +56,10 @@ def indent(text, n=2, ch=" "):
 
     '''
     padding = ch * n
-    return "\n".join(padding+line for line in text.split("\n"))
+    return "\n".join(padding + line for line in text.split("\n"))
 
-def nice_join(seq, sep=", ", conjuction="or"):
+
+def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> str:
     ''' Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
@@ -144,13 +84,15 @@ def nice_join(seq, sep=", ", conjuction="or"):
     else:
         return "%s %s %s" % (sep.join(seq[:-1]), conjuction, seq[-1])
 
-def snakify(name, sep='_'):
+
+def snakify(name: str, sep: str = "_") -> str:
     ''' Convert CamelCase to snake_case. '''
     name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
     name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
     return name.lower()
 
-def format_docstring(docstring, *args, **kwargs):
+
+def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Optional[str]:
     ''' Safely format docstrings.
 
     When Python is executed with the ``-OO`` option, doc strings are removed and

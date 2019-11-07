@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -47,9 +45,6 @@ from .views.static_handler import StaticHandler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# Unfortunately we can't yet use format_docstring to keep these automatically in sync in
-# the class docstring because Python 2 does not allow setting class.__doc__ (works with
-# Bokeh model classes because they are metaclasses)
 DEFAULT_CHECK_UNUSED_MS                  = 17000
 DEFAULT_KEEP_ALIVE_MS                    = 37000  # heroku, nginx default to 60s timeout, so use less than that
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
@@ -66,7 +61,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class BokehTornado(TornadoApplication):
-    ''' A Tornado Application used to implement the Bokeh Server.
+    f''' A Tornado Application used to implement the Bokeh Server.
 
     Args:
         applications (dict[str,Application] or Application) :
@@ -77,7 +72,7 @@ class BokehTornado(TornadoApplication):
 
             .. code-block:: python
 
-                applications = { '/' : applications }
+                applications = {{ '/' : applications }}
 
             When a connection comes in to a given path, the associate
             Application is used to generate a new document for the session.
@@ -121,23 +116,27 @@ class BokehTornado(TornadoApplication):
             (default: True)
 
         keep_alive_milliseconds (int, optional) :
-            Number of milliseconds between keep-alive pings (default: 37000)
+            Number of milliseconds between keep-alive pings
+            (default: {DEFAULT_KEEP_ALIVE_MS})
 
             Pings normally required to keep the websocket open. Set to 0 to
             disable pings.
 
         check_unused_sessions_milliseconds (int, optional) :
             Number of milliseconds between checking for unused sessions
-            (default: 17000)
+            (default: {DEFAULT_CHECK_UNUSED_MS})
 
         unused_session_lifetime_milliseconds (int, optional) :
-            Number of milliseconds for unused session lifetime (default: 15000)
+            Number of milliseconds for unused session lifetime
+            (default: {DEFAULT_UNUSED_LIFETIME_MS})
 
         stats_log_frequency_milliseconds (int, optional) :
-            Number of milliseconds between logging stats (default: 15000)
+            Number of milliseconds between logging stats
+            (default: {DEFAULT_STATS_LOG_FREQ_MS})
 
         mem_log_frequency_milliseconds (int, optional) :
-            Number of milliseconds between logging memory information (default: 0)
+            Number of milliseconds between logging memory information
+            (default: {DEFAULT_MEM_LOG_FREQ_MS})
 
             Enabling this feature requires the optional dependency ``psutil`` to be
             installed.
@@ -161,7 +160,7 @@ class BokehTornado(TornadoApplication):
 
         websocket_max_message_size_bytes (int, optional):
             Set the Tornado ``websocket_max_message_size`` value.
-            (default: 20*1024*1024)
+            (default: {DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES})
 
             NOTE: This setting has effect ONLY for Tornado>=4.5
 
@@ -334,7 +333,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super(BokehTornado, self).__init__(all_patterns,
+        super().__init__(all_patterns,
                                            websocket_max_message_size=websocket_max_message_size_bytes,
                                            **kwargs)
 

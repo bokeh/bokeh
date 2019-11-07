@@ -121,8 +121,6 @@ export class AnchorLayout extends Layoutable {
         case 'center_right':
           bbox = new BBox({right: right - margin, vcenter, width, height})
           break
-        default:
-          throw new Error("unreachable")
       }
 
       layout.set_geometry(bbox)

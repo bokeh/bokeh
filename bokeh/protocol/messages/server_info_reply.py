@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,14 +23,13 @@ log = logging.getLogger(__name__)
 from bokeh import __version__
 
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'server_info_reply_1',
+    'server_info_reply',
 )
 
 #-----------------------------------------------------------------------------
@@ -43,10 +40,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class server_info_reply_1(Message):
-    ''' Define the ``SERVER-INFO-REPLY`` message (revision 1) for replying to
-    Server info requests from clients.
+class server_info_reply(Message):
+    ''' Define the ``SERVER-INFO-REPLY`` message for replying to Server info
+    requests from clients.
 
     The ``content`` fragment of for this message is has the form:
 
@@ -62,7 +58,6 @@ class server_info_reply_1(Message):
     '''
 
     msgtype  = 'SERVER-INFO-REPLY'
-    revision = 1
 
     @classmethod
     def create(cls, request_id, **metadata):

@@ -74,8 +74,7 @@ class BootstrapHTML5Translator(HTML5Translator):
         super().__init__(*args, **kwds)
         self.settings.table_style = "table"
 
-    def visit_admonition(self, node, name=""):
-        # type: (nodes.Element, str) -> None
+    def visit_admonition(self, node: nodes.Element, name: str = "") -> None:
         # copy of sphinx source to add alert classes
         classes = ["alert"]
         if name:
@@ -84,8 +83,7 @@ class BootstrapHTML5Translator(HTML5Translator):
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
-    def visit_table(self, node):
-        # type: (nodes.Element) -> None
+    def visit_table(self, node: nodes.Element) -> None:
         # copy of sphinx source to *not* add 'docutils' and 'align-default' classes
         # but add 'table' class
         self.generate_targets_for_table(node)

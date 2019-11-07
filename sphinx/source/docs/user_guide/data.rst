@@ -1,7 +1,7 @@
 .. _userguide_data:
 
-Providing Data for Plots and Tables
-===================================
+Providing Data
+==============
 
 No data visualization is possible without the underlying data to be represented.
 In this section, the various ways of providing data for plots is explained, from
@@ -309,11 +309,11 @@ either ``setosa``, ``versicolor``, or ``virginica``.
 CustomJSFilter
 ~~~~~~~~~~~~~~
 
-You can also create a |CustomJSFilter| with your own functionality. To do this, use JavaScript,
-TypeScript or CoffeeScript to write code that returns either a list of indices or a list of
-booleans that represents the filtered subset. The |ColumnDataSource| that is associated
-with the |CDSView| this filter is added to will be available at render time with the
-variable ``source``.
+You can also create a |CustomJSFilter| with your own functionality. To do this,
+use JavaScript or TypeScript to write code that returns either a list of indices
+or a list of booleans that represents the filtered subset. The |ColumnDataSource|
+that is associated with the |CDSView| this filter is added to will be available
+at render time with the variable ``source``.
 
 Javascript
 ''''''''''
@@ -335,20 +335,6 @@ pass in the JavaScript code as a string to the parameter ``code``:
         }
     }
     return indices;
-    ''')
-
-Coffeescript
-''''''''''''
-
-You can also write code for the ``CustomJSFilter`` in `CoffeeScript`_, and
-use the ``from_coffeescript`` class method, which accepts the ``code`` parameter:
-
-.. code-block:: python
-
-    custom_filter_coffee = CustomJSFilter.from_coffeescript(code='''
-    z = source.data['z']
-    indices = (i for i in [0...source.get_length()] when z[i] == 'b')
-    return indices
     ''')
 
 .. _userguide_data_ajax_data_source:
@@ -436,6 +422,3 @@ For more information about how to set up the data for these types of plots, see
 .. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
 .. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
-
-.. _CoffeeScript: http://coffeescript.org
-.. _PScript documentation: http://pscript.readthedocs.org

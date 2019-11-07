@@ -4,7 +4,7 @@ set -e # exit on error
 set -x # echo commands
 
 if  [ "${NO_GIT_FETCH}" != "1" ]; then
-    git fetch --quiet origin master
+    git fetch --quiet origin ${TRAVIS_BRANCH}
 fi
 
 # install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
@@ -33,9 +33,6 @@ conda install --yes --quiet ${CONDA_REQS}
 conda config --set auto_update_conda off
 conda config --append channels bokeh
 conda config --get channels
-
-# XXX remove for 2.0 when futures-compat no longer needed
-conda config --set restore_free_channel true
 
 # create and activate test env
 conda create -n testenv --yes --quiet python=${PYTHON} jinja2 pyyaml

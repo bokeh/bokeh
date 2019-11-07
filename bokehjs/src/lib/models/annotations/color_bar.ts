@@ -22,6 +22,7 @@ import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Size} from "core/layout"
+import {unreachable} from "core/util/assert"
 
 const SHORT_DIM = 25
 const LONG_DIM_MIN_SCALAR = 0.3
@@ -86,8 +87,6 @@ export class ColorBarView extends AnnotationView {
         [w, h] = [palette.length, 1]
         break
       }
-      default:
-        throw new Error("unreachable code")
     }
 
     const canvas = document.createElement('canvas')
@@ -126,8 +125,6 @@ export class ColorBarView extends AnnotationView {
         legend_height = image_height + title_extent + tick_extent + label_extent + 2*padding
         legend_width = image_width + 2*padding
         break
-      default:
-        throw new Error("unreachable code")
     }
 
     return {width: legend_width, height: legend_height}
@@ -182,15 +179,13 @@ export class ColorBarView extends AnnotationView {
           sx = hr.end - legend_margin - legend_width
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        default:
-          throw new Error("unreachable code")
       }
     } else if (isArray(location) && location.length == 2) {
       const [vx, vy] = location
       sx = panel.xview.compute(vx)
       sy = panel.yview.compute(vy) - legend_height
     } else
-      throw new Error("unreachable code")
+      unreachable()
 
     return {sx, sy}
   }
@@ -350,8 +345,6 @@ export class ColorBarView extends AnnotationView {
         case "horizontal":
           label_extent = text_util.measure_font(this.visuals.major_label_text.font_value()).height
           break
-        default:
-          throw new Error("unreachable code")
       }
 
       label_extent += this.model.label_standoff
@@ -446,8 +439,6 @@ export class ColorBarView extends AnnotationView {
           width = this.model.width
         break
       }
-      default:
-        throw new Error("unreachable code")
     }
 
     return {width, height}
@@ -479,7 +470,7 @@ export class ColorBarView extends AnnotationView {
       case "LinearColorMapper": return new LinearScale(ranges)
       case "LogColorMapper":    return new LogScale(ranges)
       default:
-        throw new Error("unreachable code")
+        unreachable()
     }
   }
 
@@ -509,8 +500,6 @@ export class ColorBarView extends AnnotationView {
         scale_length = image_dimensions.width
         break
       }
-      default:
-        throw new Error("unreachable code")
     }
 
     const scale = this._tick_coordinate_scale(scale_length)

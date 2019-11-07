@@ -93,12 +93,19 @@ export function nbsp(): Text {
   return document.createTextNode("\u00a0")
 }
 
-export function removeElement(element: HTMLElement): void {
+export function append(element: HTMLElement, ...children: Element[]): void {
+  for (const child of children)
+    element.appendChild(child)
+}
+
+export function remove(element: HTMLElement): void {
   const parent = element.parentNode
   if (parent != null) {
     parent.removeChild(element)
   }
 }
+
+export const removeElement = remove
 
 export function replaceWith(element: HTMLElement, replacement: HTMLElement): void {
   const parent = element.parentNode

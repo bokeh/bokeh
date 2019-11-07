@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -21,8 +19,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import abspath
 import webbrowser
+from os.path import abspath
+from typing import cast, Optional
+from typing_extensions import Literal, Protocol
 
 # External imports
 
@@ -45,15 +45,22 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+class BrowserLike(Protocol):
+    ''' Interface for browser-like objects.
+
+    '''
+    def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
+        ...
+
 class DummyWebBrowser(object):
     ''' A "no-op" web-browser controller.
 
     '''
-    def open(self, url, new=0, autoraise=True):
+    def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
         ''' Receive standard arguments and take no action. '''
-        pass
+        return True
 
-def get_browser_controller(browser=None):
+def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
     ''' Return a browser controller.
 
     Args:
@@ -71,56 +78,53 @@ def get_browser_controller(browser=None):
     '''
     browser = settings.browser(browser)
 
-    if browser is not None:
-        if browser == 'none':
-            controller = DummyWebBrowser()
-        else:
-            controller = webbrowser.get(browser)
+    if browser is None:
+        controller = cast(BrowserLike, webbrowser)
+    elif browser == "none":
+        controller = DummyWebBrowser()
     else:
-        controller = webbrowser
+        controller = webbrowser.get(browser)
 
     return controller
 
-def view(location, browser=None, new="same", autoraise=True):
-        ''' Open a browser to view the specified location.
+def view(location: str, browser: Optional[str] = None, new: Literal["same", "window", "tab"] = "same", autoraise: bool = True) -> None:
+    ''' Open a browser to view the specified location.
 
-        Args:
-            location (str) : Location to open
-                If location does not begin with "http:" it is assumed
-                to be a file path on the local filesystem.
-            browser (str or None) : what browser to use (default: None)
-                If ``None``, use the system default browser.
-            new (str) : How to open the location. Valid values are:
+    Args:
+        location (str) : Location to open
+            If location does not begin with "http:" it is assumed
+            to be a file path on the local filesystem.
+        browser (str or None) : what browser to use (default: None)
+            If ``None``, use the system default browser.
+        new (str) : How to open the location. Valid values are:
 
-                ``'same'`` - open in the current tab
+            ``'same'`` - open in the current tab
 
-                ``'tab'`` - open a new tab in the current window
+            ``'tab'`` - open a new tab in the current window
 
-                ``'window'`` - open in a new window
-            autoraise (bool) : Whether to automatically raise the location
-                in a new browser window (default: True)
+            ``'window'`` - open in a new window
+        autoraise (bool) : Whether to automatically raise the location
+            in a new browser window (default: True)
 
-        Returns:
-            None
+    Returns:
+        None
 
-        '''
-        try:
-            new = { "same": 0, "window": 1, "tab": 2 }[new]
-        except KeyError:
-            raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
+    '''
+    try:
+        new_id = {"same": 0, "window": 1, "tab": 2}[new]
+    except KeyError:
+        raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
 
-        if location.startswith("http"):
-            url = location
-        else:
-            url = "file://" + abspath(location)
+    if location.startswith("http"):
+        url = location
+    else:
+        url = "file://" + abspath(location)
 
-        try:
-            controller = get_browser_controller(browser)
-            controller.open(url, new=new, autoraise=autoraise)
-        except (SystemExit, KeyboardInterrupt):
-            raise
-        except:
-            pass
+    try:
+        controller = get_browser_controller(browser)
+        controller.open(url, new=new_id, autoraise=autoraise)
+    except Exception:
+        pass
 
 #-----------------------------------------------------------------------------
 # Dev API

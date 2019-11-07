@@ -11,8 +11,6 @@ Bokeh plots
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -23,7 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
@@ -33,7 +30,7 @@ from ..core.has_props import abstract
 from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, UnitsSpec, value)
-from ..core.property_mixins import FillProps, LineProps, TextProps
+from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, ScalarTextProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
@@ -123,8 +120,8 @@ class LegendItem(Model):
 
     '''
     def __init__(self, *args, **kwargs):
-        super(LegendItem, self).__init__(*args, **kwargs)
-        if isinstance(self.label, string_types):
+        super().__init__(*args, **kwargs)
+        if isinstance(self.label, str):
             # Allow convenience of setting label as a string
             self.label = value(self.label)
 
@@ -187,11 +184,11 @@ class Legend(Annotation):
     The title text to render.
     """)
 
-    title_props = Include(TextProps, help="""
+    title_props = Include(ScalarTextProps, help="""
     The %s values for the title text.
     """)
 
-    title_text_font_size = Override(default={'value': "10pt"})
+    title_text_font_size = Override(default="10pt")
 
     title_text_font_style = Override(default="italic")
 
@@ -199,7 +196,7 @@ class Legend(Annotation):
     The distance (in pixels) to separate the title from the legend.
     """)
 
-    border_props = Include(LineProps, help="""
+    border_props = Include(ScalarLineProps, help="""
     The %s for the legend border outline.
     """)
 
@@ -207,11 +204,11 @@ class Legend(Annotation):
 
     border_line_alpha = Override(default=0.5)
 
-    background_props = Include(FillProps, help="""
+    background_props = Include(ScalarFillProps, help="""
     The %s for the legend background style.
     """)
 
-    inactive_props = Include(FillProps, help="""
+    inactive_props = Include(ScalarFillProps, help="""
     The %s for the legend item style when inactive. These control an overlay
     on the item that can be used to obscure it when the corresponding glyph
     is inactive (e.g. by making it semi-transparent).
@@ -229,13 +226,13 @@ class Legend(Annotation):
 
     inactive_fill_alpha = Override(default=0.7)
 
-    label_props = Include(TextProps, help="""
+    label_props = Include(ScalarTextProps, help="""
     The %s for the legend labels.
     """)
 
     label_text_baseline = Override(default='middle')
 
-    label_text_font_size = Override(default={'value': '10pt'})
+    label_text_font_size = Override(default='10pt')
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
@@ -335,11 +332,11 @@ class ColorBar(Annotation):
     The title text to render.
     """)
 
-    title_props = Include(TextProps, help="""
+    title_props = Include(ScalarTextProps, help="""
     The %s values for the title text.
     """)
 
-    title_text_font_size = Override(default={'value': "10pt"})
+    title_text_font_size = Override(default="10pt")
 
     title_text_font_style = Override(default="italic")
 
@@ -379,7 +376,7 @@ class ColorBar(Annotation):
     Amount of padding (in pixels) between the color scale and color bar border.
     """)
 
-    major_label_props = Include(TextProps, help="""
+    major_label_props = Include(ScalarTextProps, help="""
     The %s of the major tick labels.
     """)
 
@@ -387,13 +384,13 @@ class ColorBar(Annotation):
 
     major_label_text_baseline = Override(default="middle")
 
-    major_label_text_font_size = Override(default={'value': "8pt"})
+    major_label_text_font_size = Override(default="8pt")
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the tick labels from the color bar.
     """)
 
-    major_tick_props = Include(LineProps, help="""
+    major_tick_props = Include(ScalarLineProps, help="""
     The %s of the major ticks.
     """)
 
@@ -409,7 +406,7 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
-    minor_tick_props = Include(LineProps, help="""
+    minor_tick_props = Include(ScalarLineProps, help="""
     The %s of the minor ticks.
     """)
 
@@ -431,13 +428,13 @@ class ColorBar(Annotation):
 
     bar_line_color = Override(default=None)
 
-    border_props = Include(LineProps, help="""
+    border_props = Include(ScalarLineProps, help="""
     The %s for the color bar border outline.
     """)
 
     border_line_color = Override(default=None)
 
-    background_props = Include(FillProps, help="""
+    background_props = Include(ScalarFillProps, help="""
     The %s for the color bar background style.
     """)
 
@@ -446,7 +443,7 @@ class ColorBar(Annotation):
     background_fill_alpha = Override(default=0.95)
 
 class Arrow(Annotation):
-    ''' Render an arrow as an annotation.
+    ''' Render arrows as an annotation.
 
     '''
 
@@ -565,7 +562,7 @@ class BoxAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the box.
     """)
 
@@ -573,7 +570,7 @@ class BoxAnnotation(Annotation):
 
     line_color = Override(default="#cccccc")
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the box.
     """)
 
@@ -626,7 +623,7 @@ class Band(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the band.
     """)
 
@@ -634,7 +631,7 @@ class Band(Annotation):
 
     line_color = Override(default="#cccccc")
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the band.
     """)
 
@@ -716,20 +713,17 @@ class Label(TextAnnotation):
     distance in screen units from a given data position.
     """)
 
-    # TODO (bev) these should probably not be dataspec properties
-    text_props = Include(TextProps, use_prefix=False, help="""
+    text_props = Include(ScalarTextProps, use_prefix=False, help="""
     The %s values for the text.
     """)
 
-    # TODO (bev) these should probably not be dataspec properties
-    background_props = Include(FillProps, use_prefix=True, help="""
+    background_props = Include(ScalarFillProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
-    # TODO (bev) these should probably not be dataspec properties
-    border_props = Include(LineProps, use_prefix=True, help="""
+    border_props = Include(ScalarLineProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
@@ -879,7 +873,7 @@ class PolyAnnotation(Annotation):
     rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the polygon.
     """)
 
@@ -887,7 +881,7 @@ class PolyAnnotation(Annotation):
 
     line_color = Override(default="#cccccc")
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the polygon.
     """)
 
@@ -918,7 +912,7 @@ class Slope(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the line.
     """)
 
@@ -964,7 +958,7 @@ class Span(Annotation):
 
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the span.
     """)
 
@@ -1008,7 +1002,7 @@ class Title(TextAnnotation):
 
     """)
 
-    text_font_size = FontSizeSpec(default=value("10pt"))
+    text_font_size = FontSizeSpec(default="10pt")
 
     text_font_style = Enum(FontStyle, default="bold", help="""
     A style to use for rendering text.
@@ -1043,13 +1037,13 @@ class Title(TextAnnotation):
 
     """)
 
-    background_props = Include(FillProps, use_prefix=True, help="""
+    background_props = Include(ScalarFillProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
-    border_props = Include(LineProps, use_prefix=True, help="""
+    border_props = Include(ScalarLineProps, use_prefix=True, help="""
     The %s values for the text bounding box.
     """)
 

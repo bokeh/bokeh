@@ -42,14 +42,8 @@ export class CartesianFrame extends LayoutItem {
     return [sx, sy]
   }
 
-  protected _get_ranges(range: Range, extra_ranges?: Ranges): Ranges {
-    const ranges: Ranges = {}
-    ranges.default = range
-    if (extra_ranges != null) {
-      for (const name in extra_ranges)
-        ranges[name] = extra_ranges[name]
-    }
-    return ranges
+  protected _get_ranges(range: Range, extra_ranges: Ranges): Ranges {
+    return {...extra_ranges, default: range}
   }
 
   /*protected*/ _get_scales(scale: Scale, ranges: Ranges, frame_range: Range): Scales {

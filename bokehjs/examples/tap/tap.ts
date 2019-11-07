@@ -48,7 +48,7 @@ export namespace TappyScatter {
   tap!.renderers = [circles]
   tap!.callback = {
     execute(_obj, {source}): void {
-      const indices = source.selected['1d'].indices
+      const indices = source.selected.indices
       if (indices.length == 1)
         console.log(`Selected index: ${indices[0]}`)
       else if (indices.length > 1)

@@ -12,8 +12,6 @@ options.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -22,6 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from typing import Dict, Any
 
 # External imports
 
@@ -65,15 +64,15 @@ class Options(HasProps):
 
     '''
 
-    def __init__(self, kw=None):
+    def __init__(self, kw: Dict[str, Any]) -> None:
 
         # remove any items that match our declared properties
-        props = {}
+        props: Dict[str, Any] = {}
         for k in self.properties():
             if k in kw:
                 props[k] = kw.pop(k)
 
-        super(Options, self).__init__(**props)
+        super().__init__(**props)
 
 #-----------------------------------------------------------------------------
 # Dev API

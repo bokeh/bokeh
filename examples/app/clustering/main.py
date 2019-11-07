@@ -131,7 +131,6 @@ dataset_select = Select(value='Noisy Circles',
                         options=datasets_names)
 
 samples_slider = Slider(title="Number of samples",
-                        callback_policy="mouseup",
                         value=1500.0,
                         start=1000.0,
                         end=3000.0,
@@ -139,7 +138,6 @@ samples_slider = Slider(title="Number of samples",
                         width=400)
 
 clusters_slider = Slider(title="Number of clusters",
-                         callback_policy="mouseup",
                          value=2.0,
                          start=2.0,
                          end=10.0,

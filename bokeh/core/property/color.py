@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -24,7 +22,6 @@ log = logging.getLogger(__name__)
 import re
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ... import colors
@@ -57,7 +54,7 @@ class RGB(Property):
     '''
 
     def validate(self, value, detail=True):
-        super(RGB, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or isinstance(value, colors.RGB)):
             msg = "" if not detail else "expected RGB value, got %r" % (value,)
@@ -111,7 +108,7 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)
-        super(Color, self).__init__(*types, default=default, help=help)
+        super().__init__(*types, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__
@@ -134,7 +131,7 @@ class ColorHex(Color):
     '''
 
     def transform(self, value):
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             value = value.lower()
             if value.startswith('rgb'):
                 value = colors.RGB(*[int(val) for val in re.findall(r"\d+", value)[:3]]).to_hex()

@@ -12,8 +12,6 @@ in a specified Python module.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -46,7 +44,7 @@ class LifecycleHandler(Handler):
     '''
 
     def __init__(self, *args, **kwargs):
-        super(LifecycleHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._on_server_loaded = _do_nothing
         self._on_server_unloaded = _do_nothing
         self._on_session_created = _do_nothing

@@ -1,6 +1,6 @@
 .. _userguide_compat:
 
-Using Other Libraries
+Exploring Other Tools
 =====================
 
 Bokeh integrates well with a wide variety of other libraries, allowing

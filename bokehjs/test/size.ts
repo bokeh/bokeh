@@ -15,16 +15,12 @@ const LIMITS: {[key: string]: number} = {
   // es6
   "js/bokeh-es6.min.js":         640,
   "js/bokeh-widgets-es6.min.js":  90,
-  "js/bokeh-tables-es6.min.js":  250,
+  "js/bokeh-tables-es6.min.js":  270,
   "js/bokeh-api-es6.min.js":      90,
   "js/bokeh-gl-es6.min.js":       70,
-  // css
-  "css/bokeh.min.css":           0,
-  "css/bokeh-widgets.min.css":   0,
-  "css/bokeh-tables.min.css":    0,
 }
 
-describe(`bokehjs/build/*/*.min.{js,css} file sizes`, () => {
+describe(`bokehjs/build/*/*.min.js file sizes`, () => {
   for (const filename in LIMITS) {
     const stats = fs.statSync(path.join(build_dir, filename))
     const limit = LIMITS[filename]

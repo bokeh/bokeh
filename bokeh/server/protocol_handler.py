@@ -12,8 +12,6 @@ receive.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -88,7 +86,7 @@ class ProtocolHandler(object):
 
         '''
 
-        handler = self._handlers.get((message.msgtype, message.revision))
+        handler = self._handlers.get(message.msgtype)
 
         if handler is None:
             handler = self._handlers.get(message.msgtype)

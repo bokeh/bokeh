@@ -75,8 +75,6 @@ The inline example code above produces the following output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 # use the wrapped sphinx logger
 from sphinx.util import logging
 log = logging.getLogger(__name__)
@@ -88,7 +86,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from os import getenv
 from os.path import basename, dirname, join
-import re
 from uuid import uuid4
 
 # External imports
@@ -104,7 +101,6 @@ from sphinx.util.nodes import set_source_info
 from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
-from ..util.string import decode_utf8
 from .util import get_sphinx_resources
 from .example_handler import ExampleHandler
 
@@ -151,11 +147,14 @@ class BokehPlotDirective(Directive):
             path = self.arguments[0]
             if not path.startswith("/"):
                 path = join(env.app.srcdir, path)
-            source = decode_utf8(open(path).read())
+            source = open(path).read()
 
         js_name = "bokeh-plot-%s-external-%s.js" % (uuid4().hex, docname)
 
-        (script, js, js_path, source) = _process_script(source, path, env, js_name)
+        try:
+            (script, js, js_path, source) = _process_script(source, path, env, js_name)
+        except Exception as e:
+            raise RuntimeError("Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s" % (e,source))
         env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id
@@ -211,11 +210,6 @@ def build_finished(app, exception):
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''
-
-    # These two are deprecated and no longer have any effect, to be removed 2.0
-    app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
-    app.add_config_value('bokeh_plot_use_relative_paths', False, 'html')
-
     app.add_directive('bokeh-plot', BokehPlotDirective)
     app.add_config_value('bokeh_missing_google_api_key_ok', True, 'html')
     app.connect('builder-inited', builder_inited)
@@ -226,9 +220,6 @@ def setup(app):
 #-----------------------------------------------------------------------------
 
 def _process_script(source, filename, env, js_name, use_relative_paths=False):
-    # This is lame, but seems to be required for python 2
-    source = CODING.sub("", source)
-
     # Explicitly make sure old extensions are not included until a better
     # automatic mechanism is available
     Model._clear_extensions()
@@ -264,4 +255,3 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)

@@ -48,8 +48,6 @@ All these glyphs share a minimal common interface through their base class
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -359,7 +357,7 @@ class HArea(Glyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    The %s values for the horizontal directed area.
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
@@ -483,7 +481,7 @@ class Image(XYGlyph):
             mapper = LinearColorMapper(palette)
             kwargs['color_mapper'] = mapper
 
-        super(Image, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
@@ -1198,7 +1196,7 @@ class VArea(Glyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    The %s values for the vertical directed area
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""

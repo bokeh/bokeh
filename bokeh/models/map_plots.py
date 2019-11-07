@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -79,7 +77,7 @@ class MapPlot(Plot):
         for r in ('x_range', 'y_range'):
             if r in kw and not isinstance(kw.get(r), Range1d):
                 raise ValueError('Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges' % r)
-        super(MapPlot, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
     @error(INCOMPATIBLE_MAP_RANGE_TYPE)
     def _check_incompatible_map_range_type(self):

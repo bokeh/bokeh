@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -21,10 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from bokeh.util.future import collections_abc # goes away with py2
+from collections.abc import Container, Iterable, Mapping, Sequence, Sized
 
 # External imports
-from six import string_types, iteritems
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
@@ -59,7 +56,7 @@ class Seq(ContainerProperty):
 
     def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
-        super(Seq, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
@@ -77,7 +74,7 @@ class Seq(ContainerProperty):
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
-        super(Seq, self).validate(value, True)
+        super().validate(value, True)
 
         if value is not None:
             if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
@@ -94,14 +91,14 @@ class Seq(ContainerProperty):
 
     @classmethod
     def _is_seq(cls, value):
-        return ((isinstance(value, collections_abc.Sequence) or cls._is_seq_like(value)) and
-                not isinstance(value, string_types))
+        return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and
+                not isinstance(value, str))
 
     @classmethod
     def _is_seq_like(cls, value):
-        return (isinstance(value, (collections_abc.Container, collections_abc.Sized, collections_abc.Iterable))
+        return (isinstance(value, (Container, Sized, Iterable))
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
-                and not isinstance(value, collections_abc.Mapping))
+                and not isinstance(value, Mapping))
 
     def _new_instance(self, value):
         return value
@@ -118,7 +115,7 @@ class List(Seq):
         # todo: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
-        super(List, self).__init__(item_type, default=default, help=help)
+        super().__init__(item_type, default=default, help=help)
 
     @classmethod
     def wrap(cls, value):
@@ -163,7 +160,7 @@ class Dict(ContainerProperty):
     def __init__(self, keys_type, values_type, default={}, help=None):
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
-        super(Dict, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def __str__(self):
         return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
@@ -176,16 +173,16 @@ class Dict(ContainerProperty):
         if json is None:
             return None
         elif isinstance(json, dict):
-            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(json) }
+            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
-        super(Dict, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is not None:
             if not (isinstance(value, dict) and \
-                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
+                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.items())):
                 msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
@@ -278,7 +275,7 @@ class Tuple(ContainerProperty):
     '''
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        super(Tuple, self).__init__(default=kwargs.get("default"), help=kwargs.get("help"))
+        super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
@@ -296,7 +293,7 @@ class Tuple(ContainerProperty):
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
-        super(Tuple, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is not None:
             if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
@@ -315,7 +312,7 @@ class RelativeDelta(Dict):
     def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
-        super(RelativeDelta, self).__init__(keys, values, default=default, help=help)
+        super().__init__(keys, values, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__

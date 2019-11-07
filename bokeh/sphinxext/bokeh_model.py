@@ -44,8 +44,6 @@ in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -56,6 +54,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib
 import json
+import warnings
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -64,6 +63,7 @@ from sphinx.errors import SphinxError
 
 # Bokeh imports
 from ..model import MetaModel
+from ..util.warnings import BokehDeprecationWarning
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
 
@@ -115,7 +115,12 @@ class BokehModelDirective(BokehDirective):
         if type(model) != MetaModel:
             raise SphinxError("Unable to generate reference docs for %s, model '%s' is not of type MetaModel" % (model_name, model_name))
 
-        model_obj = model()
+        # We may need to instantiate deprecated objects as part of documenting
+        # them in the reference guide. Suppress any warnings here to keep the
+        # docs build clean just for this case
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+            model_obj = model()
 
         model_json = json.dumps(
             model_obj.to_json(include_defaults=True),

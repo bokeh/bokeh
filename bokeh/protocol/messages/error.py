@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,14 +23,13 @@ from traceback import format_exception
 
 # Bokeh imports
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'error_1',
+    'error',
 )
 
 #-----------------------------------------------------------------------------
@@ -43,10 +40,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class error_1(Message):
-    ''' Define the ``ERROR`` message (revision 1) for reporting error
-    conditions back to a Bokeh server.
+class error(Message):
+    ''' Define the ``ERROR`` message for reporting error conditions back to a
+    Bokeh server.
 
     The ``content`` fragment of for this message is has the form:
 
@@ -62,10 +58,9 @@ class error_1(Message):
     '''
 
     msgtype  = 'ERROR'
-    revision = 1
 
     def __repr__(self):
-        msg = super(error_1, self).__repr__()
+        msg = super().__repr__()
         msg += " --- "
         msg += self.content['text']
         if "traceback" in self.content:

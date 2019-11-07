@@ -1,5 +1,3 @@
-from __future__ import division
-
 import numpy as np
 
 from bokeh.core.properties import Instance, String
@@ -168,8 +166,7 @@ export class Surface3d extends LayoutDOM {
 class Surface3d(LayoutDOM):
 
     # The special class attribute ``__implementation__`` should contain a string
-    # of JavaScript (or CoffeeScript) code that implements the JavaScript side
-    # of the custom extension model.
+    # of JavaScript code that implements the browser side of the extension model.
     __implementation__ = TypeScript(TS_CODE)
 
     # Below are all the "properties" for this model. Bokeh properties are
