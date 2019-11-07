@@ -8,6 +8,7 @@ jobs:
     strategy:
       matrix:
         node_version: [10, 12]
+        python_version: [3.7]
         os: [windows-latest, macos-latest]
 
     steps:
@@ -17,6 +18,11 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node_version }}
+
+      - name: Setup python ${{ matrix.python_version }}
+        uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python_version }}
 
       - name: Install conda stuff
         run: |
