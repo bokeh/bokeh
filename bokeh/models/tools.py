@@ -965,6 +965,7 @@ class HoverTool(Inspection):
             * patch
             * quadratic
             * ray
+            * step
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
