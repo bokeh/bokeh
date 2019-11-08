@@ -17,6 +17,8 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from argparse import Namespace
+from typing import Sequence
 
 # External imports
 
@@ -64,7 +66,7 @@ class Build(Subcommand):
         )),
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> bool:
         return build(args.base_dir, rebuild=args.rebuild, debug=args.debug)
 
 #-----------------------------------------------------------------------------

@@ -50,7 +50,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from argparse import Namespace
 import sys
+from typing import Any, Optional
 
 # External imports
 
@@ -74,10 +76,12 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _version(modname, attr):
+def _version(modname: str, attr: str) -> Optional[Any]:
     mod = import_optional(modname)
     if mod:
         return getattr(mod, attr)
+    else:  # explicit None return for mypy typing
+        return None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -102,7 +106,7 @@ class Info(Subcommand):
 
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''

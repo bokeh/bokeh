@@ -22,12 +22,15 @@ log = logging.getLogger(__name__)
 from abc import abstractmethod
 import argparse
 import io
+from typing import Union, List, Tuple
 
 # External imports
 
 # Bokeh imports
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
+from ...document import Document
+
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,10 +53,10 @@ class FileOutputSubcommand(Subcommand):
 
     '''
 
-    extension = None # subtype must set this to file extension
+    extension: str = ""  # subtype must set this to file extension
 
     @classmethod
-    def files_arg(cls, output_type_name):
+    def files_arg(cls, output_type_name: str) -> Tuple[str, dict]:
         ''' Returns a positional arg for ``files`` to specify file inputs to
         the command.
 
@@ -81,6 +84,9 @@ class FileOutputSubcommand(Subcommand):
             default=None
         ))
 
+    # TODO - unsure how to specify a suitable return type. The mypy suggested was very specific to this method datastructure
+    # Tuple[Tuple[Tuple[str, str], Dict[Any, Union[str, Type[str]]]], Tuple[str, Dict[Any, str]]]
+    # Sequence[str, dict] does not work because then added to another Tuple in subclasses
     @classmethod
     def other_args(cls):
         ''' Return args for ``-o`` / ``--output`` to specify where output
@@ -119,7 +125,7 @@ class FileOutputSubcommand(Subcommand):
             )),
         )
 
-    def filename_from_route(self, route, ext):
+    def filename_from_route(self, route: str, ext: str) -> str:
         '''
 
         '''
@@ -130,17 +136,17 @@ class FileOutputSubcommand(Subcommand):
 
         return "%s.%s" % (base, ext)
 
-    def invoke(self, args):
+    def invoke(self, args: argparse.Namespace) -> None:
         '''
 
         '''
-        argvs = { f : args.args for f in args.files}
+        argvs = {f: args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 
         if args.output is None:
-            outputs = []
+            outputs: List[str] = []
         else:
-            outputs = list(args.output) # copy so we can pop from it
+            outputs = list(args.output)  # copy so we can pop from it
 
         if len(outputs) > len(applications):
             die("--output/-o was given too many times (%d times for %d applications)" %
@@ -156,7 +162,7 @@ class FileOutputSubcommand(Subcommand):
 
             self.write_file(args, filename, doc)
 
-    def write_file(self, args, filename, doc):
+    def write_file(self, args: argparse.Namespace, filename: str, doc: Document) -> None:
         '''
 
         '''
@@ -169,16 +175,19 @@ class FileOutputSubcommand(Subcommand):
         self.after_write_file(args, filename, doc)
 
     # can be overridden optionally
-    def after_write_file(self, args, filename, doc):
+    def after_write_file(self, args: argparse.Namespace, filename: str, doc: Document) -> None:
         '''
 
         '''
         pass
 
     @abstractmethod
-    def file_contents(self, args, doc):
+    def file_contents(self, args: argparse.Namespace, doc: Document) -> Union[str, bytes, None]:
         ''' Subtypes must override this to return the contents of the output file for the given doc.
-
+        subclassed methods return different types:
+            str:
+            bytes: SVG, png
+            None:
         '''
         raise NotImplementedError("file_contents")
 

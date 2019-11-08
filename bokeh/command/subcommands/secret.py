@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from argparse import Namespace
 
 # External imports
 
@@ -67,7 +68,7 @@ class Secret(Subcommand):
     args = (
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''

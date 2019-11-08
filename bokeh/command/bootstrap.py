@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 import argparse
+from typing import Any, Optional, Sequence, Tuple
 
 # External imports
 
@@ -53,6 +54,7 @@ from bokeh.settings import settings
 
 from .util import die
 from . import subcommands
+from .subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -65,8 +67,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def main(argv):
+# TODO - struggling to resolve argv mypy typing. is nested tuple of ((arg_name, arg_dict), ...) not Sequence[str]
+def main(argv) -> None:
     ''' Execute the Bokeh command.
 
     Args:
@@ -90,7 +92,7 @@ def main(argv):
 
     '''
     if len(argv) == 1:
-        die("ERROR: Must specify subcommand, one of: %s" % nice_join(x.name for x in subcommands.all))
+        die("ERROR: Must specify subcommand, one of: %s" % nice_join([x.name for x in subcommands.all]))
 
     parser = argparse.ArgumentParser(
         prog=argv[0],

@@ -22,13 +22,15 @@ import contextlib
 import errno
 import os
 import sys
+from typing import Any, Dict, Generator, Union, List, Sequence
 import warnings
 
 # External imports
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
+from bokeh.document import Document
+from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler, Handler
 from bokeh.models.plots import Plot
 
 #-----------------------------------------------------------------------------
@@ -47,7 +49,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def die(message, status=1):
+def die(message: str, status: int = 1) -> None:
     ''' Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the
@@ -72,7 +74,7 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
-def build_single_handler_application(path, argv=None):
+def build_single_handler_application(path: str, argv: Sequence[str] = None) -> Application:
     ''' Return a Bokeh application built using a single handler for a script,
     notebook, or directory.
 
@@ -111,6 +113,7 @@ def build_single_handler_application(path, argv=None):
     '''
     argv = argv or []
     path = os.path.abspath(path)
+    handler: Handler
 
     # There are certainly race conditions here if the file/directory is deleted
     # in between the isdir/isfile tests and subsequent code. But it would be a
@@ -136,7 +139,7 @@ def build_single_handler_application(path, argv=None):
 
     return application
 
-def build_single_handler_applications(paths, argvs=None):
+def build_single_handler_applications(paths: List[str], argvs: Dict[str, List[str]] = None) -> Dict[str, Application]:
     ''' Return a dictionary mapping routes to Bokeh applications built using
     single handlers, for specified files or directories.
 
@@ -158,7 +161,7 @@ def build_single_handler_applications(paths, argvs=None):
         RuntimeError
 
     '''
-    applications = {}
+    applications: Dict[str, Application] = {}
     argvs = argvs or {}
 
     for path in paths:
@@ -176,7 +179,7 @@ def build_single_handler_applications(paths, argvs=None):
 
 
 @contextlib.contextmanager
-def report_server_init_errors(address=None, port=None, **kwargs):
+def report_server_init_errors(address: str = None, port: int = None, **kwargs: Any) -> Generator:
     ''' A context manager to help print more informative error messages when a
     ``Server`` cannot be started due to a network problem.
 
@@ -209,13 +212,16 @@ def report_server_init_errors(address=None, port=None, **kwargs):
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
         sys.exit(1)
 
-def set_single_plot_width_height(doc, width, height):
+def set_single_plot_width_height(doc: Document, width: int, height: int) -> None:
     if width is not None or height is not None:
         layout = doc.roots
         if len(layout) != 1 or not isinstance(layout[0], Plot):
             warnings.warn("Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)")
         else:
             plot = layout[0]
+            # TODO - fails mypy check
+            # unsure how to handle with typing. width is int base type and class property getter is typing.Int
+            # plot.plot_width  = width if width is not None else plot.plot_width  # doesnt solve problem
             plot.plot_height = height or plot.plot_height
             plot.plot_width  = width or plot.plot_width
 

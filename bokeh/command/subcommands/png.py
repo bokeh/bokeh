@@ -57,6 +57,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import sys
+from argparse import Namespace
 
 # External imports
 
@@ -64,6 +65,7 @@ import sys
 from ...io.export import get_screenshot_as_png, create_webdriver, terminate_webdriver
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
+from ...document import Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -110,7 +112,7 @@ class PNG(FileOutputSubcommand):
 
     ) + FileOutputSubcommand.other_args()
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''
@@ -120,7 +122,7 @@ class PNG(FileOutputSubcommand):
         finally:
             terminate_webdriver(self.driver)
 
-    def write_file(self, args, filename, doc):
+    def write_file(self, args: Namespace, filename: str, doc: Document) -> None:
         '''
 
         '''
@@ -132,7 +134,7 @@ class PNG(FileOutputSubcommand):
                 f.write(contents)
         self.after_write_file(args, filename, doc)
 
-    def file_contents(self, args, doc):
+    def file_contents(self, args: Namespace, doc: Document) -> bytes:
         '''
 
         '''
