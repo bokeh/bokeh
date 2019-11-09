@@ -417,6 +417,8 @@ export class Linker {
       const pkg_path = join(dir, "package.json")
       if (file_exists(pkg_path)) {
         const pkg = JSON.parse(read(pkg_path)!)
+        if (pkg.module != null)
+          return pkg.module
         if (pkg.main != null)
           return pkg.main
       }
@@ -534,6 +536,7 @@ export class Linker {
       switch (extname(file)) {
         case ".json": return "json"
         case ".css": return "css"
+        case ".mjs": return "js"
         case ".js": return "js"
         default:
           throw new Error(`unsupported extension of ${file}`)
