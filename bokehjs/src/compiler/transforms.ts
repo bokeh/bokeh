@@ -252,6 +252,36 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
   }
 }
 
+// XXX: this is pretty naive, but affects very litte code
+export function rename_exports() {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function is_exports(node: ts.Node): boolean {
+      return ts.isIdentifier(node) && node.text == "exports"
+    }
+
+    const has_exports = root.statements.some((stmt) => {
+      return ts.isVariableStatement(stmt) && stmt.declarationList.declarations.some((decl) => is_exports(decl.name))
+    })
+
+    if (has_exports) {
+      function visit(node: ts.Node): ts.Node {
+        if (is_exports(node)) {
+          const updated = ts.createIdentifier("exports$1")
+          const original = node
+          ts.setOriginalNode(updated, original)
+          ts.setTextRange(updated, original)
+          return updated
+        }
+
+        return ts.visitEachChild(node, visit, context)
+      }
+
+      return ts.visitNode(root, visit)
+    } else
+      return root
+  }
+}
+
 export function add_json_export() {
   return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
     if (root.statements.length == 1) {

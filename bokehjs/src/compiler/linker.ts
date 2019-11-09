@@ -574,7 +574,9 @@ export class Linker {
     if (changed) {
       if (type == "js") {
         const {ES2017, ES5} = ts.ScriptTarget
-        const {output, error} = transpile(source, !this.transpile ? ES2017 : ES5)
+        const target = !this.transpile ? ES2017 : ES5
+        const transform = {before: [transforms.rename_exports()], after: []}
+        const {output, error} = transpile(file, source, target, transform)
         if (error)
           throw new Error(error)
         else
@@ -659,15 +661,17 @@ export class Linker {
   }
 }
 
-export function transpile(source: string, target: ts.ScriptTarget, transformers?: Transformers): {output: string, error?: string} {
+export function transpile(file: Path, source: string, target: ts.ScriptTarget,
+    transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
   const {outputText: output, diagnostics} = ts.transpileModule(source, {
+    fileName: file,
     reportDiagnostics: true,
     compilerOptions: {
       target,
       module: ts.ModuleKind.CommonJS,
       importHelpers: true,
     },
-    transformers: {after: transformers},
+    transformers,
   })
 
   if (diagnostics == null || diagnostics.length == 0)
