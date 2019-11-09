@@ -5,17 +5,18 @@ Developing with JavaScript
 
 In order to create interactive plots and applications in the browser, Bokeh
 has a client-side library, BokehJS, to do all the work of drawing and rendering
-and event handling in a browser. The Bokeh Python library, and libraries for
-:ref:`userguide_quickstart_other_languages` such as R, Scala, and Julia, are
-primarily a means to interact with BokehJS conveniently at a high level,
-without needing to explicitly worry about JavaScript or web development.
+and event handling in a browser. The Bokeh Python library (and libraries for
+other languages such as R, Scala, and Julia), are primarily a means to interact
+with BokehJS conveniently at a high level, without needing to explicitly worry
+about JavaScript or web development.
+
 However, BokehJS has its own API, and it is possible to do pure JavaScript
 development using BokehJS directly. Additionally, :ref:`userguide_extensions`
 with custom models typically requires interacting with BokehJS directly as well.
 
 .. warning::
-    The BokehJS APIs are new as of version ``0.12`` and may undergo some
-    changes before a ``1.0`` release.
+    The BokehJS APIs is still considered experimental, and may undergo changes
+    in future releases.
 
 Obtaining BokehJS
 -----------------
@@ -206,7 +207,7 @@ function, with the plot it generates shown below:
     // add the plot to a document and display it
     var doc = new Bokeh.Document();
     doc.add_root(plt.gridplot(
-                     [[p1, p2, p3, p4]],
+                     [[p1, p2], [p3, p4]],
                      {plot_width:250, plot_height:250}));
     Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
 
@@ -283,48 +284,54 @@ function, with the plot it generates shown below:
         stacked: true
     });
 
-    plt.show(plt.gridplot([[p1, p2, p3, p4]], {plot_width:350, plot_height:350}));
+    plt.show(plt.gridplot([[p1, p2], [p3, p4]], {plot_width:350, plot_height:350}));
 
-``Minimal Complete Example``
-''''''''''''''''''''''''''''
+Minimal Example
+---------------
 
 A minimal example follows, demonstrating a proper import of the libraries,
 and dynamic creation and modification of plots.
 
 .. bokehjs-content::
-    :title: Bokeh Pie Chart
+    :title: Minimal Example
     :include_html: true
     :disable_codepen: true
 
-    // arrays to hold data
+    // create a data source to hold data
     var source = new Bokeh.ColumnDataSource({
         data: { x: [], y: [] }
     });
 
-    // make the plot and add some tools
-    var tools = "pan,crosshair,wheel_zoom,box_zoom,reset,save";
+    // make a plot with some tools
+    var plot = Bokeh.Plotting.figure({
+        title:'Example of Random data',
+        tools: "pan,wheel_zoom,box_zoom,reset,save",
+        height: 300,
+        width: 300
+    });
 
-    var plot = Bokeh.Plotting.figure({title:'Example of Random data', tools: tools, height: 300, width: 300});
-
-    var scatterData = plot.line({ field: "x" }, { field: "y" }, {
+    // add a line with data from the source
+    plot.line({ field: "x" }, { field: "y" }, {
         source: source,
         line_width: 2
     });
 
-    // Show the plot, appending it to the end of the current
-    // section of the document we are in.
+    // show the plot, appending it to the end of the current section
     Bokeh.Plotting.show(plot);
 
     function addPoint() {
-        // The data can be added, but generally all fields must be the
-        // same length.
-        source.data.x.push(Math.random());
-        source.data.y.push(Math.random());
-        // Also, the DataSource object must be notified when it has changed.
-        source.change.emit();
+        // add data --- all fields must be the same length.
+        source.data.x.push(Math.random())
+        source.data.y.push(Math.random())
+
+        // notify the DataSource of "in-place" changes
+        source.change.emit()
     }
 
     var addDataButton = document.createElement("Button");
     addDataButton.appendChild(document.createTextNode("Add Some Data!!!"));
     document.currentScript.parentElement.appendChild(addDataButton);
     addDataButton.addEventListener("click", addPoint);
+
+    addPoint();
+    addPoint();

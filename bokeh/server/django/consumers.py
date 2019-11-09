@@ -262,7 +262,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 # Private API
 #-----------------------------------------------------------------------------
 
-# TODO: remove this when Python 2.x is dropped
+# TODO: remove this when coroutines are dropped
 class AsyncServerConnection(ServerConnection):
 
     async def send_patch_document(self, event):

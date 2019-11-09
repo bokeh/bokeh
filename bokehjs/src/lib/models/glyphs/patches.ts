@@ -12,6 +12,7 @@ import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
+import {unreachable} from "core/util/assert"
 
 export interface PatchesData extends GlyphData {
   _xs: Arrayable<Arrayable<number>>
@@ -187,7 +188,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    throw new Error("unreachable code")
+    unreachable()
   }
 
   scentery(i: number, sx: number, sy: number): number {
@@ -205,7 +206,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    throw new Error("unreachable code")
+    unreachable()
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

@@ -1,6 +1,6 @@
 from bokeh.events import ButtonClick
 from bokeh.io import curdoc
-from bokeh.layouts import column, row, widgetbox
+from bokeh.layouts import column, row
 from bokeh.models import Button, ColumnDataSource, Div, Slider
 from bokeh.plotting import figure
 
@@ -42,5 +42,5 @@ to see the result.</p>
 """, width=600)
 
 doc.add_root(row(
-    p, column(div, widgetbox(slider, combine, collect, unhold)))
+    p, column(div, column(slider, combine, collect, unhold)))
 )

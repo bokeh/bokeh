@@ -5,5 +5,5 @@ set -x # echo commands
 
 # install NPM dependencies
 pushd bokehjs
-npm install --no-save --no-progress
+npm ci --no-progress
 popd

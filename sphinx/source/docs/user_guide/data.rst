@@ -1,7 +1,7 @@
 .. _userguide_data:
 
-Providing Data for Plots and Tables
-===================================
+Providing Data
+==============
 
 No data visualization is possible without the underlying data to be represented.
 In this section, the various ways of providing data for plots is explained, from

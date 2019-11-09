@@ -3,10 +3,11 @@
 Quickstart
 ##########
 
-Bokeh is an interactive visualization library that targets modern web
-browsers for presentation. Bokeh provides elegant, concise construction of
-versatile graphics with high-performance interactivity over very large or
-streaming datasets in a quick and easy way from Python (or other languages).
+Bokeh is an interactive visualization library for modern web browsers. It
+provides elegant, concise construction of versatile graphics, and affords
+high-performance interactivity over large or streaming datasets. Bokeh can help
+anyone who would like to quickly and easily make interactive plots, dashboards,
+and data applications.
 
 To offer both simplicity and the powerful and flexible features needed for
 advanced customizations, Bokeh exposes two interface levels to users:
@@ -79,7 +80,7 @@ pan, save, and other tools is simple and straightforward:
     p = figure(title="simple line example", x_axis_label='x', y_axis_label='y')
 
     # add a line renderer with legend and line thickness
-    p.line(x, y, legend="Temp.", line_width=2)
+    p.line(x, y, legend_label="Temp.", line_width=2)
 
     # show the results
     show(p)
@@ -141,12 +142,12 @@ plot as shown below:
     )
 
     # add some renderers
-    p.line(x, x, legend="y=x")
-    p.circle(x, x, legend="y=x", fill_color="white", size=8)
-    p.line(x, y0, legend="y=x^2", line_width=3)
-    p.line(x, y1, legend="y=10^x", line_color="red")
-    p.circle(x, y1, legend="y=10^x", fill_color="red", line_color="red", size=6)
-    p.line(x, y2, legend="y=10^x^2", line_color="orange", line_dash="4 4")
+    p.line(x, x, legend_label="y=x")
+    p.circle(x, x, legend_label="y=x", fill_color="white", size=8)
+    p.line(x, y0, legend_label="y=x^2", line_width=3)
+    p.line(x, y1, legend_label="y=10^x", line_color="red")
+    p.circle(x, y1, legend_label="y=10^x", fill_color="red", line_color="red", size=6)
+    p.line(x, y2, legend_label="y=10^x^2", line_color="orange", line_dash="4 4")
 
     # show the results
     show(p)
@@ -188,22 +189,9 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
 
 .. note::
 
-    Note that Bokeh plots cannot be displayed inline in notebook previews on
-    GitHub. Bokeh uses JavaScript code to render plots and GitHub scrubs all
-    JavaScript from previewed content.
-
-.. _userguide_quickstart_other_languages:
-
-Other Languages
-===============
-
-Bokeh's architecture makes it possible to create bindings for Bokeh in other
-languages, and in fact several already exist. The core are heavily invested in
-Python, but having many language options is a compelling feature. Here are some
-of the other ways to use Bokeh:
-
-* `Bokeh for R`_
-* `Bokeh for Scala`_
+    **Bokeh plots will not display inline in GitHub notebook previews**. Bokeh
+    plots use JavaScript code to render, but GitHub scrubs all JavaScript from
+    previewed content.
 
 .. _userguide_quickstart_sample_data:
 
@@ -217,6 +205,8 @@ commands at a Bash or Windows command prompt:
 .. code-block:: sh
 
     bokeh sampledata
+
+For more information see the |bokeh.sampledata| reference.
 
 .. _userguide_quickstart_concepts:
 
@@ -281,7 +271,7 @@ Resources
 
 To generate plots, the client library BokehJS JavaScript and CSS code must
 be loaded into the browser. By default, the |output_file| function will
-load BokehJS from https://cdn.pydata.org . However, you can also configure Bokeh
+load BokehJS from ``cdn.bokeh.org``. However, you can also configure Bokeh
 to generate static HTML files with BokehJS resources embedded directly inside,
 by passing the argument ``mode="inline"`` to the |output_file| function.
 
@@ -482,8 +472,8 @@ of interest to look out for in this example:
     p = figure(plot_width=800, plot_height=350, x_axis_type="datetime")
 
     # add renderers
-    p.circle(aapl_dates, aapl, size=4, color='darkgrey', alpha=0.2, legend='close')
-    p.line(aapl_dates, aapl_avg, color='navy', legend='avg')
+    p.circle(aapl_dates, aapl, size=4, color='darkgrey', alpha=0.2, legend_label='close')
+    p.line(aapl_dates, aapl_avg, color='navy', legend_label='avg')
 
     # NEW: customize by setting attributes
     p.title.text = "AAPL One-Month Average"
@@ -499,8 +489,8 @@ of interest to look out for in this example:
 
 .. _userguide_quickstart_server:
 
-Bokeh Application Server
-========================
+Bokeh Applications
+==================
 
 Bokeh also comes with an optional server component, the Bokeh Server. It is
 possible to create many interesting and interactive visualizations without
@@ -556,12 +546,12 @@ documents, check out the :ref:`userguide`. For detailed information about
 all modules, classes, models, and objects, consult the :ref:`refguide`.
 If you are interested in learning how to build and develop Bokeh, or for
 information about how to create a new language binding, see the
-:ref:`devguide`.
+:ref:`devguide` Guide.
 
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
-`live Tutorial notebooks`_.
+`live tutorial notebooks`_.
 
 For questions and technical assistance, come join the `Bokeh Discourse`_.
 
@@ -570,17 +560,15 @@ Visit the `Bokeh GitHub repository`_ and try the examples.
 Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
 
 .. _Anaconda Python distribution: http://anaconda.com/anaconda
-.. _Bokeh for R: http://hafen.github.io/rbokeh/
-.. _Bokeh for Scala: https://github.com/bokeh/bokeh-scala
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
 .. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Twitter: http://twitter.com/BokehPlots
-.. _Apache Zeppelin: http://zeppelin.apache.org
 
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`
+.. |bokeh.sampledata| replace:: :ref:`bokeh.sampledata <bokeh.sampledata>`
 
 .. |glyphs|  replace:: :ref:`glyphs <bokeh.models.glyphs>`
 .. |markers| replace:: :ref:`markers <bokeh.models.markers>`

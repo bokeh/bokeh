@@ -22,7 +22,7 @@ export class TooltipView extends AnnotationView {
   initialize(): void {
     super.initialize()
     // TODO (bev) really probably need multiple divs
-    this.plot_view.canvas_overlays.appendChild(this.el)
+    this.plot_view.canvas_view.add_overlay(this.el)
     undisplay(this.el)
   }
 
@@ -102,8 +102,6 @@ export class TooltipView extends AnnotationView {
         top = sy - this.el.offsetHeight - arrow_size
         left = Math.round(sx - this.el.offsetWidth/2)
         break
-      default:
-        throw new Error("unreachable code")
     }
 
     if (this.model.show_arrow)

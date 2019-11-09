@@ -31,8 +31,11 @@ requirements:
     - tornado >=5
     - yaml
 
+  host:
+    - python >=3.6
+
   run:
-    - python
+    - python >=3.6
 
     {% for dep in data['install_requires'] %}
     - {{ dep.lower() }}

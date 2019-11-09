@@ -1,0 +1,62 @@
+{% extends "basic/layout.html" %}
+
+{%- block css %}
+{% include 'styles.html' %}
+{%- endblock %}
+
+{%- block htmltitle %}
+  {% if pagename == 'index'  %}
+  <title>{{ docstitle|e }}</title>
+  {% else %}
+  <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+  {% endif %}
+{%- endblock %}
+
+{%- block extrahead %}
+{% include 'meta.html' %}
+{% include 'fonts.html' %}
+{% include 'favicon.html' %}
+{% include 'ga.html' %}
+<link rel="canonical" href="https://docs.bokeh.org/en/latest/{{ pagename }}{{ file_suffix }}" />
+{%- endblock %}
+
+{# Silence the sidebar's, relbar's #}
+{% block header %}{% endblock %}
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}
+{% block sidebarsourcelink %}{% endblock %}
+
+{% block body_tag %}
+<body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+{%- endblock %}
+
+{%- block content %}
+
+  {%- include "docs-navbar.html" %}
+
+  <div class="container-fluid" id="banner"></div>
+
+  <div class="container-fluid" id="main-content">
+
+    <div class="row flex-xl-nowrap">
+
+      {% if pagename == 'index' or pagename == 'docs/gallery' or pagename == 'docs/installation' or pagename == 'search' %}
+        <main class="col-12 col-md-12 col-sm-12 col-lg-12 col-xl-12 py-md-3 bd-content" role="main">
+      {% else %}
+        {%- include "docs-sidebar.html" %}
+        {%- include "docs-toc.html" %}
+        <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+      {% endif %}
+          <div>
+            {% block body %} {% endblock %}
+          </div>
+        </main>
+
+    </div>
+  </div>
+  {%- include "scripts.html" %}
+{%- endblock %}
+
+{%- block footer %}
+{% include 'footer.html' %}
+{%- endblock %}

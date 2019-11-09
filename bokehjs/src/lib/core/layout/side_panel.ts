@@ -179,8 +179,6 @@ export class SidePanel extends ContentLayoutable {
         this._dim = 1
         this._normals = [1, 0]
         break
-      default:
-        throw new Error("unreachable")
     }
 
     if (this.is_horizontal)

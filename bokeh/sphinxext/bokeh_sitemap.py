@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from html import escape
 from os.path import join
 
 # External imports
@@ -65,7 +66,7 @@ def build_finished(app, exception):
     ''' Generate a ``sitemap.txt`` from the collected HTML page links.
 
     '''
-    filename = join(app.outdir, "sitemap.txt")
+    filename = join(app.outdir, "sitemap.xml")
 
     links_iter = status_iterator(sorted(app.sitemap_links),
                                  'adding links to sitemap... ',
@@ -75,8 +76,10 @@ def build_finished(app, exception):
 
     try:
         with open(filename, 'w') as f:
+            f.write(_header)
             for link in links_iter:
-                f.write("%s\n" % link)
+                f.write(_item % escape(link.strip().replace("https://", "http://")))
+            f.write(_footer)
     except OSError as e:
         raise SphinxError('cannot write sitemap.txt, reason: %s' % e)
 
@@ -89,6 +92,24 @@ def setup(app):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_header = '''\
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+'''
+
+_item = '''\
+   <url>
+      <loc>%s</loc>
+   </url>
+
+'''
+
+_footer = '''\
+</urlset>
+'''
 
 #-----------------------------------------------------------------------------
 # Code

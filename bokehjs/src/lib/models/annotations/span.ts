@@ -13,7 +13,7 @@ export class SpanView extends AnnotationView {
 
   initialize(): void {
     super.initialize()
-    this.plot_view.canvas_overlays.appendChild(this.el)
+    this.plot_view.canvas_view.add_overlay(this.el)
     this.el.style.position = "absolute"
     undisplay(this.el)
   }

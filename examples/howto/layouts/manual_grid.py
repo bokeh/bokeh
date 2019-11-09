@@ -29,7 +29,7 @@ paragraph = Paragraph(text="We build up a grid plot manually. Try changing the m
 select = Select(title="Sizing mode", value="fixed", options=list(SizingMode), width=300)
 
 plots = grid([[None, p1, None], [p2, p3, p4]])
-layout = column([paragraph, select, plots])
+layout = column(paragraph, select, plots)
 
 select.js_link('value', p1, 'sizing_mode')
 select.js_link('value', p2, 'sizing_mode')

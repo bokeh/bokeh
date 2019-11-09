@@ -41,7 +41,6 @@ from ..document import Document
 from ..resources import _SessionCoordinates, DEFAULT_SERVER_HTTP_URL
 from ..util.browser import NEW_PARAM
 from ..util.session_id import generate_session_id
-from ..util.string import format_docstring
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
@@ -481,5 +480,3 @@ class ClientSession(object):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-__doc__ = format_docstring(__doc__)

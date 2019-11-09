@@ -1,7 +1,33 @@
 .. _userguide:
 
 User Guide
-==========
+##########
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    user_guide/quickstart
+    user_guide/concepts
+    user_guide/plotting
+    user_guide/data
+    user_guide/layout
+    user_guide/categorical
+    user_guide/graph
+    user_guide/geo
+    user_guide/tools
+    user_guide/styling
+    user_guide/annotations
+    user_guide/interaction
+    user_guide/server
+    user_guide/notebook
+    user_guide/export
+    user_guide/embed
+    user_guide/cli
+    user_guide/extensions
+    user_guide/webgl
+    user_guide/compat
+    user_guide/bokehjs
 
 This user guide is intended to walk you through many common tasks that
 you might want to accomplish using Bokeh. The guide is arranged by
@@ -71,17 +97,14 @@ topic:
 :ref:`userguide_extensions`
     Add new capability to Bokeh with custom user extensions.
 
-:ref:`userguide_compat`
-    Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
-
 :ref:`userguide_webgl`
     Improve performance for large datasets by using WebGL.
 
+:ref:`userguide_compat`
+    Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
+
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.
-
-:ref:`userguide_info`
-    See where to go next for more information and examples.
 
 The examples in the user guide are written to be as minimal as possible, while
 illustrating how to accomplish a single task within Bokeh. With a handful of

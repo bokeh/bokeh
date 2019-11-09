@@ -575,14 +575,6 @@ below:
 .. bokeh-plot:: docs/user_guide/examples/plotting_twin_axes.py
     :source-position: above
 
-.. _userguide_plotting_annotations:
-
-Adding Annotations
-------------------
-
-The section on adding annotations to plots has moved.  Please see
-:ref:`userguide_annotations`
-
 .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

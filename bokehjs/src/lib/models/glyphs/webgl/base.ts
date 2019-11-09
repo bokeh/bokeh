@@ -53,7 +53,7 @@ export abstract class BaseGLGlyph {
       return false
     }
     const [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
-    const {width, height} = this.glyph.renderer.plot_view.gl!.canvas
+    const {width, height} = this.glyph.renderer.plot_view.canvas_view.webgl!.canvas
     const trans = {
       pixel_ratio: this.glyph.renderer.plot_view.canvas.pixel_ratio,  // pass pixel_ratio to webgl
       width, height,

@@ -18,19 +18,7 @@ at your command prompt. Then navigate to the URL
 .. _README: https://github.com/bokeh/bokeh/blob/master/examples/app/stocks/README.md
 
 '''
-try:
-    from functools import lru_cache
-except ImportError:
-    # Python 2 does stdlib does not have lru_cache so let's just
-    # create a dummy decorator to avoid crashing
-    print ("WARNING: Cache for this example is available on Python 3 only.")
-    def lru_cache():
-        def dec(f):
-            def _(*args, **kws):
-                return f(*args, **kws)
-            return _
-        return dec
-
+from functools import lru_cache
 from os.path import dirname, join
 
 import pandas as pd

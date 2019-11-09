@@ -266,8 +266,6 @@ export abstract class LayoutDOMView extends DOMView {
             width_policy = "max"
             height_policy = "max"
             break
-          default:
-            throw new Error("unreachable")
         }
       }
     }

@@ -14,6 +14,7 @@ import {max, every} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
+import {unreachable} from "core/util/assert"
 
 export class LegendView extends AnnotationView {
   model: Legend
@@ -127,15 +128,13 @@ export class LegendView extends AnnotationView {
           sx = hr.end - legend_margin - legend_width
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        default:
-          throw new Error("unreachable code")
       }
     } else if (isArray(location) && location.length == 2) {
       const [vx, vy] = location
       sx = panel.xview.compute(vx)
       sy = panel.yview.compute(vy) - legend_height
     } else
-      throw new Error("unreachable code")
+      unreachable()
 
     return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})
   }

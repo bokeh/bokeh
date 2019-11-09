@@ -34,7 +34,7 @@ from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIX
 from ..model import Model, collect_filtered_models
 from ..util.string import nice_join
 
-from .annotations import Legend, Title
+from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
@@ -359,7 +359,7 @@ class Plot(LayoutDOM):
 
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
-        if len(self.renderers) == 0:
+        if len(self.renderers) == 0 and len([x for x in self.center if isinstance(x, Annotation)]) == 0:
             return str(self)
 
     @error(BAD_EXTRA_RANGE_NAME)
