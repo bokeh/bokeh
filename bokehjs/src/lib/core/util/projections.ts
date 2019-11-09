@@ -24,7 +24,8 @@ export function clip_mercator(low: number, high: number, dimension: LatLon): [nu
 }
 
 export function in_bounds(value: number, dimension: LatLon): boolean {
-  return value > latlon_bounds[dimension][0] && value < latlon_bounds[dimension][1]
+  const [min, max] = latlon_bounds[dimension]
+  return min < value && value < max
 }
 
 export function project_xy(x: number[], y: number[]): [number[], number[]] {
