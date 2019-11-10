@@ -1,7 +1,7 @@
 .. _userguide_cli:
 
-Using ``bokeh`` Commands
-========================
+Using the Command Line
+======================
 
 It is possible to generate various kinds of output from Bokeh
 programmatically. The use of ``output_file``, ``output_notebook``, etc.

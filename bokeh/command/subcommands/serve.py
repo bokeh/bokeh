@@ -849,7 +849,6 @@ class Serve(Subcommand):
 # Code
 #-----------------------------------------------------------------------------
 
-
 __doc__ = format_docstring(__doc__,
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),

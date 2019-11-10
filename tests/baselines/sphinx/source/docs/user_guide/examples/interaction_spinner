@@ -1,5 +1,5 @@
 Row bbox=[0, 0, 700, 600]
-  WidgetBox bbox=[0, 0, 100, 60]
+  Column bbox=[0, 0, 100, 60]
     Spinner bbox=[5, 5, 100, 50]
   Plot bbox=[100, 0, 600, 600]
     LinearAxis bbox=[27, 576, 543, 24]

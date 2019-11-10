@@ -121,7 +121,7 @@ attrs:
         major_label_text_color: null
         major_tick_line_color: null
         minor_tick_line_color: null
-"""))
+""", Loader=yaml.SafeLoader))
 
 layout = row(
     column(red_slider, green_slider, blue_slider),

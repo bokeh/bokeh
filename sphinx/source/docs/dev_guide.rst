@@ -1,7 +1,20 @@
 .. _devguide:
 
-Developer Guide
-===============
+Developers
+##########
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    dev_guide/setup
+    dev_guide/env_vars
+    dev_guide/testing
+    dev_guide/documentation
+    dev_guide/models
+    dev_guide/server
+    dev_guide/bindings
+    dev_guide/bokehjs
 
 Bokeh is an open source project and we love having new contributors. Hopefully,
 you will find all the information you need in the following pages, linked below

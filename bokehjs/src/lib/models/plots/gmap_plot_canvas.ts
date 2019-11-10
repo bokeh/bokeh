@@ -1,4 +1,5 @@
 import {Signal0} from "core/signaling"
+import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
@@ -32,6 +33,7 @@ export class GMapPlotView extends PlotView {
   protected initial_lat: number
   protected initial_lng: number
 
+  protected map_el: HTMLElement
   private map: google.maps.Map
   protected map_types: any
 
@@ -48,8 +50,6 @@ export class GMapPlotView extends PlotView {
     this.initial_lat = lat
     this.initial_lng = lng
 
-    this.canvas_view.map_el!.style.position = "absolute"
-
     if (typeof google === "undefined" || google.maps == null) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
         load_google_api(this.model.api_key)
@@ -58,6 +58,11 @@ export class GMapPlotView extends PlotView {
     }
 
     this.unpause()
+  }
+
+  remove(): void {
+    remove(this.map_el)
+    super.remove()
   }
 
   update_range(range_info: RangeInfo & {sdx?: number, sdy?: number, factor?: number} | null): void {
@@ -76,7 +81,6 @@ export class GMapPlotView extends PlotView {
     } else if (range_info.factor != null) {
 
       // The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
-      let zoom_change
       if (this.zoom_count !== 10) {
         this.zoom_count += 1
         return
@@ -87,10 +91,7 @@ export class GMapPlotView extends PlotView {
 
       super.update_range(range_info)
 
-      if (range_info.factor < 0)
-        zoom_change = -1
-      else
-        zoom_change = 1
+      const zoom_change = range_info.factor < 0 ?  -1 : 1
 
       const old_map_zoom = this.map.getZoom()
       const new_map_zoom = old_map_zoom + zoom_change
@@ -137,7 +138,9 @@ export class GMapPlotView extends PlotView {
       map_options.styles = JSON.parse(mo.styles)
 
     // create the map with above options in div
-    this.map = new maps.Map(this.canvas_view.map_el, map_options)
+    this.map_el = div({style: {position: "absolute"}})
+    this.canvas_view.add_underlay(this.map_el)
+    this.map = new maps.Map(this.map_el, map_options)
 
     // update bokeh ranges whenever the map idles, which should be after most UI action
     maps.event.addListener(this.map, 'idle', () => this._set_bokeh_ranges())
@@ -230,14 +233,16 @@ export class GMapPlotView extends PlotView {
 
   // this method is expected and called by PlotView.render
   protected _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
-    const [left, top, width, height] = frame_box
-    this.canvas_view.map_el!.style.top    = `${top}px`
-    this.canvas_view.map_el!.style.left   = `${left}px`
-    this.canvas_view.map_el!.style.width  = `${width}px`
-    this.canvas_view.map_el!.style.height = `${height}px`
-
     if (this.map == null && typeof google !== "undefined" && google.maps != null)
       this._build_map()
+
+    if (this.map_el != null) {
+      const [left, top, width, height] = frame_box
+      this.map_el.style.top    = `${top}px`
+      this.map_el.style.left   = `${left}px`
+      this.map_el.style.width  = `${width}px`
+      this.map_el.style.height = `${height}px`
+    }
   }
 
   // this overrides the standard _paint_empty to make the inner canvas transparent

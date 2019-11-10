@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from bokeh.models import ColumnDataSource, NumeralTickFormatter, SingleIntervalTicker
 from bokeh.plotting import figure, show, output_file
 from bokeh.sampledata.us_marriages_divorces import data

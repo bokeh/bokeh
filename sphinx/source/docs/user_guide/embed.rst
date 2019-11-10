@@ -1,7 +1,7 @@
 .. _userguide_embed:
 
-Embedding Plots and Apps
-========================
+Embedding Bokeh Content
+=======================
 
 Bokeh provides a variety of ways to embed plots and data into HTML documents.
 First, a reminder of the distinction between standalone documents and apps:
@@ -192,21 +192,21 @@ appropriate version replacing ``x.y.z``:
 
 .. code-block:: html
 
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
 Similarly, the ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document.
 
-For example, to use version ``1.1.0``, including widgets and tables support:
+For example, to use version ``1.4.0``, including widgets and tables support:
 
 .. code-block:: html
 
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
-    <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.1.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.4.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
@@ -315,7 +315,7 @@ Then inserting the script and div elements into this boilerplate:
             <meta charset="utf-8">
             <title>Bokeh Scatter Plots</title>
 
-            <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
+            <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.1.0.min.js"></script>
 
             <!-- COPY/PASTE SCRIPT HERE -->
 

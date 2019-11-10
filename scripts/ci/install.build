@@ -22,5 +22,5 @@ npm install -g npm
 
 # install NPM dependencies
 pushd bokehjs
-npm install --no-save --no-progress
+npm ci --no-progress
 popd

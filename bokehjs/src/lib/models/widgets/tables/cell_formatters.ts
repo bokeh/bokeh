@@ -81,6 +81,61 @@ export class StringFormatter extends CellFormatter {
   }
 }
 
+export namespace ScientificFormatter {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = StringFormatter.Props & {
+    precision: p.Property<number>
+    power_limit_high: p.Property<number>
+    power_limit_low: p.Property<number>
+  }
+}
+
+export interface ScientificFormatter extends ScientificFormatter.Attrs {}
+
+export abstract class ScientificFormatter extends StringFormatter {
+  properties: ScientificFormatter.Props
+
+  constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
+    super(attrs)
+  }
+
+  static init_ScientificFormatter(): void {
+    this.define<ScientificFormatter.Props>({
+      precision:        [ p.Number,  10     ],
+      power_limit_high: [ p.Number,  5      ],
+      power_limit_low:  [ p.Number,  -3     ],
+    })
+  }
+
+  get scientific_limit_low(): number {
+    return Math.pow(10.0, this.power_limit_low)
+  }
+
+  get scientific_limit_high(): number {
+    return Math.pow(10.0, this.power_limit_high)
+  }
+
+  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+    const need_sci = value <= this.scientific_limit_low || value >= this.scientific_limit_high
+    let precision = this.precision
+
+    // toExponential does not handle precision values < 0 correctly
+    if (precision < 1) {
+      precision = 1
+    }
+
+    if (need_sci) {
+      value = value.toExponential(precision)
+    } else {
+      value = value.toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+    }
+
+    // add StringFormatter formatting
+    return super.doFormat(row, cell, value, columnDef, dataContext)
+  }
+}
+
 export namespace NumberFormatter {
   export type Attrs = p.AttrsOf<Props>
 

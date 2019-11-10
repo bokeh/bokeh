@@ -23,10 +23,19 @@ def welcome():
     You probably want to go to <a href="/en/latest/index.html"> Index</a>
     """
 
-@app.route('/en/latest/<path:filename>')
-def send_pic(filename):
+@app.route('/versions.json')
+def send_versions():
     return flask.send_from_directory(
-        os.path.join(_basedir,"sphinx/build/html/"), filename)
+        os.path.join(_basedir, "sphinx"), "test_versions.json")
+
+@app.route('/alert.html')
+def send_alert():
+    return os.environ.get("BOKEH_DOCS_ALERT", "")
+
+@app.route('/en/latest/<path:filename>')
+def send_docs(filename):
+    return flask.send_from_directory(
+        os.path.join(_basedir, "sphinx/build/html/"), filename)
 
 def open_browser():
     # Child process

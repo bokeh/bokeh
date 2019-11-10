@@ -15,7 +15,7 @@ export class ToolbarPanelView extends AnnotationView {
 
   initialize(): void {
     super.initialize()
-    this.plot_view.canvas_events.appendChild(this.el)
+    this.plot_view.canvas_view.add_event(this.el)
     this._toolbar_views = {}
     build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
     const toolbar_view = this._toolbar_views[this.model.toolbar.id]

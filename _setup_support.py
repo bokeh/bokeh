@@ -406,7 +406,7 @@ ERROR: subprocess.Popen(%r) failed to execute:
 
     %s
 
-Have you run `npm install --no-save` from the bokehjs subdirectory?
+Have you run `npm ci` from the bokehjs subdirectory?
 For more information, see the Dev Guide:
 
     https://docs.bokeh.org/en/latest/docs/dev_guide.html

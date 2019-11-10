@@ -11,7 +11,8 @@ import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
-import { isArray, isTypedArray } from "core/util/types"
+import {isArray, isTypedArray} from "core/util/types"
+import {unreachable} from "core/util/assert"
 
 export interface MultiPolygonsData extends GlyphData {
   _xs: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
@@ -193,7 +194,7 @@ export class MultiPolygonsView extends GlyphView {
       }
     }
 
-    throw new Error("unreachable code")
+    unreachable()
   }
 
   scentery(i: number, sx: number, sy: number): number {
@@ -211,7 +212,7 @@ export class MultiPolygonsView extends GlyphView {
       }
     }
 
-    throw new Error("unreachable code")
+    unreachable()
   }
 
   map_data(): void {

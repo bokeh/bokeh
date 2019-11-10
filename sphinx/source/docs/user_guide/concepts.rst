@@ -161,7 +161,7 @@ arrangement, what tools and renderers and axes the plots will have, etc. These
 JSON objects are converted into BokehJS Models in the browser, and are
 rendered by corresponding BokehJS Views.
 
-The second component is a library in Python (or |other languages|) that can
+The second component is a library in Python (or other languages) that can
 generate the JSON described above. In the Python Bokeh library, this is
 accomplished at the lowest level by exposing a set of "model" classes
 that exactly mirror the set of BokehJS Models that are created in the
@@ -237,9 +237,8 @@ cases of using the |bokeh.plotting| interface.
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |other languages| replace:: :ref:`other languages <userguide_quickstart_other_languages>`
-
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
+
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
@@ -250,9 +249,3 @@ cases of using the |bokeh.plotting| interface.
 .. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
-
-.. |Bar|        replace:: :func:`~bokeh.plotting.Bar`
-.. |BoxPlot|    replace:: :func:`~bokeh.plotting.BoxPlot`
-.. |Histogram|  replace:: :func:`~bokeh.plotting.Histogram`
-.. |Scatter|    replace:: :func:`~bokeh.plotting.Scatter`
-.. |TimeSeries| replace:: :func:`~bokeh.plotting.TimeSeries`

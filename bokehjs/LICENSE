@@ -45,6 +45,6 @@ complete set of unique licenses found in BokehJS packages is listed here:
 A detailed list of specific package licenses may be obtained by executing the
 following commands in the "bokehjs" subdirectory:
 
-    $ npm install
+    $ npm ci
 
     $ npx license-checker --production --csv

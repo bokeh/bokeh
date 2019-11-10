@@ -40,8 +40,6 @@ export class LabelView extends TextAnnotationView {
         angle = (-this.model.angle*Math.PI)/180.0
         break
       }
-      default:
-        throw new Error("unreachable code")
     }
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame

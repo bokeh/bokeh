@@ -1,5 +1,5 @@
 #!/bin/bash
 
-COMMAND="cd /bokeh/bokehjs && npm install --no-save --no-progress"
+COMMAND="cd /bokeh/bokehjs && npm ci --no-progress"
 
 source "$(dirname $0)/base.sh"

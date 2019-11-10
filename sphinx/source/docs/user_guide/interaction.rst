@@ -1,6 +1,6 @@
 .. _userguide_interaction:
 
-Adding Interactions
+Making Interactions
 ===================
 
 .. toctree::
