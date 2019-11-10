@@ -22,13 +22,14 @@ log = logging.getLogger(__name__)
 import atexit
 import shutil
 from os.path import devnull
+from subprocess import PIPE, Popen
 from typing import Any, Optional
 
 # External imports
 from typing_extensions import Literal
 
 # Bokeh imports
-from ..util.dependencies import import_optional, import_required
+from ..util.dependencies import import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,73 +63,35 @@ def create_firefox_webdriver() -> WebDriver:
 def create_chromium_webdriver() -> WebDriver:
     options = webdriver.chrome.options.Options()
     options.add_argument("--headless")
-    return webdriver.Chrome(options=options) # log_path=devnull
-
-"""
-import shutil
-from subprocess import Popen, PIPE
-from packaging.version import Version as V
-from ..settings import settings
-def detect_phantomjs(version='2.1'):
-    ''' Detect if PhantomJS is avaiable in PATH, at a minimum version.
-
-    Args:
-        version (str, optional) :
-            Required minimum version for PhantomJS (mostly for testing)
-
-    Returns:
-        str, path to PhantomJS
-
-    '''
-    if settings.phantomjs_path() is not None:
-        phantomjs_path = settings.phantomjs_path()
-    else:
-        phantomjs_path = shutil.which("phantomjs") or "phantomjs"
-
-    try:
-        proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE)
-        (stdout, stderr) = proc.communicate()
-
-        if len(stderr) > 0:
-            raise RuntimeError('Error encountered in PhantomJS detection: %r' % stderr.decode('utf8'))
-
-        required = V(version)
-        installed = V(stdout.decode('utf8'))
-        if installed < required:
-            raise RuntimeError('PhantomJS version to old. Version>=%s required, installed: %s' % (required, installed))
-
-    except OSError:
-        raise RuntimeError('PhantomJS is not present in PATH or BOKEH_PHANTOMJS_PATH. Try "conda install phantomjs" or \
-            "npm install -g phantomjs-prebuilt"')
-
-    return phantomjs_path
-
-class Test_detect_phantomjs(object):
-
-    def test_detect_phantomjs_success(self):
-        assert dep.detect_phantomjs() is not None
-
-    def test_detect_phantomjs_bad_path(self, monkeypatch):
-        monkeypatch.setenv("BOKEH_PHANTOMJS_PATH", "bad_path")
-        with pytest.raises(RuntimeError):
-            dep.detect_phantomjs()
-
-    def test_detect_phantomjs_bad_version(self):
-        with pytest.raises(RuntimeError) as e:
-            dep.detect_phantomjs('10.1')
-        assert str(e.value).endswith("PhantomJS version to old. Version>=10.1 required, installed: 2.1.1")
-
-    def test_detect_phantomjs_default_required_version(self):
-        assert dep.detect_phantomjs.__defaults__ == ('2.1',)
-
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.???.webdriver")
-"""
+    return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _detect(executable: str) -> Optional[str]:
+    path = shutil.which(executable)
+    if path is None:
+        return None
+
+    try:
+        proc = Popen([path, "--version"], stdout=PIPE, stderr=PIPE)
+        (stdout, stderr) = proc.communicate()
+        if proc.returncode != 0:
+            return None
+    except OSError:
+        return None
+
+    return path
+
+def _is_available(executable: str) -> bool:
+    return _detect(executable) is not None
+
+def _has_firefox() -> bool:
+    return _is_available("firefox") and _is_available("geckodriver")
+
+def _has_chromium() -> bool:
+    return _is_available("chromium-browser") and _is_available("chromedriver")
 
 class _WebdriverState(object):
     '''
@@ -140,10 +103,20 @@ class _WebdriverState(object):
 
     current: Optional[WebDriver]
 
-    def __init__(self, reuse: bool = True, kind: DriverKind = "firefox"):
+    def __init__(self, reuse: bool = True, kind: Optional[DriverKind] = None):
         self.reuse = reuse
-        self.kind = kind
         self.current = None
+
+        if kind is not None:
+            self.kind = kind
+        else:
+            if _has_chromium():
+                self.kind = "chromium"
+            elif _has_firefox():
+                self.kind = "firefox"
+            else:
+                raise RuntimeError("Neither firefox/geckodriver nor chromium-browser/chromedriver are available on system PATH. " \
+                                   "You can install the former with 'conda install -c conda-forge firefox geckodriver'")
 
     @staticmethod
     def terminate(driver: WebDriver) -> None:

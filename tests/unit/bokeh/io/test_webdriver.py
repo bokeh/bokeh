@@ -52,7 +52,7 @@ class Test_webdriver_control(object):
         # so create a new instance only to check default values
         wc = biw._WebdriverState()
         assert wc.reuse == True
-        assert wc.kind == "firefox"
+        assert wc.kind == "chromium"
         assert wc.current is None
 
     def test_get_with_reuse(self) -> None:
