@@ -58,8 +58,7 @@ def generate_secret_key() -> str:
     return _get_random_string()
 
 def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                        signed: bool = settings.sign_sessions()
-                        ) -> str:
+                        signed: bool = settings.sign_sessions()) -> str:
     """Generate a random session ID.
     Typically, each browser tab connected to a Bokeh application
     has its own session ID.  In production deployments of a Bokeh
@@ -90,8 +89,7 @@ def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(
 
 def check_session_id_signature(session_id: str,
                                secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                               signed: Optional[bool] = settings.sign_sessions()
-                               ) -> bool:
+                               signed: Optional[bool] = settings.sign_sessions()) -> bool:
     """Check the signature of a session ID, returning True if it's valid.
 
     The server uses this function to check whether a session ID
@@ -156,8 +154,7 @@ def _ensure_bytes(secret_key: Union[str, bytes, None]) -> Optional[bytes]:
         return codecs.encode(secret_key, 'utf-8')
 
 # this is broken out for unit testability
-def _reseed_if_needed(using_sysrandom: bool,
-                      secret_key: Optional[bytes]) -> None:
+def _reseed_if_needed(using_sysrandom: bool, secret_key: Optional[bytes]) -> None:
     secret_key = _ensure_bytes(secret_key)
     if not using_sysrandom:
         # This is ugly, and a hack, but it makes things better than
@@ -166,13 +163,8 @@ def _reseed_if_needed(using_sysrandom: bool,
         # time a random string is required. This may change the
         # properties of the chosen random sequence slightly, but this
         # is better than absolute predictability.
-        random.seed(
-            hashlib.sha256(
-                ("%s%s%s" % (
-                    random.getstate(),
-                    time.time(),
-                    secret_key)).encode('utf-8')
-            ).digest())
+        data = f"{random.getstate()}{time.time()}{secret_key!s}".encode('utf-8')
+        random.seed(hashlib.sha256(data).digest())
 
 def _base64_encode(decoded: Union[bytes, str]) -> str:
     # base64 encode both takes and returns bytes, we want to work with strings.
@@ -193,8 +185,7 @@ def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
 def _get_random_string(length: int = 44,
                        allowed_chars: str = 'abcdefghijklmnopqrstuvwxyz'
                        'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-                       secret_key: Optional[bytes] = settings.secret_key_bytes()
-                       ) -> str:
+                       secret_key: Optional[bytes] = settings.secret_key_bytes()) -> str:
     """
     Return a securely generated random string.
     With the a-z, A-Z, 0-9 character set:
