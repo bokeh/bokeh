@@ -1,11 +1,10 @@
-import tz from "timezone"
-
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {sprintf} from "core/util/templating"
 import {zip, unzip, sort_by} from "core/util/array"
 import {isFunction} from "core/util/types"
+import tz from "core/util/timezone"
 
 function _us(t: number): number {
   // From double-precision unix (millisecond) timestamp get

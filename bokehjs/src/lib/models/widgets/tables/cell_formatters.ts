@@ -1,12 +1,12 @@
 import * as Numbro from "numbro"
-import compile_template from "underscore.template"
-import tz from "timezone"
+import {_} from "underscore.template"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {isString} from "core/util/types"
+import tz from "core/util/timezone"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
@@ -294,7 +294,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     if (value == null)
       return ""
     else {
-      const compiled_template = compile_template(template)
+      const compiled_template = _.template(template)
       const context = {...dataContext, value}
       return compiled_template(context)
     }

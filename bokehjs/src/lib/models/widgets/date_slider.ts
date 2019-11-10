@@ -1,6 +1,5 @@
-import tz from "timezone"
-
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import tz from "core/util/timezone"
 import * as p from "core/properties"
 
 export class DateSliderView extends AbstractSliderView {

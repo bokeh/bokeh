@@ -1,7 +1,7 @@
 import {sprintf as sprintf_js} from "sprintf-js"
 import * as Numbro from "numbro"
-import tz from "timezone"
 
+import tz from "./timezone"
 import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
