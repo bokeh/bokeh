@@ -1,13 +1,13 @@
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
-from bokeh.layouts import gridplot
-from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool, CategoricalScale
-from bokeh.models.glyphs import Text, Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
+from bokeh.layouts import gridplot
+from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
+                          FactorRange, HoverTool, Plot, Rect, Text)
 from bokeh.resources import INLINE
-from bokeh.util.browser import view
 from bokeh.sampledata.us_holidays import us_holidays
+from bokeh.util.browser import view
 
 def make_calendar(year, month, firstweekday="Mon"):
     firstweekday = list(day_abbrs).index(firstweekday)

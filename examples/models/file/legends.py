@@ -1,13 +1,10 @@
-from numpy import pi, sin, cos
 import numpy as np
+from numpy import cos, pi, sin
 
-from bokeh.io import show, output_file
-from bokeh.models.glyphs import Line, Circle
-from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    PanTool, WheelZoomTool, SaveTool, Legend,
-)
 from bokeh.core.enums import LegendLocation
+from bokeh.io import output_file, show
+from bokeh.models import (Circle, ColumnDataSource, DataRange1d, Legend, Line,
+                          LinearAxis, PanTool, Plot, SaveTool, WheelZoomTool)
 
 x = np.linspace(-2*pi, 2*pi, 400)
 y = sin(x)

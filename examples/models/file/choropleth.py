@@ -1,11 +1,11 @@
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import ColorBar, LinearColorMapper, Patches, Plot, ColumnDataSource
+from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, Patches, Plot
 from bokeh.palettes import Viridis11
 from bokeh.resources import INLINE
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.transform import transform
+from bokeh.util.browser import view
 
 us_states = us_states.data.copy()
 us_counties = us_counties.data

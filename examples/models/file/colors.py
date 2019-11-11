@@ -1,12 +1,11 @@
 from math import pi
 import pandas as pd
 
-from bokeh.models import (
-    Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, HoverTool, OpenURL, CategoricalScale)
-from bokeh.models.glyphs import Rect
 from bokeh.colors import groups
 from bokeh.document import Document
 from bokeh.embed import file_html
+from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
+                          FactorRange, HoverTool, OpenURL, Plot, Rect, TapTool)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

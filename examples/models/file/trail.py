@@ -1,22 +1,16 @@
-from math import sin, cos, atan2, sqrt, radians
+from math import atan2, cos, radians, sin, sqrt
 
 import numpy as np
 import scipy.ndimage as im
 
 from bokeh.document import Document
 from bokeh.embed import file_html
+from bokeh.models import (Column, ColumnDataSource, GMapOptions, GMapPlot,
+                          Grid, Label, Line, LinearAxis, PanTool, Patches,
+                          Plot, Range1d, ResetTool, WheelZoomTool)
 from bokeh.resources import INLINE
-from bokeh.util.browser import view
-
-from bokeh.models.glyphs import Line, Patches
-from bokeh.models.layouts import Column
-from bokeh.models import (
-    Plot, GMapPlot, GMapOptions, ColumnDataSource,
-    LinearAxis, Grid, Label, Range1d,
-    PanTool, WheelZoomTool, ResetTool)
-
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
-
+from bokeh.util.browser import view
 
 def haversin(theta):
     return sin(0.5 * theta) ** 2

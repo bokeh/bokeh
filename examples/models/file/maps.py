@@ -1,11 +1,10 @@
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
-from bokeh.models import (
-    GMapPlot, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions,
-    LinearAxis, MercatorTickFormatter, MercatorTicker, Label)
+from bokeh.models import (BoxSelectTool, Circle, ColumnDataSource, GMapOptions,
+                          GMapPlot, Label, LinearAxis, MercatorTicker,
+                          MercatorTickFormatter, PanTool, WheelZoomTool)
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 # JSON style string taken from: https://snazzymaps.com/style/1/pale-dawn
 map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13, styles="""

@@ -1,11 +1,14 @@
-import numpy as np
 import datetime as dt
+from time import mktime
+
+import numpy as np
 
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Patch, Line, Text
-from bokeh.models import ColumnDataSource, DatetimeAxis, DatetimeTickFormatter, FixedTicker, Legend, LegendItem, Plot
+from bokeh.models import (ColumnDataSource, DatetimeAxis,
+                          DatetimeTickFormatter, FixedTicker, Legend,
+                          LegendItem, Line, Patch, Plot, Text)
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
@@ -69,7 +72,6 @@ text = Text(x="dates", y="times", text="texts", text_align="center", text_color=
 plot.add_glyph(text_source, text)
 
 xformatter = DatetimeTickFormatter(months="%b %d %Y")
-from time import mktime
 min_time = dt.datetime.min.time()
 xticker = FixedTicker(ticks=[
     mktime(dt.datetime.combine(summer_start, min_time).timetuple()) * 1000,

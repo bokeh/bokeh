@@ -1,12 +1,13 @@
-from numpy import pi, exp, linspace, sin
 import time
 
-from bokeh.util.browser import view
+from numpy import exp, linspace, pi, sin
+
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, DatetimeAxis, ColumnDataSource, PanTool, WheelZoomTool
+from bokeh.models import (Circle, ColumnDataSource, DatetimeAxis, PanTool,
+                          Plot, WheelZoomTool)
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 N = 200
 x = linspace(-2 * pi, 2 * pi, N)

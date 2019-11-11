@@ -1,5 +1,5 @@
-from bokeh.plotting import show, output_file
-from bokeh.models import Plot, Title, Circle, ColumnDataSource, LinearAxis, Range1d
+from bokeh.models import Circle, ColumnDataSource, LinearAxis, Plot, Range1d, Title
+from bokeh.plotting import output_file, show
 
 p = Plot(
     title=None, toolbar_location=None,
