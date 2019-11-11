@@ -633,40 +633,42 @@ export class Figure extends Plot {
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
                         defaults: Attrs = {}, trait_defaults: Attrs = {}): Attrs {
 
-    const _split_feature_trait = function(ft: string): string {
-      ft = ft.split('_', 2)
-      if (ft.length==2) { return ft }
-      else { return ft.concat([null]) }
+    const _split_feature_trait = function(ft: string): Array<string|null> {
+      const fta: Array<string|null> = ft.split('_', 2)
+      if (fta.length==2) { return fta }
+      else { return fta.concat([null]) }
     }
     const _is_visual = function(ft: string): boolean {
+      let feature, trait
       [feature, trait] = _split_feature_trait(ft)
-      return ['line', 'fill', 'text'].includes(feature) && (trait != null)
+      return includes(['line', 'fill', 'text'], feature) && (trait != null)
     }
 
-    const defaults : Attrs = {...defaults}
-    if ( !defaults.includes('text_color') ) {
+    defaults = {...defaults}
+    if ( !includes(defaults, 'text_color') ) {
       defaults['text_color'] = 'black' }
-    const trait_defaults : Attrs = {...trait_defaults}
-    if ( !trait_defaults.includes('color') ) {
+    trait_defaults = {...trait_defaults}
+    if ( !includes(trait_defaults, 'color') ) {
       trait_defaults['color'] = _default_color }
-    if ( !trait_defaults.includes('alpha') ){
+    if ( !includes(trait_defaults, 'alpha') ){
       trait_defaults['alpha'] = _default_alpha }
 
     const result: Attrs = {}
-    traits = new Set()
-    for (pname in cls.properties) {
+    const traits = new Set()
+    for (const pname in cls.properties) {
+      let _, trait
       if (_is_visual(pname)) {
         [_, trait] = _split_feature_trait(pname)
-        if (props.includes(prefix+pname)) {
+        if (includes(props, prefix+pname)) {
             result[pname] = props[prefix+pname]
             delete props[prefix+pname] }
-        else if (!cls.props.includes(trait) && props.includes(prefix+trait)) {
+        else if (!includes(cls.props, trait) && includes(props, prefix+trait)) {
             result[pname] = props[prefix+trait] }
-        else if (defaults.includes(pname)) {
+        else if (includes(defaults, pname)) {
             result[pname] = defaults[pname] }
-        else if (trait_defaults.includes(trait)) {
+        else if (includes(trait_defaults, trait)) {
             result[pname] = trait_defaults[trait] }
-        if !cls.props.includes(trait) {
+        if !includes(cls.props, trait) {
           traits.add(trait)
         }
       }
