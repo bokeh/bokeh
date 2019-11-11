@@ -16,6 +16,7 @@ import pytest ; pytest
 
 # Standard library imports
 import re
+from typing import Tuple
 
 # External imports
 from mock import patch
@@ -35,9 +36,9 @@ import bokeh.io.export as bie # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-@pytest.fixture(scope='module')
-def webdriver():
-    driver = webdriver_control.create()
+@pytest.fixture(scope="module", params=["chromium", "firefox"])
+def webdriver(request):
+    driver = webdriver_control.create(request.param)
     yield driver
     webdriver_control.terminate(driver)
 
@@ -51,68 +52,55 @@ def webdriver():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=20, plot_width=20, toolbar_location=None,
-                  outline_line_color=None, background_fill_color=None,
-                  border_fill_color=None)
+@pytest.mark.parametrize("dimensions", [(4, 4), (14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
+def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
+    width, height = dimensions
+    border = 2
 
-    png = bie.get_screenshot_as_png(layout)
-    assert png.size == (20, 20)
-    # a 20x20px image of transparent pixels
-    assert png.tobytes() == (b"\x00"*1600)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+                  plot_height=width, plot_width=height,
+                  min_border=border,
+                  hidpi=False,
+                  toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None, border_fill_color=None)
+
+    png = bie.get_screenshot_as_png(layout, web_driver=webdriver)
+
+    # a WxHpx image of white pixels
+    assert png.size == (width, height)
+    assert png.tobytes() == b"\xff\xff\xff\xff"*width*height
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_glyph() -> None:
-    layout = Plot(x_range=Range1d(0, 1), y_range=Range1d(0, 1),
-                  plot_height=20, plot_width=20, toolbar_location=None,
-                  outline_line_color=None, background_fill_color=None, min_border=2,
-                  border_fill_color="blue", border_fill_alpha=1)
+@pytest.mark.parametrize("dimensions", [(4, 4), (14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
+def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]) -> None:
+    width, height = dimensions
+    border = 2
+
+    layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+                  plot_height=width, plot_width=height,
+                  toolbar_location=None,
+                  min_border=border,
+                  hidpi=False,
+                  outline_line_color=None, background_fill_color=None, border_fill_color=None)
     glyph = Rect(x="x", y="y", width=2, height=2, fill_color="red", line_color="red")
-    source = ColumnDataSource(data=dict(x=[0.5], y=[0.5]))
+    source = ColumnDataSource(data=dict(x=[0], y=[0]))
     layout.add_glyph(source, glyph)
 
-    png = bie.get_screenshot_as_png(layout)
-    assert png.size == (20, 20)
+    png = bie.get_screenshot_as_png(layout, web_dirver=webdriver)
+    assert png.size == (width, height)
 
-    # count 256 red pixels in center area (400 - 20*4 - 16*4)
     data = png.tobytes()
+    assert len(data) == 4*width*height
+
+    # count red pixels in center area
     count = 0
-    for x in range(400):
+    for x in range(width*height):
         if data[x*4:x*4+4] == b"\xff\x00\x00\xff":
             count += 1
-    assert count == 256
 
-    assert len(data) == 1600
-
-@pytest.mark.unit
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_driver(webdriver) -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=20, plot_width=20, toolbar_location=None,
-                  outline_line_color=None, background_fill_color=None,
-                  border_fill_color=None)
-
-    png = bie.get_screenshot_as_png(layout, driver=webdriver)
-
-    assert png.size == (20, 20)
-    # a 20x20px image of transparent pixels
-    assert png.tobytes() == ("\x00"*1600).encode()
-
-@pytest.mark.unit
-@pytest.mark.selenium
-def test_get_screenshot_as_png_large_plot(webdriver) -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=800, plot_width=800, toolbar_location=None,
-                  outline_line_color=None, background_fill_color=None,
-                  border_fill_color=None)
-
-    bie.get_screenshot_as_png(layout, driver=webdriver)
-
-    # LC: Although the window size doesn't match the plot dimensions (unclear
-    # why), the window resize allows for the whole plot to be captured
-    assert webdriver.get_window_size() == {'width': 1366, 'height': 768}
+    w, h, b = width, height, border
+    assert count == w*h - 2*b*(w + h) + 4*b**2
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -203,20 +191,6 @@ def test_layout_html_on_parent_first() -> None:
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-@patch('PIL.Image.Image')
-def test__crop_image_args(mock_Image) -> None:
-    image = mock_Image()
-    bie._crop_image(image, left='left', right='right', top='top', bottom='bottom', extra=10)
-    assert image.crop.call_count == 1
-    assert image.crop.call_args[0] == (('left', 'top', 'right', 'bottom'), )
-    assert image.crop.call_args[1] == {}
-
-def test__crop_image() -> None:
-    image = Image.new(mode="RGBA", size=(10,10))
-    rect = dict(left=2, right=8, top=3, bottom=7)
-    cropped = bie._crop_image(image, **rect)
-    assert cropped.size == (6,4)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -63,6 +63,7 @@ def create_firefox_webdriver() -> WebDriver:
 def create_chromium_webdriver() -> WebDriver:
     options = webdriver.chrome.options.Options()
     options.add_argument("--headless")
+    options.add_argument("--hide-scrollbars")
     return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
@@ -103,7 +104,7 @@ class _WebdriverState(object):
 
     current: Optional[WebDriver]
 
-    def __init__(self, reuse: bool = True, kind: Optional[DriverKind] = None):
+    def __init__(self, *, reuse: bool = True, kind: Optional[DriverKind] = None):
         self.reuse = reuse
         self.current = None
 
@@ -116,7 +117,7 @@ class _WebdriverState(object):
                 self.kind = "firefox"
             else:
                 raise RuntimeError("Neither firefox/geckodriver nor chromium-browser/chromedriver are available on system PATH. " \
-                                   "You can install the former with 'conda install -c conda-forge firefox geckodriver'")
+                                   "You can install the former with 'conda install -c conda-forge firefox geckodriver'.")
 
     @staticmethod
     def terminate(driver: WebDriver) -> None:
@@ -134,13 +135,14 @@ class _WebdriverState(object):
             self.current = self.create()
         return self.current
 
-    def create(self) -> WebDriver:
-        if self.kind == "firefox":
+    def create(self, kind: Optional[DriverKind] = None) -> WebDriver:
+        driver_kind = kind or self.kind
+        if driver_kind == "firefox":
             return create_firefox_webdriver()
-        elif self.kind == "chromium":
+        elif driver_kind == "chromium":
             return create_chromium_webdriver()
         else:
-            raise ValueError(f"Unknown webdriver kind {self.kind}")
+            raise ValueError(f"Unknown webdriver kind {driver_kind}")
 
     @property
     def reuse(self) -> bool:

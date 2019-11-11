@@ -32,7 +32,7 @@ from PIL import Image
 from ..embed import file_html
 from ..resources import INLINE_LEGACY
 from .util import default_filename
-from .webdriver import webdriver_control
+from .webdriver import WebDriver, webdriver_control
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -176,7 +176,7 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
             the layout to be rendered.
 
     Returns:
-        cropped_image (PIL.Image.Image) : a pillow image loaded from PNG.
+        image (PIL.Image.Image) : a pillow image loaded from PNG.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
@@ -189,20 +189,13 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
-
-        web_driver.get("file:///" + tmp.path)
         web_driver.maximize_window()
-
+        web_driver.get("file:///" + tmp.path)
         wait_until_render_complete(web_driver, timeout)
-
+        _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
-        b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
-
-    image = Image.open(io.BytesIO(png))
-    cropped_image = _crop_image(image, **b_rect)
-
-    return cropped_image
+    return Image.open(io.BytesIO(png))
 
 def get_svgs(obj, driver=None, timeout=5, **kwargs) -> bytes:
     '''
@@ -214,11 +207,8 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs) -> bytes:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
-
         web_driver.get("file:///" + tmp.path)
-
         wait_until_render_complete(web_driver, timeout)
-
         svgs = web_driver.execute_script(_SVG_SCRIPT)
 
     return svgs
@@ -241,9 +231,14 @@ def get_layout_html(obj, resources=INLINE_LEGACY, **kwargs):
             obj.plot_width = kwargs.get('width', old_width)
 
     template = r"""\
-    {% block postamble %}
+    {% block preamble %}
     <style>
-        body { margin: 0; }
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
     </style>
     {% endblock %}
     """
@@ -302,9 +297,17 @@ def _log_console(driver):
         for message in messages:
             log.warning(message)
 
-_BOUNDING_RECT_SCRIPT = """
-return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()
-"""
+def _maximize_viewport(web_driver: WebDriver) -> None:
+    calculate_window_size = """\
+        const root = document.getElementsByClassName("bk-root")[0]
+        const {width, height} = root.children[0].getBoundingClientRect()
+        return [
+            window.outerWidth - window.innerWidth + width,
+            window.outerHeight - window.innerHeight + height,
+        ]
+    """
+    [width, height] = web_driver.execute_script(calculate_window_size)
+    web_driver.set_window_size(width, height)
 
 _SVG_SCRIPT = """
 var serialized_svgs = [];
@@ -330,12 +333,6 @@ if (doc.is_idle)
 else
   doc.idle.connect(done);
 """
-
-def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
-    ''' Crop the border from the layout
-
-    '''
-    return image.crop((left, top, right, bottom))
 
 class _TempFile(object):
 
