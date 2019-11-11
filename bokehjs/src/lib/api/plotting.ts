@@ -630,51 +630,30 @@ export class Figure extends Plot {
     return this._marker(models.Scatter, args)
   }
 
-  _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
-                        defaults: Attrs = {}, trait_defaults: Attrs = {}): Attrs {
-
-    const _split_feature_trait = function(ft: string): Array<string|null> {
-      const fta: Array<string|null> = ft.split('_', 2)
-      if (fta.length==2) { return fta }
-      else { return fta.concat([null]) }
-    }
-    const _is_visual = function(ft: string): boolean {
-      let feature, trait
-      [feature, trait] = _split_feature_trait(ft)
-      return includes(['line', 'fill', 'text'], feature) && (trait != null)
-    }
-
-    defaults = {...defaults}
-    if ( !includes(defaults, 'text_color') ) {
-      defaults['text_color'] = 'black' }
-    trait_defaults = {...trait_defaults}
-    if ( !includes(trait_defaults, 'color') ) {
-      trait_defaults['color'] = _default_color }
-    if ( !includes(trait_defaults, 'alpha') ){
-      trait_defaults['alpha'] = _default_alpha }
-
+  _pop_colors_and_alpha(cls: Class<HasProps>, attrs: Attrs, prefix: string = "",
+                        default_color: Color = _default_color, default_alpha: number = _default_alpha): Attrs {
     const result: Attrs = {}
-    const traits = new Set()
-    for (const pname in cls.properties) {
-      let _, trait
-      if (_is_visual(pname)) {
-        [_, trait] = _split_feature_trait(pname)
-        if (includes(props, prefix+pname)) {
-            result[pname] = props[prefix+pname]
-            delete props[prefix+pname] }
-        else if (!includes(cls.props, trait) && includes(props, prefix+trait)) {
-            result[pname] = props[prefix+trait] }
-        else if (includes(defaults, pname)) {
-            result[pname] = defaults[pname] }
-        else if (includes(trait_defaults, trait)) {
-            result[pname] = trait_defaults[trait] }
-        if !includes(cls.props, trait) {
-          traits.add(trait)
-        }
+
+    const color = _with_default(attrs[prefix + "color"] as any, default_color)
+    const alpha = _with_default(attrs[prefix + "alpha"] as any, default_alpha)
+
+    delete attrs[prefix + "color"]
+    delete attrs[prefix + "alpha"]
+
+    const _update_with = function(name: string, default_value: unknown): void {
+      if (cls.prototype.props[name] != null) {
+        result[name] = _with_default(attrs[prefix + name], default_value)
+        delete attrs[prefix + name]
       }
     }
-    for (const trait of traits) {
-      delete props[prefix+trait] }
+
+    _update_with("fill_color", color)
+    _update_with("line_color", color)
+    _update_with("text_color", "black")
+
+    _update_with("fill_alpha", alpha)
+    _update_with("line_alpha", alpha)
+    _update_with("text_alpha", alpha)
 
     return result
   }
@@ -750,10 +729,10 @@ export class Figure extends Plot {
     const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
     const has_hglyph = some(Object.keys(attrs), key => startsWith(key, "hover_"))
 
-    const glyph_ca   = this._pop_visuals(cls, attrs)
-    const nsglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {'alpha': 0.1})
-    const sglyph_ca  = has_sglyph ? this._pop_visuals(cls, attrs, "selection_", glyph_ca) : {}
-    const hglyph_ca  = has_hglyph ? this._pop_visuals(cls, attrs, "hover_", glyph_ca) : {}
+    const glyph_ca   = this._pop_colors_and_alpha(cls, attrs)
+    const nsglyph_ca = this._pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
+    const sglyph_ca  = has_sglyph ? this._pop_colors_and_alpha(cls, attrs, "selection_") : {}
+    const hglyph_ca  = has_hglyph ? this._pop_colors_and_alpha(cls, attrs, "hover_") : {}
 
     this._fixup_values(cls, data,   glyph_ca)
     this._fixup_values(cls, data, nsglyph_ca)
