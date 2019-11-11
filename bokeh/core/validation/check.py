@@ -18,21 +18,27 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import contextlib
+from typing import Set
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
-__silencers__ = set()
+
+__silencers__: Set[int] = set()
 
 __all__ = (
     'check_integrity',
-    'silence'
+    'silence',
+    'silenced',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def silence(warning, silence=True):
+def silence(warning: int, silence: bool = True) -> Set[int]:
     ''' Silence a particular warning on all Bokeh models.
 
     Args:
@@ -70,6 +76,13 @@ def silence(warning, silence=True):
         __silencers__.remove(warning)
     return __silencers__
 
+@contextlib.contextmanager
+def silenced(warning: int) -> None:
+    silence(warning, True)
+    try:
+        yield
+    finally:
+        silence(warning, False)
 
 def check_integrity(models):
     ''' Apply validation and integrity checks to a collection of Bokeh models.

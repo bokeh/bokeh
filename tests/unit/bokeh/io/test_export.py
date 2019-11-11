@@ -23,6 +23,8 @@ from mock import patch
 from PIL import Image
 
 # Bokeh imports
+from bokeh.core.validation import silenced
+from bokeh.core.validation.warnings import MISSING_RENDERERS
 from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
@@ -64,7 +66,8 @@ def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
                   toolbar_location=None,
                   outline_line_color=None, background_fill_color=None, border_fill_color=None)
 
-    png = bie.get_screenshot_as_png(layout, web_driver=webdriver)
+    with silenced(MISSING_RENDERERS):
+        png = bie.get_screenshot_as_png(layout, web_driver=webdriver)
 
     # a WxHpx image of white pixels
     assert png.size == (width, height)
@@ -107,7 +110,9 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
 def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True, legacy=True))
+    with silenced(MISSING_RENDERERS):
+        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True, legacy=True))
+
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
@@ -115,7 +120,9 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False, legacy=True))
+    with silenced(MISSING_RENDERERS):
+        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False, legacy=True))
+
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
@@ -124,7 +131,9 @@ def test_get_svgs_no_svg_present() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
               plot_height=20, plot_width=20, toolbar_location=None)
 
-    svgs = bie.get_svgs(layout)
+    with silenced(MISSING_RENDERERS):
+        svgs = bie.get_svgs(layout)
+
     assert svgs == []
 
 @pytest.mark.unit
@@ -141,8 +150,9 @@ def test_get_svgs_with_svg_present(webdriver) -> None:
                   outline_line_color=None, border_fill_color=None,
                   background_fill_color="red", output_backend="svg")
 
-    svg0 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
-    svg1 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
+    with silenced(MISSING_RENDERERS):
+        svg0 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
+        svg1 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
 
     svg2 = (
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
@@ -167,7 +177,8 @@ def test_get_layout_html_resets_plot_dims() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=initial_height, plot_width=initial_width)
 
-    bie.get_layout_html(layout, height=100, width=100)
+    with silenced(MISSING_RENDERERS):
+        bie.get_layout_html(layout, height=100, width=100)
 
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
@@ -175,18 +186,22 @@ def test_get_layout_html_resets_plot_dims() -> None:
 def test_layout_html_on_child_first() -> None:
     p = Plot(x_range=Range1d(), y_range=Range1d())
 
-    bie.get_layout_html(p, height=100, width=100)
+    with silenced(MISSING_RENDERERS):
+        bie.get_layout_html(p, height=100, width=100)
 
-    layout = row(p)
-    bie.get_layout_html(layout)
+    with silenced(MISSING_RENDERERS):
+        layout = row(p)
+        bie.get_layout_html(layout)
 
 def test_layout_html_on_parent_first() -> None:
     p = Plot(x_range=Range1d(), y_range=Range1d())
 
-    layout = row(p)
-    bie.get_layout_html(layout)
+    with silenced(MISSING_RENDERERS):
+        layout = row(p)
+        bie.get_layout_html(layout)
 
-    bie.get_layout_html(p, height=100, width=100)
+    with silenced(MISSING_RENDERERS):
+        bie.get_layout_html(p, height=100, width=100)
 
 #-----------------------------------------------------------------------------
 # Private API
