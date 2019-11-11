@@ -15,7 +15,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import copy
 
 # External imports
 
@@ -87,18 +86,18 @@ def large_plot(n):
     return col, objects
 
 
-class TestMetaModel(object):
+class TestModelCls(object):
 
     def setup_method(self):
-        from bokeh.model import MetaModel
-        self.metamodel = MetaModel
-        self.old_map = copy.copy(self.metamodel.model_class_reverse_map)
+        from bokeh.model import Model
+        self.model_cls = Model
+        self.old_map = dict(self.model_cls.model_class_reverse_map)
 
     def teardown_method(self):
-        self.metamodel.model_class_reverse_map = self.old_map
+        self.model_cls.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(metaclass=self.metamodel):
+        class Test_Class(self.model_cls):
             foo = 1
         return Test_Class
 
@@ -115,6 +114,9 @@ class TestMetaModel(object):
         assert hasattr(tclass, 'foo')
         with pytest.raises(KeyError):
             get_class('Imaginary_Class')
+
+class SomeModel(Model):
+    some = Int()
 
 class DeepModel(Model):
     child = Instance(Model)
@@ -147,9 +149,7 @@ class SomeModelToJson(Model):
 class TestModel(object):
 
     def setup_method(self):
-        from bokeh.model import Model
-
-        self.pObjectClass = Model
+        self.pObjectClass = SomeModel
         self.maxDiff = None
 
     def test_init(self):
@@ -159,15 +159,14 @@ class TestModel(object):
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks"]) == testObject.properties()
-        assert dict(
-            name=None, tags=[], js_property_callbacks={}, js_event_callbacks={}, subscribed_events=[]
-        ) == testObject.properties_with_values(include_defaults=True)
+        assert set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks", "some"]) == testObject.properties()
+        assert dict(name=None, tags=[], js_property_callbacks={}, js_event_callbacks={}, subscribed_events=[], some=None) == \
+            testObject.properties_with_values(include_defaults=True)
         assert dict() == testObject.properties_with_values(include_defaults=False)
 
     def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
-        assert {'type': 'Model', 'id': 'test_id'} == testObject.ref
+        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.ref
 
     def test_references_by_ref_by_value(self):
         from bokeh.core.has_props import HasProps
@@ -324,7 +323,7 @@ class TestModel(object):
 
     def test_func_default_with_model(self):
         class HasFuncDefaultModel(Model):
-            child = Instance(Model, lambda: Model())
+            child = Instance(Model, lambda: SomeModel())
         obj1 = HasFuncDefaultModel()
         obj2 = HasFuncDefaultModel()
         assert obj1.child.id != obj2.child.id

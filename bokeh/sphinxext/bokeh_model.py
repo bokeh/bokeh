@@ -62,7 +62,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from ..model import MetaModel
+from ..model import Model
 from ..util.warnings import BokehDeprecationWarning
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
@@ -112,8 +112,8 @@ class BokehModelDirective(BokehDirective):
         if model is None:
             raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (model_name, model_name, module_name))
 
-        if type(model) != MetaModel:
-            raise SphinxError("Unable to generate reference docs for %s, model '%s' is not of type MetaModel" % (model_name, model_name))
+        if not issubclass(model, Model):
+            raise SphinxError("Unable to generate reference docs for %s, model '%s' is a subclass of Model" % (model_name, model_name))
 
         # We may need to instantiate deprecated objects as part of documenting
         # them in the reference guide. Suppress any warnings here to keep the

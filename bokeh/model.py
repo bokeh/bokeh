@@ -28,7 +28,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
-from .core.has_props import HasProps, MetaHasProps
+from .core.has_props import HasProps, abstract
 from .core.query import find
 
 from .events import Event
@@ -139,13 +139,13 @@ def get_class(view_model_name):
 
     '''
 
-    # in order to look up from the model catalog that MetaModel maintains, it
+    # in order to look up from the model catalog that Model maintains, it
     # has to be creates first. These imports ensure that all built-in Bokeh
     # models are represented in the catalog.
     from . import models; models
     from .plotting import Figure; Figure
 
-    d = MetaModel.model_class_reverse_map
+    d = Model.model_class_reverse_map
     if view_model_name in d:
         return d[view_model_name]
     else:
@@ -154,113 +154,6 @@ def get_class(view_model_name):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class MetaModel(MetaHasProps):
-    ''' Specialize the construction of |Model| classes.
-
-    This class is a `metaclass`_ for |Model| that is responsible for
-    automatically cataloging all Bokeh models that get defined, so that the
-    serialization machinery between Bokeh and BokehJS can function properly.
-
-    .. note::
-        It is worth pointing out explicitly that this relies on the rules
-        for Metaclass inheritance in Python.
-
-    Bokeh works by replicating Python model objects (e.g. plots, ranges,
-    data sources, which are all |HasProps| subclasses) into BokehJS. In the
-    case of using a Bokeh server, the Bokeh model objects can also be
-    synchronized bidirectionally. This is accomplished by serializing the
-    models to and from a JSON format, that includes the name of the model type
-    as part of the payload, as well as a unique ID, and all the attributes:
-
-    .. code-block:: javascript
-
-        {
-            type: "Plot",
-            id: 100032,
-            attributes: { ... }
-        }
-
-    Typically the type name is inferred automatically from the Python class
-    name, and is set as the ``__view_model__`` class attribute on the Model
-    class that is create. But it is also possible to override this value
-    explicitly:
-
-    .. code-block:: python
-
-        class Foo(Model): pass
-
-        class Bar(Model):
-            __view_model__ == "Quux"
-
-    This metaclass will raise an error if two Bokeh models are created that
-    attempt to have the same view model name. The only exception made is if
-    one of the models has a custom ``__implementation__`` in its class
-    definition.
-
-    This metaclass also handles subtype relationships between Bokeh models.
-    Occasionally it may be necessary for multiple class types on the Python
-    side to resolve to the same type on the BokehJS side. This is called
-    subtyping, and is expressed through a ``__subtype__`` class attribute on
-    a model:
-
-    .. code-block:: python
-
-        class Foo(Model): pass
-
-        class Bar(Foo):
-            __view_model__ = "Foo"
-            __subtype__ = "Bar"
-
-    In this case, python instances of ``Foo`` and ``Bar`` will both resolve to
-    ``Foo`` models in BokehJS. In the context of a Bokeh server application,
-    the original python types will be faithfully round-tripped. (Without the
-    ``__subtype__`` specified, the above code would raise an error due to
-    duplicate view model names.)
-
-    .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
-
-    '''
-
-    model_class_reverse_map = {}
-
-    def __new__(meta_cls, class_name, bases, class_dict):
-        '''
-
-        Raises:
-            Warning
-
-        '''
-
-        # use an explicitly provided view model name if there is one
-        if "__view_model__" not in class_dict:
-            class_dict["__view_model__"] = class_name
-        if "__view_module__" not in class_dict:
-            class_dict["__view_module__"] = class_dict["__module__"]
-
-        module = class_dict["__view_module__"]
-        model = class_dict.get("__subtype__", class_dict["__view_model__"])
-        impl = class_dict.get("__implementation__", None)
-
-        head = module.split(".")[0]
-        if head == "bokeh" or head == "__main__" or impl is not None:
-            qualified = model
-        else:
-            qualified = module + "." + model
-
-        class_dict["__qualified_model__"] = qualified
-
-        # call the parent metaclass to create the new model type
-        newcls = super().__new__(meta_cls, class_name, bases, class_dict)
-
-        # update the mapping of view model names to classes, checking for any duplicates
-        # and handling any subtype relationships or custom implementations
-        if qualified in MetaModel.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
-            raise Warning("Duplicate qualified model declaration of '%s'. Previous definition: %s" % (
-                qualified, MetaModel.model_class_reverse_map[qualified]))
-        MetaModel.model_class_reverse_map[qualified] = newcls
-
-        return newcls
 
 _HTML_REPR = """
 <script>
@@ -280,10 +173,42 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=MetaModel):
+@abstract
+class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
+
+    model_class_reverse_map = {}
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        # use an explicitly provided view model name if there is one
+        if "__view_model__" not in cls.__dict__:
+            cls.__view_model__ = cls.__name__
+        if "__view_module__" not in cls.__dict__:
+            cls.__view_module__ = cls.__module__
+
+        module = cls.__view_module__
+        model = cls.__dict__.get("__subtype__", cls.__view_model__)
+        impl = cls.__dict__.get("__implementation__", None)
+
+        head = module.split(".")[0]
+        if head == "bokeh" or head == "__main__" or impl is not None:
+            qualified = model
+        else:
+            qualified = module + "." + model
+
+        cls.__qualified_model__ = qualified
+
+        # update the mapping of view model names to classes, checking for any duplicates
+        # and handling any subtype relationships or custom implementations
+        previous = cls.model_class_reverse_map.get(qualified, None)
+        if previous is not None and not hasattr(cls, "__implementation__"):
+            raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
+        cls.model_class_reverse_map[qualified] = cls
 
     def __new__(cls, *args, **kwargs):
         obj =  super().__new__(cls)
@@ -727,8 +652,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
 
     @staticmethod
     def _clear_extensions():
-        MetaModel.model_class_reverse_map = {
-            k:v for k,v in MetaModel.model_class_reverse_map.items()
+        Model.model_class_reverse_map = {
+            k: v for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
         }
 

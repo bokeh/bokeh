@@ -44,7 +44,10 @@ def test_plot():
     test_plot.circle([1, 2], [2, 3])
     return test_plot
 
-class SomeModelInTestObjects(Model):
+class SomeModel(Model):
+    some = Int
+
+class OtherModel(Model):
     child = Instance(Model)
 
 # Taken from test_callback_manager.py
@@ -115,7 +118,7 @@ class Test_OutputDocumentFor_general(object):
         assert str(e.value).endswith(_ODFERR)
 
     def test_error_on_mixed_list(self):
-        p = Model()
+        p = SomeModel()
         d = Document()
         orig_theme = d.theme
         with pytest.raises(ValueError) as e:
@@ -133,8 +136,8 @@ class Test_OutputDocumentFor_general(object):
 
     def test_with_doc_in_child_raises_error(self):
         doc = Document()
-        p1 = Model()
-        p2 = SomeModelInTestObjects(child=Model())
+        p1 = SomeModel()
+        p2 = OtherModel(child=SomeModel())
         doc.add_root(p2.child)
         assert p1.document is None
         assert p2.document is None
@@ -161,7 +164,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
 
     def test_single_model_with_document(self):
         # should use existing doc in with-block
-        p = Model()
+        p = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p)
@@ -172,7 +175,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert d.theme is orig_theme
 
     def test_single_model_with_no_document(self):
-        p = Model()
+        p = SomeModel()
         assert p.document is None
         with beu.OutputDocumentFor([p]):
             assert p.document is not None
@@ -180,8 +183,8 @@ class Test_OutputDocumentFor_default_apply_theme(object):
 
     def test_list_of_model_with_no_documents(self):
         # should create new (permanent) doc for inputs
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         assert p1.document is None
         assert p2.document is None
         with beu.OutputDocumentFor([p1, p2]):
@@ -196,8 +199,8 @@ class Test_OutputDocumentFor_default_apply_theme(object):
 
     def test_list_of_model_same_as_roots(self):
         # should use existing doc in with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -212,8 +215,8 @@ class Test_OutputDocumentFor_default_apply_theme(object):
 
     def test_list_of_model_same_as_roots_with_always_new(self):
         # should use new temp doc for everything inside with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -229,8 +232,8 @@ class Test_OutputDocumentFor_default_apply_theme(object):
 
     def test_list_of_model_subset_roots(self):
         # should use new temp doc for subset inside with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -248,8 +251,8 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         # should use new temp doc for eveything inside with-block
         d = Document()
         orig_theme = d.theme
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d.add_root(p2)
         assert p1.document is None
         assert p2.document is not None
@@ -268,7 +271,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
 
     def test_single_model_with_document(self):
         # should use existing doc in with-block
-        p = Model()
+        p = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p)
@@ -279,7 +282,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert d.theme is orig_theme
 
     def test_single_model_with_no_document(self):
-        p = Model()
+        p = SomeModel()
         assert p.document is None
         with beu.OutputDocumentFor([p], apply_theme=Theme(json={})):
             assert p.document is not None
@@ -289,8 +292,8 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
 
     def test_list_of_model_with_no_documents(self):
         # should create new (permanent) doc for inputs
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         assert p1.document is None
         assert p2.document is None
         with beu.OutputDocumentFor([p1, p2], apply_theme=Theme(json={})):
@@ -307,8 +310,8 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
 
     def test_list_of_model_same_as_roots(self):
         # should use existing doc in with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -323,8 +326,8 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
 
     def test_list_of_model_same_as_roots_with_always_new(self):
         # should use new temp doc for everything inside with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -340,8 +343,8 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
 
     def test_list_of_model_subset_roots(self):
         # should use new temp doc for subset inside with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -359,8 +362,8 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         # should use new temp doc for eveything inside with-block
         d = Document()
         orig_theme = d.theme
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d.add_root(p2)
         assert p1.document is None
         assert p2.document is not None
@@ -386,7 +389,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
     def test_single_model_with_document(self):
         # should use existing doc in with-block
-        p = Model()
+        p = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p)
@@ -397,7 +400,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert d.theme is orig_theme
 
     def test_single_model_with_no_document(self):
-        p = Model()
+        p = SomeModel()
         assert p.document is None
         with beu.OutputDocumentFor([p], apply_theme=beu.FromCurdoc):
             assert p.document is not None
@@ -408,8 +411,8 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
     def test_list_of_model_with_no_documents(self):
         # should create new (permanent) doc for inputs
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         assert p1.document is None
         assert p2.document is None
         with beu.OutputDocumentFor([p1, p2], apply_theme=beu.FromCurdoc):
@@ -426,8 +429,8 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
     def test_list_of_model_same_as_roots(self):
         # should use existing doc in with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -442,8 +445,8 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
     def test_list_of_model_same_as_roots_with_always_new(self):
         # should use new temp doc for everything inside with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -459,8 +462,8 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
     def test_list_of_model_subset_roots(self):
         # should use new temp doc for subset inside with-block
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         orig_theme = d.theme
         d.add_root(p1)
@@ -478,8 +481,8 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         # should use new temp doc for eveything inside with-block
         d = Document()
         orig_theme = d.theme
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d.add_root(p2)
         assert p1.document is None
         assert p2.document is not None
@@ -497,7 +500,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 class Test_standalone_docs_json_and_render_items(object):
 
     def test_passing_model(self):
-        p1 = Model()
+        p1 = SomeModel()
         d = Document()
         d.add_root(p1)
         docs_json, render_items = beu.standalone_docs_json_and_render_items([p1])
@@ -506,11 +509,11 @@ class Test_standalone_docs_json_and_render_items(object):
         assert doc['version'] == __version__
         assert len(doc['roots']['root_ids']) == 1
         assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'Model'}]
+        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
         assert len(render_items) == 1
 
     def test_passing_doc(self):
-        p1 = Model()
+        p1 = SomeModel()
         d = Document()
         d.add_root(p1)
         docs_json, render_items = beu.standalone_docs_json_and_render_items([d])
@@ -519,11 +522,11 @@ class Test_standalone_docs_json_and_render_items(object):
         assert doc['version'] == __version__
         assert len(doc['roots']['root_ids']) == 1
         assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'Model'}]
+        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
         assert len(render_items) == 1
 
     def test_exception_for_missing_doc(self):
-        p1 = Model()
+        p1 = SomeModel()
         with pytest.raises(ValueError) as e:
             beu.standalone_docs_json_and_render_items([p1])
         assert str(e.value) == "A Bokeh Model must be part of a Document to render as standalone content"
@@ -578,8 +581,8 @@ class Test_standalone_docs_json(object):
 
     @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
     def test_delgation(self, mock_sdjari):
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         d.add_root(p1)
         d.add_root(p2)
@@ -592,8 +595,8 @@ class Test_standalone_docs_json(object):
         mock_sdjari.assert_called_once_with([p1, p2])
 
     def test_output(self):
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d = Document()
         d.add_root(p1)
         d.add_root(p2)
@@ -608,16 +611,16 @@ class Test_standalone_docs_json(object):
 class Test__create_temp_doc(object):
 
     def test_no_docs(self):
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         beu._create_temp_doc([p1, p2])
         assert isinstance(p1.document, Document)
         assert isinstance(p2.document, Document)
 
     def test_top_level_same_doc(self):
         d = Document()
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d.add_root(p1)
         d.add_root(p2)
         beu._create_temp_doc([p1, p2])
@@ -631,8 +634,8 @@ class Test__create_temp_doc(object):
     def test_top_level_different_doc(self):
         d1 = Document()
         d2 = Document()
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         d1.add_root(p1)
         d2.add_root(p2)
         beu._create_temp_doc([p1, p2])
@@ -645,8 +648,8 @@ class Test__create_temp_doc(object):
 
     def test_child_docs(self):
         d = Document()
-        p1 = Model()
-        p2 = SomeModelInTestObjects(child=Model())
+        p1 = SomeModel()
+        p2 = OtherModel(child=SomeModel())
         d.add_root(p2.child)
         beu._create_temp_doc([p1, p2])
 
@@ -663,8 +666,8 @@ class Test__create_temp_doc(object):
 class Test__dispose_temp_doc(object):
 
     def test_no_docs(self):
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         beu._dispose_temp_doc([p1, p2])
         assert p1.document is None
         assert p2.document is None
@@ -672,9 +675,9 @@ class Test__dispose_temp_doc(object):
     def test_with_docs(self):
         d1 = Document()
         d2 = Document()
-        p1 = Model()
+        p1 = SomeModel()
         d1.add_root(p1)
-        p2 = SomeModelInTestObjects(child=Model())
+        p2 = OtherModel(child=SomeModel())
         d2.add_root(p2.child)
         beu._create_temp_doc([p1, p2])
         beu._dispose_temp_doc([p1, p2])
@@ -683,8 +686,8 @@ class Test__dispose_temp_doc(object):
         assert p2.child.document is d2
 
     def test_with_temp_docs(self):
-        p1 = Model()
-        p2 = Model()
+        p1 = SomeModel()
+        p2 = SomeModel()
         beu._create_temp_doc([p1, p2])
         beu._dispose_temp_doc([p1, p2])
         assert p1.document is None
