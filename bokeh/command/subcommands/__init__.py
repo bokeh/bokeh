@@ -19,16 +19,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import List, Type, TYPE_CHECKING
+from typing import List, Type
 
 # External imports
-# necessary workaround to perform import only when running mypy typechecking
-# see https://mypy.readthedocs.io/en/latest/common_issues.html#import-cycles
-if TYPE_CHECKING:
-    from ..subcommand import Subcommand
-
 
 # Bokeh imports
+from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +50,6 @@ def _collect() -> List[Type[Subcommand]]:
     from importlib import import_module
     from os import listdir
     from os.path import dirname
-    from ..subcommand import Subcommand
     # reference type by module as fully
     results = []
 
@@ -69,10 +64,9 @@ def _collect() -> List[Type[Subcommand]]:
         for name in dir(mod):
             attr = getattr(mod, name)
             if isinstance(attr, type) and issubclass(attr, Subcommand):
-                # TODO - typing added empty string "name" attribute to Subcommand, below check may now fail
-                # could instead use below commented if-check
-                # if attr: continue  # use truthy value of non-empty string
-                if not hasattr(attr, 'name'): continue # excludes abstract bases
+                # typing added empty string "name" attribute to abstract bases
+                # use truthy value of subclass's non-empty name string
+                if not getattr(attr, 'name'): continue  # excludes abstract bases
                 results.append(attr)
 
     results = sorted(results, key=lambda attr: attr.name)
