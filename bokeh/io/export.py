@@ -240,8 +240,16 @@ def get_layout_html(obj, resources=INLINE_LEGACY, **kwargs):
             obj.plot_height = kwargs.get('height', old_height)
             obj.plot_width = kwargs.get('width', old_width)
 
+    template = r"""\
+    {% block postamble %}
+    <style>
+        body { margin: 0; }
+    </style>
+    {% endblock %}
+    """
+
     try:
-        html = file_html(obj, resources, title="", suppress_callback_warning=True, _always_new=True)
+        html = file_html(obj, resources, title="", template=template, suppress_callback_warning=True, _always_new=True)
     finally:
         if resize:
             obj.plot_height = old_height
