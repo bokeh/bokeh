@@ -3,8 +3,8 @@ from os.path import dirname, join
 import pandas as pd
 
 from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.models.widgets import RangeSlider, Button, DataTable, TableColumn, NumberFormatter
+from bokeh.models import (Button, ColumnDataSource, CustomJS, DataTable,
+                          NumberFormatter, RangeSlider, TableColumn)
 from bokeh.io import curdoc
 
 df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
