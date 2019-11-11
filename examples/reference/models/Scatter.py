@@ -1,9 +1,8 @@
 import numpy as np
 
 from bokeh.core.enums import MarkerType
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
-from bokeh.models.markers import Scatter
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, Grid, LinearAxis, Plot, Scatter
 
 N = len(MarkerType)
 x = np.linspace(-2, 2, N)

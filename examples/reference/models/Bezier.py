@@ -1,8 +1,7 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
-from bokeh.models.glyphs import Bezier
 from bokeh.io import curdoc, show
+from bokeh.models import Bezier, ColumnDataSource, Grid, LinearAxis, Plot
 
 N = 9
 x = np.linspace(-2, 2, N)

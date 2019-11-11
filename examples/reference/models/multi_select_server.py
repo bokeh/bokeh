@@ -1,9 +1,9 @@
 ## Bokeh server for MultiSelect
 import pandas as pd
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import MultiSelect
+from bokeh.models import ColumnDataSource, MultiSelect
 from bokeh.plotting import figure
 
 x=[3,4,6,12,10,1]
@@ -28,7 +28,6 @@ def multiselect_click(attr,old,new):
     selected_df=df[df['label'].isin(active_mselect)] #filter the dataframe with value in multi-select
 
     source.data=dict(x=selected_df.x, y=selected_df.y,label=selected_df.label)
-
 
 multi_select.on_change('value',multiselect_click)
 
