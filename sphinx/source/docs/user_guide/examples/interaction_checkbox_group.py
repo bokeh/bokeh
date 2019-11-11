@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import CheckboxGroup
+from bokeh.models import CheckboxGroup
 
 output_file("checkbox_group.html")
 

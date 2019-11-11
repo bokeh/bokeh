@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import Select
+from bokeh.models import Select
 
 output_file("select.html")
 
