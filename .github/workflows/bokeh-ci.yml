@@ -32,7 +32,7 @@ jobs:
         run: |
           npm install -g npm
           cd bokehjs
-          npm install --no-save --no-progress
+          npm ci --no-progress
 
       - name: Install bokeh-python package
         run: |
