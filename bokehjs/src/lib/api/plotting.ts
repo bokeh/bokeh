@@ -660,13 +660,15 @@ export class Figure extends Plot {
         if (props.includes(prefix+pname)) {
             result[pname] = props[prefix+pname]
             delete props[prefix+pname] }
-        else if (props.includes(prefix+trait)) {
+        else if (!cls.props.includes(trait) && props.includes(prefix+trait)) {
             result[pname] = props[prefix+trait] }
         else if (defaults.includes(pname)) {
             result[pname] = defaults[pname] }
         else if (trait_defaults.includes(trait)) {
             result[pname] = trait_defaults[trait] }
-        traits.add(trait)
+        if !cls.props.includes(trait) {
+          traits.add(trait)
+        }
       }
     }
     for (const trait of traits) {
