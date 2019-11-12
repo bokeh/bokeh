@@ -3,7 +3,7 @@ from bokeh.embed import file_html
 from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, Patches, Plot
 from bokeh.palettes import Viridis11
 from bokeh.resources import INLINE
-from bokeh.sampledata import us_states, us_counties, unemployment
+from bokeh.sampledata import unemployment, us_counties, us_states
 from bokeh.transform import transform
 from bokeh.util.browser import view
 

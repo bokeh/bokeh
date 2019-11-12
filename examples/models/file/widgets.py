@@ -2,14 +2,13 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
-                          CheckboxGroup, ColorPicker, Column, ColumnDataSource,
-                          DataTable, DatePicker, DateRangeSlider, DateSlider,
-                          Div, Dropdown, IntEditor, MultiSelect, NumberEditor,
-                          NumberFormatter, Panel, Paragraph, PreText,
-                          RadioButtonGroup, RadioGroup, RangeSlider, Row,
-                          Select, SelectEditor, Slider, Spinner, StringEditor,
-                          StringFormatter, TableColumn, Tabs, TextInput, Toggle)
+from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup, CheckboxGroup,
+                          ColorPicker, Column, ColumnDataSource, DataTable, DatePicker,
+                          DateRangeSlider, DateSlider, Div, Dropdown, IntEditor, MultiSelect,
+                          NumberEditor, NumberFormatter, Panel, Paragraph, PreText,
+                          RadioButtonGroup, RadioGroup, RangeSlider, Row, Select, SelectEditor,
+                          Slider, Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
+                          TextInput, Toggle)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg

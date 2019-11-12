@@ -2,14 +2,12 @@ import numpy as np
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AnnularWedge, Annulus, Arc, Asterisk, Bezier, Circle,
-                          CircleCross, CircleX, Column, ColumnDataSource,
-                          Cross, Dash, Diamond, DiamondCross, Grid, Hex,
-                          HoverTool, ImageURL, InvertedTriangle, Line,
-                          LinearAxis, MultiLine, MultiPolygons, Oval, Panel,
-                          Paragraph, Patch, Patches, Plot, Quad, Quadratic,
-                          Ray, Rect, Segment, Square, SquareCross, SquareX,
-                          Tabs, Text, Triangle, Wedge, X)
+from bokeh.models import (AnnularWedge, Annulus, Arc, Asterisk, Bezier, Circle, CircleCross,
+                          CircleX, Column, ColumnDataSource, Cross, Dash, Diamond, DiamondCross,
+                          Grid, Hex, HoverTool, ImageURL, InvertedTriangle, Line, LinearAxis,
+                          MultiLine, MultiPolygons, Oval, Panel, Paragraph, Patch, Patches, Plot,
+                          Quad, Quadratic, Ray, Rect, Segment, Square, SquareCross, SquareX, Tabs,
+                          Text, Triangle, Wedge, X)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
