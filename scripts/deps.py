@@ -28,19 +28,19 @@ section = {
     "test"   : meta_src["test"]["requires"],
 }
 
-spec = []
+specs = []
 for name in sys.argv[1:]:
-    spec += section[name]
+    specs += section[name]
 
 # bare python unpins python version causing upgrade to latest
-if 'python' in spec: spec.remove('python')
+specs = [ spec for spec in specs if spec.split(" ")[0] != "python" ]
 
 # add double quotes to specs for windows, fixes #9065
 if "windows" in platform.platform().lower():
-    spec = ['"{}"'.format(s) for s in spec]
+    specs = ['"{}"'.format(spec) for spec in specs]
 
 deps = ""
-deps += " ".join(s for s in spec)
+deps += " ".join(specs)
 deps = deps.replace(' >=', '>=')  # conda syntax doesn't allow spaces b/w pkg name and version spec
 deps = deps.replace(' <', '<')
 deps = deps.replace(' [unix]', ' ')
