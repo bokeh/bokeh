@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import column, gridplot
 from bokeh.models import Circle, ColumnDataSource, Div, Grid, Line, LinearAxis, Plot, Range1d
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 raw_columns=[
 [10.0,   8.04,   10.0,   9.14,   10.0,   7.46,   8.0,    6.58],

@@ -2,8 +2,7 @@
 
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import DataTable,TableColumn
+from bokeh.models import ColumnDataSource, DataTable, TableColumn
 from bokeh.plotting import figure
 
 x=[3,4,6,12,10,1]

@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import Slider
+from bokeh.models import Slider
 
 output_file("slider.html")
 

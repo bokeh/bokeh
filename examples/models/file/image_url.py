@@ -1,11 +1,10 @@
 import numpy as np
 
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import ImageURL
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
+from bokeh.models import ColumnDataSource, Grid, ImageURL, LinearAxis, Plot
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 url = "https://static.bokeh.org/logos/logo.png"
 N = 5

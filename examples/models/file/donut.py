@@ -1,14 +1,13 @@
 import base64
-from math import pi, sin, cos
+from math import cos, pi, sin
 
-from bokeh.util.browser import view
-from bokeh.colors.named import skyblue, seagreen, tomato, orchid, firebrick, lightgray
+from bokeh.colors.named import firebrick, lightgray, orchid, seagreen, skyblue, tomato
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Wedge, AnnularWedge, ImageURL, Text
-from bokeh.models import ColumnDataSource, Plot, Range1d
+from bokeh.models import AnnularWedge, ColumnDataSource, ImageURL, Plot, Range1d, Text, Wedge
 from bokeh.resources import INLINE
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
+from bokeh.util.browser import view
 
 df = browsers_nov_2013
 

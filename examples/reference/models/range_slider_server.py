@@ -2,8 +2,7 @@
 
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import RangeSlider
+from bokeh.models import ColumnDataSource, RangeSlider
 from bokeh.plotting import figure
 from bokeh.sampledata.us_marriages_divorces import data
 
@@ -30,7 +29,6 @@ def slider_change(attr,old,new):
 
     source.data=dict(year=filtered_df.Year, population=filtered_df.Population,
                      marriagep1000=filtered_df.Marriages_per_1000,divorcep1000=filtered_df.Divorces_per_1000)
-
 
 range_slider.on_change('value',slider_change)
 

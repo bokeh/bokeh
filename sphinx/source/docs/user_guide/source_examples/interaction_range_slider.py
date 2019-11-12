@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import RangeSlider
+from bokeh.models import RangeSlider
 
 output_file("range_slider.html")
 

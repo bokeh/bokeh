@@ -1,13 +1,12 @@
 """ The LaTex example was derived from: http://matplotlib.org/users/usetex.html
 """
+import numpy as np
+from scipy.special import jv
 
 from bokeh.models import Label
 from bokeh.palettes import Spectral4
-from bokeh.plotting import output_file, figure, show
+from bokeh.plotting import figure, output_file, show
 from bokeh.util.compiler import TypeScript
-
-import numpy as np
-from scipy.special import jv
 
 output_file('latex_extension.html')
 

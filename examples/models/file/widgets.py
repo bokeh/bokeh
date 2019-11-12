@@ -2,26 +2,18 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.resources import INLINE
-from bokeh.util.browser import view
-from bokeh.models import ColumnDataSource
-from bokeh.models.layouts import Column, Row, Tabs, Panel
-from bokeh.models.widgets import (
-    Button, Toggle, Dropdown,
-    CheckboxGroup, RadioGroup,
-    CheckboxButtonGroup, RadioButtonGroup,
-    TextInput, AutocompleteInput,
-    Select, MultiSelect,
-    Slider, RangeSlider, DateSlider, DateRangeSlider,
-    Spinner, ColorPicker, DatePicker,
-    Paragraph, Div, PreText,
-    DataTable, TableColumn,
-    StringFormatter, NumberFormatter,
-    StringEditor, IntEditor, NumberEditor, SelectEditor,
-)
+from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup, CheckboxGroup,
+                          ColorPicker, Column, ColumnDataSource, DataTable, DatePicker,
+                          DateRangeSlider, DateSlider, Div, Dropdown, IntEditor, MultiSelect,
+                          NumberEditor, NumberFormatter, Panel, Paragraph, PreText,
+                          RadioButtonGroup, RadioGroup, RangeSlider, Row, Select, SelectEditor,
+                          Slider, Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
+                          TextInput, Toggle)
 from bokeh.plotting import figure
-from bokeh.sampledata.iris import flowers
+from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
+from bokeh.sampledata.iris import flowers
+from bokeh.util.browser import view
 
 click_button = Button(label="Button still has click event", button_type="success")
 

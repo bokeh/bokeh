@@ -1,8 +1,7 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
-from bokeh.models.glyphs import Patch
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, Grid, LinearAxis, Patch, Plot
 
 N = 30
 x1 = np.linspace(-2, 2, N)

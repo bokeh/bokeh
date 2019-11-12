@@ -1,11 +1,10 @@
-from bokeh.models import StaticLayoutProvider, ColumnDataSource, HoverTool, TapTool
-from bokeh.models.graphs import NodesAndLinkedEdges
+import numpy as np
+
+from bokeh.models import ColumnDataSource, HoverTool, NodesAndLinkedEdges, StaticLayoutProvider, TapTool
 from bokeh.palettes import Set3_12
 from bokeh.plotting import figure, show, output_file
 from bokeh.sampledata.us_states import data as us_states
 from bokeh.sampledata.airport_routes import airports, routes
-
-import numpy as np
 
 output_file("graphs.html")
 

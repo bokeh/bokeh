@@ -20,10 +20,10 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import (
-    Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
-    LogAxis, PanTool, Plot, SaveTool, Range1d, ResetTool, Tool, WheelZoomTool,
+    Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid,
+    LinearAxis, LogAxis, PanTool, Plot, SaveTool, Range1d, ResetTool, Tool,
+    WheelZoomTool, Glyph, Circle, Line, Rect
 )
-from bokeh.models.glyphs import Glyph, Circle, Line, Rect
 
 # Module under test
 import bokeh.core.query as q

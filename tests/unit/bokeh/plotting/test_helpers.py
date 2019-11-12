@@ -23,10 +23,10 @@ from mock import mock
 import numpy as np
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, CDSView, GlyphRenderer, Legend, LegendItem, Marker
-from bokeh.models.axes import CategoricalAxis, LinearAxis, LogAxis, MercatorAxis, DatetimeAxis
-from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
-from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
+from bokeh.models import (ColumnDataSource, CDSView, GlyphRenderer, Legend,
+                          LegendItem, Marker, CategoricalAxis, LinearAxis,
+                          LogAxis, MercatorAxis, DatetimeAxis, Range1d, DataRange1d,
+                          FactorRange, LinearScale, LogScale, CategoricalScale)
 from bokeh.plotting import Figure
 
 # Module under test

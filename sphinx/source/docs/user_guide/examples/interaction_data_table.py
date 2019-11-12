@@ -2,8 +2,7 @@ from datetime import date
 from random import randint
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import DataTable, DateFormatter, TableColumn
+from bokeh.models import ColumnDataSource, DataTable, DateFormatter, TableColumn
 
 output_file("data_table.html")
 

@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import Button
+from bokeh.models import Button
 
 output_file("button.html")
 

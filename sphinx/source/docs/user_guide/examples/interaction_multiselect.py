@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import MultiSelect
+from bokeh.models import MultiSelect
 
 output_file("multi_select.html")
 

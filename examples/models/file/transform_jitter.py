@@ -1,10 +1,7 @@
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
-from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, Button, LabelSet
-from bokeh.models.transforms import Jitter
-from bokeh.models.layouts import Column
+from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter, LabelSet
+from bokeh.plotting import figure, output_file, show
 
 N = 1000
 

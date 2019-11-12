@@ -1,10 +1,10 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.util.browser import view
+from bokeh.models import (Circle, ColumnDataSource, CrosshairTool, CustomJS, Grid, HoverTool,
+                          Legend, LegendItem, Line, LinearAxis, Plot, Range1d, TapTool,
+                          WheelZoomTool)
 from bokeh.resources import INLINE
-from bokeh.models.glyphs import Circle, Line
-from bokeh.models import (ColumnDataSource, Range1d, Plot, LinearAxis, Grid,
-    HoverTool, CrosshairTool, TapTool, WheelZoomTool, Legend, LegendItem, CustomJS)
+from bokeh.util.browser import view
 
 plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=600, plot_height=600, toolbar_sticky=False)
 
