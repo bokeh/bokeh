@@ -37,7 +37,7 @@ specs = [ spec for spec in specs if spec.split(" ")[0] != "python" ]
 
 # add double quotes to specs for windows, fixes #9065
 if "windows" in platform.platform().lower():
-    specs = ['"{}"'.format(spec) for spec in specs]
+    specs = [f'"{spec}"' for spec in specs]
 
 deps = ""
 deps += " ".join(specs)

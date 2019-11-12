@@ -10,6 +10,8 @@ if  [[ ! -z "${TRAVIS_TAG}" ]]; then
     exit 0
 fi
 
+[[ "$(python --version | cut -d' ' -f2)" == "${PYTHON:-3.7}"* ]]
+
 bokeh info
 
 bash "scripts/ci/test.${GROUP}"
