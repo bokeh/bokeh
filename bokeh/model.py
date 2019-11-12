@@ -507,7 +507,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
         if other_attr not in other.properties():
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
-        from bokeh.models.callbacks import CustomJS
+        from bokeh.models import CustomJS
         cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
 
         self.js_on_change(attr, cb)
@@ -540,7 +540,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
             raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
 
         # handle any CustomJS callbacks here
-        from bokeh.models.callbacks import CustomJS
+        from bokeh.models import CustomJS
         if not all(isinstance(x, CustomJS) for x in callbacks):
             raise ValueError("not all callback values are CustomJS instances")
 

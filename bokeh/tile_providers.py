@@ -192,7 +192,7 @@ class _TileProvidersModule(types.ModuleType):
                           case_sensitive=True)
 
     def get_provider(self, provider_name):
-        from bokeh.models.tiles import WMTSTileSource
+        from bokeh.models import WMTSTileSource
 
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
