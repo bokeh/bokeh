@@ -40,8 +40,7 @@ def large_plot(n):
         ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, SaveTool, ResetTool
     )
-    from bokeh.models.layouts import Column
-    from bokeh.models.glyphs import Line
+    from bokeh.models import Column, Line
 
     col = Column()
     objects = set([col])

@@ -46,7 +46,7 @@ def get_prop_set(class_object):
 class TestPanel(object):
 
     def setup_method(self):
-        from bokeh.models.widgets.panels import Panel
+        from bokeh.models import Panel
         self.panelCls = Panel
 
     def test_expectedprops(self):
@@ -65,7 +65,7 @@ class TestPanel(object):
 class TestTabs(object):
 
     def setup_method(self):
-        from bokeh.models.widgets.panels import Tabs, Panel
+        from bokeh.models import Tabs, Panel
         self.tabsCls = Tabs
         self.panelCls = Panel
 

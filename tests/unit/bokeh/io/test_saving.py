@@ -21,7 +21,7 @@ from mock import patch
 
 # Bokeh imports
 from bokeh.io.state import curstate
-from bokeh.models.plots import Plot
+from bokeh.models import Plot
 
 # Module under test
 import bokeh.io.saving as bis

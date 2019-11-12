@@ -19,8 +19,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models.widgets import Slider
-from bokeh.models.sources import ColumnDataSource
+from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import Figure
 
 # Module under test
