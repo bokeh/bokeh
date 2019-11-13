@@ -41,8 +41,10 @@ import bokeh.io.export as bie # isort:skip
 @pytest.fixture(scope="module", params=["chromium", "firefox"])
 def webdriver(request):
     driver = webdriver_control.create(request.param)
-    yield driver
-    webdriver_control.terminate(driver)
+    try:
+        yield driver
+    finally:
+        webdriver_control.terminate(driver)
 
 #-----------------------------------------------------------------------------
 # General API
