@@ -32,6 +32,7 @@ conda install --yes --quiet ${CONDA_REQS}
 # set default conda channels
 conda config --set auto_update_conda off
 conda config --append channels bokeh
+conda config --append channels conda-forge
 conda config --get channels
 
 # create and activate test env
