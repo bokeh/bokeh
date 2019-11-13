@@ -109,7 +109,7 @@ is defined as:
 
 .. code-block:: python
 
-    ['#084594', '#2171b5', '#4292c6', '#6baed6', '#9ecae1', '#c6dbef', '#deebf7', '#f7fbff')
+    ('#084594', '#2171b5', '#4292c6', '#6baed6', '#9ecae1', '#c6dbef', '#deebf7', '#f7fbff')
 
 This module contains the following sets of palettes:
 
@@ -356,35 +356,10 @@ from typing import Dict, List, Tuple
 # __all__ just using everything as-is
 
 #-----------------------------------------------------------------------------
-# Note to developers
-#-----------------------------------------------------------------------------
-
-# In order to prevent users from unintentionally modifying built-in palettes
-# (which can result in subtle bugs), the bokeh.palettes modules uses the
-# "class module" trick, to install a _PalettesModule instance in place of the
-# actual module. The _PalettesModule should provide palettes as simple methods
-# accepting only self, that return *new* lists of colors. These functions will
-# automatically be turned into property getters with the _autoprop class
-# decorator below, making the palettes appear to be simple module attributes,
-# but guaranteeing that every usage is a new copy of the list of colors.
-#
-# An example of an appropriate palette method would be:
-#
-#    @property
-#    def YlGn3(self): return ["#31a354", "#addd8e", "#f7fcb9")
-#
-# Once defined, this will be available to users as bokeh.palettes.YlGn3
-#
-# Because of the complicated and unusual nature of the "class module", Sphinx
-# requires some manual assistance to correctly generate documentation. When
-# making any changes to this file, please makes sure to check and appropriately
-# update the docstring at the top.
-
-#-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-Palette = Tuple[str]
+Palette = Tuple[str, ...]
 PaletteCollection = Dict[int, Palette]
 PaletteMap = Dict[str, PaletteCollection]
 
