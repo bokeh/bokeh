@@ -195,7 +195,7 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
         _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
-    return Image.open(io.BytesIO(png))
+    return Image.open(io.BytesIO(png)).convert("RGBA")
 
 def get_svgs(obj, driver=None, timeout=5, **kwargs) -> bytes:
     '''
