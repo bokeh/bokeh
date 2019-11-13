@@ -71,6 +71,21 @@ Selection Dicts
 The obsolete old-style selection dictionaries, i.e. ``selected['1d']`` have
 been removed. Use ``selected.indices``, etc. only.
 
+Immutable Palettes
+~~~~~~~~~~~~~~~~~~
+
+Previousuly, Bokeh used a complicated copy-on-access scheme to return palettes
+as lists. The necessary "module hack" could confuse IDEs, complicated the docs
+build process, and sometimes lead to unexpected behavior. All palettes are now
+tuples, which is a simpler solution to the problem of mutable module attributes.
+
+The main difference is that palettes can no longer be modified in place,
+including reversing the palette. To reverse a palette, do:
+
+.. code-block:: python
+
+    list(reverse(pal))
+
 Tile Providers
 ~~~~~~~~~~~~~~
 
