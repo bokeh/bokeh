@@ -343,9 +343,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import deepcopy
+import math
 from typing import Dict, List, Tuple
 
 # External imports
+import numpy as np
 
 # Bokeh imports
 
@@ -1231,18 +1233,16 @@ def linear_palette(palette: Palette, n: int) -> Palette:
 
     Args:
 
-        palette (list[str]) : a list of hex RGB color strings
+        palette (seq[str]) : a sequence of hex RGB color strings
         n (int) : the size of the output palette to generate
 
     Returns:
-        list [str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if ``n > len(palette)``
 
     '''
-    import math
-    import numpy as np
     if n > len(palette):
         raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % dict(r=n, l=len(palette)))
     return tuple( palette[int(math.floor(i))] for i in np.linspace(0, len(palette)-1, num=n) )
@@ -1259,11 +1259,11 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
 
     Args:
 
-        palette1 (list[str]) :
-            A list of hex RGB color strings for the first palette
+        palette1 (seq[str]) :
+            A sequence of hex RGB color strings for the first palette
 
-        palette2 (list[str]) :
-            A list of hex RGB color strings for the second palette
+        palette2 (seq[str]) :
+            A sequence of hex RGB color strings for the second palette
 
         n (int) :
             The size of the output palette to generate
@@ -1273,7 +1273,7 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
             connected (default: 0.5)
 
     Returns:
-            list [str] : a list of hex RGB color strings
+            seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the possible combined length the input palettes
@@ -1301,7 +1301,7 @@ def magma(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1330,7 +1330,7 @@ def inferno(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1359,7 +1359,7 @@ def plasma(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1388,7 +1388,7 @@ def viridis(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1417,7 +1417,7 @@ def cividis(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1450,7 +1450,7 @@ def turbo(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1479,7 +1479,7 @@ def grey(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
@@ -1511,7 +1511,7 @@ def gray(n: int) -> Palette:
         n (int) : size of the palette to generate
 
     Returns:
-        list[str] : a list of hex RGB color strings
+        seq[str] : a sequence of hex RGB color strings
 
     Raises:
         ``ValueError`` if n is greater than the base palette length of 256
