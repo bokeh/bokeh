@@ -88,6 +88,7 @@ jobs:
       - GROUP=unit
       - PYTHON=3.6
       - TORNADO=5
+      - NUMPY=1.8.2
       - MINIMAL=1
 
     - install: scripts/ci/install.test
