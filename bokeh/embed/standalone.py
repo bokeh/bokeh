@@ -119,9 +119,9 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     .. code-block:: html
 
-        <script src="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
-        <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
-        <script src="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
     Note that in Jupyter Notebooks, it is not possible to use components and show in
     the same notebook cell.
