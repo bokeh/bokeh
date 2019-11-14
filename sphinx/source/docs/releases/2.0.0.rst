@@ -21,7 +21,7 @@ Bokeh now requires Python 3.6 or higher.
 Minimum Numpy Version
 ~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh now requires Numpy 1.8.2 or higher.
+Bokeh now requires Numpy 1.11.3 or higher.
 
 Minimum Tornado Version
 ~~~~~~~~~~~~~~~~~~~~~~~
