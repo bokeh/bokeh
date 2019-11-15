@@ -23,8 +23,7 @@ from PIL import Image
 
 # Bokeh imports
 from bokeh.layouts import row
-from bokeh.models.plots import Plot
-from bokeh.models import ColumnDataSource, Range1d, Rect
+from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
 from bokeh.io.webdriver import webdriver_control, terminate_webdriver
 from bokeh.plotting import figure
 from bokeh.resources import Resources

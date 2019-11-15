@@ -22,7 +22,7 @@ import mock
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity
-from bokeh.models.layouts import LayoutDOM
+from bokeh.models import LayoutDOM
 
 # Module under test
 from bokeh.models.tools import Toolbar, ToolbarBox

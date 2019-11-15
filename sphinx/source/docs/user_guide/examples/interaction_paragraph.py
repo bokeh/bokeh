@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import Paragraph
+from bokeh.models import Paragraph
 
 output_file("div.html")
 

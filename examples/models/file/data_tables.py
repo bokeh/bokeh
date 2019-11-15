@@ -1,11 +1,11 @@
 from bokeh.document import Document
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
-from bokeh.models.layouts import Column
 from bokeh.embed import file_html
+from bokeh.models import (BoxSelectTool, Circle, Column, ColumnDataSource, DataTable, Grid,
+                          HoverTool, IntEditor, LinearAxis, NumberEditor, NumberFormatter, Plot,
+                          SelectEditor, StringEditor, StringFormatter, TableColumn)
 from bokeh.resources import INLINE
-from bokeh.util.browser import view
 from bokeh.sampledata.autompg2 import autompg2 as mpg
+from bokeh.util.browser import view
 
 source = ColumnDataSource(mpg)
 

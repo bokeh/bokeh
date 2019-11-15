@@ -162,8 +162,6 @@ class BokehTornado(TornadoApplication):
             Set the Tornado ``websocket_max_message_size`` value.
             (default: {DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES})
 
-            NOTE: This setting has effect ONLY for Tornado>=4.5
-
         index (str, optional):
             Path to a Jinja2 template to use for the root URL
 

@@ -1,9 +1,9 @@
 ## Bokeh server for Select
 import pandas as pd
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import Select
+from bokeh.models import ColumnDataSource, Select
 from bokeh.plotting import figure
 
 x=[3,4,6,12,10,1,5,6,3,8]
@@ -31,7 +31,6 @@ def select_click(attr,old,new):
         selected_df=df.copy()
 
     source.data=dict(x=selected_df.x, y=selected_df.y,label=selected_df.label)
-
 
 select.on_change('value',select_click)
 

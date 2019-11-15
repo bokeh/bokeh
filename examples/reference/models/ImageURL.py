@@ -1,8 +1,7 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
-from bokeh.models.glyphs import ImageURL
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, Grid, ImageURL, LinearAxis, Plot, Range1d
 
 url = "https://static.bokeh.org/logos/logo.png"
 N = 5

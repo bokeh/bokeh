@@ -24,8 +24,7 @@ from bokeh.application.application import Application
 from bokeh.io.doc import curdoc
 from bokeh.io.output import output_notebook
 from bokeh.io.state import curstate, State
-from bokeh.models.plots import Plot
-from bokeh.models.renderers import GlyphRenderer
+from bokeh.models import GlyphRenderer, Plot
 
 # Module under test
 import bokeh.io.showing as bis

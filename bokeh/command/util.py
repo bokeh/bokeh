@@ -31,7 +31,7 @@ import warnings
 from bokeh.application import Application
 from bokeh.document import Document
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler, Handler
-from bokeh.models.plots import Plot
+from bokeh.models import Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants

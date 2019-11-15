@@ -1,11 +1,10 @@
-from numpy import pi, arange, sin, linspace
+from numpy import arange, linspace, pi, sin
 
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, LinearAxis, ColumnDataSource, Range1d, PanTool, WheelZoomTool
+from bokeh.models import Circle, ColumnDataSource, LinearAxis, PanTool, Plot, Range1d, WheelZoomTool
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
