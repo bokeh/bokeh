@@ -77,10 +77,19 @@ global system configuration (not yet implemented)
     Future support is planned to load Bokeh settings from global system
     configurations.
 
-implicit defaults
-    These are default values defined by the setting declarations. There are
-    regular defaults, as well as "dev" defaults that are used when the
-    environment variable ``BOKEH_DEV=yes`` is set.
+local defaults
+    These are default values defined when accessing the setting:
+
+    .. code-block:: python
+
+        settings.resources(default="server")
+
+    Local defaults have lower precendence than every other setting mechanism
+    except global defaults.
+
+global defaults
+    These are default values defined by the setting declarations. They have
+    lower precedence than every other setting mechanism.
 
 If no value is obtained after searching all of these locations, then a
 RuntimeError will be raised.
@@ -244,13 +253,14 @@ class PrioritizedSetting(object):
 
     The following methods are searched in order for the setting:
 
-    6. immediately supplied values
-    5. previously user-set values (e.g. set from command line)
-    4. user-specified config override file
-    3. environment variable
-    2. local user config file
-    1. global system config file (not yet implemented)
-    0. implicit defaults
+    7. immediately supplied values
+    6. previously user-set values (e.g. set from command line)
+    5. user-specified config override file
+    4. environment variable
+    3. local user config file
+    2. global system config file (not yet implemented)
+    1. local defaults
+    0. global defaults
 
     Ref: https://stackoverflow.com/a/11077282/3406693
 
@@ -277,13 +287,17 @@ class PrioritizedSetting(object):
         self._parent = None
         self._user_value = _Unset
 
-    def __call__(self, value=None):
+    def __call__(self, value=None, default=_Unset):
         '''Return the setting value according to the standard precedence.
 
         Args:
             value (any, optional):
                 An optional immediate value. If not None, the value will
                 be converted, then returned.
+
+            default (any, optional):
+                An optional default value that only takes precendence over
+                implicit default values specified on the property itself.
 
         Returns:
             str or int or float
@@ -292,33 +306,39 @@ class PrioritizedSetting(object):
             RuntimeError
         '''
 
-        # 6. immediate values
+        # 7. immediate values
         if value is not None:
             return self._convert(value)
 
-        # 5. previously user-set value
+        # 6. previously user-set value
         if self._user_value is not _Unset:
             return self._convert(self._user_value)
 
-        # 4. user-named config file
+        # 5. user-named config file
         if self._parent and self._name in self._parent.config_override:
             return self._convert(self._parent.config_override[self._name])
 
-        # 3. environment variable
+        # 4. environment variable
         if self._env_var and self._env_var in os.environ:
             return self._convert(os.environ[self._env_var])
 
-        # 2. local config file
+        # 3. local config file
         if self._parent and self._name in self._parent.config_user:
             return self._convert(self._parent.config_user[self._name])
 
-        # 1. global config file
+        # 2. global config file
         if self._parent and self._name in self._parent.config_system:
             return self._convert(self._parent.config_system[self._name])
 
-        # 0. implicit defaults
+        # 1.5 (undocumented) dev defaults take precedence over other defaults
         if is_dev() and self._dev_default is not _Unset:
             return self._convert(self._dev_default)
+
+        # 1. local defaults
+        if default is not _Unset:
+            return self._convert(default)
+
+        # 0. global defaults
         if self._default is not _Unset:
             return self._convert(self._default)
 
