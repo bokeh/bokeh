@@ -1,22 +1,17 @@
 import numpy as np
+from bokeh.plotting import figure, show, output_file
 
-from bokeh.plotting import figure, output_file, show
+output_file("image.html", title="image.py example")
 
-# create an array of RGBA data
-N = 20
-img = np.empty((N, N), dtype=np.uint32)
-view = img.view(dtype=np.uint8).reshape((N, N, 4))
-for i in range(N):
-    for j in range(N):
-        view[i, j, 0] = int(255 * i / N)
-        view[i, j, 1] = 158
-        view[i, j, 2] = int(255 * j / N)
-        view[i, j, 3] = 255
+x = np.linspace(0, 10, 250)
+y = np.linspace(0, 10, 250)
+xx, yy = np.meshgrid(x, y)
+d = np.sin(xx)*np.cos(yy)
 
-output_file("image_rgba.html")
+p = figure(plot_width=400, plot_height=400)
+p.x_range.range_padding = p.y_range.range_padding = 0
 
-p = figure(plot_width=400, plot_height=400, x_range=(0, 10), y_range=(0, 10))
-
-p.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10])
+p.image(image=[d], x=0, y=0, dw=10, dh=10, palette="Spectral11", level="image")
+p.grid.grid_line_width = 0.5
 
 show(p)

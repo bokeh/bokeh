@@ -429,7 +429,7 @@ HoverTool
 The hover tool is a passive inspector tool. It is generally on at all times,
 but can be configured in the inspector’s menu associated with the toolbar.
 
-.. _basic_tooltips:
+.. _userguide_tools_basic_tooltips:
 
 Basic Tooltips
 ''''''''''''''
@@ -523,11 +523,11 @@ with a ``mode`` property:
     whenever the a horizontal line from the mouse position intersects a glyph
 
 The default configuration is ``mode = "mouse"``. This can be observed in the
-:ref:`basic_tooltips` example above. The example below in
-:ref:`formatting_tooltip_fields` demonstrates an example that sets
-``mode = "vline"``.
+:ref:`userguide_tools_basic_tooltips` example above. The example below in
+:ref:`userguide_tools_formatting_tooltip_fields` demonstrates an example that
+sets ``mode = "vline"``.
 
-.. _formatting_tooltip_fields:
+.. _userguide_tools_formatting_tooltip_fields:
 
 Formatting Tooltip Fields
 '''''''''''''''''''''''''
@@ -616,6 +616,7 @@ Using the |CustomJSHover| model, it is also possible to use JavaScript
 to specify a custom formatter that can display derived quantities in the
 tooltip.
 
+.. _userguide_tools_image_hover:
 
 Image Hover
 '''''''''''

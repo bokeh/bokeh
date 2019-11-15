@@ -363,23 +363,37 @@ Images
 ~~~~~~
 
 You can display images on Bokeh plots using the |image|, |image_rgba|, and
-|image_url| glyph methods.
+|image_url| glyph methods. It is possible to use a hover tool with image glyphs
+to allow for interactive inspection of the values any any pixel. For more
+information on how to enable hover with images, please consult the
+:ref:`Image Hover section <userguide_tools_image_hover>` of the User's Guide.
+
+.. _userguide_plotting_images_rgba:
+
+Raw RGBA data
+'''''''''''''
 
 The first example here shows how to display images in Bokeh plots from
 raw RGBA data using |image_rgba|:
 
-.. note::
-    This example depends on the open source NumPy library in order to more
-    easily generate an array of RGBA data.
+.. bokeh-plot:: docs/user_guide/examples/plotting_image_rgba.py
+    :source-position: above
+
+.. _userguide_plotting_images_colormapped:
+
+Colormapped Images
+''''''''''''''''''
+
+It is also possible to provide an array of *scalar values*, and have Bokeh
+automatically colormap the data in the browser by using the |image| glyph
+method. The next example shows how to do this:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_image.py
     :source-position: above
 
-The hover tool allows interactive inspection of the values specified at
-any chosen pixel. For more information on how to enable hover with
-images, please consult the hover tool section of the :ref:`tools user
-guide <userguide_tools_inspectors>`.
-
+Also note in the above example we have set the render level to ``"image"``.
+Normally, all glyphs are drawn *above* grid lines, but setting the ``"image"``
+render level can be used to draw *underneath* the grid lines.
 
 .. _userguide_plotting_segments_rays:
 
