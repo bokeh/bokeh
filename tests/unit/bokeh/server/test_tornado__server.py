@@ -17,6 +17,7 @@ import pytest ; pytest
 # Standard library imports
 import json
 import logging
+import os
 
 # External imports
 
@@ -78,6 +79,23 @@ def test_default_resources():
         assert r.mode == "server"
         assert r.root_url == "/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
+
+def test_env_resources():
+    os.environ['BOKEH_RESOURCES'] = 'cdn'
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        r = server._tornado.resources()
+        assert r.mode == "cdn"
+    del os.environ['BOKEH_RESOURCES']
+
+def test_dev_resources():
+    os.environ['BOKEH_DEV'] = 'yes'
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        r = server._tornado.resources()
+        assert r.mode == "absolute"
+        assert r.dev
+    del os.environ['BOKEH_DEV']
 
 def test_index():
     application = Application()
