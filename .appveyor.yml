@@ -26,7 +26,7 @@ before_test:
   - powershell .\\scripts\\ci\\appveyor\\test.ps1
 
 test_script:
-  - py.test -m unit --junit-xml=test_results.xml --diff-ref HEAD
+  - py.test -m unit --junit-xml=test_results.xml --diff-ref HEAD tests
 
 # Upload the test results to appveyor so they are shown on the "Tests" tab.
 on_finish:

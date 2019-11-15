@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pprint import pformat
+from urllib.parse import urljoin
 
 # External imports
 from tornado import gen
@@ -437,8 +438,11 @@ class BokehTornado(TornadoApplication):
                 relative URLs are used (default: None)
 
         '''
-        root_url = absolute_url + self._prefix if absolute_url else self._prefix
-        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        mode = settings.resources(default="server")
+        if mode == "server":
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        return Resources(mode=mode)
 
     def start(self):
         ''' Start the Bokeh Server application.

@@ -40,6 +40,7 @@ from bokeh.server.connection import ServerConnection
 from bokeh.server.session import ServerSession
 from bokeh.server.views.static_handler import StaticHandler
 from bokeh.server.protocol_handler import ProtocolHandler
+from bokeh.settings import settings
 from bokeh.protocol import Protocol
 from bokeh.protocol.receiver import Receiver
 from bokeh.protocol.message import Message
@@ -79,8 +80,11 @@ class ConsumerHelper(AsyncConsumer):
         return self.arguments.get(name, default)
 
     def resources(self, absolute_url: Optional[str] = None) -> Resources:
-        root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        mode = settings.resources(default="server")
+        if mode == "server":
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        return Resources(mode=mode)
 
 class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
