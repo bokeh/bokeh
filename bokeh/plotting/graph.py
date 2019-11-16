@@ -27,8 +27,6 @@ from ..models.graphs import StaticLayoutProvider
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-DEFAULT_TOOLS = "pan,wheel_zoom,reset,help"
-
 __all__ = (
     'from_networkx'
 )
