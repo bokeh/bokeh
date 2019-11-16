@@ -33,6 +33,7 @@ __all__ = (
     'Document',
     'figure',
     'Figure',
+    'from_networkx',
     'gmap',
     'GMap',
     'gridplot',
@@ -65,6 +66,8 @@ from .figure import DEFAULT_TOOLS; DEFAULT_TOOLS
 
 from .gmap import GMap; GMap
 from .gmap import gmap; gmap
+
+from .graph import from_networkx
 
 # extra imports -- just things to add to 'from bokeh.plotting import'
 from ..document import Document; Document

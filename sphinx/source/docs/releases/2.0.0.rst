@@ -163,3 +163,6 @@ The following new deprecations are effective:
 
 * ``bokeh.layouts.WidgetBox`` is deprecated use ``bokeh.layouts.Column``
   instead.
+
+* Importing ``from_networkx`` from ``bokeh.models.graphs`` is deprecated. Import
+  from ``bokeh.plotting`` instead.

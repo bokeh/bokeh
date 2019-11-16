@@ -104,7 +104,7 @@ Networkx Integration
 --------------------
 
 Bokeh supports quickly plotting a network graph with its networkx integration.
-The ``bokeh.models.graphs.from_networkx`` convenience method accepts a
+The ``bokeh.plotting.from_networkx`` convenience method accepts a
 ``networkx.Graph`` object and a networkx layout method in order to return a
 configured GraphRenderer instance.
 
