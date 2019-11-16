@@ -84,7 +84,6 @@ test:
     - networkx
     - notebook
     - opencv
-    - pscript
     - pyshp
     - scikit-learn
     - sympy
