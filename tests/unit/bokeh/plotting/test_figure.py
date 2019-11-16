@@ -145,6 +145,11 @@ class TestFigure(object):
         p.circle([1, 2, 3], [1, 2, 3])
         assert isinstance(p.y_scale, LogScale)
 
+    def test_grid_tickers(self):
+        p = bpf.figure()
+        assert p.xgrid[0].ticker == p.xaxis[0]
+        assert p.ygrid[0].ticker == p.yaxis[0]
+
     def test_xgrid(self):
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])

@@ -1,3 +1,4 @@
+import {Axis} from "../axes"
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
@@ -138,7 +139,7 @@ export class GridView extends GuideRendererView {
     // currently only support "straight line" grids, this should be OK for now. If
     // we ever want to support "curved" grids, e.g. for some projections, we may
     // have to communicate more than just a single cross location.
-    const ticks = this.model.ticker.get_ticks(start, end, range, cross_range.min, {})[location]
+    const ticks = this.model.get_ticker().get_ticks(start, end, range, cross_range.min, {})[location]
 
     const min = range.min
     const max = range.max
@@ -181,7 +182,7 @@ export namespace Grid {
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
-    ticker: p.Property<Ticker<any>>
+    ticker: p.Property<Ticker<any> | Axis>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
   } & mixins.GridLine
@@ -227,4 +228,12 @@ export class Grid extends GuideRenderer {
       minor_grid_line_color: null,
     })
   }
+
+  get_ticker(): Ticker<any> {
+    if (this.ticker instanceof Ticker) {
+      return this.ticker
+    }
+    return this.ticker.ticker
+  }
+
 }
