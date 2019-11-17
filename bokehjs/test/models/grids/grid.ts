@@ -127,7 +127,7 @@ describe("Grid", () => {
       y_range: new Range1d({start: 0.1, end: 9.9}),
     })
 
-    const axis_ticker = new FixedTicker({ticks: [1,2,3,4]})
+    const axis_ticker = new FixedTicker({ticks: [1, 2, 3, 4]})
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker: axis_ticker, formatter})
 
