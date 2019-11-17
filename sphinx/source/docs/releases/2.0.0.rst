@@ -13,20 +13,14 @@ And several other bug fixes and docs additions. For full details see the
 `Migration Guide <releases.html#release-2-0-0-migration>`__
 -----------------------------------------------------------
 
-Minimum Python Version
-~~~~~~~~~~~~~~~~~~~~~~
+Minimum Package Versions
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh now requires Python 3.6 or higher.
+This release raises the minimum version for some packages
 
-Minimum Numpy Version
-~~~~~~~~~~~~~~~~~~~~~
-
-Bokeh now requires Numpy 1.11.3 or higher.
-
-Minimum Tornado Version
-~~~~~~~~~~~~~~~~~~~~~~~
-
-The Bokeh server now requires Tornado 5.0 or higher.
+* Bokeh now requires Python 3.6 or higher.
+* Bokeh now requires Numpy 1.11.3 or higher.
+* The Bokeh server now requires Tornado 5.0 or higher.
 
 HoverTool Formatters Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,3 +157,6 @@ The following new deprecations are effective:
 
 * ``bokeh.layouts.WidgetBox`` is deprecated use ``bokeh.layouts.Column``
   instead.
+
+* Importing ``from_networkx`` from ``bokeh.models.graphs`` is deprecated. Import
+  from ``bokeh.plotting`` instead.

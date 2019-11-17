@@ -3,8 +3,8 @@ import networkx as nx
 from bokeh.io import output_file, show
 from bokeh.models import (BoxZoomTool, Circle, HoverTool, MultiLine, Plot,
                           Range1d, ResetTool)
-from bokeh.models.graphs import from_networkx
 from bokeh.palettes import Spectral4
+from bokeh.plotting import from_networkx
 
 # Prepare Data
 G = nx.karate_club_graph()
