@@ -43,12 +43,12 @@ def test_ticker_accepts_number_sequences():
     assert g.ticker.ticks == [-10, 0, 10, 20.7]
 
 def test_ticker_accepts_axis():
-    g = bmg.Grid(ticker=LinearAxis())
-    assert isinstance(g.ticker, LinearAxis)
+    g = bmg.Grid(axis=LinearAxis())
+    assert isinstance(g.axis, LinearAxis)
 
     g = bmg.Grid()
-    g.ticker = LinearAxis()
-    assert isinstance(g.ticker, LinearAxis)
+    g.axis = LinearAxis()
+    assert isinstance(g.axis, LinearAxis)
 
 #-----------------------------------------------------------------------------
 # Dev API

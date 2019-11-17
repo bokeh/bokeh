@@ -3,6 +3,7 @@ import {expect} from "chai"
 import {Axis} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
+import {FixedTicker} from "@bokehjs/models/tickers/fixed_ticker"
 import {Grid, GridView} from "@bokehjs/models/grids/grid"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -100,7 +101,7 @@ describe("Grid", () => {
     ])
   })
 
-  it("should delegage to an Axis ticker", () => {
+  it("should delegate to an Axis ticker", () => {
     const plot = new Plot({
       x_range: new Range1d({start: 0.1, end: 9.9}),
       y_range: new Range1d({start: 0.1, end: 9.9}),
@@ -109,7 +110,7 @@ describe("Grid", () => {
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter})
     plot.add_layout(axis, 'below')
-    const grid = new Grid({ticker: axis})
+    const grid = new Grid({axis: axis})
     plot.add_layout(grid, 'center')
     const plot_view = new plot.default_view({model: plot, parent: null}).build()
     const grid_view = plot_view.renderer_views[grid.id] as GridView
@@ -119,5 +120,29 @@ describe("Grid", () => {
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
   })
+
+  it("should prefer an explicit ticker to an Axis ticker", () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0.1, end: 9.9}),
+      y_range: new Range1d({start: 0.1, end: 9.9}),
+    })
+
+    const axis_ticker = new FixedTicker({ticks: [1,2,3,4]})
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({ticker: axis_ticker, formatter})
+
+    plot.add_layout(axis, 'below')
+    const ticker = new BasicTicker()
+    const grid = new Grid({axis, ticker})
+    plot.add_layout(grid, 'center')
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const grid_view = plot_view.renderer_views[grid.id] as GridView
+
+    expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
+      [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
+      [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
+    ])
+  })
+
 
 })

@@ -135,11 +135,18 @@ export class GridView extends GuideRendererView {
     let [start, end] = this.computed_bounds();
     [start, end] = [Math.min(start, end), Math.max(start, end)]
 
+    const coords: [number[][], number[][]] = [[], []]
+
     // TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
     // currently only support "straight line" grids, this should be OK for now. If
     // we ever want to support "curved" grids, e.g. for some projections, we may
     // have to communicate more than just a single cross location.
-    const ticks = this.model.get_ticker().get_ticks(start, end, range, cross_range.min, {})[location]
+    const ticker = this.model.get_ticker()
+    if (ticker == null) {
+      return coords
+    }
+
+    const ticks = ticker.get_ticks(start, end, range, cross_range.min, {})[location]
 
     const min = range.min
     const max = range.max
@@ -147,7 +154,7 @@ export class GridView extends GuideRendererView {
     const cmin = cross_range.min
     const cmax = cross_range.max
 
-    const coords: [number[][], number[][]] = [[], []]
+
 
     if (!exclude_ends) {
       if (ticks[0] != min)
@@ -182,7 +189,8 @@ export namespace Grid {
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
-    ticker: p.Property<Ticker<any> | Axis>
+    axis: p.Property<Axis>
+    ticker: p.Property<Ticker<any>>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
   } & mixins.GridLine
@@ -215,6 +223,7 @@ export class Grid extends GuideRenderer {
     this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
       dimension:    [ p.Any,     0         ],
+      axis:         [ p.Instance           ],
       ticker:       [ p.Instance           ],
       x_range_name: [ p.String,  'default' ],
       y_range_name: [ p.String,  'default' ],
@@ -229,11 +238,14 @@ export class Grid extends GuideRenderer {
     })
   }
 
-  get_ticker(): Ticker<any> {
-    if (this.ticker instanceof Ticker) {
+  get_ticker(): Ticker<any> | null {
+    if (this.ticker != null) {
       return this.ticker
     }
-    return this.ticker.ticker
+    if (this.axis != null) {
+      return this.axis.ticker
+    }
+    return null
   }
 
 }

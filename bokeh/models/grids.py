@@ -73,10 +73,15 @@ class Grid(GuideRenderer):
     rendering a grid on the plot. If unset, use the default y-range.
     """)
 
-    ticker = Either(Instance(Ticker), Instance(Axis), help="""
-    The Ticker to use for computing locations for the Grid lines. May also be
-    configured with an Axis, in which case the Grid will delegate the ticking
-    to that Axis instance.
+    axis = Instance(Axis, help="""
+    An Axis to delegate ticking to. If the ticker property is None, then the
+    Grid will use the ticker on the specified axis for computing where to draw
+    grid lines. Otherwise, it ticker is not None, it will take precedence over
+    any Axis.
+    """)
+
+    ticker = Instance(Ticker, help="""
+    A Ticker to use for computing locations for the Grid lines.
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     grid_props = Include(ScalarLineProps, help="""
