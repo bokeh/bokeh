@@ -3,10 +3,6 @@ import {Arrayable} from "core/types"
 import {min, max} from "core/util/arrayable"
 import * as p from "core/properties"
 
-// Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.
-const log1p = Math.log1p != null ? Math.log1p : (x: number) => Math.log(1 + x)
-
 export namespace LogColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
@@ -29,7 +25,7 @@ export class LogColorMapper extends ContinuousColorMapper {
     const n = palette.length
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
-    const scale = n / (log1p(high) - log1p(low))  // subtract the low offset
+    const scale = n / (Math.log(high) - Math.log(low))  // subtract the low offset
     const max_key = palette.length - 1
 
     for (let i = 0, end = data.length; i < end; i++) {
@@ -60,7 +56,7 @@ export class LogColorMapper extends ContinuousColorMapper {
       }
 
       // Get the key
-      const log = log1p(d) - log1p(low)  // subtract the low offset
+      const log = Math.log(d) - Math.log(low)  // subtract the low offset
       let key = Math.floor(log * scale)
 
       // Deal with upper bound
