@@ -110,7 +110,7 @@ describe("Grid", () => {
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter})
     plot.add_layout(axis, 'below')
-    const grid = new Grid({axis: axis})
+    const grid = new Grid({axis})
     plot.add_layout(grid, 'center')
     const plot_view = new plot.default_view({model: plot, parent: null}).build()
     const grid_view = plot_view.renderer_views[grid.id] as GridView
@@ -143,6 +143,5 @@ describe("Grid", () => {
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
   })
-
 
 })
