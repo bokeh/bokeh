@@ -154,8 +154,6 @@ export class GridView extends GuideRendererView {
     const cmin = cross_range.min
     const cmax = cross_range.max
 
-
-
     if (!exclude_ends) {
       if (ticks[0] != min)
         ticks.splice(0, 0, min)
