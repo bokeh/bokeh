@@ -140,15 +140,16 @@ class TestApplicationContext(object):
             await r
         assert str(e.value).endswith("Session ID must not be empty")
 
-    def test_create_session_if_needed_logout_url(self):
+    @pytest.mark.asyncio
+    async def test_create_session_if_needed_logout_url(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop", logout_url="/logout")
         class FakeRequest(object):
             arguments = dict(foo=10)
         req = FakeRequest()
-        s = c.create_session_if_needed("foo", request=req)
+        s = await c.create_session_if_needed("foo", request=req)
         session = c.get_session("foo")
-        assert session == s.result()
+        assert session == s
         assert c._session_contexts[session.id].logout_url == "/logout"
 
 #-----------------------------------------------------------------------------
