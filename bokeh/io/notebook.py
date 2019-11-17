@@ -184,7 +184,7 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
         raise RuntimeError("hook for notebook type %r already exists" % notebook_type)
     _HOOKS[notebook_type] = dict(load=load, doc=show_doc, app=show_app)
 
-def push_notebook(document=None, state=None, handle=None):
+def push_notebook(*, document=None, state=None, handle=None):
     ''' Update Bokeh plots in a Jupyter notebook output cells with new data
     or property values.
 

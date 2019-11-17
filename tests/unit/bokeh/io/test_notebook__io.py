@@ -82,7 +82,7 @@ class Test_push_notebook(object):
         d = Document()
 
         handle = binb.CommsHandle("comms", d)
-        binb.push_notebook(d, None, handle)
+        binb.push_notebook(document=d, handle=handle)
         assert mock_comms.call_count == 0
 
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
@@ -96,7 +96,7 @@ class Test_push_notebook(object):
 
         handle = binb.CommsHandle("comms", d)
         d.title = "foo"
-        binb.push_notebook(d, None, handle)
+        binb.push_notebook(document=d, handle=handle)
         assert mock_comms.call_count > 0
         assert mock_send.call_count == 3 # sends header, metadata, then content
         assert json.loads(mock_send.call_args[0][0]) == {u"events": [{u"kind": u"TitleChanged", u"title": u"foo"}], u"references": []}
