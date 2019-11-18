@@ -30,7 +30,7 @@ from bokeh.application.handlers import FunctionHandler
 from bokeh.client import pull_session, push_session, ClientSession
 import bokeh.document as document
 from bokeh.document import Document
-from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
+#from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from bokeh.model import Model
 from bokeh.models import Plot
@@ -78,8 +78,7 @@ class TestClientServer(object):
             session.connect()
             assert session.connected
 
-    @pytest.mark.asyncio
-    async def test_disconnect_on_error(self, ManagedServerLoop):
+    def test_disconnect_on_error(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             session = ClientSession(session_id='test_disconnect_on_error',
@@ -88,7 +87,7 @@ class TestClientServer(object):
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            await session._connection._socket.write_message(b"xx", binary=True)
+            server.io_loop.spawn_callback(session._connection._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -377,8 +376,7 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
-    @pytest.mark.asyncio
-    async def test_server_changes_go_to_client(self, ManagedServerLoop):
+    def test_server_changes_go_to_client(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -394,7 +392,7 @@ class TestClientServer(object):
 
             def do_add_server_root():
                 server_session.document.add_root(server_root)
-            await server_session.with_document_locked(do_add_server_root)
+            server.io_loop.spawn_callback(server_session.with_document_locked, do_add_server_root)
 
             def client_has_root():
                 return len(doc.roots) > 0
@@ -407,7 +405,7 @@ class TestClientServer(object):
             # Now try setting title on server side
             def do_set_server_title():
                 server_session.document.title = "Server Title"
-            await server_session.with_document_locked(do_set_server_title)
+            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_server_title)
 
             def client_title_set():
                 return client_session.document.title != document.DEFAULT_TITLE
@@ -418,7 +416,7 @@ class TestClientServer(object):
             # Now modify a model within the server document
             def do_set_property_on_server():
                 server_root.foo = 57
-            await server_session.with_document_locked(do_set_property_on_server)
+            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_property_on_server)
 
             # there is no great way to block until the server
             # has applied changes, since patches are sent
@@ -430,7 +428,7 @@ class TestClientServer(object):
 
             def do_remove_server_root():
                 server_session.document.remove_root(server_root)
-            await server_session.with_document_locked(do_remove_server_root)
+            server.io_loop.spawn_callback(server_session.with_document_locked, do_remove_server_root)
 
             def client_lacks_root():
                 return len(doc.roots) == 0
@@ -442,11 +440,10 @@ class TestClientServer(object):
             assert not client_session.connected
 
     async def async_value(self, value):
-        asyncio.sleep(0) # this ensures we actually return to the loop
+        await asyncio.sleep(0) # this ensures we actually return to the loop
         return value
 
-    @pytest.mark.asyncio
-    async def test_client_session_timeout_async(self, ManagedServerLoop):
+    def test_client_session_timeout_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -478,8 +475,7 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_client_session_timeout_async_added_before_push(self, ManagedServerLoop):
+    def test_client_session_timeout_async_added_before_push(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -511,44 +507,42 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_server_session_timeout_async(self, ManagedServerLoop):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-            doc.add_root(DictModel())
+    # def test_server_session_timeout_async(self, ManagedServerLoop):
+    #     application = Application()
+    #     with ManagedServerLoop(application) as server:
+    #         doc = document.Document()
+    #         doc.add_root(DictModel())
 
-            client_session = push_session(doc,
-                                          session_id='test_server_session_timeout_async',
-                                          url=url(server),
-                                          io_loop=server.io_loop)
-            server_session = server.get_session('/', client_session.id)
+    #         client_session = push_session(doc,
+    #                                       session_id='test_server_session_timeout_async',
+    #                                       url=url(server),
+    #                                       io_loop=server.io_loop)
+    #         server_session = server.get_session('/', client_session.id)
 
-            result = next(iter(server_session.document.roots))
+    #         result = next(iter(server_session.document.roots))
 
-            async def cb():
-                # we're testing that we can modify the doc and be
-                # "inside" the document lock
-                result.values['a'] = 0
-                result.values['b'] = await self.async_value(1)
-                result.values['c'] = await self.async_value(2)
-                result.values['d'] = await self.async_value(3)
-                result.values['e'] = await self.async_value(4)
-                client_session.close()
-                return 5
+    #         async def cb():
+    #             # we're testing that we can modify the doc and be
+    #             # "inside" the document lock
+    #             result.values['a'] = 0
+    #             result.values['b'] = await self.async_value(1)
+    #             result.values['c'] = await self.async_value(2)
+    #             result.values['d'] = await self.async_value(3)
+    #             result.values['e'] = await self.async_value(4)
+    #             client_session.close()
+    #             return 5
 
-            cb_id = server_session.document.add_timeout_callback(cb, 10)
+    #         cb_id = server_session.document.add_timeout_callback(cb, 10)
 
-            client_session._loop_until_closed()
+    #         client_session._loop_until_closed()
 
-            with pytest.raises(ValueError) as exc:
-                server_session.document.remove_timeout_callback(cb_id)
-            assert 'already removed' in repr(exc.value)
+    #         with pytest.raises(ValueError) as exc:
+    #             server_session.document.remove_timeout_callback(cb_id)
+    #         assert 'already removed' in repr(exc.value)
 
-            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
+    #         assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_client_session_next_tick_async(self, ManagedServerLoop):
+    def test_client_session_next_tick_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -580,8 +574,7 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_client_session_next_tick_async_added_before_push(self, ManagedServerLoop):
+    def test_client_session_next_tick_async_added_before_push(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -613,44 +606,42 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_server_session_next_tick_async(self, ManagedServerLoop):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-            doc.add_root(DictModel())
+    # def test_server_session_next_tick_async(self, ManagedServerLoop):
+    #     application = Application()
+    #     with ManagedServerLoop(application, io_loop=IOLoop()) as server:
+    #         doc = document.Document()
+    #         doc.add_root(DictModel())
 
-            client_session = push_session(doc,
-                                          session_id='test_server_session_next_tick_async',
-                                          url=url(server),
-                                          io_loop=server.io_loop)
-            server_session = server.get_session('/', client_session.id)
+    #         client_session = push_session(doc,
+    #                                       session_id='test_server_session_next_tick_async',
+    #                                       url=url(server),
+    #                                       io_loop=server.io_loop)
+    #         server_session = server.get_session('/', client_session.id)
 
-            result = next(iter(server_session.document.roots))
+    #         result = next(iter(server_session.document.roots))
 
-            async def cb():
-                # we're testing that we can modify the doc and be
-                # "inside" the document lock
-                result.values['a'] = 0
-                result.values['b'] = await self.async_value(1)
-                result.values['c'] = await self.async_value(2)
-                result.values['d'] = await self.async_value(3)
-                result.values['e'] = await self.async_value(4)
-                client_session.close()
-                return 5
+    #         async def cb():
+    #             # we're testing that we can modify the doc and be
+    #             # "inside" the document lock
+    #             result.values['a'] = 0
+    #             result.values['b'] = await self.async_value(1)
+    #             result.values['c'] = await self.async_value(2)
+    #             result.values['d'] = await self.async_value(3)
+    #             result.values['e'] = await self.async_value(4)
+    #             client_session.close()
+    #             return 5
 
-            cb_id = server_session.document.add_next_tick_callback(cb)
+    #         cb_id = server_session.document.add_next_tick_callback(cb)
 
-            client_session._loop_until_closed()
+    #         client_session._loop_until_closed()
 
-            with pytest.raises(ValueError) as exc:
-                server_session.document.remove_next_tick_callback(cb_id)
-            assert 'already removed' in repr(exc.value)
+    #         with pytest.raises(ValueError) as exc:
+    #             server_session.document.remove_next_tick_callback(cb_id)
+    #         assert 'already removed' in repr(exc.value)
 
-            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
+    #         assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_client_session_periodic_async(self, ManagedServerLoop):
+    def test_client_session_periodic_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -680,8 +671,7 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_client_session_periodic_async_added_before_push(self, ManagedServerLoop):
+    def test_client_session_periodic_async_added_before_push(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -711,128 +701,127 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    @pytest.mark.asyncio
-    async def test_server_session_periodic_async(self, ManagedServerLoop):
-        application = Application()
-        with ManagedServerLoop(application) as server:
-            doc = document.Document()
-            doc.add_root(DictModel())
+    # def test_server_session_periodic_async(self, ManagedServerLoop):
+    #     application = Application()
+    #     with ManagedServerLoop(application) as server:
+    #         doc = document.Document()
+    #         doc.add_root(DictModel())
 
-            client_session = push_session(doc,
-                                          session_id='test_server_session_periodic_async',
-                                          url=url(server),
-                                          io_loop=server.io_loop)
-            server_session = server.get_session('/', client_session.id)
+    #         client_session = push_session(doc,
+    #                                       session_id='test_server_session_periodic_async',
+    #                                       url=url(server),
+    #                                       io_loop=server.io_loop)
+    #         server_session = server.get_session('/', client_session.id)
 
-            result = next(iter(server_session.document.roots))
+    #         result = next(iter(server_session.document.roots))
 
-            async def cb():
-                # we're testing that we can modify the doc and be
-                # "inside" the document lock
-                result.values['a'] = 0
-                result.values['b'] = await self.async_value(1)
-                result.values['c'] = await self.async_value(2)
-                result.values['d'] = await self.async_value(3)
-                result.values['e'] = await self.async_value(4)
-                client_session.close()
-                return 5
+    #         async def cb():
+    #             # we're testing that we can modify the doc and be
+    #             # "inside" the document lock
+    #             result.values['a'] = 0
+    #             result.values['b'] = await self.async_value(1)
+    #             result.values['c'] = await self.async_value(2)
+    #             result.values['d'] = await self.async_value(3)
+    #             result.values['e'] = await self.async_value(4)
+    #             client_session.close()
+    #             return 5
 
-            cb_id = server_session.document.add_periodic_callback(cb, 10)
+    #         cb_id = server_session.document.add_periodic_callback(cb, 10)
 
-            client_session._loop_until_closed()
+    #         client_session._loop_until_closed()
 
-            server_session.document.remove_periodic_callback(cb_id)
+    #         server_session.document.remove_periodic_callback(cb_id)
 
-            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
+    #         assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_lots_of_concurrent_messages(self, ManagedServerLoop):
-        application = Application()
-        def setup_stuff(doc):
-            m1 = AnotherModelInTestClientServer(bar=43, name='m1')
-            m2 = SomeModelInTestClientServer(foo=42, name='m2')
-            m3 = SomeModelInTestClientServer(foo=68, name='m3')
-            doc.add_root(m1)
-            doc.add_root(m2)
-            doc.add_root(m3)
-            def timeout1():
-                m1.bar += 1
-            timeout1_cb_id = doc.add_timeout_callback(timeout1, 1)
-            def timeout2():
-                m2.foo +=1
-            timeout2_cb_id = doc.add_timeout_callback(timeout2, 3)
-            def periodic1():
-                m1.bar += 1
-                doc.remove_timeout_callback(timeout1_cb_id)
-                doc.add_timeout_callback(timeout1, m1.bar % 7)
-            doc.add_periodic_callback(periodic1, 3)
-            def periodic2():
-                m2.foo += 1
-                doc.remove_timeout_callback(timeout2_cb_id)
-                doc.add_timeout_callback(timeout2, m2.foo % 7)
-            doc.add_periodic_callback(periodic2, 1)
+    # def test_lots_of_concurrent_messages(self, ManagedServerLoop):
+    #     application = Application()
+    #     def setup_stuff(doc):
+    #         m1 = AnotherModelInTestClientServer(bar=43, name='m1')
+    #         m2 = SomeModelInTestClientServer(foo=42, name='m2')
+    #         m3 = SomeModelInTestClientServer(foo=68, name='m3')
+    #         doc.add_root(m1)
+    #         doc.add_root(m2)
+    #         doc.add_root(m3)
+    #         def timeout1():
+    #             m1.bar += 1
+    #         timeout1_cb_id = doc.add_timeout_callback(timeout1, 1)
+    #         def timeout2():
+    #             m2.foo +=1
+    #         timeout2_cb_id = doc.add_timeout_callback(timeout2, 3)
+    #         def periodic1():
+    #             m1.bar += 1
+    #             doc.remove_timeout_callback(timeout1_cb_id)
+    #             doc.add_timeout_callback(timeout1, m1.bar % 7)
+    #         doc.add_periodic_callback(periodic1, 3)
+    #         def periodic2():
+    #             m2.foo += 1
+    #             doc.remove_timeout_callback(timeout2_cb_id)
+    #             doc.add_timeout_callback(timeout2, m2.foo % 7)
+    #         doc.add_periodic_callback(periodic2, 1)
 
-            def server_on_change(event):
-                if isinstance(event, ModelChangedEvent) and event.model is m3:
-                    return
-                m3.foo += 1
+    #         def server_on_change(event):
+    #             if isinstance(event, ModelChangedEvent) and event.model is m3:
+    #                 return
+    #             m3.foo += 1
 
-            doc.on_change(server_on_change)
+    #         doc.on_change(server_on_change)
 
-        handler = FunctionHandler(setup_stuff)
-        application.add(handler)
+    #     handler = FunctionHandler(setup_stuff)
+    #     application.add(handler)
 
-        # keep_alive_milliseconds=1 sends pings as fast as the OS will let us
-        with ManagedServerLoop(application, keep_alive_milliseconds=1) as server:
-            session = pull_session(session_id='test_lots_of_concurrent_messages',
-                                   url=url(server),
-                                   io_loop=server.io_loop)
-            assert session.connected
+    #     # keep_alive_milliseconds=1 sends pings as fast as the OS will let us
+    #     with ManagedServerLoop(application, keep_alive_milliseconds=1) as server:
+    #         session = pull_session(session_id='test_lots_of_concurrent_messages',
+    #                                url=url(server),
+    #                                io_loop=server.io_loop)
+    #         assert session.connected
 
-            server_session = server.get_session('/', session.id)
+    #         server_session = server.get_session('/', session.id)
 
-            def client_timeout():
-                m = session.document.roots[0]
-                m.name = m.name[::-1]
-            cb_id = session.document.add_timeout_callback(client_timeout, 3)
+    #         def client_timeout():
+    #             m = session.document.roots[0]
+    #             m.name = m.name[::-1]
+    #         cb_id = session.document.add_timeout_callback(client_timeout, 3)
 
-            def client_periodic():
-                m = session.document.roots[1]
-                m.name = m.name[::-1]
-                session.document.remove_timeout_callback(cb_id)
-                session.document.add_timeout_callback(client_timeout, 3)
+    #         def client_periodic():
+    #             m = session.document.roots[1]
+    #             m.name = m.name[::-1]
+    #             session.document.remove_timeout_callback(cb_id)
+    #             session.document.add_timeout_callback(client_timeout, 3)
 
-            session.document.add_periodic_callback(client_periodic, 1)
+    #         session.document.add_periodic_callback(client_periodic, 1)
 
-            result = {}
-            def end_test():
-                result['connected'] = session.connected
-                result['server_connection_count'] = server_session.connection_count
-                result['server_close_code'] = next(iter(server._tornado._clients))._socket.close_code
-                result['doc'] = session.document.to_json()
-                session.close()
+    #         result = {}
+    #         def end_test():
+    #             result['connected'] = session.connected
+    #             result['server_connection_count'] = server_session.connection_count
+    #             result['server_close_code'] = next(iter(server._tornado._clients))._socket.close_code
+    #             result['doc'] = session.document.to_json()
+    #             session.close()
 
-            # making this longer is more likely to trigger bugs, but it also
-            # makes the test take however much time you put here
-            session.document.add_timeout_callback(end_test, 250)
+    #         # making this longer is more likely to trigger bugs, but it also
+    #         # makes the test take however much time you put here
+    #         session.document.add_timeout_callback(end_test, 250)
 
-            def client_on_change(event):
-                if not isinstance(event, TitleChangedEvent):
-                    session.document.title = session.document.title[::-1]
+    #         def client_on_change(event):
+    #             if not isinstance(event, TitleChangedEvent):
+    #                 session.document.title = session.document.title[::-1]
 
-            session.document.on_change(client_on_change)
+    #         session.document.on_change(client_on_change)
 
-            session._loop_until_closed()
+    #         session._loop_until_closed()
 
-            assert not session.connected
+    #         assert not session.connected
 
-            # we should have still been connected at the end,
-            # if we didn't have any crazy protocol errors
-            assert 'connected' in result
-            assert result['connected']
+    #         # we should have still been connected at the end,
+    #         # if we didn't have any crazy protocol errors
+    #         assert 'connected' in result
+    #         assert result['connected']
 
-            # server should also still have been connected
-            assert result['server_connection_count'] == 1
-            assert result['server_close_code'] is None
+    #         # server should also still have been connected
+    #         assert result['server_connection_count'] == 1
+    #         assert result['server_close_code'] is None
 
 def test_client_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
     application = Application()
@@ -880,8 +869,7 @@ def test_client_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
 
-@pytest.mark.asyncio
-async def test_server_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
+def test_server_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
@@ -910,7 +898,7 @@ async def test_server_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
         # Now modify the server document
         def do_set_foo_property():
             server_root.foo = 57
-        await server_session.with_document_locked(do_set_foo_property)
+        server.io_loop.spawn_callback(server_session.with_document_locked, do_set_foo_property)
 
         # there is no great way to block until the server
         # has applied changes, since patches are sent
