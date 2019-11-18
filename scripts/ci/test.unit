@@ -12,7 +12,7 @@ fi
 
 # don't run from the top level dir, make sure tests run on installed package
 pushd tests
-py.test -m "$selector"              \
+py.test -m "$selector" tests        \
     --cov=bokeh                     \
     --cov-config=.coveragerc
 popd
