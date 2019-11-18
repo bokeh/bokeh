@@ -4,52 +4,58 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Define a Pytest plugin to provide a Bokeh server
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import pytest ; pytest
+import logging
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
+from contextlib import contextmanager
 
 # External imports
-from tornado.websocket import WebSocketClosedError
+import pytest
 
 # Bokeh imports
-from bokeh.util.logconfig import basicConfig
-
-# Module under test
-from bokeh.server.views.ws import WSHandler
+from bokeh.server.server import Server
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-# needed for caplog tests to function
-basicConfig()
+pytest_plugins = ()
+
+__all__ = (
+    'ManagedServerLoop',
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.mark.asyncio
-@pytest.mark.unit
-async def test_send_message_raises(caplog):
-    class ExcMessage(object):
-        def send(self, handler):
-            raise WebSocketClosedError()
-    assert len(caplog.records) == 0
-    with caplog.at_level(logging.WARN):
-        # fake self not great but much easier than setting up a real view
-        ret = await WSHandler.send_message("self", ExcMessage())
-        assert len(caplog.records) == 1
-        assert caplog.text.endswith("Failed sending message as connection was closed\n")
-        assert ret is None
+@pytest.fixture
+def ManagedServerLoop(unused_tcp_port):
+    @contextmanager
+    def msl(application, port=None, **server_kwargs):
+        if port is None:
+            port = unused_tcp_port
+        server = Server(application, port=port, **server_kwargs)
+        try:
+            server.start()
+            yield server
+        finally:
+            server.unlisten()
+            server.stop()
+    return msl
+
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -17,7 +17,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-from tornado import gen
 
 # Bokeh imports
 
@@ -31,15 +30,14 @@ import bokeh.client.states as bcs
 class MockConnection(object):
     def __init__(self, to_pop=None): self._to_pop = to_pop
 
-    def _connect_async(self): raise gen.Return("_connect_async")
-    def _wait_for_ack(self): raise gen.Return("_wait_for_ack")
-    def _handle_messages(self): raise gen.Return("_handle_messages")
-    def _transition(self, arg): raise gen.Return(("_transition", arg))
-    def _transition_to_disconnected(self): raise gen.Return("_transition_to_disconnected")
-    def _next(self): raise gen.Return("_next")
+    async def _connect_async(self): return "_connect_async"
+    async def _wait_for_ack(self): return "_wait_for_ack"
+    async def _handle_messages(self): return "_handle_messages"
+    async def _transition(self, arg): return ("_transition", arg)
+    async def _transition_to_disconnected(self): return "_transition_to_disconnected"
+    async def _next(self): return "_next"
 
-    @gen.coroutine
-    def _pop_message(self): raise gen.Return(self._to_pop)
+    async def _pop_message(self): return self._to_pop
 
 class MockMessage(object):
     header = {'reqid': 'reqid'}
@@ -52,45 +50,50 @@ class MockMessage(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_NOT_YET_CONNECTED():
+
+@pytest.mark.asyncio
+async def test_NOT_YET_CONNECTED():
     s = bcs.NOT_YET_CONNECTED()
-    r = s.run(MockConnection())
-    assert r.result() == "_connect_async"
+    r = await s.run(MockConnection())
+    assert r == "_connect_async"
 
-def test_CONNECTED_BEFORE_ACK():
+@pytest.mark.asyncio
+async def test_CONNECTED_BEFORE_ACK():
     s = bcs.CONNECTED_BEFORE_ACK()
-    r = s.run(MockConnection())
-    assert r.result() == "_wait_for_ack"
+    r = await s.run(MockConnection())
+    assert r == "_wait_for_ack"
 
-def test_CONNECTED_AFTER_ACK():
+@pytest.mark.asyncio
+async def test_CONNECTED_AFTER_ACK():
     s = bcs.CONNECTED_AFTER_ACK()
-    r = s.run(MockConnection())
-    assert r.result() == "_handle_messages"
+    r = await s.run(MockConnection())
+    assert r == "_handle_messages"
 
-def test_DISCONNECTED():
+@pytest.mark.asyncio
+async def test_DISCONNECTED():
     s = bcs.DISCONNECTED()
-    r = s.run(MockConnection())
-    assert r.result() is None
+    r = await s.run(MockConnection())
+    assert r is None
 
-def test_WAITING_FOR_REPLY():
+@pytest.mark.asyncio
+async def test_WAITING_FOR_REPLY():
     s = bcs.WAITING_FOR_REPLY("reqid")
     assert s.reply == None
     assert s.reqid == "reqid"
 
-    r = s.run(MockConnection(to_pop=None))
-    assert r.result() == "_transition_to_disconnected"
+    r = await s.run(MockConnection(to_pop=None))
+    assert r == "_transition_to_disconnected"
     assert s.reply is None
 
     m = MockMessage()
-    r = s.run(MockConnection(to_pop=m))
-    res = r.result()
-    assert res[0] == "_transition"
-    assert isinstance(res[1], bcs.CONNECTED_AFTER_ACK)
+    r = await s.run(MockConnection(to_pop=m))
+    assert r[0] == "_transition"
+    assert isinstance(r[1], bcs.CONNECTED_AFTER_ACK)
     assert s.reply is m
 
     s._reqid = "nomatch"
-    r = s.run(MockConnection(to_pop=m))
-    assert r.result() == "_next"
+    r = await s.run(MockConnection(to_pop=m))
+    assert r == "_next"
 
 #-----------------------------------------------------------------------------
 # Private API

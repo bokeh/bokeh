@@ -59,7 +59,8 @@ class Test_DocumentLifecycleHandler(object):
         with pytest.raises(ValueError):
             doc.on_session_destroyed(destroy)
 
-    def test_document_on_session_destroyed(self):
+    @pytest.mark.asyncio
+    async def test_document_on_session_destroyed(self):
         doc = Document()
         handler = bahd.DocumentLifecycleHandler()
 
@@ -70,11 +71,12 @@ class Test_DocumentLifecycleHandler(object):
         doc.on_session_destroyed(destroy)
 
         session_context = MockSessionContext(doc)
-        handler.on_session_destroyed(session_context)
+        await handler.on_session_destroyed(session_context)
         assert session_context.status == 'Destroyed'
         assert session_context._document.session_destroyed_callbacks == set()
 
-    def test_document_on_session_destroyed_calls_multiple(self):
+    @pytest.mark.asyncio
+    async def test_document_on_session_destroyed_calls_multiple(self):
         doc = Document()
 
         def increment(session_context):
@@ -89,5 +91,5 @@ class Test_DocumentLifecycleHandler(object):
 
         handler = bahd.DocumentLifecycleHandler()
         session_context = MockSessionContext(doc)
-        handler.on_session_destroyed(session_context)
+        await handler.on_session_destroyed(session_context)
         assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'

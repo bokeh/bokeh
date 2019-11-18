@@ -24,7 +24,6 @@ from pprint import pformat
 from urllib.parse import urljoin
 
 # External imports
-from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
@@ -460,7 +459,7 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            context.run_load_hook()
+            self._loop.spawn_callback(context.run_load_hook)
 
     def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
@@ -532,12 +531,11 @@ class BokehTornado(TornadoApplication):
 
     # Periodic Callbacks ------------------------------------------------------
 
-    @gen.coroutine
-    def _cleanup_sessions(self):
+    async def _cleanup_sessions(self):
         log.trace("Running session cleanup job")
         for app in self._applications.values():
-            yield app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
-        raise gen.Return(None)
+            await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+        return None
 
     def _log_stats(self):
         log.trace("Running stats log job")
