@@ -676,7 +676,7 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         if axis_label:
             axis.axis_label = axis_label
 
-        grid = Grid(dimension=dim, ticker=axis.ticker)
+        grid = Grid(dimension=dim, axis=axis)
         plot.add_layout(grid, "center")
 
         if axis_location is not None:

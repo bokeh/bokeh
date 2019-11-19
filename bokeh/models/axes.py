@@ -308,7 +308,7 @@ class MercatorAxis(LinearAxis):
         super().__init__(**kw)
 
         # Just being careful. It would be defeat the purpose for anyone to actually
-        # configure this axis with differnet kinds of tickers or formatters.
+        # configure this axis with different kinds of tickers or formatters.
         if isinstance(self.ticker, MercatorTicker):
             self.ticker.dimension = dimension
         if isinstance(self.formatter, MercatorTickFormatter):
