@@ -187,42 +187,44 @@ def _graph(node_source, edge_source, **kwargs):
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     ## node stuff
+    node_ca = _pop_visuals(Circle, kwargs, prefix="node_")
+
     if any(x.startswith('node_selection_') for x in kwargs):
-        snode_ca = _pop_visuals(Circle, kwargs, prefix="node_selection_")
+        snode_ca = _pop_visuals(Circle, kwargs, prefix="node_selection_", defaults=node_ca)
     else:
         snode_ca = None
 
     if any(x.startswith('node_hover_') for x in kwargs):
-        hnode_ca = _pop_visuals(Circle, kwargs, prefix="node_hover_")
+        hnode_ca = _pop_visuals(Circle, kwargs, prefix="node_hover_", defaults=node_ca)
     else:
         hnode_ca = None
 
     if any(x.startswith('node_muted_') for x in kwargs):
-        mnode_ca = _pop_visuals(Circle, kwargs, prefix="node_muted_")
+        mnode_ca = _pop_visuals(Circle, kwargs, prefix="node_muted_", defaults=node_ca)
     else:
         mnode_ca = None
 
-    nsnode_ca = _pop_visuals(Circle, kwargs, prefix="node_nonselection_")
-    node_ca = _pop_visuals(Circle, kwargs, prefix="node_")
+    nsnode_ca = _pop_visuals(Circle, kwargs, prefix="node_nonselection_", defaults=node_ca)
 
     ## edge stuff
+    edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
+
     if any(x.startswith('edge_selection_') for x in kwargs):
-        sedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_selection_")
+        sedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_selection_", defaults=edge_ca)
     else:
         sedge_ca = None
 
     if any(x.startswith('edge_hover_') for x in kwargs):
-        hedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_hover_")
+        hedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_hover_", defaults=edge_ca)
     else:
         hedge_ca = None
 
     if any(x.startswith('edge_muted_') for x in kwargs):
-        medge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_muted_")
+        medge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_ca)
     else:
         medge_ca = None
 
-    nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_")
-    edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
+    nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca)
 
     ## node stuff
     node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in Circle.properties()}
@@ -327,7 +329,7 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
     def is_visual(ft):
         """Whether a feature trait name is visual"""
         feature, trait = split_feature_trait(ft)
-        return feature in ('line', 'fill', 'text') and trait is not None
+        return feature in ('line', 'fill', 'text', 'global') and trait is not None
 
     defaults = defaults.copy()
     defaults.setdefault('text_color', 'black')
@@ -920,10 +922,6 @@ def _glyph_function(glyphclass, extra_docs=None):
         # Need to check if user source is present before _pop_renderer_args
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
-
-        # Assign global_alpha from alpha if glyph type is an image
-        if 'alpha' in kwargs and glyphclass.__name__ in ('Image', 'ImageRGBA', 'ImageURL'):
-            kwargs['global_alpha'] = kwargs['alpha']
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_visuals(glyphclass, kwargs)
