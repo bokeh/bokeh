@@ -1,6 +1,6 @@
 from bokeh.io import save
 from bokeh.models import (ColumnDataSource, DataTable, HTMLTemplateFormatter,
-                          NumberFormatter, StringFormatter, TableColumn,)
+                          NumberFormatter, StringFormatter, TableColumn)
 from bokeh.sampledata.periodic_table import elements
 
 elements['name_lower'] = elements['name'].str.lower()
