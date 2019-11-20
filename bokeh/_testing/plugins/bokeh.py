@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Define a Pytest plugin for a Bokeh-specific testing tools
+# -----------------------------------------------------------------------------
+""" Define a Pytest plugin for a Bokeh-specific testing tools
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import socket
@@ -38,9 +39,9 @@ from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
 from bokeh.io import save
 from bokeh.server.server import Server
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
@@ -49,46 +50,51 @@ pytest_plugins = (
 )
 
 __all__ = (
-    'bokeh_app_info',
-    'bokeh_model_page',
-    'bokeh_server_page',
-    'find_free_port',
-    'output_file_url',
-    'single_plot_page',
-    'test_file_path_and_url',
+    "bokeh_app_info",
+    "bokeh_model_page",
+    "bokeh_server_page",
+    "find_free_port",
+    "output_file_url",
+    "single_plot_page",
+    "test_file_path_and_url",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @pytest.fixture
 def output_file_url(request, file_server):
     from bokeh.io import output_file
-    filename = request.function.__name__ + '.html'
+
+    filename = request.function.__name__ + ".html"
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
-    url = file_path.replace('\\', '/')  # Windows-proof
+    url = file_path.replace("\\", "/")  # Windows-proof
 
-    output_file(file_path, mode='inline')
+    output_file(file_path, mode="inline")
 
     def tear_down():
         if file_obj.isfile():
             file_obj.remove()
+
     request.addfinalizer(tear_down)
 
     return file_server.where_is(url)
 
+
 @pytest.fixture
 def test_file_path_and_url(request, file_server):
-    filename = request.function.__name__ + '.html'
+    filename = request.function.__name__ + ".html"
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
-    url = file_path.replace('\\', '/')  # Windows-proof
+    url = file_path.replace("\\", "/")  # Windows-proof
 
     def tear_down():
         if file_obj.isfile():
             file_obj.remove()
+
     request.addfinalizer(tear_down)
 
     return file_path, file_server.where_is(url)
@@ -97,19 +103,20 @@ def test_file_path_and_url(request, file_server):
 class _ExitHandler(RequestHandler):
     def initialize(self, io_loop):
         self.io_loop = io_loop
+
     async def get(self, *args, **kwargs):
         self.io_loop.stop()
 
 
-
 def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
+        s.bind(("", 0))
         return s.getsockname()[1]
+
 
 @pytest.fixture
 def bokeh_app_info(request, driver):
-    ''' Start a Bokeh server app and return information needed to test it.
+    """ Start a Bokeh server app and return information needed to test it.
 
     Returns a tuple (url, message_test_port), where the latter is defined as
 
@@ -118,20 +125,24 @@ def bokeh_app_info(request, driver):
     and will contain all messages that the Bokeh Server sends/receives while
     running during the test.
 
-    '''
+    """
 
     def func(modify_doc):
 
         from collections import namedtuple
-        MessageTestPort = namedtuple('MessageTestPort', ['sent', 'received'])
+
+        MessageTestPort = namedtuple("MessageTestPort", ["sent", "received"])
         ws._message_test_port = MessageTestPort([], [])
         port = find_free_port()
+
         def worker():
             io_loop = IOLoop()
-            server = Server({'/': modify_doc},
-                            port=port,
-                            io_loop=io_loop,
-                            extra_patterns=[('/exit', _ExitHandler, dict(io_loop=io_loop))])
+            server = Server(
+                {"/": modify_doc},
+                port=port,
+                io_loop=io_loop,
+                extra_patterns=[("/exit", _ExitHandler, dict(io_loop=io_loop))],
+            )
             server.start()
             server.io_loop.start()
 
@@ -143,7 +154,7 @@ def bokeh_app_info(request, driver):
 
             # XXX (bev) this line is a workaround for https://github.com/bokeh/bokeh/issues/7970
             # and should be removed when that issue is resolved
-            driver.get_log('browser')
+            driver.get_log("browser")
 
             ws._message_test_port = None
             t.join()
@@ -154,8 +165,8 @@ def bokeh_app_info(request, driver):
 
     return func
 
-class _BokehModelPage(object):
 
+class _BokehModelPage(object):
     def __init__(self, model, driver, output_file_url, has_no_console_errors):
         self._driver = driver
         self._model = model
@@ -216,7 +227,6 @@ class _BokehModelPage(object):
 
 
 class _CanvasMixin(object):
-
     def click_canvas_at_position(self, x, y):
         self.click_element_at_position(self.canvas, x, y)
 
@@ -224,20 +234,23 @@ class _CanvasMixin(object):
         self.double_click_element_at_position(self.canvas, x, y)
 
     def click_custom_action(self):
-        button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
+        button = self._driver.find_element_by_class_name(
+            "bk-toolbar-button-custom-action"
+        )
         button.click()
 
     def drag_canvas_at_position(self, x, y, dx, dy, mod=None):
         self.drag_element_at_position(self.canvas, x, y, dx, dy, mod)
 
     def get_toolbar_button(self, name):
-        return self.driver.find_element_by_class_name('bk-tool-icon-' + name)
+        return self.driver.find_element_by_class_name("bk-tool-icon-" + name)
 
 
 @pytest.fixture()
 def bokeh_model_page(driver, output_file_url, has_no_console_errors):
     def func(model):
         return _BokehModelPage(model, driver, output_file_url, has_no_console_errors)
+
     return func
 
 
@@ -247,7 +260,7 @@ class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
     def __init__(self, model, driver, output_file_url, has_no_console_errors):
         super().__init__(model, driver, output_file_url, has_no_console_errors)
 
-        self.canvas = self._driver.find_element_by_tag_name('canvas')
+        self.canvas = self._driver.find_element_by_tag_name("canvas")
         wait_for_canvas_resize(self.canvas, self._driver)
 
 
@@ -255,11 +268,11 @@ class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
 def single_plot_page(driver, output_file_url, has_no_console_errors):
     def func(model):
         return _SinglePlotPage(model, driver, output_file_url, has_no_console_errors)
+
     return func
 
 
 class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
-
     def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors):
         self._driver = driver
         self._has_no_console_errors = has_no_console_errors
@@ -270,24 +283,28 @@ class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 
         self.init_results()
 
-        self.canvas = self._driver.find_element_by_tag_name('canvas')
+        self.canvas = self._driver.find_element_by_tag_name("canvas")
         wait_for_canvas_resize(self.canvas, self._driver)
 
 
 @pytest.fixture()
 def bokeh_server_page(driver, bokeh_app_info, has_no_console_errors):
     def func(modify_doc):
-        return _BokehServerPage(modify_doc, driver, bokeh_app_info, has_no_console_errors)
+        return _BokehServerPage(
+            modify_doc, driver, bokeh_app_info, has_no_console_errors
+        )
+
     return func
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

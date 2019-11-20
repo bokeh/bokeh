@@ -1,48 +1,46 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from os import getcwd
 from os.path import basename, dirname, join, splitext
 from tempfile import NamedTemporaryFile
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'default_filename',
-    'detect_current_filename',
-    'temp_filename',
-)
+__all__ = ("default_filename", "detect_current_filename", "temp_filename")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def default_filename(ext):
-    ''' Generate a default filename with a given extension, attempting to use
+    """ Generate a default filename with a given extension, attempting to use
     the filename of the currently running process, if possible.
 
     If the filename of the current process is not available (or would not be
@@ -58,7 +56,7 @@ def default_filename(ext):
         RuntimeError
             If the extensions requested is ".py"
 
-    '''
+    """
     if ext == "py":
         raise RuntimeError("asked for a default filename with 'py' extension")
 
@@ -75,50 +73,58 @@ def default_filename(ext):
     name, _ = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
+
 def detect_current_filename():
-    ''' Attempt to return the filename of the currently running Python process
+    """ Attempt to return the filename of the currently running Python process
 
     Returns None if the filename cannot be detected.
-    '''
+    """
     import inspect
 
     filename = None
     frame = inspect.currentframe()
     try:
-        while frame.f_back and frame.f_globals.get('name') != '__main__':
+        while frame.f_back and frame.f_globals.get("name") != "__main__":
             frame = frame.f_back
 
-        filename = frame.f_globals.get('__file__')
+        filename = frame.f_globals.get("__file__")
     finally:
         del frame
 
     return filename
 
-def temp_filename(ext):
-    ''' Generate a temporary, writable filename with the given extension
 
-    '''
+def temp_filename(ext):
+    """ Generate a temporary, writable filename with the given extension
+
+    """
     return NamedTemporaryFile(suffix="." + ext).name
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _no_access(basedir):
-    ''' Return True if the given base dir is not accessible or writeable
+    """ Return True if the given base dir is not accessible or writeable
 
-    '''
+    """
     import os
+
     return not os.access(basedir, os.W_OK | os.X_OK)
 
+
 def _shares_exec_prefix(basedir):
-    ''' Whether a give base directory is on the system exex prefix
+    """ Whether a give base directory is on the system exex prefix
 
-    '''
+    """
     import sys
-    prefix = sys.exec_prefix
-    return (prefix is not None and basedir.startswith(prefix))
 
-#-----------------------------------------------------------------------------
+    prefix = sys.exec_prefix
+    return prefix is not None and basedir.startswith(prefix)
+
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

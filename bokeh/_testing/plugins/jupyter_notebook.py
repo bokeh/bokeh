@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Define Pytest plugins for Jupyter Notebook tests.
+# -----------------------------------------------------------------------------
+""" Define Pytest plugins for Jupyter Notebook tests.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -33,21 +34,18 @@ from requests.exceptions import ConnectionError
 # Bokeh imports
 from bokeh.util.terminal import write
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.log_file",
-)
+pytest_plugins = ("bokeh._testing.plugins.log_file",)
 
-__all__ = (
-    'jupyter_notebook',
-)
+__all__ = ("jupyter_notebook",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="session")
 def jupyter_notebook(request, log_file):
@@ -67,6 +65,7 @@ def jupyter_notebook(request, log_file):
     # Can be cleaned up further to remember the user's existing customJS
     # and then restore it after the test run.
     from jupyter_core import paths
+
     config_dir = paths.jupyter_config_dir()
 
     body = """
@@ -84,7 +83,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
 
     old_customjs = None
     if exists(customjs):
-        old_customjs =  open(customjs, "r").read()
+        old_customjs = open(customjs, "r").read()
 
     with open(customjs, "w") as f:
         f.write(body)
@@ -103,13 +102,17 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     notebook_port = request.config.option.notebook_port
 
     env = os.environ.copy()
-    env['BOKEH_RESOURCES'] = 'server'
+    env["BOKEH_RESOURCES"] = "server"
 
     # Launch from the base directory of bokeh repo
     notebook_dir = join(dirname(__file__), pardir, pardir)
 
     cmd = ["jupyter", "notebook"]
-    argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir]
+    argv = [
+        "--no-browser",
+        "--port=%s" % notebook_port,
+        "--notebook-dir=%s" % notebook_dir,
+    ]
     jupter_notebook_url = "http://localhost:%d" % notebook_port
 
     try:
@@ -156,14 +159,15 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
 
         return jupter_notebook_url
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

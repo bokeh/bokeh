@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 ''' Mix-in classes that bulk add groups of properties to Bokeh models.
 
 Some groups of properties often show up in Bokeh models together. For
@@ -48,15 +48,16 @@ different usage, for more information see the docs for |Include|.
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
 
 '''
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .enums import (
@@ -89,24 +90,24 @@ from .properties import (
     value,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'FillProps',
-    'HatchProps',
-    'LineProps',
-    'TextProps',
-    'ScalarFillProps',
-    'ScalarHatchProps',
-    'ScalarLineProps',
-    'ScalarTextProps',
+    "FillProps",
+    "HatchProps",
+    "LineProps",
+    "TextProps",
+    "ScalarFillProps",
+    "ScalarHatchProps",
+    "ScalarLineProps",
+    "ScalarTextProps",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _color_help = """
 A color to use to %s with.
@@ -130,8 +131,12 @@ and 1 (opaque).
 
 """
 
+
 class _BaseLineProps(HasProps):
-    line_join = Enum(LineJoin, default='bevel', help="""
+    line_join = Enum(
+        LineJoin,
+        default="bevel",
+        help="""
     How path segments should be joined together.
 
     Acceptable values are:
@@ -147,9 +152,12 @@ class _BaseLineProps(HasProps):
     .. |bevel_join| image:: /_images/bevel_join.png
        :height: 15
 
-    """)
+    """,
+    )
 
-    line_cap = Enum(LineCap, help="""
+    line_cap = Enum(
+        LineCap,
+        help="""
     How path segments should be terminated.
 
     Acceptable values are:
@@ -165,26 +173,38 @@ class _BaseLineProps(HasProps):
     .. |square_cap| image:: /_images/square_cap.png
        :height: 12
 
-    """)
+    """,
+    )
 
-    line_dash = DashPattern(help="""
+    line_dash = DashPattern(
+        help="""
     How should the line be dashed.
-    """)
+    """
+    )
 
-    line_dash_offset = Int(0, help="""
+    line_dash_offset = Int(
+        0,
+        help="""
     The distance into the ``line_dash`` (in pixels) that the pattern should
     start from.
-    """)
+    """,
+    )
+
 
 class _BaseTextProps(HasProps):
 
-    text_font = String("helvetica", help="""
+    text_font = String(
+        "helvetica",
+        help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
 
-    """)
+    """,
+    )
 
-    text_font_style = Enum(FontStyle, help="""
+    text_font_style = Enum(
+        FontStyle,
+        help="""
     A style to use for rendering text.
 
     Acceptable values are:
@@ -194,9 +214,12 @@ class _BaseTextProps(HasProps):
     - ``'bold'`` **bold text**
     - ``"bold italic"`` ***bold italic text***
 
-    """)
+    """,
+    )
 
-    text_align = Enum(TextAlign, help="""
+    text_align = Enum(
+        TextAlign,
+        help="""
     Horizontal anchor point to use when rendering text.
 
     Acceptable values are:
@@ -205,9 +228,13 @@ class _BaseTextProps(HasProps):
     - ``'right'``
     - ``'center'``
 
-    """)
+    """,
+    )
 
-    text_baseline = Enum(TextBaseline, default="bottom", help="""
+    text_baseline = Enum(
+        TextBaseline,
+        default="bottom",
+        help="""
     Vertical anchor point to use when rendering text.
 
     Acceptable values are:
@@ -219,38 +246,51 @@ class _BaseTextProps(HasProps):
     - ``'hanging'``
     - ``'ideographic'``
 
-    """)
+    """,
+    )
 
-    text_line_height = Float(default=1.2, help="""
+    text_line_height = Float(
+        default=1.2,
+        help="""
     In multi-line text, how much additional space should be allocated for
     each line. The value is provided as a number, but should be treated as
     a percentage of font size. The default is 120%. Setting it to 1.0, so
     100%, means no additional space will be used.
-    """)
+    """,
+    )
 
-#----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 # General API
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 
 class FillProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
+    """ Properties relevant to rendering fill regions.
 
     Mirrors the BokehJS ``properties.Fill`` class.
 
-    '''
+    """
 
     fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
-    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
+    fill_alpha = NumberSpec(
+        default=1.0,
+        accept_datetime=False,
+        accept_timedelta=False,
+        help=_alpha_help % "fill paths",
+    )
+
 
 class ScalarFillProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
+    """ Properties relevant to rendering fill regions.
 
     Mirrors the BokehJS ``properties.Fill`` class.
 
-    '''
+    """
 
-    fill_color = Color(default="gray", help=_color_help  % "fill paths")
+    fill_color = Color(default="gray", help=_color_help % "fill paths")
     fill_alpha = Percent(default=1.0, help=_alpha_help)
+
 
 _hatch_scale_help = """
 A rough measure of the 'size' of the hatching pattern. Generally speaking, the
@@ -265,64 +305,96 @@ Built-in patterns are can either be specified as long names:
 or as one-letter abbreviations:
 
 %s
-""" % (", ". join(HatchPattern), ", ". join(repr(x) for x in HatchPatternAbbreviation))
+""" % (
+    ", ".join(HatchPattern),
+    ", ".join(repr(x) for x in HatchPatternAbbreviation),
+)
 
 _hatch_weight_help = """
 A width value for line-strokes used in hatching.
 """
 
+
 class HatchProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
+    """ Properties relevant to rendering fill regions.
 
     Mirrors the BokehJS ``properties.Hatch`` class.
 
-    '''
+    """
 
     hatch_color = ColorSpec(default="black", help=_color_help % "hatching")
-    hatch_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "hatching")
-    hatch_scale = NumberSpec(default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help)
+    hatch_alpha = NumberSpec(
+        default=1.0,
+        accept_datetime=False,
+        accept_timedelta=False,
+        help=_alpha_help % "hatching",
+    )
+    hatch_scale = NumberSpec(
+        default=12.0,
+        accept_datetime=False,
+        accept_timedelta=False,
+        help=_hatch_scale_help,
+    )
     hatch_pattern = HatchPatternSpec(default=None, help=_hatch_pattern_help)
-    hatch_weight = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help)
+    hatch_weight = NumberSpec(
+        default=1.0,
+        accept_datetime=False,
+        accept_timedelta=False,
+        help=_hatch_weight_help,
+    )
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
 
+
 class ScalarHatchProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
+    """ Properties relevant to rendering fill regions.
 
     Mirrors the BokehJS ``properties.Hatch`` class.
 
-    '''
+    """
 
     hatch_color = Color(default="black", help=_color_help % "hatching")
     hatch_alpha = Percent(default=1.0, help=_alpha_help % "hatching")
     hatch_scale = Size(default=12.0, help=_hatch_scale_help)
-    hatch_pattern = String(default=None, help=_hatch_pattern_help)  # String to accommodate user custom values
+    hatch_pattern = String(
+        default=None, help=_hatch_pattern_help
+    )  # String to accommodate user custom values
     hatch_weight = Size(default=1.0, help=_hatch_weight_help)
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
+
 
 _line_width_help = """
 Stroke width in units of pixels.
 """
 
+
 class LineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
+    """ Properties relevant to rendering path operations.
 
     Mirrors the BokehJS ``properties.Line`` class.
 
-    '''
+    """
 
     base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
-    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
-    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
+    line_width = NumberSpec(
+        default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help
+    )
+    line_alpha = NumberSpec(
+        default=1.0,
+        accept_datetime=False,
+        accept_timedelta=False,
+        help=_alpha_help % "stroke paths",
+    )
 
 
 class ScalarLineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
+    """ Properties relevant to rendering path operations.
 
     Mirrors the BokehJS ``properties.Line`` class.
 
-    '''
+    """
+
     base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = Color(default="black", help=_color_help % "stroke paths")
@@ -331,7 +403,7 @@ class ScalarLineProps(HasProps):
 
 
 class TextProps(HasProps):
-    ''' Properties relevant to rendering text.
+    """ Properties relevant to rendering text.
 
     Mirrors the BokehJS ``properties.Text`` class.
 
@@ -339,17 +411,24 @@ class TextProps(HasProps):
         There is currently only support for filling text. An interface
         to stroke the outlines of text has not yet been exposed.
 
-    '''
+    """
+
     base_text_props = Include(_BaseTextProps, use_prefix=False)
 
     text_font_size = FontSizeSpec(value("12pt"))
 
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
 
-    text_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill text")
+    text_alpha = NumberSpec(
+        default=1.0,
+        accept_datetime=False,
+        accept_timedelta=False,
+        help=_alpha_help % "fill text",
+    )
+
 
 class ScalarTextProps(HasProps):
-    ''' Properties relevant to rendering text.
+    """ Properties relevant to rendering text.
 
     Mirrors the BokehJS ``properties.Text`` class.
 
@@ -357,7 +436,7 @@ class ScalarTextProps(HasProps):
         There is currently only support for filling text. An interface
         to stroke the outlines of text has not yet been exposed.
 
-    '''
+    """
 
     base_text_props = Include(_BaseTextProps, use_prefix=False)
 
@@ -368,10 +447,11 @@ class ScalarTextProps(HasProps):
 
     text_alpha = Percent(default=1.0, help=_alpha_help % "fill text")
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

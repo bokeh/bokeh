@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a Bokeh Application Handler to build up documents by running
+# -----------------------------------------------------------------------------
+""" Provide a Bokeh Application Handler to build up documents by running
 a specified Python function.
 
 This Handler is not used by the Bokeh server command line tool, but is often
@@ -27,40 +27,40 @@ useful if users wish to embed the Bokeh server programmatically:
 For complete examples of this technique, see
 :bokeh-tree:`examples/howto/server_embed`
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback
 from .handler import Handler
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'FunctionHandler',
-)
+__all__ = ("FunctionHandler",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class FunctionHandler(Handler):
-    ''' A Handler that accepts a plain python function to use for modifying
+    """ A Handler that accepts a plain python function to use for modifying
     Bokeh Documents.
 
     For example, the following code configures a handler with a function that
@@ -78,10 +78,10 @@ class FunctionHandler(Handler):
     This handler could be configured on an Application, and the Application
     would run this function every time a new session is created.
 
-    '''
+    """
 
     def __init__(self, func):
-        '''
+        """
 
         Args:
             func (callable) : a function to modify and return a Bokeh Document.
@@ -96,10 +96,10 @@ class FunctionHandler(Handler):
                 and it  should return the passed-in document after making any
                 modifications in-place.
 
-        '''
+        """
         super().__init__()
 
-        _check_callback(func, ('doc',))
+        _check_callback(func, ("doc",))
 
         self._func = func
         self._safe_to_fork = True
@@ -108,29 +108,30 @@ class FunctionHandler(Handler):
 
     @property
     def safe_to_fork(self):
-        ''' Whether it is still safe for the Bokeh server to fork new workers.
+        """ Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if ``modify_doc`` has already been called.
 
-        '''
+        """
         return self._safe_to_fork
 
     # Public methods ----------------------------------------------------------
 
     def modify_document(self, doc):
-        ''' Execute the configured ``func`` to modify the document.
+        """ Execute the configured ``func`` to modify the document.
 
         After this method is first executed, ``safe_to_fork`` will return
         ``False``.
 
-        '''
+        """
         self._func(doc)
         self._safe_to_fork = False
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

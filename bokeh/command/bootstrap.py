@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a ``main`` function to run bokeh commands.
+# -----------------------------------------------------------------------------
+""" Provide a ``main`` function to run bokeh commands.
 
 The following are equivalent:
 
@@ -28,17 +28,18 @@ The following are equivalent:
 
       main(["bokeh", "serve", "--show", "app.py"])
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import argparse
@@ -53,20 +54,19 @@ from bokeh.util.string import nice_join
 from . import subcommands
 from .util import die
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'main',
-)
+__all__ = ("main",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def main(argv):
-    ''' Execute the Bokeh command.
+    """ Execute the Bokeh command.
 
     Args:
         argv (seq[str]) : a list of command line arguments to process
@@ -87,18 +87,22 @@ def main(argv):
     * :ref:`static <bokeh.command.subcommands.static>`
     * :ref:`svg <bokeh.command.subcommands.svg>`
 
-    '''
+    """
     if len(argv) == 1:
-        die("ERROR: Must specify subcommand, one of: %s" % nice_join(x.name for x in subcommands.all))
+        die(
+            "ERROR: Must specify subcommand, one of: %s"
+            % nice_join(x.name for x in subcommands.all)
+        )
 
     parser = argparse.ArgumentParser(
         prog=argv[0],
-        epilog="See '<command> --help' to read about a specific subcommand.")
+        epilog="See '<command> --help' to read about a specific subcommand.",
+    )
 
     # we don't use settings.version() because the point of this option
     # is to report the actual version of Bokeh, while settings.version()
     # lets people change the version used for CDN for example.
-    parser.add_argument('-v', '--version', action='version', version=__version__)
+    parser.add_argument("-v", "--version", action="version", version=__version__)
 
     subs = parser.add_subparsers(help="Sub-commands")
 
@@ -121,14 +125,15 @@ def main(argv):
     elif ret is not True and isinstance(ret, int) and ret != 0:
         sys.exit(ret)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

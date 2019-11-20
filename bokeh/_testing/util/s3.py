@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide tools for interacting with S3
+# -----------------------------------------------------------------------------
+""" Provide tools for interacting with S3
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from os.path import join
@@ -31,50 +32,57 @@ from bokeh._testing.util.git import __version__
 from bokeh._testing.util.travis import JOB_ID
 from bokeh.util.terminal import fail, ok, trace
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 S3_BUCKET = "ci.bokeh.org"
 
 S3_URL = "https://ci.bokeh.org/"
 
-__all__ = (
-    'connect_to_s3',
-    'upload_file_to_s3',
-    'upload_file_to_s3_by_job_id',
-)
+__all__ = ("connect_to_s3", "upload_file_to_s3", "upload_file_to_s3_by_job_id")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def connect_to_s3():
-    ''' Return the connection object or None if connection failed.
+    """ Return the connection object or None if connection failed.
 
-    '''
+    """
     try:
         # calling_format due to https://github.com/boto/boto/issues/2836
         from boto.s3.connection import OrdinaryCallingFormat
+
         return boto.connect_s3(calling_format=OrdinaryCallingFormat())
     except NoAuthHandlerFound:
         fail("Upload was requested but could not connect to S3.")
-        fail("This is expected if you are an external contributor submitting a PR to Bokeh.")
-        fail("This could also happen if S3 credentials are not available on the machine where this test is running.")
+        fail(
+            "This is expected if you are an external contributor submitting a PR to Bokeh."
+        )
+        fail(
+            "This could also happen if S3 credentials are not available on the machine where this test is running."
+        )
         return None
 
-def upload_file_to_s3_by_job_id(file_path, content_type="text/html", extra_message=None):
-    ''' Upload a file to the ci.bokeh.org s3 bucket under a travis/JOB_ID
 
-    '''
+def upload_file_to_s3_by_job_id(
+    file_path, content_type="text/html", extra_message=None
+):
+    """ Upload a file to the ci.bokeh.org s3 bucket under a travis/JOB_ID
+
+    """
     s3_filename = join("travis", JOB_ID, file_path)
     return upload_file_to_s3(file_path, s3_filename, content_type, extra_message)
 
 
-def upload_file_to_s3(file_path, s3_filename, content_type="text/html", extra_message=None):
-    ''' Upload a file to the ci.bokeh.org s3 bucket
+def upload_file_to_s3(
+    file_path, s3_filename, content_type="text/html", extra_message=None
+):
+    """ Upload a file to the ci.bokeh.org s3 bucket
 
-    '''
+    """
     conn = connect_to_s3()
     upload = conn is not None
 
@@ -101,18 +109,19 @@ def upload_file_to_s3(file_path, s3_filename, content_type="text/html", extra_me
         else:
             trace("Access upload at: %s" % url)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-logging.getLogger('boto').setLevel(logging.INFO)
-logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
-logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
+logging.getLogger("boto").setLevel(logging.INFO)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
+logging.getLogger("requests.packages.urllib3.connectionpool").setLevel(logging.INFO)

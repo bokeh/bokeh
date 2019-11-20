@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a customizable Bokeh Server Tornadocore application.
+# -----------------------------------------------------------------------------
+""" Provide a customizable Bokeh Server Tornadocore application.
 
 The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
@@ -26,4 +26,4 @@ possibilities immediately open up:
 **This capability to synchronize between python and the browser is the main
 purpose of the Bokeh Server.**
 
-'''
+"""

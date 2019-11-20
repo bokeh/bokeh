@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a base class for objects that can have declarative, typed,
+# -----------------------------------------------------------------------------
+""" Provide a base class for objects that can have declarative, typed,
 serializable properties.
 
 .. note::
@@ -13,17 +13,18 @@ serializable properties.
     classes or their methods will be applicable to any standard usage or to
     anyone who is not directly developing on Bokeh's own infrastructure.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import difflib
@@ -35,30 +36,31 @@ from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
 from .property.wrappers import PropertyValueContainer
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'abstract',
-    'accumulate_dict_from_superclasses',
-    'accumulate_from_superclasses',
-    'HasProps',
-    'MetaHasProps',
+    "abstract",
+    "accumulate_dict_from_superclasses",
+    "accumulate_from_superclasses",
+    "HasProps",
+    "MetaHasProps",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def abstract(cls):
-    ''' A decorator to mark abstract base classes derived from |HasProps|.
+    """ A decorator to mark abstract base classes derived from |HasProps|.
 
-    '''
+    """
     if not issubclass(cls, HasProps):
         raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
 
@@ -68,8 +70,9 @@ def abstract(cls):
 
     return cls
 
+
 class MetaHasProps(type):
-    ''' Specialize the construction of |HasProps| classes.
+    """ Specialize the construction of |HasProps| classes.
 
     This class is a `metaclass`_ for |HasProps| that is responsible for
     creating and adding the |PropertyDescriptor| instances that delegate
@@ -77,11 +80,12 @@ class MetaHasProps(type):
 
     .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
 
-    '''
-    def __new__(meta_cls, class_name, bases, class_dict):
-        '''
+    """
 
-        '''
+    def __new__(meta_cls, class_name, bases, class_dict):
+        """
+
+        """
         names_with_refs = set()
         container_names = set()
 
@@ -100,7 +104,9 @@ class MetaHasProps(type):
         for name, generator in class_dict.items():
             if isinstance(generator, PropertyDescriptorFactory):
                 generators[name] = generator
-            elif isinstance(generator, type) and issubclass(generator, PropertyDescriptorFactory):
+            elif isinstance(generator, type) and issubclass(
+                generator, PropertyDescriptorFactory
+            ):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass
@@ -118,7 +124,13 @@ class MetaHasProps(type):
                         # a generator can replace itself, this is the
                         # standard case like `foo = Int()`
                         replaced_self = True
-                        prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
+                        prop_descriptor.add_prop_descriptor_to_class(
+                            class_name,
+                            new_class_attrs,
+                            names_with_refs,
+                            container_names,
+                            dataspecs,
+                        )
                     else:
                         # if a generator tries to overwrite another
                         # generator that's been explicitly provided,
@@ -126,7 +138,13 @@ class MetaHasProps(type):
                         # and ignore this one.
                         pass
                 else:
-                    prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
+                    prop_descriptor.add_prop_descriptor_to_class(
+                        class_name,
+                        new_class_attrs,
+                        names_with_refs,
+                        container_names,
+                        dataspecs,
+                    )
             # if we won't overwrite ourselves anyway, delete the generator
             if not replaced_self:
                 del class_dict[name]
@@ -151,7 +169,7 @@ class MetaHasProps(type):
         return super().__new__(meta_cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, nmspc):
-        if class_name == 'HasProps':
+        if class_name == "HasProps":
             return
         # Check for improperly overriding a Property attribute.
         # Overriding makes no sense except through the Override
@@ -160,29 +178,47 @@ class MetaHasProps(type):
         # type or changing from Property to non-Property: these
         # overrides are bad conceptually because the type of a
         # read-write property is invariant.
-        cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
+        cls_attrs = cls.__dict__.keys()  # we do NOT want inherited attrs here
         for attr in cls_attrs:
             for base in bases:
                 if issubclass(base, HasProps) and attr in base.properties():
-                    warn(('Property "%s" in class %s was overridden by a class attribute ' + \
-                          '"%s" in class %s; it never makes sense to do this. ' + \
-                          'Either %s.%s or %s.%s should be removed, or %s.%s should not ' + \
-                          'be a Property, or use Override(), depending on the intended effect.') %
-                         (attr, base.__name__, attr, class_name,
-                          base.__name__, attr,
-                          class_name, attr,
-                          base.__name__, attr),
-                         RuntimeWarning, stacklevel=2)
+                    warn(
+                        (
+                            'Property "%s" in class %s was overridden by a class attribute '
+                            + '"%s" in class %s; it never makes sense to do this. '
+                            + "Either %s.%s or %s.%s should be removed, or %s.%s should not "
+                            + "be a Property, or use Override(), depending on the intended effect."
+                        )
+                        % (
+                            attr,
+                            base.__name__,
+                            attr,
+                            class_name,
+                            base.__name__,
+                            attr,
+                            class_name,
+                            attr,
+                            base.__name__,
+                            attr,
+                        ),
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
 
         if "__overridden_defaults__" in cls.__dict__:
             our_props = cls.properties()
             for key in cls.__dict__["__overridden_defaults__"].keys():
                 if key not in our_props:
-                    warn(('Override() of %s in class %s does not override anything.') % (key, class_name),
-                         RuntimeWarning, stacklevel=2)
+                    warn(
+                        ("Override() of %s in class %s does not override anything.")
+                        % (key, class_name),
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+
 
 def accumulate_from_superclasses(cls, propname):
-    ''' Traverse the class hierarchy and accumulate the special sets of names
+    """ Traverse the class hierarchy and accumulate the special sets of names
     ``MetaHasProps`` stores on classes:
 
     Args:
@@ -191,7 +227,7 @@ def accumulate_from_superclasses(cls, propname):
             Typically meaningful values are: ``__container_props__``,
             ``__properties__``, ``__properties_with_refs__``
 
-    '''
+    """
     cachename = "__cached_all" + propname
     # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
     # classes, and the cache must be separate for each class
@@ -204,8 +240,9 @@ def accumulate_from_superclasses(cls, propname):
         setattr(cls, cachename, s)
     return cls.__dict__[cachename]
 
+
 def accumulate_dict_from_superclasses(cls, propname):
-    ''' Traverse the class hierarchy and accumulate the special dicts
+    """ Traverse the class hierarchy and accumulate the special dicts
     ``MetaHasProps`` stores on classes:
 
     Args:
@@ -214,7 +251,7 @@ def accumulate_dict_from_superclasses(cls, propname):
             Typically meaningful values are: ``__dataspecs__``,
             ``__overridden_defaults__``
 
-    '''
+    """
     cachename = "__cached_all" + propname
     # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
     # classes, and the cache must be separate for each class
@@ -223,20 +260,22 @@ def accumulate_dict_from_superclasses(cls, propname):
         for c in cls.__mro__:
             if issubclass(c, HasProps) and hasattr(c, propname):
                 base = getattr(c, propname)
-                for k,v in base.items():
+                for k, v in base.items():
                     if k not in d:
                         d[k] = v
         setattr(cls, cachename, d)
     return cls.__dict__[cachename]
 
+
 class HasProps(object, metaclass=MetaHasProps):
-    ''' Base class for all class types that have Bokeh properties.
+    """ Base class for all class types that have Bokeh properties.
 
-    '''
+    """
+
     def __init__(self, **properties):
-        '''
+        """
 
-        '''
+        """
         super().__init__()
         self._property_values = dict()
         self._unstable_default_values = dict()
@@ -246,7 +285,7 @@ class HasProps(object, metaclass=MetaHasProps):
             setattr(self, name, value)
 
     def __setattr__(self, name, value):
-        ''' Intercept attribute setting on HasProps in order to special case
+        """ Intercept attribute setting on HasProps in order to special case
         a few situations:
 
         * short circuit all property machinery for ``_private`` attributes
@@ -259,7 +298,7 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         # self.properties() below can be expensive so avoid it
         # if we're just setting a private underscore field
         if name.startswith("_"):
@@ -277,8 +316,10 @@ class HasProps(object, metaclass=MetaHasProps):
             if not matches:
                 matches, text = props, "possible"
 
-            raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
-                (name, self.__class__.__name__, text, nice_join(matches)))
+            raise AttributeError(
+                "unexpected attribute '%s' to %s, %s attributes are %s"
+                % (name, self.__class__.__name__, text, nice_join(matches))
+            )
 
     def __str__(self):
         return "%s(...)" % self.__class__.__name__
@@ -286,7 +327,7 @@ class HasProps(object, metaclass=MetaHasProps):
     __repr__ = __str__
 
     def equals(self, other):
-        ''' Structural equality of models.
+        """ Structural equality of models.
 
         Args:
             other (HasProps) : the other instance to compare to
@@ -294,7 +335,7 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             True, if properties are structurally equal, otherwise False
 
-        '''
+        """
 
         # NOTE: don't try to use this to implement __eq__. Because then
         # you will be tempted to implement __hash__, which would interfere
@@ -307,7 +348,7 @@ class HasProps(object, metaclass=MetaHasProps):
             return self.properties_with_values() == other.properties_with_values()
 
     def set_from_json(self, name, json, models=None, setter=None):
-        ''' Set a property value on this object from JSON.
+        """ Set a property value on this object from JSON.
 
         Args:
             name: (str) : name of the attribute to set
@@ -333,16 +374,20 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         if name in self.properties():
             log.trace("Patching attribute %r of %r with %r", name, self, json)
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, json, models, setter)
         else:
-            log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
+            log.warning(
+                "JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent",
+                name,
+                self,
+            )
 
     def update(self, **kwargs):
-        ''' Updates the object's properties from the given keyword arguments.
+        """ Updates the object's properties from the given keyword arguments.
 
         Returns:
             None
@@ -364,12 +409,12 @@ class HasProps(object, metaclass=MetaHasProps):
                 # update properties together:
                 r.update(start=10, end=20)
 
-        '''
-        for k,v in kwargs.items():
+        """
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
     def update_from_json(self, json_attributes, models=None, setter=None):
-        ''' Updates the object's properties from a JSON attributes dictionary.
+        """ Updates the object's properties from a JSON attributes dictionary.
 
         Args:
             json_attributes: (JSON-dict) : attributes and values to update
@@ -393,13 +438,13 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         for k, v in json_attributes.items():
             self.set_from_json(k, v, models, setter)
 
     @classmethod
     def lookup(cls, name):
-        ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
+        """ Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
         Args:
@@ -408,12 +453,12 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             PropertyDescriptor : descriptor for property named ``name``
 
-        '''
+        """
         return getattr(cls, name)
 
     @classmethod
     def properties_with_refs(cls):
-        ''' Collect the names of all properties on this class that also have
+        """ Collect the names of all properties on this class that also have
         references.
 
         This method *always* traverses the class hierarchy and includes
@@ -422,12 +467,12 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             set[str] : names of properties that have references
 
-        '''
+        """
         return accumulate_from_superclasses(cls, "__properties_with_refs__")
 
     @classmethod
     def properties_containers(cls):
-        ''' Collect the names of all container properties on this class.
+        """ Collect the names of all container properties on this class.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
@@ -435,12 +480,12 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             set[str] : names of container properties
 
-        '''
+        """
         return accumulate_from_superclasses(cls, "__container_props__")
 
     @classmethod
     def properties(cls, with_bases=True):
-        ''' Collect the names of properties on this class.
+        """ Collect the names of properties on this class.
 
         This method *optionally* traverses the class hierarchy and includes
         properties defined on any parent classes.
@@ -453,7 +498,7 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
            set[str] : property names
 
-        '''
+        """
         if with_bases:
             return accumulate_from_superclasses(cls, "__properties__")
         else:
@@ -461,7 +506,7 @@ class HasProps(object, metaclass=MetaHasProps):
 
     @classmethod
     def dataspecs(cls):
-        ''' Collect the names of all ``DataSpec`` properties on this class.
+        """ Collect the names of all ``DataSpec`` properties on this class.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
@@ -469,12 +514,12 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             set[str] : names of ``DataSpec`` properties
 
-        '''
+        """
         return set(cls.dataspecs_with_props().keys())
 
     @classmethod
     def dataspecs_with_props(cls):
-        ''' Collect a dict mapping the names of all ``DataSpec`` properties
+        """ Collect a dict mapping the names of all ``DataSpec`` properties
         on this class to the associated properties.
 
         This method *always* traverses the class hierarchy and includes
@@ -483,11 +528,11 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             dict[str, DataSpec] : mapping of names and ``DataSpec`` properties
 
-        '''
+        """
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
     def properties_with_values(self, include_defaults=True):
-        ''' Collect a dict mapping property names to their values.
+        """ Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
@@ -506,20 +551,22 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
            dict : mapping from property names to their values
 
-        '''
-        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults)
+        """
+        return self.query_properties_with_values(
+            lambda prop: prop.serialized, include_defaults
+        )
 
     @classmethod
     def _overridden_defaults(cls):
-        ''' Returns a dictionary of defaults that have been overridden.
+        """ Returns a dictionary of defaults that have been overridden.
 
         This is an implementation detail of Property.
 
-        '''
+        """
         return accumulate_dict_from_superclasses(cls, "__overridden_defaults__")
 
     def query_properties_with_values(self, query, include_defaults=True):
-        ''' Query the properties values of |HasProps| instances with a
+        """ Query the properties values of |HasProps| instances with a
         predicate.
 
         Args:
@@ -534,7 +581,7 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             dict : mapping of property names and values for matching properties
 
-        '''
+        """
         themed_keys = set()
         result = dict()
         if include_defaults:
@@ -544,7 +591,9 @@ class HasProps(object, metaclass=MetaHasProps):
             # always getting serialized, even defaults, and adding unstable defaults here
             # accomplishes that. Unmodified defaults for property value containers will be
             # weeded out below.
-            keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
+            keys = set(self._property_values.keys()) | set(
+                self._unstable_default_values.keys()
+            )
             if self.themed_values():
                 themed_keys = set(self.themed_values().keys())
                 keys |= themed_keys
@@ -556,14 +605,17 @@ class HasProps(object, metaclass=MetaHasProps):
 
             value = descriptor.serializable_value(self)
             if not include_defaults and key not in themed_keys:
-                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
+                if (
+                    isinstance(value, PropertyValueContainer)
+                    and key in self._unstable_default_values
+                ):
                     continue
             result[key] = value
 
         return result
 
     def themed_values(self):
-        ''' Get any theme-provided overrides.
+        """ Get any theme-provided overrides.
 
         Results are returned as a dict from property name to value, or
         ``None`` if no theme overrides any values for this instance.
@@ -571,11 +623,11 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             dict or None
 
-        '''
-        return getattr(self, '__themed_values__', None)
+        """
+        return getattr(self, "__themed_values__", None)
 
     def apply_theme(self, property_values):
-        ''' Apply a set of theme values which will be used rather than
+        """ Apply a set of theme values which will be used rather than
         defaults, but will not override application-set values.
 
         The passed-in dictionary may be kept around as-is and shared with
@@ -588,7 +640,7 @@ class HasProps(object, metaclass=MetaHasProps):
         Returns:
             None
 
-        '''
+        """
         old_dict = self.themed_values()
 
         # if the same theme is set again, it should reuse the same dict
@@ -606,9 +658,9 @@ class HasProps(object, metaclass=MetaHasProps):
             old_values[k] = getattr(self, k)
 
         if len(property_values) > 0:
-            setattr(self, '__themed_values__', property_values)
-        elif hasattr(self, '__themed_values__'):
-            delattr(self, '__themed_values__')
+            setattr(self, "__themed_values__", property_values)
+        elif hasattr(self, "__themed_values__"):
+            delattr(self, "__themed_values__")
 
         # Property container values might be cached even if unmodified. Invalidate
         # any cached values that are not modified at this point.
@@ -622,35 +674,36 @@ class HasProps(object, metaclass=MetaHasProps):
             descriptor.trigger_if_changed(self, v)
 
     def unapply_theme(self):
-        ''' Remove any themed values and restore defaults.
+        """ Remove any themed values and restore defaults.
 
         Returns:
             None
 
-        '''
+        """
         self.apply_theme(property_values=dict())
 
     def _clone(self):
-        ''' Duplicate a HasProps object.
+        """ Duplicate a HasProps object.
 
         Values that are containers are shallow-copied.
 
-        '''
+        """
         return self.__class__(**self._property_values)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-_ABSTRACT_ADMONITION = '''
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+_ABSTRACT_ADMONITION = """
     .. note::
         This is an abstract base class used to help organize the hierarchy of Bokeh
         model types. **It is not useful to instantiate on its own.**
 
-'''
+"""
 
 # The "../../" is needed for bokeh-plot to construct the correct path to examples
-_EXAMPLE_TEMPLATE = '''
+_EXAMPLE_TEMPLATE = """
 
     Example
     -------
@@ -658,8 +711,8 @@ _EXAMPLE_TEMPLATE = '''
     .. bokeh-plot:: ../../%(path)s
         :source-position: below
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

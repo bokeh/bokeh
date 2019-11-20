@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide support modules for testing Bokeh itself.
+# -----------------------------------------------------------------------------
+""" Provide support modules for testing Bokeh itself.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import io
@@ -46,34 +47,30 @@ from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
 from bokeh.util.terminal import green, trace
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'add_examples',
-    'collect_examples',
-    'Example',
-    'Flags',
-)
+__all__ = ("add_examples", "collect_examples", "Example", "Flags")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Flags(object):
-    js       = 1 << 0
-    file     = 1 << 1
-    server   = 1 << 2
+    js = 1 << 0
+    file = 1 << 1
+    server = 1 << 2
     notebook = 1 << 3
-    slow     = 1 << 4  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
-    skip     = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
-    xfail    = 1 << 6  # test is expected to fail, which doesn't fail the test suite
-    no_js    = 1 << 7  # skip bokehjs and thus image diff (e.g. google maps key issue)
-    no_diff  = 1 << 8  # skip only image diff (e.g. inherent randomness as in jitter)
+    slow = 1 << 4  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
+    skip = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
+    xfail = 1 << 6  # test is expected to fail, which doesn't fail the test suite
+    no_js = 1 << 7  # skip bokehjs and thus image diff (e.g. google maps key issue)
+    no_diff = 1 << 8  # skip only image diff (e.g. inherent randomness as in jitter)
+
 
 class Example(object):
-
     def __init__(self, path, flags, examples_dir):
         self.path = normpath(path)
         self.flags = flags
@@ -87,15 +84,15 @@ class Example(object):
 
     def __str__(self):
         flags = [
-            "js"       if self.is_js       else "",
-            "file"     if self.is_file     else "",
-            "server"   if self.is_server   else "",
+            "js" if self.is_js else "",
+            "file" if self.is_file else "",
+            "server" if self.is_server else "",
             "notebook" if self.is_notebook else "",
-            "slow"     if self.is_slow     else "",
-            "skip"     if self.is_skip     else "",
-            "xfail"    if self.xfail       else "",
-            "no_js"    if self.no_js       else "",
-            "no_diff"  if self.no_diff     else "",
+            "slow" if self.is_slow else "",
+            "skip" if self.is_skip else "",
+            "xfail" if self.xfail else "",
+            "no_js" if self.no_js else "",
+            "no_diff" if self.no_diff else "",
         ]
 
         return "Example(%r, %s)" % (self.relpath, "|".join(f for f in flags if f))
@@ -228,7 +225,10 @@ class Example(object):
 
     @property
     def diff_path(self):
-        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
+        return join(
+            self.imgs_dir,
+            "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID),
+        )
 
     @property
     def img_url(self):
@@ -244,15 +244,21 @@ class Example(object):
 
     @property
     def img_url_path(self):
-        return join("travis", "image_refs", __version__, self.relpath_no_ext) + '.png'
+        return join("travis", "image_refs", __version__, self.relpath_no_ext) + ".png"
 
     @property
     def ref_url_path(self):
-        return join("travis", "image_refs", self._diff_ref, self.relpath_no_ext) + '.png'
+        return (
+            join("travis", "image_refs", self._diff_ref, self.relpath_no_ext) + ".png"
+        )
 
     @property
     def diff_url_path(self):
-        return join("travis", "image_refs", __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
+        return (
+            join("travis", "image_refs", __version__, self.relpath_no_ext)
+            + self._diff_ref
+            + "-diff.png"
+        )
 
     @property
     def has_ref(self):
@@ -279,7 +285,6 @@ class Example(object):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_path))
             upload_file_to_s3(self.diff_path, self.diff_url_path, "image/png")
 
-
     @property
     def images_differ(self):
         return self.pixels != 0
@@ -288,13 +293,34 @@ class Example(object):
         self.pixels = image_diff(self.diff_path, self.img_path, self.ref_path)
         return self.pixels
 
-def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None, no_diff=None):
+
+def add_examples(
+    list_of_examples,
+    path,
+    examples_dir,
+    example_type=None,
+    slow=None,
+    skip=None,
+    xfail=None,
+    no_js=None,
+    no_diff=None,
+):
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])
 
         for name in sorted(os.listdir(star_path)):
             if isdir(join(star_path, name)):
-                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, xfail, no_js, no_diff)
+                add_examples(
+                    list_of_examples,
+                    join(path[:-1], name),
+                    examples_dir,
+                    example_type,
+                    slow,
+                    skip,
+                    xfail,
+                    no_js,
+                    no_diff,
+                )
 
         return
 
@@ -304,7 +330,7 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         flags = 0
         orig_name = name
 
-        if name.startswith(('_', '.')):
+        if name.startswith(("_", ".")):
             continue
         elif name.endswith(".py"):
             flags |= example_type if example_type else Flags.file
@@ -328,16 +354,16 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         if slow is not None and orig_name in slow:
             flags |= Flags.slow
 
-        if skip is not None and (skip == 'all' or orig_name in skip):
+        if skip is not None and (skip == "all" or orig_name in skip):
             flags |= Flags.skip
 
-        if xfail is not None and (xfail == 'all' or orig_name in xfail):
+        if xfail is not None and (xfail == "all" or orig_name in xfail):
             flags |= Flags.xfail
 
-        if no_js is not None and (no_js == 'all' or orig_name in no_js):
+        if no_js is not None and (no_js == "all" or orig_name in no_js):
             flags |= Flags.no_js
 
-        if no_diff is not None and (no_diff == 'all' or orig_name in no_diff):
+        if no_diff is not None and (no_diff == "all" or orig_name in no_diff):
             flags |= Flags.no_diff
 
         list_of_examples.append(Example(join(example_path, name), flags, examples_dir))
@@ -363,18 +389,29 @@ def collect_examples(config_path):
         no_js_status = example.get("no_js")
         no_diff_status = example.get("no_diff")
 
-        add_examples(list_of_examples, path, examples_dir,
-            example_type=example_type, slow=slow_status, skip=skip_status, xfail=xfail_status, no_js=no_js_status, no_diff=no_diff_status)
+        add_examples(
+            list_of_examples,
+            path,
+            examples_dir,
+            example_type=example_type,
+            slow=slow_status,
+            skip=skip_status,
+            xfail=xfail_status,
+            no_js=no_js_status,
+            no_diff=no_diff_status,
+        )
 
     return list_of_examples
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _store_binary(path, data):
     directory = dirname(path)
@@ -384,6 +421,7 @@ def _store_binary(path, data):
     with open(path, "wb") as f:
         f.write(data)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

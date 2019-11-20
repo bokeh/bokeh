@@ -1,65 +1,68 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a pandas DataFrame instance of four of the datasets from
+# -----------------------------------------------------------------------------
+""" Provide a pandas DataFrame instance of four of the datasets from
 gapminder.org. The data sets in this module are:
 
     fertility, life_expectancy, population, regions
 
-'''
+"""
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..util.sampledata import external_csv
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'fertility',
-    'life_expectancy',
-    'population',
-    'regions',
+__all__ = ("fertility", "life_expectancy", "population", "regions")
+
+# -----------------------------------------------------------------------------
+# General API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Code
+# -----------------------------------------------------------------------------
+
+fertility = external_csv(
+    "gapminder", "gapminder_fertility.csv", index_col="Country", encoding="utf-8"
+)
+life_expectancy = external_csv(
+    "gapminder", "gapminder_life_expectancy.csv", index_col="Country", encoding="utf-8"
+)
+population = external_csv(
+    "gapminder", "gapminder_population.csv", index_col="Country", encoding="utf-8"
+)
+regions = external_csv(
+    "gapminder", "gapminder_regions.csv", index_col="Country", encoding="utf-8"
 )
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
-fertility       = external_csv('gapminder', 'gapminder_fertility.csv', index_col='Country', encoding='utf-8')
-life_expectancy = external_csv('gapminder', 'gapminder_life_expectancy.csv', index_col='Country', encoding='utf-8')
-population      = external_csv('gapminder', 'gapminder_population.csv', index_col='Country', encoding='utf-8')
-regions         = external_csv('gapminder', 'gapminder_regions.csv', index_col='Country', encoding='utf-8')
-
-
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Original data is from Gapminder - www.gapminder.org.
 # The google docs links are maintained by gapminder
@@ -67,7 +70,7 @@ regions         = external_csv('gapminder', 'gapminder_regions.csv', index_col='
 # The following script was used to get the data from gapminder
 # and process it into the csvs stored in bokeh's sampledata.
 
-'''
+"""
 population_url = "http://spreadsheets.google.com/pub?key=phAwcNAVuyj0XOoBL_n5tAQ&output=xls"
 fertility_url = "http://spreadsheets.google.com/pub?key=phAwcNAVuyj0TAlJeCEzcGQ&output=xls"
 life_expectancy_url = "http://spreadsheets.google.com/pub?key=tiAiXcrneZrUnnJ9dBU-PAw&output=xls"
@@ -95,6 +98,6 @@ fertility_df.to_csv('gapminder_fertility.csv')
 population_df.to_csv('gapminder_population.csv')
 life_expectancy_df.to_csv('gapminder_life_expectancy.csv')
 regions_df.to_csv('gapminder_regions.csv')
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

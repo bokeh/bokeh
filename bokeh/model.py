@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a base class for all objects (called Bokeh Models) that can go in
+# -----------------------------------------------------------------------------
+""" Provide a base class for all objects (called Bokeh Models) that can go in
 a Bokeh |Document|.
 
-'''
-#-----------------------------------------------------------------------------
+"""
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from json import loads
@@ -32,26 +33,23 @@ from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from .util.serialization import make_id
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'collect_models',
-    'get_class',
-    'Model',
-)
+__all__ = ("collect_models", "get_class", "Model")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def collect_filtered_models(discard, *input_values):
-    ''' Collect a duplicate-free list of all other Bokeh models referred to by
+    """ Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc, unless filtered-out by the
     provided callable.
 
@@ -71,7 +69,7 @@ def collect_filtered_models(discard, *input_values):
     Returns:
         None
 
-    '''
+    """
 
     ids = set([])
     collected = []
@@ -93,8 +91,9 @@ def collect_filtered_models(discard, *input_values):
 
     return collected
 
+
 def collect_models(*input_values):
-    ''' Collect a duplicate-free list of all other Bokeh models referred to by
+    """ Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc.
 
     Iterate over ``input_values`` and descend through their structure
@@ -108,11 +107,12 @@ def collect_models(*input_values):
     Returns:
         list[Model] : all models reachable from this one.
 
-    '''
+    """
     return collect_filtered_models(None, *input_values)
 
+
 def get_class(view_model_name):
-    ''' Look up a Bokeh model class, given its view model name.
+    """ Look up a Bokeh model class, given its view model name.
 
     Args:
         view_model_name (str) :
@@ -132,13 +132,17 @@ def get_class(view_model_name):
             >>> get_class("Range1d")
             <class 'bokeh.models.ranges.Range1d'>
 
-    '''
+    """
 
     # in order to look up from the model catalog that Model maintains, it
     # has to be creates first. These imports ensure that all built-in Bokeh
     # models are represented in the catalog.
-    from . import models; models
-    from .plotting import Figure; Figure
+    from . import models
+
+    models
+    from .plotting import Figure
+
+    Figure
 
     d = Model.model_class_reverse_map
     if view_model_name in d:
@@ -146,9 +150,10 @@ def get_class(view_model_name):
     else:
         raise KeyError("View model name '%s' not found" % view_model_name)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _HTML_REPR = """
 <script>
@@ -168,11 +173,12 @@ _HTML_REPR = """
 </script>
 """
 
+
 @abstract
 class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
-    ''' Base class for all objects stored in Bokeh  |Document| instances.
+    """ Base class for all objects stored in Bokeh  |Document| instances.
 
-    '''
+    """
 
     model_class_reverse_map = {}
 
@@ -202,11 +208,13 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         # and handling any subtype relationships or custom implementations
         previous = cls.model_class_reverse_map.get(qualified, None)
         if previous is not None and not hasattr(cls, "__implementation__"):
-            raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
+            raise Warning(
+                f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}"
+            )
         cls.model_class_reverse_map[qualified] = cls
 
     def __new__(cls, *args, **kwargs):
-        obj =  super().__new__(cls)
+        obj = super().__new__(cls)
         obj._id = kwargs.pop("id", make_id())
         obj._document = None
         obj._temp_document = None
@@ -243,7 +251,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     def id(self):
         return self._id
 
-    name = String(help="""
+    name = String(
+        help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -260,9 +269,12 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         that are provided, nor is the name used directly by Bokeh for any
         reason.
 
-    """)
+    """
+    )
 
-    tags = List(Any, help="""
+    tags = List(
+        Any,
+        help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -284,10 +296,13 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         that are provided, nor are the tags used directly by Bokeh for any
         reason.
 
-    """)
+    """,
+    )
 
-    js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
-    help="""
+    js_event_callbacks = Dict(
+        String,
+        List(Instance("bokeh.models.callbacks.CustomJS")),
+        help="""
     A mapping of event names to lists of ``CustomJS`` callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -297,15 +312,22 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         callback = CustomJS(code="console.log('tap event occurred')")
         plot.js_on_event('tap', callback)
-    """)
+    """,
+    )
 
-    subscribed_events = List(String, help="""
+    subscribed_events = List(
+        String,
+        help="""
     List of events that are subscribed to by Python callbacks. This is
     the set of events that will be communicated from BokehJS back to
     Python for this model.
-    """)
+    """,
+    )
 
-    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    js_property_callbacks = Dict(
+        String,
+        List(Instance("bokeh.models.callbacks.CustomJS")),
+        help="""
     A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -317,22 +339,23 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         callback = CustomJS(code="console.log('stuff')")
         plot.x_range.js_on_change('start', callback)
 
-    """)
+    """,
+    )
 
     # Properties --------------------------------------------------------------
 
     @property
     def document(self):
-        ''' The |Document| this model is attached to (can be ``None``)
+        """ The |Document| this model is attached to (can be ``None``)
 
-        '''
+        """
         if self._temp_document is not None:
             return self._temp_document
         return self._document
 
     @property
     def ref(self):
-        ''' A Bokeh protocol "reference" to this model, i.e. a dict of the
+        """ A Bokeh protocol "reference" to this model, i.e. a dict of the
         form:
 
         .. code-block:: python
@@ -344,11 +367,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         Additionally there may be a `subtype` field if this model is a subtype.
 
-        '''
-        this = {
-            'type': self.__qualified_model__,
-            'id'  : self.id,
-        }
+        """
+        this = {"type": self.__qualified_model__, "id": self.id}
 
         if "__subtype__" in self.__class__.__dict__:
             # XXX: remove __subtype__ and this garbage at 2.0
@@ -374,9 +394,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 continue
             self.js_event_callbacks[event].append(callback)
 
-
     def js_link(self, attr, other, other_attr):
-        ''' Link two Bokeh model properties using JavaScript.
+        """ Link two Bokeh model properties using JavaScript.
 
         This is a convenience method that simplifies adding a CustomJS callback
         to update one Bokeh model property whenever another changes value.
@@ -417,7 +436,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                     )
                 )
 
-        '''
+        """
         if attr not in self.properties():
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
 
@@ -428,12 +447,15 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
         from bokeh.models import CustomJS
-        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+
+        cb = CustomJS(
+            args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr)
+        )
 
         self.js_on_change(attr, cb)
 
     def js_on_change(self, event, *callbacks):
-        ''' Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
+        """ Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
 
         On the BokehJS side, change events for model properties have the
         form ``"change:property_name"``. As a convenience, if the event name
@@ -455,12 +477,15 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
             source.js_on_change('streaming', callback)
 
-        '''
+        """
         if len(callbacks) == 0:
-            raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
+            raise ValueError(
+                "js_on_change takes an event name and one or more callbacks, got only one parameter"
+            )
 
         # handle any CustomJS callbacks here
         from bokeh.models import CustomJS
+
         if not all(isinstance(x, CustomJS) for x in callbacks):
             raise ValueError("not all callback values are CustomJS instances")
 
@@ -474,19 +499,19 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             if callback in self.js_property_callbacks[event]:
                 continue
             self.js_property_callbacks[event].append(callback)
-        self.trigger('js_property_callbacks', old, self.js_property_callbacks)
+        self.trigger("js_property_callbacks", old, self.js_property_callbacks)
 
     def layout(self, side, plot):
-        '''
+        """
 
-        '''
+        """
         try:
             return self in getattr(plot, side)
         except:
             return []
 
     def on_change(self, attr, *callbacks):
-        ''' Add a callback on this object to trigger when ``attr`` changes.
+        """ Add a callback on this object to trigger when ``attr`` changes.
 
         Args:
             attr (str) : an attribute name on this object
@@ -501,19 +526,22 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
             widget.on_change('value', callback1, callback2, ..., callback_n)
 
-        '''
+        """
         if attr not in self.properties():
-            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
+            raise ValueError(
+                "attempted to add a callback on nonexistent %s.%s property"
+                % (self.__class__.__name__, attr)
+            )
         super().on_change(attr, *callbacks)
 
     def references(self):
-        ''' Returns all ``Models`` that this object has references to.
+        """ Returns all ``Models`` that this object has references to.
 
-        '''
+        """
         return set(collect_models(self))
 
     def select(self, selector):
-        ''' Query this object and all of its references for objects that
+        """ Query this object and all of its references for objects that
         match the given selector.
 
         Args:
@@ -522,11 +550,11 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         Returns:
             seq[Model]
 
-        '''
+        """
         return find(self.references(), selector)
 
     def select_one(self, selector):
-        ''' Query this object and all of its references for objects that
+        """ Query this object and all of its references for objects that
         match the given selector.  Raises an error if more than one object
         is found.  Returns single matching object, or None if nothing is found
         Args:
@@ -534,16 +562,18 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         Returns:
             Model
-        '''
+        """
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError("Found more than one object matching %s: %r" % (selector, result))
+            raise ValueError(
+                "Found more than one object matching %s: %r" % (selector, result)
+            )
         if len(result) == 0:
             return None
         return result[0]
 
     def set_select(self, selector, updates):
-        ''' Update objects that match a given selector with the specified
+        """ Update objects that match a given selector with the specified
         attribute/value updates.
 
         Args:
@@ -553,13 +583,13 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         Returns:
             None
 
-        '''
+        """
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)
 
     def to_json(self, include_defaults):
-        ''' Returns a dictionary of the attributes of this object,
+        """ Returns a dictionary of the attributes of this object,
         containing only "JSON types" (string, number, boolean,
         none, dict, list).
 
@@ -579,11 +609,11 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             include_defaults (bool) : whether to include attributes
                 that haven't been changed from the default
 
-        '''
+        """
         return loads(self.to_json_string(include_defaults=include_defaults))
 
     def to_json_string(self, include_defaults):
-        ''' Returns a JSON string encoding the attributes of this object.
+        """ Returns a JSON string encoding the attributes of this object.
 
         References to other objects are serialized as references
         (just the object ID and type info), so the deserializer
@@ -601,18 +631,18 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             include_defaults (bool) : whether to include attributes
                 that haven't been changed from the default
 
-        '''
+        """
         json_like = self._to_json_like(include_defaults=include_defaults)
-        json_like['id'] = self.id
+        json_like["id"] = self.id
         # serialize_json "fixes" the JSON from _to_json_like by converting
         # all types into plain JSON types # (it converts Model into refs,
         # for example).
         return serialize_json(json_like)
 
     def trigger(self, attr, old, new, hint=None, setter=None):
-        '''
+        """
 
-        '''
+        """
 
         # The explicit assumption here is that hinted events do not need to
         # go through all the same invalidation steps. Currently this is the
@@ -621,26 +651,31 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
         if hint is None:
-            dirty = { 'count' : 0 }
+            dirty = {"count": 0}
+
             def mark_dirty(obj):
-                dirty['count'] += 1
+                dirty["count"] += 1
+
             if self._document is not None:
                 _visit_value_and_its_immediate_references(new, mark_dirty)
                 _visit_value_and_its_immediate_references(old, mark_dirty)
-                if dirty['count'] > 0:
+                if dirty["count"] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
         super().trigger(attr, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
-        ''' Attach a model to a Bokeh |Document|.
+        """ Attach a model to a Bokeh |Document|.
 
         This private interface should only ever called by the Document
         implementation to set the private ._document field properly
 
-        '''
+        """
         if self._document is not None and self._document is not doc:
-            raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
+            raise RuntimeError(
+                "Models must be owned by only a single document, %r is already in a doc"
+                % (self)
+            )
         doc.theme.apply_to_model(self)
         self._document = doc
         self._update_event_callbacks()
@@ -648,22 +683,23 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     @staticmethod
     def _clear_extensions():
         Model.model_class_reverse_map = {
-            k: v for k, v in Model.model_class_reverse_map.items()
+            k: v
+            for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
         }
 
     def _detach_document(self):
-        ''' Detach a model from a Bokeh |Document|.
+        """ Detach a model from a Bokeh |Document|.
 
         This private interface should only ever called by the Document
         implementation to unset the private ._document field properly
 
-        '''
+        """
         self._document = None
         default_theme.apply_to_model(self)
 
     def _to_json_like(self, include_defaults):
-        ''' Returns a dictionary of the attributes of this object, in
+        """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
 
         This method does not convert "Bokeh types" into "plain JSON types,"
@@ -679,7 +715,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             include_defaults (bool) : whether to include attributes
                 that haven't been changed from the default.
 
-        '''
+        """
         all_attrs = self.properties_with_values(include_defaults=include_defaults)
 
         # If __subtype__ is defined, then this model may introduce properties
@@ -702,15 +738,15 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             # can't be in our json_encoder because the json
             # module checks for inf before it calls the custom
             # encoder.
-            if isinstance(v, float) and v == float('inf'):
+            if isinstance(v, float) and v == float("inf"):
                 attrs[k] = None
 
         return attrs
 
     def _repr_html_(self):
-        '''
+        """
 
-        '''
+        """
         module = self.__class__.__module__
         name = self.__class__.__name__
 
@@ -719,43 +755,51 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         cls_name = make_id()
 
         def row(c):
-            return '<div style="display: table-row;">' + c + '</div>'
+            return '<div style="display: table-row;">' + c + "</div>"
+
         def hidden_row(c):
             return '<div class="%s" style="display: none;">%s</div>' % (cls_name, c)
-        def cell(c):
-            return '<div style="display: table-cell;">' + c + '</div>'
 
-        html = ''
+        def cell(c):
+            return '<div style="display: table-cell;">' + c + "</div>"
+
+        html = ""
         html += '<div style="display: table;">'
 
         ellipsis_id = make_id()
-        ellipsis = '<span id="%s" style="cursor: pointer;">&hellip;)</span>' % ellipsis_id
+        ellipsis = (
+            '<span id="%s" style="cursor: pointer;">&hellip;)</span>' % ellipsis_id
+        )
 
         prefix = cell('<b title="%s.%s">%s</b>(' % (module, name, name))
-        html += row(prefix + cell('id' + '&nbsp;=&nbsp;' + repr(_id) + ', ' + ellipsis))
+        html += row(prefix + cell("id" + "&nbsp;=&nbsp;" + repr(_id) + ", " + ellipsis))
 
         props = self.properties_with_values().items()
         sorted_props = sorted(props, key=itemgetter(0))
         all_props = sorted_props
         for i, (prop, value) in enumerate(all_props):
-            end = ')' if i == len(all_props)-1 else ','
-            html += hidden_row(cell("") + cell(prop + '&nbsp;=&nbsp;' + repr(value) + end))
+            end = ")" if i == len(all_props) - 1 else ","
+            html += hidden_row(
+                cell("") + cell(prop + "&nbsp;=&nbsp;" + repr(value) + end)
+            )
 
-        html += '</div>'
+        html += "</div>"
         html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
 
         return html
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _visit_immediate_value_references(value, visitor):
-    ''' Visit all references to another Model without recursing into any
+    """ Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
     it's referenced more than once. Does not visit the passed-in value.
 
-    '''
+    """
     if isinstance(value, HasProps):
         for attr in value.properties_with_refs():
             child = getattr(value, attr)
@@ -766,14 +810,15 @@ def _visit_immediate_value_references(value, visitor):
 
 _common_types = {int, float, str}
 
+
 def _visit_value_and_its_immediate_references(obj, visitor):
-    ''' Recurse down Models, HasProps, and Python containers
+    """ Recurse down Models, HasProps, and Python containers
 
     The ordering in this function is to optimize performance.  We check the
     most comomn types (int, float, str) first so that we can quickly return in
     the common case.  We avoid isinstance and issubclass checks in a couple
     places with `type` checks because isinstance checks can be slow.
-    '''
+    """
     typ = type(obj)
     if typ in _common_types:  # short circuit on common base types
         return
@@ -792,6 +837,6 @@ def _visit_value_and_its_immediate_references(obj, visitor):
             _visit_immediate_value_references(obj, visitor)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Various kinds of button widgets.
+# -----------------------------------------------------------------------------
+""" Various kinds of button widgets.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ...core.enums import ButtonType
@@ -36,59 +37,66 @@ from ..callbacks import Callback
 from .icons import AbstractIcon
 from .widget import Widget
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'AbstractButton',
-    'Button',
-    'ButtonLike',
-    'Dropdown',
-    'Toggle',
-)
+__all__ = ("AbstractButton", "Button", "ButtonLike", "Dropdown", "Toggle")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class ButtonLike(HasProps):
-    ''' Shared properties for button-like widgets.
+    """ Shared properties for button-like widgets.
 
-    '''
+    """
 
-    button_type = Enum(ButtonType, help="""
+    button_type = Enum(
+        ButtonType,
+        help="""
     A style for the button, signifying it's role.
-    """)
+    """,
+    )
+
 
 @abstract
 class AbstractButton(Widget, ButtonLike):
-    ''' A base class that defines common properties for all button types.
+    """ A base class that defines common properties for all button types.
 
-    '''
+    """
 
-    label = String("", help="""
+    label = String(
+        "",
+        help="""
     The text label for the button to display.
-    """)
+    """,
+    )
 
-    icon = Instance(AbstractIcon, help="""
+    icon = Instance(
+        AbstractIcon,
+        help="""
     An optional image appearing to the left of button's text.
-    """)
+    """,
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Button(AbstractButton):
-    ''' A click button.
+    """ A click button.
 
-    '''
+    """
 
     label = Override(default="Button")
 
     def on_click(self, handler):
-        ''' Set up a handler for button clicks.
+        """ Set up a handler for button clicks.
 
         Args:
             handler (func) : handler function to call when button is clicked.
@@ -96,24 +104,28 @@ class Button(AbstractButton):
         Returns:
             None
 
-        '''
+        """
         self.on_event(ButtonClick, handler)
 
     def js_on_click(self, handler):
-        ''' Set up a JavaScript handler for button clicks. '''
+        """ Set up a JavaScript handler for button clicks. """
         self.js_on_event(ButtonClick, handler)
 
-class Toggle(AbstractButton):
-    ''' A two-state toggle button.
 
-    '''
+class Toggle(AbstractButton):
+    """ A two-state toggle button.
+
+    """
 
     label = Override(default="Toggle")
 
-    active = Bool(False, help="""
+    active = Bool(
+        False,
+        help="""
     The initial state of a button. Also used to trigger ``on_click`` event
     handler.
-    """)
+    """,
+    )
 
     def on_click(self, handler):
         """ Set up a handler for button state changes (clicks).
@@ -125,29 +137,36 @@ class Toggle(AbstractButton):
             None
 
         """
-        self.on_change('active', lambda attr, old, new: handler(new))
+        self.on_change("active", lambda attr, old, new: handler(new))
 
     def js_on_click(self, handler):
         """ Set up a JavaScript handler for button state changes (clicks). """
-        self.js_on_change('active', handler)
+        self.js_on_change("active", handler)
+
 
 class Dropdown(AbstractButton):
-    ''' A dropdown button.
+    """ A dropdown button.
 
-    '''
+    """
 
     label = Override(default="Dropdown")
 
-    split = Bool(default=False, help="""
-    """)
+    split = Bool(
+        default=False,
+        help="""
+    """,
+    )
 
-    menu = List(Either(String, Tuple(String, Either(String, Instance(Callback)))), help="""
+    menu = List(
+        Either(String, Tuple(String, Either(String, Instance(Callback)))),
+        help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
-    """)
+    """,
+    )
 
     def on_click(self, handler):
-        ''' Set up a handler for button or menu item clicks.
+        """ Set up a handler for button or menu item clicks.
 
         Args:
             handler (func) : handler function to call when button is activated.
@@ -155,19 +174,20 @@ class Dropdown(AbstractButton):
         Returns:
             None
 
-        '''
+        """
         self.on_event(ButtonClick, handler)
         self.on_event(MenuItemClick, handler)
 
     def js_on_click(self, handler):
-        ''' Set up a JavaScript handler for button or menu item clicks. '''
+        """ Set up a JavaScript handler for button or menu item clicks. """
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

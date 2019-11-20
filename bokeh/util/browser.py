@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Utility functions for helping with operations involving browsers.
+# -----------------------------------------------------------------------------
+""" Utility functions for helping with operations involving browsers.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import webbrowser
@@ -29,39 +30,40 @@ from typing_extensions import Literal, Protocol
 # Bokeh imports
 from ..settings import settings
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-NEW_PARAM = {'tab': 2, 'window': 1}
+NEW_PARAM = {"tab": 2, "window": 1}
 
-__all__ = (
-    'DummyWebBrowser',
-    'get_browser_controller',
-    'view',
-)
+__all__ = ("DummyWebBrowser", "get_browser_controller", "view")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BrowserLike(Protocol):
-    ''' Interface for browser-like objects.
+    """ Interface for browser-like objects.
 
-    '''
+    """
+
     def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
         ...
 
-class DummyWebBrowser(object):
-    ''' A "no-op" web-browser controller.
 
-    '''
+class DummyWebBrowser(object):
+    """ A "no-op" web-browser controller.
+
+    """
+
     def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
-        ''' Receive standard arguments and take no action. '''
+        """ Receive standard arguments and take no action. """
         return True
 
+
 def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
-    ''' Return a browser controller.
+    """ Return a browser controller.
 
     Args:
         browser (str or None) : browser name, or ``None`` (default: ``None``)
@@ -75,7 +77,7 @@ def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
     Returns:
         controller : a web browser controller
 
-    '''
+    """
     browser = settings.browser(browser)
 
     if browser is None:
@@ -87,8 +89,14 @@ def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
 
     return controller
 
-def view(location: str, browser: Optional[str] = None, new: Literal["same", "window", "tab"] = "same", autoraise: bool = True) -> None:
-    ''' Open a browser to view the specified location.
+
+def view(
+    location: str,
+    browser: Optional[str] = None,
+    new: Literal["same", "window", "tab"] = "same",
+    autoraise: bool = True,
+) -> None:
+    """ Open a browser to view the specified location.
 
     Args:
         location (str) : Location to open
@@ -109,11 +117,14 @@ def view(location: str, browser: Optional[str] = None, new: Literal["same", "win
     Returns:
         None
 
-    '''
+    """
     try:
         new_id = {"same": 0, "window": 1, "tab": 2}[new]
     except KeyError:
-        raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
+        raise RuntimeError(
+            "invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'"
+            % new
+        )
 
     if location.startswith("http"):
         url = location
@@ -126,14 +137,15 @@ def view(location: str, browser: Optional[str] = None, new: Literal["same", "win
     except Exception:
         pass
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

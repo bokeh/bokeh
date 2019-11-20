@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provides the ``ServerSession`` class.
+# -----------------------------------------------------------------------------
+""" Provides the ``ServerSession`` class.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import time
@@ -27,25 +28,24 @@ from tornado import locks
 # Bokeh imports
 from .callbacks import _DocumentCallbackGroup
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'current_time',
-    'ServerSession',
-)
+__all__ = ("current_time", "ServerSession")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _needs_document_lock(func):
-    '''Decorator that adds the necessary locking and post-processing
+    """Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
        method on ServerSession and transforms it into a coroutine
        if it wasn't already.
-    '''
+    """
+
     async def _needs_document_lock_wrapper(self, *args, **kwargs):
         # while we wait for and hold the lock, prevent the session
         # from being discarded. This avoids potential weirdness
@@ -58,8 +58,10 @@ def _needs_document_lock(func):
         try:
             with await self._lock.acquire():
                 if self._pending_writes is not None:
-                    raise RuntimeError("internal class invariant violated: _pending_writes " + \
-                                       "should be None if lock is not held")
+                    raise RuntimeError(
+                        "internal class invariant violated: _pending_writes "
+                        + "should be None if lock is not held"
+                    )
                 self._pending_writes = []
                 try:
                     result = func(self, *args, **kwargs)
@@ -74,16 +76,19 @@ def _needs_document_lock(func):
             return result
         finally:
             self.unblock_expiration()
+
     return _needs_document_lock_wrapper
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def current_time():
-    '''Return the time in milliseconds since the epoch as a floating
+    """Return the time in milliseconds since the epoch as a floating
        point number.
-    '''
+    """
     try:
         # python >=3.3 only
         return time.monotonic() * 1000
@@ -91,10 +96,11 @@ def current_time():
         # if your python is old, don't set your clock backward!
         return time.time() * 1000
 
-class ServerSession(object):
-    ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
-    '''
+class ServerSession(object):
+    """ Hosts an application "instance" (an instantiated Document) for one or more connections.
+
+    """
 
     def __init__(self, session_id, document, io_loop=None):
         if session_id is None:
@@ -115,7 +121,9 @@ class ServerSession(object):
         self._expiration_requested = False
         self._expiration_blocked_count = 0
 
-        wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
+        wrapped_callbacks = self._wrap_session_callbacks(
+            self._document.session_callbacks
+        )
         self._callbacks.add_session_callbacks(wrapped_callbacks)
 
     @property
@@ -182,14 +190,16 @@ class ServerSession(object):
 
     @_needs_document_lock
     def with_document_locked(self, func, *args, **kwargs):
-        ''' Asynchronously locks the document and runs the function with it locked.'''
+        """ Asynchronously locks the document and runs the function with it locked."""
         return func(*args, **kwargs)
 
     def _wrap_document_callback(self, callback):
         if getattr(callback, "nolock", False):
             return callback
+
         def wrapped_callback(*args, **kwargs):
             return self.with_document_locked(callback, *args, **kwargs)
+
         return wrapped_callback
 
     def _wrap_session_callback(self, callback):
@@ -206,21 +216,28 @@ class ServerSession(object):
         may_suppress = event.setter is self
 
         if self._pending_writes is None:
-            raise RuntimeError("_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes")
+            raise RuntimeError(
+                "_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes"
+            )
 
         # TODO (havocp): our "change sync" protocol is flawed because if both
         # sides change the same attribute at the same time, they will each end
         # up with the state of the other and their final states will differ.
         for connection in self._subscribed_connections:
             if may_suppress and connection is self._current_patch_connection:
-                log.trace("Not sending notification back to client %r for a change it requested", connection)
+                log.trace(
+                    "Not sending notification back to client %r for a change it requested",
+                    connection,
+                )
             else:
                 self._pending_writes.append(connection.send_patch_document(event))
 
     @_needs_document_lock
     def _handle_pull(self, message, connection):
         log.debug("Sending pull-doc-reply from session %r", self.id)
-        return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
+        return connection.protocol.create(
+            "PULL-DOC-REPLY", message.header["msgid"], self.document
+        )
 
     def _session_callback_added(self, event):
         wrapped = self._wrap_session_callback(event.callback)
@@ -231,7 +248,7 @@ class ServerSession(object):
 
     @classmethod
     def pull(cls, message, connection):
-        ''' Handle a PULL-DOC, return a Future with work to be scheduled. '''
+        """ Handle a PULL-DOC, return a Future with work to be scheduled. """
         return connection.session._handle_pull(message, connection)
 
     @_needs_document_lock
@@ -242,7 +259,7 @@ class ServerSession(object):
 
     @classmethod
     def push(cls, message, connection):
-        ''' Handle a PUSH-DOC, return a Future with work to be scheduled. '''
+        """ Handle a PUSH-DOC, return a Future with work to be scheduled. """
         return connection.session._handle_push(message, connection)
 
     @_needs_document_lock
@@ -264,17 +281,16 @@ class ServerSession(object):
     def event(cls, message, connection):
         return connection.session._handle_event(message, connection)
 
-
     @classmethod
     def patch(cls, message, connection):
-        ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''
+        """ Handle a PATCH-DOC, return a Future with work to be scheduled. """
         return connection.session._handle_patch(message, connection)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

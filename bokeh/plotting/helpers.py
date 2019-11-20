@@ -1,19 +1,20 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import difflib
@@ -81,36 +82,43 @@ from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
+pd = import_optional("pandas")
 
-__all__ = (
-    'get_default_color',
-)
+__all__ = ("get_default_color",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def get_default_color(plot=None):
     colors = [
         "#1f77b4",
-        "#ff7f0e", "#ffbb78",
-        "#2ca02c", "#98df8a",
-        "#d62728", "#ff9896",
-        "#9467bd", "#c5b0d5",
-        "#8c564b", "#c49c94",
-        "#e377c2", "#f7b6d2",
+        "#ff7f0e",
+        "#ffbb78",
+        "#2ca02c",
+        "#98df8a",
+        "#d62728",
+        "#ff9896",
+        "#9467bd",
+        "#c5b0d5",
+        "#8c564b",
+        "#c49c94",
+        "#e377c2",
+        "#f7b6d2",
         "#7f7f7f",
-        "#bcbd22", "#dbdb8d",
-        "#17becf", "#9edae5"
+        "#bcbd22",
+        "#dbdb8d",
+        "#17becf",
+        "#9edae5",
     ]
     if plot:
         renderers = plot.renderers
@@ -120,29 +128,36 @@ def get_default_color(plot=None):
     else:
         return colors[0]
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _single_stack(stackers, spec, **kw):
     if spec in kw:
         raise ValueError("Stack property '%s' cannot appear in keyword args" % spec)
 
-    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+    lengths = {len(x) for x in kw.values() if isinstance(x, (list, tuple))}
 
     # lengths will be empty if there are no kwargs supplied at all
     if len(lengths) > 0:
         if len(lengths) != 1:
-            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+            raise ValueError(
+                "Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r"
+                % sorted(list(lengths))
+            )
         if lengths.pop() != len(stackers):
-            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
+            raise ValueError(
+                "Keyword argument sequences for broadcasting must be the same length as stackers"
+            )
 
     s = []
 
     _kw = []
 
     for i, val in enumerate(stackers):
-        d  = {'name': val}
+        d = {"name": val}
         s.append(val)
 
         d[spec] = stack(*s)
@@ -157,19 +172,25 @@ def _single_stack(stackers, spec, **kw):
 
     return _kw
 
+
 def _double_stack(stackers, spec0, spec1, **kw):
     for name in (spec0, spec1):
         if name in kw:
             raise ValueError("Stack property '%s' cannot appear in keyword args" % name)
 
-    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+    lengths = {len(x) for x in kw.values() if isinstance(x, (list, tuple))}
 
     # lengths will be empty if there are no kwargs supplied at all
     if len(lengths) > 0:
         if len(lengths) != 1:
-            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+            raise ValueError(
+                "Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r"
+                % sorted(list(lengths))
+            )
         if lengths.pop() != len(stackers):
-            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
+            raise ValueError(
+                "Keyword argument sequences for broadcasting must be the same length as stackers"
+            )
 
     s0 = []
     s1 = []
@@ -177,7 +198,7 @@ def _double_stack(stackers, spec0, spec1, **kw):
     _kw = []
 
     for i, val in enumerate(stackers):
-        d  = {'name': val}
+        d = {"name": val}
         s0 = list(s1)
         s1.append(val)
 
@@ -194,6 +215,7 @@ def _double_stack(stackers, spec0, spec1, **kw):
 
     return _kw
 
+
 def _graph(node_source, edge_source, **kwargs):
 
     if not isinstance(node_source, ColumnarDataSource):
@@ -202,8 +224,7 @@ def _graph(node_source, edge_source, **kwargs):
             node_source = ColumnDataSource(node_source)
         except ValueError as err:
             msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
-                curr_type=str(type(node_source)),
-                err=err.message
+                curr_type=str(type(node_source)), err=err.message
             )
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
@@ -213,53 +234,68 @@ def _graph(node_source, edge_source, **kwargs):
             edge_source = ColumnDataSource(edge_source)
         except ValueError as err:
             msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
-                curr_type=str(type(edge_source)),
-                err=err.message
+                curr_type=str(type(edge_source)), err=err.message
             )
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     ## node stuff
     node_ca = _pop_visuals(Circle, kwargs, prefix="node_")
 
-    if any(x.startswith('node_selection_') for x in kwargs):
-        snode_ca = _pop_visuals(Circle, kwargs, prefix="node_selection_", defaults=node_ca)
+    if any(x.startswith("node_selection_") for x in kwargs):
+        snode_ca = _pop_visuals(
+            Circle, kwargs, prefix="node_selection_", defaults=node_ca
+        )
     else:
         snode_ca = None
 
-    if any(x.startswith('node_hover_') for x in kwargs):
+    if any(x.startswith("node_hover_") for x in kwargs):
         hnode_ca = _pop_visuals(Circle, kwargs, prefix="node_hover_", defaults=node_ca)
     else:
         hnode_ca = None
 
-    if any(x.startswith('node_muted_') for x in kwargs):
+    if any(x.startswith("node_muted_") for x in kwargs):
         mnode_ca = _pop_visuals(Circle, kwargs, prefix="node_muted_", defaults=node_ca)
     else:
         mnode_ca = None
 
-    nsnode_ca = _pop_visuals(Circle, kwargs, prefix="node_nonselection_", defaults=node_ca)
+    nsnode_ca = _pop_visuals(
+        Circle, kwargs, prefix="node_nonselection_", defaults=node_ca
+    )
 
     ## edge stuff
     edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
 
-    if any(x.startswith('edge_selection_') for x in kwargs):
-        sedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_selection_", defaults=edge_ca)
+    if any(x.startswith("edge_selection_") for x in kwargs):
+        sedge_ca = _pop_visuals(
+            MultiLine, kwargs, prefix="edge_selection_", defaults=edge_ca
+        )
     else:
         sedge_ca = None
 
-    if any(x.startswith('edge_hover_') for x in kwargs):
-        hedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_hover_", defaults=edge_ca)
+    if any(x.startswith("edge_hover_") for x in kwargs):
+        hedge_ca = _pop_visuals(
+            MultiLine, kwargs, prefix="edge_hover_", defaults=edge_ca
+        )
     else:
         hedge_ca = None
 
-    if any(x.startswith('edge_muted_') for x in kwargs):
-        medge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_ca)
+    if any(x.startswith("edge_muted_") for x in kwargs):
+        medge_ca = _pop_visuals(
+            MultiLine, kwargs, prefix="edge_muted_", defaults=edge_ca
+        )
     else:
         medge_ca = None
 
-    nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca)
+    nsedge_ca = _pop_visuals(
+        MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca
+    )
 
     ## node stuff
-    node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in Circle.properties()}
+    node_kwargs = {
+        k.lstrip("node_"): v
+        for k, v in kwargs.copy().items()
+        if k.lstrip("node_") in Circle.properties()
+    }
 
     node_glyph = _make_glyph(Circle, node_kwargs, node_ca)
     nsnode_glyph = _make_glyph(Circle, node_kwargs, nsnode_ca)
@@ -267,15 +303,21 @@ def _graph(node_source, edge_source, **kwargs):
     hnode_glyph = _make_glyph(Circle, node_kwargs, hnode_ca)
     mnode_glyph = _make_glyph(Circle, node_kwargs, mnode_ca)
 
-    node_renderer = GlyphRenderer(glyph=node_glyph,
-                                  nonselection_glyph=nsnode_glyph,
-                                  selection_glyph=snode_glyph,
-                                  hover_glyph=hnode_glyph,
-                                  muted_glyph=mnode_glyph,
-                                  data_source=node_source)
+    node_renderer = GlyphRenderer(
+        glyph=node_glyph,
+        nonselection_glyph=nsnode_glyph,
+        selection_glyph=snode_glyph,
+        hover_glyph=hnode_glyph,
+        muted_glyph=mnode_glyph,
+        data_source=node_source,
+    )
 
     ## edge stuff
-    edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
+    edge_kwargs = {
+        k.lstrip("edge_"): v
+        for k, v in kwargs.copy().items()
+        if k.lstrip("edge_") in MultiLine.properties()
+    }
 
     edge_glyph = _make_glyph(MultiLine, edge_kwargs, edge_ca)
     nsedge_glyph = _make_glyph(MultiLine, edge_kwargs, nsedge_ca)
@@ -283,17 +325,28 @@ def _graph(node_source, edge_source, **kwargs):
     hedge_glyph = _make_glyph(MultiLine, edge_kwargs, hedge_ca)
     medge_glyph = _make_glyph(MultiLine, edge_kwargs, medge_ca)
 
-    edge_renderer = GlyphRenderer(glyph=edge_glyph,
-                                  nonselection_glyph=nsedge_glyph,
-                                  selection_glyph=sedge_glyph,
-                                  hover_glyph=hedge_glyph,
-                                  muted_glyph=medge_glyph,
-                                  data_source=edge_source)
+    edge_renderer = GlyphRenderer(
+        glyph=edge_glyph,
+        nonselection_glyph=nsedge_glyph,
+        selection_glyph=sedge_glyph,
+        hover_glyph=hedge_glyph,
+        muted_glyph=medge_glyph,
+        data_source=edge_source,
+    )
 
-    _RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
-                      'selection_policy', 'inspection_policy']
+    _RENDERER_ARGS = [
+        "name",
+        "level",
+        "visible",
+        "x_range_name",
+        "y_range_name",
+        "selection_policy",
+        "inspection_policy",
+    ]
 
-    renderer_kwargs = {attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs}
+    renderer_kwargs = {
+        attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs
+    }
 
     renderer_kwargs["node_renderer"] = node_renderer
     renderer_kwargs["edge_renderer"] = edge_renderer
@@ -301,15 +354,20 @@ def _graph(node_source, edge_source, **kwargs):
     return renderer_kwargs
 
 
-_RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
-                  'level', 'view', 'visible', 'muted']
+_RENDERER_ARGS = [
+    "name",
+    "x_range_name",
+    "y_range_name",
+    "level",
+    "view",
+    "visible",
+    "muted",
+]
 
 
 def _pop_renderer_args(kwargs):
-    result = {attr: kwargs.pop(attr)
-              for attr in _RENDERER_ARGS
-              if attr in kwargs}
-    result['data_source'] = kwargs.pop('source', ColumnDataSource())
+    result = {attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs}
+    result["data_source"] = kwargs.pop("source", ColumnDataSource())
     return result
 
 
@@ -353,30 +411,31 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
         Feature trait 'text_color', as well as traits 'color' and 'alpha', have
         ultimate defaults in case those can't be deduced.
     """
+
     def split_feature_trait(ft):
         """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
-        ft = ft.split('_', 1)
-        return ft if len(ft)==2 else ft+[None]
+        ft = ft.split("_", 1)
+        return ft if len(ft) == 2 else ft + [None]
 
     def is_visual(ft):
         """Whether a feature trait name is visual"""
         feature, trait = split_feature_trait(ft)
-        return feature in ('line', 'fill', 'text', 'global') and trait is not None
+        return feature in ("line", "fill", "text", "global") and trait is not None
 
     defaults = defaults.copy()
-    defaults.setdefault('text_color', 'black')
+    defaults.setdefault("text_color", "black")
     trait_defaults = trait_defaults.copy()
-    trait_defaults.setdefault('color', get_default_color())
-    trait_defaults.setdefault('alpha', 1.0)
+    trait_defaults.setdefault("color", get_default_color())
+    trait_defaults.setdefault("alpha", 1.0)
 
     result, traits = dict(), set()
     glyphprops = glyphclass.properties()
     for pname in filter(is_visual, glyphprops):
         _, trait = split_feature_trait(pname)
-        if prefix+pname in props:
-            result[pname] = props.pop(prefix+pname)
-        elif trait not in glyphprops and prefix+trait in props:
-            result[pname] = props[prefix+trait]
+        if prefix + pname in props:
+            result[pname] = props.pop(prefix + pname)
+        elif trait not in glyphprops and prefix + trait in props:
+            result[pname] = props[prefix + trait]
         elif pname in defaults:
             result[pname] = defaults[pname]
         elif trait in trait_defaults:
@@ -384,17 +443,21 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
         if trait not in glyphprops:
             traits.add(trait)
     for trait in traits:
-        props.pop(prefix+trait, None)
+        props.pop(prefix + trait, None)
 
     return result
 
 
-_LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
+_LEGEND_ARGS = ["legend", "legend_label", "legend_field", "legend_group"]
+
 
 def _pop_legend_kwarg(kwargs):
     result = {attr: kwargs.pop(attr) for attr in _LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
-        raise ValueError("Only one of %s may be provided, got: %s" % (nice_join(_LEGEND_ARGS), nice_join(result.keys())))
+        raise ValueError(
+            "Only one of %s may be provided, got: %s"
+            % (nice_join(_LEGEND_ARGS), nice_join(result.keys()))
+        )
     return result
 
 
@@ -441,7 +504,12 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             continue
 
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
+        if (
+            isinstance(dataspecs[var].property, ColorSpec)
+            and isinstance(val, tuple)
+            and len(val) in (3, 4)
+            and all(isinstance(v, (float, int)) for v in val)
+        ):
             continue
 
         if isinstance(val, np.ndarray) and val.ndim != 1:
@@ -472,7 +540,10 @@ def _get_or_create_legend(plot):
         return legend
     if len(legends) == 1:
         return legends[0]
-    raise RuntimeError("Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments" % plot)
+    raise RuntimeError(
+        "Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments"
+        % plot
+    )
 
 
 def _find_legend_item(label, legend):
@@ -483,24 +554,30 @@ def _find_legend_item(label, legend):
 
 
 def _handle_legend_deprecated(label, legend, glyph_renderer):
-    deprecated("'legend' keyword is deprecated, use explicit 'legend_label', 'legend_field', or 'legend_group' keywords instead")
+    deprecated(
+        "'legend' keyword is deprecated, use explicit 'legend_label', 'legend_field', or 'legend_group' keywords instead"
+    )
 
     if not isinstance(label, (str, dict)):
         raise ValueError("Bad 'legend' parameter value: %s" % label)
 
     if isinstance(label, dict):
         if "field" in label and len(label) == 1:
-            label = label['field']
+            label = label["field"]
             _handle_legend_field(label, legend, glyph_renderer)
         elif "value" in label and len(label) == 1:
-            label = label['value']
+            label = label["value"]
             _handle_legend_label(label, legend, glyph_renderer)
 
         else:
             raise ValueError("Bad 'legend' parameter value: %s" % label)
     else:
         source = glyph_renderer.data_source
-        if source is not None and hasattr(source, 'column_names') and label in source.column_names:
+        if (
+            source is not None
+            and hasattr(source, "column_names")
+            and label in source.column_names
+        ):
             _handle_legend_field(label, legend, glyph_renderer)
         else:
             _handle_legend_label(label, legend, glyph_renderer)
@@ -524,8 +601,10 @@ def _handle_legend_group(label, legend, glyph_renderer):
 
     source = glyph_renderer.data_source
     if source is None:
-        raise ValueError("Cannot use 'legend_group' on a glyph without a data source already configured")
-    if not (hasattr(source, 'column_names') and label in source.column_names):
+        raise ValueError(
+            "Cannot use 'legend_group' on a glyph without a data source already configured"
+        )
+    if not (hasattr(source, "column_names") and label in source.column_names):
         raise ValueError("Column to be grouped does not exist in glyph data source")
 
     column = source.data[label]
@@ -549,11 +628,12 @@ def _handle_legend_label(label, legend, glyph_renderer):
 
 
 _LEGEND_KWARG_HANDLERS = {
-    'legend'       : _handle_legend_deprecated,
-    'legend_label' : _handle_legend_label,
-    'legend_field' : _handle_legend_field,
-    'legend_group' : _handle_legend_group,
+    "legend": _handle_legend_deprecated,
+    "legend_label": _handle_legend_label,
+    "legend_field": _handle_legend_field,
+    "legend_group": _handle_legend_group,
 }
+
 
 def _update_legend(plot, legend_kwarg, glyph_renderer):
     legend = _get_or_create_legend(plot)
@@ -583,14 +663,22 @@ def _get_range(range_input):
 
 
 def _get_scale(range_input, axis_type):
-    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
+    if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in [
+        "linear",
+        "datetime",
+        "mercator",
+        "auto",
+        None,
+    ]:
         return LinearScale()
     elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
         return LogScale()
     elif isinstance(range_input, FactorRange):
         return CategoricalScale()
     else:
-        raise ValueError("Unable to determine proper scale for: '%s'" % str(range_input))
+        raise ValueError(
+            "Unable to determine proper scale for: '%s'" % str(range_input)
+        )
 
 
 def _get_axis_class(axis_type, range_input, dim):
@@ -603,7 +691,7 @@ def _get_axis_class(axis_type, range_input, dim):
     elif axis_type == "datetime":
         return DatetimeAxis, {}
     elif axis_type == "mercator":
-        return MercatorAxis, {'dimension': 'lon' if dim == 0 else 'lat'}
+        return MercatorAxis, {"dimension": "lon" if dim == 0 else "lat"}
     elif axis_type == "auto":
         if isinstance(range_input, FactorRange):
             return CategoricalAxis, {}
@@ -626,42 +714,45 @@ def _get_num_minor_ticks(axis_class, num_minor_ticks):
         return num_minor_ticks
     if num_minor_ticks is None:
         return 0
-    if num_minor_ticks == 'auto':
+    if num_minor_ticks == "auto":
         if axis_class is LogAxis:
             return 10
         return 5
 
+
 _known_tools = {
-    "pan": lambda: PanTool(dimensions='both'),
-    "xpan": lambda: PanTool(dimensions='width'),
-    "ypan": lambda: PanTool(dimensions='height'),
+    "pan": lambda: PanTool(dimensions="both"),
+    "xpan": lambda: PanTool(dimensions="width"),
+    "ypan": lambda: PanTool(dimensions="height"),
     "xwheel_pan": lambda: WheelPanTool(dimension="width"),
     "ywheel_pan": lambda: WheelPanTool(dimension="height"),
-    "wheel_zoom": lambda: WheelZoomTool(dimensions='both'),
-    "xwheel_zoom": lambda: WheelZoomTool(dimensions='width'),
-    "ywheel_zoom": lambda: WheelZoomTool(dimensions='height'),
-    "zoom_in": lambda: ZoomInTool(dimensions='both'),
-    "xzoom_in": lambda: ZoomInTool(dimensions='width'),
-    "yzoom_in": lambda: ZoomInTool(dimensions='height'),
-    "zoom_out": lambda: ZoomOutTool(dimensions='both'),
-    "xzoom_out": lambda: ZoomOutTool(dimensions='width'),
-    "yzoom_out": lambda: ZoomOutTool(dimensions='height'),
+    "wheel_zoom": lambda: WheelZoomTool(dimensions="both"),
+    "xwheel_zoom": lambda: WheelZoomTool(dimensions="width"),
+    "ywheel_zoom": lambda: WheelZoomTool(dimensions="height"),
+    "zoom_in": lambda: ZoomInTool(dimensions="both"),
+    "xzoom_in": lambda: ZoomInTool(dimensions="width"),
+    "yzoom_in": lambda: ZoomInTool(dimensions="height"),
+    "zoom_out": lambda: ZoomOutTool(dimensions="both"),
+    "xzoom_out": lambda: ZoomOutTool(dimensions="width"),
+    "yzoom_out": lambda: ZoomOutTool(dimensions="height"),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
-    "xbox_select": lambda: BoxSelectTool(dimensions='width'),
-    "ybox_select": lambda: BoxSelectTool(dimensions='height'),
+    "xbox_select": lambda: BoxSelectTool(dimensions="width"),
+    "ybox_select": lambda: BoxSelectTool(dimensions="height"),
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
-    "box_zoom": lambda: BoxZoomTool(dimensions='both'),
-    "xbox_zoom": lambda: BoxZoomTool(dimensions='width'),
-    "ybox_zoom": lambda: BoxZoomTool(dimensions='height'),
-    "hover": lambda: HoverTool(tooltips=[
-        ("index", "$index"),
-        ("data (x, y)", "($x, $y)"),
-        ("screen (x, y)", "($sx, $sy)"),
-    ]),
+    "box_zoom": lambda: BoxZoomTool(dimensions="both"),
+    "xbox_zoom": lambda: BoxZoomTool(dimensions="width"),
+    "ybox_zoom": lambda: BoxZoomTool(dimensions="height"),
+    "hover": lambda: HoverTool(
+        tooltips=[
+            ("index", "$index"),
+            ("data (x, y)", "($x, $y)"),
+            ("screen (x, y)", "($sx, $sy)"),
+        ]
+    ),
     "save": lambda: SaveTool(),
     "previewsave": "save",
     "undo": lambda: UndoTool(),
@@ -671,7 +762,7 @@ _known_tools = {
     "box_edit": lambda: BoxEditTool(),
     "point_draw": lambda: PointDrawTool(),
     "poly_draw": lambda: PolyDrawTool(),
-    "poly_edit": lambda: PolyEditTool()
+    "poly_edit": lambda: PolyEditTool(),
 }
 
 
@@ -692,10 +783,15 @@ def _tool_from_string(name):
         if not matches:
             matches, text = known_tools, "possible"
 
-        raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
+        raise ValueError(
+            "unexpected tool name '%s', %s tools are %s"
+            % (name, text, nice_join(matches))
+        )
 
 
-def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
+def _process_axis_and_grid(
+    plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim
+):
     axiscls, axiskw = _get_axis_class(axis_type, rng, dim)
 
     if axiscls:
@@ -739,7 +835,7 @@ def _process_tools_arg(plot, tools, tooltips=None):
             if isinstance(tool, Tool):
                 tool_objs.append(tool)
             elif isinstance(tool, str):
-                temp_tool_str += tool + ','
+                temp_tool_str += tool + ","
             else:
                 raise ValueError("tool should be a string or an instance of Tool class")
         tools = temp_tool_str
@@ -754,7 +850,8 @@ def _process_tools_arg(plot, tools, tooltips=None):
         tool_map[tool] = tool_obj
 
     for typename, group in itertools.groupby(
-            sorted(tool.__class__.__name__ for tool in tool_objs)):
+        sorted(tool.__class__.__name__ for tool in tool_objs)
+    ):
         if len(list(group)) > 1:
             repeated_tools.append(typename)
 
@@ -772,7 +869,9 @@ def _process_tools_arg(plot, tools, tooltips=None):
     return tool_objs, tool_map
 
 
-def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap):
+def _process_active_tools(
+    toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap
+):
     """ Adds tools to the plot object
 
     Args:
@@ -789,33 +888,50 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active
     Note:
         This function sets properties on Toolbar
     """
-    if active_drag in ['auto', None] or isinstance(active_drag, Tool):
+    if active_drag in ["auto", None] or isinstance(active_drag, Tool):
         toolbar.active_drag = active_drag
     elif active_drag in tool_map:
         toolbar.active_drag = tool_map[active_drag]
     else:
-        raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
+        raise ValueError(
+            "Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument"
+            % active_drag
+        )
 
-    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all(isinstance(t, Tool) for t in active_inspect):
+    if (
+        active_inspect in ["auto", None]
+        or isinstance(active_inspect, Tool)
+        or all(isinstance(t, Tool) for t in active_inspect)
+    ):
         toolbar.active_inspect = active_inspect
     elif active_inspect in tool_map:
         toolbar.active_inspect = tool_map[active_inspect]
     else:
-        raise ValueError("Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll)
+        raise ValueError(
+            "Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument"
+            % active_scroll
+        )
 
-    if active_scroll in ['auto', None] or isinstance(active_scroll, Tool):
+    if active_scroll in ["auto", None] or isinstance(active_scroll, Tool):
         toolbar.active_scroll = active_scroll
     elif active_scroll in tool_map:
         toolbar.active_scroll = tool_map[active_scroll]
     else:
-        raise ValueError("Got unknown %r for 'active_scroll', which was not a string supplied in 'tools' argument" % active_scroll)
+        raise ValueError(
+            "Got unknown %r for 'active_scroll', which was not a string supplied in 'tools' argument"
+            % active_scroll
+        )
 
-    if active_tap in ['auto', None] or isinstance(active_tap, Tool):
+    if active_tap in ["auto", None] or isinstance(active_tap, Tool):
         toolbar.active_tap = active_tap
     elif active_tap in tool_map:
         toolbar.active_tap = tool_map[active_tap]
     else:
-        raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
+        raise ValueError(
+            "Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument"
+            % active_tap
+        )
+
 
 def _get_argspecs(glyphclass):
     argspecs = OrderedDict()
@@ -825,13 +941,16 @@ def _get_argspecs(glyphclass):
 
         # running python with -OO will discard docstrings -> __doc__ is None
         if descriptor.__doc__:
-            spec['desc'] = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
+            spec["desc"] = "\n        ".join(
+                textwrap.dedent(descriptor.__doc__).split("\n")
+            )
         else:
-            spec['desc'] = ""
-        spec['default'] = descriptor.class_default(glyphclass)
-        spec['type'] = descriptor.property._sphinx_type()
+            spec["desc"] = ""
+        spec["default"] = descriptor.class_default(glyphclass)
+        spec["type"] = descriptor.property._sphinx_type()
         argspecs[arg] = spec
     return argspecs
+
 
 # This template generates the following:
 #
@@ -845,6 +964,7 @@ def %s(self, %s, **kwargs):
     return func(self, **kwargs)
 """
 
+
 def _get_sigfunc(func_name, func, argspecs):
     # This code is to wrap the generic func(*args, **kw) glyph method so that
     # a much better signature is available to users. E.g., for ``square`` we have:
@@ -854,10 +974,10 @@ def _get_sigfunc(func_name, func, argspecs):
     # which provides descriptive names for positional args, as well as any defaults
     func_args_with_defaults = []
     for arg, spec in argspecs.items():
-        if spec['default'] is None:
+        if spec["default"] is None:
             func_args_with_defaults.append(arg)
         else:
-            func_args_with_defaults.append("%s=%r" % (arg, spec['default']))
+            func_args_with_defaults.append("%s=%r" % (arg, spec["default"]))
     args_text = ", ".join(func_args_with_defaults)
     kwargs_assign_text = "\n".join("    kwargs[%r] = %s" % (x, x) for x in argspecs)
     func_text = _sigfunc_template % (func_name, args_text, kwargs_assign_text)
@@ -865,6 +985,7 @@ def _get_sigfunc(func_name, func, argspecs):
     func_globals = {}
     eval(func_code, {"func": func}, func_globals)
     return func_globals[func_name]
+
 
 _arg_template = """    %s (%s) : %s
         (default: %r)
@@ -894,16 +1015,18 @@ Returns:
     GlyphRenderer
 """
 
+
 def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
     func.__name__ = glyphclass.__name__
 
-    omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+    omissions = {"js_event_callbacks", "js_property_callbacks", "subscribed_events"}
 
     kwlines = []
     kws = glyphclass.properties() - set(argspecs)
     for kw in kws:
         # these are not really useful, and should also really be private, just skip them
-        if kw in omissions: continue
+        if kw in omissions:
+            continue
 
         descriptor = getattr(glyphclass, kw)
         typ = descriptor.property._sphinx_type()
@@ -911,76 +1034,103 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
             desc = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
             desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, descriptor.class_default(glyphclass)))
-    extra_kws = getattr(glyphclass, '_extra_kws', {})
+        kwlines.append(
+            _arg_template % (kw, typ, desc, descriptor.class_default(glyphclass))
+        )
+    extra_kws = getattr(glyphclass, "_extra_kws", {})
     for kw, (typ, desc) in extra_kws.items():
         kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
     kwlines.sort()
 
     arglines = []
     for arg, spec in argspecs.items():
-        arglines.append(_arg_template % (arg, spec['type'], spec['desc'], spec['default']))
+        arglines.append(
+            _arg_template % (arg, spec["type"], spec["desc"], spec["default"])
+        )
 
     mod = "markers" if issubclass(glyphclass, Marker) else "glyphs"
-    func.__doc__ = _doc_template % (mod, func.__name__, "\n".join(arglines), "\n".join(kwlines))
+    func.__doc__ = _doc_template % (
+        mod,
+        func.__name__,
+        "\n".join(arglines),
+        "\n".join(kwlines),
+    )
     if extra_docs:
         func.__doc__ += extra_docs
 
-def _glyph_function(glyphclass, extra_docs=None):
 
+def _glyph_function(glyphclass, extra_docs=None):
     def func(self, **kwargs):
 
         # Convert data source, if necessary
-        is_user_source = kwargs.get('source', None) is not None
+        is_user_source = kwargs.get("source", None) is not None
         if is_user_source:
-            source = kwargs['source']
+            source = kwargs["source"]
             if not isinstance(source, ColumnarDataSource):
                 try:
                     # try converting the soruce to ColumnDataSource
                     source = ColumnDataSource(source)
                 except ValueError as err:
                     msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
-                        curr_type=str(type(source)),
-                        err=err.message
+                        curr_type=str(type(source)), err=err.message
                     )
                     raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
                 # update reddered_kws so that others can use the new source
-                kwargs['source'] = source
+                kwargs["source"] = source
 
         # Save off legend kwargs before we get going
         legend_kwarg = _pop_legend_kwarg(kwargs)
 
         # Need to check if user source is present before _pop_renderer_args
         renderer_kws = _pop_renderer_args(kwargs)
-        source = renderer_kws['data_source']
+        source = renderer_kws["data_source"]
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_visuals(glyphclass, kwargs)
         incompatible_literal_spec_values = []
-        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
-        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+        incompatible_literal_spec_values += _process_sequence_literals(
+            glyphclass, kwargs, source, is_user_source
+        )
+        incompatible_literal_spec_values += _process_sequence_literals(
+            glyphclass, glyph_ca, source, is_user_source
+        )
         if incompatible_literal_spec_values:
-            raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
+            raise RuntimeError(
+                _GLYPH_SOURCE_MSG
+                % nice_join(incompatible_literal_spec_values, conjuction="and")
+            )
 
         # handle the nonselection glyph, we always set one
-        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, trait_defaults={'alpha':0.1})
+        nsglyph_ca = _pop_visuals(
+            glyphclass,
+            kwargs,
+            prefix="nonselection_",
+            defaults=glyph_ca,
+            trait_defaults={"alpha": 0.1},
+        )
 
         # handle the selection glyph, if any properties were given
-        if any(x.startswith('selection_') for x in kwargs):
-            sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=glyph_ca)
+        if any(x.startswith("selection_") for x in kwargs):
+            sglyph_ca = _pop_visuals(
+                glyphclass, kwargs, prefix="selection_", defaults=glyph_ca
+            )
         else:
             sglyph_ca = None
 
         # handle the hover glyph, if any properties were given
-        if any(x.startswith('hover_') for x in kwargs):
-            hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=glyph_ca)
+        if any(x.startswith("hover_") for x in kwargs):
+            hglyph_ca = _pop_visuals(
+                glyphclass, kwargs, prefix="hover_", defaults=glyph_ca
+            )
         else:
             hglyph_ca = None
 
         # handle the mute glyph, if any properties were given
-        if any(x.startswith('muted_') for x in kwargs):
-            mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_ca)
+        if any(x.startswith("muted_") for x in kwargs):
+            mglyph_ca = _pop_visuals(
+                glyphclass, kwargs, prefix="muted_", defaults=glyph_ca
+            )
         else:
             mglyph_ca = None
 
@@ -990,12 +1140,14 @@ def _glyph_function(glyphclass, extra_docs=None):
         hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
         mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
 
-        glyph_renderer = GlyphRenderer(glyph=glyph,
-                                       nonselection_glyph=nsglyph,
-                                       selection_glyph=sglyph,
-                                       hover_glyph=hglyph,
-                                       muted_glyph=mglyph,
-                                       **renderer_kws)
+        glyph_renderer = GlyphRenderer(
+            glyph=glyph,
+            nonselection_glyph=nsglyph,
+            selection_glyph=sglyph,
+            hover_glyph=hglyph,
+            muted_glyph=mglyph,
+            **renderer_kws,
+        )
 
         if legend_kwarg:
             _update_legend(self, legend_kwarg, glyph_renderer)
@@ -1014,6 +1166,7 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     return sigfunc
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

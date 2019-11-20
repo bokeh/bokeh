@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide property types for Bokeh models
+# -----------------------------------------------------------------------------
+""" Provide property types for Bokeh models
 
 Properties are objects that can be assigned as class attributes on Bokeh
 models, to provide automatic serialization, validation, and documentation.
@@ -162,177 +162,118 @@ to control when type validation occurs.
 .. autoclass:: validate
 .. autofunction:: without_property_validation
 
-'''
-#-----------------------------------------------------------------------------
+"""
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Angle',
-    'AngleSpec',
-    'Any',
-    'AnyRef',
-    'Array',
-    'Auto',
-    'Bool',
-    'Byte',
-    'Color',
-    'ColorHex',
-    'ColorSpec',
-    'ColumnData',
-    'Complex',
-    'DashPattern',
-    'DataDistanceSpec',
-    'DataSpec',
-    'Date',
-    'Datetime',
-    'Dict',
-    'DistanceSpec',
-    'Either',
-    'Enum',
-    'Float',
-    'FontSize',
-    'FontSizeSpec',
-    'HatchPatternSpec',
-    'HatchPatternType',
-    'Image',
-    'Include',
-    'Instance',
-    'Int',
-    'Interval',
-    'JSON',
-    'List',
-    'MarkerSpec',
-    'MarkerType',
-    'MinMaxBounds',
-    'NonNegativeInt',
-    'NumberSpec',
-    'Override',
-    'PandasDataFrame',
-    'PandasGroupBy',
-    'Percent',
-    'PositiveInt',
-    'RGB',
-    'Regex',
-    'RelativeDelta',
-    'ScreenDistanceSpec',
-    'Seq',
-    'Size',
-    'String',
-    'StringSpec',
-    'Struct',
-    'TimeDelta',
-    'Tuple',
-    'UnitsSpec',
-    'expr',
-    'field',
-    'validate',
-    'value',
-    'without_property_validation'
+__all__ = (  # noqa: F405
+    "Angle",
+    "AngleSpec",
+    "Any",
+    "AnyRef",
+    "Array",
+    "Auto",
+    "Bool",
+    "Byte",
+    "Color",
+    "ColorHex",
+    "ColorSpec",
+    "ColumnData",
+    "Complex",
+    "DashPattern",
+    "DataDistanceSpec",
+    "DataSpec",
+    "Date",
+    "Datetime",
+    "Dict",
+    "DistanceSpec",
+    "Either",
+    "Enum",
+    "Float",
+    "FontSize",
+    "FontSizeSpec",
+    "HatchPatternSpec",
+    "HatchPatternType",
+    "Image",
+    "Include",
+    "Instance",
+    "Int",
+    "Interval",
+    "JSON",
+    "List",
+    "MarkerSpec",
+    "MarkerType",
+    "MinMaxBounds",
+    "NonNegativeInt",
+    "NumberSpec",
+    "Override",
+    "PandasDataFrame",
+    "PandasGroupBy",
+    "Percent",
+    "PositiveInt",
+    "RGB",
+    "Regex",
+    "RelativeDelta",
+    "ScreenDistanceSpec",
+    "Seq",
+    "Size",
+    "String",
+    "StringSpec",
+    "Struct",
+    "TimeDelta",
+    "Tuple",
+    "UnitsSpec",
+    "expr",
+    "field",
+    "validate",
+    "value",
+    "without_property_validation",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-from .property.any import Any; Any
-from .property.any import AnyRef; AnyRef
+from .property.any import *  # noqa isort:skip
+from .property.auto import *  # noqa isort:skip
+from .property.color import *  # noqa isort:skip
+from .property.container import *  # noqa isort:skip
+from .property.dataspec import *  # noqa isort:skip
+from .property.datetime import *  # noqa isort:skip
+from .property.either import *  # noqa isort:skip
+from .property.enum import *  # noqa isort:skip
+from .property.include import *  # noqa isort:skip
+from .property.instance import *  # noqa isort:skip
+from .property.json import *  # noqa isort:skip
+from .property.numeric import *  # noqa isort:skip
+from .property.override import *  # noqa isort:skip
+from .property.pandas import *  # noqa isort:skip
+from .property.primitive import *  # noqa isort:skip
+from .property.regex import *  # noqa isort:skip
+from .property.struct import *  # noqa isort:skip
+from .property.visual import *  # noqa isort:skip
+from .property.validation import *  # noqa isort:skip
 
-from .property.auto import Auto; Auto
-
-from .property.color import Color; Color
-from .property.color import RGB; RGB
-from .property.color import ColorHex; ColorHex
-
-from .property.container import Array; Array
-from .property.container import ColumnData; ColumnData
-from .property.container import Dict; Dict
-from .property.container import List; List
-from .property.container import Seq; Seq
-from .property.container import Tuple; Tuple
-from .property.container import RelativeDelta; RelativeDelta
-
-from .property.dataspec import AngleSpec; AngleSpec
-from .property.dataspec import ColorSpec; ColorSpec
-from .property.dataspec import DataSpec; DataSpec
-from .property.dataspec import DataDistanceSpec; DataDistanceSpec
-from .property.dataspec import DistanceSpec; DistanceSpec
-from .property.dataspec import expr; expr
-from .property.dataspec import field; field
-from .property.dataspec import FontSizeSpec; FontSizeSpec
-from .property.dataspec import HatchPatternSpec; HatchPatternSpec
-from .property.dataspec import MarkerSpec; MarkerSpec
-from .property.dataspec import NumberSpec; NumberSpec
-from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
-from .property.dataspec import StringSpec; StringSpec
-from .property.dataspec import UnitsSpec; UnitsSpec
-from .property.dataspec import value; value
-
-from .property.datetime import Date; Date
-from .property.datetime import Datetime; Datetime
-from .property.datetime import TimeDelta; TimeDelta
-
-from .property.either import Either; Either
-
-from .property.enum import Enum; Enum
-
-from .property.include import Include ; Include
-
-from .property.instance import Instance; Instance
-
-from .property.json import JSON; JSON
-
-from .property.numeric import Angle; Angle
-from .property.numeric import Byte; Byte
-from .property.numeric import Interval; Interval
-from .property.numeric import NonNegativeInt; NonNegativeInt
-from .property.numeric import Percent; Percent
-from .property.numeric import PositiveInt; PositiveInt
-from .property.numeric import Size; Size
-
-from .property.override import Override ; Override
-
-from .property.pandas import PandasDataFrame ; PandasDataFrame
-from .property.pandas import PandasGroupBy ; PandasGroupBy
-
-from .property.primitive import Bool; Bool
-from .property.primitive import Complex; Complex
-from .property.primitive import Int; Int
-from .property.primitive import Float; Float
-from .property.primitive import String; String
-
-from .property.regex import Regex; Regex
-
-from .property.struct import Struct; Struct
-
-from .property.visual import DashPattern; DashPattern
-from .property.visual import FontSize; FontSize
-from .property.visual import HatchPatternType; HatchPatternType
-from .property.visual import Image; Image
-from .property.visual import MinMaxBounds; MinMaxBounds
-from .property.visual import MarkerType; MarkerType
-
-from .property.validation import validate; validate
-from .property.validation import without_property_validation; without_property_validation
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

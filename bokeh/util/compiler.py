@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide functions and classes to help with various JS and CSS compilation.
+# -----------------------------------------------------------------------------
+""" Provide functions and classes to help with various JS and CSS compilation.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import hashlib
@@ -34,45 +35,49 @@ from ..model import Model
 from ..settings import settings
 from .string import snakify
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'AttrDict',
-    'bundle_all_models',
-    'bundle_models',
-    'calc_cache_key',
-    'CompilationError',
-    'CustomModel',
-    'FromFile',
-    'get_cache_hook',
-    'Implementation',
-    'Inline',
-    'JavaScript',
-    'Less',
-    'nodejs_compile',
-    'nodejs_version',
-    'npmjs_version',
-    'set_cache_hook',
-    'TypeScript',
+    "AttrDict",
+    "bundle_all_models",
+    "bundle_models",
+    "calc_cache_key",
+    "CompilationError",
+    "CustomModel",
+    "FromFile",
+    "get_cache_hook",
+    "Implementation",
+    "Inline",
+    "JavaScript",
+    "Less",
+    "nodejs_compile",
+    "nodejs_version",
+    "npmjs_version",
+    "set_cache_hook",
+    "TypeScript",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class AttrDict(dict):
-    ''' Provide a dict subclass that supports access by named attributes.
+    """ Provide a dict subclass that supports access by named attributes.
 
-    '''
+    """
+
     def __getattr__(self, key):
         return self[key]
 
-class CompilationError(RuntimeError):
-    ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
-    '''
+class CompilationError(RuntimeError):
+    """ A ``RuntimeError`` subclass for reporting JS compilation errors.
+
+    """
+
     def __init__(self, error):
         super().__init__()
         if isinstance(error, dict):
@@ -87,18 +92,25 @@ class CompilationError(RuntimeError):
     def __str__(self):
         return "\n" + self.text.strip()
 
+
 bokehjs_dir = settings.bokehjsdir()
 nodejs_min_version = (10, 13, 0)
+
 
 def nodejs_version():
     return _version(_run_nodejs)
 
+
 def npmjs_version():
     return _version(_run_npmjs)
 
+
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
-    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
+    output = _run_nodejs(
+        [compilejs_script],
+        dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir),
+    )
     lines = output.split("\n")
     for i, line in enumerate(lines):
         if not line.startswith("LOG"):
@@ -111,14 +123,17 @@ def nodejs_compile(code, lang="javascript", file=None):
     else:
         return dict(error=obj)
 
-class Implementation(object):
-    ''' Base class for representing Bokeh custom model implementations.
 
-    '''
+class Implementation(object):
+    """ Base class for representing Bokeh custom model implementations.
+
+    """
+
     file = None
 
+
 class Inline(Implementation):
-    ''' Base class for representing Bokeh custom model implementations that may
+    """ Base class for representing Bokeh custom model implementations that may
     be given as inline code in some language.
 
     Args:
@@ -128,10 +143,12 @@ class Inline(Implementation):
         file (str, optional)
             A file path to a file containing the source text (default: None)
 
-    '''
+    """
+
     def __init__(self, code, file=None):
         self.code = code
         self.file = file
+
 
 class TypeScript(Inline):
     ''' An implementation for a Bokeh custom model in TypeScript
@@ -144,9 +161,11 @@ class TypeScript(Inline):
                 __implementation__ = TypeScript(""" <TypeScript code> """)
 
     '''
+
     @property
     def lang(self):
         return "typescript"
+
 
 class JavaScript(Inline):
     ''' An implementation for a Bokeh custom model in JavaScript
@@ -159,26 +178,31 @@ class JavaScript(Inline):
                 __implementation__ = JavaScript(""" <JavaScript code> """)
 
     '''
+
     @property
     def lang(self):
         return "javascript"
 
-class Less(Inline):
-    ''' An implementation of a Less CSS style sheet.
 
-    '''
+class Less(Inline):
+    """ An implementation of a Less CSS style sheet.
+
+    """
+
     @property
     def lang(self):
         return "less"
 
+
 class FromFile(Implementation):
-    ''' A custom model implementation read from a separate source file.
+    """ A custom model implementation read from a separate source file.
 
     Args:
         path (str) :
             The path to the file containing the extension source code
 
-    '''
+    """
+
     def __init__(self, path):
         with io.open(path, encoding="utf-8") as f:
             self.code = f.read()
@@ -193,13 +217,16 @@ class FromFile(Implementation):
         if self.file.endswith((".css", ".less")):
             return "less"
 
+
 #: recognized extensions that can be compiled
 exts = (".ts", ".js", ".css", ".less")
 
-class CustomModel(object):
-    ''' Represent a custom (user-defined) Bokeh model.
 
-    '''
+class CustomModel(object):
+    """ Represent a custom (user-defined) Bokeh model.
+
+    """
+
     def __init__(self, cls):
         self.cls = cls
 
@@ -256,19 +283,22 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
+
 def get_cache_hook():
-    '''Returns the current cache hook used to look up the compiled
-       code given the CustomModel and Implementation'''
+    """Returns the current cache hook used to look up the compiled
+       code given the CustomModel and Implementation"""
     return _CACHING_IMPLEMENTATION
 
+
 def set_cache_hook(hook):
-    '''Sets a compiled model cache hook used to look up the compiled
-       code given the CustomModel and Implementation'''
+    """Sets a compiled model cache hook used to look up the compiled
+       code given the CustomModel and Implementation"""
     global _CACHING_IMPLEMENTATION
     _CACHING_IMPLEMENTATION = hook
 
+
 def calc_cache_key(custom_models):
-    ''' Generate a key to cache a custom extension implementation with.
+    """ Generate a key to cache a custom extension implementation with.
 
     There is no metadata other than the Model classes, so this is the only
     base to generate a cache key.
@@ -276,12 +306,14 @@ def calc_cache_key(custom_models):
     We build the model keys from the list of ``model.full_name``. This is
     not ideal but possibly a better solution can be found found later.
 
-    '''
+    """
     model_names = {model.full_name for model in custom_models.values()}
-    encoded_names = ",".join(sorted(model_names)).encode('utf-8')
+    encoded_names = ",".join(sorted(model_names)).encode("utf-8")
     return hashlib.sha256(encoded_names).hexdigest()
 
+
 _bundle_cache = {}
+
 
 def bundle_models(models):
     """Create a bundle of selected `models`. """
@@ -300,20 +332,21 @@ def bundle_models(models):
             sys.exit(1)
     return bundle
 
+
 def bundle_all_models():
     """Create a bundle of all models. """
     return bundle_models(None)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-_plugin_umd = \
-"""\
+_plugin_umd = """\
 (function(root, factory) {
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
@@ -323,8 +356,7 @@ _plugin_umd = \
 """
 
 # XXX: this is (almost) the same as bokehjs/src/js/plugin-prelude.js
-_plugin_prelude = \
-"""\
+_plugin_prelude = """\
 (function outer(modules, entry) {
   if (Bokeh != null) {
     return Bokeh.register_plugin(modules, entry);
@@ -334,8 +366,7 @@ _plugin_prelude = \
 })
 """
 
-_plugin_template = \
-"""\
+_plugin_template = """\
 %(prelude)s\
 ({
   "custom/main": function(require, module, exports) {
@@ -349,8 +380,7 @@ _plugin_template = \
 }, "custom/main");
 """
 
-_style_template = \
-"""\
+_style_template = """\
 (function() {
   var head = document.getElementsByTagName('head')[0];
   var style = document.createElement('style');
@@ -365,11 +395,12 @@ _style_template = \
 }());
 """
 
-_export_template = \
-""""%(name)s": require("%(module)s").%(name)s"""
+_export_template = """"%(name)s": require("%(module)s").%(name)s"""
 
-_module_template = \
-""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+_module_template = (
+    """"%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+)
+
 
 def _detect_nodejs():
     if settings.nodejs_path() is not None:
@@ -397,11 +428,16 @@ def _detect_nodejs():
 
     # if we've reached here, no valid version was found
     version = ".".join(map(str, nodejs_min_version))
-    raise RuntimeError('node.js v%s or higher is needed to allow compilation of custom models ' % version +
-                       '("conda install nodejs" or follow https://nodejs.org/en/download/)')
+    raise RuntimeError(
+        "node.js v%s or higher is needed to allow compilation of custom models "
+        % version
+        + '("conda install nodejs" or follow https://nodejs.org/en/download/)'
+    )
+
 
 _nodejs = None
 _npmjs = None
+
 
 def _nodejs_path():
     global _nodejs
@@ -409,31 +445,39 @@ def _nodejs_path():
         _nodejs = _detect_nodejs()
     return _nodejs
 
+
 def _npmjs_path():
     global _npmjs
     if _npmjs is None:
         _npmjs = join(dirname(_nodejs_path()), "npm")
         if sys.platform == "win32":
-            _npmjs += '.cmd'
+            _npmjs += ".cmd"
     return _npmjs
+
 
 def _crlf_cr_2_lf(s):
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
+
 def _run(app, argv, input=None):
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
+    (stdout, errout) = proc.communicate(
+        input=None if input is None else json.dumps(input).encode()
+    )
 
     if proc.returncode != 0:
-        raise RuntimeError(errout.decode('utf-8'))
+        raise RuntimeError(errout.decode("utf-8"))
     else:
-        return _crlf_cr_2_lf(stdout.decode('utf-8'))
+        return _crlf_cr_2_lf(stdout.decode("utf-8"))
+
 
 def _run_nodejs(argv, input=None):
     return _run(_nodejs_path(), argv, input)
 
+
 def _run_npmjs(argv, input=None):
     return _run(_npmjs_path(), argv, input)
+
 
 def _version(run_app):
     try:
@@ -443,11 +487,14 @@ def _version(run_app):
     else:
         return version.strip()
 
+
 def _model_cache_no_op(model, implementation):
     """Return cached compiled implementation"""
     return None
 
+
 _CACHING_IMPLEMENTATION = _model_cache_no_op
+
 
 def _get_custom_models(models):
     """Returns CustomModels for models with a custom `__implementation__`"""
@@ -466,6 +513,7 @@ def _get_custom_models(models):
         return None
     return custom_models
 
+
 def _compile_models(custom_models):
     """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
@@ -477,7 +525,10 @@ def _compile_models(custom_models):
 
     if dependencies:
         dependencies = sorted(dependencies, key=lambda name_version: name_version[0])
-        _run_npmjs(["install", "--no-progress"] + [ name + "@" + version for (name, version) in dependencies ])
+        _run_npmjs(
+            ["install", "--no-progress"]
+            + [name + "@" + version for (name, version) in dependencies]
+        )
 
     for model in ordered_models:
         impl = model.implementation
@@ -491,6 +542,7 @@ def _compile_models(custom_models):
         custom_impls[model.full_name] = compiled
 
     return custom_impls
+
 
 def _bundle_models(custom_models):
     """ Create a JavaScript bundle with selected `models`. """
@@ -514,6 +566,7 @@ def _bundle_models(custom_models):
         resolved = {}
         for module in to_resolve:
             if module.startswith(("./", "../")):
+
                 def mkpath(module, ext=""):
                     return abspath(join(root, *module.split("/")) + ext)
 
@@ -542,7 +595,7 @@ def _bundle_models(custom_models):
                     code = compiled.code
                     deps = compiled.deps
 
-                sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
+                sig = hashlib.sha256(code.encode("utf-8")).hexdigest()
                 resolved[module] = sig
 
                 deps_map = resolve_deps(deps, dirname(path))
@@ -581,12 +634,20 @@ def _bundle_models(custom_models):
 
     sep = ",\n"
 
-    exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
-    modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in modules)
+    exports = sep.join(
+        _export_template % dict(name=name, module=module) for (name, module) in exports
+    )
+    modules = sep.join(
+        _module_template % dict(module=module, source=code)
+        for (module, code) in modules
+    )
 
-    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    content = _plugin_template % dict(
+        prelude=_plugin_prelude, exports=exports, modules=modules
+    )
     return _plugin_umd % dict(content=content)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

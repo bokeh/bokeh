@@ -1,19 +1,20 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
@@ -47,25 +48,21 @@ from .helpers import (
     _single_stack,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
-__all__ = (
-    'Figure',
-    'figure',
-    'FigureOptions',
-    'markers'
-)
+__all__ = ("Figure", "figure", "FigureOptions", "markers")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Figure(Plot):
-    ''' Create a new Figure for plotting.
+    """ Create a new Figure for plotting.
 
     A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
@@ -139,27 +136,31 @@ class Figure(Plot):
     .. bokeh-options:: FigureOptions
         :module: bokeh.plotting.figure
 
-    '''
+    """
 
     __subtype__ = "Figure"
     __view_model__ = "Plot"
 
     def __init__(self, *arg, **kw):
 
-        if 'plot_width' in kw and 'width' in kw:
-            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
-        if 'plot_height' in kw and 'height' in kw:
-            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-        if 'height' in kw:
-            kw['plot_height'] = kw.pop('height')
-        if 'width' in kw:
-            kw['plot_width'] = kw.pop('width')
+        if "plot_width" in kw and "width" in kw:
+            raise ValueError(
+                "Figure called with both 'plot_width' and 'width' supplied, supply only one"
+            )
+        if "plot_height" in kw and "height" in kw:
+            raise ValueError(
+                "Figure called with both 'plot_height' and 'height' supplied, supply only one"
+            )
+        if "height" in kw:
+            kw["plot_height"] = kw.pop("height")
+        if "width" in kw:
+            kw["plot_width"] = kw.pop("width")
 
         opts = FigureOptions(kw)
 
         title = kw.get("title", None)
         if isinstance(title, str):
-            kw['title'] = Title(text=title)
+            kw["title"] = Title(text=title)
 
         super().__init__(*arg, **kw)
 
@@ -169,16 +170,41 @@ class Figure(Plot):
         self.x_scale = _get_scale(self.x_range, opts.x_axis_type)
         self.y_scale = _get_scale(self.y_range, opts.y_axis_type)
 
-        _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
-        _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
+        _process_axis_and_grid(
+            self,
+            opts.x_axis_type,
+            opts.x_axis_location,
+            opts.x_minor_ticks,
+            opts.x_axis_label,
+            self.x_range,
+            0,
+        )
+        _process_axis_and_grid(
+            self,
+            opts.y_axis_type,
+            opts.y_axis_location,
+            opts.y_minor_ticks,
+            opts.y_axis_label,
+            self.y_range,
+            1,
+        )
 
         tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+        _process_active_tools(
+            self.toolbar,
+            tool_map,
+            opts.active_drag,
+            opts.active_inspect,
+            opts.active_scroll,
+            opts.active_tap,
+        )
 
     annular_wedge = _glyph_function(_glyphs.AnnularWedge)
 
-    annulus = _glyph_function(_glyphs.Annulus, """
+    annulus = _glyph_function(
+        _glyphs.Annulus,
+        """
 Examples:
 
         .. bokeh-plot::
@@ -192,11 +218,14 @@ Examples:
 
             show(plot)
 
-    """)
+    """,
+    )
 
     arc = _glyph_function(_glyphs.Arc)
 
-    asterisk = _glyph_function(_markers.Asterisk, """
+    asterisk = _glyph_function(
+        _markers.Asterisk,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -209,11 +238,14 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
     bezier = _glyph_function(_glyphs.Bezier)
 
-    circle = _glyph_function(_markers.Circle, """
+    circle = _glyph_function(
+        _markers.Circle,
+        """
 .. note::
     Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
     defaults to data units.
@@ -230,9 +262,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    circle_cross = _glyph_function(_markers.CircleCross, """
+    circle_cross = _glyph_function(
+        _markers.CircleCross,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -246,9 +281,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    circle_x = _glyph_function(_markers.CircleX, """
+    circle_x = _glyph_function(
+        _markers.CircleX,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -262,9 +300,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    cross = _glyph_function(_markers.Cross, """
+    cross = _glyph_function(
+        _markers.Cross,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -278,9 +319,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    dash = _glyph_function(_markers.Dash, """
+    dash = _glyph_function(
+        _markers.Dash,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -294,9 +338,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    diamond = _glyph_function(_markers.Diamond, """
+    diamond = _glyph_function(
+        _markers.Diamond,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -310,9 +357,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    diamond_cross = _glyph_function(_markers.DiamondCross, """
+    diamond_cross = _glyph_function(
+        _markers.DiamondCross,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -326,9 +376,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    harea = _glyph_function(_glyphs.HArea, """
+    harea = _glyph_function(
+        _glyphs.HArea,
+        """
     Examples:
 
    .. bokeh-plot::
@@ -342,9 +395,12 @@ Examples:
 
         show(plot)
 
-    """)
+    """,
+    )
 
-    hbar = _glyph_function(_glyphs.HBar, """
+    hbar = _glyph_function(
+        _glyphs.HBar,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -356,9 +412,12 @@ Examples:
         plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
 
         show(plot)
-""")
+""",
+    )
 
-    ellipse = _glyph_function(_glyphs.Ellipse, """
+    ellipse = _glyph_function(
+        _glyphs.Ellipse,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -372,9 +431,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    hex = _glyph_function(_markers.Hex, """
+    hex = _glyph_function(
+        _markers.Hex,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -387,9 +449,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    hex_tile = _glyph_function(_glyphs.HexTile, """
+    hex_tile = _glyph_function(
+        _glyphs.HexTile,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -402,26 +467,35 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    image = _glyph_function(_glyphs.Image, """
+    image = _glyph_function(
+        _glyphs.Image,
+        """
 .. note::
     If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
     exception will be raised. If neither is passed, then the ``Greys9``
     palette will be used as a default.
 
-""")
+""",
+    )
 
-    image_rgba = _glyph_function(_glyphs.ImageRGBA, """
+    image_rgba = _glyph_function(
+        _glyphs.ImageRGBA,
+        """
 .. note::
     The ``image_rgba`` method accepts images as a two-dimensional array of RGBA
     values (encoded as 32-bit integers).
 
-""")
+""",
+    )
 
     image_url = _glyph_function(_glyphs.ImageURL)
 
-    inverted_triangle = _glyph_function(_markers.InvertedTriangle, """
+    inverted_triangle = _glyph_function(
+        _markers.InvertedTriangle,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -434,9 +508,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    line = _glyph_function(_glyphs.Line, """
+    line = _glyph_function(
+        _glyphs.Line,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -449,9 +526,12 @@ Examples:
 
        show(p)
 
-""")
+""",
+    )
 
-    multi_line = _glyph_function(_glyphs.MultiLine, """
+    multi_line = _glyph_function(
+        _glyphs.MultiLine,
+        """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -469,9 +549,12 @@ Examples:
 
        show(p)
 
-""")
+""",
+    )
 
-    multi_polygons = _glyph_function(_glyphs.MultiPolygons, """
+    multi_polygons = _glyph_function(
+        _glyphs.MultiPolygons,
+        """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is a
     nested array.
@@ -489,9 +572,12 @@ Examples:
                         color=['red', 'green'])
        show(p)
 
-""")
+""",
+    )
 
-    oval = _glyph_function(_glyphs.Oval, """
+    oval = _glyph_function(
+        _glyphs.Oval,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -505,9 +591,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    patch = _glyph_function(_glyphs.Patch, """
+    patch = _glyph_function(
+        _glyphs.Patch,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -520,9 +609,12 @@ Examples:
 
        show(p)
 
-""")
+""",
+    )
 
-    patches = _glyph_function(_glyphs.Patches, """
+    patches = _glyph_function(
+        _glyphs.Patches,
+        """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -540,9 +632,12 @@ Examples:
 
        show(p)
 
-""")
+""",
+    )
 
-    quad = _glyph_function(_glyphs.Quad, """
+    quad = _glyph_function(
+        _glyphs.Quad,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -556,11 +651,14 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
     quadratic = _glyph_function(_glyphs.Quadratic)
 
-    ray = _glyph_function(_glyphs.Ray, """
+    ray = _glyph_function(
+        _glyphs.Ray,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -574,9 +672,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    rect = _glyph_function(_glyphs.Rect, """
+    rect = _glyph_function(
+        _glyphs.Rect,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -590,9 +691,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    step = _glyph_function(_glyphs.Step, """
+    step = _glyph_function(
+        _glyphs.Step,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -605,10 +709,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-
-    segment = _glyph_function(_glyphs.Segment, """
+    segment = _glyph_function(
+        _glyphs.Segment,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -623,9 +729,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    square = _glyph_function(_markers.Square, """
+    square = _glyph_function(
+        _markers.Square,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -638,9 +747,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    square_cross = _glyph_function(_markers.SquareCross, """
+    square_cross = _glyph_function(
+        _markers.SquareCross,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -654,9 +766,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    square_x = _glyph_function(_markers.SquareX, """
+    square_x = _glyph_function(
+        _markers.SquareX,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -670,9 +785,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    text = _glyph_function(_glyphs.Text, """
+    text = _glyph_function(
+        _glyphs.Text,
+        """
 .. note::
     The location and angle of the text relative to the ``x``, ``y`` coordinates
     is indicated by the alignment and baseline text properties.
@@ -680,9 +798,12 @@ Examples:
 Returns:
     GlyphRenderer
 
-""")
+""",
+    )
 
-    triangle = _glyph_function(_markers.Triangle, """
+    triangle = _glyph_function(
+        _markers.Triangle,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -696,9 +817,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    varea = _glyph_function(_glyphs.VArea, """
+    varea = _glyph_function(
+        _glyphs.VArea,
+        """
 Examples:
 
    .. bokeh-plot::
@@ -712,9 +836,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    vbar = _glyph_function(_glyphs.VBar, """
+    vbar = _glyph_function(
+        _glyphs.VBar,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -727,9 +854,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    wedge = _glyph_function(_glyphs.Wedge, """
+    wedge = _glyph_function(
+        _glyphs.Wedge,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -743,9 +873,12 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
-    x = _glyph_function(_markers.X, """
+    x = _glyph_function(
+        _markers.X,
+        """
 Examples:
 
     .. bokeh-plot::
@@ -758,14 +891,15 @@ Examples:
 
         show(plot)
 
-""")
+""",
+    )
 
     # -------------------------------------------------------------------------
 
     _scatter = _glyph_function(_markers.Scatter)
 
     def scatter(self, *args, **kwargs):
-        ''' Creates a scatter plot of the given x and y items.
+        """ Creates a scatter plot of the given x and y items.
 
         Args:
             x (str or seq[float]) : values or field names of center x coordinates
@@ -795,7 +929,7 @@ Examples:
             from a data source column, *all* markers including circles may only
             be configured with ``size`` in screen units.
 
-        '''
+        """
         marker_type = kwargs.pop("marker", "circle")
 
         if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:
@@ -810,8 +944,19 @@ Examples:
         else:
             return self._scatter(*args, marker=marker_type, **kwargs)
 
-    def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
-        ''' Perform a simple equal-weight hexagonal binning.
+    def hexbin(
+        self,
+        x,
+        y,
+        size,
+        orientation="pointytop",
+        palette="Viridis256",
+        line_color=None,
+        fill_color=None,
+        aspect_scale=1,
+        **kwargs,
+    ):
+        """ Perform a simple equal-weight hexagonal binning.
 
         A :class:`~bokeh.models._glyphs.HexTile` glyph will be added to display
         the binning. The :class:`~bokeh.models.sources.ColumnDataSource` for
@@ -906,23 +1051,32 @@ Examples:
 
         .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
-        '''
+        """
         from ..util.hex import hexbin
 
         bins = hexbin(x, y, size, orientation, aspect_scale=aspect_scale)
 
         if fill_color is None:
-            fill_color = linear_cmap('c', palette, 0, max(bins.counts))
+            fill_color = linear_cmap("c", palette, 0, max(bins.counts))
 
         source = ColumnDataSource(data=dict(q=bins.q, r=bins.r, c=bins.counts))
 
-        r = self.hex_tile(q="q", r="r", size=size, orientation=orientation, aspect_scale=aspect_scale,
-                          source=source, line_color=line_color, fill_color=fill_color, **kwargs)
+        r = self.hex_tile(
+            q="q",
+            r="r",
+            size=size,
+            orientation=orientation,
+            aspect_scale=aspect_scale,
+            source=source,
+            line_color=line_color,
+            fill_color=fill_color,
+            **kwargs,
+        )
 
         return (r, bins)
 
     def harea_stack(self, stackers, **kw):
-        ''' Generate multiple ``HArea`` renderers for levels stacked left
+        """ Generate multiple ``HArea`` renderers for levels stacked left
         to right.
 
         Args:
@@ -957,14 +1111,14 @@ Examples:
                 p.harea(x1=stack(),       x2=stack('2016'),         y='y', color='blue', source=source, name='2016')
                 p.harea(x1=stack('2016'), x2=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
 
-        '''
+        """
         result = []
         for kw in _double_stack(stackers, "x1", "x2", **kw):
             result.append(self.harea(**kw))
         return result
 
     def hbar_stack(self, stackers, **kw):
-        ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
+        """ Generate multiple ``HBar`` renderers for levels stacked left to right.
 
         Args:
             stackers (seq[str]) : a list of data source field names to stack
@@ -998,14 +1152,14 @@ Examples:
                 p.hbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
                 p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
 
-        '''
+        """
         result = []
         for kw in _double_stack(stackers, "left", "right", **kw):
             result.append(self.hbar(**kw))
         return result
 
     def _line_stack(self, x, y, **kw):
-        ''' Generate multiple ``Line`` renderers for lines stacked vertically
+        """ Generate multiple ``Line`` renderers for lines stacked vertically
         or horizontally.
 
         Args:
@@ -1042,20 +1196,20 @@ Examples:
                 p.line(y=stack('2016'),         x='x', color='blue', source=source, name='2016')
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
-        '''
-        if all(isinstance(val, (list, tuple)) for val in (x,y)):
+        """
+        if all(isinstance(val, (list, tuple)) for val in (x, y)):
             raise ValueError("Only one of x or y may be a list of stackers")
 
         result = []
 
         if isinstance(y, (list, tuple)):
-            kw['x'] = x
+            kw["x"] = x
             for kw in _single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
         if isinstance(x, (list, tuple)):
-            kw['y'] = y
+            kw["y"] = y
             for kw in _single_stack(x, "x", **kw):
                 result.append(self.line(**kw))
             return result
@@ -1063,7 +1217,7 @@ Examples:
         return [self.line(x, y, **kw)]
 
     def hline_stack(self, stackers, **kw):
-        ''' Generate multiple ``Line`` renderers for lines stacked horizontally.
+        """ Generate multiple ``Line`` renderers for lines stacked horizontally.
 
         Args:
             stackers (seq[str]) : a list of data source field names to stack
@@ -1098,11 +1252,11 @@ Examples:
                 p.line(x=stack('2016'),         y='y', color='blue', source=source, name='2016')
                 p.line(x=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
 
-        '''
+        """
         return self._line_stack(x=stackers, **kw)
 
     def varea_stack(self, stackers, **kw):
-        ''' Generate multiple ``VArea`` renderers for levels stacked bottom
+        """ Generate multiple ``VArea`` renderers for levels stacked bottom
         to top.
 
         Args:
@@ -1137,14 +1291,14 @@ Examples:
                 p.varea(y1=stack(),       y2=stack('2016'),         x='x', color='blue', source=source, name='2016')
                 p.varea(y1=stack('2016'), y2=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
-        '''
+        """
         result = []
         for kw in _double_stack(stackers, "y1", "y2", **kw):
             result.append(self.varea(**kw))
         return result
 
     def vbar_stack(self, stackers, **kw):
-        ''' Generate multiple ``VBar`` renderers for levels stacked bottom
+        """ Generate multiple ``VBar`` renderers for levels stacked bottom
         to top.
 
         Args:
@@ -1179,14 +1333,14 @@ Examples:
                 p.vbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
                 p.vbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
 
-        '''
+        """
         result = []
         for kw in _double_stack(stackers, "bottom", "top", **kw):
             result.append(self.vbar(**kw))
         return result
 
     def vline_stack(self, stackers, **kw):
-        ''' Generate multiple ``Line`` renderers for lines stacked vertically.
+        """ Generate multiple ``Line`` renderers for lines stacked vertically.
 
         Args:
             stackers (seq[str]) : a list of data source field names to stack
@@ -1221,11 +1375,11 @@ Examples:
                 p.line(y=stack('2016'),         x='x', color='blue', source=source, name='2016')
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
-        '''
+        """
         return self._line_stack(y=stackers, **kw)
 
     def graph(self, node_source, edge_source, layout_provider, **kwargs):
-        ''' Creates a network graph using the given node, edge and layout provider.
+        """ Creates a network graph using the given node, edge and layout provider.
 
         Args:
             node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
@@ -1243,121 +1397,202 @@ Examples:
 
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
 
-        '''
+        """
         kw = _graph(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
         return graph_renderer
 
+
 def figure(**kwargs):
     return Figure(**kwargs)
+
+
 figure.__doc__ = Figure.__doc__
 
 _MARKER_SHORTCUTS = {
-    "*"  : "asterisk",
-    "+"  : "cross",
-    "o"  : "circle",
-    "ox" : "circle_x",
-    "o+" : "circle_cross",
-    "-"  : "dash",
-    "v"  : "inverted_triangle",
-    "^"  : "triangle",
+    "*": "asterisk",
+    "+": "cross",
+    "o": "circle",
+    "ox": "circle_x",
+    "o+": "circle_cross",
+    "-": "dash",
+    "v": "inverted_triangle",
+    "^": "triangle",
 }
 
+
 def markers():
-    ''' Prints a list of valid marker types for scatter()
+    """ Prints a list of valid marker types for scatter()
 
     Returns:
         None
-    '''
+    """
     print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
     print()
-    print("Shortcuts: \n\n" + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items()))
+    print(
+        "Shortcuts: \n\n"
+        + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items())
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # This class itself is intentionally undocumented (it is used to generate
 # documentation elsewhere)
 class FigureOptions(Options):
 
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    tools = Either(
+        String,
+        Seq(Either(String, Instance(Tool))),
+        default=DEFAULT_TOOLS,
+        help="""
     Tools the plot should start with.
-    """)
+    """,
+    )
 
-    x_range = Any(help="""
+    x_range = Any(
+        help="""
     Customize the x-range of the plot.
-    """)
+    """
+    )
 
-    y_range = Any(help="""
+    y_range = Any(
+        help="""
     Customize the x-range of the plot.
-    """)
+    """
+    )
 
-    x_minor_ticks = Either(Auto, Int, default="auto", help="""
+    x_minor_ticks = Either(
+        Auto,
+        Int,
+        default="auto",
+        help="""
     Number of minor ticks between adjacent x-axis major ticks.
-    """)
+    """,
+    )
 
-    y_minor_ticks = Either(Auto, Int, default="auto", help="""
+    y_minor_ticks = Either(
+        Auto,
+        Int,
+        default="auto",
+        help="""
     Number of minor ticks between adjacent y-axis major ticks.
-    """)
+    """,
+    )
 
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    x_axis_location = Enum(
+        VerticalLocation,
+        default="below",
+        help="""
     Where the x-axis should be located.
-    """)
+    """,
+    )
 
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    y_axis_location = Enum(
+        HorizontalLocation,
+        default="left",
+        help="""
     Where the y-axis should be located.
-    """)
+    """,
+    )
 
-    x_axis_label = String(default="", help="""
+    x_axis_label = String(
+        default="",
+        help="""
     A label for the x-axis.
-    """)
+    """,
+    )
 
-    y_axis_label = String(default="", help="""
+    y_axis_label = String(
+        default="",
+        help="""
     A label for the y-axis.
-    """)
+    """,
+    )
 
-    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
+    active_drag = Either(
+        Auto,
+        String,
+        Instance(Drag),
+        default="auto",
+        help="""
     Which drag tool should initially be active.
-    """)
+    """,
+    )
 
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    active_inspect = Either(
+        Auto,
+        String,
+        Instance(Inspection),
+        Seq(Instance(Inspection)),
+        default="auto",
+        help="""
     Which drag tool should initially be active.
-    """)
+    """,
+    )
 
-    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
+    active_scroll = Either(
+        Auto,
+        String,
+        Instance(Scroll),
+        default="auto",
+        help="""
     Which scroll tool should initially be active.
-    """)
+    """,
+    )
 
-    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
+    active_tap = Either(
+        Auto,
+        String,
+        Instance(Tap),
+        default="auto",
+        help="""
     Which tap tool should initially be active.
-    """)
+    """,
+    )
 
-    x_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    x_axis_type = Either(
+        Auto,
+        Enum("linear", "log", "datetime", "mercator"),
+        default="auto",
+        help="""
     The type of the x-axis.
-    """)
+    """,
+    )
 
-    y_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    y_axis_type = Either(
+        Auto,
+        Enum("linear", "log", "datetime", "mercator"),
+        default="auto",
+        help="""
     The type of the y-axis.
-    """)
+    """,
+    )
 
-    tooltips = Either(String, List(Tuple(String, String)), help="""
+    tooltips = Either(
+        String,
+        List(Tuple(String, String)),
+        help="""
     An optional argument to configure tooltips for the Figure. This argument
     accepts the same values as the ``HoverTool.tooltips`` property. If a hover
     tool is specified in the ``tools`` argument, this value will override that
     hover tools ``tooltips`` value. If no hover tool is specified in the
     ``tools`` argument, then passing tooltips here will cause one to be created
     and added.
-    """)
+    """,
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

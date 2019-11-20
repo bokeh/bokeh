@@ -1,39 +1,38 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide the ``check_integrity`` function.
+# -----------------------------------------------------------------------------
+""" Provide the ``check_integrity`` function.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 __silencers__ = set()
 
-__all__ = (
-    'check_integrity',
-    'silence'
-)
+__all__ = ("check_integrity", "silence")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def silence(warning, silence=True):
-    ''' Silence a particular warning on all Bokeh models.
+    """ Silence a particular warning on all Bokeh models.
 
     Args:
         warning (Warning) : Bokeh warning to silence
@@ -60,10 +59,12 @@ def silence(warning, silence=True):
         >>> bokeh.core.validation.silence(EMPTY_LAYOUT, False)
         set()
 
-    '''
+    """
     if not isinstance(warning, int):
-        raise ValueError('Input to silence should be a warning object '
-                         '- not of type {}'.format(type(warning)))
+        raise ValueError(
+            "Input to silence should be a warning object "
+            "- not of type {}".format(type(warning))
+        )
     if silence:
         __silencers__.add(warning)
     elif warning in __silencers__:
@@ -72,7 +73,7 @@ def silence(warning, silence=True):
 
 
 def check_integrity(models):
-    ''' Apply validation and integrity checks to a collection of Bokeh models.
+    """ Apply validation and integrity checks to a collection of Bokeh models.
 
     Args:
         models (seq[Model]) : a collection of Models to test
@@ -91,23 +92,24 @@ def check_integrity(models):
         >>> check_integrity([empty_row])
         W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
 
-    '''
+    """
     messages = dict(error=[], warning=[])
 
     for model in models:
         validators = []
         for name in dir(model):
-            if not name.startswith("_check"): continue
+            if not name.startswith("_check"):
+                continue
             obj = getattr(model, name)
             if getattr(obj, "validator_type", None):
                 validators.append(obj)
         for func in validators:
             messages[func.validator_type].extend(func())
 
-    for msg in sorted(messages['error']):
+    for msg in sorted(messages["error"]):
         log.error("E-%d (%s): %s: %s" % msg)
 
-    for msg in sorted(messages['warning']):
+    for msg in sorted(messages["warning"]):
         code, name, desc, obj = msg
         if code not in __silencers__:
             log.warning("W-%d (%s): %s: %s" % msg)
@@ -116,14 +118,15 @@ def check_integrity(models):
     # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
     #     raise RuntimeError("Errors encountered during validation (see log output)")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a collection of general utilities useful for implementing Bokeh
+# -----------------------------------------------------------------------------
+""" Provide a collection of general utilities useful for implementing Bokeh
 functionality.
 
 .. _bokeh.util.browser:
@@ -140,4 +140,4 @@ functionality.
 .. automodule:: bokeh.util.warnings
   :members:
 
-'''
+"""

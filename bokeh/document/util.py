@@ -1,48 +1,50 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide ancillary utility functions useful for manipulating Bokeh
+# -----------------------------------------------------------------------------
+""" Provide ancillary utility functions useful for manipulating Bokeh
 documents.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.has_props import HasProps
 from ..model import get_class
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'initialize_references_json',
-    'instantiate_references_json',
-    'references_json',
+    "initialize_references_json",
+    "instantiate_references_json",
+    "references_json",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def initialize_references_json(references_json, references, setter=None):
-    ''' Given a JSON representation of the models in a graph, and new model
+    """ Given a JSON representation of the models in a graph, and new model
     objects, set the properties on the models from the JSON
 
     Args:
@@ -68,11 +70,11 @@ def initialize_references_json(references_json, references, setter=None):
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
 
-    '''
+    """
 
     for obj in references_json:
-        obj_id = obj['id']
-        obj_attrs = obj['attributes']
+        obj_id = obj["id"]
+        obj_attrs = obj["attributes"]
 
         instance = references[obj_id]
 
@@ -83,8 +85,9 @@ def initialize_references_json(references_json, references, setter=None):
 
         instance.update_from_json(obj_attrs, models=references, setter=setter)
 
+
 def instantiate_references_json(references_json):
-    ''' Given a JSON representation of all the models in a graph, return a
+    """ Given a JSON representation of all the models in a graph, return a
     dict of new model objects.
 
     Args:
@@ -94,24 +97,27 @@ def instantiate_references_json(references_json):
     Returns:
         dict[str, Model]
 
-    '''
+    """
 
     # Create all instances, but without setting their props
     references = {}
     for obj in references_json:
-        obj_id = obj['id']
-        obj_type = obj.get('subtype', obj['type'])
+        obj_id = obj["id"]
+        obj_type = obj.get("subtype", obj["type"])
 
         cls = get_class(obj_type)
         instance = cls.__new__(cls, id=obj_id)
         if instance is None:
-            raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
+            raise RuntimeError(
+                "Error loading model from JSON (type: %s, id: %s)" % (obj_type, obj_id)
+            )
         references[instance.id] = instance
 
     return references
 
+
 def references_json(references):
-    ''' Given a list of all models in a graph, return JSON representing
+    """ Given a list of all models in a graph, return JSON representing
     them and their properties.
 
     Args:
@@ -121,20 +127,21 @@ def references_json(references):
     Returns:
         list
 
-    '''
+    """
 
     references_json = []
     for r in references:
         ref = r.ref
-        ref['attributes'] = r._to_json_like(include_defaults=False)
+        ref["attributes"] = r._to_json_like(include_defaults=False)
         references_json.append(ref)
 
     return references_json
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

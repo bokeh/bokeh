@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
 To display information about Bokeh and Bokeh server configuration,
 type ``bokeh info`` on the command line.
@@ -37,17 +37,18 @@ This will produce output like what is shown below
 
     /opt/anaconda/lib/python3.6/site-packages/bokeh/server/static
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import sys
@@ -61,31 +62,32 @@ from bokeh.util.dependencies import import_optional
 # Bokeh imports
 from ..subcommand import Subcommand
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Info',
-)
+__all__ = ("Info",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _version(modname, attr):
     mod = import_optional(modname)
     if mod:
         return getattr(mod, attr)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Info(Subcommand):
-    ''' Subcommand to print information about Bokeh and Bokeh server configuration.
+    """ Subcommand to print information about Bokeh and Bokeh server configuration.
 
-    '''
+    """
 
     #: name for this subcommand
     name = "info"
@@ -93,35 +95,42 @@ class Info(Subcommand):
     help = "Print information about Bokeh and Bokeh server configuration"
 
     args = (
-
-        ('--static', dict(
-            action='store_true',
-            help="Print the locations of BokehJS static files",
-        )),
-
+        (
+            "--static",
+            dict(
+                action="store_true", help="Print the locations of BokehJS static files"
+            ),
+        ),
     )
 
     def invoke(self, args):
-        '''
+        """
 
-        '''
+        """
         if args.static:
             print(settings.bokehjsdir())
         else:
             if_installed = lambda version_or_none: version_or_none or "(not installed)"
 
-            print("Python version      :  %s" % sys.version.split('\n')[0])
-            print("IPython version     :  %s" % if_installed(_version('IPython', '__version__')))
-            print("Tornado version     :  %s" % if_installed(_version('tornado', 'version')))
+            print("Python version      :  %s" % sys.version.split("\n")[0])
+            print(
+                "IPython version     :  %s"
+                % if_installed(_version("IPython", "__version__"))
+            )
+            print(
+                "Tornado version     :  %s"
+                % if_installed(_version("tornado", "version"))
+            )
             print("Bokeh version       :  %s" % __version__)
             print("BokehJS static path :  %s" % settings.bokehjsdir())
             print("node.js version     :  %s" % if_installed(nodejs_version()))
             print("npm version         :  %s" % if_installed(npmjs_version()))
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

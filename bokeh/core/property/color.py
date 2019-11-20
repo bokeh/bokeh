@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide color related properties.
+# -----------------------------------------------------------------------------
+""" Provide color related properties.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import re
@@ -31,25 +32,21 @@ from .enum import Enum
 from .numeric import Byte, Percent
 from .regex import Regex
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Color',
-    'RGB',
-    'ColorHex',
-)
+__all__ = ("Color", "RGB", "ColorHex")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 class RGB(Property):
-    ''' Accept colors.RGB values.
+    """ Accept colors.RGB values.
 
-    '''
+    """
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -60,7 +57,7 @@ class RGB(Property):
 
 
 class Color(Either):
-    ''' Accept color values in a variety of ways.
+    """ Accept color values in a variety of ways.
 
     For colors, because we support named colors and hex values prefaced
     with a "#", when we are handed a string value, there is a little
@@ -93,19 +90,25 @@ class Color(Either):
 
             >>> m.prop = (100.2, 57.3, 10.2) # ValueError !!
 
-    '''
+    """
 
     def __init__(self, default=None, help=None):
-        types = (Enum(enums.NamedColor),
-                 Regex(r"^#[0-9a-fA-F]{6}$"),
-                 Regex(r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*([01]\.?\d*?)\)"),
-                 Regex(r"^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
-                 Tuple(Byte, Byte, Byte),
-                 Tuple(Byte, Byte, Byte, Percent),
-                 RGB)
+        types = (
+            Enum(enums.NamedColor),
+            Regex(r"^#[0-9a-fA-F]{6}$"),
+            Regex(
+                r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
+                r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
+                r"\s*([01]\.?\d*?)\)"
+            ),
+            Regex(
+                r"^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
+                r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"
+            ),
+            Tuple(Byte, Byte, Byte),
+            Tuple(Byte, Byte, Byte, Percent),
+            RGB,
+        )
         super().__init__(*types, default=default, help=help)
 
     def __str__(self):
@@ -121,18 +124,20 @@ class Color(Either):
 
 
 class ColorHex(Color):
-    ''' ref Color
+    """ ref Color
 
     The only difference with Color is it's transform in hexadecimal string
     when send to javascript side
 
-    '''
+    """
 
     def transform(self, value):
         if isinstance(value, str):
             value = value.lower()
-            if value.startswith('rgb'):
-                value = colors.RGB(*[int(val) for val in re.findall(r"\d+", value)[:3]]).to_hex()
+            if value.startswith("rgb"):
+                value = colors.RGB(
+                    *[int(val) for val in re.findall(r"\d+", value)[:3]]
+                ).to_hex()
             elif value in enums.NamedColor:
                 value = getattr(colors.named, value).to_hex()
         elif isinstance(value, tuple):
@@ -141,14 +146,15 @@ class ColorHex(Color):
             value = value.to_hex()
         return value.lower()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

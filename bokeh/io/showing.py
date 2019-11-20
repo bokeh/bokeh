@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..models.layouts import LayoutDOM
@@ -25,20 +26,26 @@ from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'show',
-)
+__all__ = ("show",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
-    ''' Immediately display a Bokeh object or application.
+
+def show(
+    obj,
+    browser=None,
+    new="tab",
+    notebook_handle=False,
+    notebook_url="localhost:8888",
+    **kw,
+):
+    """ Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
         cell to display multiple objects. The objects are displayed in order.
@@ -121,10 +128,10 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
     .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
 
-    '''
+    """
     state = curstate()
 
-    is_application = getattr(obj, '_is_a_bokeh_application_class', False)
+    is_application = getattr(obj, "_is_a_bokeh_application_class", False)
 
     if not (isinstance(obj, LayoutDOM) or is_application or callable(obj)):
         raise ValueError(_BAD_SHOW_MSG)
@@ -134,17 +141,20 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if is_application or callable(obj):
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kw)
+        return run_notebook_hook(
+            state.notebook_type, "app", obj, state, notebook_url, **kw
+        )
 
     return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be one of:
 
@@ -153,24 +163,28 @@ _BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj, state, new, controller):
-    '''
 
-    '''
+def _show_file_with_state(obj, state, new, controller):
+    """
+
+    """
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj, state, browser, new, notebook_handle=False):
-    '''
 
-    '''
+def _show_with_state(obj, state, browser, new, notebook_handle=False):
+    """
+
+    """
     controller = get_browser_controller(browser=browser)
 
     comms_handle = None
     shown = False
 
     if state.notebook:
-        comms_handle = run_notebook_hook(state.notebook_type, 'doc', obj, state, notebook_handle)
+        comms_handle = run_notebook_hook(
+            state.notebook_type, "doc", obj, state, notebook_handle
+        )
         shown = True
 
     if state.file or not shown:
@@ -178,6 +192,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
 
     return comms_handle
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

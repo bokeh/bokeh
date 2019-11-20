@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Encapsulate implicit state that is useful for Bokeh plotting APIs.
+# -----------------------------------------------------------------------------
+""" Encapsulate implicit state that is useful for Bokeh plotting APIs.
 
 .. note::
     While ``State`` objects can also be manipulated explicitly, they are
@@ -29,17 +29,18 @@ at this level. However, for general use this would quickly become burdensome.
 This module provides a ``State`` class that encapsulates these objects and
 ensures their proper configuration in many common usage scenarios.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -48,36 +49,35 @@ import os
 from ..document import Document
 from ..resources import Resources
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'curstate',
-    'State',
-)
+__all__ = ("curstate", "State")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class State(object):
-    ''' Manage state related to controlling Bokeh output.
+    """ Manage state related to controlling Bokeh output.
 
-    '''
+    """
+
     def __init__(self):
         self.last_comms_handle = None
-        self.uuid_to_server = {} # Mapping from uuid to server instance
+        self.uuid_to_server = {}  # Mapping from uuid to server instance
         self.reset()
 
     # Properties --------------------------------------------------------------
 
     @property
     def document(self):
-        ''' A default :class:`~bokeh.document.Document` to use for all
+        """ A default :class:`~bokeh.document.Document` to use for all
         output operations.
 
-        '''
+        """
         return self._document
 
     @document.setter
@@ -86,7 +86,7 @@ class State(object):
 
     @property
     def file(self):
-        ''' A dict with the default configuration for file output (READ ONLY)
+        """ A dict with the default configuration for file output (READ ONLY)
 
         The dictionary value has the following form:
 
@@ -98,29 +98,29 @@ class State(object):
                 'title'     : # a title for the HTML document
             }
 
-        '''
+        """
         return self._file
 
     @property
     def notebook(self):
-        ''' Whether to generate notebook output on show operations. (READ ONLY)
+        """ Whether to generate notebook output on show operations. (READ ONLY)
 
-        '''
+        """
         return self._notebook
 
     @property
     def notebook_type(self):
-        ''' Notebook type
+        """ Notebook type
 
-        '''
+        """
         return self._notebook_type
 
     @notebook_type.setter
     def notebook_type(self, notebook_type):
-        ''' Notebook type, acceptable values are 'jupyter' as well as any names
+        """ Notebook type, acceptable values are 'jupyter' as well as any names
         defined by external notebook hooks that have been installed.
 
-        '''
+        """
         if notebook_type is None or not isinstance(notebook_type, str):
             raise ValueError("Notebook type must be a string")
         self._notebook_type = notebook_type.lower()
@@ -128,7 +128,7 @@ class State(object):
     # Public methods ----------------------------------------------------------
 
     def output_file(self, filename, title="Bokeh Plot", mode=None, root_dir=None):
-        ''' Configure output to a standalone HTML file.
+        """ Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to
         ``output_notebook``, etc. It adds an additional output destination
@@ -155,18 +155,21 @@ class State(object):
             The specified output file will be overwritten on every save, e.g.,
             every time ``show()`` or ``save()`` is called.
 
-        '''
+        """
         self._file = {
-            'filename'  : filename,
-            'resources' : Resources(mode=mode, root_dir=root_dir),
-            'title'     : title
+            "filename": filename,
+            "resources": Resources(mode=mode, root_dir=root_dir),
+            "title": title,
         }
 
         if os.path.isfile(filename):
-            log.info("Session output file '%s' already exists, will be overwritten." % filename)
+            log.info(
+                "Session output file '%s' already exists, will be overwritten."
+                % filename
+            )
 
-    def output_notebook(self, notebook_type='jupyter'):
-        ''' Generate output in notebook cells.
+    def output_notebook(self, notebook_type="jupyter"):
+        """ Generate output in notebook cells.
 
         Calling ``output_notebook`` not clear the effects of any other calls
         to ``output_file``, etc. It adds an additional output destination
@@ -176,12 +179,12 @@ class State(object):
         Returns:
             None
 
-        '''
+        """
         self._notebook = True
         self.notebook_type = notebook_type
 
     def reset(self):
-        ''' Deactivate all currently active output modes and set ``curdoc()``
+        """ Deactivate all currently active output modes and set ``curdoc()``
         to a fresh empty ``Document``.
 
         Subsequent calls to ``show()`` will not render until a new output mode
@@ -190,48 +193,50 @@ class State(object):
         Returns:
             None
 
-        '''
+        """
         self._reset_with_doc(Document())
 
     # Private methods ---------------------------------------------------------
 
     def _reset_keeping_doc(self):
-        ''' Reset output modes but DO NOT replace the default Document
+        """ Reset output modes but DO NOT replace the default Document
 
-        '''
+        """
         self._file = None
         self._notebook = False
         self._notebook_type = None
 
     def _reset_with_doc(self, doc):
-        ''' Reset output modes but DO replace the default Document
+        """ Reset output modes but DO replace the default Document
 
-        '''
+        """
         self._document = doc
         self._reset_keeping_doc()
 
+
 def curstate():
-    ''' Return the current State object
+    """ Return the current State object
 
     Returns:
       State : the current default State object
 
-    '''
+    """
     global _STATE
     if _STATE is None:
         _STATE = State()
     return _STATE
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _STATE = None
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,50 +1,52 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Organize CSS named colors into useful groups according to general hue.
+# -----------------------------------------------------------------------------
+""" Organize CSS named colors into useful groups according to general hue.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .util import ColorGroup
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'black',
-    'blue',
-    'brown',
-    'cyan',
-    'green',
-    'orange',
-    'pink',
-    'purple',
-    'red',
-    'white',
-    'yellow',
+    "black",
+    "blue",
+    "brown",
+    "cyan",
+    "green",
+    "orange",
+    "pink",
+    "purple",
+    "red",
+    "white",
+    "yellow",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class black(ColorGroup):
-    ''' CSS "Black" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Black" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: gainsboro
     .. bokeh-color:: lightgray
@@ -56,12 +58,24 @@ class black(ColorGroup):
     .. bokeh-color:: slategray
     .. bokeh-color:: darkslategray
     .. bokeh-color:: black
-    '''
-    _colors = ('Gainsboro', 'LightGray', 'Silver', 'DarkGray', 'Gray', 'DimGray', 'LightSlateGray',
-               'SlateGray', 'DarkSlateGray', 'Black')
+    """
+
+    _colors = (
+        "Gainsboro",
+        "LightGray",
+        "Silver",
+        "DarkGray",
+        "Gray",
+        "DimGray",
+        "LightSlateGray",
+        "SlateGray",
+        "DarkSlateGray",
+        "Black",
+    )
+
 
 class blue(ColorGroup):
-    ''' CSS "Blue" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Blue" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: lightsteelblue
     .. bokeh-color:: powderblue
@@ -78,12 +92,29 @@ class blue(ColorGroup):
     .. bokeh-color:: darkblue
     .. bokeh-color:: navy
     .. bokeh-color:: midnightblue
-    '''
-    _colors = ('LightSteelBlue', 'PowderBlue', 'LightBlue', 'SkyBlue', 'LightSkyBlue', 'DeepSkyBlue', 'DodgerBlue',
-               'CornflowerBlue', 'SteelBlue', 'RoyalBlue', 'Blue', 'MediumBlue', 'DarkBlue', 'Navy', 'MidnightBlue')
+    """
+
+    _colors = (
+        "LightSteelBlue",
+        "PowderBlue",
+        "LightBlue",
+        "SkyBlue",
+        "LightSkyBlue",
+        "DeepSkyBlue",
+        "DodgerBlue",
+        "CornflowerBlue",
+        "SteelBlue",
+        "RoyalBlue",
+        "Blue",
+        "MediumBlue",
+        "DarkBlue",
+        "Navy",
+        "MidnightBlue",
+    )
+
 
 class brown(ColorGroup):
-    ''' CSS "Brown" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Brown" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: cornsilk
     .. bokeh-color:: blanchedalmond
@@ -102,13 +133,31 @@ class brown(ColorGroup):
     .. bokeh-color:: sienna
     .. bokeh-color:: brown
     .. bokeh-color:: maroon
-    '''
-    _colors = ('Cornsilk', 'BlanchedAlmond', 'Bisque', 'NavajoWhite', 'Wheat', 'BurlyWood', 'Tan',
-               'RosyBrown', 'SandyBrown', 'Goldenrod', 'DarkGoldenrod', 'Peru', 'Chocolate',
-               'SaddleBrown', 'Sienna', 'Brown', 'Maroon')
+    """
+
+    _colors = (
+        "Cornsilk",
+        "BlanchedAlmond",
+        "Bisque",
+        "NavajoWhite",
+        "Wheat",
+        "BurlyWood",
+        "Tan",
+        "RosyBrown",
+        "SandyBrown",
+        "Goldenrod",
+        "DarkGoldenrod",
+        "Peru",
+        "Chocolate",
+        "SaddleBrown",
+        "Sienna",
+        "Brown",
+        "Maroon",
+    )
+
 
 class cyan(ColorGroup):
-    ''' CSS "Cyan" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Cyan" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: mediumaquamarine
     .. bokeh-color:: aqua
@@ -123,12 +172,27 @@ class cyan(ColorGroup):
     .. bokeh-color:: cadetblue
     .. bokeh-color:: darkcyan
     .. bokeh-color:: teal
-    '''
-    _colors = ('MediumAquamarine', 'Aqua', 'Cyan', 'LightCyan', 'PaleTurquoise', 'Aquamarine', 'Turquoise',
-               'MediumTurquoise', 'DarkTurquoise', 'LightSeaGreen', 'CadetBlue', 'DarkCyan', 'Teal')
+    """
+
+    _colors = (
+        "MediumAquamarine",
+        "Aqua",
+        "Cyan",
+        "LightCyan",
+        "PaleTurquoise",
+        "Aquamarine",
+        "Turquoise",
+        "MediumTurquoise",
+        "DarkTurquoise",
+        "LightSeaGreen",
+        "CadetBlue",
+        "DarkCyan",
+        "Teal",
+    )
+
 
 class green(ColorGroup):
-    ''' CSS "Green" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Green" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: darkolivegreen
     .. bokeh-color:: olive
@@ -149,24 +213,46 @@ class green(ColorGroup):
     .. bokeh-color:: forestgreen
     .. bokeh-color:: green
     .. bokeh-color:: darkgreen
-    '''
-    _colors = ('DarkOliveGreen', 'Olive', 'OliveDrab', 'YellowGreen', 'LimeGreen', 'Lime', 'LawnGreen',
-               'Chartreuse', 'GreenYellow', 'SpringGreen', 'MediumSpringGreen', 'LightGreen', 'PaleGreen',
-               'DarkSeaGreen', 'MediumSeaGreen', 'SeaGreen', 'ForestGreen', 'Green', 'DarkGreen')
+    """
+
+    _colors = (
+        "DarkOliveGreen",
+        "Olive",
+        "OliveDrab",
+        "YellowGreen",
+        "LimeGreen",
+        "Lime",
+        "LawnGreen",
+        "Chartreuse",
+        "GreenYellow",
+        "SpringGreen",
+        "MediumSpringGreen",
+        "LightGreen",
+        "PaleGreen",
+        "DarkSeaGreen",
+        "MediumSeaGreen",
+        "SeaGreen",
+        "ForestGreen",
+        "Green",
+        "DarkGreen",
+    )
+
 
 class orange(ColorGroup):
-    ''' CSS "Orange" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Orange" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: orangered
     .. bokeh-color:: tomato
     .. bokeh-color:: coral
     .. bokeh-color:: darkorange
     .. bokeh-color:: orange
-    '''
-    _colors = ('OrangeRed', 'Tomato', 'Coral', 'DarkOrange', 'Orange')
+    """
+
+    _colors = ("OrangeRed", "Tomato", "Coral", "DarkOrange", "Orange")
+
 
 class pink(ColorGroup):
-    ''' CSS "Pink" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Pink" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: pink
     .. bokeh-color:: lightpink
@@ -174,11 +260,20 @@ class pink(ColorGroup):
     .. bokeh-color:: deeppink
     .. bokeh-color:: palevioletred
     .. bokeh-color:: mediumvioletred
-    '''
-    _colors = ('Pink', 'LightPink', 'HotPink', 'DeepPink', 'PaleVioletRed', 'MediumVioletRed')
+    """
+
+    _colors = (
+        "Pink",
+        "LightPink",
+        "HotPink",
+        "DeepPink",
+        "PaleVioletRed",
+        "MediumVioletRed",
+    )
+
 
 class purple(ColorGroup):
-    ''' CSS "Purple" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Purple" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: lavender
     .. bokeh-color:: thistle
@@ -198,13 +293,32 @@ class purple(ColorGroup):
     .. bokeh-color:: darkslateblue
     .. bokeh-color:: slateblue
     .. bokeh-color:: mediumslateblue
-    '''
-    _colors = ('Lavender', 'Thistle', 'Plum', 'Violet', 'Orchid', 'Fuchsia', 'Magenta', 'MediumOrchid',
-               'MediumPurple', 'BlueViolet', 'DarkViolet', 'DarkOrchid', 'DarkMagenta', 'Purple', 'Indigo',
-               'DarkSlateBlue', 'SlateBlue', 'MediumSlateBlue')
+    """
+
+    _colors = (
+        "Lavender",
+        "Thistle",
+        "Plum",
+        "Violet",
+        "Orchid",
+        "Fuchsia",
+        "Magenta",
+        "MediumOrchid",
+        "MediumPurple",
+        "BlueViolet",
+        "DarkViolet",
+        "DarkOrchid",
+        "DarkMagenta",
+        "Purple",
+        "Indigo",
+        "DarkSlateBlue",
+        "SlateBlue",
+        "MediumSlateBlue",
+    )
+
 
 class red(ColorGroup):
-    ''' CSS "Red" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Red" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: lightsalmon
     .. bokeh-color:: salmon
@@ -215,11 +329,23 @@ class red(ColorGroup):
     .. bokeh-color:: firebrick
     .. bokeh-color:: darkred
     .. bokeh-color:: red
-    '''
-    _colors = ('LightSalmon', 'Salmon', 'DarkSalmon', 'LightCoral', 'IndianRed', 'Crimson', 'FireBrick', 'DarkRed', 'Red')
+    """
+
+    _colors = (
+        "LightSalmon",
+        "Salmon",
+        "DarkSalmon",
+        "LightCoral",
+        "IndianRed",
+        "Crimson",
+        "FireBrick",
+        "DarkRed",
+        "Red",
+    )
+
 
 class white(ColorGroup):
-    ''' CSS "White" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "White" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: white
     .. bokeh-color:: snow
@@ -238,12 +364,31 @@ class white(ColorGroup):
     .. bokeh-color:: linen
     .. bokeh-color:: lavenderblush
     .. bokeh-color:: mistyrose
-    '''
-    _colors = ('White', 'Snow', 'Honeydew', 'MintCream', 'Azure', 'AliceBlue', 'GhostWhite', 'WhiteSmoke', 'Seashell',
-               'Beige', 'OldLace', 'FloralWhite', 'Ivory', 'AntiqueWhite', 'Linen', 'LavenderBlush', 'MistyRose')
+    """
+
+    _colors = (
+        "White",
+        "Snow",
+        "Honeydew",
+        "MintCream",
+        "Azure",
+        "AliceBlue",
+        "GhostWhite",
+        "WhiteSmoke",
+        "Seashell",
+        "Beige",
+        "OldLace",
+        "FloralWhite",
+        "Ivory",
+        "AntiqueWhite",
+        "Linen",
+        "LavenderBlush",
+        "MistyRose",
+    )
+
 
 class yellow(ColorGroup):
-    ''' CSS "Yellow" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
+    """ CSS "Yellow" Color Group as defined by https://www.w3schools.com/colors/colors_groups.asp
 
     .. bokeh-color:: yellow
     .. bokeh-color:: lightyellow
@@ -256,18 +401,31 @@ class yellow(ColorGroup):
     .. bokeh-color:: khaki
     .. bokeh-color:: darkkhaki
     .. bokeh-color:: gold
-    '''
-    _colors = ('Yellow', 'LightYellow', 'LemonChiffon', 'LightGoldenrodYellow', 'PapayaWhip',
-               'Moccasin', 'PeachPuff', 'PaleGoldenrod', 'Khaki', 'DarkKhaki', 'Gold')
+    """
 
-#-----------------------------------------------------------------------------
+    _colors = (
+        "Yellow",
+        "LightYellow",
+        "LemonChiffon",
+        "LightGoldenrodYellow",
+        "PapayaWhip",
+        "Moccasin",
+        "PeachPuff",
+        "PaleGoldenrod",
+        "Khaki",
+        "DarkKhaki",
+        "Gold",
+    )
+
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

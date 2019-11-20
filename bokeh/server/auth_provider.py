@@ -1,16 +1,17 @@
-''' Provide a hook for supplying authorization mechanisms to a Bokeh server.
+""" Provide a hook for supplying authorization mechanisms to a Bokeh server.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import importlib.util
@@ -22,22 +23,19 @@ from tornado.web import RequestHandler
 # Bokeh imports
 from ..util.serialization import make_globally_unique_id
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'AuthModule',
-    'AuthProvider',
-    'NullAuth'
-)
+__all__ = ("AuthModule", "AuthProvider", "NullAuth")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class AuthProvider(object):
-    ''' Abstract base class for implementing authorization hooks.
+    """ Abstract base class for implementing authorization hooks.
 
     Subclasses must supply one of: ``get_user`` or ``get_user_async``.
 
@@ -49,16 +47,16 @@ class AuthProvider(object):
     The properties ``logout_url`` and ``get_logout_handler`` are analogous to
     the corresponding login properties, and are optional.
 
-    '''
+    """
 
     def __init__(self):
         self._validate()
 
     @property
     def endpoints(self):
-        ''' URL patterns for login/logout endpoints.
+        """ URL patterns for login/logout endpoints.
 
-        '''
+        """
         endpoints = []
         if self.login_handler:
             endpoints.append((self.login_url, self.login_handler))
@@ -68,7 +66,7 @@ class AuthProvider(object):
 
     @property
     def get_login_url(self):
-        ''' A function that computes a URL to redirect unathenticated users
+        """ A function that computes a URL to redirect unathenticated users
         to for login.
 
         This property may return None, if a ``login_url`` is supplied
@@ -77,12 +75,12 @@ class AuthProvider(object):
         If a function is returned, it should accept a ``RequestHandler``
         and return a login URL for unathenticated users.
 
-        '''
+        """
         pass
 
     @property
     def get_user(self):
-        ''' A function to get the current authenticated user.
+        """ A function to get the current authenticated user.
 
         This property may return None, if a ``get_user_async`` function is
         supplied instead.
@@ -90,12 +88,12 @@ class AuthProvider(object):
         If a function is returned, it should accept a ``RequestHandler``
         and return the current authenticated user.
 
-        '''
+        """
         pass
 
     @property
     def get_user_async(self):
-        ''' An async function to get the current authenticated user.
+        """ An async function to get the current authenticated user.
 
         This property may return None, if a ``get_user`` function is supplied
         instead.
@@ -103,12 +101,12 @@ class AuthProvider(object):
         If a function is returned, it should accept a ``RequestHandler``
         and return the current authenticated user.
 
-        '''
+        """
         pass
 
     @property
     def login_handler(self):
-        ''' A request handler class for a login page.
+        """ A request handler class for a login page.
 
         This property may return None, if ``login_url`` is supplied
         instead.
@@ -116,51 +114,61 @@ class AuthProvider(object):
         If a class is returned, it must be a subclass of RequestHandler,
         which will used for the endpoint specified by ``logout_url``
 
-        '''
+        """
         pass
 
     @property
     def login_url(self):
-        ''' A URL to redirect unauthenticated users to for login.
+        """ A URL to redirect unauthenticated users to for login.
 
         This proprty may return None, if a ``get_login_url`` function is
         supplied instead.
 
-        '''
+        """
         pass
 
     @property
     def logout_handler(self):
-        ''' A request handler class for a logout page.
+        """ A request handler class for a logout page.
 
         This property may return None.
 
         If a class is returned, it must be a subclass of RequestHandler,
         which will used for the endpoint specified by ``logout_url``
 
-        '''
+        """
         pass
 
     @property
     def logout_url(self):
-        ''' A URL to redirect unathenticated users to for logout.
+        """ A URL to redirect unathenticated users to for logout.
 
         This proprty may return None.
 
-        '''
+        """
         pass
 
     def _validate(self):
         if self.get_user and self.get_user_async:
-            raise ValueError("Only one of get_user or get_user_async should be supplied")
+            raise ValueError(
+                "Only one of get_user or get_user_async should be supplied"
+            )
 
-        if (self.get_user or self.get_user_async) and not (self.login_url or self.get_login_url):
-            raise ValueError("When user authentication is enabled, one of login_url or get_login_url must be supplied")
+        if (self.get_user or self.get_user_async) and not (
+            self.login_url or self.get_login_url
+        ):
+            raise ValueError(
+                "When user authentication is enabled, one of login_url or get_login_url must be supplied"
+            )
 
         if self.login_url and self.get_login_url:
-            raise ValueError("At most one of login_url or get_login_url should be supplied")
+            raise ValueError(
+                "At most one of login_url or get_login_url should be supplied"
+            )
         if self.login_handler and self.get_login_url:
-            raise ValueError("LoginHandler cannot be used with a get_login_url() function")
+            raise ValueError(
+                "LoginHandler cannot be used with a get_login_url() function"
+            )
         if self.login_handler and not issubclass(self.login_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
         if self.login_url and not probably_relative_url(self.login_url):
@@ -171,8 +179,9 @@ class AuthProvider(object):
         if self.logout_url and not probably_relative_url(self.logout_url):
             raise ValueError("LogoutHandler can only be used with a relative login_url")
 
+
 class AuthModule(AuthProvider):
-    ''' An AuthProvider configured from a Python module.
+    """ An AuthProvider configured from a Python module.
 
     The following properties return the corresponding values from the module if
     they exist, or None otherwise:
@@ -189,7 +198,7 @@ class AuthModule(AuthProvider):
     The ``logout_handler`` property will return a ``LogoutHandler`` class from
     the module, or None otherwise.
 
-    '''
+    """
 
     def __init__(self, module_path):
         if not isfile(module_path):
@@ -201,38 +210,40 @@ class AuthModule(AuthProvider):
 
     @property
     def get_user(self):
-        return getattr(self._module, 'get_user', None)
+        return getattr(self._module, "get_user", None)
 
     @property
     def get_user_async(self):
-        return getattr(self._module, 'get_user_async', None)
+        return getattr(self._module, "get_user_async", None)
 
     @property
     def login_url(self):
-        return getattr(self._module, 'login_url', None)
+        return getattr(self._module, "login_url", None)
 
     @property
     def get_login_url(self):
-        return getattr(self._module, 'get_login_url', None)
+        return getattr(self._module, "get_login_url", None)
 
     @property
     def login_handler(self):
-        return getattr(self._module, 'LoginHandler', None)
+        return getattr(self._module, "LoginHandler", None)
 
     @property
     def logout_url(self):
-        return getattr(self._module, 'logout_url', None)
+        return getattr(self._module, "logout_url", None)
 
     @property
     def logout_handler(self):
-        return getattr(self._module, 'LogoutHandler', None)
+        return getattr(self._module, "LogoutHandler", None)
+
 
 class NullAuth(AuthProvider):
-    ''' A default no-auth AuthProvider.
+    """ A default no-auth AuthProvider.
 
     All of the properties of this provider return None.
 
-    '''
+    """
+
     @property
     def get_user(self):
         return None
@@ -261,12 +272,14 @@ class NullAuth(AuthProvider):
     def logout_handler(self):
         return None
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def load_auth_module(module_path):
-    ''' Load a Python source file at a given path as a module.
+    """ Load a Python source file at a given path as a module.
 
     Arguments:
         module_path (str): path to a Python source file
@@ -274,15 +287,16 @@ def load_auth_module(module_path):
     Returns
         module
 
-    '''
-    module_name ="bokeh.auth_" + make_globally_unique_id().replace('-', '')
+    """
+    module_name = "bokeh.auth_" + make_globally_unique_id().replace("-", "")
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
+
 def probably_relative_url(url):
-    ''' Return True if a URL is not one of the common absolute URL formats.
+    """ Return True if a URL is not one of the common absolute URL formats.
 
     Arguments:
         url (str): a URL string
@@ -290,13 +304,14 @@ def probably_relative_url(url):
     Returns
         bool
 
-    '''
+    """
     return not url.startswith(("http://", "https://", "//"))
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

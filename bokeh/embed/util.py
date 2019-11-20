@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from collections import OrderedDict
@@ -29,39 +30,42 @@ from ..model import Model, collect_models
 from ..settings import settings
 from ..util.serialization import make_globally_unique_id
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'FromCurdoc',
-    'OutputDocumentFor',
-    'RenderItem',
-    'RenderRoot',
-    'RenderRoots',
-    'standalone_docs_json',
-    'standalone_docs_json_and_render_items',
-    'submodel_has_python_callbacks',
+    "FromCurdoc",
+    "OutputDocumentFor",
+    "RenderItem",
+    "RenderRoot",
+    "RenderRoots",
+    "standalone_docs_json",
+    "standalone_docs_json_and_render_items",
+    "submodel_has_python_callbacks",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class FromCurdoc(object):
-    ''' This class merely provides a non-None default value for ``theme``
+    """ This class merely provides a non-None default value for ``theme``
     arguments, since ``None`` itself is a meaningful value for users to pass.
 
-    '''
+    """
+
     pass
+
 
 @contextmanager
 def OutputDocumentFor(objs, apply_theme=None, always_new=False):
-    ''' Find or create a (possibly temporary) Document to use for serializing
+    """ Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
 
     Typical usage is similar to:
@@ -110,21 +114,29 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     Yields:
         Document
 
-    '''
+    """
     # Note: Comms handling relies on the fact that the new_doc returned
     # has models with the same IDs as they were started with
 
-    if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
+    if (
+        not isinstance(objs, Sequence)
+        or len(objs) == 0
+        or not all(isinstance(x, Model) for x in objs)
+    ):
         raise ValueError("OutputDocumentFor expects a sequence of Models")
 
-    def finish(): pass
+    def finish():
+        pass
 
     docs = set(x.document for x in objs)
-    if None in docs: docs.remove(None)
+    if None in docs:
+        docs.remove(None)
 
     if always_new:
-        def finish(): # NOQA
+
+        def finish():  # NOQA
             _dispose_temp_doc(objs)
+
         doc = _create_temp_doc(objs)
 
     else:
@@ -139,8 +151,10 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
             # we are not using all the roots, make a quick clone for outputting purposes
             if set(objs) != set(doc.roots):
-                def finish(): # NOQA
+
+                def finish():  # NOQA
                     _dispose_temp_doc(objs)
+
                 doc = _create_temp_doc(objs)
 
             # we are using all the roots of a single doc, just use doc as-is
@@ -148,8 +162,10 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
         # models have mixed docs, just make a quick clone
         else:
-            def finish(): # NOQA
+
+            def finish():  # NOQA
                 _dispose_temp_doc(objs)
+
             doc = _create_temp_doc(objs)
 
     if settings.perform_document_validation():
@@ -163,16 +179,20 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     finish()
 
-class RenderItem(object):
 
-    def __init__(self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None):
-        if (docid is None and sessionid is None) or (docid is not None and sessionid is not None):
+class RenderItem(object):
+    def __init__(
+        self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None
+    ):
+        if (docid is None and sessionid is None) or (
+            docid is not None and sessionid is not None
+        ):
             raise ValueError("either docid or sessionid must be provided")
 
         if roots is None:
             roots = OrderedDict()
         elif isinstance(roots, list):
-            roots = OrderedDict([ (root, make_globally_unique_id()) for root in roots ])
+            roots = OrderedDict([(root, make_globally_unique_id()) for root in roots])
 
         self.docid = docid
         self.sessionid = sessionid
@@ -205,8 +225,8 @@ class RenderItem(object):
         else:
             return self.to_json() == other.to_json()
 
-class RenderRoot(object):
 
+class RenderRoot(object):
     def __init__(self, elementid, id, name=None, tags=None):
         self.elementid = elementid
         self.id = id
@@ -219,8 +239,8 @@ class RenderRoot(object):
         else:
             return self.elementid == other.elementid
 
-class RenderRoots(object):
 
+class RenderRoots(object):
     def __init__(self, roots):
         self._roots = roots
 
@@ -243,24 +263,33 @@ class RenderRoots(object):
         return self.__getitem__(key)
 
     def to_json(self):
-        return OrderedDict([ (root.id, elementid) for root, elementid in self._roots.items() ])
+        return OrderedDict(
+            [(root.id, elementid) for root, elementid in self._roots.items()]
+        )
+
 
 def standalone_docs_json(models):
-    '''
+    """
 
-    '''
+    """
     docs_json, render_items = standalone_docs_json_and_render_items(models)
     return docs_json
 
-def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
-    '''
 
-    '''
+def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
+    """
+
+    """
     if isinstance(models, (Model, Document)):
         models = [models]
 
-    if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
-        raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
+    if not (
+        isinstance(models, Sequence)
+        and all(isinstance(x, (Model, Document)) for x in models)
+    ):
+        raise ValueError(
+            "Expected a Model, Document, or Sequence of Models or Documents"
+        )
 
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
         log.warning(_CALLBACKS_WARNING)
@@ -275,7 +304,9 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
             doc = model.document
 
             if doc is None:
-                raise ValueError("A Bokeh Model must be part of a Document to render as standalone content")
+                raise ValueError(
+                    "A Bokeh Model must be part of a Document to render as standalone content"
+                )
 
         if doc not in docs:
             docs[doc] = (make_globally_unique_id(), OrderedDict())
@@ -298,10 +329,11 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
 
     return (docs_json, render_items)
 
-def submodel_has_python_callbacks(models):
-    ''' Traverses submodels to check for Python (event) callbacks
 
-    '''
+def submodel_has_python_callbacks(models):
+    """ Traverses submodels to check for Python (event) callbacks
+
+    """
     has_python_callback = False
     for model in collect_models(models):
         if len(model._callbacks) > 0 or len(model._event_callbacks) > 0:
@@ -310,9 +342,10 @@ def submodel_has_python_callbacks(models):
 
     return has_python_callback
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _CALLBACKS_WARNING = """
 You are generating standalone HTML/JS output, but trying to use real Python
@@ -329,6 +362,7 @@ be used. For more information on building and running Bokeh applications, see:
     https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 """
 
+
 def _create_temp_doc(models):
     doc = Document()
     for m in models:
@@ -340,19 +374,24 @@ def _create_temp_doc(models):
     doc._roots = models
     return doc
 
+
 def _dispose_temp_doc(models):
     for m in models:
         m._temp_document = None
         for ref in m.references():
             ref._temp_document = None
 
+
 def _set_temp_theme(doc, apply_theme):
     doc._old_theme = doc.theme
     if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
+        from ..io import curdoc
+
+        curdoc
         doc.theme = curdoc().theme
     elif apply_theme is not None:
         doc.theme = apply_theme
+
 
 def _unset_temp_theme(doc):
     if not hasattr(doc, "_old_theme"):
@@ -360,6 +399,7 @@ def _unset_temp_theme(doc):
     doc.theme = doc._old_theme
     del doc._old_theme
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

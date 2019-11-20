@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import colorsys
@@ -24,28 +25,27 @@ import colorsys
 # Bokeh imports
 from .color import Color
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'RGB',
-)
+__all__ = ("RGB",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class RGB(Color):
-    ''' Represent colors by specifying their Red, Green, and Blue channels.
+    """ Represent colors by specifying their Red, Green, and Blue channels.
 
     Alpha values may also optionally be provided. Otherwise, alpha values
     default to 1.
 
-    '''
+    """
 
     def __init__(self, r, g, b, a=1.0):
-        '''
+        """
 
         Args:
             r (int) :
@@ -60,24 +60,24 @@ class RGB(Color):
             a (float, optional) :
                 An alpha value for this color in [0, 1] (default: 1.0)
 
-        '''
+        """
         self.r = r
         self.g = g
         self.b = b
         self.a = a
 
     def copy(self):
-        ''' Return a copy of this color value.
+        """ Return a copy of this color value.
 
         Returns:
             :class:`~bokeh.colors.rgb.RGB`
 
-        '''
+        """
         return RGB(self.r, self.g, self.b, self.a)
 
     @classmethod
     def from_hsl(self, value):
-        ''' Create an RGB color from an HSL color value.
+        """ Create an RGB color from an HSL color value.
 
         Args:
             value (HSL) :
@@ -86,12 +86,12 @@ class RGB(Color):
         Returns:
             :class:`~bokeh.colors.rgb.RGB`
 
-        '''
+        """
         return value.to_rgb()
 
     @classmethod
     def from_rgb(self, value):
-        ''' Copy an RGB color from another RGB color value.
+        """ Copy an RGB color from another RGB color value.
 
         Args:
             value (:class:`~bokeh.colors.rgb.RGB`) :
@@ -100,23 +100,23 @@ class RGB(Color):
         Returns:
             RGB
 
-        '''
+        """
         return value.copy()
 
     def to_css(self):
-        ''' Generate the CSS representation of this RGB color.
+        """ Generate the CSS representation of this RGB color.
 
         Returns:
             str, ``"rgb(...)"`` or ``"rgba(...)"``
 
-        '''
+        """
         if self.a == 1.0:
             return "rgb(%d, %d, %d)" % (self.r, self.g, self.b)
         else:
             return "rgba(%d, %d, %d, %s)" % (self.r, self.g, self.b, self.a)
 
     def to_hex(self):
-        ''' Return a hex color string for this RGB color.
+        """ Return a hex color string for this RGB color.
 
         Any alpha value on this color is discarded, only hex color strings for
         the RGB components are returned.
@@ -124,37 +124,41 @@ class RGB(Color):
         Returns:
             str, ``"#RRGGBB"``
 
-        '''
+        """
         return "#%02X%02X%02X" % (self.r, self.g, self.b)
 
     def to_hsl(self):
-        ''' Return a corresponding HSL color for this RGB color.
+        """ Return a corresponding HSL color for this RGB color.
 
         Returns:
             :class:`~bokeh.colors.rgb.RGB`
 
-        '''
-        from .hsl import HSL # prevent circular import
-        h, l, s = colorsys.rgb_to_hls(float(self.r)/255, float(self.g)/255, float(self.b)/255)
-        return HSL(round(h*360), s, l, self.a)
+        """
+        from .hsl import HSL  # prevent circular import
+
+        h, l, s = colorsys.rgb_to_hls(
+            float(self.r) / 255, float(self.g) / 255, float(self.b) / 255
+        )
+        return HSL(round(h * 360), s, l, self.a)
 
     def to_rgb(self):
-        ''' Return a RGB copy for this RGB color.
+        """ Return a RGB copy for this RGB color.
 
         Returns:
             :class:`~bokeh.colors.rgb.RGB`
 
-        '''
+        """
         return self.copy()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

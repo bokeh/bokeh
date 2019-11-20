@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 Functions for helping with serialization and deserialization of
 Bokeh objects.
 
@@ -13,17 +13,18 @@ performance and efficiency. The list of supported dtypes is:
 
 {binary_array_types}
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import base64
@@ -41,29 +42,26 @@ from ..settings import settings
 from .dependencies import import_optional
 from .string import format_docstring
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
+pd = import_optional("pandas")
 
-BINARY_ARRAY_TYPES = set([
-    np.dtype(np.float32),
-    np.dtype(np.float64),
-    np.dtype(np.uint8),
-    np.dtype(np.int8),
-    np.dtype(np.uint16),
-    np.dtype(np.int16),
-    np.dtype(np.uint32),
-    np.dtype(np.int32),
-])
+BINARY_ARRAY_TYPES = set(
+    [
+        np.dtype(np.float32),
+        np.dtype(np.float64),
+        np.dtype(np.uint8),
+        np.dtype(np.int8),
+        np.dtype(np.uint16),
+        np.dtype(np.int16),
+        np.dtype(np.uint32),
+        np.dtype(np.int32),
+    ]
+)
 
-DATETIME_TYPES = set([
-    dt.datetime,
-    dt.date,
-    dt.time,
-    np.datetime64,
-])
+DATETIME_TYPES = set([dt.datetime, dt.date, dt.time, np.datetime64])
 
 if pd:
     try:
@@ -75,39 +73,43 @@ if pd:
     DATETIME_TYPES.add(pd.Period)
     DATETIME_TYPES.add(type(pd.NaT))
 
-NP_EPOCH = np.datetime64(0, 'ms')
-NP_MS_DELTA = np.timedelta64(1, 'ms')
+NP_EPOCH = np.datetime64(0, "ms")
+NP_MS_DELTA = np.timedelta64(1, "ms")
 
 DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
-__doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
-
-__all__ = (
-    'array_encoding_disabled',
-    'convert_datetime_array',
-    'convert_datetime_type',
-    'convert_timedelta_type',
-    'decode_base64_dict',
-    'encode_binary_dict',
-    'encode_base64_dict',
-    'is_datetime_type',
-    'is_timedelta_type',
-    'make_globally_unique_id',
-    'make_id',
-    'serialize_array',
-    'transform_array',
-    'transform_array_to_list',
-    'transform_column_source_data',
-    'traverse_data',
-    'transform_series',
+__doc__ = format_docstring(
+    __doc__,
+    binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES),
 )
 
-#-----------------------------------------------------------------------------
+__all__ = (
+    "array_encoding_disabled",
+    "convert_datetime_array",
+    "convert_datetime_type",
+    "convert_timedelta_type",
+    "decode_base64_dict",
+    "encode_binary_dict",
+    "encode_base64_dict",
+    "is_datetime_type",
+    "is_timedelta_type",
+    "make_globally_unique_id",
+    "make_id",
+    "serialize_array",
+    "transform_array",
+    "transform_array_to_list",
+    "transform_column_source_data",
+    "traverse_data",
+    "transform_series",
+)
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def is_datetime_type(obj):
-    ''' Whether an object is any date, time, or datetime type recognized by
+    """ Whether an object is any date, time, or datetime type recognized by
     Bokeh.
 
     Arg:
@@ -116,11 +118,12 @@ def is_datetime_type(obj):
     Returns:
         bool : True if ``obj`` is a datetime type
 
-    '''
+    """
     return isinstance(obj, _dt_tuple)
 
+
 def is_timedelta_type(obj):
-    ''' Whether an object is any timedelta type recognized by Bokeh.
+    """ Whether an object is any timedelta type recognized by Bokeh.
 
     Arg:
         obj (object) : the object to test
@@ -128,11 +131,12 @@ def is_timedelta_type(obj):
     Returns:
         bool : True if ``obj`` is a timedelta type
 
-    '''
+    """
     return isinstance(obj, (dt.timedelta, np.timedelta64))
 
+
 def convert_timedelta_type(obj):
-    ''' Convert any recognized timedelta value to floating point absolute
+    """ Convert any recognized timedelta value to floating point absolute
     milliseconds.
 
     Arg:
@@ -141,14 +145,15 @@ def convert_timedelta_type(obj):
     Returns:
         float : milliseconds
 
-    '''
+    """
     if isinstance(obj, dt.timedelta):
-        return obj.total_seconds() * 1000.
+        return obj.total_seconds() * 1000.0
     elif isinstance(obj, np.timedelta64):
-        return (obj / NP_MS_DELTA)
+        return obj / NP_MS_DELTA
+
 
 def convert_datetime_type(obj):
-    ''' Convert any recognized date, time, or datetime value to floating point
+    """ Convert any recognized date, time, or datetime value to floating point
     milliseconds since epoch.
 
     Arg:
@@ -157,25 +162,27 @@ def convert_datetime_type(obj):
     Returns:
         float : milliseconds
 
-    '''
+    """
     # Pandas NaT
     if pd and obj is pd.NaT:
         return np.nan
 
     # Pandas Period
     if pd and isinstance(obj, pd.Period):
-        return obj.to_timestamp().value / 10**6.0
+        return obj.to_timestamp().value / 10 ** 6.0
 
     # Pandas Timestamp
-    if pd and isinstance(obj, _pd_timestamp): return obj.value / 10**6.0
+    if pd and isinstance(obj, _pd_timestamp):
+        return obj.value / 10 ** 6.0
 
     # Pandas Timedelta
-    elif pd and isinstance(obj, pd.Timedelta): return obj.value / 10**6.0
+    elif pd and isinstance(obj, pd.Timedelta):
+        return obj.value / 10 ** 6.0
 
     # Datetime (datetime is a subclass of date)
     elif isinstance(obj, dt.datetime):
         diff = obj.replace(tzinfo=None) - DT_EPOCH
-        return diff.total_seconds() * 1000.
+        return diff.total_seconds() * 1000.0
 
     # Date
     elif isinstance(obj, dt.date):
@@ -184,14 +191,17 @@ def convert_datetime_type(obj):
     # NumPy datetime64
     elif isinstance(obj, np.datetime64):
         epoch_delta = obj - NP_EPOCH
-        return (epoch_delta / NP_MS_DELTA)
+        return epoch_delta / NP_MS_DELTA
 
     # Time
     elif isinstance(obj, dt.time):
-        return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
+        return (
+            obj.hour * 3600 + obj.minute * 60 + obj.second
+        ) * 1000 + obj.microsecond / 1000.0
+
 
 def convert_datetime_array(array):
-    ''' Convert NumPy datetime arrays to arrays to milliseconds since epoch.
+    """ Convert NumPy datetime arrays to arrays to milliseconds since epoch.
 
     Args:
         array : (obj)
@@ -202,22 +212,23 @@ def convert_datetime_array(array):
     Returns:
         array
 
-    '''
+    """
 
     if not isinstance(array, np.ndarray):
         return array
 
     # not quite correct, truncates to ms..
-    if array.dtype.kind == 'M':
-        array =  array.astype('datetime64[us]').astype('int64') / 1000.
+    if array.dtype.kind == "M":
+        array = array.astype("datetime64[us]").astype("int64") / 1000.0
 
-    elif array.dtype.kind == 'm':
-        array = array.astype('timedelta64[us]').astype('int64') / 1000.
+    elif array.dtype.kind == "m":
+        array = array.astype("timedelta64[us]").astype("int64") / 1000.0
 
     return array
 
+
 def make_id():
-    ''' Return a new unique ID for a Bokeh object.
+    """ Return a new unique ID for a Bokeh object.
 
     Normally this function will return simple monotonically increasing integer
     IDs (as strings) for identifying Bokeh objects within a Document. However,
@@ -227,7 +238,7 @@ def make_id():
     Returns:
         str
 
-    '''
+    """
     global _simple_id
 
     if settings.simple_ids():
@@ -237,8 +248,9 @@ def make_id():
     else:
         return make_globally_unique_id()
 
+
 def make_globally_unique_id():
-    ''' Return a globally unique UUID.
+    """ Return a globally unique UUID.
 
     Some situations, e.g. id'ing dynamically created Divs in HTML documents,
     always require globally unique IDs.
@@ -246,11 +258,12 @@ def make_globally_unique_id():
     Returns:
         str
 
-    '''
+    """
     return str(uuid.uuid4())
 
+
 def array_encoding_disabled(array):
-    ''' Determine whether an array may be binary encoded.
+    """ Determine whether an array may be binary encoded.
 
     The NumPy array dtypes that can be encoded are:
 
@@ -262,17 +275,22 @@ def array_encoding_disabled(array):
     Returns:
         bool
 
-    '''
+    """
 
     # disable binary encoding for non-supported dtypes
     return array.dtype not in BINARY_ARRAY_TYPES
 
-array_encoding_disabled.__doc__ = format_docstring(array_encoding_disabled.__doc__,
-                                                   binary_array_types="\n    ".join("* ``np." + str(x) + "``"
-                                                                                    for x in BINARY_ARRAY_TYPES))
+
+array_encoding_disabled.__doc__ = format_docstring(
+    array_encoding_disabled.__doc__,
+    binary_array_types="\n    ".join(
+        "* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES
+    ),
+)
+
 
 def transform_array(array, force_list=False, buffers=None):
-    ''' Transform a NumPy arrays into serialized format
+    """ Transform a NumPy arrays into serialized format
 
     Converts un-serializable dtypes and returns JSON serializable
     format
@@ -300,14 +318,15 @@ def transform_array(array, force_list=False, buffers=None):
     Returns:
         JSON
 
-    '''
+    """
 
     array = convert_datetime_array(array)
 
     return serialize_array(array, force_list=force_list, buffers=buffers)
 
+
 def transform_array_to_list(array):
-    ''' Transforms a NumPy array into a list of values
+    """ Transforms a NumPy array into a list of values
 
     Args:
         array (np.nadarray) : the NumPy array series to transform
@@ -315,21 +334,22 @@ def transform_array_to_list(array):
     Returns:
         list or dict
 
-    '''
-    if (array.dtype.kind in ('u', 'i', 'f') and (~np.isfinite(array)).any()):
-        transformed = array.astype('object')
-        transformed[np.isnan(array)] = 'NaN'
-        transformed[np.isposinf(array)] = 'Infinity'
-        transformed[np.isneginf(array)] = '-Infinity'
+    """
+    if array.dtype.kind in ("u", "i", "f") and (~np.isfinite(array)).any():
+        transformed = array.astype("object")
+        transformed[np.isnan(array)] = "NaN"
+        transformed[np.isposinf(array)] = "Infinity"
+        transformed[np.isneginf(array)] = "-Infinity"
         return transformed.tolist()
-    elif (array.dtype.kind == 'O' and pd and pd.isnull(array).any()):
-        transformed = array.astype('object')
-        transformed[pd.isnull(array)] = 'NaN'
+    elif array.dtype.kind == "O" and pd and pd.isnull(array).any():
+        transformed = array.astype("object")
+        transformed[pd.isnull(array)] = "NaN"
         return transformed.tolist()
     return array.tolist()
 
+
 def transform_series(series, force_list=False, buffers=None):
-    ''' Transforms a Pandas series into serialized form
+    """ Transforms a Pandas series into serialized form
 
     Args:
         series (pd.Series) : the Pandas series to transform
@@ -353,7 +373,7 @@ def transform_series(series, force_list=False, buffers=None):
     Returns:
         list or dict
 
-    '''
+    """
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
@@ -362,8 +382,9 @@ def transform_series(series, force_list=False, buffers=None):
         vals = series.values
     return transform_array(vals, force_list=force_list, buffers=buffers)
 
+
 def serialize_array(array, force_list=False, buffers=None):
-    ''' Transforms a NumPy array into serialized form.
+    """ Transforms a NumPy array into serialized form.
 
     Args:
         array (np.ndarray) : the NumPy array to transform
@@ -387,20 +408,21 @@ def serialize_array(array, force_list=False, buffers=None):
     Returns:
         list or dict
 
-    '''
+    """
     if isinstance(array, np.ma.MaskedArray):
         array = array.filled(np.nan)  # Set masked values to nan
-    if (array_encoding_disabled(array) or force_list):
+    if array_encoding_disabled(array) or force_list:
         return transform_array_to_list(array)
-    if not array.flags['C_CONTIGUOUS']:
+    if not array.flags["C_CONTIGUOUS"]:
         array = np.ascontiguousarray(array)
     if buffers is None:
         return encode_base64_dict(array)
     else:
         return encode_binary_dict(array, buffers)
 
+
 def traverse_data(obj, use_numpy=True, buffers=None):
-    ''' Recursively traverse an object until a flat list is found.
+    """ Recursively traverse an object until a flat list is found.
 
     If NumPy is available, the flat list is converted to a numpy array
     and passed to transform_array() to handle ``nan``, ``inf``, and
@@ -412,7 +434,7 @@ def traverse_data(obj, use_numpy=True, buffers=None):
         obj (list) : a list of values or lists
         use_numpy (bool, optional) toggle NumPy as a dependency for testing
             This argument is only useful for testing (default: True)
-    '''
+    """
     if use_numpy and all(isinstance(el, np.ndarray) for el in obj):
         return [transform_array(el, buffers=buffers) for el in obj]
     obj_copy = []
@@ -421,12 +443,12 @@ def traverse_data(obj, use_numpy=True, buffers=None):
         # Also use type(x) is float because it's faster than isinstance
         if type(item) is float:
             if math.isnan(item):
-                item = 'NaN'
+                item = "NaN"
             elif math.isinf(item):
                 if item > 0:
-                    item = 'Infinity'
+                    item = "Infinity"
                 else:
-                    item = '-Infinity'
+                    item = "-Infinity"
             obj_copy.append(item)
         elif isinstance(item, (list, tuple)):  # check less common type second
             obj_copy.append(traverse_data(item))
@@ -434,8 +456,9 @@ def traverse_data(obj, use_numpy=True, buffers=None):
             obj_copy.append(item)
     return obj_copy
 
+
 def transform_column_source_data(data, buffers=None, cols=None):
-    ''' Transform ``ColumnSourceData`` data to a serialized format
+    """ Transform ``ColumnSourceData`` data to a serialized format
 
     Args:
         data (dict) : the mapping of names to data columns to transform
@@ -456,7 +479,7 @@ def transform_column_source_data(data, buffers=None, cols=None):
     Returns:
         JSON compatible dict
 
-    '''
+    """
     to_transform = set(data) if cols is None else set(cols)
 
     data_copy = {}
@@ -470,8 +493,9 @@ def transform_column_source_data(data, buffers=None, cols=None):
 
     return data_copy
 
+
 def encode_binary_dict(array, buffers):
-    ''' Send a numpy array as an unencoded binary buffer
+    """ Send a numpy array as an unencoded binary buffer
 
     The encoded format is a dict with the following structure:
 
@@ -496,20 +520,21 @@ def encode_binary_dict(array, buffers):
     Returns:
         dict
 
-    '''
+    """
     buffer_id = make_id()
     buf = (dict(id=buffer_id), array.tobytes())
     buffers.append(buf)
 
     return {
-        '__buffer__'  : buffer_id,
-        'shape'       : array.shape,
-        'dtype'       : array.dtype.name,
-        'order'       : sys.byteorder
+        "__buffer__": buffer_id,
+        "shape": array.shape,
+        "dtype": array.dtype.name,
+        "order": sys.byteorder,
     }
 
+
 def encode_base64_dict(array):
-    ''' Encode a NumPy array using base64:
+    """ Encode a NumPy array using base64:
 
     The encoded format is a dict with the following structure:
 
@@ -528,15 +553,16 @@ def encode_base64_dict(array):
     Returns:
         dict
 
-    '''
+    """
     return {
-        '__ndarray__'  : base64.b64encode(array.data).decode('utf-8'),
-        'shape'        : array.shape,
-        'dtype'        : array.dtype.name
+        "__ndarray__": base64.b64encode(array.data).decode("utf-8"),
+        "shape": array.shape,
+        "dtype": array.dtype.name,
     }
 
+
 def decode_base64_dict(data):
-    ''' Decode a base64 encoded array into a NumPy array.
+    """ Decode a base64 encoded array into a NumPy array.
 
     Args:
         data (dict) : encoded array data to decode
@@ -546,26 +572,27 @@ def decode_base64_dict(data):
     Returns:
         np.ndarray
 
-    '''
-    b64 = base64.b64decode(data['__ndarray__'])
-    array = np.copy(np.frombuffer(b64, dtype=data['dtype']))
-    if len(data['shape']) > 1:
-        array = array.reshape(data['shape'])
+    """
+    b64 = base64.b64decode(data["__ndarray__"])
+    array = np.copy(np.frombuffer(b64, dtype=data["dtype"]))
+    if len(data["shape"]) > 1:
+        array = array.reshape(data["shape"])
     return array
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _simple_id = 999
 _simple_id_lock = Lock()
 
 _dt_tuple = tuple(DATETIME_TYPES)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

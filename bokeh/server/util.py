@@ -1,44 +1,41 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide some utility functions useful for implementing different
+# -----------------------------------------------------------------------------
+""" Provide some utility functions useful for implementing different
 components in ``bokeh.server``.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from tornado import netutil
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'bind_sockets',
-    'check_whitelist',
-    'create_hosts_whitelist',
-    'match_host',
-)
+__all__ = ("bind_sockets", "check_whitelist", "create_hosts_whitelist", "match_host")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def bind_sockets(address, port):
-    ''' Bind a socket to a port on an address.
+    """ Bind a socket to a port on an address.
 
     Args:
         address (str) :
@@ -56,7 +53,7 @@ def bind_sockets(address, port):
     Returns:
         (socket, port)
 
-    '''
+    """
     ss = netutil.bind_sockets(port=port or 0, address=address)
     assert len(ss)
     ports = {s.getsockname()[1] for s in ss}
@@ -66,8 +63,9 @@ def bind_sockets(address, port):
         assert actual_port == port
     return ss, actual_port
 
+
 def check_whitelist(host, whitelist):
-    ''' Check a given request host against a whitelist.
+    """ Check a given request host against a whitelist.
 
     Args:
         host (str) :
@@ -83,17 +81,18 @@ def check_whitelist(host, whitelist):
         ``True``, if ``host`` matches any pattern in ``whitelist``, otherwise
         ``False``
 
-     '''
-    if ':' not in host:
-        host = host + ':80'
+     """
+    if ":" not in host:
+        host = host + ":80"
 
     if host in whitelist:
         return True
 
     return any(match_host(host, pattern) for pattern in whitelist)
 
+
 def create_hosts_whitelist(host_list, port):
-    '''
+    """
 
     This whitelist can be used to restrict websocket or other connections to
     only those explicitly originating from approved hosts.
@@ -122,27 +121,29 @@ def create_hosts_whitelist(host_list, port):
         If any host in ``host_list`` contains a wildcard ``*`` a warning will
         be logged regarding permissive websocket connections.
 
-    '''
+    """
     if not host_list:
-        return ['localhost:' + str(port)]
+        return ["localhost:" + str(port)]
 
     hosts = []
     for host in host_list:
-        if '*' in host:
+        if "*" in host:
             log.warning(
                 "Host wildcard %r will allow connections originating "
                 "from multiple (or possibly all) hostnames or IPs. Use non-wildcard "
-                "values to restrict access explicitly", host)
-        if host == '*':
+                "values to restrict access explicitly",
+                host,
+            )
+        if host == "*":
             # do not append the :80 port suffix in that case: any port is
             # accepted
             hosts.append(host)
             continue
-        parts = host.split(':')
+        parts = host.split(":")
         if len(parts) == 1:
             if parts[0] == "":
                 raise ValueError("Empty host value")
-            hosts.append(host+":80")
+            hosts.append(host + ":80")
         elif len(parts) == 2:
             try:
                 int(parts[1])
@@ -155,8 +156,9 @@ def create_hosts_whitelist(host_list, port):
             raise ValueError("Invalid host value: %s" % host)
     return hosts
 
+
 def match_host(host, pattern):
-    ''' Match a host string against a pattern
+    """ Match a host string against a pattern
 
     Args:
         host (str)
@@ -204,15 +206,15 @@ def match_host(host, pattern):
         >>> match_host('alice:8080', '*:80')
         False
 
-    '''
-    if ':' in host:
-        host, host_port = host.rsplit(':', 1)
+    """
+    if ":" in host:
+        host, host_port = host.rsplit(":", 1)
     else:
         host_port = None
 
-    if ':' in pattern:
-        pattern, pattern_port = pattern.rsplit(':', 1)
-        if pattern_port == '*':
+    if ":" in pattern:
+        pattern, pattern_port = pattern.rsplit(":", 1)
+        if pattern_port == "*":
             pattern_port = None
     else:
         pattern_port = None
@@ -220,27 +222,28 @@ def match_host(host, pattern):
     if pattern_port is not None and host_port != pattern_port:
         return False
 
-    host = host.split('.')
-    pattern = pattern.split('.')
+    host = host.split(".")
+    pattern = pattern.split(".")
 
     if len(pattern) > len(host):
         return False
 
     for h, p in zip(host, pattern):
-        if h == p or p == '*':
+        if h == p or p == "*":
             continue
         else:
             return False
     return True
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

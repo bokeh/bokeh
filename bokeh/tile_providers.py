@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Pre-configured tile sources for common third party tile services.
+# -----------------------------------------------------------------------------
+""" Pre-configured tile sources for common third party tile services.
 
 
 Attributes:
@@ -114,18 +114,18 @@ Additional information available at:
 * Stamen tile service - http://maps.stamen.com/
 * CartoDB tile service - https://carto.com/location-data-services/basemaps/
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
 
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import sys
@@ -134,23 +134,24 @@ import types
 # Bokeh imports
 from bokeh.core.enums import enumeration
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # __all__ defined at the bottom on the class module
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class _TileProvidersModule(types.ModuleType):
     _CARTO_ATTRIBUTION = (
@@ -162,17 +163,17 @@ class _TileProvidersModule(types.ModuleType):
         'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
         'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
         'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
-        'under %s.'
+        "under %s."
     )
 
     _SERVICE_URLS = dict(
-        CARTODBPOSITRON='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        CARTODBPOSITRON_RETINA='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-        STAMEN_TERRAIN='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-        STAMEN_TERRAIN_RETINA='http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png',
-        STAMEN_TONER='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_BACKGROUND='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_LABELS='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
+        CARTODBPOSITRON="https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+        CARTODBPOSITRON_RETINA="https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+        STAMEN_TERRAIN="http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png",
+        STAMEN_TERRAIN_RETINA="http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png",
+        STAMEN_TONER="http://tile.stamen.com/toner/{Z}/{X}/{Y}.png",
+        STAMEN_TONER_BACKGROUND="http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png",
+        STAMEN_TONER_LABELS="http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png",
     )
 
     _STAMEN_ATTRIBUTION_URLS = dict(
@@ -183,30 +184,41 @@ class _TileProvidersModule(types.ModuleType):
         STAMEN_TONER_LABELS='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
     )
 
-    Vendors = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
-                          'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
-                          'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
-                          case_sensitive=True)
+    Vendors = enumeration(
+        "CARTODBPOSITRON",
+        "CARTODBPOSITRON_RETINA",
+        "STAMEN_TERRAIN",
+        "STAMEN_TERRAIN_RETINA",
+        "STAMEN_TONER",
+        "STAMEN_TONER_BACKGROUND",
+        "STAMEN_TONER_LABELS",
+        case_sensitive=True,
+    )
 
     def get_provider(self, provider_name):
         from bokeh.models import WMTSTileSource
 
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
-            return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
+            return WMTSTileSource(
+                url=provider_name.url, attribution=provider_name.attribution
+            )
 
         selected_provider = provider_name.upper()
 
         if selected_provider not in self.Vendors:
-            raise ValueError('Unknown tile provider %s' % provider_name)
+            raise ValueError("Unknown tile provider %s" % provider_name)
 
         url = self._SERVICE_URLS[selected_provider]
-        if selected_provider.startswith('CARTO'):
+        if selected_provider.startswith("CARTO"):
             attribution = self._CARTO_ATTRIBUTION
-        elif selected_provider.startswith('STAMEN'):
-            attribution = self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
+        elif selected_provider.startswith("STAMEN"):
+            attribution = (
+                self._STAMEN_ATTRIBUTION
+                % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
+            )
         else:
-            raise ValueError('Can not retrieve attribution for %s' % selected_provider)
+            raise ValueError("Can not retrieve attribution for %s" % selected_provider)
         return WMTSTileSource(url=url, attribution=attribution)
 
     # Properties --------------------------------------------------------------
@@ -219,22 +231,23 @@ class _TileProvidersModule(types.ModuleType):
     STAMEN_TONER_BACKGROUND = Vendors.STAMEN_TONER_BACKGROUND
     STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 
-_mod = _TileProvidersModule(str('bokeh.tile_providers'))
+# -----------------------------------------------------------------------------
+# Code
+# -----------------------------------------------------------------------------
+
+_mod = _TileProvidersModule(str("bokeh.tile_providers"))
 _mod.__doc__ = __doc__
 _mod.__all__ = (
-    'CARTODBPOSITRON',
-    'CARTODBPOSITRON_RETINA',
-    'STAMEN_TERRAIN',
-    'STAMEN_TERRAIN_RETINA',
-    'STAMEN_TONER',
-    'STAMEN_TONER_BACKGROUND',
-    'STAMEN_TONER_LABELS',
-    'get_provider',
-    'Vendors'
+    "CARTODBPOSITRON",
+    "CARTODBPOSITRON_RETINA",
+    "STAMEN_TERRAIN",
+    "STAMEN_TERRAIN_RETINA",
+    "STAMEN_TONER",
+    "STAMEN_TONER_BACKGROUND",
+    "STAMEN_TONER_LABELS",
+    "get_provider",
+    "Vendors",
 )
-sys.modules['bokeh.tile_providers'] = _mod
+sys.modules["bokeh.tile_providers"] = _mod
 del _mod, sys, types

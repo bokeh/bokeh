@@ -1,41 +1,40 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from functools import wraps
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'UnlockedDocumentProxy',
-    'without_document_lock',
-)
+__all__ = ("UnlockedDocumentProxy", "without_document_lock")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def without_document_lock(func):
-    ''' Wrap a callback function to execute without first obtaining the
+    """ Wrap a callback function to execute without first obtaining the
     document lock.
 
     Args:
@@ -59,64 +58,69 @@ def without_document_lock(func):
     Attempts to otherwise access or change the Document will result in an
     exception being raised.
 
-    '''
+    """
+
     @wraps(func)
     def wrapper(*args, **kw):
         return func(*args, **kw)
+
     wrapper.nolock = True
     return wrapper
 
 
-UNSAFE_DOC_ATTR_USAGE_MSG = ("Only 'add_next_tick_callback' may be used safely without taking the document lock; "
-                             "to make other changes to the document, add a next tick callback and make your changes "
-                             "from that callback.")
+UNSAFE_DOC_ATTR_USAGE_MSG = (
+    "Only 'add_next_tick_callback' may be used safely without taking the document lock; "
+    "to make other changes to the document, add a next tick callback and make your changes "
+    "from that callback."
+)
 
 
 class UnlockedDocumentProxy(object):
-    ''' Wrap a Document object so that only methods that can safely be used
+    """ Wrap a Document object so that only methods that can safely be used
     from unlocked callbacks or threads are exposed. Attempts to otherwise
     access or change the Document results in an exception.
 
-    '''
+    """
 
     def __init__(self, doc):
-        '''
+        """
 
-        '''
+        """
         self._doc = doc
 
     def __getattr__(self, attr):
-        '''
+        """
 
-        '''
+        """
         raise RuntimeError(UNSAFE_DOC_ATTR_USAGE_MSG)
 
     def add_next_tick_callback(self, callback):
-        ''' Add a "next tick" callback.
+        """ Add a "next tick" callback.
 
         Args:
             callback (callable) :
 
-        '''
+        """
         return self._doc.add_next_tick_callback(callback)
 
     def remove_next_tick_callback(self, callback):
-        ''' Remove a "next tick" callback.
+        """ Remove a "next tick" callback.
 
         Args:
             callback (callable) :
 
-        '''
+        """
         return self._doc.remove_next_tick_callback(callback)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,45 +1,45 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Assemble WebSocket wire message fragments into complete Bokeh Server
+# -----------------------------------------------------------------------------
+""" Assemble WebSocket wire message fragments into complete Bokeh Server
 message objects that can be processed.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .exceptions import ValidationError
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Receiver',
-)
+__all__ = ("Receiver",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Receiver(object):
-    ''' Receive wire message fragments and assemble complete Bokeh server
+    """ Receive wire message fragments and assemble complete Bokeh server
     message objects.
 
     On ``MessageError`` or ``ValidationError``, the receiver will reset its
@@ -81,23 +81,23 @@ class Receiver(object):
 
     The ``content`` fragment is defined by the specific message type.
 
-    '''
+    """
 
     def __init__(self, protocol):
-        ''' Configure a Receiver with a specific Bokeh protocol.
+        """ Configure a Receiver with a specific Bokeh protocol.
 
         Args:
             protocol (Protocol) :
                 A Bokeh protocol object to use to assemble collected message
                 fragments.
-        '''
+        """
         self._protocol = protocol
         self._current_consumer = self._HEADER
         self._message = None
         self._buf_header = None
 
     async def consume(self, fragment):
-        ''' Consume individual protocol message fragments.
+        """ Consume individual protocol message fragments.
 
         Args:
             fragment (``JSON``) :
@@ -105,7 +105,7 @@ class Receiver(object):
                 assembled, the receiver state will reset to begin consuming a
                 new message.
 
-        '''
+        """
         self._current_consumer(fragment)
         return self._message
 
@@ -127,7 +127,9 @@ class Receiver(object):
 
         header_json, metadata_json, content_json = self._fragments[:3]
 
-        self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
+        self._partial = self._protocol.assemble(
+            header_json, metadata_json, content_json
+        )
 
         self._check_complete()
 
@@ -151,16 +153,23 @@ class Receiver(object):
 
     def _assume_text(self, fragment):
         if not isinstance(fragment, str):
-            raise ValidationError("expected text fragment but received binary fragment for %s" % (self._current_consumer.__name__))
+            raise ValidationError(
+                "expected text fragment but received binary fragment for %s"
+                % (self._current_consumer.__name__)
+            )
 
     def _assume_binary(self, fragment):
         if not isinstance(fragment, bytes):
-            raise ValidationError("expected binary fragment but received text fragment for %s" % (self._current_consumer.__name__))
+            raise ValidationError(
+                "expected binary fragment but received text fragment for %s"
+                % (self._current_consumer.__name__)
+            )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

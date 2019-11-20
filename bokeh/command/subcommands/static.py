@@ -1,19 +1,20 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh.settings import settings
@@ -24,20 +25,19 @@ from ..subcommand import Subcommand
 from ..util import report_server_init_errors
 from .serve import base_serve_args
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Static',
-)
+__all__ = ("Static",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Static(Subcommand):
-    ''' Subcommand to launch the Bokeh static server. '''
+    """ Subcommand to launch the Bokeh static server. """
 
     #: name for this subcommand
     name = "static"
@@ -47,9 +47,9 @@ class Static(Subcommand):
     args = base_serve_args
 
     def invoke(self, args):
-        '''
+        """
 
-        '''
+        """
         basicConfig(format=args.log_format, filename=args.log_file)
 
         # This is a bit of a fudge. We want the default log level for non-server
@@ -58,7 +58,7 @@ class Static(Subcommand):
         log_level = settings.py_log_level(args.log_level)
         if log_level is None:
             log_level = logging.INFO
-        logging.getLogger('bokeh').setLevel(log_level)
+        logging.getLogger("bokeh").setLevel(log_level)
 
         if args.use_config is not None:
             log.info("Using override config file: {}".format(args.use_config))
@@ -70,27 +70,34 @@ class Static(Subcommand):
 
         applications = {}
 
-        _allowed_keys = ['port', 'address']
-        server_kwargs = { key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None }
+        _allowed_keys = ["port", "address"]
+        server_kwargs = {
+            key: getattr(args, key)
+            for key in _allowed_keys
+            if getattr(args, key, None) is not None
+        }
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
 
-            address_string = ''
-            if server.address is not None and server.address != '':
-                address_string = ' address ' + server.address
+            address_string = ""
+            if server.address is not None and server.address != "":
+                address_string = " address " + server.address
 
-            log.info("Starting Bokeh static server on port %d%s", server.port, address_string)
+            log.info(
+                "Starting Bokeh static server on port %d%s", server.port, address_string
+            )
             server.run_until_shutdown()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

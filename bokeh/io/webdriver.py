@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import atexit
@@ -28,27 +29,23 @@ from os.path import devnull
 # Bokeh imports
 from ..util.dependencies import detect_phantomjs, import_optional, import_required
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'create_phantomjs_webdriver',
-    'terminate_webdriver',
-    'webdriver_control',
-)
+__all__ = ("create_phantomjs_webdriver", "terminate_webdriver", "webdriver_control")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 def kill_proc_tree(pid, including_parent=True):
-    psutil = import_optional('psutil')
+    psutil = import_optional("psutil")
     if psutil is not None:
         parent = psutil.Process(pid)
         children = parent.children(recursive=True)
@@ -62,21 +59,27 @@ def kill_proc_tree(pid, including_parent=True):
 
 def create_phantomjs_webdriver():
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
+        warnings.filterwarnings(
+            "ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver"
+        )
 
-        webdriver = import_required('selenium.webdriver',
-                                    'To use bokeh.io image export functions you need selenium ' +
-                                    '("conda install -c bokeh selenium" or "pip install selenium")')
+        webdriver = import_required(
+            "selenium.webdriver",
+            "To use bokeh.io image export functions you need selenium "
+            + '("conda install -c bokeh selenium" or "pip install selenium")',
+        )
 
         phantomjs_path = detect_phantomjs()
-        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
+        return webdriver.PhantomJS(
+            executable_path=phantomjs_path, service_log_path=devnull
+        )
 
 
 def terminate_webdriver(driver):
     if driver.name == "phantomjs":
         # https://github.com/seleniumhq/selenium/issues/767
         if driver.service.process:
-            if sys.platform == 'win32':
+            if sys.platform == "win32":
                 kill_proc_tree(driver.service.process.pid, including_parent=False)
             driver.service.process.send_signal(signal.SIGTERM)
 
@@ -85,15 +88,16 @@ def terminate_webdriver(driver):
     except OSError:
         pass
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 class _WebdriverState(object):
-    '''
+    """
 
-    '''
+    """
 
     def __init__(self, reuse=True, kind="phantomjs"):
         self.reuse = reuse
@@ -134,9 +138,10 @@ class _WebdriverState(object):
         # TODO (bev) enum/value check when more are added
         self._kind = value
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 webdriver_control = _WebdriverState()

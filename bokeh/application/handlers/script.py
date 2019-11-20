@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a Bokeh Application Handler to build up documents by running
+# -----------------------------------------------------------------------------
+""" Provide a Bokeh Application Handler to build up documents by running
 the code from Python script (``.py``) files.
 
 This handler is configured with the filename of a Python module. When a
@@ -31,66 +31,69 @@ As an example, consider the following Python module ``myapp.py``
 The a ``ScriptHandler`` configured with this script will modify new Bokeh
 Documents by adding an empty plot with a title taken from ``args``.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .code import CodeHandler
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'ScriptHandler',
-)
+__all__ = ("ScriptHandler",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ScriptHandler(CodeHandler):
-    ''' Modify Bokeh documents by executing code from Python scripts.
+    """ Modify Bokeh documents by executing code from Python scripts.
 
-    '''
+    """
 
-    _logger_text = "%s: call to %s() ignored when running scripts with the 'bokeh' command."
+    _logger_text = (
+        "%s: call to %s() ignored when running scripts with the 'bokeh' command."
+    )
 
     _origin = "Script"
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
 
         Keywords:
             filename (str) : a path to a Python source (".py") file
 
-        '''
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to ScriptHandler')
-        filename = kwargs['filename']
+        """
+        if "filename" not in kwargs:
+            raise ValueError("Must pass a filename to ScriptHandler")
+        filename = kwargs["filename"]
 
-        with open(filename, 'r', encoding='utf-8') as f:
-            kwargs['source'] = f.read()
+        with open(filename, "r", encoding="utf-8") as f:
+            kwargs["source"] = f.read()
 
         super().__init__(*args, **kwargs)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

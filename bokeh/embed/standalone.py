@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from typing import Any, Dict, Optional, Sequence, Tuple, Type, Union, cast
@@ -41,28 +42,26 @@ from .util import (
 )
 from .wrappers import wrap_in_onload
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'autoload_static',
-    'components',
-    'file_html',
-    'json_item',
-)
+__all__ = ("autoload_static", "components", "file_html", "json_item")
 
 ModelLike = Union[Model, Document]
 ModelLikeCollection = Union[Sequence[ModelLike], Dict[str, ModelLike]]
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ThemeLike = Union[Theme, Type[FromCurdoc]]
 
-def autoload_static(model: Union[Model, Document], resources: Resources, script_path: str) -> Tuple[str, str]:
-    ''' Return JavaScript code and a script tag that can be used to embed
+
+def autoload_static(
+    model: Union[Model, Document], resources: Resources, script_path: str
+) -> Tuple[str, str]:
+    """ Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
     The data for the plot is stored directly in the returned JavaScript code.
@@ -82,14 +81,14 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
     Raises:
         ValueError
 
-    '''
+    """
     # TODO: maybe warn that it's not exactly useful, but technically possible
     # if resources.mode == 'inline':
     #     raise ValueError("autoload_static() requires non-inline resources")
 
     if isinstance(model, Model):
         models = [model]
-    elif isinstance (model, Document):
+    elif isinstance(model, Document):
         models = model.roots
     else:
         raise ValueError("autoload_static expects a single Model or Document")
@@ -104,16 +103,18 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
 
     js = wrap_in_onload(AUTOLOAD_JS.render(bundle=bundle, elementid=elementid))
 
-    tag = AUTOLOAD_TAG.render(
-        src_path = script_path,
-        elementid = elementid,
-    )
+    tag = AUTOLOAD_TAG.render(src_path=script_path, elementid=elementid)
 
     return js, tag
 
-def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool = True,
-               wrap_plot_info: bool = True, theme: ThemeLike = FromCurdoc) -> Tuple[str, Any]:
-    ''' Return HTML components to embed a Bokeh plot. The data for the plot is
+
+def components(
+    models: Union[ModelLike, ModelLikeCollection],
+    wrap_script: bool = True,
+    wrap_plot_info: bool = True,
+    theme: ThemeLike = FromCurdoc,
+) -> Tuple[str, Any]:
+    """ Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
     An example can be found in examples/embed/embed_multiple.py
@@ -193,7 +194,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
             components({"Plot 1": plot1, "Plot 2": plot2}, wrap_script=False, wrap_plot_info=False)
             # => (javascript, {"Plot 1": plot1_dict, "Plot 2": plot2_dict})
 
-    '''
+    """
     # 1) Convert single items and dicts into list
 
     was_single_object = isinstance(models, Model) or isinstance(models, Document)
@@ -240,15 +241,18 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     return script, result
 
-def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Union[Resources, Tuple[JSResources, CSSResources]],
-              title: Optional[str] = None,
-              template: Template = FILE,
-              template_variables: Dict[str, Any] = {},
-              theme: ThemeLike = FromCurdoc,
-              suppress_callback_warning: bool = False,
-              _always_new: bool = False) -> str:
-    ''' Return an HTML document that embeds Bokeh Model or Document objects.
+
+def file_html(
+    models: Union[Model, Document, Sequence[Model]],
+    resources: Union[Resources, Tuple[JSResources, CSSResources]],
+    title: Optional[str] = None,
+    template: Template = FILE,
+    template_variables: Dict[str, Any] = {},
+    theme: ThemeLike = FromCurdoc,
+    suppress_callback_warning: bool = False,
+    _always_new: bool = False,
+) -> str:
+    """ Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
     support for customizing the JS/CSS resources independently and
@@ -290,7 +294,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
     Returns:
         UTF-8 encoded HTML
 
-    '''
+    """
 
     models_seq: Sequence[Model] = []
     if isinstance(models, Model):
@@ -300,15 +304,28 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
     else:
         models_seq = models
 
-    with OutputDocumentFor(models_seq, apply_theme=theme, always_new=_always_new) as doc:
-        (docs_json, render_items) = standalone_docs_json_and_render_items(models_seq, suppress_callback_warning=suppress_callback_warning)
+    with OutputDocumentFor(
+        models_seq, apply_theme=theme, always_new=_always_new
+    ) as doc:
+        (docs_json, render_items) = standalone_docs_json_and_render_items(
+            models_seq, suppress_callback_warning=suppress_callback_warning
+        )
         title = _title_from_models(models_seq, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
-        return html_page_for_render_items(bundle, docs_json, render_items, title=title,
-                                          template=template, template_variables=template_variables)
+        return html_page_for_render_items(
+            bundle,
+            docs_json,
+            render_items,
+            title=title,
+            template=template,
+            template_variables=template_variables,
+        )
 
-def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc) -> Any: # TODO: TypedDict?
-    ''' Return a JSON block that can be used to embed standalone Bokeh content.
+
+def json_item(
+    model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc
+) -> Any:  # TODO: TypedDict?
+    """ Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
         model (Model) :
@@ -364,33 +381,32 @@ def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = Fro
 
         Bokeh.embed.embed_item(item, "myplot");
 
-    '''
+    """
     with OutputDocumentFor([model], apply_theme=theme) as doc:
         doc.title = ""
         docs_json = standalone_docs_json([model])
 
     doc = list(docs_json.values())[0]
-    root_id = doc['roots']['root_ids'][0]
+    root_id = doc["roots"]["root_ids"][0]
 
-    return {
-        'target_id' : target,
-        'root_id'   : root_id,
-        'doc'       : doc,
-    }
+    return {"target_id": target, "root_id": root_id, "doc": doc}
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> ModelLikeCollection:
-    '''
 
-    '''
+def _check_models_or_docs(
+    models: Union[ModelLike, ModelLikeCollection]
+) -> ModelLikeCollection:
+    """
+
+    """
     input_type_valid = False
 
     # Check for single item
@@ -398,22 +414,29 @@ def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> Mode
         models = [models]
 
     # Check for sequence
-    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
+    if isinstance(models, Sequence) and all(
+        isinstance(x, (Model, Document)) for x in models
+    ):
         input_type_valid = True
 
-    if isinstance(models, dict) and \
-        all(isinstance(x, str) for x in models.keys()) and \
-        all(isinstance(x, (Model, Document)) for x in models.values()):
+    if (
+        isinstance(models, dict)
+        and all(isinstance(x, str) for x in models.keys())
+        and all(isinstance(x, (Model, Document)) for x in models.values())
+    ):
         input_type_valid = True
 
     if not input_type_valid:
         raise ValueError(
-            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
+            "Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document"
         )
 
     return models
 
-def _title_from_models(models: Sequence[Union[Model, Document]], title: Optional[str]) -> str:
+
+def _title_from_models(
+    models: Sequence[Union[Model, Document]], title: Optional[str]
+) -> str:
     # use override title
     if title is not None:
         return title
@@ -431,6 +454,7 @@ def _title_from_models(models: Sequence[Union[Model, Document]], title: Optional
     # use default title
     return DEFAULT_TITLE
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

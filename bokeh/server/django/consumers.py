@@ -1,19 +1,20 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import asyncio
@@ -46,19 +47,16 @@ from bokeh.server.views.static_handler import StaticHandler
 from bokeh.settings import settings
 from bokeh.util.session_id import check_session_id_signature, generate_session_id
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'DocConsumer',
-    'AutoloadJsConsumer',
-    'WSConsumer',
-)
+__all__ = ("DocConsumer", "AutoloadJsConsumer", "WSConsumer")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ConsumerHelper(AsyncConsumer):
 
@@ -81,9 +79,16 @@ class ConsumerHelper(AsyncConsumer):
     def resources(self, absolute_url: Optional[str] = None) -> Resources:
         mode = settings.resources(default="server")
         if mode == "server":
-            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+            root_url = (
+                urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            )
+            return Resources(
+                mode="server",
+                root_url=root_url,
+                path_versioner=StaticHandler.append_version,
+            )
         return Resources(mode=mode)
+
 
 class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
@@ -101,11 +106,13 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
     async def _get_session(self) -> ServerSession:
         session_id = generate_session_id(secret_key=None, signed=False)
-        session = await self.application_context.create_session_if_needed(session_id, self.request)
+        session = await self.application_context.create_session_if_needed(
+            session_id, self.request
+        )
         return session
 
-class AutoloadJsConsumer(SessionConsumer):
 
+class AutoloadJsConsumer(SessionConsumer):
     async def handle(self, body: bytes) -> None:
         session = await self._get_session()
 
@@ -118,7 +125,9 @@ class AutoloadJsConsumer(SessionConsumer):
 
         server_url: Optional[str]
         if absolute_url:
-            server_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(absolute_url))
+            server_url = "{uri.scheme}://{uri.netloc}/".format(
+                uri=urlparse(absolute_url)
+            )
         else:
             server_url = None
 
@@ -126,22 +135,37 @@ class AutoloadJsConsumer(SessionConsumer):
         resources = self.resources(server_url) if resources_param != "none" else None
         bundle = bundle_for_objs_and_resources(None, resources)
 
-        render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
+        render_items = [
+            RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)
+        ]
+        bundle.add(
+            Script(
+                script_for_render_items(
+                    None, render_items, app_path=app_path, absolute_url=absolute_url
+                )
+            )
+        )
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
-        await self.send_response(200, js.encode(), headers=[(b"Content-Type", b"application/javascript")])
+        await self.send_response(
+            200, js.encode(), headers=[(b"Content-Type", b"application/javascript")]
+        )
+
 
 class DocConsumer(SessionConsumer):
-
     async def handle(self, body: bytes) -> None:
         session = await self._get_session()
-        page = server_html_page_for_session(session,
-                                            resources=self.resources(),
-                                            title=session.document.title,
-                                            template=session.document.template,
-                                            template_variables=session.document.template_variables)
-        await self.send_response(200, page.encode(), headers=[(b"Content-Type", b"text/html")])
+        page = server_html_page_for_session(
+            session,
+            resources=self.resources(),
+            title=session.document.title,
+            template=session.document.template,
+            template_variables=session.document.template_variables,
+        )
+        await self.send_response(
+            200, page.encode(), headers=[(b"Content-Type", b"text/html")]
+        )
+
 
 class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
@@ -152,7 +176,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
     def __init__(self, scope: Dict[str, Any]) -> None:
         super(WSConsumer, self).__init__(scope)
 
-        kwargs = self.scope['url_route']["kwargs"]
+        kwargs = self.scope["url_route"]["kwargs"]
         self.application_context = kwargs["app_context"]
 
         if self.application_context.io_loop is None:
@@ -162,16 +186,14 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
         self.lock = locks.Lock()
 
     async def connect(self):
-        log.info('WebSocket connection opened')
+        log.info("WebSocket connection opened")
 
         session_id = self.get_argument("bokeh-session-id")
         if session_id is None:
             self.close()
             raise RuntimeError("No bokeh-session-id specified")
 
-        if not check_session_id_signature(session_id,
-                                          signed=False,
-                                          secret_key=None):
+        if not check_session_id_signature(session_id, signed=False, secret_key=None):
             log.error("Session id had invalid signature: %r", session_id)
             raise RuntimeError("Invalid session ID")
 
@@ -205,7 +227,9 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
     async def _async_open(self, session_id: str) -> None:
         try:
-            await self.application_context.create_session_if_needed(session_id, self.request)
+            await self.application_context.create_session_if_needed(
+                session_id, self.request
+            )
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
@@ -215,7 +239,9 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             self.handler = ProtocolHandler()
             log.debug("ProtocolHandler created for %r", protocol)
 
-            self.connection = self._new_connection(protocol, self, self.application_context, session)
+            self.connection = self._new_connection(
+                protocol, self, self.application_context, session
+            )
             log.info("ServerConnection created")
 
         except Exception as e:
@@ -223,7 +249,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             self.close()
             raise e
 
-        msg = self.connection.protocol.create('ACK')
+        msg = self.connection.protocol.create("ACK")
         await self._send_bokeh_message(msg)
 
     async def _send_bokeh_message(self, message: Message) -> int:
@@ -248,30 +274,35 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             log.warn("Failed sending message as connection was closed")
         return sent
 
-    def _new_connection(self,
-            protocol: Protocol,
-            socket: AsyncConsumer,
-            application_context: ApplicationContext,
-            session: ServerSession) -> ServerConnection:
-        connection = AsyncServerConnection(protocol, socket, application_context, session)
+    def _new_connection(
+        self,
+        protocol: Protocol,
+        socket: AsyncConsumer,
+        application_context: ApplicationContext,
+        session: ServerSession,
+    ) -> ServerConnection:
+        connection = AsyncServerConnection(
+            protocol, socket, application_context, session
+        )
         self._clients.add(connection)
         return connection
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # TODO: remove this when coroutines are dropped
 class AsyncServerConnection(ServerConnection):
-
     async def send_patch_document(self, event):
         """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
-        msg = self.protocol.create('PATCH-DOC', [event])
+        msg = self.protocol.create("PATCH-DOC", [event])
         await self._socket._send_bokeh_message(msg)
+
 
 class AttrDict(dict):
     """ Provide a dict subclass that supports access by named attributes.
@@ -281,6 +312,7 @@ class AttrDict(dict):
     def __getattr__(self, key):
         return self[key]
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

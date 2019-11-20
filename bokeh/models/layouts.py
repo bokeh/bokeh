@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Various kinds of layout components.
+# -----------------------------------------------------------------------------
+""" Various kinds of layout components.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.enums import Align, Location, SizingMode, SizingPolicy
@@ -50,26 +51,27 @@ from ..core.validation.warnings import (
 from ..model import Model
 from .callbacks import Callback
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'Box',
-    'Column',
-    'GridBox',
-    'HTMLBox',
-    'LayoutDOM',
-    'Panel',
-    'Row',
-    'Spacer',
-    'Tabs',
-    'WidgetBox',
+    "Box",
+    "Column",
+    "GridBox",
+    "HTMLBox",
+    "LayoutDOM",
+    "Panel",
+    "Row",
+    "Spacer",
+    "Tabs",
+    "WidgetBox",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class LayoutDOM(Model):
@@ -77,50 +79,88 @@ class LayoutDOM(Model):
 
     """
 
-    disabled = Bool(False, help="""
+    disabled = Bool(
+        False,
+        help="""
     Whether the widget will be disabled when rendered.
 
     If ``True``, the widget will be greyed-out and not responsive to UI events.
-    """)
+    """,
+    )
 
-    visible = Bool(True, help="""
+    visible = Bool(
+        True,
+        help="""
     Whether the component will be visible and a part of a layout.
-    """)
+    """,
+    )
 
-    width = NonNegativeInt(default=None, help="""
+    width = NonNegativeInt(
+        default=None,
+        help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
-    """)
+    """,
+    )
 
-    height = NonNegativeInt(default=None, help="""
+    height = NonNegativeInt(
+        default=None,
+        help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.
-    """)
+    """,
+    )
 
-    min_width = NonNegativeInt(default=None, help="""
+    min_width = NonNegativeInt(
+        default=None,
+        help="""
     Minimal width of the component (in pixels) if width is adjustable.
-    """)
+    """,
+    )
 
-    min_height = NonNegativeInt(default=None, help="""
+    min_height = NonNegativeInt(
+        default=None,
+        help="""
     Minimal height of the component (in pixels) if height is adjustable.
-    """)
+    """,
+    )
 
-    max_width = NonNegativeInt(default=None, help="""
+    max_width = NonNegativeInt(
+        default=None,
+        help="""
     Minimal width of the component (in pixels) if width is adjustable.
-    """)
+    """,
+    )
 
-    max_height = NonNegativeInt(default=None, help="""
+    max_height = NonNegativeInt(
+        default=None,
+        help="""
     Minimal height of the component (in pixels) if height is adjustable.
-    """)
+    """,
+    )
 
-    margin = Tuple(Int, Int, Int, Int, default=(0, 0, 0, 0), help="""
+    margin = (
+        Tuple(
+            Int,
+            Int,
+            Int,
+            Int,
+            default=(0, 0, 0, 0),
+            help="""
     Allows to create additional space around the component.
-    """).accepts(Tuple(Int, Int), lambda v_h: (v_h[0], v_h[1], v_h[0], v_h[1])) \
+    """,
+        )
+        .accepts(Tuple(Int, Int), lambda v_h: (v_h[0], v_h[1], v_h[0], v_h[1]))
         .accepts(Int, lambda m: (m, m, m, m))
+    )
 
-    width_policy = Either(Auto, Enum(SizingPolicy), default="auto", help="""
+    width_policy = Either(
+        Auto,
+        Enum(SizingPolicy),
+        default="auto",
+        help="""
     Describes how the component should maintain its width.
 
     ``"auto"``
@@ -150,9 +190,14 @@ class LayoutDOM(Model):
         own discretion. Prefer using ``sizing_mode`` if this level of control isn't
         strictly necessary.
 
-    """)
+    """,
+    )
 
-    height_policy = Either(Auto, Enum(SizingPolicy), default="auto", help="""
+    height_policy = Either(
+        Auto,
+        Enum(SizingPolicy),
+        default="auto",
+        help="""
     Describes how the component should maintain its height.
 
     ``"auto"``
@@ -182,9 +227,14 @@ class LayoutDOM(Model):
         own discretion. Prefer using ``sizing_mode`` if this level of control isn't
         strictly necessary.
 
-    """)
+    """,
+    )
 
-    aspect_ratio = Either(Enum("auto"), Float, default=None, help="""
+    aspect_ratio = Either(
+        Enum("auto"),
+        Float,
+        default=None,
+        help="""
     Describes the proportional relationship between component's width and height.
 
     This works if any of component's dimensions are flexible in size. If set to
@@ -192,9 +242,13 @@ class LayoutDOM(Model):
     Otherwise, if set to ``"auto"``, component's preferred width and height will
     be used to determine the aspect (if not set, no aspect will be preserved).
 
-    """)
+    """,
+    )
 
-    sizing_mode = Enum(SizingMode, default=None, help="""
+    sizing_mode = Enum(
+        SizingMode,
+        default=None,
+        help="""
     How the component should size itself.
 
     This is a high-level setting for maintaining width and height of the component. To
@@ -234,28 +288,40 @@ class LayoutDOM(Model):
         Component will responsively resize to both the available width and height, while
         maintaining the original or provided aspect ratio.
 
-    """)
+    """,
+    )
 
-    align = Either(Enum(Align), Tuple(Enum(Align), Enum(Align)), default="start", help="""
+    align = Either(
+        Enum(Align),
+        Tuple(Enum(Align), Enum(Align)),
+        default="start",
+        help="""
     The alignment point within the parent container.
 
     This property is useful only if this component is a child element of a layout
     (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
     grid track align).
-    """)
+    """,
+    )
 
-    background = Color(default=None, help="""
+    background = Color(
+        default=None,
+        help="""
     Background color of the component.
-    """)
+    """,
+    )
 
     # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
-    css_classes = List(String, help="""
+    css_classes = List(
+        String,
+        help="""
     A list of CSS class names to add to this DOM element. Note: the class names are
     simply added as-is, no other guarantees are provided.
 
     It is also permissible to assign from tuples, however these are adapted -- the
     property will always contain a list.
-    """).accepts(Seq(String), lambda x: list(x))
+    """,
+    ).accepts(Seq(String), lambda x: list(x))
 
     @warning(FIXED_SIZING_MODE)
     def _check_fixed_sizing_mode(self):
@@ -275,7 +341,7 @@ class LayoutDOM(Model):
     @error(MIN_PREFERRED_MAX_WIDTH)
     def _min_preferred_max_width(self):
         min_width = self.min_width if self.min_width is not None else 0
-        width     = self.width     if self.width     is not None else min_width
+        width = self.width if self.width is not None else min_width
         max_width = self.max_width if self.max_width is not None else width
 
         if not (min_width <= width <= max_width):
@@ -284,22 +350,25 @@ class LayoutDOM(Model):
     @error(MIN_PREFERRED_MAX_HEIGHT)
     def _min_preferred_max_height(self):
         min_height = self.min_height if self.min_height is not None else 0
-        height     = self.height     if self.height     is not None else min_height
+        height = self.height if self.height is not None else min_height
         max_height = self.max_height if self.max_height is not None else height
 
         if not (min_height <= height <= max_height):
             return str(self)
 
+
 @abstract
 class HTMLBox(LayoutDOM):
-    ''' A component which size is determined by its HTML content.
+    """ A component which size is determined by its HTML content.
 
-    '''
+    """
+
 
 class Spacer(LayoutDOM):
-    ''' A container for space used to fill an empty spot in a row or column.
+    """ A container for space used to fill an empty spot in a row or column.
 
-    '''
+    """
+
 
 QuickTrackSizing = Either(Enum("auto", "min", "fit", "max"), Int)
 
@@ -309,60 +378,86 @@ RowSizing = Either(
     QuickTrackSizing,
     Struct(policy=Enum("auto", "min"), align=TrackAlign),
     Struct(policy=Enum("fixed"), height=Int, align=TrackAlign),
-    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
+    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign),
+)
 
 ColSizing = Either(
     QuickTrackSizing,
     Struct(policy=Enum("auto", "min"), align=TrackAlign),
     Struct(policy=Enum("fixed"), width=Int, align=TrackAlign),
-    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
+    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign),
+)
 
-IntOrString = Either(Int, String) # XXX: work around issue #8166
+IntOrString = Either(Int, String)  # XXX: work around issue #8166
+
 
 class GridBox(LayoutDOM):
 
-    children = List(Either(
-        Tuple(Instance(LayoutDOM), Int, Int),
-        Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
+    children = List(
+        Either(
+            Tuple(Instance(LayoutDOM), Int, Int),
+            Tuple(Instance(LayoutDOM), Int, Int, Int, Int),
+        ),
+        default=[],
+        help="""
     A list of children with their associated position in the grid (row, column).
-    """)
+    """,
+    )
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Either(
+        QuickTrackSizing,
+        Dict(IntOrString, RowSizing),
+        default="auto",
+        help="""
     Describes how the grid should maintain its rows' heights.
 
     .. note::
         This is an experimental feature and may change in future. Use it at your
         own discretion.
 
-    """)
+    """,
+    )
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Either(
+        QuickTrackSizing,
+        Dict(IntOrString, ColSizing),
+        default="auto",
+        help="""
     Describes how the grid should maintain its columns' widths.
 
     .. note::
         This is an experimental feature and may change in future. Use it at your
         own discretion.
 
-    """)
+    """,
+    )
 
-    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    spacing = Either(
+        Int,
+        Tuple(Int, Int),
+        default=0,
+        help="""
     The gap between children (in pixels).
 
     Either a number, if spacing is the same for both dimensions, or a pair
     of numbers indicating spacing in the vertical and horizontal dimensions
     respectively.
-    """)
+    """,
+    )
+
 
 @abstract
 class Box(LayoutDOM):
-    ''' Abstract base class for Row and Column. Do not use directly.
+    """ Abstract base class for Row and Column. Do not use directly.
 
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
 
         if len(args) > 0 and "children" in kwargs:
-            raise ValueError("'children' keyword cannot be used with positional arguments")
+            raise ValueError(
+                "'children' keyword cannot be used with positional arguments"
+            )
         elif len(args) > 0:
             kwargs["children"] = list(args)
 
@@ -371,6 +466,7 @@ class Box(LayoutDOM):
     @warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
         from itertools import chain
+
         if not list(chain(self.children)):
             return str(self)
 
@@ -385,110 +481,158 @@ class Box(LayoutDOM):
         else:
             return None
 
-    children = List(Instance(LayoutDOM), help="""
+    children = List(
+        Instance(LayoutDOM),
+        help="""
     The list of children, which can be other components including plots, rows, columns, and widgets.
-    """)
+    """,
+    )
 
-    spacing = Int(default=0, help="""
+    spacing = Int(
+        default=0,
+        help="""
     The gap between children (in pixels).
-    """)
+    """,
+    )
 
 
 class Row(Box):
-    ''' Lay out child components in a single horizontal row.
+    """ Lay out child components in a single horizontal row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
-    '''
+    """
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Either(
+        QuickTrackSizing,
+        Dict(IntOrString, ColSizing),
+        default="auto",
+        help="""
     Describes how the component should maintain its columns' widths.
 
     .. note::
         This is an experimental feature and may change in future. Use it at your
         own discretion.
 
-    """)
+    """,
+    )
+
 
 class Column(Box):
-    ''' Lay out child components in a single vertical row.
+    """ Lay out child components in a single vertical row.
 
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
-    '''
+    """
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Either(
+        QuickTrackSizing,
+        Dict(IntOrString, RowSizing),
+        default="auto",
+        help="""
     Describes how the component should maintain its rows' heights.
 
     .. note::
         This is an experimental feature and may change in future. Use it at your
         own discretion.
 
-    """)
+    """,
+    )
+
 
 class Panel(Model):
-    ''' A single-widget container with title bar and controls.
+    """ A single-widget container with title bar and controls.
 
-    '''
+    """
 
-    title = String(default="", help="""
+    title = String(
+        default="",
+        help="""
     The text title of the panel.
-    """)
+    """,
+    )
 
-    child = Instance(LayoutDOM, help="""
+    child = Instance(
+        LayoutDOM,
+        help="""
     The child widget. If you need more children, use a layout widget, e.g. a ``Column``.
-    """)
+    """,
+    )
 
-    closable = Bool(False, help="""
+    closable = Bool(
+        False,
+        help="""
     Whether this panel is closable or not. If True, an "x" button will appear.
 
     Closing a panel is equivalent to removing it from its parent container (e.g. tabs).
-    """)
+    """,
+    )
+
 
 class Tabs(LayoutDOM):
-    ''' A panel widget with navigation tabs.
+    """ A panel widget with navigation tabs.
 
-    '''
+    """
 
     __example__ = "sphinx/source/docs/user_guide/examples/interaction_tab_panes.py"
 
-    tabs = List(Instance(Panel), help="""
+    tabs = List(
+        Instance(Panel),
+        help="""
     The list of child panel widgets.
-    """).accepts(List(Tuple(String, Instance(LayoutDOM))),
-                 lambda items: [ Panel(title=title, child=child) for (title, child) in items ])
+    """,
+    ).accepts(
+        List(Tuple(String, Instance(LayoutDOM))),
+        lambda items: [Panel(title=title, child=child) for (title, child) in items],
+    )
 
-    tabs_location = Enum(Location, default="above", help="""
+    tabs_location = Enum(
+        Location,
+        default="above",
+        help="""
     The location of the buttons that activate tabs.
-    """)
+    """,
+    )
 
-    active = Int(0, help="""
+    active = Int(
+        0,
+        help="""
     The index of the active tab.
-    """)
+    """,
+    )
 
-    callback = Instance(Callback, help="""
+    callback = Instance(
+        Callback,
+        help="""
     A callback to run in the browser whenever the button is activated.
-    """)
+    """,
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # TODO (bev) deprecation: 3.0
 class WidgetBox(Column):
-    ''' Create a column of bokeh widgets with predefined styling.
+    """ Create a column of bokeh widgets with predefined styling.
 
     WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
 
-    '''
+    """
+
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         from ..util.deprecation import deprecated
-        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")
+
+        deprecated(
+            "'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead"
+        )

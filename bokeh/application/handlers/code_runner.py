@@ -1,23 +1,24 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a utility class ``CodeRunner`` for use by handlers that execute
+# -----------------------------------------------------------------------------
+""" Provide a utility class ``CodeRunner`` for use by handlers that execute
 Python source code.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -28,29 +29,28 @@ from types import ModuleType
 # Bokeh imports
 from ...util.serialization import make_id
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'CodeRunner',
-)
+__all__ = ("CodeRunner",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class CodeRunner(object):
-    ''' Compile and run Python source code.
+    """ Compile and run Python source code.
 
-    '''
+    """
 
     def __init__(self, source, path, argv):
-        '''
+        """
 
         Args:
             source (str) : python source code
@@ -60,21 +60,27 @@ class CodeRunner(object):
             argv (list[str]) : a list of string arguments to make available
                 as ``sys.argv`` when the code executes
 
-        '''
+        """
         self._permanent_error = None
         self._permanent_error_detail = None
         self.reset_run_errors()
 
         import ast
+
         self._code = None
 
         try:
             nodes = ast.parse(source, path)
-            self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
+            self._code = compile(nodes, filename=path, mode="exec", dont_inherit=True)
         except SyntaxError as e:
             import traceback
+
             self._code = None
-            self._permanent_error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
+            self._permanent_error = 'Invalid syntax in "%s" on line %d:\n%s' % (
+                os.path.basename(e.filename),
+                e.lineno,
+                e.text,
+            )
             self._permanent_error_detail = traceback.format_exc()
 
         self._path = path
@@ -86,73 +92,77 @@ class CodeRunner(object):
 
     @property
     def error(self):
-        ''' If code execution fails, may contain a related error message.
+        """ If code execution fails, may contain a related error message.
 
-        '''
+        """
         return self._error if self._permanent_error is None else self._permanent_error
 
     @property
     def error_detail(self):
-        ''' If code execution fails, may contain a traceback or other details.
+        """ If code execution fails, may contain a traceback or other details.
 
-        '''
-        return self._error_detail if self._permanent_error_detail is None else self._permanent_error_detail
+        """
+        return (
+            self._error_detail
+            if self._permanent_error_detail is None
+            else self._permanent_error_detail
+        )
 
     @property
     def failed(self):
-        ''' ``True`` if code execution failed
+        """ ``True`` if code execution failed
 
-        '''
+        """
         return self._failed or self._code is None
 
     @property
     def path(self):
-        ''' The path that new modules will be configured with.
+        """ The path that new modules will be configured with.
 
-        '''
+        """
         return self._path
 
     @property
     def source(self):
-        ''' The configured source code that will be executed when ``run`` is
+        """ The configured source code that will be executed when ``run`` is
         called.
 
-        '''
+        """
         return self._source
 
     # Public methods ----------------------------------------------------------
 
     def new_module(self):
-        ''' Make a fresh module to run in.
+        """ Make a fresh module to run in.
 
         Returns:
             Module
 
-        '''
+        """
         self.reset_run_errors()
 
         if self._code is None:
             return None
 
-        module_name = 'bk_script_' + make_id().replace('-', '')
+        module_name = "bk_script_" + make_id().replace("-", "")
         module = ModuleType(module_name)
-        module.__dict__['__file__'] = os.path.abspath(self._path)
+        module.__dict__["__file__"] = os.path.abspath(self._path)
 
         return module
 
     def reset_run_errors(self):
-        ''' Clears any transient error conditions from a previous run.
+        """ Clears any transient error conditions from a previous run.
 
         Returns
             None
 
-        '''
+        """
         self._failed = False
         self._error = None
         self._error_detail = None
 
     def run(self, module, post_check):
-        ''' Execute the configured source code in a module and run any post
+        """ Execute the configured source code in a module and run any post
         checks.
 
         Args:
@@ -161,7 +171,7 @@ class CodeRunner(object):
             post_check(callable) : a function that can raise an exception
                 if expected post-conditions are not met after code execution.
 
-        '''
+        """
         try:
             # Simulate the sys.path behaviour described here:
             #
@@ -182,7 +192,13 @@ class CodeRunner(object):
             _exc_type, _exc_value, exc_traceback = sys.exc_info()
             filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
 
-            self._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
+            self._error = '%s\nFile "%s", line %d, in %s:\n%s' % (
+                str(e),
+                os.path.basename(filename),
+                line_number,
+                func,
+                txt,
+            )
 
         finally:
             # undo sys.path, CWD fixups
@@ -191,10 +207,11 @@ class CodeRunner(object):
             sys.argv = _sys_argv
             self.ran = True
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

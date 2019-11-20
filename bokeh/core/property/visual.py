@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide properties for various visual attrributes.
+# -----------------------------------------------------------------------------
+""" Provide properties for various visual attrributes.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import base64
@@ -38,25 +39,26 @@ from .numeric import Float, Int
 from .primitive import String
 from .regex import Regex
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'DashPattern',
-    'FontSize',
-    'HatchPatternType',
-    'Image',
-    'MinMaxBounds',
-    'MarkerType',
+    "DashPattern",
+    "FontSize",
+    "HatchPatternType",
+    "Image",
+    "MinMaxBounds",
+    "MarkerType",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class DashPattern(Either):
-    ''' Accept line dash specifications.
+    """ Accept line dash specifications.
 
     Express patterns that describe line dashes.  ``DashPattern`` values
     can be specified in a variety of ways:
@@ -71,14 +73,14 @@ class DashPattern(Either):
 
     .. _HTML5 Canvas dash specification style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
 
-    '''
+    """
 
     _dash_patterns = {
         "solid": [],
         "dashed": [6],
-        "dotted": [2,4],
-        "dotdash": [2,4,6,4],
-        "dashdot": [6,4,2,4],
+        "dotted": [2, 4],
+        "dotdash": [2, 4, 6, 4],
+        "dashdot": [6, 4, 2, 4],
     }
 
     def __init__(self, default=[], help=None):
@@ -95,35 +97,42 @@ class DashPattern(Either):
             try:
                 return self._dash_patterns[value]
             except KeyError:
-                return [int(x) for x in  value.split()]
+                return [int(x) for x in value.split()]
         else:
             return value
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+
 class FontSize(String):
 
-    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+    _font_size_re = re.compile(
+        r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$",
+        re.I,
+    )
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
         if isinstance(value, str):
             if len(value) == 0:
-                msg = "" if not detail else "empty string is not a valid font size value"
+                msg = (
+                    "" if not detail else "empty string is not a valid font size value"
+                )
                 raise ValueError(msg)
             elif self._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
 
+
 class HatchPatternType(Either):
-    ''' Accept built-in fill hatching specifications.
+    """ Accept built-in fill hatching specifications.
 
     Accepts either "long" names, e.g. "horizontal-wave" or the single letter
     abbreviations, e.g. "v"
 
-    '''
+    """
 
     def __init__(self, default=[], help=None):
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
@@ -135,8 +144,9 @@ class HatchPatternType(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+
 class Image(Property):
-    ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
+    """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
 
     This property can be configured with:
 
@@ -146,7 +156,7 @@ class Image(Property):
 
     In all cases, the image data is serialized as a Base64 encoded string.
 
-    '''
+    """
 
     def validate(self, value, detail=True):
         import numpy as np
@@ -157,10 +167,19 @@ class Image(Property):
             valid = True
 
         if isinstance(value, np.ndarray):
-            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
+            valid = (
+                value.dtype == "uint8"
+                and len(value.shape) == 3
+                and value.shape[2] in (3, 4)
+            )
 
         if not valid:
-            msg = "" if not detail else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays" % value
+            msg = (
+                ""
+                if not detail
+                else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
+                % value
+            )
             raise ValueError(msg)
 
     def transform(self, value):
@@ -168,6 +187,7 @@ class Image(Property):
             return None
 
         import numpy as np
+
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
@@ -178,12 +198,15 @@ class Image(Property):
             out = BytesIO()
             fmt = value.format or "PNG"
             value.save(out, fmt)
-            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
+            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(
+                out.getvalue()
+            ).decode("ascii")
 
         raise ValueError("Could not transform %r" % value)
 
+
 class MinMaxBounds(Either):
-    ''' Accept (min, max) bounds tuples for use with Ranges.
+    """ Accept (min, max) bounds tuples for use with Ranges.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
     increasing or decreasing, the first item should be the minimum value of the range and the
@@ -191,9 +214,9 @@ class MinMaxBounds(Either):
 
     Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
     want to constrain one end of the plot, you can set min or max to
-    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` '''
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
-    def __init__(self, accept_datetime=False, default='auto', help=None):
+    def __init__(self, accept_datetime=False, default="auto", help=None):
         if accept_datetime:
             types = (
                 Auto,
@@ -202,11 +225,7 @@ class MinMaxBounds(Either):
                 Tuple(Datetime, Datetime),
             )
         else:
-            types = (
-                Auto,
-                Tuple(Float, Float),
-                Tuple(TimeDelta, TimeDelta),
-            )
+            types = (Auto, Tuple(Float, Float), Tuple(TimeDelta, TimeDelta))
         super().__init__(*types, default=default, help=help)
 
     def validate(self, value, detail=True):
@@ -219,7 +238,11 @@ class MinMaxBounds(Either):
             pass
 
         elif value[0] >= value[1]:
-            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+            msg = (
+                ""
+                if not detail
+                else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+            )
             raise ValueError(msg)
 
         return True
@@ -227,21 +250,24 @@ class MinMaxBounds(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
-class MarkerType(Enum):
-    '''
 
-    '''
+class MarkerType(Enum):
+    """
+
+    """
+
     def __init__(self, **kw):
         super().__init__(enums.MarkerType, **kw)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

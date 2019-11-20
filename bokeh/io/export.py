@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import io
@@ -33,27 +34,28 @@ from ..embed import file_html
 from ..resources import INLINE
 from .util import default_filename
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'create_webdriver',
-    'export_png',
-    'export_svgs',
-    'get_layout_html',
-    'get_screenshot_as_png',
-    'get_svgs',
-    'terminate_webdriver',
-    'webdriver_control',
+    "create_webdriver",
+    "export_png",
+    "export_svgs",
+    "get_layout_html",
+    "get_screenshot_as_png",
+    "get_svgs",
+    "terminate_webdriver",
+    "webdriver_control",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def export_png(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
-    ''' Export the ``LayoutDOM`` object or document as a PNG.
+    """ Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
     ``/foo/myplot.py`` will create ``/foo/myplot.png``)
@@ -88,9 +90,11 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
         Responsive sizing_modes may generate layouts with unexpected size and
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
-    '''
+    """
 
-    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver, timeout=timeout)
+    image = get_screenshot_as_png(
+        obj, height=height, width=width, driver=webdriver, timeout=timeout
+    )
 
     if filename is None:
         filename = default_filename("png")
@@ -102,8 +106,9 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
 
     return abspath(filename)
 
+
 def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
-    ''' Export the SVG-enabled plots within a layout. Each plot will result
+    """ Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
     If the filename is not given, it is derived from the script name
@@ -135,7 +140,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
         Responsive sizing_modes may generate layouts with unexpected size and
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
-    '''
+    """
     svgs = get_svgs(obj, height=height, width=width, driver=webdriver, timeout=timeout)
 
     if len(svgs) == 0:
@@ -161,26 +166,29 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
 
     return filenames
 
-# this is part of the API for this module
-from .webdriver import terminate_webdriver ; terminate_webdriver
-from .webdriver import webdriver_control ; webdriver_control
 
-#-----------------------------------------------------------------------------
+# this is part of the API for this module
+from .webdriver import terminate_webdriver  # noqa isort:skip
+from .webdriver import webdriver_control  # noqa isort:skip
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def create_webdriver():
-    ''' Create a new webdriver.
+    """ Create a new webdriver.
 
     .. note ::
         Here for compatibility. Prefer methods on the webdriver_control
         object.
 
-    '''
+    """
     return webdriver_control.create()
 
+
 def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
-    ''' Get a screenshot of a ``LayoutDOM`` object.
+    """ Get a screenshot of a ``LayoutDOM`` object.
 
     Args:
         obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
@@ -200,7 +208,7 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
         Responsive sizing_modes may generate layouts with unexpected size and
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
-    '''
+    """
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
@@ -225,10 +233,11 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
 
     return cropped_image
 
-def get_svgs(obj, driver=None, timeout=5, **kwargs):
-    '''
 
-    '''
+def get_svgs(obj, driver=None, timeout=5, **kwargs):
+    """
+
+    """
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
@@ -244,25 +253,31 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
 
     return svgs
 
-def get_layout_html(obj, resources=INLINE, **kwargs):
-    '''
 
-    '''
+def get_layout_html(obj, resources=INLINE, **kwargs):
+    """
+
+    """
     resize = False
-    if kwargs.get('height') is not None or kwargs.get('width') is not None:
+    if kwargs.get("height") is not None or kwargs.get("width") is not None:
         # Defer this import, it is expensive
         from ..models.plots import Plot
+
         if not isinstance(obj, Plot):
-            warnings.warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
+            warnings.warn(
+                "Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored."
+            )
         else:
             resize = True
             old_height = obj.plot_height
             old_width = obj.plot_width
-            obj.plot_height = kwargs.get('height', old_height)
-            obj.plot_width = kwargs.get('width', old_width)
+            obj.plot_height = kwargs.get("height", old_height)
+            obj.plot_width = kwargs.get("width", old_width)
 
     try:
-        html = file_html(obj, resources, title="", suppress_callback_warning=True, _always_new=True)
+        html = file_html(
+            obj, resources, title="", suppress_callback_warning=True, _always_new=True
+        )
     finally:
         if resize:
             obj.plot_height = old_height
@@ -270,49 +285,65 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
 
     return html
 
-def wait_until_render_complete(driver, timeout):
-    '''
 
-    '''
+def wait_until_render_complete(driver, timeout):
+    """
+
+    """
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
     from selenium.webdriver import Firefox
 
     def is_bokeh_loaded(driver):
-        return driver.execute_script('''
+        return driver.execute_script(
+            """
             const b = window.Bokeh;
             return b && b.documents && b.documents.length > 0;
-        ''')
+        """
+        )
 
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
-        raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
+        raise RuntimeError(
+            "Bokeh was not loaded in time. Something may have gone wrong."
+        ) from e
 
     driver.execute_script(_WAIT_SCRIPT)
 
     def is_bokeh_render_complete(driver):
-        return driver.execute_script('return window._bokeh_render_complete;')
+        return driver.execute_script("return window._bokeh_render_complete;")
 
     try:
-        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_render_complete)
+        WebDriverWait(driver, timeout, poll_frequency=0.1).until(
+            is_bokeh_render_complete
+        )
     except TimeoutException:
-        log.warning("The webdriver raised a TimeoutException while waiting for "
-                    "a 'bokeh:idle' event to signify that the layout has rendered. "
-                    "Something may have gone wrong.")
+        log.warning(
+            "The webdriver raised a TimeoutException while waiting for "
+            "a 'bokeh:idle' event to signify that the layout has rendered. "
+            "Something may have gone wrong."
+        )
     finally:
         # Firefox webdriver does not currently support logs
         if not isinstance(driver, Firefox):
-            browser_logs = driver.get_log('browser')
-            messages = [ l.get("message") for l in browser_logs if l.get('level') in ['WARNING', 'ERROR', 'SEVERE'] ]
+            browser_logs = driver.get_log("browser")
+            messages = [
+                l.get("message")
+                for l in browser_logs
+                if l.get("level") in ["WARNING", "ERROR", "SEVERE"]
+            ]
             if len(messages) > 0:
-                log.warning("There were browser warnings and/or errors that may have affected your export")
+                log.warning(
+                    "There were browser warnings and/or errors that may have affected your export"
+                )
                 for message in messages:
                     log.warning(message)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _BOUNDING_RECT_SCRIPT = """
 return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()
@@ -343,11 +374,13 @@ else
   doc.idle.connect(done);
 """
 
-def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
-    ''' Crop the border from the layout
 
-    '''
+def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
+    """ Crop the border from the layout
+
+    """
     return image.crop((left, top, right, bottom))
+
 
 class _TempFile(object):
 
@@ -385,9 +418,11 @@ class _TempFile(object):
 
         self._closed = True
 
+
 def _tmp_html():
     return _TempFile(prefix="bokeh", suffix=".html")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

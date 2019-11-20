@@ -1,26 +1,27 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Functions useful for dealing with hexagonal tilings.
+# -----------------------------------------------------------------------------
+""" Functions useful for dealing with hexagonal tilings.
 
 For more information on the concepts employed here, see this informative page
 
     https://www.redblobgames.com/grids/hexagons/
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import numpy as np
@@ -28,22 +29,19 @@ import numpy as np
 # Bokeh imports
 from .dependencies import import_required
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'axial_to_cartesian',
-    'cartesian_to_axial',
-    'hexbin',
-)
+__all__ = ("axial_to_cartesian", "cartesian_to_axial", "hexbin")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
-    ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
+    """ Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
     This function can be useful for positioning other Bokeh glyphs with
@@ -83,18 +81,19 @@ def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
     Returns:
         (array[int], array[int])
 
-    '''
+    """
     if orientation == "pointytop":
-        x = size * np.sqrt(3) * (q + r/2.0) / aspect_scale
-        y = -size * 3/2.0 * r
+        x = size * np.sqrt(3) * (q + r / 2.0) / aspect_scale
+        y = -size * 3 / 2.0 * r
     else:
-        x = size * 3/2.0 * q
-        y = -size * np.sqrt(3) * (r + q/2.0) * aspect_scale
+        x = size * 3 / 2.0 * q
+        y = -size * np.sqrt(3) * (r + q / 2.0) * aspect_scale
 
     return (x, y)
 
+
 def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
-    ''' Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
+    """ Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
 
     This function was adapted from:
@@ -131,13 +130,13 @@ def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
     Returns:
         (array[int], array[int])
 
-    '''
-    HEX_FLAT = [2.0/3.0, 0.0, -1.0/3.0, np.sqrt(3.0)/3.0]
-    HEX_POINTY = [np.sqrt(3.0)/3.0, -1.0/3.0, 0.0, 2.0/3.0]
+    """
+    HEX_FLAT = [2.0 / 3.0, 0.0, -1.0 / 3.0, np.sqrt(3.0) / 3.0]
+    HEX_POINTY = [np.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0]
 
-    coords = HEX_FLAT if orientation == 'flattop' else HEX_POINTY
+    coords = HEX_FLAT if orientation == "flattop" else HEX_POINTY
 
-    x =  x / size * (aspect_scale if orientation == "pointytop" else 1)
+    x = x / size * (aspect_scale if orientation == "pointytop" else 1)
     y = -y / size / (aspect_scale if orientation == "flattop" else 1)
 
     q = coords[0] * x + coords[1] * y
@@ -145,8 +144,9 @@ def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
 
     return _round_hex(q, r)
 
+
 def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
-    ''' Perform an equal-weight binning of data points into hexagonal tiles.
+    """ Perform an equal-weight binning of data points into hexagonal tiles.
 
     For more sophisticated use cases, e.g. weighted binning or scaling
     individual tiles proportional to some other quantity, consider using
@@ -191,24 +191,26 @@ def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
     .. warning::
         Hex binning only functions on linear scales, i.e. not on log plots.
 
-    '''
-    pd = import_required('pandas','hexbin requires pandas to be installed')
+    """
+    pd = import_required("pandas", "hexbin requires pandas to be installed")
 
     q, r = cartesian_to_axial(x, y, size, orientation, aspect_scale=aspect_scale)
 
     df = pd.DataFrame(dict(r=r, q=q))
-    return df.groupby(['q', 'r']).size().reset_index(name='counts')
+    return df.groupby(["q", "r"]).size().reset_index(name="counts")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _round_hex(q, r):
-    ''' Round floating point axial hex coordinates to integer *(q,r)*
+    """ Round floating point axial hex coordinates to integer *(q,r)*
     coordinates.
 
     This code was adapted from:
@@ -225,10 +227,10 @@ def _round_hex(q, r):
     Returns:
         (array[int], array[int])
 
-    '''
+    """
     x = q
     z = r
-    y = -x-z
+    y = -x - z
 
     rx = np.round(x)
     ry = np.round(y)
@@ -239,11 +241,12 @@ def _round_hex(q, r):
     dz = np.abs(rz - z)
 
     cond = (dx > dy) & (dx > dz)
-    q = np.where(cond              , -(ry + rz), rx)
+    q = np.where(cond, -(ry + rz), rx)
     r = np.where(~cond & ~(dy > dz), -(rx + ry), rz)
 
     return q.astype(int), r.astype(int)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

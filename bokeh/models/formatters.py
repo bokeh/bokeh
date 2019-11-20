@@ -1,23 +1,24 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Models for controlling the text and visual formatting of tick
+# -----------------------------------------------------------------------------
+""" Models for controlling the text and visual formatting of tick
 labels on Bokeh plot axes.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
@@ -40,84 +41,110 @@ from ..model import Model
 from ..util.string import format_docstring
 from .tickers import Ticker
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'TickFormatter',
-    'BasicTickFormatter',
-    'MercatorTickFormatter',
-    'NumeralTickFormatter',
-    'PrintfTickFormatter',
-    'LogTickFormatter',
-    'CategoricalTickFormatter',
-    'FuncTickFormatter',
-    'DatetimeTickFormatter',
+    "TickFormatter",
+    "BasicTickFormatter",
+    "MercatorTickFormatter",
+    "NumeralTickFormatter",
+    "PrintfTickFormatter",
+    "LogTickFormatter",
+    "CategoricalTickFormatter",
+    "FuncTickFormatter",
+    "DatetimeTickFormatter",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _DATETIME_TICK_FORMATTER_HELP(field):
-    return """
+    return (
+        """
     Formats for displaying datetime values in the %s range.
 
     See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
-    """ % field
+    """
+        % field
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class TickFormatter(Model):
-    ''' A base class for all tick formatter types.
+    """ A base class for all tick formatter types.
 
-    '''
+    """
+
     pass
 
+
 class BasicTickFormatter(TickFormatter):
-    ''' Display tick values from continuous ranges as "basic numbers",
+    """ Display tick values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
 
-    '''
-    precision = Either(Auto, Int, help="""
-    How many digits of precision to display in tick labels.
-    """)
+    """
 
-    use_scientific = Bool(True, help="""
+    precision = Either(
+        Auto,
+        Int,
+        help="""
+    How many digits of precision to display in tick labels.
+    """,
+    )
+
+    use_scientific = Bool(
+        True,
+        help="""
     Whether to ever display scientific notation. If ``True``, then
     when to use scientific notation is controlled by ``power_limit_low``
     and ``power_limit_high``.
-    """)
+    """,
+    )
 
-    power_limit_high = Int(5, help="""
+    power_limit_high = Int(
+        5,
+        help="""
     Limit the use of scientific notation to when::
 
         log(x) >= power_limit_high
 
-    """)
+    """,
+    )
 
-    power_limit_low = Int(-3, help="""
+    power_limit_low = Int(
+        -3,
+        help="""
     Limit the use of scientific notation to when::
 
         log(x) <= power_limit_low
 
-    """)
+    """,
+    )
+
 
 class MercatorTickFormatter(BasicTickFormatter):
-    ''' A ``TickFormatter`` for values in WebMercator units.
+    """ A ``TickFormatter`` for values in WebMercator units.
 
     Some map plot types internally use WebMercator to describe coordinates,
     plot bounds, etc. These units are not very human-friendly. This tick
     formatter will convert WebMercator units into Latitude and Longitude
     for display on axes.
 
-    '''
+    """
 
-    dimension = Enum(LatLon, default=None, help="""
+    dimension = Enum(
+        LatLon,
+        default=None,
+        help="""
     Specify whether to format ticks for Latitude or Longitude.
 
     Projected coordinates are not separable, computing Latitude and Longitude
@@ -132,17 +159,21 @@ class MercatorTickFormatter(BasicTickFormatter):
     In order to prevent hard to debug errors, there is no default value for
     dimension. Using an un-configured ``MercatorTickFormatter`` will result in
     a validation error and a JavaScript console error.
-    """)
+    """,
+    )
 
     @error(MISSING_MERCATOR_DIMENSION)
     def _check_missing_dimension(self):
         if self.dimension is None:
             return str(self)
 
-class NumeralTickFormatter(TickFormatter):
-    ''' Tick formatter based on a human-readable format string. '''
 
-    format = String("0,0", help="""
+class NumeralTickFormatter(TickFormatter):
+    """ Tick formatter based on a human-readable format string. """
+
+    format = String(
+        "0,0",
+        help="""
     The number format, as defined in the following tables:
 
     **NUMBERS**:
@@ -216,20 +247,31 @@ class NumeralTickFormatter(TickFormatter):
     ============ ============== ============
 
     For the complete specification, see http://numbrojs.com/format.html
-    """)
+    """,
+    )
 
-    language = Enum(NumeralLanguage, default="en", help="""
+    language = Enum(
+        NumeralLanguage,
+        default="en",
+        help="""
     The language to use for formatting language-specific features (e.g. thousands separator).
-    """)
+    """,
+    )
 
-    rounding = Enum(RoundingFunction, help="""
+    rounding = Enum(
+        RoundingFunction,
+        help="""
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
-    """)
+    """,
+    )
+
 
 class PrintfTickFormatter(TickFormatter):
-    ''' Tick formatter based on a printf-style format string. '''
+    """ Tick formatter based on a printf-style format string. """
 
-    format = String("%s", help="""
+    format = String(
+        "%s",
+        help="""
     The number format, as defined as follows: the placeholder in the format
     string is marked by % and is followed by one or more of these elements,
     in this order:
@@ -271,29 +313,38 @@ class PrintfTickFormatter(TickFormatter):
         - ``x`` --- yields an integer as a hexadecimal number (lower-case)
         - ``X`` --- yields an integer as a hexadecimal number (upper-case)
 
-    """)
+    """,
+    )
+
 
 class LogTickFormatter(TickFormatter):
-    ''' Display tick values from continuous ranges as powers
+    """ Display tick values from continuous ranges as powers
     of some base.
 
     Most often useful in conjunction with a ``LogTicker``.
 
-    '''
-    ticker = Instance(Ticker, help="""
+    """
+
+    ticker = Instance(
+        Ticker,
+        help="""
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
-    """)
+    """,
+    )
+
 
 class CategoricalTickFormatter(TickFormatter):
-    ''' Display tick values from categorical ranges as string
+    """ Display tick values from categorical ranges as string
     values.
 
-    '''
+    """
+
     pass
 
+
 class FuncTickFormatter(TickFormatter):
-    ''' Display tick values that are formatted by a user-defined function.
+    """ Display tick values that are formatted by a user-defined function.
 
     .. warning::
         The explicit purpose of this Bokeh Model is to embed *raw JavaScript
@@ -301,15 +352,21 @@ class FuncTickFormatter(TickFormatter):
         from untrusted user inputs, then you must take appropriate care to
         sanitize the user input prior to passing to Bokeh.
 
-    '''
+    """
 
-    args = Dict(String, AnyRef, help="""
+    args = Dict(
+        String,
+        AnyRef,
+        help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the formatter's code snippet as the values of
     named parameters to the callback.
-    """)
+    """,
+    )
 
-    code = String(default="", help="""
+    code = String(
+        default="",
+        help="""
     A snippet of JavaScript code that reformats a single tick to the desired
     format. The variable ``tick`` will contain the unformatted tick value and
     can be expected to be present in the code snippet namespace at render time.
@@ -331,10 +388,12 @@ class FuncTickFormatter(TickFormatter):
             this.precision = this.precision || (ticks.length > 5 ? 1 : 2);
             return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
             '''
-    """)
+    """,
+    )
+
 
 class DatetimeTickFormatter(TickFormatter):
-    ''' A ``TickFormatter`` for displaying datetime values nicely across a
+    """ A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.
 
     ``DatetimeTickFormatter`` has the following properties (listed together
@@ -536,60 +595,95 @@ class DatetimeTickFormatter(TickFormatter):
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    '''
-    microseconds = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
-                        default=['%fus']).accepts(String, lambda fmt: [fmt])
+    """
 
-    milliseconds = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
-                        default=['%3Nms', '%S.%3Ns']).accepts(String, lambda fmt: [fmt])
+    microseconds = List(
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"), default=["%fus"]
+    ).accepts(String, lambda fmt: [fmt])
 
-    seconds      = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"),
-                        default=['%Ss']).accepts(String, lambda fmt: [fmt])
+    milliseconds = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
+        default=["%3Nms", "%S.%3Ns"],
+    ).accepts(String, lambda fmt: [fmt])
 
-    minsec       = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-                        default=[':%M:%S']).accepts(String, lambda fmt: [fmt])
+    seconds = List(
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"), default=["%Ss"]
+    ).accepts(String, lambda fmt: [fmt])
 
-    minutes      = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
-                        default=[':%M', '%Mm']).accepts(String, lambda fmt: [fmt])
+    minsec = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP(
+            "``minsec`` (for combined minutes and seconds)"
+        ),
+        default=[":%M:%S"],
+    ).accepts(String, lambda fmt: [fmt])
 
-    hourmin      = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-                        default=['%H:%M']).accepts(String, lambda fmt: [fmt])
+    minutes = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
+        default=[":%M", "%Mm"],
+    ).accepts(String, lambda fmt: [fmt])
 
-    hours        = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
-                        default=['%Hh', '%H:%M']).accepts(String, lambda fmt: [fmt])
+    hourmin = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP(
+            "``hourmin`` (for combined hours and minutes)"
+        ),
+        default=["%H:%M"],
+    ).accepts(String, lambda fmt: [fmt])
 
-    days         = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
-                        default=['%m/%d', '%a%d']).accepts(String, lambda fmt: [fmt])
+    hours = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
+        default=["%Hh", "%H:%M"],
+    ).accepts(String, lambda fmt: [fmt])
 
-    months       = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
-                        default=['%m/%Y', '%b %Y']).accepts(String, lambda fmt: [fmt])
+    days = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
+        default=["%m/%d", "%a%d"],
+    ).accepts(String, lambda fmt: [fmt])
 
-    years        = List(String,
-                        help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
-                        default=['%Y']).accepts(String, lambda fmt: [fmt])
+    months = List(
+        String,
+        help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
+        default=["%m/%Y", "%b %Y"],
+    ).accepts(String, lambda fmt: [fmt])
 
-#-----------------------------------------------------------------------------
+    years = List(
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``years``"), default=["%Y"]
+    ).accepts(String, lambda fmt: [fmt])
+
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
 _df = DatetimeTickFormatter()
-_df_fields = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years']
+_df_fields = [
+    "microseconds",
+    "milliseconds",
+    "seconds",
+    "minsec",
+    "minutes",
+    "hourmin",
+    "hours",
+    "days",
+    "months",
+    "years",
+]
 _df_defaults = _df.properties_with_values()
-_df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
+_df_defaults_string = "\n\n        ".join(
+    "%s = %s" % (name, _df_defaults[name]) for name in _df_fields
+)
 
-DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_df_defaults_string)
+DatetimeTickFormatter.__doc__ = format_docstring(
+    DatetimeTickFormatter.__doc__, defaults=_df_defaults_string
+)
 del _df, _df_fields, _df_defaults, _df_defaults_string

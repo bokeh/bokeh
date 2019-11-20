@@ -1,44 +1,41 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Functions useful for string manipulations or encoding.
+# -----------------------------------------------------------------------------
+""" Functions useful for string manipulations or encoding.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import re
 from typing import Any, Optional, Sequence
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'format_docstring',
-    'indent',
-    'nice_join',
-    'snakify',
-)
+__all__ = ("format_docstring", "indent", "nice_join", "snakify")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def indent(text: str, n: int = 2, ch: str = " ") -> str:
-    ''' Indent all the lines in a given block of text by a specified amount.
+    """ Indent all the lines in a given block of text by a specified amount.
 
     Args:
         text (str) :
@@ -50,13 +47,13 @@ def indent(text: str, n: int = 2, ch: str = " ") -> str:
         ch (char, optional) :
             What character to fill the indentation with (default: " ")
 
-    '''
+    """
     padding = ch * n
     return "\n".join(padding + line for line in text.split("\n"))
 
 
 def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> str:
-    ''' Join together sequences of strings into English-friendly phrases using
+    """ Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
     Args:
@@ -72,7 +69,7 @@ def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> st
         >>> nice_join(["a", "b", "c"])
         'a, b or c'
 
-    '''
+    """
     seq = [str(x) for x in seq]
 
     if len(seq) <= 1 or conjuction is None:
@@ -82,14 +79,16 @@ def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> st
 
 
 def snakify(name: str, sep: str = "_") -> str:
-    ''' Convert CamelCase to snake_case. '''
+    """ Convert CamelCase to snake_case. """
     name = re.sub("([A-Z]+)([A-Z][a-z])", r"\1%s\2" % sep, name)
     name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
     return name.lower()
 
 
-def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Optional[str]:
-    ''' Safely format docstrings.
+def format_docstring(
+    docstring: Optional[str], *args: Any, **kwargs: Any
+) -> Optional[str]:
+    """ Safely format docstrings.
 
     When Python is executed with the ``-OO`` option, doc strings are removed and
     replaced the value ``None``. This function guards against applying the string
@@ -103,17 +102,18 @@ def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Opt
     Returns:
         str or None
 
-    '''
+    """
     return None if docstring is None else docstring.format(*args, **kwargs)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

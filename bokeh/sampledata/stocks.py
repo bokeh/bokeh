@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide recorded stock data for the following stocks:
+# -----------------------------------------------------------------------------
+""" Provide recorded stock data for the following stocks:
 
     AAPL, FB, GOOG, IBM, MSFT
 
@@ -21,17 +21,18 @@ and the value is a dictionary with the structure:
     AAPL['volume']     # list of int
     AAPL['adj_close']  # list of float
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import csv
@@ -39,64 +40,60 @@ import csv
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'AAPL',
-    'FB',
-    'GOOG',
-    'IBM',
-    'MSFT',
-)
+__all__ = ("AAPL", "FB", "GOOG", "IBM", "MSFT")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _read_data(name):
-    '''
+    """
 
-    '''
-    filename = external_path(name+'.csv')
+    """
+    filename = external_path(name + ".csv")
     data = {
-        'date' : [],
-        'open' : [],
-        'high' : [],
-        'low' : [],
-        'close' : [],
-        'volume' : [],
-        'adj_close': [],
+        "date": [],
+        "open": [],
+        "high": [],
+        "low": [],
+        "close": [],
+        "volume": [],
+        "adj_close": [],
     }
     with open_csv(filename) as f:
         next(f)
-        reader = csv.reader(f, delimiter=str(','))
+        reader = csv.reader(f, delimiter=str(","))
         for row in reader:
             date, open_price, high, low, close, volume, adj_close = row
-            data['date'].append(date)
-            data['open'].append(float(open_price))
-            data['high'].append(float(high))
-            data['low'].append(float(low))
-            data['close'].append(float(close))
-            data['volume'].append(int(volume))
-            data['adj_close'].append(float(adj_close))
+            data["date"].append(date)
+            data["open"].append(float(open_price))
+            data["high"].append(float(high))
+            data["low"].append(float(low))
+            data["close"].append(float(close))
+            data["volume"].append(int(volume))
+            data["adj_close"].append(float(adj_close))
     return data
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 
-AAPL = _read_data('AAPL')
-FB   = _read_data('FB')
-GOOG = _read_data('GOOG')
-IBM  = _read_data('IBM')
-MSFT = _read_data('MSFT')
+# -----------------------------------------------------------------------------
+# Code
+# -----------------------------------------------------------------------------
+
+AAPL = _read_data("AAPL")
+FB = _read_data("FB")
+GOOG = _read_data("GOOG")
+IBM = _read_data("IBM")
+MSFT = _read_data("MSFT")

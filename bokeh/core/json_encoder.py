@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a functions and classes to implement a custom JSON encoder for
+# -----------------------------------------------------------------------------
+""" Provide a functions and classes to implement a custom JSON encoder for
 serializing objects for BokehJS.
 
 The primary interface is provided by the |serialize_json| function, which
@@ -38,17 +38,18 @@ In general, functions in this module convert values in the following way:
 .. |serialize_json| replace:: :class:`~bokeh.core.json_encoder.serialize_json`
 .. |BokehJSONEncoder| replace:: :class:`~bokeh.core.json_encoder.BokehJSONEncoder`
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import collections
@@ -70,25 +71,23 @@ from ..util.serialization import (
     transform_series,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 rd = import_optional("dateutil.relativedelta")
 
-pd = import_optional('pandas')
+pd = import_optional("pandas")
 
-__all__ = (
-    'BokehJSONEncoder',
-    'serialize_json',
-)
+__all__ = ("BokehJSONEncoder", "serialize_json")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def serialize_json(obj, pretty=None, indent=None, **kwargs):
-    ''' Return a serialized JSON representation of objects, suitable to
+    """ Return a serialized JSON representation of objects, suitable to
     send to BokehJS.
 
     This function is typically used to serialize single python objects in
@@ -145,37 +144,50 @@ def serialize_json(obj, pretty=None, indent=None, **kwargs):
               "b": 1483228800000.0
             }
 
-    '''
+    """
 
     # these args to json.dumps are computed internally and should not be passed along
-    for name in ['allow_nan', 'separators', 'sort_keys']:
+    for name in ["allow_nan", "separators", "sort_keys"]:
         if name in kwargs:
-            raise ValueError("The value of %r is computed internally, overriding is not permissible." % name)
+            raise ValueError(
+                "The value of %r is computed internally, overriding is not permissible."
+                % name
+            )
 
     pretty = settings.pretty(pretty)
 
     if pretty:
-        separators=(",", ": ")
+        separators = (",", ": ")
     else:
-        separators=(",", ":")
+        separators = (",", ":")
 
     if pretty and indent is None:
         indent = 2
 
-    return json.dumps(obj, cls=BokehJSONEncoder, allow_nan=False, indent=indent, separators=separators, sort_keys=True, **kwargs)
+    return json.dumps(
+        obj,
+        cls=BokehJSONEncoder,
+        allow_nan=False,
+        indent=indent,
+        separators=separators,
+        sort_keys=True,
+        **kwargs,
+    )
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehJSONEncoder(json.JSONEncoder):
-    ''' A custom ``json.JSONEncoder`` subclass for encoding objects in
+    """ A custom ``json.JSONEncoder`` subclass for encoding objects in
     accordance with the BokehJS protocol.
 
-    '''
+    """
+
     def transform_python_types(self, obj):
-        ''' Handle special scalars such as (Python, NumPy, or Pandas)
+        """ Handle special scalars such as (Python, NumPy, or Pandas)
         datetimes, or Decimal values.
 
         Args:
@@ -184,7 +196,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                 The object to encode. Anything not specifically handled in
                 this method is passed on to the default system JSON encoder.
 
-        '''
+        """
 
         # date/time values that get serialized as milliseconds
         if is_datetime_type(obj):
@@ -211,19 +223,21 @@ class BokehJSONEncoder(json.JSONEncoder):
 
         # RelativeDelta gets serialized as a dict
         elif rd and isinstance(obj, rd.relativedelta):
-            return dict(years=obj.years,
-                    months=obj.months,
-                    days=obj.days,
-                    hours=obj.hours,
-                    minutes=obj.minutes,
-                    seconds=obj.seconds,
-                    microseconds=obj.microseconds)
+            return dict(
+                years=obj.years,
+                months=obj.months,
+                days=obj.days,
+                hours=obj.hours,
+                minutes=obj.minutes,
+                seconds=obj.seconds,
+                microseconds=obj.microseconds,
+            )
 
         else:
             return super().default(obj)
 
     def default(self, obj):
-        ''' The required ``default`` method for ``JSONEncoder`` subclasses.
+        """ The required ``default`` method for ``JSONEncoder`` subclasses.
 
         Args:
             obj (obj) :
@@ -231,7 +245,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                 The object to encode. Anything not specifically handled in
                 this method is passed on to the default system JSON encoder.
 
-        '''
+        """
 
         from ..model import Model
         from ..colors import Color
@@ -255,10 +269,11 @@ class BokehJSONEncoder(json.JSONEncoder):
         else:
             return self.transform_python_types(obj)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

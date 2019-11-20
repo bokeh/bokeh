@@ -1,45 +1,45 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provides a base class for defining subcommands of the Bokeh command
+# -----------------------------------------------------------------------------
+""" Provides a base class for defining subcommands of the Bokeh command
 line application.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Subcommand',
-)
+__all__ = ("Subcommand",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Subcommand(metaclass=ABCMeta):
-    ''' Abstract base class for subcommands
+    """ Abstract base class for subcommands
 
     Subclasses should implement an ``invoke(self, args)`` method that accepts
     a set of argparse processed arguments as input.
@@ -86,10 +86,10 @@ class Subcommand(metaclass=ABCMeta):
 
         Then executing ``bokeh foo --yell`` would print ``FOO!`` at the console.
 
-    '''
+    """
 
     def __init__(self, parser):
-        ''' Initialize the subcommand with its parser
+        """ Initialize the subcommand with its parser
 
         Args:
             parser (Parser) : an Argparse ``Parser`` instance to configure
@@ -99,9 +99,9 @@ class Subcommand(metaclass=ABCMeta):
         ``self.args``. Subclasses can perform any additional customizations
         on ``self.parser``.
 
-        '''
+        """
         self.parser = parser
-        args = getattr(self, 'args', ())
+        args = getattr(self, "args", ())
         for arg in args:
             flags = arg[0]
             if not isinstance(flags, tuple):
@@ -110,7 +110,7 @@ class Subcommand(metaclass=ABCMeta):
 
     @abstractmethod
     def invoke(self, args):
-        ''' Takes over main program flow to perform the subcommand.
+        """ Takes over main program flow to perform the subcommand.
 
         *This method must be implemented by subclasses.*
 
@@ -120,13 +120,14 @@ class Subcommand(metaclass=ABCMeta):
         Raises:
             NotImplementedError
 
-        '''
+        """
         raise NotImplementedError("implement invoke()")
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide basic Bokeh server objects that use a Tornado ``HTTPServer`` and
+# -----------------------------------------------------------------------------
+""" Provide basic Bokeh server objects that use a Tornado ``HTTPServer`` and
 ``BokeTornado`` Tornado Application to service Bokeh Server Applications.
 There are two public classes in this module:
 
@@ -18,17 +18,18 @@ There are two public classes in this module:
     :class:`~bokeh.application.application.Application` instances, and will
     automatically create and coordinate the lower level Tornado components.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import atexit
@@ -49,21 +50,19 @@ from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_whitelist
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'BaseServer',
-    'Server',
-)
+__all__ = ("BaseServer", "Server")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BaseServer(object):
-    ''' Explicitly coordinate the level Tornado components required to run a
+    """ Explicitly coordinate the level Tornado components required to run a
     Bokeh server:
 
     * A Tornado ``IOLoop`` to run the Bokeh server machinery.
@@ -78,10 +77,10 @@ class BaseServer(object):
     ``http_server`` must have been previously created and initialized with the
     ``BokehTornado`` instance.
 
-    '''
+    """
 
     def __init__(self, io_loop, tornado_app, http_server):
-        ''' Create a ``BaseServer`` instance.
+        """ Create a ``BaseServer`` instance.
 
         Args:
             io_loop (IOLoop) :
@@ -96,7 +95,7 @@ class BaseServer(object):
                 applications. Should have already be configured with the
                 ``tornado_app`` when created.
 
-        '''
+        """
 
         self._started = False
         self._stopped = False
@@ -109,13 +108,13 @@ class BaseServer(object):
 
     @property
     def io_loop(self):
-        ''' The Tornado ``IOLoop`` that this Bokeh Server is running on.
+        """ The Tornado ``IOLoop`` that this Bokeh Server is running on.
 
-        '''
+        """
         return self._loop
 
     def start(self):
-        ''' Install the Bokeh Server and its background tasks on a Tornado
+        """ Install the Bokeh Server and its background tasks on a Tornado
         ``IOLoop``.
 
         This method does *not* block and does *not* affect the state of the
@@ -126,13 +125,13 @@ class BaseServer(object):
         To start a Bokeh server and immediately "run forever" in a blocking
         manner, see :func:`~bokeh.server.server.BaseServer.run_until_shutdown`.
 
-        '''
+        """
         assert not self._started, "Already started"
         self._started = True
         self._tornado.start()
 
     def stop(self, wait=True):
-        ''' Stop the Bokeh Server.
+        """ Stop the Bokeh Server.
 
         This stops and removes all Bokeh Server ``IOLoop`` callbacks, as well
         as stops the ``HTTPServer`` that this instance was configured with.
@@ -144,25 +143,25 @@ class BaseServer(object):
         Returns:
             None
 
-        '''
+        """
         assert not self._stopped, "Already stopped"
         self._stopped = True
         self._tornado.stop(wait)
         self._http.stop()
 
     def unlisten(self):
-        ''' Stop listening on ports. The server will no longer be usable after
+        """ Stop listening on ports. The server will no longer be usable after
         calling this function.
 
         Returns:
             None
 
-        '''
+        """
         yield self._http.close_all_connections()
         self._http.stop()
 
     def run_until_shutdown(self):
-        ''' Run the Bokeh Server until shutdown is requested by the user,
+        """ Run the Bokeh Server until shutdown is requested by the user,
         either via a Keyboard interrupt (Ctrl-C) or SIGTERM.
 
         Calling this method will start the Tornado ``IOLoop`` and block
@@ -171,7 +170,7 @@ class BaseServer(object):
         Returns:
             None
 
-        '''
+        """
         if not self._started:
             self.start()
         # Install shutdown hooks
@@ -184,7 +183,7 @@ class BaseServer(object):
         self.stop()
 
     def get_session(self, app_path, session_id):
-        ''' Get an active a session by name application path and session ID.
+        """ Get an active a session by name application path and session ID.
 
         Args:
             app_path (str) :
@@ -197,11 +196,11 @@ class BaseServer(object):
         Returns:
             ServerSession
 
-        '''
+        """
         return self._tornado.get_session(app_path, session_id)
 
     def get_sessions(self, app_path=None):
-        ''' Gets all currently active sessions for applications.
+        """ Gets all currently active sessions for applications.
 
         Args:
             app_path (str, optional) :
@@ -212,7 +211,7 @@ class BaseServer(object):
         Returns:
             list[ServerSession]
 
-        '''
+        """
         if app_path is not None:
             return self._tornado.get_sessions(app_path)
         all_sessions = []
@@ -220,8 +219,8 @@ class BaseServer(object):
             all_sessions += self._tornado.get_sessions(path)
         return all_sessions
 
-    def show(self, app_path, browser=None, new='tab'):
-        ''' Opens an app in a browser window or tab.
+    def show(self, app_path, browser=None, new="tab"):
+        """ Opens an app in a browser window or tab.
 
         This method is useful for testing or running Bokeh server applications
         on a local machine but should not call when running Bokeh server for
@@ -244,20 +243,21 @@ class BaseServer(object):
         Returns:
             None
 
-        '''
+        """
         if not app_path.startswith("/"):
             raise ValueError("app_path must start with a /")
 
-
-        address_string = 'localhost'
-        if self.address is not None and self.address != '':
+        address_string = "localhost"
+        if self.address is not None and self.address != "":
             address_string = self.address
         url = "http://%s:%d%s%s" % (address_string, self.port, self.prefix, app_path)
 
         from bokeh.util.browser import view
+
         view(url, browser=browser, new=new)
 
     _atexit_ran = False
+
     def _atexit(self):
         if self._atexit_ran:
             return
@@ -272,12 +272,14 @@ class BaseServer(object):
         # Tell self._loop.start() to return.
         self._loop.add_callback_from_signal(self._loop.stop)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Server(BaseServer):
-    ''' A high level convenience class to run a Bokeh server.
+    """ A high level convenience class to run a Bokeh server.
 
     This class can automatically coordinate the three the base level
     components required to run a Bokeh server:
@@ -294,10 +296,10 @@ class Server(BaseServer):
     at the same time. To do that, it is necessary to use ``BaseServer`` and
     coordinate the three components above explicitly.
 
-    '''
+    """
 
     def __init__(self, applications, io_loop=None, http_server_kwargs=None, **kwargs):
-        ''' Create a ``Server`` instance.
+        """ Create a ``Server`` instance.
 
         Args:
             applications (dict[str, Application] or Application or callable) :
@@ -338,23 +340,30 @@ class Server(BaseServer):
         Any remaining keyword arguments will be passed as-is to
         ``BokehTornado``.
 
-        '''
-        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
+        """
+        log.info(
+            "Starting Bokeh server version %s (running on Tornado %s)"
+            % (__version__, tornado.version)
+        )
 
         from bokeh.application.handlers.function import FunctionHandler
-        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
+        from bokeh.application.handlers.document_lifecycle import (
+            DocumentLifecycleHandler,
+        )
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))
 
         if isinstance(applications, Application):
-            applications = { '/' : applications }
+            applications = {"/": applications}
 
         for k, v in list(applications.items()):
             if callable(v):
                 applications[k] = Application(FunctionHandler(v))
-            if all(not isinstance(handler, DocumentLifecycleHandler)
-                   for handler in applications[k]._handlers):
+            if all(
+                not isinstance(handler, DocumentLifecycleHandler)
+                for handler in applications[k]._handlers
+            ):
                 applications[k].add(DocumentLifecycleHandler())
 
         opts = _ServerOpts(kwargs)
@@ -365,8 +374,9 @@ class Server(BaseServer):
 
         if opts.num_procs != 1:
             assert all(app.safe_to_fork for app in applications.values()), (
-                      'User application code has run before attempting to start '
-                      'multiple processes. This is considered an unsafe operation.')
+                "User application code has run before attempting to start "
+                "multiple processes. This is considered an unsafe operation."
+            )
 
         if opts.num_procs > 1 and io_loop is not None:
             raise RuntimeError(
@@ -378,25 +388,34 @@ class Server(BaseServer):
 
         if http_server_kwargs is None:
             http_server_kwargs = {}
-        http_server_kwargs.setdefault('xheaders', opts.use_xheaders)
+        http_server_kwargs.setdefault("xheaders", opts.use_xheaders)
 
         if opts.ssl_certfile:
             log.info("Configuring for SSL termination")
             import ssl
+
             context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
-            http_server_kwargs['ssl_options'] = context
+            context.load_cert_chain(
+                certfile=opts.ssl_certfile,
+                keyfile=opts.ssl_keyfile,
+                password=opts.ssl_password,
+            )
+            http_server_kwargs["ssl_options"] = context
 
         sockets, self._port = bind_sockets(self.address, self.port)
 
-        extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
+        extra_websocket_origins = create_hosts_whitelist(
+            opts.allow_websocket_origin, self.port
+        )
         try:
-            tornado_app = BokehTornado(applications,
-                                       extra_websocket_origins=extra_websocket_origins,
-                                       prefix=self.prefix,
-                                       index=self.index,
-                                       websocket_max_message_size_bytes=opts.websocket_max_message_size,
-                                       **kwargs)
+            tornado_app = BokehTornado(
+                applications,
+                extra_websocket_origins=extra_websocket_origins,
+                prefix=self.prefix,
+                index=self.index,
+                websocket_max_message_size_bytes=opts.websocket_max_message_size,
+                **kwargs,
+            )
 
             http_server = HTTPServer(tornado_app, **http_server_kwargs)
 
@@ -416,43 +435,46 @@ class Server(BaseServer):
 
     @property
     def index(self):
-        ''' A path to a Jinja2 template to use for index at "/"
+        """ A path to a Jinja2 template to use for index at "/"
 
-        '''
+        """
         return self._index
 
     @property
     def prefix(self):
-        ''' The configured URL prefix to use for all Bokeh server paths.
+        """ The configured URL prefix to use for all Bokeh server paths.
 
-        '''
+        """
         return self._prefix
 
     @property
     def port(self):
-        ''' The configured port number that the server listens on for HTTP
+        """ The configured port number that the server listens on for HTTP
         requests.
 
-        '''
+        """
         return self._port
 
     @property
     def address(self):
-        ''' The configured address that the server listens on for HTTP
+        """ The configured address that the server listens on for HTTP
         requests.
 
-        '''
+        """
         return self._address
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # This class itself is intentionally undocumented (it is used to generate
 # documentation elsewhere)
 class _ServerOpts(Options):
 
-    num_procs = Int(default=1, help="""
+    num_procs = Int(
+        default=1,
+        help="""
     The number of worker processes to start for the HTTP server. If an explicit
     ``io_loop`` is also configured, then ``num_procs=1`` is the only compatible
     value. Use ``BaseServer`` to coordinate an explicit ``IOLoop`` with a
@@ -463,55 +485,88 @@ class _ServerOpts(Options):
     Note that due to limitations inherent in Tornado, Windows does not support
     ``num_procs`` values greater than one! In this case consider running
     multiple Bokeh server instances behind a load balancer.
-    """)
+    """,
+    )
 
-    address = String(default=None, help="""
+    address = String(
+        default=None,
+        help="""
     The address the server should listen on for HTTP requests.
-    """)
+    """,
+    )
 
-    port = Int(default=DEFAULT_SERVER_PORT, help="""
+    port = Int(
+        default=DEFAULT_SERVER_PORT,
+        help="""
     The port number the server should listen on for HTTP requests.
-    """)
+    """,
+    )
 
-    prefix = String(default="", help="""
+    prefix = String(
+        default="",
+        help="""
     A URL prefix to use for all Bokeh server paths.
-    """)
+    """,
+    )
 
-    index = String(default=None, help="""
+    index = String(
+        default=None,
+        help="""
     A path to a Jinja2 template to use for the index "/"
-    """)
+    """,
+    )
 
-    allow_websocket_origin = List(String, default=None, help="""
+    allow_websocket_origin = List(
+        String,
+        default=None,
+        help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external
     web site using :func:`~bokeh.embed.server_document` or similar.
 
     If None, "localhost" is used.
-    """)
+    """,
+    )
 
-    use_xheaders = Bool(default=False, help="""
+    use_xheaders = Bool(
+        default=False,
+        help="""
     Whether to have the Bokeh server override the remote IP and URI scheme
     and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
-    """)
+    """,
+    )
 
-    ssl_certfile = String(default=None, help="""
+    ssl_certfile = String(
+        default=None,
+        help="""
     The path to a certificate file for SSL termination.
-    """)
+    """,
+    )
 
-    ssl_keyfile = String(default=None, help="""
+    ssl_keyfile = String(
+        default=None,
+        help="""
     The path to a private key file for SSL termination.
-    """)
+    """,
+    )
 
-    ssl_password = String(default=None, help="""
+    ssl_password = String(
+        default=None,
+        help="""
     A password to decrypt the SSL keyfile, if necessary.
-    """)
+    """,
+    )
 
-    websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
+    websocket_max_message_size = Int(
+        default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+        help="""
     Set the Tornado ``websocket_max_message_size`` value.
-    """)
+    """,
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

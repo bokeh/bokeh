@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a web socket handler for the Bokeh Server application.
+# -----------------------------------------------------------------------------
+""" Provide a web socket handler for the Bokeh Server application.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import codecs
@@ -37,31 +38,31 @@ from ...protocol.message import Message
 from ...protocol.receiver import Receiver
 from ..protocol_handler import ProtocolHandler
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'WSHandler',
-)
+__all__ = ("WSHandler",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class WSHandler(WebSocketHandler):
-    ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
+    """ Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
-    '''
+    """
+
     def __init__(self, tornado_app, *args, **kw):
         self.receiver = None
         self.handler = None
         self.connection = None
-        self.application_context = kw['application_context']
+        self.application_context = kw["application_context"]
         self.latest_pong = -1
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
@@ -74,7 +75,7 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
-        ''' Implement a check_origin policy for Tornado to call.
+        """ Implement a check_origin policy for Tornado to call.
 
         The supplied origin will be compared to the Bokeh server whitelist. If the
         origin is not allow, an error will be logged and ``False`` will be returned.
@@ -86,8 +87,9 @@ class WSHandler(WebSocketHandler):
         Returns:
             bool, True if the connection is allowed, False otherwise
 
-        '''
+        """
         from ..util import check_whitelist
+
         parsed_origin = urlparse(origin)
         origin_host = parsed_origin.netloc.lower()
 
@@ -99,28 +101,35 @@ class WSHandler(WebSocketHandler):
         if allowed:
             return True
         else:
-            log.error("Refusing websocket connection from Origin '%s'; \
+            log.error(
+                "Refusing websocket connection from Origin '%s'; \
                       use --allow-websocket-origin=%s or set BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
-                      origin, origin_host, origin_host, allowed_hosts)
+                origin,
+                origin_host,
+                origin_host,
+                allowed_hosts,
+            )
             return False
 
     def open(self):
-        ''' Initialize a connection to a client.
+        """ Initialize a connection to a client.
 
         Returns:
             None
 
-        '''
-        log.info('WebSocket connection opened')
+        """
+        log.info("WebSocket connection opened")
 
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             self.close()
             raise ProtocolError("No bokeh-session-id specified")
 
-        if not check_session_id_signature(session_id,
-                                          signed=self.application.sign_sessions,
-                                          secret_key=self.application.secret_key):
+        if not check_session_id_signature(
+            session_id,
+            signed=self.application.sign_sessions,
+            secret_key=self.application.secret_key,
+        ):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
@@ -133,7 +142,7 @@ class WSHandler(WebSocketHandler):
             log.debug("Failed to fully open connection %r", e)
 
     async def _async_open(self, session_id):
-        ''' Perform the specific steps needed to open a connection to a Bokeh session
+        """ Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
 
@@ -150,9 +159,11 @@ class WSHandler(WebSocketHandler):
         Returns:
             None
 
-        '''
+        """
         try:
-            await self.application_context.create_session_if_needed(session_id, self.request)
+            await self.application_context.create_session_if_needed(
+                session_id, self.request
+            )
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
@@ -162,7 +173,9 @@ class WSHandler(WebSocketHandler):
             self.handler = ProtocolHandler()
             log.debug("ProtocolHandler created for %r", protocol)
 
-            self.connection = self.application.new_connection(protocol, self, self.application_context, session)
+            self.connection = self.application.new_connection(
+                protocol, self, self.application_context, session
+            )
             log.info("ServerConnection created")
 
         except ProtocolError as e:
@@ -170,13 +183,13 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise e
 
-        msg = self.connection.protocol.create('ACK')
+        msg = self.connection.protocol.create("ACK")
         await self.send_message(msg)
 
         return None
 
     async def on_message(self, fragment):
-        ''' Process an individual wire protocol fragment.
+        """ Process an individual wire protocol fragment.
 
         The websocket RFC specifies opcodes for distinguishing text frames
         from binary frames. Tornado passes us either a text or binary string
@@ -186,7 +199,7 @@ class WSHandler(WebSocketHandler):
         Args:
             fragment (unicode or bytes) : wire fragment to process
 
-        '''
+        """
 
         # We shouldn't throw exceptions from on_message because the caller is
         # just Tornado and it doesn't know what to do with them other than
@@ -197,7 +210,12 @@ class WSHandler(WebSocketHandler):
         except Exception as e:
             # If you go look at self._receive, it's catching the
             # expected error types... here we have something weird.
-            log.error("Unhandled exception receiving a message: %r: %r", e, fragment, exc_info=True)
+            log.error(
+                "Unhandled exception receiving a message: %r: %r",
+                e,
+                fragment,
+                exc_info=True,
+            )
             self._internal_error("server failed to parse a message")
 
         try:
@@ -208,7 +226,12 @@ class WSHandler(WebSocketHandler):
                 if work:
                     await self._schedule(work)
         except Exception as e:
-            log.error("Handler or its work threw an exception: %r: %r", e, message, exc_info=True)
+            log.error(
+                "Handler or its work threw an exception: %r: %r",
+                e,
+                message,
+                exc_info=True,
+            )
             self._internal_error("server failed to handle a message")
 
         return None
@@ -217,19 +240,19 @@ class WSHandler(WebSocketHandler):
         # if we get an invalid integer or utf-8 back, either we
         # sent a buggy ping or the client is evil/broken.
         try:
-            self.latest_pong = int(codecs.decode(data, 'utf-8'))
+            self.latest_pong = int(codecs.decode(data, "utf-8"))
         except UnicodeDecodeError:
             log.trace("received invalid unicode in pong %r", data, exc_info=True)
         except ValueError:
             log.trace("received invalid integer in pong %r", data, exc_info=True)
 
     async def send_message(self, message):
-        ''' Send a Bokeh Server protocol message to the connected client.
+        """ Send a Bokeh Server protocol message to the connected client.
 
         Args:
             message (Message) : a message to send
 
-        '''
+        """
         try:
             if _message_test_port is not None:
                 _message_test_port.sent.append(message)
@@ -240,10 +263,10 @@ class WSHandler(WebSocketHandler):
         return None
 
     async def write_message(self, message, binary=False, locked=True):
-        ''' Override parent write_message with a version that acquires a
+        """ Override parent write_message with a version that acquires a
         write lock before writing.
 
-        '''
+        """
         if locked:
             with await self.write_lock.acquire():
                 await super().write_message(message, binary)
@@ -251,10 +274,14 @@ class WSHandler(WebSocketHandler):
             await super().write_message(message, binary)
 
     def on_close(self):
-        ''' Clean up when the connection is closed.
+        """ Clean up when the connection is closed.
 
-        '''
-        log.info('WebSocket connection closed: code=%s, reason=%r', self.close_code, self.close_reason)
+        """
+        log.info(
+            "WebSocket connection closed: code=%s, reason=%r",
+            self.close_code,
+            self.close_reason,
+        )
         if self.connection is not None:
             self.application.client_lost(self.connection)
 
@@ -272,7 +299,11 @@ class WSHandler(WebSocketHandler):
         try:
             work = await self.handler.handle(message, self.connection)
             return work
-        except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
+        except (
+            MessageError,
+            ProtocolError,
+            ValidationError,
+        ) as e:  # TODO (other exceptions?)
             self._internal_error(str(e))
             return None
 
@@ -291,15 +322,17 @@ class WSHandler(WebSocketHandler):
     def _protocol_error(self, message):
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
-#-----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # This is an undocumented API purely for harvesting low level messages
 # for testing. When needed it will be set by the testing machinery, and
 # should not be used for any other purpose.
 _message_test_port = None
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

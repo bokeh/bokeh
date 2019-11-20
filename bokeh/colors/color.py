@@ -1,46 +1,46 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a base class for representing color values.
+# -----------------------------------------------------------------------------
+""" Provide a base class for representing color values.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Color',
-)
+__all__ = ("Color",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Color(object):
-    ''' A base class for representing color objects.
+    """ A base class for representing color objects.
 
-    '''
+    """
 
     def __repr__(self):
         return self.to_css()
 
     @staticmethod
     def clamp(value, maximum=None):
-        ''' Clamp numeric values to be non-negative, an optionally, less than a
+        """ Clamp numeric values to be non-negative, an optionally, less than a
         given maximum.
 
         Args:
@@ -54,7 +54,7 @@ class Color(object):
         Returns:
             float
 
-        '''
+        """
         value = max(value, 0)
 
         if maximum is not None:
@@ -63,15 +63,15 @@ class Color(object):
             return value
 
     def copy(self):
-        ''' Copy this color.
+        """ Copy this color.
 
         *Subclasses must implement this method.*
 
-        '''
+        """
         raise NotImplementedError
 
     def darken(self, amount):
-        ''' Darken (reduce the luminance) of this color.
+        """ Darken (reduce the luminance) of this color.
 
         Args:
             amount (float) :
@@ -80,15 +80,14 @@ class Color(object):
         Returns:
             Color
 
-        '''
+        """
         hsl = self.to_hsl()
         hsl.l = self.clamp(hsl.l - amount)
         return self.from_hsl(hsl)
 
-
     @classmethod
     def from_hsl(cls, value):
-        ''' Create a new color by converting from an HSL color.
+        """ Create a new color by converting from an HSL color.
 
         *Subclasses must implement this method.*
 
@@ -99,12 +98,12 @@ class Color(object):
         Returns:
             Color
 
-        '''
+        """
         raise NotImplementedError
 
     @classmethod
     def from_rgb(cls, value):
-        ''' Create a new color by converting from an RGB color.
+        """ Create a new color by converting from an RGB color.
 
         *Subclasses must implement this method.*
 
@@ -115,11 +114,11 @@ class Color(object):
         Returns:
             Color
 
-        '''
+        """
         raise NotImplementedError
 
     def lighten(self, amount):
-        ''' Lighten (increase the luminance) of this color.
+        """ Lighten (increase the luminance) of this color.
 
         Args:
             amount (float) :
@@ -128,53 +127,53 @@ class Color(object):
         Returns:
             Color
 
-        '''
+        """
         hsl = self.to_hsl()
         hsl.l = self.clamp(hsl.l + amount, 1)
         return self.from_hsl(hsl)
 
     def to_css(self):
-        ''' Return a CSS representation of this color.
+        """ Return a CSS representation of this color.
 
         *Subclasses must implement this method.*
 
         Returns:
             str
 
-        '''
+        """
         raise NotImplementedError
 
-
     def to_hsl(self):
-        ''' Create a new HSL color by converting from this color.
+        """ Create a new HSL color by converting from this color.
 
         *Subclasses must implement this method.*
 
         Returns:
             HSL
 
-        '''
+        """
         raise NotImplementedError
 
     def to_rgb(self):
-        ''' Create a new HSL color by converting from this color.
+        """ Create a new HSL color by converting from this color.
 
         *Subclasses must implement this method.*
 
         Returns:
             :class:`~bokeh.colors.rgb.RGB`
 
-        '''
+        """
         raise NotImplementedError
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,25 +1,26 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Define a simple web server for testing purpose.
+# -----------------------------------------------------------------------------
+""" Define a simple web server for testing purpose.
 
 Used for serves the testing html pages that are needed by the webdriver unit
 tests.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -32,9 +33,9 @@ from urllib.request import URLopener
 # External imports
 import pytest
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 DEFAULT_HOST = "127.0.0.1"
 
@@ -42,32 +43,30 @@ DEFAULT_PORT = 8000
 
 HTML_ROOT = os.path.dirname(__file__)
 
-WEBDRIVER = os.environ.get('WEBDRIVER', "<undefined>")
+WEBDRIVER = os.environ.get("WEBDRIVER", "<undefined>")
 
-__all__ = (
-    'file_server',
-    'HtmlOnlyHandler',
-    'SimpleWebServer',
-)
+__all__ = ("file_server", "HtmlOnlyHandler", "SimpleWebServer")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class HtmlOnlyHandler(BaseHTTPRequestHandler):
     """Http handler."""
+
     def do_GET(self):
         """GET method handler."""
         try:
-            path = self.path[1:].split('?')[0]
-            html = open(os.path.join(HTML_ROOT, path), 'r', encoding='latin-1')
+            path = self.path[1:].split("?")[0]
+            html = open(os.path.join(HTML_ROOT, path), "r", encoding="latin-1")
             self.send_response(200)
-            self.send_header('Content-type', 'text/html')
+            self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(html.read().encode('utf-8'))
+            self.wfile.write(html.read().encode("utf-8"))
             html.close()
         except IOError:
-            self.send_error(404, 'File Not Found: %s' % path)
+            self.send_error(404, "File Not Found: %s" % path)
 
     def log_message(self, format, *args):
         """Override default to avoid trashing stderr"""
@@ -76,14 +75,14 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
 
 class SimpleWebServer(object):
     """A very basic web server."""
+
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT):
         self.stop_serving = False
         host = host
         port = port
         while True:
             try:
-                self.server = HTTPServer(
-                    (host, port), HtmlOnlyHandler)
+                self.server = HTTPServer((host, port), HtmlOnlyHandler)
                 self.host = host
                 self.port = port
                 break
@@ -118,26 +117,33 @@ class SimpleWebServer(object):
     def where_is(self, path):
         return "http://%s:%d/%s" % (self.host, self.port, path)
 
-@pytest.fixture(scope='session')
+
+@pytest.fixture(scope="session")
 def file_server(request):
     server = SimpleWebServer()
     server.start()
     request.addfinalizer(server.stop)
     return server
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-_html_root_error_message = "Can't find 'common_web' directory, try setting WEBDRIVER environment variable WEBDRIVER:" + WEBDRIVER + "  HTML_ROOT:" + HTML_ROOT
+_html_root_error_message = (
+    "Can't find 'common_web' directory, try setting WEBDRIVER environment variable WEBDRIVER:"
+    + WEBDRIVER
+    + "  HTML_ROOT:"
+    + HTML_ROOT
+)
 
 if not os.path.isdir(HTML_ROOT):
     log.error(_html_root_error_message)

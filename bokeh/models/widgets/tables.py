@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Various kinds of data table (data grid) widgets.
+# -----------------------------------------------------------------------------
+""" Various kinds of data table (data grid) widgets.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ...core.enums import (
@@ -43,110 +44,143 @@ from ...model import Model
 from ..sources import CDSView, DataSource
 from .widget import Widget
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'AvgAggregator',
-    'BooleanFormatter',
-    'CellFormatter',
-    'CellEditor',
-    'CheckboxEditor',
-    'DataCube',
-    'DataTable',
-    'DateEditor',
-    'DateFormatter',
-    'GroupingInfo',
-    'HTMLTemplateFormatter',
-    'IntEditor',
-    'MaxAggregator',
-    'MinAggregator',
-    'NumberEditor',
-    'NumberFormatter',
-    'PercentEditor',
-    'ScientificFormatter',
-    'SelectEditor',
-    'StringEditor',
-    'StringFormatter',
-    'SumAggregator',
-    'TableColumn',
-    'TableWidget',
-    'TextEditor',
-    'TimeEditor',
+    "AvgAggregator",
+    "BooleanFormatter",
+    "CellFormatter",
+    "CellEditor",
+    "CheckboxEditor",
+    "DataCube",
+    "DataTable",
+    "DateEditor",
+    "DateFormatter",
+    "GroupingInfo",
+    "HTMLTemplateFormatter",
+    "IntEditor",
+    "MaxAggregator",
+    "MinAggregator",
+    "NumberEditor",
+    "NumberFormatter",
+    "PercentEditor",
+    "ScientificFormatter",
+    "SelectEditor",
+    "StringEditor",
+    "StringFormatter",
+    "SumAggregator",
+    "TableColumn",
+    "TableWidget",
+    "TextEditor",
+    "TimeEditor",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class CellFormatter(Model):
-    ''' Abstract base class for data table's cell formatters.
+    """ Abstract base class for data table's cell formatters.
 
-    '''
+    """
+
 
 @abstract
 class CellEditor(Model):
-    ''' Abstract base class for data table's cell editors.
+    """ Abstract base class for data table's cell editors.
 
-    '''
+    """
+
 
 @abstract
 class RowAggregator(Model):
-    ''' Abstract base class for data cube's row formatters.
+    """ Abstract base class for data cube's row formatters.
 
-    '''
-    field_ = String('', help="""
+    """
+
+    field_ = String(
+        "",
+        help="""
     Refers to the table column being aggregated
-    """)
+    """,
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class StringFormatter(CellFormatter):
-    ''' Basic string cell formatter.
+    """ Basic string cell formatter.
 
-    '''
+    """
 
-    font_style = Enum(FontStyle, default="normal", help="""
+    font_style = Enum(
+        FontStyle,
+        default="normal",
+        help="""
     An optional text font style, e.g. bold, italic.
-    """)
+    """,
+    )
 
-    text_align = Enum(TextAlign, default="left", help="""
+    text_align = Enum(
+        TextAlign,
+        default="left",
+        help="""
     An optional text align, i.e. left, center or right.
-    """)
+    """,
+    )
 
-    text_color = Color(help="""
+    text_color = Color(
+        help="""
     An optional text color. See :class:`bokeh.core.properties.Color` for
     details.
-    """)
+    """
+    )
+
 
 class ScientificFormatter(StringFormatter):
-    ''' Display numeric values from continuous ranges as "basic numbers",
+    """ Display numeric values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
-    '''
-    precision = Int(10, help="""
-    How many digits of precision to display.
-    """)
+    """
 
-    power_limit_high = Int(5, help="""
+    precision = Int(
+        10,
+        help="""
+    How many digits of precision to display.
+    """,
+    )
+
+    power_limit_high = Int(
+        5,
+        help="""
     Limit the use of scientific notation to when::
         log(x) >= power_limit_high
-    """)
+    """,
+    )
 
-    power_limit_low = Int(-3, help="""
+    power_limit_low = Int(
+        -3,
+        help="""
     Limit the use of scientific notation to when::
         log(x) <= power_limit_low
-    """)
+    """,
+    )
+
 
 class NumberFormatter(StringFormatter):
-    ''' Number cell formatter.
+    """ Number cell formatter.
 
-    '''
+    """
 
-    format = String("0,0", help="""
+    format = String(
+        "0,0",
+        help="""
     The number format, as defined in the following tables:
 
     **NUMBERS**:
@@ -220,31 +254,52 @@ class NumberFormatter(StringFormatter):
     ============ ============== ============
 
     For the complete specification, see http://numbrojs.com/format.html
-    """)
+    """,
+    )
 
-    language = Enum(NumeralLanguage, default="en", help="""
+    language = Enum(
+        NumeralLanguage,
+        default="en",
+        help="""
     The language to use for formatting language-specific features (e.g. thousands separator).
-    """)
+    """,
+    )
 
-    rounding = Enum(RoundingFunction, help="""
+    rounding = Enum(
+        RoundingFunction,
+        help="""
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
-    """)
+    """,
+    )
+
 
 class BooleanFormatter(CellFormatter):
-    ''' Boolean (check mark) cell formatter.
+    """ Boolean (check mark) cell formatter.
 
-    '''
+    """
 
-    icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
+    icon = Enum(
+        "check",
+        "check-circle",
+        "check-circle-o",
+        "check-square",
+        "check-square-o",
+        help="""
     The icon visualizing the check mark.
-    """)
+    """,
+    )
+
 
 class DateFormatter(CellFormatter):
-    ''' Date cell formatter.
+    """ Date cell formatter.
 
-    '''
+    """
 
-    format = Either(Enum(DateFormat), String, default='ISO-8601', help="""
+    format = Either(
+        Enum(DateFormat),
+        String,
+        default="ISO-8601",
+        help="""
     The date format can be any standard  `strftime`_ format string, as well
     as any of the following predefined format names:
 
@@ -447,10 +502,12 @@ class DateFormatter(CellFormatter):
     .. _timezone: http://bigeasy.github.io/timezone/
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
-    """)
+    """,
+    )
+
 
 class HTMLTemplateFormatter(CellFormatter):
-    ''' HTML formatter using a template.
+    """ HTML formatter using a template.
     This uses Underscore's `template` method and syntax.  http://underscorejs.org/#template
     The formatter has access other items in the row via the `dataContext` object passed to the formatter.
     So, for example, if another column in the datasource was named `url`, the template could access it as:
@@ -476,195 +533,276 @@ class HTMLTemplateFormatter(CellFormatter):
             '<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>'
         )
 
-    '''
-    template = String('<%= value %>', help="""
+    """
+
+    template = String(
+        "<%= value %>",
+        help="""
     Template string to be used by Underscore's template method.
-    """)
+    """,
+    )
+
 
 class StringEditor(CellEditor):
-    ''' Basic string cell editor with auto-completion.
+    """ Basic string cell editor with auto-completion.
 
-    '''
+    """
 
-    completions = List(String, help="""
+    completions = List(
+        String,
+        help="""
     An optional list of completion strings.
-    """)
+    """,
+    )
+
 
 class TextEditor(CellEditor):
-    ''' Multi-line string cell editor.
+    """ Multi-line string cell editor.
 
-    '''
+    """
+
 
 class SelectEditor(CellEditor):
-    ''' Select cell editor.
+    """ Select cell editor.
 
-    '''
+    """
 
-    options = List(String, help="""
+    options = List(
+        String,
+        help="""
     The list of options to select from.
-    """)
+    """,
+    )
+
 
 class PercentEditor(CellEditor):
-    ''' ``IntEditor`` optimized for editing percentages.
+    """ ``IntEditor`` optimized for editing percentages.
 
-    '''
+    """
+
 
 class CheckboxEditor(CellEditor):
-    ''' Boolean value cell editor.
+    """ Boolean value cell editor.
 
-    '''
+    """
+
 
 class IntEditor(CellEditor):
-    ''' Spinner-based integer cell editor.
+    """ Spinner-based integer cell editor.
 
-    '''
+    """
 
-    step = Int(1, help="""
+    step = Int(
+        1,
+        help="""
     The major step value.
-    """)
+    """,
+    )
+
 
 class NumberEditor(CellEditor):
-    ''' Spinner-based number cell editor.
+    """ Spinner-based number cell editor.
 
-    '''
+    """
 
-    step = Float(0.01, help="""
+    step = Float(
+        0.01,
+        help="""
     The major step value.
-    """)
+    """,
+    )
+
 
 class TimeEditor(CellEditor):
-    ''' Spinner-based time cell editor.
+    """ Spinner-based time cell editor.
 
-    '''
+    """
+
 
 class DateEditor(CellEditor):
-    ''' Calendar-based date cell editor.
+    """ Calendar-based date cell editor.
 
-    '''
+    """
+
 
 class AvgAggregator(RowAggregator):
-    ''' Simple average across multiple rows.
+    """ Simple average across multiple rows.
 
-    '''
+    """
+
 
 class MinAggregator(RowAggregator):
-    ''' Smallest value across multiple rows.
+    """ Smallest value across multiple rows.
 
-    '''
+    """
+
 
 class MaxAggregator(RowAggregator):
-    ''' Largest value across multiple rows.
+    """ Largest value across multiple rows.
 
-    '''
+    """
+
 
 class SumAggregator(RowAggregator):
-    ''' Simple sum across multiple rows.
+    """ Simple sum across multiple rows.
 
-    '''
+    """
+
 
 class TableColumn(Model):
-    ''' Table column widget.
+    """ Table column widget.
 
-    '''
+    """
 
-    field = String(help="""
+    field = String(
+        help="""
     The name of the field mapping to a column in the data source.
-    """)
+    """
+    )
 
-    title = String(help="""
+    title = String(
+        help="""
     The title of this column. If not set, column's data field is
     used instead.
-    """)
+    """
+    )
 
-    width = Int(300, help="""
+    width = Int(
+        300,
+        help="""
     The width or maximum width (depending on data table's configuration)
     in pixels of this column.
-    """)
+    """,
+    )
 
-    formatter = Instance(CellFormatter, lambda: StringFormatter(), help="""
+    formatter = Instance(
+        CellFormatter,
+        lambda: StringFormatter(),
+        help="""
     The cell formatter for this column. By default, a simple string
     formatter is used.
-    """)
+    """,
+    )
 
-    editor = Instance(CellEditor, lambda: StringEditor(), help="""
+    editor = Instance(
+        CellEditor,
+        lambda: StringEditor(),
+        help="""
     The cell editor for this column. By default, a simple string editor
     is used.
-    """)
+    """,
+    )
 
-    sortable = Bool(True, help="""
+    sortable = Bool(
+        True,
+        help="""
     Whether this column is sortable or not. Note that data table has
     to have sorting enabled to allow sorting in general.
-    """)
+    """,
+    )
 
-    default_sort = Enum("ascending", "descending", help="""
+    default_sort = Enum(
+        "ascending",
+        "descending",
+        help="""
     The default sorting order. By default ``ascending`` order is used.
-    """)
+    """,
+    )
+
 
 @abstract
 class TableWidget(Widget):
-    ''' Abstract base class for data table (data grid) widgets.
+    """ Abstract base class for data table (data grid) widgets.
 
-    '''
+    """
 
-    source = Instance(DataSource, help="""
+    source = Instance(
+        DataSource,
+        help="""
     The source of data for the widget.
-    """)
+    """,
+    )
 
-    view = Instance(CDSView, help="""
+    view = Instance(
+        CDSView,
+        help="""
     A view into the data source to use when rendering table rows. A default view
     of the entire data source is created if a view is not passed in during
     initialization.
-    """)
+    """,
+    )
 
     def __init__(self, **kw):
         super().__init__(**kw)
         if "view" not in kw:
             self.view = CDSView(source=self.source)
 
+
 class DataTable(TableWidget):
-    ''' Two dimensional grid for visualisation and editing large amounts
+    """ Two dimensional grid for visualisation and editing large amounts
     of data.
 
-    '''
+    """
 
-    columns = List(Instance(TableColumn), help="""
+    columns = List(
+        Instance(TableColumn),
+        help="""
     The list of child column widgets.
-    """)
+    """,
+    )
 
-    fit_columns = Bool(True, help="""
+    fit_columns = Bool(
+        True,
+        help="""
     Whether columns should be fit to the available width. This results in no
     horizontal scrollbar showing up, but data can get unreadable if there is
     no enough space available. If set to ``True``, columns' width is
     understood as maximum width.
-    """)
+    """,
+    )
 
-    sortable = Bool(True, help="""
+    sortable = Bool(
+        True,
+        help="""
     Allows to sort table's contents. By default natural order is preserved.
     To sort a column, click on it's header. Clicking one more time changes
     sort direction. Use Ctrl + click to return to natural order. Use
     Shift + click to sort multiple columns simultaneously.
-    """)
+    """,
+    )
 
-    reorderable = Bool(True, help="""
+    reorderable = Bool(
+        True,
+        help="""
     Allows the reordering of a table's columns. To reorder a column,
     click and drag a table's header to the desired location in the table.
     The columns on either side will remain in their previous order.
-    """)
+    """,
+    )
 
-    editable = Bool(False, help="""
+    editable = Bool(
+        False,
+        help="""
     Allows to edit table's contents. Needs cell editors to be configured on
     columns that are required to be editable.
-    """)
+    """,
+    )
 
-    selectable = Either(Bool(True), Enum("checkbox"), help="""
+    selectable = Either(
+        Bool(True),
+        Enum("checkbox"),
+        help="""
     Whether a table's rows can be selected or not. Using ``checkbox`` is
     equivalent  to ``True``, but makes selection visible through a checkbox
     for each row,  instead of highlighting rows. Multiple selection is
     allowed and can be achieved by either clicking multiple checkboxes (if
     enabled) or using Shift + click on rows.
-    """)
+    """,
+    )
 
-    index_position = Int(0, help="""
+    index_position = Int(
+        0,
+        help="""
     Where among the list of columns to insert a column displaying the row
     index. Negative indices are supported, and specify an index position
     from the end of the list of columns (i.e. standard Python behaviour).
@@ -674,67 +812,101 @@ class DataTable(TableWidget):
     If the absolute value of index_position  is larger than the length of
     the columns, then the index will appear at the beginning or end, depending
     on the sign.
-    """)
+    """,
+    )
 
-    index_header = String("#", help="""
+    index_header = String(
+        "#",
+        help="""
     The column header to display for the index column, if it is present.
-    """)
+    """,
+    )
 
-    index_width = Int(40, help="""
+    index_width = Int(
+        40,
+        help="""
     The width of the index column, if present.
-    """)
+    """,
+    )
 
-    scroll_to_selection = Bool(True, help="""
+    scroll_to_selection = Bool(
+        True,
+        help="""
     Whenever a selection is made on the data source, scroll the selected
     rows into the table's viewport if none of the selected rows are already
     in the viewport.
-    """)
+    """,
+    )
 
-    header_row = Bool(True, help="""
+    header_row = Bool(
+        True,
+        help="""
     Whether to show a header row with column names at the top of the table.
-    """)
+    """,
+    )
 
     width = Override(default=600)
 
     height = Override(default=400)
 
-    row_height = Int(25, help="""
+    row_height = Int(
+        25,
+        help="""
     The height of each row in pixels.
-    """)
+    """,
+    )
+
 
 class GroupingInfo(Model):
-    '''Describes how to calculate totals and sub-totals
-    '''
+    """Describes how to calculate totals and sub-totals
+    """
 
-    getter = String('', help="""
+    getter = String(
+        "",
+        help="""
     References the column which generates the unique keys of this sub-total (groupby).
-    """)
+    """,
+    )
 
-    aggregators = List(Instance(RowAggregator), help="""
+    aggregators = List(
+        Instance(RowAggregator),
+        help="""
     Describes how to aggregate the columns which will populate this sub-total.
-    """)
+    """,
+    )
 
-    collapsed = Bool(False, help="""
+    collapsed = Bool(
+        False,
+        help="""
     Whether the corresponding sub-total is expanded or collapsed by default.
-    """)
+    """,
+    )
+
 
 class DataCube(DataTable):
-    '''Specialized DataTable with collapsing groups, totals, and sub-totals.
-    '''
+    """Specialized DataTable with collapsing groups, totals, and sub-totals.
+    """
 
-    grouping = List(Instance(GroupingInfo), help="""
+    grouping = List(
+        Instance(GroupingInfo),
+        help="""
     Describe what aggregation operations used to define sub-totals and totals
-    """)
+    """,
+    )
 
-    target = Instance(DataSource, help="""
+    target = Instance(
+        DataSource,
+        help="""
     Two column datasource (row_indices & labels) describing which rows of the
     data cubes are expanded or collapsed
-    """)
+    """,
+    )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

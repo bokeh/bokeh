@@ -1,47 +1,38 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' The query module provides functions for searching collections of Bokeh
+# -----------------------------------------------------------------------------
+""" The query module provides functions for searching collections of Bokeh
 models for instances that match specified criteria.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'EQ',
-    'find',
-    'GEQ',
-    'GT',
-    'IN',
-    'LEQ',
-    'LT',
-    'match',
-    'NEQ',
-    'OR',
-)
+__all__ = ("EQ", "find", "GEQ", "GT", "IN", "LEQ", "LT", "match", "NEQ", "OR")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def find(objs, selector, context=None):
-    ''' Query a collection of Bokeh models and yield any that match the
+    """ Query a collection of Bokeh models and yield any that match the
     a selector.
 
     Args:
@@ -74,11 +65,12 @@ def find(objs, selector, context=None):
             # here layout is a method that takes a plot as context
             find(p.references(), {'layout': 'left'}, {'plot': p})
 
-    '''
+    """
     return (obj for obj in objs if match(obj, selector, context))
 
+
 def match(obj, selector, context=None):
-    ''' Test whether a given Bokeh model matches a given selector.
+    """ Test whether a given Bokeh model matches a given selector.
 
     Args:
         obj (Model) : object to test
@@ -145,7 +137,7 @@ def match(obj, selector, context=None):
         >>> match(p, {'tags': ["foo"]})
         False
 
-    '''
+    """
     context = context or {}
     for key, val in selector.items():
 
@@ -156,57 +148,70 @@ def match(obj, selector, context=None):
             if key == "type":
                 # type supports IN, check for that first
                 if isinstance(val, dict) and list(val.keys()) == [IN]:
-                    if not any(isinstance(obj, x) for x in val[IN]): return False
+                    if not any(isinstance(obj, x) for x in val[IN]):
+                        return False
                 # otherwise just check the type of the object against val
-                elif not isinstance(obj, val): return False
+                elif not isinstance(obj, val):
+                    return False
 
             # special case 'tag'
-            elif key == 'tags':
+            elif key == "tags":
                 if isinstance(val, str):
-                    if val not in obj.tags: return False
+                    if val not in obj.tags:
+                        return False
                 else:
                     try:
-                        if not set(val) & set(obj.tags): return False
+                        if not set(val) & set(obj.tags):
+                            return False
                     except TypeError:
-                        if val not in obj.tags: return False
+                        if val not in obj.tags:
+                            return False
 
             # if the object doesn't have the attr, it doesn't match
-            elif not hasattr(obj, key): return False
+            elif not hasattr(obj, key):
+                return False
 
             # if the value to check is a dict, recurse
             else:
                 attr = getattr(obj, key)
                 if callable(attr):
                     try:
-                        if not attr(val, **context): return False
+                        if not attr(val, **context):
+                            return False
                     except:
                         return False
 
                 elif isinstance(val, dict):
-                    if not match(attr, val, context): return False
+                    if not match(attr, val, context):
+                        return False
 
                 else:
-                    if attr != val: return False
+                    if attr != val:
+                        return False
 
         # test OR conditionals
         elif key is OR:
-            if not _or(obj, val): return False
+            if not _or(obj, val):
+                return False
 
         # test operands
         elif key in _operators:
-            if not _operators[key](obj, val): return False
+            if not _operators[key](obj, val):
+                return False
 
         else:
             raise ValueError("malformed query selector")
 
     return True
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class OR(object):
-    ''' Form disjunctions from other query predicates.
+    """ Form disjunctions from other query predicates.
 
     Construct an ``OR`` expression by making a dict with ``OR`` as the key,
     and a list of other query expressions as the value:
@@ -216,11 +221,13 @@ class OR(object):
         # matches any Axis subclasses or models with .name == "mycircle"
         { OR: [dict(type=Axis), dict(name="mycircle")] }
 
-    '''
+    """
+
     pass
 
+
 class IN(object):
-    ''' Predicate to test if property values are in some collection.
+    """ Predicate to test if property values are in some collection.
 
     Construct and ``IN`` predicate as a dict with ``IN`` as the key,
     and a list of values to check against.
@@ -230,11 +237,13 @@ class IN(object):
         # matches any models with .name in ['a', 'mycircle', 'myline']
         dict(name={ IN: ['a', 'mycircle', 'myline'] })
 
-    '''
+    """
+
     pass
 
+
 class GT(object):
-    ''' Predicate to test if property values are greater than some value.
+    """ Predicate to test if property values are greater than some value.
 
     Construct and ``GT`` predicate as a dict with ``GT`` as the key,
     and a value to compare against.
@@ -244,11 +253,13 @@ class GT(object):
         # matches any models with .size > 10
         dict(size={ GT: 10 })
 
-    '''
+    """
+
     pass
 
+
 class LT(object):
-    ''' Predicate to test if property values are less than some value.
+    """ Predicate to test if property values are less than some value.
 
     Construct and ``LT`` predicate as a dict with ``LT`` as the key,
     and a value to compare against.
@@ -258,11 +269,13 @@ class LT(object):
         # matches any models with .size < 10
         dict(size={ LT: 10 })
 
-    '''
+    """
+
     pass
 
+
 class EQ(object):
-    ''' Predicate to test if property values are equal to some value.
+    """ Predicate to test if property values are equal to some value.
 
     Construct and ``EQ`` predicate as a dict with ``EQ`` as the key,
     and a value to compare against.
@@ -272,11 +285,13 @@ class EQ(object):
         # matches any models with .size == 10
         dict(size={ EQ: 10 })
 
-    '''
+    """
+
     pass
 
+
 class GEQ(object):
-    ''' Predicate to test if property values are greater than or equal to
+    """ Predicate to test if property values are greater than or equal to
     some value.
 
     Construct and ``GEQ`` predicate as a dict with ``GEQ`` as the key,
@@ -287,11 +302,13 @@ class GEQ(object):
         # matches any models with .size >= 10
         dict(size={ GEQ: 10 })
 
-    '''
+    """
+
     pass
 
+
 class LEQ(object):
-    ''' Predicate to test if property values are less than or equal to
+    """ Predicate to test if property values are less than or equal to
     some value.
 
     Construct and ``LEQ`` predicate as a dict with ``LEQ`` as the key,
@@ -302,11 +319,13 @@ class LEQ(object):
         # matches any models with .size <= 10
         dict(size={ LEQ: 10 })
 
-    '''
+    """
+
     pass
 
+
 class NEQ(object):
-    ''' Predicate to test if property values are unequal to some value.
+    """ Predicate to test if property values are unequal to some value.
 
     Construct and ``NEQ`` predicate as a dict with ``NEQ`` as the key,
     and a value to compare against.
@@ -316,28 +335,31 @@ class NEQ(object):
         # matches any models with .size != 10
         dict(size={ NEQ: 10 })
 
-    '''
+    """
+
     pass
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # realizations of the abstract predicate operators
 _operators = {
-   IN:  lambda x, y: x in y,
-   GT:  lambda x, y: x > y,
-   LT:  lambda x, y: x < y,
-   EQ:  lambda x, y: x == y,
-   GEQ: lambda x, y: x >= y,
-   LEQ: lambda x, y: x <= y,
-   NEQ: lambda x, y: x != y,
+    IN: lambda x, y: x in y,
+    GT: lambda x, y: x > y,
+    LT: lambda x, y: x < y,
+    EQ: lambda x, y: x == y,
+    GEQ: lambda x, y: x >= y,
+    LEQ: lambda x, y: x <= y,
+    NEQ: lambda x, y: x != y,
 }
 
 # realization of the OR operator
 def _or(obj, selectors):
     return any(match(obj, selector) for selector in selectors)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

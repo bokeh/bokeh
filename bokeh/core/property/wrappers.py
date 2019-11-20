@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide special versions of list and dict, that can automatically notify
+# -----------------------------------------------------------------------------
+""" Provide special versions of list and dict, that can automatically notify
 about changes when used for property values.
 
 Mutations to these values are detected, and the properties owning the
@@ -49,17 +49,18 @@ The classes in this module provide this functionality.
     classes or their methods will be applicable to any standard usage or to
     anyone who is not directly developing on Bokeh's own infrastructure.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import copy
@@ -70,30 +71,31 @@ import numpy as np
 # Bokeh imports
 from ...util.dependencies import import_optional
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
+pd = import_optional("pandas")
 
 __all__ = (
-    'notify_owner',
-    'PropertyValueContainer',
-    'PropertyValueList',
-    'PropertyValueDict',
-    'PropertyValueColumnData',
+    "notify_owner",
+    "PropertyValueContainer",
+    "PropertyValueList",
+    "PropertyValueDict",
+    "PropertyValueColumnData",
 )
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def notify_owner(func):
-    ''' A decorator for mutating methods of property container classes
+    """ A decorator for mutating methods of property container classes
     that notifies owners of the property container about mutating changes.
 
     Args:
@@ -116,17 +118,22 @@ def notify_owner(func):
     The returned wrapped method will have a docstring indicating what
     original method it is wrapping.
 
-    '''
+    """
+
     def wrapper(self, *args, **kwargs):
         old = self._saved_copy()
         result = func(self, *args, **kwargs)
         self._notify_owners(old)
         return result
-    wrapper.__doc__ = "Container method ``%s`` instrumented to notify property owners" % func.__name__
+
+    wrapper.__doc__ = (
+        "Container method ``%s`` instrumented to notify property owners" % func.__name__
+    )
     return wrapper
 
+
 class PropertyValueContainer(object):
-    ''' A base class for property container classes that support change
+    """ A base class for property container classes that support change
     notifications on mutating operations.
 
     This class maintains an internal list of property owners, and also
@@ -134,7 +141,8 @@ class PropertyValueContainer(object):
     :func:`~bokeh.core.property.wrappers.notify_owners` to update
     those owners when mutating changes occur.
 
-    '''
+    """
+
     def __init__(self, *args, **kwargs):
         self._owners = set()
         super().__init__(*args, **kwargs)
@@ -152,8 +160,9 @@ class PropertyValueContainer(object):
     def _saved_copy(self):
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
+
 class PropertyValueList(PropertyValueContainer, list):
-    ''' A list property value container that supports change notifications on
+    """ A list property value container that supports change notifications on
     mutating operations.
 
     When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
@@ -192,7 +201,7 @@ class PropertyValueList(PropertyValueContainer, list):
         x.reverse
         x.sort
 
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         return super().__init__(*args, **kwargs)
@@ -262,8 +271,9 @@ class PropertyValueList(PropertyValueContainer, list):
     def sort(self, **kwargs):
         return super().sort(**kwargs)
 
+
 class PropertyValueDict(PropertyValueContainer, dict):
-    ''' A dict property value container that supports change notifications on
+    """ A dict property value container that supports change notifications on
     mutating operations.
 
     When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
@@ -299,7 +309,8 @@ class PropertyValueDict(PropertyValueContainer, dict):
         x.setdefault
         x.update
 
-    '''
+    """
+
     def __init__(self, *args, **kwargs):
         return super().__init__(*args, **kwargs)
 
@@ -336,8 +347,9 @@ class PropertyValueDict(PropertyValueContainer, dict):
     def update(self, *args, **kwargs):
         return super().update(*args, **kwargs)
 
+
 class PropertyValueColumnData(PropertyValueDict):
-    ''' A property value container for ColumnData that supports change
+    """ A property value container for ColumnData that supports change
     notifications on mutating operations.
 
     This property value container affords specialized code paths for
@@ -350,7 +362,7 @@ class PropertyValueColumnData(PropertyValueDict):
         x[i] = y
         x.update
 
-    '''
+    """
 
     # x[i] = y
     # don't wrap with notify_owner --- notifies owners explicitly
@@ -367,7 +379,9 @@ class PropertyValueColumnData(PropertyValueDict):
     def update(self, *args, **kwargs):
         old = self._saved_copy()
 
-        result = super(PropertyValueDict, self).update(*args, **kwargs) # note super special case
+        result = super(PropertyValueDict, self).update(
+            *args, **kwargs
+        )  # note super special case
 
         from ...document.events import ColumnDataChangedEvent
 
@@ -379,10 +393,10 @@ class PropertyValueColumnData(PropertyValueDict):
         cols = set(kwargs.keys())
         if len(args) == 1:
             E = args[0]
-            if hasattr(E, 'keys'):
+            if hasattr(E, "keys"):
                 cols |= set(E.keys())
             else:
-                cols |= { x[0] for x in E }
+                cols |= {x[0] for x in E}
 
         # we must loop ourselves here instead of calling _notify_owners
         # because the hint is customized for each owner separately
@@ -394,7 +408,7 @@ class PropertyValueColumnData(PropertyValueDict):
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None, setter=None):
-        ''' Internal implementation to handle special-casing stream events
+        """ Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.
 
         Normally any changes to the ``.data`` dict attribute on a
@@ -417,19 +431,21 @@ class PropertyValueColumnData(PropertyValueDict):
             This function assumes the integrity of ``new_data`` has already
             been verified.
 
-        '''
+        """
         old = self._saved_copy()
 
         # TODO (bev) Currently this reports old differently for array vs list
         # For arrays is reports the actual old value. For lists, the old value
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
-        for k, v in  new_data.items():
+        for k, v in new_data.items():
             if isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
                     data = data[-rollover:]
-                super(PropertyValueDict, self).__setitem__(k, data) # note super special case
+                super(PropertyValueDict, self).__setitem__(
+                    k, data
+                )  # note super special case
             else:
                 L = self[k]
                 L.extend(new_data[k])
@@ -438,12 +454,13 @@ class PropertyValueColumnData(PropertyValueDict):
 
         from ...document.events import ColumnsStreamedEvent
 
-        self._notify_owners(old,
-                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
+        self._notify_owners(
+            old, hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter)
+        )
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc, source, patches, setter=None):
-        ''' Internal implementation to handle special-casing patch events
+        """ Internal implementation to handle special-casing patch events
         on ``ColumnDataSource`` columns.
 
         Normally any changes to the ``.data`` dict attribute on a
@@ -466,7 +483,7 @@ class PropertyValueColumnData(PropertyValueDict):
             This function assumes the integrity of ``patches`` has already
             been verified.
 
-        '''
+        """
         old = self._saved_copy()
 
         for name, patch in patches.items():
@@ -475,17 +492,19 @@ class PropertyValueColumnData(PropertyValueDict):
                     self[name][ind] = value
                 else:
                     shape = self[name][ind[0]][tuple(ind[1:])].shape
-                    self[name][ind[0]][tuple(ind[1:])] = np.array(value, copy=False).reshape(shape)
+                    self[name][ind[0]][tuple(ind[1:])] = np.array(
+                        value, copy=False
+                    ).reshape(shape)
 
         from ...document.events import ColumnsPatchedEvent
 
-        self._notify_owners(old,
-                            hint=ColumnsPatchedEvent(doc, source, patches, setter))
+        self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, patches, setter))
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

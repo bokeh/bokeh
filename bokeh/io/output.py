@@ -1,43 +1,41 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .notebook import run_notebook_hook
 from .state import curstate
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'output_file',
-    'output_notebook',
-    'reset_output',
-)
+__all__ = ("output_file", "output_notebook", "reset_output")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
-    '''Configure the default output state to generate output saved
+    """Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
     Does not change the current ``Document`` from ``curdoc()``. File and notebook
@@ -68,16 +66,18 @@ def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
         This output file will be overwritten on every save, e.g., each time
         show() or save() is invoked.
 
-    '''
-    curstate().output_file(
-        filename,
-        title=title,
-        mode=mode,
-        root_dir=root_dir
-    )
+    """
+    curstate().output_file(filename, title=title, mode=mode, root_dir=root_dir)
 
-def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
-    ''' Configure the default output state to generate output in notebook cells
+
+def output_notebook(
+    resources=None,
+    verbose=False,
+    hide_banner=False,
+    load_timeout=5000,
+    notebook_type="jupyter",
+):
+    """ Configure the default output state to generate output in notebook cells
     when :func:`show` is called. Note that, :func:`show` may be called multiple
     times in a single cell to display multiple objects in the output cell. The
     objects will be displayed in order.
@@ -105,28 +105,32 @@ def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeo
         Generally, this should be called at the beginning of an interactive
         session or the top of a script.
 
-    '''
+    """
     # verify notebook_type first in curstate().output_notebook
     curstate().output_notebook(notebook_type)
-    run_notebook_hook(notebook_type, 'load', resources, verbose, hide_banner, load_timeout)
+    run_notebook_hook(
+        notebook_type, "load", resources, verbose, hide_banner, load_timeout
+    )
+
 
 def reset_output(state=None):
-    ''' Clear the default state of all output modes.
+    """ Clear the default state of all output modes.
 
     Returns:
         None
 
-    '''
+    """
     curstate().reset()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Models for displaying maps in Bokeh plots.
+# -----------------------------------------------------------------------------
+""" Models for displaying maps in Bokeh plots.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.enums import MapType
@@ -33,86 +34,107 @@ from ..model import Model
 from ..models.ranges import Range1d
 from .plots import Plot
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'GMapOptions',
-    'GMapPlot',
-    'MapOptions',
-    'MapPlot',
-)
+__all__ = ("GMapOptions", "GMapPlot", "MapOptions", "MapPlot")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class MapOptions(Model):
-    ''' Abstract base class for map options' models.
+    """ Abstract base class for map options' models.
 
-    '''
+    """
 
-    lat = Float(help="""
+    lat = Float(
+        help="""
     The latitude where the map should be centered.
-    """)
+    """
+    )
 
-    lng = Float(help="""
+    lng = Float(
+        help="""
     The longitude where the map should be centered.
-    """)
+    """
+    )
 
-    zoom = Int(12, help="""
+    zoom = Int(
+        12,
+        help="""
     The initial zoom level to use when displaying the map.
-    """)
+    """,
+    )
+
 
 @abstract
 class MapPlot(Plot):
-    ''' Abstract base class for map plot models.
+    """ Abstract base class for map plot models.
 
-    '''
+    """
 
     def __init__(self, *args, **kw):
         from ..models.ranges import Range1d
-        for r in ('x_range', 'y_range'):
+
+        for r in ("x_range", "y_range"):
             if r in kw and not isinstance(kw.get(r), Range1d):
-                raise ValueError('Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges' % r)
+                raise ValueError(
+                    "Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges"
+                    % r
+                )
         super().__init__(*args, **kw)
 
     @error(INCOMPATIBLE_MAP_RANGE_TYPE)
     def _check_incompatible_map_range_type(self):
         from ..models.ranges import Range1d
+
         if self.x_range is not None and not isinstance(self.x_range, Range1d):
             return "%s.x_range" % str(self)
         if self.y_range is not None and not isinstance(self.y_range, Range1d):
             return "%s.y_range" % str(self)
 
+
 class GMapOptions(MapOptions):
-    ''' Options for ``GMapPlot`` objects.
+    """ Options for ``GMapPlot`` objects.
 
-    '''
+    """
 
-    map_type = Enum(MapType, default="roadmap", help="""
+    map_type = Enum(
+        MapType,
+        default="roadmap",
+        help="""
     The `map type`_ to use for the ``GMapPlot``.
 
     .. _map type: https://developers.google.com/maps/documentation/javascript/reference#MapTypeId
 
-    """)
+    """,
+    )
 
-    scale_control = Bool(default=False, help="""
+    scale_control = Bool(
+        default=False,
+        help="""
     Whether the Google map should display its distance scale control.
-    """)
+    """,
+    )
 
-    styles = JSON(help="""
+    styles = JSON(
+        help="""
     A JSON array of `map styles`_ to use for the ``GMapPlot``. Many example styles can
     `be found here`_.
 
     .. _map styles: https://developers.google.com/maps/documentation/javascript/reference#MapTypeStyle
     .. _be found here: https://snazzymaps.com
 
-    """)
+    """
+    )
 
-    tilt = Int(default=45, help="""
+    tilt = Int(
+        default=45,
+        help="""
     `Tilt`_ angle of the map. The only allowed values are 0 and 45.
     Only has an effect on 'satellite' and 'hybrid' map types.
     A value of 0 causes the map to always use a 0 degree overhead view.
@@ -120,10 +142,12 @@ class GMapOptions(MapOptions):
 
     .. _Tilt: https://developers.google.com/maps/documentation/javascript/reference/3/map#MapOptions.tilt
 
-    """)
+    """,
+    )
+
 
 class GMapPlot(MapPlot):
-    ''' A Bokeh Plot with a `Google Map`_ displayed underneath.
+    """ A Bokeh Plot with a `Google Map`_ displayed underneath.
 
     Data placed on this plot should be specified in decimal lat/lon coordinates
     e.g. ``(37.123, -122.404)``. It will be automatically converted into the
@@ -140,7 +164,7 @@ class GMapPlot(MapPlot):
 
     .. _Google Map: https://www.google.com/maps/
 
-    '''
+    """
 
     # TODO (bev) map plot might not have these
     @error(REQUIRED_RANGE)
@@ -156,29 +180,35 @@ class GMapPlot(MapPlot):
         if self.api_key is None:
             return str(self)
 
-    map_options = Instance(GMapOptions, help="""
+    map_options = Instance(
+        GMapOptions,
+        help="""
     Options for displaying the plot.
-    """)
+    """,
+    )
 
     border_fill_color = Override(default="#ffffff")
 
-    api_key = String(help="""
+    api_key = String(
+        help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
-    """)
+    """
+    )
 
     x_range = Override(default=lambda: Range1d())
 
     y_range = Override(default=lambda: Range1d())
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

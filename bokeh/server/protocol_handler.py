@@ -1,42 +1,42 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Encapsulate handling of all Bokeh Protocol messages a Bokeh server may
+# -----------------------------------------------------------------------------
+""" Encapsulate handling of all Bokeh Protocol messages a Bokeh server may
 receive.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..protocol.exceptions import ProtocolError
 from .session import ServerSession
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'ProtocolHandler',
-)
+__all__ = ("ProtocolHandler",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ProtocolHandler(object):
-    ''' A Bokeh server may be expected to receive any of the following protocol
+    """ A Bokeh server may be expected to receive any of the following protocol
     messages:
 
     * ``EVENT``
@@ -54,19 +54,19 @@ class ProtocolHandler(object):
 
     Any unexpected messages will result in a ``ProtocolError``.
 
-    '''
+    """
 
     def __init__(self):
         self._handlers = dict()
 
-        self._handlers['PULL-DOC-REQ'] = ServerSession.pull
-        self._handlers['PUSH-DOC'] = ServerSession.push
-        self._handlers['PATCH-DOC'] = ServerSession.patch
-        self._handlers['SERVER-INFO-REQ'] = self._server_info_req
-        self._handlers['EVENT'] = ServerSession.event
+        self._handlers["PULL-DOC-REQ"] = ServerSession.pull
+        self._handlers["PUSH-DOC"] = ServerSession.push
+        self._handlers["PATCH-DOC"] = ServerSession.patch
+        self._handlers["SERVER-INFO-REQ"] = self._server_info_req
+        self._handlers["EVENT"] = ServerSession.event
 
     async def handle(self, message, connection):
-        ''' Delegate a received message to the appropriate handler.
+        """ Delegate a received message to the appropriate handler.
 
         Args:
             message (Message) :
@@ -78,7 +78,7 @@ class ProtocolHandler(object):
         Raises:
             ProtocolError
 
-        '''
+        """
 
         handler = self._handlers.get(message.msgtype)
 
@@ -91,22 +91,27 @@ class ProtocolHandler(object):
         try:
             work = await handler(message, connection)
         except Exception as e:
-            log.error("error handling message\n message: %r \n error: %r",
-                      message, e, exc_info=True)
+            log.error(
+                "error handling message\n message: %r \n error: %r",
+                message,
+                e,
+                exc_info=True,
+            )
             work = connection.error(message, repr(e))
         return work
 
     async def _server_info_req(self, message, connection):
-        return connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid'])
+        return connection.protocol.create("SERVER-INFO-REPLY", message.header["msgid"])
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

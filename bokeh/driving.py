@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a set of decorators useful for repeatedly updating a
+# -----------------------------------------------------------------------------
+""" Provide a set of decorators useful for repeatedly updating a
 a function parameter in a specified way each time the function is
 called.
 
@@ -31,41 +31,35 @@ Example:
 
         0 1 2 2 1 0 0 1 2 2 1 ...
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from functools import partial
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'bounce',
-    'cosine',
-    'count',
-    'force',
-    'linear',
-    'repeat',
-    'sine',
-)
+__all__ = ("bounce", "cosine", "count", "force", "linear", "repeat", "sine")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def bounce(sequence):
-    ''' Return a driver function that can advance a "bounced" sequence
+    """ Return a driver function that can advance a "bounced" sequence
     of values.
 
     .. code-block:: none
@@ -77,18 +71,21 @@ def bounce(sequence):
     Args:
         sequence (seq) : a sequence of values for the driver to bounce
 
-    '''
+    """
     N = len(sequence)
+
     def f(i):
         div, mod = divmod(i, N)
         if div % 2 == 0:
             return sequence[mod]
         else:
-            return sequence[N-mod-1]
+            return sequence[N - mod - 1]
+
     return partial(force, sequence=_advance(f))
 
+
 def cosine(w, A=1, phi=0, offset=0):
-    ''' Return a driver function that can advance a sequence of cosine values.
+    """ Return a driver function that can advance a sequence of cosine values.
 
     .. code-block:: none
 
@@ -100,20 +97,24 @@ def cosine(w, A=1, phi=0, offset=0):
         phi (float) : a phase offset to start the cosine driver with
         offset (float) : a global offset to add to the driver values
 
-    '''
+    """
     from math import cos
+
     def f(i):
-        return A * cos(w*i + phi) + offset
+        return A * cos(w * i + phi) + offset
+
     return partial(force, sequence=_advance(f))
 
-def count():
-    ''' Return a driver function that can advance a simple count.
 
-    '''
+def count():
+    """ Return a driver function that can advance a simple count.
+
+    """
     return partial(force, sequence=_advance(lambda x: x))
 
+
 def force(f, sequence):
-    ''' Return a decorator that can "force" a function with an arbitrary
+    """ Return a decorator that can "force" a function with an arbitrary
     supplied generator
 
     Args:
@@ -123,13 +124,16 @@ def force(f, sequence):
     Returns:
         decorator
 
-    '''
+    """
+
     def wrapper():
         f(next(sequence))
+
     return wrapper
 
+
 def linear(m=1, b=0):
-    ''' Return a driver function that can advance a sequence of linear values.
+    """ Return a driver function that can advance a sequence of linear values.
 
     .. code-block:: none
 
@@ -139,13 +143,16 @@ def linear(m=1, b=0):
         m (float) : a slope for the linear driver
         x (float) : an offset for the linear driver
 
-    '''
+    """
+
     def f(i):
         return m * i + b
+
     return partial(force, sequence=_advance(f))
 
+
 def repeat(sequence):
-    ''' Return a driver function that can advance a repeated of values.
+    """ Return a driver function that can advance a repeated of values.
 
     .. code-block:: none
 
@@ -156,14 +163,17 @@ def repeat(sequence):
     Args:
         sequence (seq) : a sequence of values for the driver to bounce
 
-    '''
+    """
     N = len(sequence)
+
     def f(i):
-        return sequence[i%N]
+        return sequence[i % N]
+
     return partial(force, sequence=_advance(f))
 
+
 def sine(w, A=1, phi=0, offset=0):
-    ''' Return a driver function that can advance a sequence of sine values.
+    """ Return a driver function that can advance a sequence of sine values.
 
     .. code-block:: none
 
@@ -175,22 +185,26 @@ def sine(w, A=1, phi=0, offset=0):
         phi (float) : a phase offset to start the sine driver with
         offset (float) : a global offset to add to the driver values
 
-    '''
+    """
     from math import sin
+
     def f(i):
-        return A * sin(w*i + phi) + offset
+        return A * sin(w * i + phi) + offset
+
     return partial(force, sequence=_advance(f))
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _advance(f):
-    ''' Yield a sequence generated by calling a given function with
+    """ Yield a sequence generated by calling a given function with
     successively incremented integer values.
 
     Args:
@@ -200,12 +214,13 @@ def _advance(f):
     Yields:
         f(i) where i increases each call
 
-    '''
+    """
     i = 0
     while True:
         yield f(i)
         i += 1
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

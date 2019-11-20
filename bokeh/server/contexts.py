@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provides the Application, Server, and Session context classes.
+# -----------------------------------------------------------------------------
+""" Provides the Application, Server, and Session context classes.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from tornado import gen
@@ -28,27 +29,24 @@ from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup
 from .session import ServerSession
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'ApplicationContext',
-    'BokehServerContext',
-    'BokehSessionContext',
-)
+__all__ = ("ApplicationContext", "BokehServerContext", "BokehSessionContext")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
@@ -82,6 +80,7 @@ class BokehServerContext(ServerContext):
 
     def remove_periodic_callback(self, callback_id):
         self._callbacks.remove_periodic_callback(callback_id)
+
 
 class BokehSessionContext(SessionContext):
     def __init__(self, session_id, server_context, document, logout_url=None):
@@ -125,10 +124,10 @@ class BokehSessionContext(SessionContext):
 
 
 class ApplicationContext(object):
-    ''' Server-side holder for ``bokeh.application.Application`` plus any associated data.
+    """ Server-side holder for ``bokeh.application.Application`` plus any associated data.
         This holds data that's global to all sessions, while ``ServerSession`` holds
         data specific to an "instance" of the application.
-    '''
+    """
 
     def __init__(self, application, io_loop=None, url=None, logout_url=None):
         self._application = application
@@ -182,23 +181,23 @@ class ApplicationContext(object):
         if len(session_id) == 0:
             raise ProtocolError("Session ID must not be empty")
 
-        if session_id not in self._sessions and \
-           session_id not in self._pending_sessions:
+        if (
+            session_id not in self._sessions
+            and session_id not in self._pending_sessions
+        ):
             future = self._pending_sessions[session_id] = gen.Future()
 
             doc = Document()
 
-            session_context = BokehSessionContext(session_id,
-                                                  self.server_context,
-                                                  doc,
-                                                  logout_url=self._logout_url)
+            session_context = BokehSessionContext(
+                session_id, self.server_context, doc, logout_url=self._logout_url
+            )
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request)
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context
             doc._session_context = session_context
-
 
             try:
                 await self._application.on_session_created(session_context)
@@ -234,8 +233,14 @@ class ApplicationContext(object):
 
     async def _discard_session(self, session, should_discard):
         if session.connection_count > 0:
-            raise RuntimeError("Should not be discarding a session with open connections")
-        log.debug("Discarding session %r last in use %r milliseconds ago", session.id, session.milliseconds_since_last_unsubscribe)
+            raise RuntimeError(
+                "Should not be discarding a session with open connections"
+            )
+        log.debug(
+            "Discarding session %r last in use %r milliseconds ago",
+            session.id,
+            session.milliseconds_since_last_unsubscribe,
+        )
 
         session_context = self._session_contexts[session.id]
 
@@ -253,7 +258,11 @@ class ApplicationContext(object):
                 del self._session_contexts[session.id]
                 log.trace("Session %r was successfully discarded", session.id)
             else:
-                log.warning("Session %r was scheduled to discard but came back to life", session.id)
+                log.warning(
+                    "Session %r was scheduled to discard but came back to life",
+                    session.id,
+                )
+
         await session.with_document_locked(do_discard)
 
         # session lifecycle hooks are supposed to be called outside the document lock,
@@ -268,34 +277,46 @@ class ApplicationContext(object):
 
     async def _cleanup_sessions(self, unused_session_linger_milliseconds):
         def should_discard_ignoring_block(session):
-            return session.connection_count == 0 and \
-                (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \
-                 session.expiration_requested)
+            return session.connection_count == 0 and (
+                session.milliseconds_since_last_unsubscribe
+                > unused_session_linger_milliseconds
+                or session.expiration_requested
+            )
+
         # build a temp list to avoid trouble from self._sessions changes
         to_discard = []
         for session in self._sessions.values():
-            if should_discard_ignoring_block(session) and not session.expiration_blocked:
+            if (
+                should_discard_ignoring_block(session)
+                and not session.expiration_blocked
+            ):
                 to_discard.append(session)
 
         if len(to_discard) > 0:
             log.debug("Scheduling %s sessions to discard" % len(to_discard))
         # asynchronously reconsider each session
         for session in to_discard:
-            if should_discard_ignoring_block(session) and not session.expiration_blocked:
+            if (
+                should_discard_ignoring_block(session)
+                and not session.expiration_blocked
+            ):
                 await self._discard_session(session, should_discard_ignoring_block)
 
         return None
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class _RequestProxy(object):
     def __init__(self, request):
         self._request = request
 
         arguments = dict(request.arguments)
-        if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
+        if "bokeh-session-id" in arguments:
+            del arguments["bokeh-session-id"]
         self._arguments = arguments
 
     @property
@@ -309,6 +330,7 @@ class _RequestProxy(object):
                 return val
         return super.__getattr__(name)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,41 +1,40 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide decorators help with define Bokeh validation checks.
+# -----------------------------------------------------------------------------
+""" Provide decorators help with define Bokeh validation checks.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from functools import partial
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'error',
-    'warning',
-)
+__all__ = ("error", "warning")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _validator(code_or_name, validator_type):
-    ''' Internal shared implementation to handle both error and warning
+    """ Internal shared implementation to handle both error and warning
     validation checks.
 
     Args:
@@ -45,7 +44,7 @@ def _validator(code_or_name, validator_type):
     Returns:
         validation decorator
 
-    '''
+    """
     if validator_type == "error":
         from .errors import codes
         from .errors import EXT
@@ -53,12 +52,13 @@ def _validator(code_or_name, validator_type):
         from .warnings import codes
         from .warnings import EXT
     else:
-        pass # TODO (bev) ValueError?
+        pass  # TODO (bev) ValueError?
 
     def decorator(func):
         def wrapper(*args, **kw):
             extra = func(*args, **kw)
-            if extra is None: return []
+            if extra is None:
+                return []
             if isinstance(code_or_name, str):
                 code = EXT
                 name = codes[code][0] + ":" + code_or_name
@@ -67,25 +67,28 @@ def _validator(code_or_name, validator_type):
                 name = codes[code][0]
             text = codes[code][1]
             return [(code, name, text, extra)]
+
         wrapper.validator_type = validator_type
         return wrapper
 
     return decorator
 
+
 _error = partial(_validator, validator_type="error")
 
 _warning = partial(_validator, validator_type="warning")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def error(code_or_name):
-    ''' Decorator to mark a validator method for a Bokeh error condition
+    """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
         code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
@@ -121,11 +124,12 @@ def error(code_or_name):
         def _check_my_custom_warning(self):
             if bad_condition: return "message"
 
-    '''
+    """
     return _error(code_or_name)
 
+
 def warning(code_or_name):
-    ''' Decorator to mark a validator method for a Bokeh error condition
+    """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
         code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
@@ -161,9 +165,10 @@ def warning(code_or_name):
         def _check_my_custom_warning(self):
             if bad_condition: return "message"
 
-    '''
+    """
     return _warning(code_or_name)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

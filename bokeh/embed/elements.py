@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Generate various HTML elements from Bokeh render items.
+# -----------------------------------------------------------------------------
+""" Generate various HTML elements from Bokeh render items.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from html import escape
@@ -31,26 +32,27 @@ from ..util.serialization import make_id
 from .util import RenderItem
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'div_for_render_item',
-    'html_page_for_render_items',
-    'script_for_render_items',
+    "div_for_render_item",
+    "html_page_for_render_items",
+    "script_for_render_items",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def div_for_render_item(item: RenderItem) -> str:
-    ''' Render an HTML div for a Bokeh render item.
+    """ Render an HTML div for a Bokeh render item.
 
     Args:
         item (RenderItem):
@@ -59,11 +61,14 @@ def div_for_render_item(item: RenderItem) -> str:
     Returns:
         str
 
-    '''
+    """
     return PLOT_DIV.render(doc=item, macros=MACROS)
 
-def html_page_for_render_items(bundle, docs_json, render_items, title, template=None, template_variables={}):
-    ''' Render an HTML page from a template and Bokeh render items.
+
+def html_page_for_render_items(
+    bundle, docs_json, render_items, title, template=None, template_variables={}
+):
+    """ Render an HTML page from a template and Bokeh render items.
 
     Args:
         bundle (tuple):
@@ -87,7 +92,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     Returns:
         str
 
-    '''
+    """
     if title is None:
         title = DEFAULT_TITLE
 
@@ -101,15 +106,17 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
 
     context = template_variables.copy()
 
-    context.update(dict(
-        title = title,
-        bokeh_js = bokeh_js,
-        bokeh_css = bokeh_css,
-        plot_script = json + script,
-        docs = render_items,
-        base = FILE,
-        macros = MACROS,
-    ))
+    context.update(
+        dict(
+            title=title,
+            bokeh_js=bokeh_js,
+            bokeh_css=bokeh_css,
+            plot_script=json + script,
+            docs=render_items,
+            base=FILE,
+            macros=MACROS,
+        )
+    )
 
     if len(render_items) == 1:
         context["doc"] = context["docs"][0]
@@ -126,9 +133,14 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     html = template.render(context)
     return html
 
-def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
-                            app_path: Optional[str] = None, absolute_url: Optional[str] = None) -> str:
-    ''' Render an script for Bokeh render items.
+
+def script_for_render_items(
+    docs_json_or_id,
+    render_items: List[RenderItem],
+    app_path: Optional[str] = None,
+    absolute_url: Optional[str] = None,
+) -> str:
+    """ Render an script for Bokeh render items.
     Args:
         docs_json_or_id:
             can be None
@@ -142,7 +154,7 @@ def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
 
     Returns:
         str
-    '''
+    """
     if isinstance(docs_json_or_id, str):
         docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
     else:
@@ -150,14 +162,16 @@ def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
         # and encoding it would significantly increase size of generated files. Doing so
         # is safe, because " in strings was already encoded by JSON, and the semi-encoded
         # JSON string is included in JavaScript in single quotes.
-        docs_json = serialize_json(docs_json_or_id, pretty=False) # JSON string
-        docs_json = escape(docs_json, quote=("'",))               # make HTML-safe
-        docs_json = docs_json.replace("\\", "\\\\")               # double encode escapes
-        docs_json =  "'" + docs_json + "'"                        # JS string
+        docs_json = serialize_json(docs_json_or_id, pretty=False)  # JSON string
+        docs_json = escape(docs_json, quote=("'",))  # make HTML-safe
+        docs_json = docs_json.replace("\\", "\\\\")  # double encode escapes
+        docs_json = "'" + docs_json + "'"  # JS string
 
     js = DOC_JS.render(
         docs_json=docs_json,
-        render_items=serialize_json([ item.to_json() for item in render_items ], pretty=False),
+        render_items=serialize_json(
+            [item.to_json() for item in render_items], pretty=False
+        ),
         app_path=app_path,
         absolute_url=absolute_url,
     )
@@ -167,10 +181,11 @@ def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
 
     return wrap_in_onload(js)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

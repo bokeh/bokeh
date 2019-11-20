@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide a ``Theme`` class for specifying new default values for Bokeh
+# -----------------------------------------------------------------------------
+""" Provide a ``Theme`` class for specifying new default values for Bokeh
 :class:`~bokeh.model.Model` properties.
 
-'''
-#-----------------------------------------------------------------------------
+"""
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import yaml
@@ -24,33 +25,31 @@ import yaml
 # Bokeh imports
 from ..core.has_props import HasProps
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
 _empty_dict = dict()
 
-__all__ = (
-    'Theme',
-)
+__all__ = ("Theme",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Note: in DirectoryHandler and in general we assume this is an
 # immutable object, because we share it among sessions and we
 # don't monitor it for changes. If you make this mutable by adding
 # any kind of setter, you could have to refactor some other code.
 class Theme(object):
-    ''' Provide new default values for Bokeh models.
+    """ Provide new default values for Bokeh models.
 
     Bokeh Model properties all have some built-in default value. If a property
     has not been explicitly set (e.g. ``m.foo = 10``) then accessing the
@@ -117,10 +116,13 @@ class Theme(object):
                 }
             }
 
-    '''
+    """
+
     def __init__(self, filename=None, json=None):
         if (filename is not None) and (json is not None):
-            raise ValueError("Theme should be constructed from a file or from json not both")
+            raise ValueError(
+                "Theme should be constructed from a file or from json not both"
+            )
 
         if filename is not None:
             f = open(filename)
@@ -137,19 +139,25 @@ class Theme(object):
 
         self._json = json
 
-        if 'attrs' not in self._json:
-            self._json['attrs'] = {}
+        if "attrs" not in self._json:
+            self._json["attrs"] = {}
 
-        if not isinstance(self._json['attrs'], dict):
-            raise ValueError("theme problem: attrs field should be a dictionary of class names, not %r" % (self._json['attrs']))
+        if not isinstance(self._json["attrs"], dict):
+            raise ValueError(
+                "theme problem: attrs field should be a dictionary of class names, not %r"
+                % (self._json["attrs"])
+            )
 
-        for key, value in self._json['attrs'].items():
+        for key, value in self._json["attrs"].items():
             if not isinstance(value, dict):
-                raise ValueError("theme problem: attrs.%s should be a dictionary of properties, not %r" % (key, value))
+                raise ValueError(
+                    "theme problem: attrs.%s should be a dictionary of properties, not %r"
+                    % (key, value)
+                )
 
-        self._line_defaults = self._json.get('line_defaults', _empty_dict)
-        self._fill_defaults = self._json.get('fill_defaults', _empty_dict)
-        self._text_defaults = self._json.get('text_defaults', _empty_dict)
+        self._line_defaults = self._json.get("line_defaults", _empty_dict)
+        self._fill_defaults = self._json.get("fill_defaults", _empty_dict)
+        self._text_defaults = self._json.get("text_defaults", _empty_dict)
 
         # mapping from class name to the full set of properties
         # (including those merged in from base classes) for that
@@ -158,6 +166,7 @@ class Theme(object):
 
     def _add_glyph_defaults(self, cls, props):
         from ..models.glyphs import Glyph
+
         if issubclass(cls, Glyph):
             if hasattr(cls, "line_alpha"):
                 props.update(self._line_defaults)
@@ -168,7 +177,7 @@ class Theme(object):
 
     def _for_class(self, cls):
         if cls.__name__ not in self._by_class_cache:
-            attrs = self._json['attrs']
+            attrs = self._json["attrs"]
             combined = {}
             # we go in reverse order so that subclass props override base class
             for base in cls.__mro__[-2::-1]:
@@ -182,13 +191,13 @@ class Theme(object):
         return self._by_class_cache[cls.__name__]
 
     def apply_to_model(self, model):
-        ''' Apply this theme to a model.
+        """ Apply this theme to a model.
 
         .. warning::
             Typically, don't call this method directly. Instead, set the theme
             on the :class:`~bokeh.document.Document` the model is a part of.
 
-        '''
+        """
         model.apply_theme(self._for_class(model.__class__))
 
         # a little paranoia because it would be Bad(tm) to mess
@@ -197,10 +206,11 @@ class Theme(object):
         if len(_empty_dict) > 0:
             raise RuntimeError("Somebody put stuff in _empty_dict")
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------

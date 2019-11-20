@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
 To run a Bokeh application on a Bokeh server from a single Python script,
 pass the script name to ``bokeh serve`` on the command line:
@@ -395,17 +395,18 @@ set the ``--mem-log-frequency`` option:
 The value is specified in milliseconds. The default interval for
 logging stats is 0 (disabled). Only positive integer values are accepted.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import argparse
@@ -429,72 +430,79 @@ from bokeh.util.string import format_docstring, nice_join
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-LOGLEVELS = ('trace', 'debug', 'info', 'warning', 'error', 'critical')
-SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
+LOGLEVELS = ("trace", "debug", "info", "warning", "error", "critical")
+SESSION_ID_MODES = ("unsigned", "signed", "external-signed")
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
 base_serve_args = (
-    ('--port', dict(
-        metavar = 'PORT',
-        type    = int,
-        help    = "Port to listen on",
-        default = DEFAULT_SERVER_PORT
-    )),
-
-    ('--address', dict(
-        metavar = 'ADDRESS',
-        type    = str,
-        help    = "Address to listen on",
-        default = None,
-    )),
-
-    ('--log-level', dict(
-        metavar = 'LOG-LEVEL',
-        action  = 'store',
-        default = None,
-        choices = LOGLEVELS + (None,),
-        help    = "One of: %s" % nice_join(LOGLEVELS),
-    )),
-
-    ('--log-format', dict(
-        metavar ='LOG-FORMAT',
-        action  = 'store',
-        default = DEFAULT_LOG_FORMAT,
-        help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
-    )),
-
-    ('--log-file', dict(
-        metavar ='LOG-FILE',
-        action  = 'store',
-        default = None,
-        help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
-    )),
-
-    ('--use-config', dict(
-        metavar = 'CONFIG',
-        type    = str,
-        help    = "Use a YAML config file for settings",
-        default = None,
-    )),
-
+    (
+        "--port",
+        dict(
+            metavar="PORT",
+            type=int,
+            help="Port to listen on",
+            default=DEFAULT_SERVER_PORT,
+        ),
+    ),
+    (
+        "--address",
+        dict(metavar="ADDRESS", type=str, help="Address to listen on", default=None),
+    ),
+    (
+        "--log-level",
+        dict(
+            metavar="LOG-LEVEL",
+            action="store",
+            default=None,
+            choices=LOGLEVELS + (None,),
+            help="One of: %s" % nice_join(LOGLEVELS),
+        ),
+    ),
+    (
+        "--log-format",
+        dict(
+            metavar="LOG-FORMAT",
+            action="store",
+            default=DEFAULT_LOG_FORMAT,
+            help="A standard Python logging format string (default: %r)"
+            % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+        ),
+    ),
+    (
+        "--log-file",
+        dict(
+            metavar="LOG-FILE",
+            action="store",
+            default=None,
+            help="A filename to write logs to, or None to write to the standard stream (default: None)",
+        ),
+    ),
+    (
+        "--use-config",
+        dict(
+            metavar="CONFIG",
+            type=str,
+            help="Use a YAML config file for settings",
+            default=None,
+        ),
+    ),
 )
 
-__all__ = (
-    'Serve',
-)
+__all__ = ("Serve",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Serve(Subcommand):
-    ''' Subcommand to launch the Bokeh server.
+    """ Subcommand to launch the Bokeh server.
 
-    '''
+    """
 
     #: name for this subcommand
     name = "serve"
@@ -502,188 +510,227 @@ class Serve(Subcommand):
     help = "Run a Bokeh server hosting one or more applications"
 
     args = base_serve_args + (
-        ('files', dict(
-            metavar = 'DIRECTORY-OR-SCRIPT',
-            nargs   = '*',
-            help    = "The app directories or scripts to serve (serve empty document if not specified)",
-            default = None,
-        )),
-
-        ('--args', dict(
-            metavar = 'COMMAND-LINE-ARGS',
-            nargs   = argparse.REMAINDER,
-            help    = "Command line arguments remaining to passed on to the application handler. "
-                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
-                      "--show, must be placed before the directory or script. ",
-        )),
-
-        ('--dev', dict(
-            metavar ='FILES-TO-WATCH',
-            action  ='store',
-            default = None,
-            type    = str,
-            nargs   = '*',
-            help    = "Enable live reloading during app development. "
-                      "By default it watches all *.py *.html *.css *.yaml files "
-                      "in the app directory tree. Additional files can be passed "
-                      "as arguments. "
-                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
-                      "--show, must be placed before the directory or script. "
-                      "NOTE: This setting only works with a single app. "
-                      "It also restricts the number of processes to 1. "
-                      "NOTE FOR WINDOWS USERS : this option must be invoked using "
-                      "'python -m bokeh'. If not Tornado will fail to restart the "
-                      "server",
-        )),
-
-        ('--show', dict(
-            action = 'store_true',
-            help   = "Open server app(s) in a browser",
-        )),
-
-        ('--allow-websocket-origin', dict(
-            metavar = 'HOST[:PORT]',
-            action  = 'append',
-            type    = str,
-            help    = "Public hostnames which may connect to the Bokeh websocket",
-        )),
-
-        ('--prefix', dict(
-            metavar = 'PREFIX',
-            type    = str,
-            help    = "URL prefix for Bokeh server URLs",
-            default = None,
-        )),
-
-        ('--keep-alive', dict(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to send a keep-alive ping to clients, 0 to disable.",
-            default = None,
-        )),
-
-        ('--check-unused-sessions', dict(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to check for unused sessions",
-            default = None,
-        )),
-
-        ('--unused-session-lifetime', dict(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How long unused sessions last",
-            default = None,
-        )),
-
-        ('--stats-log-frequency', dict(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to log stats",
-            default = None,
-        )),
-
-        ('--mem-log-frequency', dict(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to log memory usage information",
-            default = None,
-        )),
-
-        ('--use-xheaders', dict(
-            action = 'store_true',
-            help   = "Prefer X-headers for IP/protocol information",
-        )),
-
-        ('--ssl-certfile', dict(
-            metavar = 'CERTFILE',
-            action  = 'store',
-            default = None,
-            help    = 'Absolute path to a certificate file for SSL termination',
-        )),
-
-        ('--ssl-keyfile', dict(
-            metavar = 'KEYFILE',
-            action  = 'store',
-            default = None,
-            help    = 'Absolute path to a private key file for SSL termination',
-        )),
-
-        ('--session-ids', dict(
-            metavar = 'MODE',
-            action  = 'store',
-            default = None,
-            choices = SESSION_ID_MODES,
-            help    = "One of: %s" % nice_join(SESSION_ID_MODES),
-        )),
-
-        ('--auth-module', dict(
-            metavar = 'AUTH_MODULE',
-            action  = 'store',
-            default = None,
-            help    = 'Absolute path to a Python module that implements auth hooks',
-        )),
-
-        ('--enable-xsrf-cookies', dict(
-            action  = 'store_true',
-            default = False,
-            help    = 'Whether to enable Tornado support for XSRF cookies. All '
-                      'PUT, POST, or DELETE handlers must be properly instrumented '
-                      'when this setting is enabled.'
-        )),
-
-        ('--cookie-secret', dict(
-            metavar = 'COOKIE_SECRET',
-            action  = 'store',
-            default = None,
-            help    = 'Configure to enable getting/setting secure cookies',
-        )),
-
-        ('--index', dict(
-            metavar = 'INDEX',
-            action  = 'store',
-            default = None,
-            help    = 'Path to a template to use for the site index',
-        )),
-
-        ('--disable-index', dict(
-            action = 'store_true',
-            help   = 'Do not use the default index on the root path',
-        )),
-
-        ('--disable-index-redirect', dict(
-            action = 'store_true',
-            help   = 'Do not redirect to running app from root path',
-        )),
-
-        ('--num-procs', dict(
-            metavar = 'N',
-            action  = 'store',
-            help    = "Number of worker processes for an app. Using "
-                      "0 will autodetect number of cores (defaults to 1)",
-            default = 1,
-            type    = int,
-        )),
-
-        ('--websocket-max-message-size', dict(
-            metavar = 'BYTES',
-            action  = 'store',
-            help    = "Set the Tornado websocket_max_message_size value "
-                      "(default: 20MB)",
-            default = DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
-            type    = int,
-        )),
-
-        ('--glob', dict(
-            action='store_true',
-            help='Process all filename arguments as globs',
-        )),
+        (
+            "files",
+            dict(
+                metavar="DIRECTORY-OR-SCRIPT",
+                nargs="*",
+                help="The app directories or scripts to serve (serve empty document if not specified)",
+                default=None,
+            ),
+        ),
+        (
+            "--args",
+            dict(
+                metavar="COMMAND-LINE-ARGS",
+                nargs=argparse.REMAINDER,
+                help="Command line arguments remaining to passed on to the application handler. "
+                "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
+                "--show, must be placed before the directory or script. ",
+            ),
+        ),
+        (
+            "--dev",
+            dict(
+                metavar="FILES-TO-WATCH",
+                action="store",
+                default=None,
+                type=str,
+                nargs="*",
+                help="Enable live reloading during app development. "
+                "By default it watches all *.py *.html *.css *.yaml files "
+                "in the app directory tree. Additional files can be passed "
+                "as arguments. "
+                "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
+                "--show, must be placed before the directory or script. "
+                "NOTE: This setting only works with a single app. "
+                "It also restricts the number of processes to 1. "
+                "NOTE FOR WINDOWS USERS : this option must be invoked using "
+                "'python -m bokeh'. If not Tornado will fail to restart the "
+                "server",
+            ),
+        ),
+        ("--show", dict(action="store_true", help="Open server app(s) in a browser")),
+        (
+            "--allow-websocket-origin",
+            dict(
+                metavar="HOST[:PORT]",
+                action="append",
+                type=str,
+                help="Public hostnames which may connect to the Bokeh websocket",
+            ),
+        ),
+        (
+            "--prefix",
+            dict(
+                metavar="PREFIX",
+                type=str,
+                help="URL prefix for Bokeh server URLs",
+                default=None,
+            ),
+        ),
+        (
+            "--keep-alive",
+            dict(
+                metavar="MILLISECONDS",
+                type=int,
+                help="How often to send a keep-alive ping to clients, 0 to disable.",
+                default=None,
+            ),
+        ),
+        (
+            "--check-unused-sessions",
+            dict(
+                metavar="MILLISECONDS",
+                type=int,
+                help="How often to check for unused sessions",
+                default=None,
+            ),
+        ),
+        (
+            "--unused-session-lifetime",
+            dict(
+                metavar="MILLISECONDS",
+                type=int,
+                help="How long unused sessions last",
+                default=None,
+            ),
+        ),
+        (
+            "--stats-log-frequency",
+            dict(
+                metavar="MILLISECONDS",
+                type=int,
+                help="How often to log stats",
+                default=None,
+            ),
+        ),
+        (
+            "--mem-log-frequency",
+            dict(
+                metavar="MILLISECONDS",
+                type=int,
+                help="How often to log memory usage information",
+                default=None,
+            ),
+        ),
+        (
+            "--use-xheaders",
+            dict(
+                action="store_true", help="Prefer X-headers for IP/protocol information"
+            ),
+        ),
+        (
+            "--ssl-certfile",
+            dict(
+                metavar="CERTFILE",
+                action="store",
+                default=None,
+                help="Absolute path to a certificate file for SSL termination",
+            ),
+        ),
+        (
+            "--ssl-keyfile",
+            dict(
+                metavar="KEYFILE",
+                action="store",
+                default=None,
+                help="Absolute path to a private key file for SSL termination",
+            ),
+        ),
+        (
+            "--session-ids",
+            dict(
+                metavar="MODE",
+                action="store",
+                default=None,
+                choices=SESSION_ID_MODES,
+                help="One of: %s" % nice_join(SESSION_ID_MODES),
+            ),
+        ),
+        (
+            "--auth-module",
+            dict(
+                metavar="AUTH_MODULE",
+                action="store",
+                default=None,
+                help="Absolute path to a Python module that implements auth hooks",
+            ),
+        ),
+        (
+            "--enable-xsrf-cookies",
+            dict(
+                action="store_true",
+                default=False,
+                help="Whether to enable Tornado support for XSRF cookies. All "
+                "PUT, POST, or DELETE handlers must be properly instrumented "
+                "when this setting is enabled.",
+            ),
+        ),
+        (
+            "--cookie-secret",
+            dict(
+                metavar="COOKIE_SECRET",
+                action="store",
+                default=None,
+                help="Configure to enable getting/setting secure cookies",
+            ),
+        ),
+        (
+            "--index",
+            dict(
+                metavar="INDEX",
+                action="store",
+                default=None,
+                help="Path to a template to use for the site index",
+            ),
+        ),
+        (
+            "--disable-index",
+            dict(
+                action="store_true",
+                help="Do not use the default index on the root path",
+            ),
+        ),
+        (
+            "--disable-index-redirect",
+            dict(
+                action="store_true",
+                help="Do not redirect to running app from root path",
+            ),
+        ),
+        (
+            "--num-procs",
+            dict(
+                metavar="N",
+                action="store",
+                help="Number of worker processes for an app. Using "
+                "0 will autodetect number of cores (defaults to 1)",
+                default=1,
+                type=int,
+            ),
+        ),
+        (
+            "--websocket-max-message-size",
+            dict(
+                metavar="BYTES",
+                action="store",
+                help="Set the Tornado websocket_max_message_size value "
+                "(default: 20MB)",
+                default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+                type=int,
+            ),
+        ),
+        (
+            "--glob",
+            dict(action="store_true", help="Process all filename arguments as globs"),
+        ),
     )
 
     def invoke(self, args):
-        '''
+        """
 
-        '''
+        """
         basicConfig(format=args.log_format, filename=args.log_file)
 
         # This is a bit of a fudge. We want the default log level for non-server
@@ -692,7 +739,7 @@ class Serve(Subcommand):
         log_level = settings.py_log_level(args.log_level)
         if log_level is None:
             log_level = logging.INFO
-        logging.getLogger('bokeh').setLevel(log_level)
+        logging.getLogger("bokeh").setLevel(log_level)
 
         if args.use_config is not None:
             log.info("Using override config file: {}".format(args.use_config))
@@ -709,12 +756,12 @@ class Serve(Subcommand):
             else:
                 files.append(f)
 
-        argvs = { f : args.args for f in files}
+        argvs = {f: args.args for f in files}
         applications = build_single_handler_applications(files, argvs)
 
         if len(applications) == 0:
             # create an empty application by default
-            applications['/'] = Application()
+            applications["/"] = Application()
 
         # rename args to be compatible with Server
         if args.keep_alive is not None:
@@ -732,57 +779,73 @@ class Serve(Subcommand):
         if args.mem_log_frequency is not None:
             args.mem_log_frequency_milliseconds = args.mem_log_frequency
 
-        server_kwargs = { key: getattr(args, key) for key in ['port',
-                                                              'address',
-                                                              'allow_websocket_origin',
-                                                              'num_procs',
-                                                              'prefix',
-                                                              'index',
-                                                              'keep_alive_milliseconds',
-                                                              'check_unused_sessions_milliseconds',
-                                                              'unused_session_lifetime_milliseconds',
-                                                              'stats_log_frequency_milliseconds',
-                                                              'mem_log_frequency_milliseconds',
-                                                              'use_xheaders',
-                                                              'websocket_max_message_size',
-                                                            ]
-                          if getattr(args, key, None) is not None }
+        server_kwargs = {
+            key: getattr(args, key)
+            for key in [
+                "port",
+                "address",
+                "allow_websocket_origin",
+                "num_procs",
+                "prefix",
+                "index",
+                "keep_alive_milliseconds",
+                "check_unused_sessions_milliseconds",
+                "unused_session_lifetime_milliseconds",
+                "stats_log_frequency_milliseconds",
+                "mem_log_frequency_milliseconds",
+                "use_xheaders",
+                "websocket_max_message_size",
+            ]
+            if getattr(args, key, None) is not None
+        }
 
-        server_kwargs['sign_sessions'] = settings.sign_sessions()
-        server_kwargs['secret_key'] = settings.secret_key_bytes()
-        server_kwargs['ssl_certfile'] = settings.ssl_certfile(getattr(args, 'ssl_certfile', None))
-        server_kwargs['ssl_keyfile'] = settings.ssl_keyfile(getattr(args, 'ssl_keyfile', None))
-        server_kwargs['ssl_password'] = settings.ssl_password()
-        server_kwargs['generate_session_ids'] = True
+        server_kwargs["sign_sessions"] = settings.sign_sessions()
+        server_kwargs["secret_key"] = settings.secret_key_bytes()
+        server_kwargs["ssl_certfile"] = settings.ssl_certfile(
+            getattr(args, "ssl_certfile", None)
+        )
+        server_kwargs["ssl_keyfile"] = settings.ssl_keyfile(
+            getattr(args, "ssl_keyfile", None)
+        )
+        server_kwargs["ssl_password"] = settings.ssl_password()
+        server_kwargs["generate_session_ids"] = True
         if args.session_ids is None:
             # no --session-ids means use the env vars
             pass
-        elif args.session_ids == 'unsigned':
-            server_kwargs['sign_sessions'] = False
-        elif args.session_ids == 'signed':
-            server_kwargs['sign_sessions'] = True
-        elif args.session_ids == 'external-signed':
-            server_kwargs['sign_sessions'] = True
-            server_kwargs['generate_session_ids'] = False
+        elif args.session_ids == "unsigned":
+            server_kwargs["sign_sessions"] = False
+        elif args.session_ids == "signed":
+            server_kwargs["sign_sessions"] = True
+        elif args.session_ids == "external-signed":
+            server_kwargs["sign_sessions"] = True
+            server_kwargs["generate_session_ids"] = False
         else:
-            raise RuntimeError("argparse should have filtered out --session-ids mode " +
-                               args.session_ids)
+            raise RuntimeError(
+                "argparse should have filtered out --session-ids mode "
+                + args.session_ids
+            )
 
-        if server_kwargs['sign_sessions'] and not server_kwargs['secret_key']:
-            die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
-                "the `bokeh secret` command can be used to generate a new key.")
+        if server_kwargs["sign_sessions"] and not server_kwargs["secret_key"]:
+            die(
+                "To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; "
+                + "the `bokeh secret` command can be used to generate a new key."
+            )
 
-        auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
+        auth_module_path = settings.auth_module(getattr(args, "auth_module", None))
         if auth_module_path:
-            server_kwargs['auth_provider'] = AuthModule(auth_module_path)
+            server_kwargs["auth_provider"] = AuthModule(auth_module_path)
         else:
-            server_kwargs['auth_provider'] = NullAuth()
+            server_kwargs["auth_provider"] = NullAuth()
 
-        server_kwargs['xsrf_cookies'] = settings.xsrf_cookies(getattr(args, 'enable_xsrf_cookies', False))
-        server_kwargs['cookie_secret'] = settings.cookie_secret(getattr(args, 'cookie_secret', None))
-        server_kwargs['use_index'] = not args.disable_index
-        server_kwargs['redirect_root'] = not args.disable_index_redirect
-        server_kwargs['autoreload'] = args.dev is not None
+        server_kwargs["xsrf_cookies"] = settings.xsrf_cookies(
+            getattr(args, "enable_xsrf_cookies", False)
+        )
+        server_kwargs["cookie_secret"] = settings.cookie_secret(
+            getattr(args, "cookie_secret", None)
+        )
+        server_kwargs["use_index"] = not args.disable_index
+        server_kwargs["redirect_root"] = not args.disable_index_redirect
+        server_kwargs["autoreload"] = args.dev is not None
 
         def find_autoreload_targets(app_path):
             path = os.path.abspath(app_path)
@@ -791,9 +854,11 @@ class Serve(Subcommand):
 
             for path, subdirs, files in os.walk(path):
                 for name in files:
-                    if (fnmatch(name, '*.html') or
-                        fnmatch(name, '*.css') or
-                        fnmatch(name, '*.yaml')):
+                    if (
+                        fnmatch(name, "*.html")
+                        or fnmatch(name, "*.css")
+                        or fnmatch(name, "*.yaml")
+                    ):
                         log.info("Watching: " + os.path.join(path, name))
                         watch(os.path.join(path, name))
 
@@ -805,12 +870,12 @@ class Serve(Subcommand):
                 log.info("Watching: " + filen)
                 watch(filen)
 
-        if server_kwargs['autoreload']:
+        if server_kwargs["autoreload"]:
             if len(applications.keys()) != 1:
                 die("--dev can only support a single app.")
-            if server_kwargs['num_procs'] != 1:
+            if server_kwargs["num_procs"] != 1:
                 log.info("Running in --dev mode. --num-procs is limited to 1.")
-                server_kwargs['num_procs'] = 1
+                server_kwargs["num_procs"] = 1
 
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
@@ -827,32 +892,39 @@ class Serve(Subcommand):
 
                 server.io_loop.add_callback(show_callback)
 
-            address_string = 'localhost'
-            if server.address is not None and server.address != '':
+            address_string = "localhost"
+            if server.address is not None and server.address != "":
                 address_string = server.address
 
             for route in sorted(applications.keys()):
-                url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
+                url = "http://%s:%d%s%s" % (
+                    address_string,
+                    server.port,
+                    server.prefix,
+                    route,
+                )
                 log.info("Bokeh app running at: %s" % url)
 
             log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__doc__ = format_docstring(__doc__,
+__doc__ = format_docstring(
+    __doc__,
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
-    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
+    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT,
 )

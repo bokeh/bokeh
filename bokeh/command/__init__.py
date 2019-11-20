@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provides a command line application for Bokeh.
+# -----------------------------------------------------------------------------
+""" Provides a command line application for Bokeh.
 
 The following subcommands are available:
 
@@ -41,4 +41,4 @@ static
 svg
     Create standalone SVG files for one or more applications
 
-'''
+"""

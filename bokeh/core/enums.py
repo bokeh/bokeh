@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 ''' Common enumerations to be used together with |Enum| property.
 
 This module provides many pre-defined enumerations, as well as functions
@@ -60,94 +60,97 @@ Enumerations can be easily documented in Sphinx documentation with the
 
 '''
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .. import colors, palettes
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'Align',
-    'Anchor',
-    'AngleUnits',
-    'ButtonType',
-    'DashPattern',
-    'DateFormat',
-    'DatetimeUnits',
-    'Dimension',
-    'Dimensions',
-    'Direction',
-    'Enumeration',
-    'enumeration',
-    'FontStyle',
-    'HatchPattern',
-    'HatchPatternAbbreviation',
-    'HoldPolicy',
-    'HorizontalLocation',
-    'JitterRandomDistribution',
-    'LatLon',
-    'LegendClickPolicy',
-    'LegendLocation',
-    'LineCap',
-    'LineDash',
-    'LineJoin',
-    'Location',
-    'MapType',
-    'MarkerType',
-    'NamedColor',
-    'NumeralLanguage',
-    'Orientation',
-    'OutputBackend',
-    'PaddingUnits',
-    'Palette',
-    'RenderLevel',
-    'RenderMode',
-    'ResetPolicy',
-    'RoundingFunction',
-    'SizingMode',
-    'SizingPolicy',
-    'SortDirection',
-    'SpatialUnits',
-    'StartEnd',
-    'StepMode',
-    'TextAlign',
-    'TextBaseline',
-    'TextureRepetition',
-    'TickLabelOrientation',
-    'TooltipAttachment',
-    'TooltipFieldFormatter',
-    'TrackPolicy',
-    'VerticalAlign',
-    'VerticalLocation',
+    "Align",
+    "Anchor",
+    "AngleUnits",
+    "ButtonType",
+    "DashPattern",
+    "DateFormat",
+    "DatetimeUnits",
+    "Dimension",
+    "Dimensions",
+    "Direction",
+    "Enumeration",
+    "enumeration",
+    "FontStyle",
+    "HatchPattern",
+    "HatchPatternAbbreviation",
+    "HoldPolicy",
+    "HorizontalLocation",
+    "JitterRandomDistribution",
+    "LatLon",
+    "LegendClickPolicy",
+    "LegendLocation",
+    "LineCap",
+    "LineDash",
+    "LineJoin",
+    "Location",
+    "MapType",
+    "MarkerType",
+    "NamedColor",
+    "NumeralLanguage",
+    "Orientation",
+    "OutputBackend",
+    "PaddingUnits",
+    "Palette",
+    "RenderLevel",
+    "RenderMode",
+    "ResetPolicy",
+    "RoundingFunction",
+    "SizingMode",
+    "SizingPolicy",
+    "SortDirection",
+    "SpatialUnits",
+    "StartEnd",
+    "StepMode",
+    "TextAlign",
+    "TextBaseline",
+    "TextureRepetition",
+    "TickLabelOrientation",
+    "TooltipAttachment",
+    "TooltipFieldFormatter",
+    "TrackPolicy",
+    "VerticalAlign",
+    "VerticalLocation",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Enumeration(object):
-    ''' Represent an enumerated collection of values.
+    """ Represent an enumerated collection of values.
 
     .. note::
         Instances of ``Enumeration`` typically should not be constructed
         directly. Instead, use the |enumeration| function.
 
-    '''
+    """
+
     __slots__ = ()
 
     def __iter__(self):
@@ -169,8 +172,9 @@ class Enumeration(object):
 
     __repr__ = __str__
 
+
 def enumeration(*values, **kwargs):
-    ''' Create an |Enumeration| object from a sequence of values.
+    """ Create an |Enumeration| object from a sequence of values.
 
     Call ``enumeration`` with a sequence of (unique) strings to create an
     Enumeration object:
@@ -201,7 +205,7 @@ def enumeration(*values, **kwargs):
     Returns:
         Enumeration
 
-    '''
+    """
     if not (values and all(isinstance(value, str) and value for value in values)):
         raise ValueError("expected a non-empty sequence of strings, got %s" % values)
 
@@ -209,23 +213,33 @@ def enumeration(*values, **kwargs):
         raise ValueError("enumeration items must be unique, got %s" % values)
 
     attrs = {value: value for value in values}
-    attrs.update({
-        "_values": list(values),
-        "_default": values[0],
-        "_case_sensitive": kwargs.get("case_sensitive", True),
-        "_quote": kwargs.get("quote", False),
-    })
+    attrs.update(
+        {
+            "_values": list(values),
+            "_default": values[0],
+            "_case_sensitive": kwargs.get("case_sensitive", True),
+            "_quote": kwargs.get("quote", False),
+        }
+    )
 
     return type(str("Enumeration"), (Enumeration,), attrs)()
+
 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")
 
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(
-    "top_left",    "top_center",    "top_right",
-    "center_left", "center",        "center_right",
-    "bottom_left", "bottom_center", "bottom_right")
+    "top_left",
+    "top_center",
+    "top_right",
+    "center_left",
+    "center",
+    "center_right",
+    "bottom_left",
+    "bottom_center",
+    "bottom_right",
+)
 
 #: Specify the units for an angle value
 AngleUnits = enumeration("deg", "rad")
@@ -237,12 +251,34 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 
 #: Specify a format for printing dates
-DateFormat = enumeration("ATOM", "W3C", "RFC-3339", "ISO-8601", "COOKIE", "RFC-822",
-                         "RFC-850", "RFC-1036", "RFC-1123", "RFC-2822", "RSS", "TIMESTAMP")
+DateFormat = enumeration(
+    "ATOM",
+    "W3C",
+    "RFC-3339",
+    "ISO-8601",
+    "COOKIE",
+    "RFC-822",
+    "RFC-850",
+    "RFC-1036",
+    "RFC-1123",
+    "RFC-2822",
+    "RSS",
+    "TIMESTAMP",
+)
 
 #: Specify a date/time scale
-DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
-                            "minutes", "hourmin", "hours", "days", "months", "years")
+DatetimeUnits = enumeration(
+    "microseconds",
+    "milliseconds",
+    "seconds",
+    "minsec",
+    "minutes",
+    "hourmin",
+    "hours",
+    "days",
+    "months",
+    "years",
+)
 
 #: Specify a vertical/horizontal dimension
 Dimension = enumeration("width", "height")
@@ -257,23 +293,23 @@ Direction = enumeration("clock", "anticlock")
 FontStyle = enumeration("normal", "italic", "bold", "bold italic")
 
 _hatch_patterns = (
-    (" ",  "blank"),
-    (".",  "dot"),
-    ("o",  "ring"),
-    ("-",  "horizontal_line"),
-    ("|",  "vertical_line"),
-    ("+",  "cross"),
-    ('"',  "horizontal_dash"),
-    (":",  "vertical_dash"),
-    ("@",  "spiral"),
-    ("/",  "right_diagonal_line"),
+    (" ", "blank"),
+    (".", "dot"),
+    ("o", "ring"),
+    ("-", "horizontal_line"),
+    ("|", "vertical_line"),
+    ("+", "cross"),
+    ('"', "horizontal_dash"),
+    (":", "vertical_dash"),
+    ("@", "spiral"),
+    ("/", "right_diagonal_line"),
     ("\\", "left_diagonal_line"),
-    ("x",  "diagonal_cross"),
-    (",",  "right_diagonal_dash"),
-    ("`",  "left_diagonal_dash"),
-    ("v",  "horizontal_wave"),
-    (">",  "vertical_wave"),
-    ("*",  "criss_cross"),
+    ("x", "diagonal_cross"),
+    (",", "right_diagonal_dash"),
+    ("`", "left_diagonal_dash"),
+    ("v", "horizontal_wave"),
+    (">", "vertical_wave"),
+    ("*", "criss_cross"),
 )
 
 #: Specify one of the built-in patterns for hatching fills
@@ -338,18 +374,58 @@ Location = enumeration("above", "below", "left", "right")
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
 
 #: Specify one of the built-in marker types
-MarkerType = enumeration("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                         "square", "square_cross", "square_x", "triangle", "x")
+MarkerType = enumeration(
+    "asterisk",
+    "circle",
+    "circle_cross",
+    "circle_x",
+    "cross",
+    "dash",
+    "diamond",
+    "diamond_cross",
+    "hex",
+    "inverted_triangle",
+    "square",
+    "square_cross",
+    "square_x",
+    "triangle",
+    "x",
+)
 
 #: Specify one of the 137 named CSS colors
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
 #: Specify a locale for printing numeric values
-NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en",
-                              "en-gb", "es-ES", "es", "et", "fi", "fr-CA", "fr-ch",
-                              "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br",
-                              "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
+NumeralLanguage = enumeration(
+    "be-nl",
+    "chs",
+    "cs",
+    "da-dk",
+    "de-ch",
+    "de",
+    "en",
+    "en-gb",
+    "es-ES",
+    "es",
+    "et",
+    "fi",
+    "fr-CA",
+    "fr-ch",
+    "fr",
+    "hu",
+    "it",
+    "ja",
+    "nl-nl",
+    "pl",
+    "pt-br",
+    "pt-pt",
+    "ru",
+    "ru-UA",
+    "sk",
+    "th",
+    "tr",
+    "uk-UA",
+)
 
 #: Specify a vertical/horizontal orientation for something
 Orientation = enumeration("horizontal", "vertical")
@@ -373,12 +449,20 @@ RenderMode = enumeration("canvas", "css")
 ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
-RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+RoundingFunction = enumeration(
+    "round", "nearest", "floor", "rounddown", "ceil", "roundup"
+)
 
 #: Sizing mode policies
-SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
-                         "scale_width", "scale_height", "scale_both",
-                         "fixed")
+SizingMode = enumeration(
+    "stretch_width",
+    "stretch_height",
+    "stretch_both",
+    "scale_width",
+    "scale_height",
+    "scale_both",
+    "fixed",
+)
 
 #: Individual sizing mode policies
 SizingPolicy = enumeration("fixed", "fit", "min", "max")
@@ -399,7 +483,9 @@ StepMode = enumeration("before", "after", "center")
 TextAlign = enumeration("left", "right", "center")
 
 #: Specify the baseline location for rendering text
-TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
+TextBaseline = enumeration(
+    "top", "middle", "bottom", "alphabetic", "hanging", "ideographic"
+)
 
 #: Specify how textures used as canvas patterns should repeat
 TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
@@ -408,7 +494,9 @@ TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
 TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
 
 #: Specify an attachment for tooltips
-TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "above", "below")
+TooltipAttachment = enumeration(
+    "horizontal", "vertical", "left", "right", "above", "below"
+)
 
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")
@@ -422,10 +510,10 @@ VerticalAlign = enumeration("top", "middle", "bottom")
 #: Specify a vertical location in plot layouts
 VerticalLocation = enumeration("above", "below")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

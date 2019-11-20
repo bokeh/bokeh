@@ -1,26 +1,27 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Implements a very low level facility for communicating with a Bokeh
+# -----------------------------------------------------------------------------
+""" Implements a very low level facility for communicating with a Bokeh
 Server.
 
 Users will always want to use :class:`~bokeh.client.session.ClientSession`
 instead for standard usage.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from urllib.parse import quote_plus
@@ -43,31 +44,30 @@ from .states import (
 )
 from .websocket import WebSocketClientConnectionWrapper
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'ClientConnection',
-)
+__all__ = ("ClientConnection",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ClientConnection(object):
-    ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
+    """ A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
 
-    '''
+    """
 
     def __init__(self, session, websocket_url, io_loop=None, arguments=None):
-        ''' Opens a websocket connection to the server.
+        """ Opens a websocket connection to the server.
 
-        '''
+        """
         self._url = websocket_url
         self._session = session
         self._arguments = arguments
@@ -87,21 +87,20 @@ class ClientConnection(object):
 
     @property
     def connected(self):
-        ''' Whether we've connected the Websocket and have exchanged initial
+        """ Whether we've connected the Websocket and have exchanged initial
         handshake messages.
 
-        '''
+        """
         return isinstance(self._state, CONNECTED_AFTER_ACK)
 
     @property
     def io_loop(self):
-        ''' The Tornado ``IOLoop`` this connection is using. '''
+        """ The Tornado ``IOLoop`` this connection is using. """
         return self._loop
-
 
     @property
     def url(self):
-        ''' The URL of the websocket this Connection is to. '''
+        """ The URL of the websocket this Connection is to. """
         return self._url
 
     # Internal methods --------------------------------------------------------
@@ -110,18 +109,21 @@ class ClientConnection(object):
         def connected_or_closed():
             # we should be looking at the same state here as the 'connected' property above, so connected
             # means both connected and that we did our initial message exchange
-            return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(self._state, DISCONNECTED)
+            return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(
+                self._state, DISCONNECTED
+            )
+
         self._loop_until(connected_or_closed)
 
     def close(self, why="closed"):
-        ''' Close the Websocket connection.
+        """ Close the Websocket connection.
 
-        '''
+        """
         if self._socket is not None:
             self._socket.close(1000, why)
 
     def force_roundtrip(self):
-        ''' Force a round-trip request/reply to the server, sometimes needed to
+        """ Force a round-trip request/reply to the server, sometimes needed to
         avoid race conditions. Mostly useful for testing.
 
         Outside of test suites, this method hurts performance and should not be
@@ -130,30 +132,32 @@ class ClientConnection(object):
         Returns:
            None
 
-        '''
+        """
         self._send_request_server_info()
 
     def loop_until_closed(self):
-        ''' Execute a blocking loop that runs and executes event callbacks
+        """ Execute a blocking loop that runs and executes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
 
         While this method can be used to run Bokeh application code "outside"
         the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
         use case.
 
-        '''
+        """
         if isinstance(self._state, NOT_YET_CONNECTED):
             # we don't use self._transition_to_disconnected here
             # because _transition is a coroutine
             self._tell_session_about_disconnect()
             self._state = DISCONNECTED()
         else:
+
             def closed():
                 return isinstance(self._state, DISCONNECTED)
+
             self._loop_until(closed)
 
     def pull_doc(self, document):
-        ''' Pull a document from the server, overwriting the passed-in document
+        """ Pull a document from the server, overwriting the passed-in document
 
         Args:
             document : (Document)
@@ -162,18 +166,18 @@ class ClientConnection(object):
         Returns:
             None
 
-        '''
-        msg = self._protocol.create('PULL-DOC-REQ')
+        """
+        msg = self._protocol.create("PULL-DOC-REQ")
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
-        elif reply.header['msgtype'] == 'ERROR':
-            raise RuntimeError("Failed to pull document: " + reply.content['text'])
+        elif reply.header["msgtype"] == "ERROR":
+            raise RuntimeError("Failed to pull document: " + reply.content["text"])
         else:
             reply.push_to_document(document)
 
     def push_doc(self, document):
-        ''' Push a document to the server, overwriting any existing server-side doc.
+        """ Push a document to the server, overwriting any existing server-side doc.
 
         Args:
             document : (Document)
@@ -182,23 +186,23 @@ class ClientConnection(object):
         Returns:
             The server reply
 
-        '''
-        msg = self._protocol.create('PUSH-DOC', document)
+        """
+        msg = self._protocol.create("PUSH-DOC", document)
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Connection to server was lost")
-        elif reply.header['msgtype'] == 'ERROR':
-            raise RuntimeError("Failed to push document: " + reply.content['text'])
+        elif reply.header["msgtype"] == "ERROR":
+            raise RuntimeError("Failed to push document: " + reply.content["text"])
         else:
             return reply
 
     def request_server_info(self):
-        ''' Ask for information about the server.
+        """ Ask for information about the server.
 
         Returns:
             A dictionary of server attributes.
 
-        '''
+        """
         if self._server_info is None:
             self._server_info = self._send_request_server_info()
         return self._server_info
@@ -240,9 +244,10 @@ class ClientConnection(object):
         formatted_url = "%s?bokeh-session-id=%s" % (self._url, self._session.id)
         if self._arguments is not None:
             for key, value in self._arguments.items():
-                formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
+                formatted_url += "&{}={}".format(
+                    quote_plus(str(key)), quote_plus(str(value))
+                )
         return formatted_url
-
 
     async def _connect_async(self):
         formatted_url = self._formatted_url()
@@ -263,7 +268,7 @@ class ClientConnection(object):
         if message is None:
             await self._transition_to_disconnected()
         else:
-            if message.msgtype == 'PATCH-DOC':
+            if message.msgtype == "PATCH-DOC":
                 log.debug("Got PATCH-DOC, applying to session")
                 self._session._handle_patch(message)
             else:
@@ -284,8 +289,11 @@ class ClientConnection(object):
 
     async def _next(self):
         if self._until_predicate is not None and self._until_predicate():
-            log.debug("Stopping client loop in state %s due to True from %s",
-                      self._state.__class__.__name__, self._until_predicate.__name__)
+            log.debug(
+                "Stopping client loop in state %s due to True from %s",
+                self._state.__class__.__name__,
+                self._until_predicate.__name__,
+            )
             self._until_predicate = None
             self._loop.stop()
             return None
@@ -320,21 +328,25 @@ class ClientConnection(object):
                 self.close(why="error parsing message from server")
 
     def _send_message_wait_for_reply(self, message):
-        waiter = WAITING_FOR_REPLY(message.header['msgid'])
+        waiter = WAITING_FOR_REPLY(message.header["msgid"])
         self._state = waiter
 
         send_result = []
+
         async def handle_message(message, send_result):
             result = await self.send_message(message)
             send_result.append(result)
+
         self._loop.spawn_callback(handle_message, message, send_result)
 
         def have_send_result_or_disconnected():
             return len(send_result) > 0 or self._state != waiter
+
         self._loop_until(have_send_result_or_disconnected)
 
         def have_reply_or_disconnected():
             return self._state != waiter or waiter.reply is not None
+
         self._loop_until(have_reply_or_disconnected)
 
         return waiter.reply
@@ -346,16 +358,19 @@ class ClientConnection(object):
         # apps running inside a server can handle these updates much more
         # efficiently
         from bokeh.document.events import ColumnDataChangedEvent
-        if hasattr(event, 'hint') and isinstance(event.hint, ColumnDataChangedEvent):
+
+        if hasattr(event, "hint") and isinstance(event.hint, ColumnDataChangedEvent):
             event.hint.cols = None
-        msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
+        msg = self._protocol.create("PATCH-DOC", [event], use_buffers=False)
         self._loop.spawn_callback(self.send_message, msg)
 
     def _send_request_server_info(self):
-        msg = self._protocol.create('SERVER-INFO-REQ')
+        msg = self._protocol.create("SERVER-INFO-REQ")
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
-            raise RuntimeError("Did not get a reply to server info request before disconnect")
+            raise RuntimeError(
+                "Did not get a reply to server info request before disconnect"
+            )
         return reply.content
 
     def _tell_session_about_disconnect(self):
@@ -373,7 +388,7 @@ class ClientConnection(object):
 
     async def _wait_for_ack(self):
         message = await self._pop_message()
-        if message and message.msgtype == 'ACK':
+        if message and message.msgtype == "ACK":
             log.debug("Received %r", message)
             await self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
@@ -381,10 +396,11 @@ class ClientConnection(object):
         else:
             raise ProtocolError("Received %r instead of ACK" % message)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

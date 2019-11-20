@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import sys
@@ -26,21 +27,20 @@ from ..application.handlers.code_runner import CodeRunner
 from ..application.handlers.handler import Handler
 from ..io.doc import curdoc, set_curdoc
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'ExampleHandler',
-)
+__all__ = ("ExampleHandler",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ExampleHandler(Handler):
     """ A stripped-down handler similar to CodeHandler but that does
@@ -48,8 +48,8 @@ class ExampleHandler(Handler):
 
     """
 
-    _output_funcs = ['output_notebook', 'output_file', 'reset_output']
-    _io_funcs = ['show', 'save']
+    _output_funcs = ["output_notebook", "output_file", "reset_output"]
+    _io_funcs = ["show", "save"]
 
     def __init__(self, source, filename):
         super().__init__(self)
@@ -76,11 +76,14 @@ class ExampleHandler(Handler):
             set_curdoc(old_doc)
 
     def _monkeypatch(self):
+        def _pass(*args, **kw):
+            pass
 
-        def _pass(*args, **kw): pass
         def _add_root(obj, *args, **kw):
             from bokeh.io import curdoc
+
             curdoc().add_root(obj)
+
         def _curdoc(*args, **kw):
             return curdoc()
 
@@ -90,6 +93,7 @@ class ExampleHandler(Handler):
         # from io, and use those as the originals to replace everywhere
         import bokeh.io as io
         import bokeh.plotting as p
+
         mods = [io, p]
 
         old_io = {}
@@ -103,6 +107,7 @@ class ExampleHandler(Handler):
                 setattr(mod, f, _add_root)
 
         import bokeh.document as d
+
         old_doc = d.Document
         d.Document = _curdoc
 
@@ -111,6 +116,7 @@ class ExampleHandler(Handler):
     def _unmonkeypatch(self, old_io, old_doc):
         import bokeh.io as io
         import bokeh.plotting as p
+
         mods = [io, p]
 
         for mod in mods:
@@ -118,6 +124,7 @@ class ExampleHandler(Handler):
                 setattr(mod, f, old_io[f])
 
         import bokeh.document as d
+
         d.Document = old_doc
 
     @property
@@ -132,10 +139,11 @@ class ExampleHandler(Handler):
     def error_detail(self):
         return self._runner.error_detail
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

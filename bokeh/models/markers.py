@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Display a variety of simple scatter marker shapes whose attributes
+# -----------------------------------------------------------------------------
+""" Display a variety of simple scatter marker shapes whose attributes
 can be associated with data columns from ``ColumnDataSources``.
 
 The full list of markers built into Bokeh is given below:
@@ -35,17 +35,18 @@ other markers do not.
 .. autoclass:: Marker
     :members:
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..core.enums import enumeration
@@ -62,37 +63,38 @@ from ..core.properties import (
 from ..core.property_mixins import FillProps, LineProps
 from .glyphs import XYGlyph
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'Asterisk',
-    'Circle',
-    'CircleCross',
-    'CircleX',
-    'Cross',
-    'Dash',
-    'Diamond',
-    'DiamondCross',
-    'Hex',
-    'InvertedTriangle',
-    'Marker',
-    'Scatter',
-    'Square',
-    'SquareCross',
-    'SquareX',
-    'Triangle',
-    'X',
+    "Asterisk",
+    "Circle",
+    "CircleCross",
+    "CircleX",
+    "Cross",
+    "Dash",
+    "Diamond",
+    "DiamondCross",
+    "Hex",
+    "InvertedTriangle",
+    "Marker",
+    "Scatter",
+    "Square",
+    "SquareCross",
+    "SquareX",
+    "Triangle",
+    "X",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @abstract
 class Marker(XYGlyph):
-    ''' Base class for glyphs that are simple markers with line and
+    """ Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified
     size.
 
@@ -102,38 +104,57 @@ class Marker(XYGlyph):
         draw lines. For these markers, the fill values are simply
         ignored.
 
-    '''
+    """
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x', 'y', 'size', 'angle')
+    _args = ("x", "y", "size", "angle")
 
-    x = NumberSpec(help="""
+    x = NumberSpec(
+        help="""
     The x-axis coordinates for the center of the markers.
-    """)
+    """
+    )
 
-    y = NumberSpec(help="""
+    y = NumberSpec(
+        help="""
     The y-axis coordinates for the center of the markers.
-    """)
+    """
+    )
 
-    size = ScreenDistanceSpec(default=4, help="""
+    size = ScreenDistanceSpec(
+        default=4,
+        help="""
     The size (diameter) values for the markers in screen space units.
-    """)
+    """,
+    )
 
-    angle = AngleSpec(default=0.0, help="""
+    angle = AngleSpec(
+        default=0.0,
+        help="""
     The angles to rotate the markers.
-    """)
+    """,
+    )
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(
+        LineProps,
+        use_prefix=False,
+        help="""
     The %s values for the markers.
-    """)
+    """,
+    )
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(
+        FillProps,
+        use_prefix=False,
+        help="""
     The %s values for the markers.
-    """)
+    """,
+    )
+
 
 class Scatter(Marker):
-    ''' Render arbitrary markers according a specification.
+    """ Render arbitrary markers according a specification.
 
     The Scatter can draw any built-in marker type. It can be configured
     to draw the same marker for all values by specifying the name of a
@@ -160,34 +181,41 @@ class Scatter(Marker):
     (in data units). If you need to control circles by radius in data units,
     you should use the Circle glyph directly.
 
-    '''
+    """
+
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x', 'y', 'size', 'angle', 'marker')
+    _args = ("x", "y", "size", "angle", "marker")
 
-    marker = MarkerSpec(default="circle", help="""
+    marker = MarkerSpec(
+        default="circle",
+        help="""
     Which marker to render. This can be the name of any built in marker,
     e.g. "circle", or a reference to a data column containing such names.
-    """)
+    """,
+    )
 
     __example__ = "examples/reference/models/Scatter.py"
 
+
 class Asterisk(Marker):
-    ''' Render asterisk '*' markers. '''
+    """ Render asterisk '*' markers. """
 
     __example__ = "examples/reference/models/Asterisk.py"
 
 
 class Circle(Marker):
-    ''' Render circle markers. '''
+    """ Render circle markers. """
 
     __example__ = "examples/reference/models/Circle.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x', 'y')
+    _args = ("x", "y")
 
-    radius = DistanceSpec(None, help="""
+    radius = DistanceSpec(
+        None,
+        help="""
     The radius values for circle markers (in "data space" units, by default).
 
     .. note::
@@ -204,9 +232,12 @@ class Circle(Marker):
         much larger or smaller than expected. See :bokeh-issue:`626` for more
         information.
 
-    """)
+    """,
+    )
 
-    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    radius_dimension = Enum(
+        enumeration("x", "y", "max", "min"),
+        help="""
     What dimension to measure circle radii along.
 
     When the data space aspect ratio is not 1-1, then the size of the drawn
@@ -215,83 +246,98 @@ class Circle(Marker):
 
     Setting this dimension to 'max' will calculate the radius on both the x
     and y dimensions and use the maximum of the two, 'min' selects the minimum.
-    """)
+    """,
+    )
+
 
 class CircleCross(Marker):
-    ''' Render circle markers with a '+' cross through the center. '''
+    """ Render circle markers with a '+' cross through the center. """
 
     __example__ = "examples/reference/models/CircleCross.py"
 
+
 class CircleX(Marker):
-    ''' Render circle markers with an 'X' cross through the center. '''
+    """ Render circle markers with an 'X' cross through the center. """
 
     __example__ = "examples/reference/models/CircleX.py"
 
+
 class Cross(Marker):
-    ''' Render '+' cross markers. '''
+    """ Render '+' cross markers. """
 
     __example__ = "examples/reference/models/Cross.py"
 
+
 class Dash(Marker):
-    ''' Render dash markers. Use ``angle`` to rotate and create vertically
+    """ Render dash markers. Use ``angle`` to rotate and create vertically
     oriented short lines.
-    '''
+    """
 
     __example__ = "examples/reference/models/Dash.py"
 
+
 class Diamond(Marker):
-    ''' Render diamond markers. '''
+    """ Render diamond markers. """
 
     __example__ = "examples/reference/models/Diamond.py"
 
+
 class DiamondCross(Marker):
-    ''' Render diamond markers with a '+' cross through the center. '''
+    """ Render diamond markers with a '+' cross through the center. """
 
     __example__ = "examples/reference/models/DiamondCross.py"
 
+
 class Hex(Marker):
-    ''' Render hexagon markers. '''
+    """ Render hexagon markers. """
 
     __example__ = "examples/reference/models/Hex.py"
 
+
 class InvertedTriangle(Marker):
-    ''' Render upside-down triangle markers. '''
+    """ Render upside-down triangle markers. """
 
     __example__ = "examples/reference/models/InvertedTriangle.py"
 
+
 class Square(Marker):
-    ''' Render a square marker, optionally rotated. '''
+    """ Render a square marker, optionally rotated. """
 
     __example__ = "examples/reference/models/Square.py"
 
+
 class SquareCross(Marker):
-    ''' Render square markers with a '+' cross through the center. '''
+    """ Render square markers with a '+' cross through the center. """
 
     __example__ = "examples/reference/models/SquareCross.py"
 
+
 class SquareX(Marker):
-    ''' Render square markers with an 'X' cross through the center. '''
+    """ Render square markers with an 'X' cross through the center. """
 
     __example__ = "examples/reference/models/SquareX.py"
 
+
 class Triangle(Marker):
-    ''' Render triangle markers. '''
+    """ Render triangle markers. """
 
     __example__ = "examples/reference/models/Triangle.py"
 
+
 class X(Marker):
-    ''' Render a 'X' cross markers. '''
+    """ Render a 'X' cross markers. """
 
     __example__ = "examples/reference/models/X.py"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 To generate standalone SVGs for a Bokeh application from a single
 Python script, pass the script name to ``bokeh svg`` on the command
 line:
@@ -45,17 +45,18 @@ It is possible to generate SVG files for multiple applications at once:
 For all cases, it's required to explicitly add a Bokeh layout to
 ``bokeh.io.curdoc`` for it to appear in the output.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import io
@@ -65,22 +66,21 @@ from ...io.export import create_webdriver, get_svgs, terminate_webdriver
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'SVG',
-)
+__all__ = ("SVG",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class SVG(FileOutputSubcommand):
-    ''' Subcommand to output applications as standalone SVG files.
+    """ Subcommand to output applications as standalone SVG files.
 
-    '''
+    """
 
     #: name for this subcommand
     name = "svg"
@@ -91,29 +91,31 @@ class SVG(FileOutputSubcommand):
     help = "Create standalone SVG files for one or more applications"
 
     args = (
-
         FileOutputSubcommand.files_arg("SVG"),
-
-        ('--height', dict(
-            metavar='HEIGHT',
-            type=int,
-            help="The desired height of the exported layout obj only if it's a Plot instance",
-            default=None,
-        )),
-
-        ('--width', dict(
-            metavar='WIDTH',
-            type=int,
-            help="The desired width of the exported layout obj only if it's a Plot instance",
-            default=None,
-        )),
-
+        (
+            "--height",
+            dict(
+                metavar="HEIGHT",
+                type=int,
+                help="The desired height of the exported layout obj only if it's a Plot instance",
+                default=None,
+            ),
+        ),
+        (
+            "--width",
+            dict(
+                metavar="WIDTH",
+                type=int,
+                help="The desired width of the exported layout obj only if it's a Plot instance",
+                default=None,
+            ),
+        ),
     ) + FileOutputSubcommand.other_args()
 
     def invoke(self, args):
-        '''
+        """
 
-        '''
+        """
         self.driver = create_webdriver()
         try:
             super().invoke(args)
@@ -121,12 +123,12 @@ class SVG(FileOutputSubcommand):
             terminate_webdriver(self.driver)
 
     def write_file(self, args, filename, doc):
-        '''
+        """
 
-        '''
+        """
         contents = self.file_contents(args, doc)
         for i, svg in enumerate(contents):
-            if filename == '-':
+            if filename == "-":
                 print(svg)
             else:
                 if i == 0:
@@ -139,20 +141,21 @@ class SVG(FileOutputSubcommand):
             self.after_write_file(args, filename, doc)
 
     def file_contents(self, args, doc):
-        '''
+        """
 
-        '''
+        """
         set_single_plot_width_height(doc, width=args.width, height=args.height)
         return get_svgs(doc, driver=self.driver)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

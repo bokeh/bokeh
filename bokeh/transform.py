@@ -1,23 +1,24 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Helper functions for applying client-side computations such as
+# -----------------------------------------------------------------------------
+""" Helper functions for applying client-side computations such as
 transformations to data fields or ``ColumnDataSource`` expressions.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from .core.properties import expr, field
@@ -31,29 +32,30 @@ from .models.mappers import (
 )
 from .models.transforms import Dodge, Jitter
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'cumsum',
-    'dodge',
-    'factor_cmap',
-    'factor_hatch',
-    'factor_mark',
-    'jitter',
-    'linear_cmap',
-    'log_cmap',
-    'stack',
-    'transform',
+    "cumsum",
+    "dodge",
+    "factor_cmap",
+    "factor_hatch",
+    "factor_mark",
+    "jitter",
+    "linear_cmap",
+    "log_cmap",
+    "stack",
+    "transform",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def cumsum(field, include_zero=False):
-    ''' Create a Create a ``DataSpec`` dict to generate a ``CumSum`` expression
+    """ Create a Create a ``DataSpec`` dict to generate a ``CumSum`` expression
     for a ``ColumnDataSource``.
 
     Examples:
@@ -70,11 +72,12 @@ def cumsum(field, include_zero=False):
         be added (i.e. the sums will start with the first angle value, and
         include the last).
 
-    '''
+    """
     return expr(CumSum(field=field, include_zero=include_zero))
 
+
 def dodge(field_name, value, range=None):
-    ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
+    """ Create a ``DataSpec`` dict that applies a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -89,11 +92,12 @@ def dodge(field_name, value, range=None):
     Returns:
         dict
 
-    '''
+    """
     return field(field_name, Dodge(value=value, range=range))
 
+
 def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray"):
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    """ Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
     column.
 
@@ -117,15 +121,17 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
     Returns:
         dict
 
-    '''
-    return field(field_name, CategoricalColorMapper(palette=palette,
-                                                    factors=factors,
-                                                    start=start,
-                                                    end=end,
-                                                    nan_color=nan_color))
+    """
+    return field(
+        field_name,
+        CategoricalColorMapper(
+            palette=palette, factors=factors, start=start, end=end, nan_color=nan_color
+        ),
+    )
+
 
 def factor_hatch(field_name, patterns, factors, start=0, end=None):
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    """ Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalPatternMapper`` transformation to a ``ColumnDataSource``
     column.
 
@@ -148,14 +154,17 @@ def factor_hatch(field_name, patterns, factors, start=0, end=None):
 
     Added in version 1.1.1
 
-    '''
-    return field(field_name, CategoricalPatternMapper(patterns=patterns,
-                                                      factors=factors,
-                                                      start=start,
-                                                      end=end))
+    """
+    return field(
+        field_name,
+        CategoricalPatternMapper(
+            patterns=patterns, factors=factors, start=start, end=end
+        ),
+    )
+
 
 def factor_mark(field_name, markers, factors, start=0, end=None):
-    ''' Create a ``DataSpec`` dict that applies a client-side
+    """ Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
     column.
 
@@ -180,14 +189,15 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
     Returns:
         dict
 
-    '''
-    return field(field_name, CategoricalMarkerMapper(markers=markers,
-                                                     factors=factors,
-                                                     start=start,
-                                                     end=end))
+    """
+    return field(
+        field_name,
+        CategoricalMarkerMapper(markers=markers, factors=factors, start=start, end=end),
+    )
+
 
 def jitter(field_name, width, mean=0, distribution="uniform", range=None):
-    ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
+    """ Create a ``DataSpec`` dict that applies a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -207,14 +217,17 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
     Returns:
         dict
 
-    '''
-    return field(field_name, Jitter(mean=mean,
-                                    width=width,
-                                    distribution=distribution,
-                                    range=range))
+    """
+    return field(
+        field_name,
+        Jitter(mean=mean, width=width, distribution=distribution, range=range),
+    )
 
-def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
-    ''' Create a ``DataSpec`` dict that applyies a client-side
+
+def linear_cmap(
+    field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"
+):
+    """ Create a ``DataSpec`` dict that applyies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -239,16 +252,24 @@ def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None,
         nan_color (color, optional) : a default color to use when mapping data
             from a column does not succeed (default: "gray")
 
-    '''
-    return field(field_name, LinearColorMapper(palette=palette,
-                                               low=low,
-                                               high=high,
-                                               nan_color=nan_color,
-                                               low_color=low_color,
-                                               high_color=high_color))
+    """
+    return field(
+        field_name,
+        LinearColorMapper(
+            palette=palette,
+            low=low,
+            high=high,
+            nan_color=nan_color,
+            low_color=low_color,
+            high_color=high_color,
+        ),
+    )
 
-def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
-    ''' Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
+
+def log_cmap(
+    field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"
+):
+    """ Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
 
     Args:
@@ -273,16 +294,22 @@ def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, na
         nan_color (color, optional) : a default color to use when mapping data
             from a column does not succeed (default: "gray")
 
-    '''
-    return field(field_name, LogColorMapper(palette=palette,
-                                            low=low,
-                                            high=high,
-                                            nan_color=nan_color,
-                                            low_color=low_color,
-                                            high_color=high_color))
+    """
+    return field(
+        field_name,
+        LogColorMapper(
+            palette=palette,
+            low=low,
+            high=high,
+            nan_color=nan_color,
+            low_color=low_color,
+            high_color=high_color,
+        ),
+    )
+
 
 def stack(*fields):
-    ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
+    """ Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
     for a ``ColumnDataSource``.
 
     Examples:
@@ -295,12 +322,13 @@ def stack(*fields):
         columns of a data source, and use those values as the ``top``
         coordinate for a ``VBar``.
 
-    '''
+    """
 
     return expr(Stack(fields=fields))
 
+
 def transform(field_name, transform):
-    ''' Create a ``DataSpec`` dict that applies an arbitrary client-side
+    """ Create a ``DataSpec`` dict that applies an arbitrary client-side
     ``Transform`` to a ``ColumnDataSource`` column.
 
     Args:
@@ -311,17 +339,18 @@ def transform(field_name, transform):
     Returns:
         dict
 
-    '''
+    """
     return field(field_name, transform)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

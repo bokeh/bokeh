@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from urllib.parse import quote_plus, urlparse
@@ -30,22 +31,21 @@ from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items
 from .util import RenderItem
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'server_document',
-    'server_session',
-    'server_html_page_for_session',
-)
+__all__ = ("server_document", "server_session", "server_html_page_for_session")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-def server_document(url="default", relative_urls=False, resources="default", arguments=None):
-    ''' Return a script tag that embeds content from a Bokeh server.
+
+def server_document(
+    url="default", relative_urls=False, resources="default", arguments=None
+):
+    """ Return a script tag that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
@@ -84,7 +84,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
-    '''
+    """
     url = _clean_url(url)
 
     app_path = _get_app_path(url)
@@ -97,16 +97,15 @@ def server_document(url="default", relative_urls=False, resources="default", arg
     src_path += _process_resources(resources)
     src_path += _process_arguments(arguments)
 
-    tag = AUTOLOAD_TAG.render(
-        src_path  = src_path,
-        app_path  = app_path,
-        elementid = elementid,
-    )
+    tag = AUTOLOAD_TAG.render(src_path=src_path, app_path=app_path, elementid=elementid)
 
     return tag
 
-def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default"):
-    ''' Return a script tag that embeds content from a specific existing session on
+
+def server_session(
+    model=None, session_id=None, url="default", relative_urls=False, resources="default"
+):
+    """ Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
     This function is typically only useful for serving from a a specific session
@@ -163,7 +162,7 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
             problems, and will cause "shared Google doc" behavior, which is
             probably not desired.
 
-    '''
+    """
     if session_id is None:
         raise ValueError("Must supply a session_id")
 
@@ -181,20 +180,21 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
     src_path += _process_resources(resources)
 
     tag = AUTOLOAD_TAG.render(
-        src_path  = src_path,
-        app_path  = app_path,
-        elementid = elementid,
-        modelid   = modelid,
+        src_path=src_path, app_path=app_path, elementid=elementid, modelid=modelid
     )
 
     return tag
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-def server_html_page_for_session(session, resources, title, template=FILE, template_variables=None):
-    '''
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+
+def server_html_page_for_session(
+    session, resources, title, template=FILE, template_variables=None
+):
+    """
 
     Args:
         session (ServerSession) :
@@ -210,27 +210,33 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
     Returns:
         str
 
-    '''
+    """
     render_item = RenderItem(
-        sessionid = session.id,
-        roots = session.document.roots,
-        use_for_title = True,
+        sessionid=session.id, roots=session.document.roots, use_for_title=True
     )
 
     if template_variables is None:
         template_variables = {}
 
     bundle = bundle_for_objs_and_resources(None, resources)
-    html = html_page_for_render_items(bundle, {}, [render_item], title,
-        template=template, template_variables=template_variables)
+    html = html_page_for_render_items(
+        bundle,
+        {},
+        [render_item],
+        title,
+        template=template,
+        template_variables=template_variables,
+    )
     return html
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _clean_url(url):
-    ''' Produce a canonical Bokeh server URL.
+    """ Produce a canonical Bokeh server URL.
 
     Args:
         url (str)
@@ -240,17 +246,20 @@ def _clean_url(url):
     Returns:
         str
 
-    '''
-    if url == 'default':
+    """
+    if url == "default":
         url = DEFAULT_SERVER_HTTP_URL
 
     if url.startswith("ws"):
-        raise ValueError("url should be the http or https URL for the server, not the websocket URL")
+        raise ValueError(
+            "url should be the http or https URL for the server, not the websocket URL"
+        )
 
     return url.rstrip("/")
 
+
 def _get_app_path(url):
-    ''' Extract the app path from a Bokeh server URL
+    """ Extract the app path from a Bokeh server URL
 
     Args:
         url (str) :
@@ -258,14 +267,15 @@ def _get_app_path(url):
     Returns:
         str
 
-    '''
+    """
     app_path = urlparse(url).path.rstrip("/")
     if not app_path.startswith("/"):
         app_path = "/" + app_path
     return app_path
 
+
 def _process_arguments(arguments):
-    ''' Return user-supplied HTML arguments to add to a Bokeh server URL.
+    """ Return user-supplied HTML arguments to add to a Bokeh server URL.
 
     Args:
         arguments (dict[str, object]) :
@@ -274,28 +284,32 @@ def _process_arguments(arguments):
     Returns:
         str
 
-    '''
-    if arguments is None: return ""
+    """
+    if arguments is None:
+        return ""
     result = ""
     for key, value in arguments.items():
         if not key.startswith("bokeh-"):
             result += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
     return result
 
+
 def _process_app_path(app_path):
-    ''' Return an app path HTML argument to add to a Bokeh server URL.
+    """ Return an app path HTML argument to add to a Bokeh server URL.
 
     Args:
         app_path (str) :
             The app path to add. If the app path is ``/`` then it will be
             ignored and an empty string returned.
 
-    '''
-    if app_path == "/": return ""
+    """
+    if app_path == "/":
+        return ""
     return "&bokeh-app-path=" + app_path
 
+
 def _process_relative_urls(relative_urls, url):
-    ''' Return an absolute URL HTML argument to add to a Bokeh server URL, if
+    """ Return an absolute URL HTML argument to add to a Bokeh server URL, if
     requested.
 
     Args:
@@ -308,12 +322,14 @@ def _process_relative_urls(relative_urls, url):
     Returns:
         str
 
-    '''
-    if relative_urls: return ""
+    """
+    if relative_urls:
+        return ""
     return "&bokeh-absolute-url=" + url
 
+
 def _process_resources(resources):
-    ''' Return an argument to suppress normal Bokeh server resources, if requested.
+    """ Return an argument to suppress normal Bokeh server resources, if requested.
 
     Args:
         resources ("default" or None) :
@@ -322,15 +338,16 @@ def _process_resources(resources):
     Returns:
         str
 
-    '''
+    """
     if resources not in ("default", None):
         raise ValueError("`resources` must be either 'default' or None.")
     if resources is None:
         return "&resources=none"
     return ""
 
+
 def _process_session_id(session_id):
-    ''' Return a session ID HTML argument to add to a Bokeh server URL
+    """ Return a session ID HTML argument to add to a Bokeh server URL
 
     Args:
         session_id (str) :
@@ -339,11 +356,12 @@ def _process_session_id(session_id):
     Returns:
         str
 
-    '''
+    """
     return "&bokeh-session-id=" + session_id
 
+
 def _src_path(url, elementid):
-    ''' Return a base autoload URL for a given element ID
+    """ Return a base autoload URL for a given element ID
 
     Args:
         url (str) :
@@ -355,12 +373,17 @@ def _src_path(url, elementid):
     Returns:
         str
 
-    '''
+    """
     return url + "/autoload.js?bokeh-autoload-element=" + elementid
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 
-server_document.__doc__ = format_docstring(server_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
-server_session.__doc__ = format_docstring(server_session.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
+# -----------------------------------------------------------------------------
+# Code
+# -----------------------------------------------------------------------------
+
+server_document.__doc__ = format_docstring(
+    server_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL
+)
+server_session.__doc__ = format_docstring(
+    server_session.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL
+)

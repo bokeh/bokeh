@@ -1,67 +1,69 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide events that represent various changes to Bokeh Documents.
+# -----------------------------------------------------------------------------
+""" Provide events that represent various changes to Bokeh Documents.
 
 These events are used internally to signal changes to Documents. For
 information about user-facing (e.g. UI or tool) events, see the reference
 for :ref:`bokeh.events`.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from ..util.dependencies import import_optional
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
+pd = import_optional("pandas")
 
 __all__ = (
-    'ColumnDataChangedEvent',
-    'ColumnsStreamedEvent',
-    'ColumnsPatchedEvent',
-    'DocumentChangedEvent',
-    'DocumentPatchedEvent',
-    'ModelChangedEvent',
-    'RootAddedEvent',
-    'RootRemovedEvent',
-    'SessionCallbackAdded',
-    'SessionCallbackRemoved',
-    'TitleChangedEvent',
-    'TitleChangedEvent',
+    "ColumnDataChangedEvent",
+    "ColumnsStreamedEvent",
+    "ColumnsPatchedEvent",
+    "DocumentChangedEvent",
+    "DocumentPatchedEvent",
+    "ModelChangedEvent",
+    "RootAddedEvent",
+    "RootRemovedEvent",
+    "SessionCallbackAdded",
+    "SessionCallbackRemoved",
+    "TitleChangedEvent",
+    "TitleChangedEvent",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class DocumentChangedEvent(object):
-    ''' Base class for all internal events representing a change to a
+    """ Base class for all internal events representing a change to a
     Bokeh Document.
 
-    '''
+    """
 
     def __init__(self, document, setter=None, callback_invoker=None):
-        '''
+        """
 
         Args:
             document (Document) :
@@ -83,44 +85,45 @@ class DocumentChangedEvent(object):
                 be executed in response to the change that triggered this
                 event. (default: None)
 
-        '''
+        """
         self.document = document
         self.setter = setter
         self.callback_invoker = callback_invoker
 
     def combine(self, event):
-        '''
+        """
 
-        '''
+        """
         return False
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._document_changed`` if it exists.
 
-        '''
-        if hasattr(receiver, '_document_changed'):
+        """
+        if hasattr(receiver, "_document_changed"):
             receiver._document_changed(self)
 
+
 class DocumentPatchedEvent(DocumentChangedEvent):
-    ''' A Base class for events that represent updating Bokeh Models and
+    """ A Base class for events that represent updating Bokeh Models and
     their properties.
 
-    '''
+    """
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._document_patched`` if it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_document_patched'):
+        if hasattr(receiver, "_document_patched"):
             receiver._document_patched(self)
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         *Sub-classes must implement this method.*
@@ -140,21 +143,33 @@ class DocumentPatchedEvent(DocumentChangedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
+        """
         raise NotImplementedError()
 
+
 class ModelChangedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing updating an attribute and value of a
+    """ A concrete event representing updating an attribute and value of a
     specific Bokeh Model.
 
     This is the "standard" way of updating most Bokeh model attributes. For
     special casing situations that can optimized (e.g. streaming, etc.), a
     ``hint`` may be supplied that overrides normal mechanisms.
 
-    '''
+    """
 
-    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter=None, callback_invoker=None):
-        '''
+    def __init__(
+        self,
+        document,
+        model,
+        attr,
+        old,
+        new,
+        serializable_new,
+        hint=None,
+        setter=None,
+        callback_invoker=None,
+    ):
+        """
 
         Args:
             document (Document) :
@@ -195,8 +210,10 @@ class ModelChangedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
 
-        '''
-        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
+        """
+        if setter is None and isinstance(
+            hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)
+        ):
             setter = hint.setter
         super().__init__(document, setter, callback_invoker)
         self.model = model
@@ -207,15 +224,18 @@ class ModelChangedEvent(DocumentPatchedEvent):
         self.hint = hint
 
     def combine(self, event):
-        '''
+        """
 
-        '''
-        if not isinstance(event, ModelChangedEvent): return False
+        """
+        if not isinstance(event, ModelChangedEvent):
+            return False
 
         # If these are not true something weird is going on, maybe updates from
         # Python bokeh.client, don't try to combine
-        if self.setter != event.setter: return False
-        if self.document != event.document: return False
+        if self.setter != event.setter:
+            return False
+        if self.document != event.document:
+            return False
 
         if self.hint:
             return self.hint.combine(event.hint)
@@ -229,17 +249,17 @@ class ModelChangedEvent(DocumentPatchedEvent):
         return False
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._document_model_changed`` if it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_document_model_changed'):
+        if hasattr(receiver, "_document_model_changed"):
             receiver._document_model_changed(self)
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         Args:
@@ -257,7 +277,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
+        """
         from ..model import collect_models
 
         if self.hint is not None:
@@ -285,19 +305,24 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
         references.update(value_refs)
 
-        return { 'kind'  : 'ModelChanged',
-                 'model' : self.model.ref,
-                 'attr'  : self.attr,
-                 'new'   : value }
+        return {
+            "kind": "ModelChanged",
+            "model": self.model.ref,
+            "attr": self.attr,
+            "new": value,
+        }
+
 
 class ColumnDataChangedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing efficiently replacing *all*
+    """ A concrete event representing efficiently replacing *all*
     existing data for a :class:`~bokeh.models.sources.ColumnDataSource`
 
-    '''
+    """
 
-    def __init__(self, document, column_source, cols=None, setter=None, callback_invoker=None):
-        '''
+    def __init__(
+        self, document, column_source, cols=None, setter=None, callback_invoker=None
+    ):
+        """
 
         Args:
             document (Document) :
@@ -322,23 +347,23 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
 
-        '''
+        """
         super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.cols = cols
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._column_data_changed`` if it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_column_data_changed'):
+        if hasattr(receiver, "_column_data_changed"):
             receiver._column_data_changed(self)
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         .. code-block:: python
@@ -366,24 +391,37 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
                 modified in-place.
 
 
-        '''
+        """
         from ..util.serialization import transform_column_source_data
 
-        data_dict = transform_column_source_data(self.column_source.data, buffers=buffers, cols=self.cols)
+        data_dict = transform_column_source_data(
+            self.column_source.data, buffers=buffers, cols=self.cols
+        )
 
-        return { 'kind'          : 'ColumnDataChanged',
-                 'column_source' : self.column_source.ref,
-                 'new'           : data_dict,
-                 'cols'          : self.cols}
+        return {
+            "kind": "ColumnDataChanged",
+            "column_source": self.column_source.ref,
+            "new": data_dict,
+            "cols": self.cols,
+        }
+
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing efficiently streaming new data
+    """ A concrete event representing efficiently streaming new data
     to a :class:`~bokeh.models.sources.ColumnDataSource`
 
-    '''
+    """
 
-    def __init__(self, document, column_source, data, rollover, setter=None, callback_invoker=None):
-        '''
+    def __init__(
+        self,
+        document,
+        column_source,
+        data,
+        rollover,
+        setter=None,
+        callback_invoker=None,
+    ):
+        """
 
         Args:
             document (Document) :
@@ -414,7 +452,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 be executed in response to the change that triggered this
                 event. (default: None)
 
-        '''
+        """
         super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
 
@@ -425,17 +463,17 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         self.rollover = rollover
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._columns_streamed`` if it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_columns_streamed'):
+        if hasattr(receiver, "_columns_streamed"):
             receiver._columns_streamed(self)
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         .. code-block:: python
@@ -462,20 +500,25 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
-        return { 'kind'          : 'ColumnsStreamed',
-                 'column_source' : self.column_source.ref,
-                 'data'          : self.data,
-                 'rollover'      : self.rollover }
+        """
+        return {
+            "kind": "ColumnsStreamed",
+            "column_source": self.column_source.ref,
+            "data": self.data,
+            "rollover": self.rollover,
+        }
+
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing efficiently applying data patches
+    """ A concrete event representing efficiently applying data patches
     to a :class:`~bokeh.models.sources.ColumnDataSource`
 
-    '''
+    """
 
-    def __init__(self, document, column_source, patches, setter=None, callback_invoker=None):
-        '''
+    def __init__(
+        self, document, column_source, patches, setter=None, callback_invoker=None
+    ):
+        """
 
         Args:
             document (Document) :
@@ -498,23 +541,23 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
                 be executed in response to the change that triggered this
                 event. (default: None)
 
-        '''
+        """
         super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.patches = patches
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._columns_patched`` if it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_columns_patched'):
+        if hasattr(receiver, "_columns_patched"):
             receiver._columns_patched(self)
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         .. code-block:: python
@@ -540,19 +583,22 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
-        return { 'kind'          : 'ColumnsPatched',
-                 'column_source' : self.column_source.ref,
-                 'patches'       : self.patches }
+        """
+        return {
+            "kind": "ColumnsPatched",
+            "column_source": self.column_source.ref,
+            "patches": self.patches,
+        }
+
 
 class TitleChangedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing a change to the title of a Bokeh
+    """ A concrete event representing a change to the title of a Bokeh
     Document.
 
-    '''
+    """
 
     def __init__(self, document, title, setter=None, callback_invoker=None):
-        '''
+        """
 
         Args:
             document (Document) :
@@ -574,27 +620,30 @@ class TitleChangedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
 
-        '''
+        """
         super().__init__(document, setter, callback_invoker)
         self.title = title
 
     def combine(self, event):
-        '''
+        """
 
-        '''
-        if not isinstance(event, TitleChangedEvent): return False
+        """
+        if not isinstance(event, TitleChangedEvent):
+            return False
 
         # If these are not true something weird is going on, maybe updates from
         # Python bokeh.client, don't try to combine
-        if self.setter != event.setter: return False
-        if self.document != event.document: return False
+        if self.setter != event.setter:
+            return False
+        if self.document != event.document:
+            return False
 
         self.title = event.title
         self.callback_invoker = event.callback_invoker
         return True
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         .. code-block:: python
@@ -619,18 +668,18 @@ class TitleChangedEvent(DocumentPatchedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
-        return { 'kind'  : 'TitleChanged',
-                 'title' : self.title }
+        """
+        return {"kind": "TitleChanged", "title": self.title}
+
 
 class RootAddedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing a change to add a new Model to a
+    """ A concrete event representing a change to add a new Model to a
     Document's collection of "root" models.
 
-    '''
+    """
 
     def __init__(self, document, model, setter=None, callback_invoker=None):
-        '''
+        """
 
         Args:
             document (Document) :
@@ -651,12 +700,12 @@ class RootAddedEvent(DocumentPatchedEvent):
                 be executed in response to the change that triggered this
                 event. (default: None)
 
-        '''
+        """
         super().__init__(document, setter, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         .. code-block:: python
@@ -681,19 +730,19 @@ class RootAddedEvent(DocumentPatchedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
+        """
         references.update(self.model.references())
-        return { 'kind'  : 'RootAdded',
-                 'model' : self.model.ref }
+        return {"kind": "RootAdded", "model": self.model.ref}
+
 
 class RootRemovedEvent(DocumentPatchedEvent):
-    ''' A concrete event representing a change to remove an existing Model
+    """ A concrete event representing a change to remove an existing Model
     from a Document's collection of "root" models.
 
-    '''
+    """
 
     def __init__(self, document, model, setter=None, callback_invoker=None):
-        '''
+        """
 
         Args:
             document (Document) :
@@ -715,12 +764,12 @@ class RootRemovedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
 
-        '''
+        """
         super().__init__(document, setter, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):
-        ''' Create a JSON representation of this event suitable for sending
+        """ Create a JSON representation of this event suitable for sending
         to clients.
 
         .. code-block:: python
@@ -745,18 +794,18 @@ class RootRemovedEvent(DocumentPatchedEvent):
                 **This is an "out" parameter**. The values it contains will be
                 modified in-place.
 
-        '''
-        return { 'kind'  : 'RootRemoved',
-                 'model' : self.model.ref }
+        """
+        return {"kind": "RootRemoved", "model": self.model.ref}
+
 
 class SessionCallbackAdded(DocumentChangedEvent):
-    ''' A concrete event representing a change to add a new callback (e.g.
+    """ A concrete event representing a change to add a new callback (e.g.
     periodic, timeout, or "next tick") to a Document.
 
-    '''
+    """
 
     def __init__(self, document, callback):
-        '''
+        """
 
         Args:
             document (Document) :
@@ -765,30 +814,31 @@ class SessionCallbackAdded(DocumentChangedEvent):
             callback (SessionCallback) :
                 The callback to add
 
-        '''
+        """
         super().__init__(document)
         self.callback = callback
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._session_callback_added`` if
         it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_session_callback_added'):
+        if hasattr(receiver, "_session_callback_added"):
             receiver._session_callback_added(self)
 
+
 class SessionCallbackRemoved(DocumentChangedEvent):
-    ''' A concrete event representing a change to remove an existing callback
+    """ A concrete event representing a change to remove an existing callback
     (e.g. periodic, timeout, or "next tick") from a Document.
 
 
-    '''
+    """
 
     def __init__(self, document, callback):
-        '''
+        """
 
         Args:
             document (Document) :
@@ -797,25 +847,26 @@ class SessionCallbackRemoved(DocumentChangedEvent):
             callback (SessionCallback) :
                 The callback to remove
 
-        '''
+        """
         super().__init__(document)
         self.callback = callback
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
+        """ Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._session_callback_removed`` if
         it exists.
 
-        '''
+        """
         super().dispatch(receiver)
-        if hasattr(receiver, '_session_callback_removed'):
+        if hasattr(receiver, "_session_callback_removed"):
             receiver._session_callback_removed(self)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

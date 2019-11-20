@@ -1,21 +1,22 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Provide utility functions for implementing the ``bokeh`` command.
+# -----------------------------------------------------------------------------
+""" Provide utility functions for implementing the ``bokeh`` command.
 
-'''
-#-----------------------------------------------------------------------------
+"""
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import contextlib
@@ -29,24 +30,25 @@ from bokeh.application import Application
 from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
 from bokeh.models import Plot
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'build_single_handler_application',
-    'build_single_handler_applications',
-    'die',
-    'report_server_init_errors',
-    'set_single_plot_width_height',
+    "build_single_handler_application",
+    "build_single_handler_applications",
+    "die",
+    "report_server_init_errors",
+    "set_single_plot_width_height",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def die(message, status=1):
-    ''' Print an error message and exit.
+    """ Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the
     process will terminate.
@@ -56,9 +58,10 @@ def die(message, status=1):
 
         status (int) : the exit status to pass to ``sys.exit``
 
-    '''
+    """
     print(message, file=sys.stderr)
     sys.exit(status)
+
 
 DIRSTYLE_MAIN_WARNING = """
 It looks like you might be running the main.py of a directory app directly.
@@ -70,8 +73,9 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
+
 def build_single_handler_application(path, argv=None):
-    ''' Return a Bokeh application built using a single handler for a script,
+    """ Return a Bokeh application built using a single handler for a script,
     notebook, or directory.
 
     In general a Bokeh :class:`~bokeh.application.application.Application` may
@@ -106,7 +110,7 @@ def build_single_handler_application(path, argv=None):
         If ``path`` ends with a file ``main.py`` then a warning will be printed
         regarding running directory-style apps by passing the directory instead.
 
-    '''
+    """
     argv = argv or []
     path = os.path.abspath(path)
 
@@ -123,19 +127,24 @@ def build_single_handler_application(path, argv=None):
                 warnings.warn(DIRSTYLE_MAIN_WARNING)
             handler = ScriptHandler(filename=path, argv=argv)
         else:
-            raise ValueError("Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path)
+            raise ValueError(
+                "Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path
+            )
     else:
         raise ValueError("Path for Bokeh server application does not exist: %s" % path)
 
     if handler.failed:
-        raise RuntimeError("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
+        raise RuntimeError(
+            "Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail)
+        )
 
     application = Application(handler)
 
     return application
 
+
 def build_single_handler_applications(paths, argvs=None):
-    ''' Return a dictionary mapping routes to Bokeh applications built using
+    """ Return a dictionary mapping routes to Bokeh applications built using
     single handlers, for specified files or directories.
 
     This function iterates over ``paths`` and ``argvs`` and calls
@@ -155,7 +164,7 @@ def build_single_handler_applications(paths, argvs=None):
     Raises:
         RuntimeError
 
-    '''
+    """
     applications = {}
     argvs = argvs or {}
 
@@ -165,9 +174,9 @@ def build_single_handler_applications(paths, argvs=None):
         route = application.handlers[0].url_path()
 
         if not route:
-            if '/' in applications:
+            if "/" in applications:
                 raise RuntimeError("Don't know the URL path to use for %s" % (path))
-            route = '/'
+            route = "/"
         applications[route] = application
 
     return applications
@@ -175,7 +184,7 @@ def build_single_handler_applications(paths, argvs=None):
 
 @contextlib.contextmanager
 def report_server_init_errors(address=None, port=None, **kwargs):
-    ''' A context manager to help print more informative error messages when a
+    """ A context manager to help print more informative error messages when a
     ``Server`` cannot be started due to a network problem.
 
     Args:
@@ -194,37 +203,43 @@ def report_server_init_errors(address=None, port=None, **kwargs):
         critical error will be logged and the process will terminate with a
         call to ``sys.exit(1)``
 
-    '''
+    """
     try:
         yield
     except EnvironmentError as e:
         if e.errno == errno.EADDRINUSE:
             log.critical("Cannot start Bokeh server, port %s is already in use", port)
         elif e.errno == errno.EADDRNOTAVAIL:
-            log.critical("Cannot start Bokeh server, address '%s' not available", address)
+            log.critical(
+                "Cannot start Bokeh server, address '%s' not available", address
+            )
         else:
             codename = errno.errorcode[e.errno]
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
         sys.exit(1)
 
+
 def set_single_plot_width_height(doc, width, height):
     if width is not None or height is not None:
         layout = doc.roots
         if len(layout) != 1 or not isinstance(layout[0], Plot):
-            warnings.warn("Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)")
+            warnings.warn(
+                "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
+            )
         else:
             plot = layout[0]
             plot.plot_height = height or plot.plot_height
-            plot.plot_width  = width or plot.plot_width
+            plot.plot_width = width or plot.plot_width
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

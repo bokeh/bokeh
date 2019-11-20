@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''
+# -----------------------------------------------------------------------------
+"""
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from os.path import dirname, exists, join
@@ -29,50 +30,49 @@ from ..model import Model
 from ..resources import BaseResources
 from ..util.compiler import bundle_models
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'Bundle',
-    'bundle_for_objs_and_resources',
-)
+__all__ = ("Bundle", "bundle_for_objs_and_resources")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ScriptRef(object):
-
     def __init__(self, url, type="text/javascript"):
         self.url = url
         self.type = type
 
-class Script(object):
 
+class Script(object):
     def __init__(self, content, type="text/javascript"):
         self.content = content
         self.type = type
 
-class StyleRef(object):
 
+class StyleRef(object):
     def __init__(self, url):
         self.url = url
 
-class Style(object):
 
+class Style(object):
     def __init__(self, content):
         self.content = content
 
-class Bundle(object):
 
+class Bundle(object):
     @classmethod
     def of(cls, js_files, js_raw, css_files, css_raw):
-        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw)
+        return cls(
+            js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw
+        )
 
     def __init__(self, **kwargs):
         self.js_files = kwargs.get("js_files", [])
@@ -114,8 +114,9 @@ class Bundle(object):
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
+
 def bundle_for_objs_and_resources(objs, resources):
-    ''' Generate rendered CSS and JS resources suitable for the given
+    """ Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
     Args:
@@ -126,26 +127,36 @@ def bundle_for_objs_and_resources(objs, resources):
     Returns:
         Bundle
 
-    '''
+    """
     if resources is None or isinstance(resources, BaseResources):
         js_resources = css_resources = resources
-    elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
+    elif (
+        isinstance(resources, tuple)
+        and len(resources) == 2
+        and all(r is None or isinstance(r, BaseResources) for r in resources)
+    ):
         js_resources, css_resources = resources
 
         if js_resources and not css_resources:
-            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
+            warn(
+                "No Bokeh CSS Resources provided to template. If required you will need to provide them manually."
+            )
 
         if css_resources and not js_resources:
-            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
+            warn(
+                "No Bokeh JS Resources provided to template. If required you will need to provide them manually."
+            )
     else:
-        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
+        raise ValueError(
+            "expected Resources or a pair of optional Resources, got %r" % resources
+        )
 
     from copy import deepcopy
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets = _use_widgets(objs) if objs else True
-    use_tables  = _use_tables(objs)  if objs else True
-    use_gl      = _use_gl(objs)      if objs else True
+    use_tables = _use_tables(objs) if objs else True
+    use_gl = _use_gl(objs) if objs else True
 
     js_files = []
     js_raw = []
@@ -171,16 +182,18 @@ def bundle_for_objs_and_resources(objs, resources):
 
     js_raw.extend(_bundle_extensions(objs, resources))
 
-    models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
+    models = [obj.__class__ for obj in _all_objs(objs)] if objs else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
 
     return Bundle.of(js_files, js_raw, css_files, css_raw)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _query_extensions(objs, query):
     names = set()
@@ -202,11 +215,14 @@ def _query_extensions(objs, query):
 
     return False
 
+
 def _bundle_extensions(objs, resources):
     names = set()
     extensions = []
 
-    for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
+    for obj in (
+        _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values()
+    ):
         if hasattr(obj, "__implementation__"):
             continue
         name = obj.__view_module__.split(".")[0]
@@ -224,6 +240,7 @@ def _bundle_extensions(objs, resources):
 
     return extensions
 
+
 def _all_objs(objs):
     all_objs = set()
 
@@ -236,8 +253,9 @@ def _all_objs(objs):
 
     return all_objs
 
+
 def _any(objs, query):
-    ''' Whether any of a collection of objects satisfies a given query predicate
+    """ Whether any of a collection of objects satisfies a given query predicate
 
     Args:
         objs (seq[Model or Document]) :
@@ -247,7 +265,7 @@ def _any(objs, query):
     Returns:
         True, if ``query(obj)`` is True for some object in ``objs``, else False
 
-    '''
+    """
     for obj in objs:
         if isinstance(obj, Document):
             if _any(obj.roots, query):
@@ -258,8 +276,9 @@ def _any(objs, query):
     else:
         return False
 
+
 def _use_gl(objs):
-    ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
+    """ Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
         objs (seq[Model or Document]) :
@@ -267,12 +286,16 @@ def _use_gl(objs):
     Returns:
         bool
 
-    '''
+    """
     from ..models.plots import Plot
-    return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
+
+    return _any(
+        objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl"
+    )
+
 
 def _use_tables(objs):
-    ''' Whether a collection of Bokeh objects contains a TableWidget
+    """ Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
         objs (seq[Model or Document]) :
@@ -280,12 +303,14 @@ def _use_tables(objs):
     Returns:
         bool
 
-    '''
+    """
     from ..models.widgets import TableWidget
+
     return _any(objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(objs)
 
+
 def _use_widgets(objs):
-    ''' Whether a collection of Bokeh objects contains a any Widget
+    """ Whether a collection of Bokeh objects contains a any Widget
 
     Args:
         objs (seq[Model or Document]) :
@@ -293,18 +318,24 @@ def _use_widgets(objs):
     Returns:
         bool
 
-    '''
+    """
     from ..models.widgets import Widget
+
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
+
 
 def _ext_use_tables(objs):
     from ..models.widgets import TableWidget
+
     return _query_extensions(objs, lambda cls: issubclass(cls, TableWidget))
+
 
 def _ext_use_widgets(objs):
     from ..models.widgets import Widget
+
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

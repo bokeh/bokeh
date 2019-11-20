@@ -1,22 +1,23 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Define a Pytest plugin for a log file fixture
+# -----------------------------------------------------------------------------
+""" Define a Pytest plugin for a log file fixture
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from warnings import warn
@@ -25,37 +26,40 @@ from warnings import warn
 import pytest
 from selenium import webdriver
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'driver',
-    'has_no_console_errors',
-    'pytest_report_collectionfinish',
-)
+__all__ = ("driver", "has_no_console_errors", "pytest_report_collectionfinish")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def pytest_report_collectionfinish(config, startdir, items):
-    '''
+    """
 
-    '''
-    driver  = config.getoption('driver', 'chrome').lower()
+    """
+    driver = config.getoption("driver", "chrome").lower()
     asserts = "ON" if driver == "chrome" else "OFF"
-    return ["", "Bokeh selenium tests using %r driver (no-console-error assertions: %s)" % (driver, asserts)]
+    return [
+        "",
+        "Bokeh selenium tests using %r driver (no-console-error assertions: %s)"
+        % (driver, asserts),
+    ]
+
 
 @pytest.yield_fixture(scope="session")
 def driver(pytestconfig):
-    ''' Select and configure a Selenium webdriver for integration tests.
+    """ Select and configure a Selenium webdriver for integration tests.
 
-    '''
-    driver_name  = pytestconfig.getoption('driver', 'chrome').lower()
+    """
+    driver_name = pytestconfig.getoption("driver", "chrome").lower()
 
     if driver_name == "chrome":
         from selenium.webdriver.chrome.options import Options
+
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
@@ -64,6 +68,7 @@ def driver(pytestconfig):
 
     elif driver_name == "firefox":
         from selenium.webdriver.firefox.options import Options
+
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--window-size=1920x1080")
@@ -78,9 +83,10 @@ def driver(pytestconfig):
 
     driver.quit()
 
+
 @pytest.fixture(scope="session")
 def has_no_console_errors(pytestconfig):
-    ''' Provide a function to assert no browser console errors are present.
+    """ Provide a function to assert no browser console errors are present.
 
     Unfortunately logs are only accessibly with Chrome web driver, see e.g.
 
@@ -88,38 +94,44 @@ def has_no_console_errors(pytestconfig):
 
     For non-Chrome webdrivers this check always returns True.
 
-    '''
-    driver_name  = pytestconfig.getoption('driver').lower()
+    """
+    driver_name = pytestconfig.getoption("driver").lower()
 
     if driver_name == "chrome":
 
         def func(driver):
-            logs = driver.get_log('browser')
-            severe_errors = [x for x in logs if x.get('level') == 'SEVERE']
-            non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
+            logs = driver.get_log("browser")
+            severe_errors = [x for x in logs if x.get("level") == "SEVERE"]
+            non_network_errors = [
+                l for l in severe_errors if l.get("type") != "network"
+            ]
 
             if len(non_network_errors) == 0:
                 if len(severe_errors) != 0:
-                    warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
+                    warn(
+                        "There were severe network errors (this may or may not have affected your test): %s"
+                        % severe_errors
+                    )
                 return True
 
-            pytest.fail('Console errors: %s' % non_network_errors)
-
+            pytest.fail("Console errors: %s" % non_network_errors)
 
     else:
+
         def func(driver):
             return True
 
     return func
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

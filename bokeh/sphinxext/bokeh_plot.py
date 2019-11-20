@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Include Bokeh plots in Sphinx HTML documentation.
+# -----------------------------------------------------------------------------
+""" Include Bokeh plots in Sphinx HTML documentation.
 
 For other output types, the placeholder text ``[graph]`` will
 be generated.
@@ -69,17 +69,18 @@ The inline example code above produces the following output:
 
     show(p)
 
-'''
-#-----------------------------------------------------------------------------
+"""
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # use the wrapped sphinx logger
-from sphinx.util import logging # isort:skip
+from sphinx.util import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from os import getenv
@@ -101,18 +102,16 @@ from ..model import Model
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'BokehPlotDirective',
-    'setup',
-)
+__all__ = ("BokehPlotDirective", "setup")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehPlotDirective(Directive):
 
@@ -120,8 +119,8 @@ class BokehPlotDirective(Directive):
     optional_arguments = 2
 
     option_spec = {
-        'source-position': lambda x: choice(x, ('below', 'above', 'none')),
-        'linenos': lambda x: True if flag(x) is None else False,
+        "source-position": lambda x: choice(x, ("below", "above", "none")),
+        "linenos": lambda x: True if flag(x) is None else False,
     }
 
     def run(self):
@@ -138,9 +137,13 @@ class BokehPlotDirective(Directive):
         if self.content:
             log.debug("[bokeh-plot] handling inline example in %r", env.docname)
             path = env.bokeh_plot_auxdir  # code runner just needs any real path
-            source = '\n'.join(self.content)
+            source = "\n".join(self.content)
         else:
-            log.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
+            log.debug(
+                "[bokeh-plot] handling external example in %r: %s",
+                env.docname,
+                self.arguments[0],
+            )
             path = self.arguments[0]
             if not path.startswith("/"):
                 path = join(env.app.srcdir, path)
@@ -151,38 +154,54 @@ class BokehPlotDirective(Directive):
         try:
             (script, js, js_path, source) = _process_script(source, path, env, js_name)
         except Exception as e:
-            raise RuntimeError("Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s" % (e,source))
-        env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
+            raise RuntimeError(
+                "Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s"
+                % (e, source)
+            )
+        env.bokeh_plot_files[js_name] = (
+            script,
+            js,
+            js_path,
+            source,
+            dirname(env.docname),
+        )
 
         # use the source file name to construct a friendly target_id
         target_id = "%s.%s" % (env.docname, basename(js_path))
-        target = nodes.target('', '', ids=[target_id])
+        target = nodes.target("", "", ids=[target_id])
         result = [target]
 
-        linenos = self.options.get('linenos', False)
-        code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
+        linenos = self.options.get("linenos", False)
+        code = nodes.literal_block(
+            source, source, language="python", linenos=linenos, classes=[]
+        )
         set_source_info(self, code)
 
-        source_position = self.options.get('source-position', 'below')
+        source_position = self.options.get("source-position", "below")
 
-        if source_position == "above": result += [code]
+        if source_position == "above":
+            result += [code]
 
-        result += [nodes.raw('', script, format="html")]
+        result += [nodes.raw("", script, format="html")]
 
-        if source_position == "below": result += [code]
+        if source_position == "below":
+            result += [code]
 
         return result
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def builder_inited(app):
-    app.env.bokeh_plot_auxdir = join(app.env.doctreedir, 'bokeh_plot')
-    ensuredir(app.env.bokeh_plot_auxdir) # sphinx/_build/doctrees/bokeh_plot
+    app.env.bokeh_plot_auxdir = join(app.env.doctreedir, "bokeh_plot")
+    ensuredir(app.env.bokeh_plot_auxdir)  # sphinx/_build/doctrees/bokeh_plot
 
-    if not hasattr(app.env, 'bokeh_plot_files'):
+    if not hasattr(app.env, "bokeh_plot_files"):
         app.env.bokeh_plot_files = {}
+
 
 def build_finished(app, exception):
     files = set()
@@ -190,12 +209,14 @@ def build_finished(app, exception):
     for (script, js, js_path, source, docpath) in app.env.bokeh_plot_files.values():
         files.add((js_path, docpath))
 
-    files_iter = status_iterator(sorted(files),
-                                 'copying bokeh-plot files... ',
-                                 'brown',
-                                 len(files),
-                                 app.verbosity,
-                                 stringify_func=lambda x: basename(x[0]))
+    files_iter = status_iterator(
+        sorted(files),
+        "copying bokeh-plot files... ",
+        "brown",
+        len(files),
+        app.verbosity,
+        stringify_func=lambda x: basename(x[0]),
+    )
 
     for (file, docpath) in files_iter:
         target = join(app.builder.outdir, docpath, basename(file))
@@ -203,18 +224,21 @@ def build_finished(app, exception):
         try:
             copyfile(file, target)
         except OSError as e:
-            raise SphinxError('cannot copy local file %r, reason: %s' % (file, e))
+            raise SphinxError("cannot copy local file %r, reason: %s" % (file, e))
+
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
-    app.add_directive('bokeh-plot', BokehPlotDirective)
-    app.add_config_value('bokeh_missing_google_api_key_ok', True, 'html')
-    app.connect('builder-inited', builder_inited)
-    app.connect('build-finished', build_finished)
+    """ Required Sphinx extension setup function. """
+    app.add_directive("bokeh-plot", BokehPlotDirective)
+    app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
+    app.connect("builder-inited", builder_inited)
+    app.connect("build-finished", build_finished)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _process_script(source, filename, env, js_name, use_relative_paths=False):
     # Explicitly make sure old extensions are not included until a better
@@ -223,13 +247,15 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 
     # quick and dirty way to inject Google API key
     if "GOOGLE_API_KEY" in source:
-        GOOGLE_API_KEY = getenv('GOOGLE_API_KEY')
+        GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
         if GOOGLE_API_KEY is None:
             if env.config.bokeh_missing_google_api_key_ok:
                 GOOGLE_API_KEY = "MISSING_API_KEY"
             else:
-                raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                                  "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
+                raise SphinxError(
+                    "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+                    "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)"
+                )
         run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
     else:
         run_source = source
@@ -249,6 +275,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 
     return (script, js, js_path, source)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
