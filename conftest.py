@@ -5,7 +5,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.pandas",
 )
 
+# Bokeh imports
 from bokeh._testing.util.git import version_from_git
+
 
 # Unfortunately these seem to all need to be centrally defined at the top level
 def pytest_addoption(parser):

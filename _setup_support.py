@@ -1,11 +1,17 @@
 '''
 
 '''
+# Standard library imports
+import os
+import re
 import shutil
+import subprocess
+import sys
+import time
 from glob import glob
 from os.path import dirname, exists, join, realpath, relpath
-import os, re, subprocess, sys, time
 
+# Bokeh imports
 import versioneer
 
 # provide fallbacks for highlights in case colorama is not installed
