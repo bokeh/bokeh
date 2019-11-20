@@ -1,13 +1,10 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.io import show
 from bokeh.layouts import gridplot
-from bokeh.models import (
-    ColumnDataSource,
-    ColorBar,
-    LinearColorMapper,
-    LogColorMapper,
-)
+from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, LogColorMapper
 from bokeh.palettes import Viridis3, Viridis256
 from bokeh.plotting import figure
 

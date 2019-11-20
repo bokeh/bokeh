@@ -1,10 +1,12 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.models import ColumnDataSource, HoverTool, NodesAndLinkedEdges, StaticLayoutProvider, TapTool
 from bokeh.palettes import Set3_12
-from bokeh.plotting import figure, show, output_file
-from bokeh.sampledata.us_states import data as us_states
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.airport_routes import airports, routes
+from bokeh.sampledata.us_states import data as us_states
 
 output_file("graphs.html")
 

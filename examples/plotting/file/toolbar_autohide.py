@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.layouts import row
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 N = 1000
 x = np.random.random(size=N) * 100

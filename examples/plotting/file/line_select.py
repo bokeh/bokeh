@@ -2,10 +2,12 @@
 
 """
 
+# External imports
 import numpy as np
 
-from bokeh.models import TapTool, CustomJS, ColumnDataSource
-from bokeh.plotting import output_file, show, figure
+# Bokeh imports
+from bokeh.models import ColumnDataSource, CustomJS, TapTool
+from bokeh.plotting import figure, output_file, show
 
 # The data is setup to have very different scales in x and y, to verify
 # that picking happens in pixels. Different widths are used to test that

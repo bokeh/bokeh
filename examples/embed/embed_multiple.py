@@ -1,8 +1,11 @@
+# Standard library imports
 import io
-
 from collections import OrderedDict
+
+# External imports
 from jinja2 import Template
 
+# Bokeh imports
 from bokeh.embed import components
 from bokeh.models import Range1d
 from bokeh.plotting import figure

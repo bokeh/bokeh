@@ -1,7 +1,9 @@
-from numpy import pi, arange, sin, linspace
+# External imports
+from numpy import arange, linspace, pi, sin
 
+# Bokeh imports
 from bokeh.models import LinearAxis, Range1d
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 x = arange(-2*pi, 2*pi, 0.2)
 y = sin(x)

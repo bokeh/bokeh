@@ -1,11 +1,14 @@
-from os.path import join, dirname
+# Standard library imports
 import datetime
+from os.path import dirname, join
 
+# External imports
 import pandas as pd
 from scipy.signal import savgol_filter
 
+# Bokeh imports
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, DataRange1d, Select
 from bokeh.palettes import Blues4
 from bokeh.plotting import figure

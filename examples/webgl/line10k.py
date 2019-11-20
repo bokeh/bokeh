@@ -2,9 +2,11 @@
 
 """
 
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
+from bokeh.plotting import figure, output_file, show
 
 N = 10000
 x = np.linspace(0, 10*np.pi, N)

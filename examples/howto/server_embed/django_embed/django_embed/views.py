@@ -1,19 +1,22 @@
+# Standard library imports
 from os.path import join
 from typing import Any
 
-from django.http import HttpRequest, HttpResponse
+# External imports
 from django.conf import settings
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-from bokeh.plotting import figure
+# Bokeh imports
+from bokeh.document import Document
+from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
-from bokeh.document import Document
-from bokeh.themes import Theme
-from bokeh.embed import server_document
-
+from bokeh.plotting import figure
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
+from bokeh.themes import Theme
 
+# Bokeh imports
 from .shape_viewer import shape_viewer
 
 theme = Theme(filename=join(settings.THEMES_DIR, "theme.yaml"))

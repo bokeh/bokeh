@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)

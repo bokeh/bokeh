@@ -8,11 +8,13 @@ An information flow model for conflict and fission in small groups.
 Journal of Anthropological Research, 33, 452-473.
 """
 
+# External imports
 import networkx as nx
 
+# Bokeh imports
 from bokeh.io import curdoc, show
-from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes, HoverTool, MultiLine,
-                          NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
+from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes, HoverTool,
+                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 

@@ -1,6 +1,8 @@
-from bokeh.plotting import figure, save
+# Bokeh imports
 from bokeh.layouts import gridplot
-from bokeh.models import Range1d, LinearAxis
+from bokeh.models import LinearAxis, Range1d
+from bokeh.plotting import figure, save
+
 
 def fig(color, row, col):
     p = figure(width=150, height=150, min_border=5, toolbar_location=None)

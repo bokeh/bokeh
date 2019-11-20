@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
 from bokeh.layouts import Column
+from bokeh.plotting import figure, output_file, show
 
 # 1. Adding alpha for the image method
 

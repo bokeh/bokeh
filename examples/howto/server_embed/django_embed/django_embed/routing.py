@@ -1,5 +1,6 @@
-from channels.routing import ProtocolTypeRouter, URLRouter
+# External imports
 from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
 from django.apps import apps
 
 bokeh_app_config = apps.get_app_config('bokeh.server.django')

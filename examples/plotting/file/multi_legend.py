@@ -1,8 +1,11 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+# Bokeh imports
 from bokeh.models import Legend, LegendItem
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.stocks import AAPL, MSFT
+
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)

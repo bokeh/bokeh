@@ -1,8 +1,13 @@
+# Standard library imports
 from datetime import date, timedelta
+
+# External imports
 import numpy as np
+
+# Bokeh imports
 from bokeh.io import output_file, show
-from bokeh.layouts import row, column
-from bokeh.models import Range1d, LinearAxis
+from bokeh.layouts import column, row
+from bokeh.models import LinearAxis, Range1d
 from bokeh.plotting import figure
 from bokeh.sampledata.stocks import AAPL, GOOG
 

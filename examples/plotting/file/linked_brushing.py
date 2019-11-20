@@ -1,6 +1,7 @@
+# Bokeh imports
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.autompg import autompg
 from bokeh.transform import jitter
 

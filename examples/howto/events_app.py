@@ -4,13 +4,15 @@ from the bokeh gallery. This example extends the js_events.py example
 with corresponding Python event callbacks.
 """
 
+# External imports
 import numpy as np
 
-from bokeh.io import curdoc
-from bokeh.plotting import figure
+# Bokeh imports
 from bokeh import events
-from bokeh.models import CustomJS, Div, Button
+from bokeh.io import curdoc
 from bokeh.layouts import column, row
+from bokeh.models import Button, CustomJS, Div
+from bokeh.plotting import figure
 
 
 def display_event(div, attributes=[]):

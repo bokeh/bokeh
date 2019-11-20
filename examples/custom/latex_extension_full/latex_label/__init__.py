@@ -1,4 +1,6 @@
+# Bokeh imports
 from bokeh.models import Label
+
 
 class LatexLabel(Label):
     """A subclass of `Label` with all of the same class attributes except

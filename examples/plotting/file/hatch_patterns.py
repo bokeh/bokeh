@@ -1,6 +1,7 @@
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
+# Bokeh imports
 from bokeh.core.enums import HatchPattern
+from bokeh.io import output_file, show
+from bokeh.plotting import figure
 
 output_file("hatch_patterns.html")
 

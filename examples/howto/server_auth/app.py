@@ -14,10 +14,12 @@ at your command prompt. Then navigate to the URL
 in your browser.
 
 '''
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
+from bokeh.layouts import column, row
 from bokeh.models import Button, ColumnDataSource, CustomJS, Slider, TextInput
 from bokeh.plotting import figure
 

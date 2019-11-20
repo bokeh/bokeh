@@ -1,3 +1,4 @@
+# Bokeh imports
 from bokeh.io import save
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure

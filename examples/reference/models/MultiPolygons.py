@@ -1,3 +1,4 @@
+# Bokeh imports
 from bokeh.io import curdoc, show
 from bokeh.models import ColumnDataSource, Grid, LinearAxis, MultiPolygons, Plot
 

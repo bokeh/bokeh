@@ -1,8 +1,11 @@
+# Standard library imports
 from math import pi
 
+# External imports
 import pandas as pd
 
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.stocks import MSFT
 
 df = pd.DataFrame(MSFT)[:50]

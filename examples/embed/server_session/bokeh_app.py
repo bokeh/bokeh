@@ -1,5 +1,7 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.plotting import figure
 

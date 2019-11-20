@@ -1,5 +1,7 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.models import HoverTool
 from bokeh.plotting import figure

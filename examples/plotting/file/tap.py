@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
 from bokeh.models import TapTool
+from bokeh.plotting import figure, output_file, show
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()

@@ -1,5 +1,6 @@
-from bokeh.plotting import figure, output_file, show
+# Bokeh imports
 from bokeh.layouts import layout
+from bokeh.plotting import figure, output_file, show
 
 p1 = figure(match_aspect=True, title="Circle touches all 4 sides of square")
 p1.rect(0, 0, 300, 300, line_color='black')

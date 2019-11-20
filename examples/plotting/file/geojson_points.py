@@ -1,3 +1,4 @@
+# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.models import GeoJSONDataSource
 from bokeh.plotting import figure

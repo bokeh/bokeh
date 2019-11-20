@@ -1,8 +1,9 @@
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (BoxSelectTool, Circle, Column, ColumnDataSource, DataTable, Grid,
-                          HoverTool, IntEditor, LinearAxis, NumberEditor, NumberFormatter, Plot,
-                          SelectEditor, StringEditor, StringFormatter, TableColumn)
+                          HoverTool, IntEditor, LinearAxis, NumberEditor, NumberFormatter,
+                          Plot, SelectEditor, StringEditor, StringFormatter, TableColumn)
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.util.browser import view

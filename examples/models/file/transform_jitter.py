@@ -1,5 +1,7 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter, LabelSet
 from bokeh.plotting import figure, output_file, show
 

@@ -1,3 +1,4 @@
+# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
 from bokeh.sampledata.periodic_table import elements

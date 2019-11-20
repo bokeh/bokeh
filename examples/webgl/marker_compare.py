@@ -4,10 +4,11 @@ This covers all markers supported by scatter. The plots are put in tabs,
 so that you can easily switch to compare positioning and appearance.
 
 """
+# Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.layouts import row
-from bokeh.plotting import show, output_file, figure
 from bokeh.models import ColumnDataSource, Panel, Tabs
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers
 
 source = ColumnDataSource(flowers)

@@ -1,8 +1,8 @@
-from bokeh.plotting import figure
+# Bokeh imports
+from bokeh.io import curdoc
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
-from bokeh.io import curdoc
-
+from bokeh.plotting import figure
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 df = sea_surface_temperature.copy()

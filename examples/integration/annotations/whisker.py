@@ -1,5 +1,6 @@
+# Bokeh imports
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Whisker, OpenHead, ColumnDataSource
+from bokeh.models import ColumnDataSource, OpenHead, Plot, Range1d, Whisker
 
 x_range = Range1d(0, 10)
 y_range = Range1d(0, 10)

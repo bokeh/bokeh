@@ -3,17 +3,22 @@ try:
 except ImportError:
     raise RuntimeError("This example requries Python3 / asyncio")
 
-from flask import Flask, render_template
+# Standard library imports
+from threading import Thread
 
+# External imports
+from flask import Flask, render_template
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import BaseServer
 from bokeh.server.tornado import BokehTornado
 from bokeh.server.util import bind_sockets
@@ -28,7 +33,6 @@ if __name__ == '__main__':
     import sys
     sys.exit()
 
-from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 app = Flask(__name__)
 
@@ -77,5 +81,4 @@ def bk_worker():
     server.start()
     server.io_loop.start()
 
-from threading import Thread
 Thread(target=bk_worker).start()

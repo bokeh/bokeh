@@ -1,6 +1,8 @@
-from bokeh.plotting import figure
-from bokeh.layouts import row
+# Bokeh imports
 from bokeh.io import save
+from bokeh.layouts import row
+from bokeh.plotting import figure
+
 
 def make_figure(output_backend):
     p = figure(plot_width=400,

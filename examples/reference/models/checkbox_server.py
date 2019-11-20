@@ -1,5 +1,6 @@
 ## Bokeh server for checkbox group
 
+# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import CheckboxGroup, ColumnDataSource

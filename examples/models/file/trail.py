@@ -1,8 +1,11 @@
+# Standard library imports
 from math import atan2, cos, radians, sin, sqrt
 
+# External imports
 import numpy as np
 import scipy.ndimage as im
 
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Column, ColumnDataSource, GMapOptions, GMapPlot, Grid, Label, Line,

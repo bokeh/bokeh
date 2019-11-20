@@ -1,5 +1,6 @@
+# Bokeh imports
 from bokeh.io import save
-from bokeh.models import ColumnDataSource, Plot, Rect, Range1d, LogAxis
+from bokeh.models import ColumnDataSource, LogAxis, Plot, Range1d, Rect
 
 plot = Plot(plot_height=400, plot_width=400,
             x_range=Range1d(0, 30), y_range=Range1d(1, 100))

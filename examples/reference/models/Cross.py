@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.io import curdoc, show
-from bokeh.models import Cross, ColumnDataSource, Grid, LinearAxis, Plot
+from bokeh.models import ColumnDataSource, Cross, Grid, LinearAxis, Plot
 
 N = 9
 x = np.linspace(-2, 2, N)

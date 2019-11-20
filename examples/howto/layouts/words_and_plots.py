@@ -1,10 +1,10 @@
+# Bokeh imports
+from bokeh.io import output_file, show
+from bokeh.layouts import layout
+from bokeh.models import ColumnDataSource, Div, HoverTool, Paragraph
+from bokeh.plotting import figure
 from bokeh.sampledata.glucose import data
 from bokeh.sampledata.iris import flowers
-
-from bokeh.io import show, output_file
-from bokeh.layouts import layout
-from bokeh.models import ColumnDataSource, Paragraph, HoverTool, Div
-from bokeh.plotting import figure
 
 output_file("words_and_plots.html")
 

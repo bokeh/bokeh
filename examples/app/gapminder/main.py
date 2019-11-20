@@ -1,12 +1,13 @@
+# External imports
 import pandas as pd
 
+# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import layout
-from bokeh.models import (ColumnDataSource, HoverTool, SingleIntervalTicker,
-                          Slider, Button, Label, CategoricalColorMapper)
+from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
+                          HoverTool, Label, SingleIntervalTicker, Slider)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
-
 from data import process_data
 
 fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()

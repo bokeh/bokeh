@@ -1,15 +1,15 @@
+# External imports
 from jinja2 import Environment, FileSystemLoader
-
 from tornado.web import RequestHandler
 
+# Bokeh imports
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import Server
 from bokeh.themes import Theme
-
-from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 env = Environment(loader=FileSystemLoader('templates'))
 

@@ -3,12 +3,14 @@
 http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html
 
 '''
+# External imports
 import numpy as np
 from sklearn import cluster, datasets
 from sklearn.preprocessing import StandardScaler
 
-from bokeh.layouts import row, column
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
+from bokeh.layouts import column, row
+from bokeh.plotting import figure, output_file, show
 
 print("\n\n*** This example may take several seconds to run before displaying. ***\n\n")
 

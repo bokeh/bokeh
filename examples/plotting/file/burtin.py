@@ -1,11 +1,14 @@
+# Standard library imports
 from collections import OrderedDict
-
-from math import log, sqrt
 from io import StringIO
+from math import log, sqrt
+
+# External imports
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
+from bokeh.plotting import figure, output_file, show
 
 antibiotics = """
 bacteria,                        penicillin, streptomycin, neomycin, gram

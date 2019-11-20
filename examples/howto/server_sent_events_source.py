@@ -1,11 +1,15 @@
-import numpy as np
+# Standard library imports
 import json
 from datetime import datetime
 from time import sleep
-from flask import Flask, make_response, request, Response
 
-from bokeh.plotting import figure, show, output_file
-from bokeh.models import ServerSentDataSource, CustomJS
+# External imports
+import numpy as np
+from flask import Flask, Response, make_response, request
+
+# Bokeh imports
+from bokeh.models import CustomJS, ServerSentDataSource
+from bokeh.plotting import figure, output_file, show
 
 # Bokeh related code
 

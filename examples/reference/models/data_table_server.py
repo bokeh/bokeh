@@ -1,5 +1,6 @@
 ## Bokeh server for Data-Table
 
+# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, DataTable, TableColumn

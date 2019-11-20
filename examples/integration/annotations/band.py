@@ -1,5 +1,6 @@
+# Bokeh imports
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Band, ColumnDataSource
+from bokeh.models import Band, ColumnDataSource, Plot, Range1d
 
 x_range = Range1d(0, 10)
 y_range = Range1d(0, 10)

@@ -1,4 +1,7 @@
+# External imports
 from flask import Flask, render_template
+
+# Bokeh imports
 from bokeh.client import pull_session
 from bokeh.embed import server_session
 

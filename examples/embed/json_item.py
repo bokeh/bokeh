@@ -1,12 +1,15 @@
+# Standard library imports
 import json
 
+# External imports
+from flask import Flask
+from jinja2 import Template
+
+# Bokeh imports
 from bokeh.embed import json_item
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.sampledata.iris import flowers
-
-from flask import Flask
-from jinja2 import Template
 
 app = Flask(__name__)
 

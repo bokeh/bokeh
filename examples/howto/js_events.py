@@ -2,13 +2,15 @@
 of the color_scatter example from the bokeh gallery
 """
 
+# External imports
 import numpy as np
 
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
+# Bokeh imports
 from bokeh import events
-from bokeh.models import CustomJS, Div, Button
+from bokeh.io import output_file, show
 from bokeh.layouts import column, row
+from bokeh.models import Button, CustomJS, Div
+from bokeh.plotting import figure
 
 
 def display_event(div, attributes=[]):

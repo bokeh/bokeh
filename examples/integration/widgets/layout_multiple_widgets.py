@@ -1,20 +1,11 @@
+# Standard library imports
 from datetime import date
 
-from bokeh.plotting import save
+# Bokeh imports
 from bokeh.layouts import column
-
-from bokeh.models import (
-    Button, Toggle, Dropdown,
-    CheckboxButtonGroup, RadioButtonGroup,
-    #CheckboxGroup, RadioGroup,
-    TextInput, AutocompleteInput, DatePicker,
-    #Select, MultiSelect,
-    #Slider, RangeSlider, DateSlider, DateRangeSlider,
-    #Paragraph, Div, PreText,
-    #DataTable, TableColumn,
-    #StringFormatter, NumberFormatter,
-    #StringEditor, IntEditor, NumberEditor, SelectEditor,
-)
+from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
+                          DatePicker, Dropdown, RadioButtonGroup, TextInput, Toggle)
+from bokeh.plotting import save
 
 menu = [("Item 1", "1"), ("Item 2", "2"), ("Item 3", "3")]
 

@@ -1,15 +1,18 @@
 """ The LaTeX example was derived from: http://matplotlib.org/users/usetex.html. """
 
-from bokeh.palettes import Spectral4
-from bokeh.plotting import output_file, figure, show
-
-from bokeh.ext import build
-build("latex_label")
-
-from latex_label import LatexLabel
-
+# External imports
 import numpy as np
 from scipy.special import jv
+
+# Bokeh imports
+from bokeh.ext import build
+from bokeh.palettes import Spectral4
+from bokeh.plotting import figure, output_file, show
+from latex_label import LatexLabel
+
+build("latex_label")
+
+
 
 output_file('latex_extension.html')
 

@@ -1,8 +1,10 @@
+# External imports
 import numpy as np
 
-from bokeh.layouts import row, column
+# Bokeh imports
+from bokeh.layouts import column, row
 from bokeh.models import CustomJS, Slider
-from bokeh.plotting import figure, output_file, show, ColumnDataSource
+from bokeh.plotting import ColumnDataSource, figure, output_file, show
 
 x = np.linspace(0, 10, 500)
 y = np.sin(x)

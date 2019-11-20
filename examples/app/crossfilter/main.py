@@ -1,6 +1,8 @@
+# External imports
 import pandas as pd
 
-from bokeh.layouts import row, column
+# Bokeh imports
+from bokeh.layouts import column, row
 from bokeh.models import Select
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure

@@ -1,5 +1,6 @@
+# Bokeh imports
 from bokeh.models import ColumnDataSource, NumeralTickFormatter, SingleIntervalTicker
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.us_marriages_divorces import data
 
 output_file('us_marriages_divorces_hover.html',

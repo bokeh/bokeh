@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 from scipy.integrate import odeint
 
-from bokeh.plotting import figure, show, output_file
+# Bokeh imports
+from bokeh.plotting import figure, output_file, show
 
 sigma = 10
 rho = 28

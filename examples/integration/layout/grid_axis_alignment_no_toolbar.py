@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, save
+# Bokeh imports
 from bokeh.layouts import gridplot
+from bokeh.plotting import figure, save
 
 coeffs = [10**0, 10**3, 10**6, 10**9]
 V = np.arange(10, dtype="int64")

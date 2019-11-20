@@ -1,6 +1,7 @@
-from bokeh.io import save
+# Bokeh imports
 from bokeh.core.properties import field
-from bokeh.models import ColumnDataSource, Plot, Circle, Legend, LegendItem, Range1d
+from bokeh.io import save
+from bokeh.models import Circle, ColumnDataSource, Legend, LegendItem, Plot, Range1d
 
 plot = Plot(
     width=600, height=600,

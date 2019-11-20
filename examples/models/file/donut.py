@@ -1,6 +1,8 @@
+# Standard library imports
 import base64
 from math import cos, pi, sin
 
+# Bokeh imports
 from bokeh.colors.named import firebrick, lightgray, orchid, seagreen, skyblue, tomato
 from bokeh.document import Document
 from bokeh.embed import file_html

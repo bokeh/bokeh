@@ -1,6 +1,7 @@
-from bokeh.plotting import figure
-from bokeh.layouts import gridplot
+# Bokeh imports
 from bokeh.io import show
+from bokeh.layouts import gridplot
+from bokeh.plotting import figure
 
 x_range = ['a', 'b', 'c', 'd']
 y_values = [1., 2., 3., 4.]

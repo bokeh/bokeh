@@ -1,4 +1,5 @@
-from bokeh.io import show, output_file
+# Bokeh imports
+from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FactorRange
 from bokeh.plotting import figure
 

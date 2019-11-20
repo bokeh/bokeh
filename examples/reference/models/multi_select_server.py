@@ -1,6 +1,8 @@
 ## Bokeh server for MultiSelect
+# External imports
 import pandas as pd
 
+# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, MultiSelect

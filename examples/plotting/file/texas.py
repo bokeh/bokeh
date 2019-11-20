@@ -1,10 +1,10 @@
+# Bokeh imports
 from bokeh.io import show
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure
-
-from bokeh.sampledata.us_counties import data as counties
 from bokeh.sampledata.unemployment import data as unemployment
+from bokeh.sampledata.us_counties import data as counties
 
 palette = tuple(reversed(palette))
 

@@ -12,11 +12,13 @@ in your browser.
 
 '''
 
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.models import BoxSelectTool, LassoSelectTool
-from bokeh.plotting import figure, curdoc
+from bokeh.plotting import curdoc, figure
 
 # create three normal population samples with different parameters
 x1 = np.random.normal(loc=5.0, size=400) * 100

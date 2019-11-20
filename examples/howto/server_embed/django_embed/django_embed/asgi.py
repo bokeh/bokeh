@@ -7,8 +7,10 @@ For more information on this file, see
 https://channels.readthedocs.io/en/latest/deploying.html
 """
 
+# Standard library imports
 import os
 
+# External imports
 import django
 from channels.routing import get_default_application
 

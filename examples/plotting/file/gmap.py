@@ -1,7 +1,7 @@
+# Bokeh imports
 from bokeh.io import output_file, show
-from bokeh.models import GMapOptions
+from bokeh.models import GMapOptions, Label
 from bokeh.plotting import gmap
-from bokeh.models import Label
 
 output_file("gmap.html")
 

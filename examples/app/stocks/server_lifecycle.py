@@ -1,5 +1,6 @@
-from os.path import dirname, exists, join
+# Standard library imports
 import sys
+from os.path import dirname, exists, join
 
 DATA_DIR = join(dirname(__file__), 'daily')
 

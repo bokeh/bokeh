@@ -1,7 +1,9 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, save
+# Bokeh imports
 from bokeh.layouts import gridplot
+from bokeh.plotting import figure, save
 
 items = []
 

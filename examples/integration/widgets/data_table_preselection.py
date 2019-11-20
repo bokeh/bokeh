@@ -1,3 +1,4 @@
+# Bokeh imports
 from bokeh.io import save
 from bokeh.models import ColumnDataSource, DataTable, TableColumn
 

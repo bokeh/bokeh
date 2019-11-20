@@ -1,7 +1,10 @@
+# Standard library imports
 from math import pi
 
+# External imports
 import pandas as pd
 
+# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.palettes import Category20c
 from bokeh.plotting import figure

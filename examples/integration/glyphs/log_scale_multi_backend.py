@@ -1,8 +1,11 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure
-from bokeh.layouts import row
+# Bokeh imports
 from bokeh.io import save
+from bokeh.layouts import row
+from bokeh.plotting import figure
+
 
 def make_figure(output_backend):
     x = np.linspace(0.1, 5, 100)

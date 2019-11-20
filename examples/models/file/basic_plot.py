@@ -1,5 +1,7 @@
+# External imports
 from numpy import arange, pi, sin
 
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import Circle, ColumnDataSource, LinearAxis, PanTool, Plot, WheelZoomTool

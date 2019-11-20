@@ -1,6 +1,8 @@
+# External imports
 import numpy as np
 
-from bokeh.plotting import figure, gridplot, show, output_file
+# Bokeh imports
+from bokeh.plotting import figure, gridplot, output_file, show
 
 N = 100
 x = np.linspace(0, 4*np.pi, N)

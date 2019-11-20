@@ -1,8 +1,13 @@
-import numpy as np
-from typing import Tuple, List, Any
+# Standard library imports
+from typing import Any, List, Tuple
 
+# External imports
+import numpy as np
+
+# Bokeh imports
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
+
 
 def streamlines(x: np.ndarray, y, u, v, density: float = 1) -> Tuple[List[Any], List[Any]]:
     ''' Return streamlines of a vector flow.

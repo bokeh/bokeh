@@ -1,5 +1,6 @@
+# Bokeh imports
+from bokeh.core.properties import Float, Instance
 from bokeh.models import BoxSelectTool, Renderer
-from bokeh.core.properties import Instance, Float
 
 
 class ParallelSelectionTool(BoxSelectTool):

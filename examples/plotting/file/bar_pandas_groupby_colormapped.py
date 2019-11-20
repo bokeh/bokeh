@@ -1,4 +1,5 @@
-from bokeh.io import show, output_file
+# Bokeh imports
+from bokeh.io import output_file, show
 from bokeh.palettes import Spectral5
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg as df

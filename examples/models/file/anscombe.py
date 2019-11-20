@@ -1,6 +1,8 @@
+# External imports
 import numpy as np
 import pandas as pd
 
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import column, gridplot

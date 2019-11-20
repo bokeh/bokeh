@@ -1,12 +1,9 @@
 # Based on http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
 
-from bokeh.plotting import figure, show, output_file
-from bokeh.models import (
-    ColumnDataSource,
-    Range1d, DataRange1d,
-    LinearAxis, SingleIntervalTicker, FixedTicker,
-    Label, Arrow, NormalHead,
-    HoverTool, TapTool, CustomJS)
+# Bokeh imports
+from bokeh.models import (Arrow, ColumnDataSource, CustomJS, DataRange1d, FixedTicker, HoverTool,
+                          Label, LinearAxis, NormalHead, Range1d, SingleIntervalTicker, TapTool)
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.sprint import sprint
 
 abbrev_to_country = {

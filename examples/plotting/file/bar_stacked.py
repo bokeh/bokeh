@@ -1,4 +1,5 @@
-from bokeh.io import show, output_file
+# Bokeh imports
+from bokeh.io import output_file, show
 from bokeh.plotting import figure
 
 output_file("bar_stacked.html")

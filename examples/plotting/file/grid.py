@@ -1,5 +1,7 @@
+# External imports
 import numpy as np
 
+# Bokeh imports
 from bokeh.plotting import figure, gridplot, output_file, show
 
 N = 50

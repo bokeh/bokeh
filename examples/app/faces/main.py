@@ -1,7 +1,10 @@
+# Standard library imports
 from datetime import datetime as dt
 
+# External imports
 import cv2
 
+# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure

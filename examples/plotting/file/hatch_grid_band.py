@@ -1,4 +1,7 @@
+# External imports
 import numpy as np
+
+# Bokeh imports
 from bokeh.io import show
 from bokeh.plotting import figure
 
