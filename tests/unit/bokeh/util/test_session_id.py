@@ -34,7 +34,7 @@ from bokeh.util.session_id import ( generate_session_id,
                                     _base64_encode )
 
 # Module under test
-import bokeh.util.session_id
+import bokeh.util.session_id # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

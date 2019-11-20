@@ -24,7 +24,7 @@ from bokeh.core.properties import Int, Override, String
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.include as bcpi
+import bokeh.core.property.include as bcpi # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

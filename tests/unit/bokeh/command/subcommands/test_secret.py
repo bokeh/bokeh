@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.command.bootstrap import main
 
 # Module under test
-import bokeh.command.subcommands.secret as scsecret
+import bokeh.command.subcommands.secret as scsecret # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

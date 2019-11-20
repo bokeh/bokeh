@@ -23,7 +23,7 @@ from bokeh.core.properties import Int, String, List
 from bokeh.models import CustomJS
 
 # Module under test
-from bokeh.model import Model
+from bokeh.model import Model # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

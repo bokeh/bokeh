@@ -27,7 +27,7 @@ from bokeh.io.state import curstate, State
 from bokeh.models import GlyphRenderer, Plot
 
 # Module under test
-import bokeh.io.showing as bis
+import bokeh.io.showing as bis # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

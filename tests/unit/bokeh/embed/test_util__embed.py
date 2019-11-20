@@ -31,7 +31,7 @@ from bokeh.themes import Theme
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.embed.util as beu
+import bokeh.embed.util as beu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

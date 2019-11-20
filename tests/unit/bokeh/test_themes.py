@@ -27,7 +27,7 @@ from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.core.properties import Int, String
 
 # Module under test
-from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL
+from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

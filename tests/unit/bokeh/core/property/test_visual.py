@@ -30,7 +30,7 @@ from bokeh.core.has_props import HasProps
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.visual as bcpv
+import bokeh.core.property.visual as bcpv # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.colors as bc
+import bokeh.colors as bc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

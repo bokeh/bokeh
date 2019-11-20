@@ -25,7 +25,7 @@ from bokeh.document import Document
 from bokeh._testing.util.filesystem import with_directory_contents
 
 # Module under test
-import bokeh.application.handlers.directory as bahd
+import bokeh.application.handlers.directory as bahd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

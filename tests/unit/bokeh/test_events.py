@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.models import Plot, Button, Div
 
 # Module under test
-from bokeh import events
+from bokeh import events # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -25,7 +25,7 @@ from mock import patch
 # Bokeh imports
 
 # Module under test
-import bokeh.util.compiler as buc
+import bokeh.util.compiler as buc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

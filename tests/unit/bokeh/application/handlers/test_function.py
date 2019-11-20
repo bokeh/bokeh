@@ -24,7 +24,7 @@ from bokeh.document import Document
 from bokeh.model import Model
 
 # Module under test
-import bokeh.application.handlers.function as bahf
+import bokeh.application.handlers.function as bahf # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

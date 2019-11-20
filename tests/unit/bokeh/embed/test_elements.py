@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.embed.util import RenderItem
 
 # Module under test
-import bokeh.embed.elements as bee
+import bokeh.embed.elements as bee # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

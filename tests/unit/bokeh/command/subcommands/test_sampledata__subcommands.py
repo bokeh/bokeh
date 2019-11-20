@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.command.bootstrap import main
 
 # Module under test
-import bokeh.command.subcommands.sampledata as scsample
+import bokeh.command.subcommands.sampledata as scsample # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

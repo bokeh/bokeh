@@ -26,7 +26,7 @@ from bokeh.command.bootstrap import main
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 
 # Module under test
-import bokeh.command.subcommands.html as schtml
+import bokeh.command.subcommands.html as schtml # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

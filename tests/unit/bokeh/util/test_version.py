@@ -23,7 +23,7 @@ import mock
 from bokeh._version import get_versions
 
 # Module under test
-import bokeh.util.version as buv
+import bokeh.util.version as buv # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

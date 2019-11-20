@@ -22,7 +22,7 @@ import socket
 # Bokeh imports
 
 # Module under test
-import bokeh.server.util as util
+import bokeh.server.util as util # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

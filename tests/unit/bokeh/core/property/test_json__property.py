@@ -23,7 +23,7 @@ from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.json as bcpj
+import bokeh.core.property.json as bcpj # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

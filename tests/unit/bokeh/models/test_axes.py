@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.models import FixedTicker
 
 # Module under test
-import bokeh.models.axes as bma
+import bokeh.models.axes as bma # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

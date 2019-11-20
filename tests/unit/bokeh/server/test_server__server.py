@@ -39,7 +39,7 @@ from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
 
 # Module under test
-import bokeh.server.server as server
+import bokeh.server.server as server # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

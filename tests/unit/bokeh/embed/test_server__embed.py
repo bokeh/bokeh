@@ -22,7 +22,7 @@ import bs4
 # Bokeh imports
 
 # Module under test
-import bokeh.embed.server as bes
+import bokeh.embed.server as bes # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

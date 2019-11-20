@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.document import Document
 
 # Module under test
-import bokeh.application.handlers.document_lifecycle as bahd
+import bokeh.application.handlers.document_lifecycle as bahd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

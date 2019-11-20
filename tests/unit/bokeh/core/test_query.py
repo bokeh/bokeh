@@ -26,7 +26,7 @@ from bokeh.models import (
 )
 
 # Module under test
-import bokeh.core.query as q
+import bokeh.core.query as q # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

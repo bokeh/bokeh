@@ -24,7 +24,7 @@ from bokeh.palettes import __palettes__
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.enums as bce
+import bokeh.core.enums as bce # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

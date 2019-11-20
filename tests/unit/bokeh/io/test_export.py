@@ -29,7 +29,7 @@ from bokeh.plotting import figure
 from bokeh.resources import Resources
 
 # Module under test
-import bokeh.io.export as bie
+import bokeh.io.export as bie # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

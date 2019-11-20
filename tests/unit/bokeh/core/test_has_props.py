@@ -24,7 +24,7 @@ from bokeh.core.properties import Int, String, NumberSpec, List, Override, Eithe
 from bokeh.core.property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor
 
 # Module under test
-import bokeh.core.has_props as hp
+import bokeh.core.has_props as hp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

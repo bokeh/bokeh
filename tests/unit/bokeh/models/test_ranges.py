@@ -25,7 +25,7 @@ import mock
 from bokeh.core.validation import check_integrity
 
 # Module under test
-from bokeh.models import Range1d, DataRange1d, FactorRange
+from bokeh.models import Range1d, DataRange1d, FactorRange # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

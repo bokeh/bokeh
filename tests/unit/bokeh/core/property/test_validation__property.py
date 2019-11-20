@@ -29,7 +29,7 @@ from bokeh.core.properties import (
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.validation as bcpv
+import bokeh.core.property.validation as bcpv # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

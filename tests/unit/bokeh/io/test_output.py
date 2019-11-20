@@ -24,7 +24,7 @@ from bokeh.io.state import curstate
 from bokeh.resources import Resources
 
 # Module under test
-import bokeh.io.output as bio
+import bokeh.io.output as bio # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

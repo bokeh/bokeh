@@ -30,7 +30,7 @@ from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
 
 # Module under test
-import bokeh.embed.standalone as bes
+import bokeh.embed.standalone as bes # isort:skip
 from bokeh.embed.util import RenderRoot
 
 #-----------------------------------------------------------------------------

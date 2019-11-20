@@ -24,7 +24,7 @@ from bokeh.colors import RGB
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.color as bcpc
+import bokeh.core.property.color as bcpc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

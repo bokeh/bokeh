@@ -23,7 +23,7 @@ from mock import patch
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.__main__ as bm
+import bokeh.__main__ as bm # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

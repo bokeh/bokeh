@@ -23,7 +23,7 @@ from functools import partial
 from bokeh.document import Document
 
 # Module under test
-import bokeh.util.callback_manager as cbm
+import bokeh.util.callback_manager as cbm # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

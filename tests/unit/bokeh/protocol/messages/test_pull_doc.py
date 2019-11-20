@@ -24,7 +24,7 @@ from bokeh.model import Model
 from bokeh.core.properties import Int, Instance
 
 # Module under test
-from bokeh.protocol import Protocol
+from bokeh.protocol import Protocol # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

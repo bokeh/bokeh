@@ -24,7 +24,7 @@ from bokeh.model import Model
 from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
 
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

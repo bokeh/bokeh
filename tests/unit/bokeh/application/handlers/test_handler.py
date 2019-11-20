@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-import bokeh.application.handlers.handler as bahh
+import bokeh.application.handlers.handler as bahh # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

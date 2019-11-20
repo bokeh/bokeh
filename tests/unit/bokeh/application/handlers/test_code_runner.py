@@ -25,7 +25,7 @@ from types import ModuleType
 # Bokeh imports
 
 # Module under test
-import bokeh.application.handlers.code_runner as bahc
+import bokeh.application.handlers.code_runner as bahc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

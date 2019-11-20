@@ -25,7 +25,7 @@ from bokeh.core.has_props import HasProps
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.bases as bcpb
+import bokeh.core.property.bases as bcpb # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

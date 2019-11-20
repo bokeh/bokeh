@@ -22,7 +22,7 @@ from mock import patch
 # Bokeh imports
 
 # Module under test
-import bokeh.client.session as bcs
+import bokeh.client.session as bcs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

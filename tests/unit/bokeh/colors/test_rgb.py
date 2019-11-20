@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.colors import HSL
 
 # Module under test
-import bokeh.colors.rgb as bcr
+import bokeh.colors.rgb as bcr # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-#import bokeh.sampledata.us_marriages_divorces as bsu
+#import bokeh.sampledata.us_marriages_divorces as bsu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

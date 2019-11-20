@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.embed as be
+import bokeh.embed as be # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

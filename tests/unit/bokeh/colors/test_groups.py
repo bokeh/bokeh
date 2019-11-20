@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-import bokeh.colors.groups as bcg
+import bokeh.colors.groups as bcg # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

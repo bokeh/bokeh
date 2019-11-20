@@ -25,7 +25,7 @@ from bokeh.core.properties import value
 from bokeh.models import BoxZoomTool, Circle, ColumnDataSource, LassoSelectTool, Legend, LinearAxis, LogScale, PanTool, ResetTool, Scatter, Title
 
 # Module under test
-# different import pattern due to figure function shadowing figure.py module
+# different import pattern due to figure function shadowing figure.py module # isort:skip
 from bokeh.plotting import _figure as bpf
 
 #-----------------------------------------------------------------------------

@@ -24,7 +24,7 @@ from numpy.testing import assert_allclose
 # Bokeh imports
 
 # Module under test
-import bokeh.plotting.graph as bpg
+import bokeh.plotting.graph as bpg # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

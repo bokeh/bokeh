@@ -25,7 +25,7 @@ from bokeh.core.properties import Float, Int
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.instance as bcpi
+import bokeh.core.property.instance as bcpi # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

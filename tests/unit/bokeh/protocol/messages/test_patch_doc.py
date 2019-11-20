@@ -29,7 +29,7 @@ from bokeh.models import ColumnDataSource
 from bokeh.protocol import Protocol
 
 # Module under test
-from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.protocol.messages.patch_doc import process_document_events # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

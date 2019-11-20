@@ -23,7 +23,7 @@ from bokeh.document import Document
 from bokeh._testing.util.filesystem import with_file_contents
 
 # Module under test
-import bokeh.application.handlers.script as bahs
+import bokeh.application.handlers.script as bahs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

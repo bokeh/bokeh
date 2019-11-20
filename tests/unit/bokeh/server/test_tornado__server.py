@@ -28,7 +28,7 @@ from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
 
 # Module under test
-import bokeh.server.tornado as tornado
+import bokeh.server.tornado as tornado # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

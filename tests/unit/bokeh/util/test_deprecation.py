@@ -22,7 +22,7 @@ from mock import patch
 # Bokeh imports
 
 # Module under test
-import bokeh.util.deprecation as dep
+import bokeh.util.deprecation as dep # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

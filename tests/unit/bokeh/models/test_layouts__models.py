@@ -23,7 +23,7 @@ from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import Figure
 
 # Module under test
-from bokeh.models.layouts import Row, Column, LayoutDOM, WidgetBox
+from bokeh.models.layouts import Row, Column, LayoutDOM, WidgetBox # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

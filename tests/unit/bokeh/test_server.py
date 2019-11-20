@@ -24,7 +24,7 @@ from tornado.ioloop import IOLoop
 from bokeh.application import Application
 
 # Module under test
-from bokeh.server.server import Server
+from bokeh.server.server import Server # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

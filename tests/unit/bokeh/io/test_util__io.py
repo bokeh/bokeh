@@ -23,7 +23,7 @@ from mock import Mock, patch, PropertyMock
 # Bokeh imports
 
 # Module under test
-import bokeh.io.util as biu
+import bokeh.io.util as biu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

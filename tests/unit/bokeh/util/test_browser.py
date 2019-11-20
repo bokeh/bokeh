@@ -26,7 +26,7 @@ from mock import patch
 # Bokeh imports
 
 # Module under test
-import bokeh.util.browser as bub
+import bokeh.util.browser as bub # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -33,7 +33,7 @@ from bokeh.protocol.messages.patch_doc import process_document_events
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.document.document as document
+import bokeh.document.document as document # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

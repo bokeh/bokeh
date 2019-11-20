@@ -23,7 +23,7 @@ from bokeh.document import Document
 from bokeh.io.state import curstate
 
 # Module under test
-import bokeh.io.doc as bid
+import bokeh.io.doc as bid # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -30,7 +30,7 @@ from bokeh.core.properties import Int, String
 from bokeh.models import Range1d
 
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

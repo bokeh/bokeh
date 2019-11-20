@@ -26,7 +26,7 @@ from bokeh.util.logconfig import basicConfig
 from bokeh.core.validation.check import check_integrity
 
 # Module under test
-import bokeh.models.widgets.sliders as mws
+import bokeh.models.widgets.sliders as mws # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

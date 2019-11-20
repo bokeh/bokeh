@@ -32,7 +32,7 @@ from bokeh.core.enums import (
     NamedColor as Color)
 
 # Module under test
-from bokeh.models.glyphs import (
+from bokeh.models.glyphs import ( # isort:skip
     AnnularWedge, Annulus, Arc,
     Bezier,
     Circle,

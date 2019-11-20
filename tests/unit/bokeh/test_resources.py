@@ -24,7 +24,7 @@ from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
 
 # Module under test
-import bokeh.resources as resources
+import bokeh.resources as resources # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

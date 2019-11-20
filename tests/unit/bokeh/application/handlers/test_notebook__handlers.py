@@ -26,7 +26,7 @@ from bokeh.document import Document
 from bokeh._testing.util.filesystem import with_temporary_file
 
 # Module under test
-import bokeh.application.handlers.notebook as bahn
+import bokeh.application.handlers.notebook as bahn # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

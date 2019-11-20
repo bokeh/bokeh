@@ -36,7 +36,7 @@ from bokeh.model import Model
 from bokeh.models import Plot
 
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

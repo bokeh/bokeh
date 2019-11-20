@@ -23,7 +23,7 @@ from bokeh.protocol import Protocol
 from bokeh.protocol.exceptions import ValidationError
 
 # Module under test
-from bokeh.protocol import receiver
+from bokeh.protocol import receiver # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

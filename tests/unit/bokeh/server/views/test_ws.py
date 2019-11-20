@@ -24,7 +24,7 @@ from tornado.websocket import WebSocketClosedError
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-from bokeh.server.views.ws import WSHandler
+from bokeh.server.views.ws import WSHandler # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

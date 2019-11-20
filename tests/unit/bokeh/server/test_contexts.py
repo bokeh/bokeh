@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.application import Application
 
 # Module under test
-import bokeh.server.contexts as bsc
+import bokeh.server.contexts as bsc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

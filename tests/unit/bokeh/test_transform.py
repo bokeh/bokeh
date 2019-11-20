@@ -26,7 +26,7 @@ from bokeh.models import (
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.transform as bt
+import bokeh.transform as bt # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

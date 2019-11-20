@@ -23,7 +23,7 @@ from bokeh.model import Model
 from bokeh.core.properties import Int, Instance, String, DistanceSpec
 
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

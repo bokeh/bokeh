@@ -28,7 +28,7 @@ from bokeh.layouts import row
 from bokeh.plotting import figure
 
 # Module under test
-import bokeh.command.util as util
+import bokeh.command.util as util # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

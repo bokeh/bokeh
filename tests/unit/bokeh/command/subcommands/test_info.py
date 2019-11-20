@@ -23,7 +23,7 @@ from os.path import join
 from bokeh.command.bootstrap import main
 
 # Module under test
-import bokeh.command.subcommands.info as scinfo
+import bokeh.command.subcommands.info as scinfo # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

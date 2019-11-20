@@ -24,7 +24,7 @@ from bokeh.model import Model
 from bokeh.core.properties import Int
 
 # Module under test
-import bokeh.core.validation as v
+import bokeh.core.validation as v # isort:skip
 
 from bokeh.core.validation.errors import codes as ec
 from bokeh.core.validation.warnings import codes as wc

@@ -25,7 +25,7 @@ from bokeh.core.properties import Int, List
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.descriptors as bcpd
+import bokeh.core.property.descriptors as bcpd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

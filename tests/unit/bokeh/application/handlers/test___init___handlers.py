@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.application.handlers as bah
+import bokeh.application.handlers as bah # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

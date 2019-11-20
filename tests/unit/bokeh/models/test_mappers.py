@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.palettes import Spectral6
 
 # Module under test
-import bokeh.models.mappers as bmm
+import bokeh.models.mappers as bmm # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

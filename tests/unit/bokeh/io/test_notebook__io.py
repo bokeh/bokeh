@@ -25,7 +25,7 @@ from bokeh.document.document import Document
 from bokeh.io.state import State
 
 # Module under test
-import bokeh.io.notebook as binb
+import bokeh.io.notebook as binb # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

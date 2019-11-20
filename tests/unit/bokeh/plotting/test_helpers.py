@@ -30,7 +30,7 @@ from bokeh.models import (ColumnDataSource, CDSView, GlyphRenderer, Legend,
 from bokeh.plotting import Figure
 
 # Module under test
-import bokeh.plotting.helpers as bph
+import bokeh.plotting.helpers as bph # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

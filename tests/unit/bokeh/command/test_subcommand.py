@@ -22,7 +22,7 @@ from mock import MagicMock
 # Bokeh imports
 
 # Module under test
-import bokeh.command.subcommand as sc
+import bokeh.command.subcommand as sc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -29,7 +29,7 @@ from bokeh.models import (PanTool, GlyphRenderer, Label, Plot, LinearAxis,
                           FactorRange, DataRange1d, Range1d)
 
 # Module under test
-import bokeh.models.plots as bmp
+import bokeh.models.plots as bmp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -24,7 +24,7 @@ import pytest ; pytest
 #from bokeh.embed.util import RenderItem
 
 # Module under test
-#import bokeh.embed.notebook as ben
+#import bokeh.embed.notebook as ben # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

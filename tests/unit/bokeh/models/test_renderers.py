@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.models import Circle, MultiLine, ColumnDataSource
 
 # Module under test
-from bokeh.models.renderers import GlyphRenderer, GraphRenderer
+from bokeh.models.renderers import GlyphRenderer, GraphRenderer # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

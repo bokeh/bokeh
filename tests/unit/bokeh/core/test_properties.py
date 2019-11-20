@@ -26,7 +26,7 @@ from bokeh.models import Plot
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.properties as bcp
+import bokeh.core.properties as bcp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

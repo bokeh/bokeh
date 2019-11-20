@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-import bokeh.command as command
+import bokeh.command as command # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

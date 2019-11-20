@@ -23,7 +23,7 @@ from tornado.ioloop import IOLoop
 from bokeh.client.states import NOT_YET_CONNECTED
 
 # Module under test
-import bokeh.client.connection as bcc
+import bokeh.client.connection as bcc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

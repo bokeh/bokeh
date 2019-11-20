@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-import bokeh.embed.wrappers as bew
+import bokeh.embed.wrappers as bew # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

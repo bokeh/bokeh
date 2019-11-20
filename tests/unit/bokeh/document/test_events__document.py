@@ -23,7 +23,7 @@ import pytest ; pytest
 from mock import patch
 
 # Module under test
-import bokeh.document.events as bde
+import bokeh.document.events as bde # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

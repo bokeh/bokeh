@@ -23,7 +23,7 @@ import mock
 from bokeh.document import Document
 
 # Module under test
-import bokeh.server.session as bss
+import bokeh.server.session as bss # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

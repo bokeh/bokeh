@@ -25,7 +25,7 @@ from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.datetime as bcpd
+import bokeh.core.property.datetime as bcpd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property as bcp
+import bokeh.core.property as bcp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

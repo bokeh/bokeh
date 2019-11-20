@@ -24,7 +24,7 @@ from os.path import abspath, join, split
 # Bokeh imports
 
 # Module under test
-import bokeh.core.templates as bct
+import bokeh.core.templates as bct # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

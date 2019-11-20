@@ -27,7 +27,7 @@ from bokeh.models import ColumnDataSource
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.wrappers as bcpw
+import bokeh.core.property.wrappers as bcpw # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

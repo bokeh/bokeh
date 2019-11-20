@@ -24,7 +24,7 @@ import os
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.settings as bs
+import bokeh.settings as bs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

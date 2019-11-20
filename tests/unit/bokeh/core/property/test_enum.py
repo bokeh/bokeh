@@ -24,7 +24,7 @@ from bokeh.core.enums import LineJoin, NamedColor
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.enum as bcpe
+import bokeh.core.property.enum as bcpe # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

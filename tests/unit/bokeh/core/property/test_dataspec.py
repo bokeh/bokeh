@@ -26,7 +26,7 @@ from bokeh.core.has_props import HasProps
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.dataspec as bcpd
+import bokeh.core.property.dataspec as bcpd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

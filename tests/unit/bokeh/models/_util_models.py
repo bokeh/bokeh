@@ -23,7 +23,7 @@ from itertools import chain
 from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap
 
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

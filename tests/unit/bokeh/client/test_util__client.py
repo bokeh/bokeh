@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-import bokeh.client.util as bcu
+import bokeh.client.util as bcu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

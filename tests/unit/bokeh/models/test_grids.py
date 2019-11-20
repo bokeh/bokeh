@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.models import FixedTicker, LinearAxis
 
 # Module under test
-import bokeh.models.grids as bmg
+import bokeh.models.grids as bmg # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

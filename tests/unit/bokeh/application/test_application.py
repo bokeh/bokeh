@@ -29,7 +29,7 @@ from bokeh.plotting import figure
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.application.application as baa
+import bokeh.application.application as baa # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -27,7 +27,7 @@ from bokeh.models import Selection
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
 
 # Module under test
-import bokeh.models.sources as bms
+import bokeh.models.sources as bms # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

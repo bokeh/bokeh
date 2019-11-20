@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-from bokeh import models
+from bokeh import models # isort:skip
 from bokeh.model import Model
 
 #-----------------------------------------------------------------------------

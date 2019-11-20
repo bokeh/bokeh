@@ -22,7 +22,7 @@ import os
 # Bokeh imports
 
 # Module under test
-import bokeh.ext as ext
+import bokeh.ext as ext # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -32,6 +32,7 @@ import bokeh.ext as ext
 # General API
 #-----------------------------------------------------------------------------
 
+@pytest.mark.skip
 def test_ext_commands(tmpdir):
     tmp = str(tmpdir.mkdir("bk_ext_01"))
 

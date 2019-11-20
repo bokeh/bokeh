@@ -23,7 +23,7 @@ from mock import patch
 from bokeh.document import Document
 
 # Module under test
-import bokeh.io.state as bis
+import bokeh.io.state as bis # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

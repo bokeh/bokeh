@@ -21,7 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 
 # Module under test
-import bokeh.protocol.message as message
+import bokeh.protocol.message as message # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

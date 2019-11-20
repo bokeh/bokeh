@@ -22,7 +22,7 @@ import pytest ; pytest
 from bokeh.document import Document
 
 # Module under test
-import bokeh.embed.bundle as beb
+import bokeh.embed.bundle as beb # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
