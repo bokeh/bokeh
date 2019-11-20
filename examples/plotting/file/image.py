@@ -12,8 +12,9 @@ p = figure(tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")])
 p.x_range.range_padding = p.y_range.range_padding = 0
 
 # must give a vector of image data for image parameter
-p.image(image=[d], x=0, y=0, dw=10, dh=10, palette="Spectral11")
+p.image(image=[d], x=0, y=0, dw=10, dh=10, palette="Spectral11", level="image")
+p.grid.grid_line_width = 0.5
 
 output_file("image.html", title="image.py example")
 
-show(p)  # open a browser
+show(p)

@@ -897,6 +897,37 @@ spacing, etc. of the legend components:
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_dimensions.py
     :source-position: above
 
+.. _userguide_styling_render_level:
+
+Render Level
+------------
+
+Bokeh has a notion of render level to specify the order in which things are
+drawn:
+
+:image:
+    "lowest" render level, drawn before anything else
+:underlay:
+    default render level for grids
+:glyph:
+    default render level for all glyphs (i.e. above grids)
+:annotation:
+    default render level for annotation renderers
+:overlay:
+    "highest" render level, for tool overlays
+
+Within a given level, renderers are drawn in the order that they were added.
+It is sometimes useful to specify a render level explicitly. This can be done
+by setting the ``level`` parameter on the renderer. For example, to cause an
+image to show up *under* the grid lines, you can call:
+
+.. code-block:: python
+
+    p.image(..., level="image")
+
+You can see a complete example with output in the section
+:ref:`userguide_plotting_images_colormapped`.
+
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
