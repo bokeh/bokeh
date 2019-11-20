@@ -13,7 +13,7 @@
     "noErrorTruncation": true,
     "noEmitOnError": false,
     "declaration": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "commonjs",
