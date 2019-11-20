@@ -25,8 +25,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from copy import copy
 import types
+from copy import copy
 
 # External imports
 import numpy as np

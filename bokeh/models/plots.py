@@ -21,29 +21,26 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import warnings
 
-# External imports
-
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
-from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
-from ..core.property_mixins import ScalarLineProps, ScalarFillProps
+from ..core.properties import Bool, Dict, Enum, Float, Include, Instance, Int, List, Override, String
+from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
+from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, INCOMPATIBLE_SCALE_AND_RANGE, REQUIRED_RANGE, REQUIRED_SCALE
+from ..core.validation.warnings import FIXED_HEIGHT_POLICY, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, MISSING_RENDERERS
 from ..model import Model, collect_filtered_models
 from ..util.string import nice_join
-
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import Range, FactorRange, DataRange1d, Range1d
+from .ranges import DataRange1d, FactorRange, Range, Range1d
 from .renderers import GlyphRenderer, Renderer, TileRenderer
-from .scales import Scale, CategoricalScale, LinearScale, LogScale
-from .sources import DataSource, ColumnDataSource
-from .tools import Tool, Toolbar, HoverTool
+from .scales import CategoricalScale, LinearScale, LogScale, Scale
+from .sources import ColumnDataSource, DataSource
+from .tools import HoverTool, Tool, Toolbar
 
 #-----------------------------------------------------------------------------
 # Globals and constants

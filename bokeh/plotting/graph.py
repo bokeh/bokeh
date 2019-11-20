@@ -15,13 +15,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..models.renderers import GraphRenderer
 from ..models.graphs import StaticLayoutProvider
+from ..models.renderers import GraphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants

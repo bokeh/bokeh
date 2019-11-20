@@ -18,24 +18,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
-                          Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign,
-                          TooltipAttachment)
+from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation, Orientation,
+                          RenderMode, SpatialUnits, TextAlign, TooltipAttachment, VerticalAlign)
 from ..core.has_props import abstract
 from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, Either,
-                               Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
-                               Seq, String, StringSpec, Tuple, UnitsSpec, value)
+                               Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec,
+                               Override, Seq, String, StringSpec, Tuple, UnitsSpec, value)
 from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, ScalarTextProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
 from ..util.serialization import convert_datetime_type
-
 from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
 from .renderers import GlyphRenderer, Renderer

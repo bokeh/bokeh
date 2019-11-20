@@ -26,10 +26,6 @@ import shutil
 import sys
 import tempfile
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

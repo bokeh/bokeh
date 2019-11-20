@@ -46,10 +46,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from functools import partial
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

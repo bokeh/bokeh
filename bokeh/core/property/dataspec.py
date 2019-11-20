@@ -18,10 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ... import colors
 from ...util.serialization import convert_datetime_type, convert_timedelta_type

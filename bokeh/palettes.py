@@ -342,14 +342,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from copy import deepcopy
 import math
+from copy import deepcopy
 from typing import Dict, List, Tuple
 
 # External imports
 import numpy as np
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

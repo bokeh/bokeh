@@ -22,17 +22,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from io import open
 import os
 import socket
 import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from io import open
 from urllib.request import URLopener
 
 # External imports
 import pytest
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -21,8 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import colorsys
 
-# External imports
-
 # Bokeh imports
 from .color import Color
 

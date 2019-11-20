@@ -30,8 +30,6 @@ import hmac
 import time
 from typing import Any, Optional, Tuple, Union
 
-# External imports
-
 # Bokeh imports
 from bokeh.settings import settings
 

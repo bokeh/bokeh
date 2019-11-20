@@ -25,8 +25,6 @@ from warnings import warn
 import pytest
 from selenium import webdriver
 
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import threading
 from collections import defaultdict
-
 from traceback import format_exception
 
 # External imports

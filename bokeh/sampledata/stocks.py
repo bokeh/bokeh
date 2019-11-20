@@ -36,8 +36,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import csv
 
-# External imports
-
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
 

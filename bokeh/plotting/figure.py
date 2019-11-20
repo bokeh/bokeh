@@ -15,23 +15,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
-from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
+from ..core.properties import Any, Auto, Either, Enum, Instance, Int, List, Seq, String, Tuple
+from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool
 from ..models import glyphs as _glyphs
 from ..models import markers as _markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
-from ..util.options import Options
 from ..transform import linear_cmap
-from .helpers import (
-    _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools, _single_stack, _double_stack, _graph,
-)
+from ..util.options import Options
+from .helpers import (_double_stack, _get_range, _get_scale, _glyph_function, _graph,
+                      _process_active_tools, _process_axis_and_grid, _process_tools_arg, _single_stack)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

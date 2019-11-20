@@ -19,15 +19,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from docutils import nodes
 import sphinx.builders.html
+from docutils import nodes
 from sphinx.locale import admonitionlabels
 from sphinx.writers.html5 import HTML5Translator
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

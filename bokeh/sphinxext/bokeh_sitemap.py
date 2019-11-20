@@ -34,8 +34,6 @@ from os.path import join
 from sphinx.errors import SphinxError
 from sphinx.util import status_iterator
 
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

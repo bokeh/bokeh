@@ -24,11 +24,9 @@ import os
 import sys
 import warnings
 
-# External imports
-
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
+from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
 from bokeh.models import Plot
 
 #-----------------------------------------------------------------------------

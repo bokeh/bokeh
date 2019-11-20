@@ -18,14 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, Seq, String, Tuple
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
-
 from .axes import Axis
 from .renderers import GuideRenderer
 from .tickers import FixedTicker, Ticker

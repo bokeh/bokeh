@@ -18,13 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..models.layouts import LayoutDOM
-from ..util.browser import get_browser_controller, NEW_PARAM
+from ..util.browser import NEW_PARAM, get_browser_controller
 from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate

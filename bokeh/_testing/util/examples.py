@@ -21,20 +21,20 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-from os.path import join, exists, dirname, basename, normpath, relpath, splitext, isfile, isdir
-import yaml
-from subprocess import Popen, PIPE
 from base64 import b64decode
+from os.path import basename, dirname, exists, isdir, isfile, join, normpath, relpath, splitext
+from subprocess import PIPE, Popen
 
 # External imports
 import requests
+import yaml
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
+from bokeh._testing.util.images import image_diff
 from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
-from bokeh._testing.util.images import image_diff
-from bokeh.util.terminal import trace, green
+from bokeh.util.terminal import green, trace
 
 #-----------------------------------------------------------------------------
 # Globals and constants

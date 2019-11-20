@@ -19,8 +19,6 @@ log = logging.getLogger(__name__)
 import sys
 from traceback import format_exception
 
-# External imports
-
 # Bokeh imports
 from ..message import Message
 

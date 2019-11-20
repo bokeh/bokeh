@@ -131,11 +131,8 @@ log = logging.getLogger(__name__)
 import sys
 import types
 
-# External imports
-
 # Bokeh imports
 from bokeh.core.enums import enumeration
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -60,13 +60,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 
-# External imports
-
 # Bokeh imports
-from ...io.export import get_svgs, create_webdriver, terminate_webdriver
-
+from ...io.export import create_webdriver, get_svgs, terminate_webdriver
 from ..util import set_single_plot_width_height
-
 from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------

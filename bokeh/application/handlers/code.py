@@ -40,10 +40,8 @@ log = logging.getLogger(__name__)
 import os
 import sys
 
-# External imports
-
 # Bokeh imports
-from ...io.doc import set_curdoc, curdoc
+from ...io.doc import curdoc, set_curdoc
 from .code_runner import CodeRunner
 from .handler import Handler
 

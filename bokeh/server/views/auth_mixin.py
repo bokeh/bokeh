@@ -18,12 +18,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado import gen
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

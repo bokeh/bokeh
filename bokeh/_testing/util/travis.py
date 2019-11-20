@@ -21,10 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

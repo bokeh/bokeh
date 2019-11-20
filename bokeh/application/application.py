@@ -29,8 +29,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 
-# External imports
-
 # Bokeh imports
 from ..document import Document
 from ..settings import settings

@@ -19,19 +19,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..core.enums import TickLabelOrientation
 from ..core.has_props import abstract
-from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
+from ..core.properties import (Auto, Datetime, Dict, Either, Enum, Float, Include,
+                               Instance, Int, Override, Seq, String, Tuple)
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
-
-from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter, MercatorTickFormatter
+from .formatters import (BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter,
+                         LogTickFormatter, MercatorTickFormatter, TickFormatter)
 from .renderers import GuideRenderer
-from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker, MercatorTicker
+from .tickers import BasicTicker, CategoricalTicker, DatetimeTicker, FixedTicker, LogTicker, MercatorTicker, Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants

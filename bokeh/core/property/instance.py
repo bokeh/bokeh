@@ -24,8 +24,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from importlib import import_module
 
-# External imports
-
 # Bokeh imports
 from .bases import DeserializationError, Property
 

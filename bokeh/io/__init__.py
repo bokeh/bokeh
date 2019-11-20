@@ -18,11 +18,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# Bokeh imports
+from .doc import curdoc
+from .export import export_png, export_svgs
+from .notebook import install_jupyter_hooks, install_notebook_hook, push_notebook
+from .output import output_file, output_notebook, reset_output
+from .saving import save
+from .showing import show
 
 # External Imports
 
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,21 +49,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .doc import curdoc
 
-from .export import export_png
-from .export import export_svgs
 
-from .notebook import install_notebook_hook
-from .notebook import push_notebook
 
-from .output import output_file
-from .output import output_notebook
-from .output import reset_output
 
-from .saving import save
 
-from .showing import show
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -72,6 +67,5 @@ from .showing import show
 # Code
 #-----------------------------------------------------------------------------
 
-from .notebook import install_jupyter_hooks
 install_jupyter_hooks()
 del install_jupyter_hooks

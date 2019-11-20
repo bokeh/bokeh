@@ -19,8 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado.escape import json_decode
 
@@ -28,13 +26,13 @@ from tornado.escape import json_decode
 from . import messages
 from .exceptions import ProtocolError
 from .messages.ack import ack
+from .messages.error import error
 from .messages.event import event
 from .messages.ok import ok
 from .messages.patch_doc import patch_doc
-from .messages.pull_doc_req import pull_doc_req
 from .messages.pull_doc_reply import pull_doc_reply
+from .messages.pull_doc_req import pull_doc_req
 from .messages.push_doc import push_doc
-from .messages.error import error
 from .messages.server_info_reply import server_info_reply
 from .messages.server_info_req import server_info_req
 

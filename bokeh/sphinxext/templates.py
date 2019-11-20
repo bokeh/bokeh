@@ -24,8 +24,6 @@ from os.path import dirname, join
 # External imports
 from jinja2 import Environment, FileSystemLoader
 
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

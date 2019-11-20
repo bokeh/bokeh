@@ -19,16 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from os.path import dirname, exists, join
 from warnings import warn
-from os.path import join, dirname, exists
-
-# External imports
 
 # Bokeh imports
-from ..core.templates import JS_RESOURCES, CSS_RESOURCES
+from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
-from ..resources import BaseResources
 from ..model import Model
+from ..resources import BaseResources
 from ..util.compiler import bundle_models
 
 #-----------------------------------------------------------------------------

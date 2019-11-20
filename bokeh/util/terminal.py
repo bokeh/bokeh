@@ -20,12 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-
 from typing import Optional
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

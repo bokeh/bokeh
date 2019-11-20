@@ -18,10 +18,6 @@ log = logging.getLogger(__name__)
 # Import
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..util.sampledata import external_path
 

@@ -409,8 +409,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import argparse
-from fnmatch import fnmatch
 import os
+from fnmatch import fnmatch
 from glob import glob
 
 # External imports
@@ -419,12 +419,13 @@ from tornado.autoreload import watch
 # Bokeh imports
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
-from bokeh.util.logconfig import basicConfig
-from bokeh.util.string import nice_join, format_docstring
 from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
+from bokeh.util.logconfig import basicConfig
+from bokeh.util.string import format_docstring, nice_join
 
+# Bokeh imports
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 

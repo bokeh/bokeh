@@ -26,12 +26,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -69,20 +63,20 @@ def license():
 # Code
 #-----------------------------------------------------------------------------
 
-# configure Bokeh version
+# expose Bokeh version
 from .util.version import __version__; __version__
 
 # expose sample data module
 from . import sampledata; sampledata
 
 # configure Bokeh logger
-from .util import logconfig
+from .util import logconfig # isort:skip
 del logconfig
 
 # Configure warnings to always show nice mssages, despite Python's active
 # efforts to hide them from users.
-import warnings
-from .util.warnings import BokehDeprecationWarning, BokehUserWarning
+import warnings # isort:skip
+from .util.warnings import BokehDeprecationWarning, BokehUserWarning # isort:skip
 warnings.simplefilter('always', BokehDeprecationWarning)
 warnings.simplefilter('always', BokehUserWarning)
 

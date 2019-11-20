@@ -39,10 +39,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ...util.callback_manager import _check_callback
 from .handler import Handler

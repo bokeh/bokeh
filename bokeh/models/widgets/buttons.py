@@ -18,18 +18,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ...core.enums import ButtonType
-from ...core.has_props import abstract, HasProps
+from ...core.has_props import HasProps, abstract
 from ...core.properties import Bool, Either, Enum, Instance, List, Override, String, Tuple
 from ...events import ButtonClick, MenuItemClick
-
 from ..callbacks import Callback
-
 from .icons import AbstractIcon
 from .widget import Widget
 

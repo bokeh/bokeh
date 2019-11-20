@@ -19,8 +19,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import io
+import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
@@ -32,6 +32,9 @@ from PIL import Image
 from ..embed import file_html
 from ..resources import INLINE
 from .util import default_filename
+# this is part of the API for this module
+from .webdriver import terminate_webdriver  # for back compat
+from .webdriver import webdriver_control
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -165,9 +168,6 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
 # Dev API
 #-----------------------------------------------------------------------------
 
-# this is part of the API for this module
-from .webdriver import webdriver_control
-from .webdriver import terminate_webdriver # for back compat
 
 def create_webdriver():
     ''' Create a new webdriver.

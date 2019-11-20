@@ -23,8 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Counter
 
-# External imports
-
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
@@ -33,7 +31,6 @@ from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance,
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
-
 from .callbacks import Callback
 from .renderers import Renderer
 

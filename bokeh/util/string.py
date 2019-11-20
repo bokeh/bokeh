@@ -20,11 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from typing import Sequence, Optional, Any
-
-# External imports
-
-# Bokeh imports
+from typing import Any, Optional, Sequence
 
 #-----------------------------------------------------------------------------
 # Globals and constants

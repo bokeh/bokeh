@@ -21,10 +21,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import webbrowser
 from os.path import abspath
-from typing import cast, Optional
-from typing_extensions import Literal, Protocol
+from typing import Optional, cast
 
 # External imports
+from typing_extensions import Literal, Protocol
 
 # Bokeh imports
 from ..settings import settings

@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 import subprocess
 import sys
 
-# External imports
-
 # Bokeh imports
 from bokeh.util.terminal import write
 

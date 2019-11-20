@@ -19,8 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-
 # Bokeh imports
 from .bases import ParameterizedProperty
 

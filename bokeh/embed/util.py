@@ -23,8 +23,6 @@ from collections import OrderedDict
 from collections.abc import Sequence
 from contextlib import contextmanager
 
-# External imports
-
 # Bokeh imports
 from ..document.document import Document
 from ..model import Model, collect_models

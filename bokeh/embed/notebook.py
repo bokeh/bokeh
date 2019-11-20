@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import Optional, Tuple, Union
 
-# External imports
-
 # Bokeh imports
-from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
+from ..core.templates import DOC_NB_JS
 from ..document import Document
 from ..model import Model
 from ..themes import Theme

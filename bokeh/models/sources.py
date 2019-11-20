@@ -18,16 +18,14 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import warnings
 
-# External imports
-
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, PandasDataFrame, PandasGroupBy, Seq, String
+from ..core.properties import (JSON, Any, Bool, ColumnData, Dict, Enum, Instance, Int,
+                               List, PandasDataFrame, PandasGroupBy, Seq, String)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
-
 from .callbacks import Callback, CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers

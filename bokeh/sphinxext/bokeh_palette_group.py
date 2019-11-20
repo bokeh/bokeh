@@ -33,12 +33,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive
-
 from sphinx.errors import SphinxError
 
 # Bokeh imports

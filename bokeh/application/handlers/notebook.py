@@ -30,8 +30,6 @@ log = logging.getLogger(__name__)
 import io
 import re
 
-# External imports
-
 # Bokeh imports
 from ...util.dependencies import import_required
 from .code import CodeHandler

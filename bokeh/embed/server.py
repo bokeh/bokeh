@@ -21,8 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from urllib.parse import quote_plus, urlparse
 
-# External imports
-
 # Bokeh imports
 from ..core.templates import AUTOLOAD_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL

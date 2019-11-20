@@ -90,8 +90,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from copy import copy
 
-# External imports
-
 # Bokeh imports
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 

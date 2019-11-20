@@ -36,8 +36,6 @@ log = logging.getLogger(__name__)
 import sys
 from typing import Any, Optional, cast
 
-# External imports
-
 # Bokeh imports
 from ..settings import settings
 

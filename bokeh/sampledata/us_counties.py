@@ -39,8 +39,6 @@ log = logging.getLogger(__name__)
 import csv
 import xml.etree.cElementTree as et
 
-# External imports
-
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
 

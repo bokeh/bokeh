@@ -18,21 +18,22 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 from pathlib import Path
-from typing import Union, List, Callable
+from typing import Callable, List, Union
 
 # External imports
+from channels.http import AsgiHandler
 from django.conf.urls import url
 from django.urls.resolvers import URLPattern
-from channels.http import AsgiHandler
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers.function import FunctionHandler
 from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
-from bokeh.server.contexts import ApplicationContext
+from bokeh.application.handlers.function import FunctionHandler
 from bokeh.command.util import build_single_handler_application, build_single_handler_applications
+from bokeh.server.contexts import ApplicationContext
 
-from .consumers import DocConsumer, AutoloadJsConsumer, WSConsumer
+# Bokeh imports
+from .consumers import AutoloadJsConsumer, DocConsumer, WSConsumer
 
 #-----------------------------------------------------------------------------
 # Globals and constants

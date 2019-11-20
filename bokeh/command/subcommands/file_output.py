@@ -19,11 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
 import argparse
 import io
-
-# External imports
+from abc import abstractmethod
 
 # Bokeh imports
 from ..subcommand import Subcommand

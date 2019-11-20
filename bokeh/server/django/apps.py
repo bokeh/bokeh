@@ -15,7 +15,7 @@
 
 # Standard library imports
 from importlib import import_module
-from typing import Optional, List
+from typing import List, Optional
 
 # External imports
 from django.apps import AppConfig

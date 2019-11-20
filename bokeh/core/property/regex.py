@@ -23,8 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 
-# External imports
-
 # Bokeh imports
 from .primitive import String
 

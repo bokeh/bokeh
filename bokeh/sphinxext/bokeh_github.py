@@ -46,13 +46,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# External imports
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

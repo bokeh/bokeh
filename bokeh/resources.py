@@ -27,18 +27,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import re
 import json
+import re
 from os.path import basename, join, relpath
-
-# External imports
 
 # Bokeh imports
 from . import __version__
-from .core.templates import JS_RESOURCES, CSS_RESOURCES
+from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import settings
-
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
 

@@ -18,13 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from .bases import ParameterizedProperty
-from .primitive import Int, Float
+from .primitive import Float, Int
 
 #-----------------------------------------------------------------------------
 # Globals and constants

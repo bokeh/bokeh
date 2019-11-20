@@ -23,8 +23,6 @@ import io
 from os.path import abspath
 from warnings import warn
 
-# External imports
-
 # Bokeh imports
 from ..settings import settings
 from .state import curstate

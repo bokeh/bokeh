@@ -15,13 +15,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh import __version__
 
+# Bokeh imports
 from ..message import Message
 
 #-----------------------------------------------------------------------------

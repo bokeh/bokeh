@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from inspect import signature
 
-# External imports
-
 # Bokeh imports
 from ..events import Event
 from ..util.functions import get_param_info

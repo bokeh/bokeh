@@ -18,14 +18,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from tornado.web import authenticated, RequestHandler, HTTPError
+from tornado.web import HTTPError, RequestHandler, authenticated
+
+# Bokeh imports
+from bokeh.util.session_id import check_session_id_signature, generate_session_id
 
 # Bokeh imports
 from .auth_mixin import AuthMixin
-from bokeh.util.session_id import generate_session_id, check_session_id_signature
 
 #-----------------------------------------------------------------------------
 # Globals and constants

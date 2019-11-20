@@ -21,12 +21,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 
-# External imports
-
 # Bokeh imports
 from ..application.handlers.code_runner import CodeRunner
 from ..application.handlers.handler import Handler
-from ..io.doc import set_curdoc, curdoc
+from ..io.doc import curdoc, set_curdoc
 
 #-----------------------------------------------------------------------------
 # Globals and constants

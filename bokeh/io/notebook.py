@@ -20,14 +20,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-from warnings import warn
 from uuid import uuid4
-
-# External imports
+from warnings import warn
 
 # Bokeh imports
-from .state import curstate
 from ..util.serialization import make_id
+from .state import curstate
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -18,16 +18,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..core.enums import StepMode, JitterRandomDistribution
+from ..core.enums import JitterRandomDistribution, StepMode
 from ..core.has_props import abstract
-from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, AnyRef
+from ..core.properties import AnyRef, Bool, Dict, Either, Enum, Float, Instance, Seq, String
 from ..model import Model
-
 from .sources import ColumnarDataSource
 
 #-----------------------------------------------------------------------------

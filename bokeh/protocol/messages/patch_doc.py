@@ -18,8 +18,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from json import loads
 
-# External imports
-
 # Bokeh imports
 from ...core.json_encoder import serialize_json
 from ...document.util import references_json

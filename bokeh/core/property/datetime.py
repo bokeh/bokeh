@@ -20,9 +20,9 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import datetime
-import dateutil.parser
 
 # External imports
+import dateutil.parser
 
 # Bokeh imports
 from ...util.dependencies import import_optional

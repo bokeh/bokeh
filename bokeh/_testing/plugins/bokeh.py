@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import socket
 import time
+from contextlib import closing
 from threading import Thread
 
 # External imports
@@ -31,10 +33,10 @@ from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
 # Bokeh imports
-from bokeh.io import save
-from bokeh.server.server import Server
 import bokeh.server.views.ws as ws
 from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
+from bokeh.io import save
+from bokeh.server.server import Server
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -99,8 +101,6 @@ class _ExitHandler(RequestHandler):
         self.io_loop.stop()
 
 
-import socket
-from contextlib import closing
 
 def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:

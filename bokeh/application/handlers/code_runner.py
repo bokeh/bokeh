@@ -25,8 +25,6 @@ import sys
 import traceback
 from types import ModuleType
 
-# External imports
-
 # Bokeh imports
 from ...util.serialization import make_id
 

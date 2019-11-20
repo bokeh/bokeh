@@ -1,5 +1,7 @@
-from ..settings import settings
+# Bokeh imports
 from ..resources import Resources
+from ..settings import settings
+
 
 def get_sphinx_resources(include_bokehjs_api=False):
     docs_cdn = settings.docs_cdn()

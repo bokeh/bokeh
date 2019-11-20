@@ -72,18 +72,11 @@ The inline example code above produces the following output:
 '''
 
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-# use the wrapped sphinx logger
-from sphinx.util import logging
-log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
 
 # Standard library imports
+#-----------------------------------------------------------------------------
+# Boilerplate
 from os import getenv
 from os.path import basename, dirname, join
 from uuid import uuid4
@@ -92,17 +85,28 @@ from uuid import uuid4
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import choice, flag
-
 from sphinx.errors import SphinxError
-from sphinx.util import copyfile, ensuredir, status_iterator
+#-----------------------------------------------------------------------------
+# use the wrapped sphinx logger
+from sphinx.util import copyfile, ensuredir, logging, status_iterator
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
 from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
-from .util import get_sphinx_resources
 from .example_handler import ExampleHandler
+from .util import get_sphinx_resources
+
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+
+
+
 
 #-----------------------------------------------------------------------------
 # Globals and constants

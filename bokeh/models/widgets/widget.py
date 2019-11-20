@@ -24,14 +24,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Int, Enum, Override
-
+from ...core.properties import Enum, Int, Override
 from ..layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------

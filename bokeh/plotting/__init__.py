@@ -15,11 +15,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+# this is just for testing, otherwise the figure module is shadowed
+# by the figure function and inacessible
+from . import figure as _figure
+from .graph import from_networkx
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,9 +51,6 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-# this is just for testing, otherwise the figure module is shadowed
-# by the figure function and inacessible
-from . import figure as _figure
 
 #-----------------------------------------------------------------------------
 # General API
@@ -67,7 +64,6 @@ from .figure import DEFAULT_TOOLS; DEFAULT_TOOLS
 from .gmap import GMap; GMap
 from .gmap import gmap; gmap
 
-from .graph import from_networkx
 
 # extra imports -- just things to add to 'from bokeh.plotting import'
 from ..document import Document; Document

@@ -34,7 +34,6 @@ import textwrap
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
-
 from sphinx.errors import SphinxError
 
 # Bokeh imports

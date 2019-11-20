@@ -29,10 +29,6 @@ from typing import Any, TextIO, cast
 from urllib.parse import urljoin
 from urllib.request import urlopen
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

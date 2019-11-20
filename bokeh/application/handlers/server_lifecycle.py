@@ -23,8 +23,6 @@ log = logging.getLogger(__name__)
 import codecs
 import os
 
-# External imports
-
 # Bokeh imports
 from ...util.callback_manager import _check_callback
 from .code_runner import CodeRunner

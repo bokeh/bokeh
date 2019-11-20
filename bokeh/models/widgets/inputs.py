@@ -18,16 +18,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import ColorHex, Date, Dict, Either, Float, Instance, Int, List, PositiveInt, String, Tuple
-
 from ..callbacks import Callback
-
 from .widget import Widget
 
 #-----------------------------------------------------------------------------

@@ -24,11 +24,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from .application import Application
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,7 +39,6 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .application import Application
 
 #-----------------------------------------------------------------------------
 # Dev API

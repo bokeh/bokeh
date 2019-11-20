@@ -19,14 +19,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from datetime import datetime, date
 import numbers
-
-# External imports
+from datetime import date, datetime
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Color, Override
+from ...core.properties import Bool, Color, Date, Enum, Float, Int, Override, String, Tuple
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
 from .widget import Widget

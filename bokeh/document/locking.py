@@ -21,10 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from functools import wraps
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

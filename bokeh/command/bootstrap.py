@@ -41,18 +41,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 import argparse
-
-# External imports
+import sys
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.util.string import nice_join
 from bokeh.settings import settings
+from bokeh.util.string import nice_join
 
-from .util import die
+# Bokeh imports
 from . import subcommands
+from .util import die
 
 #-----------------------------------------------------------------------------
 # Globals and constants
