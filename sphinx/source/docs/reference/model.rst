@@ -9,7 +9,7 @@ bokeh.model
 .. automodule:: bokeh.model
   :members:
 
-    .. autoclass: MetaModel
+    .. autoclass: Model
 
         .. autodata:: model_class_reverse_map
             :annotation: = {}

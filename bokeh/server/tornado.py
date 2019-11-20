@@ -21,9 +21,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pprint import pformat
+from urllib.parse import urljoin
 
 # External imports
-from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
@@ -161,8 +161,6 @@ class BokehTornado(TornadoApplication):
         websocket_max_message_size_bytes (int, optional):
             Set the Tornado ``websocket_max_message_size`` value.
             (default: {DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES})
-
-            NOTE: This setting has effect ONLY for Tornado>=4.5
 
         index (str, optional):
             Path to a Jinja2 template to use for the root URL
@@ -439,8 +437,11 @@ class BokehTornado(TornadoApplication):
                 relative URLs are used (default: None)
 
         '''
-        root_url = absolute_url + self._prefix if absolute_url else self._prefix
-        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        mode = settings.resources(default="server")
+        if mode == "server":
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        return Resources(mode=mode)
 
     def start(self):
         ''' Start the Bokeh Server application.
@@ -458,7 +459,7 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            context.run_load_hook()
+            self._loop.spawn_callback(context.run_load_hook)
 
     def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
@@ -530,12 +531,11 @@ class BokehTornado(TornadoApplication):
 
     # Periodic Callbacks ------------------------------------------------------
 
-    @gen.coroutine
-    def _cleanup_sessions(self):
+    async def _cleanup_sessions(self):
         log.trace("Running session cleanup job")
         for app in self._applications.values():
-            yield app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
-        raise gen.Return(None)
+            await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+        return None
 
     def _log_stats(self):
         log.trace("Running stats log job")

@@ -1,9 +1,8 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import gridplot
-from bokeh.models.glyphs import Circle
-from bokeh.models import (BasicTicker, ColumnDataSource, Grid, LinearAxis,
-                         DataRange1d, PanTool, Plot, WheelZoomTool)
+from bokeh.models import (BasicTicker, Circle, ColumnDataSource, DataRange1d, Grid, LinearAxis,
+                          PanTool, Plot, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view

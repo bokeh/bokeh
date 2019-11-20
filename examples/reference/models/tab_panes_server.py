@@ -1,9 +1,10 @@
 ## Bokeh server for Tab
+import numpy as np
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models.widgets import Panel, Tabs
+from bokeh.models import Panel, Tabs
 from bokeh.plotting import figure
-import numpy as np
 
 n = 1000
 x = 3 + 3*np.random.standard_normal(n)

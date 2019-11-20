@@ -37,6 +37,9 @@ from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL
 # General API
 #-----------------------------------------------------------------------------
 
+class SomeModel(Model):
+    some = Int
+
 class ThemedModel(Model):
     number = Int(42)
     string = String("hello")
@@ -273,28 +276,28 @@ class TestThemes(object):
         assert 0 == len(doc.theme._line_defaults)
 
     def test_setting_built_in_theme_obj(self):
-        obj = Model()
+        obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         doc.theme = built_in_themes[LIGHT_MINIMAL]
         assert "#5B5B5B" == doc.theme._json['attrs']['ColorBar']['title_text_color']
 
     def test_setting_built_in_theme_str(self):
-        obj = Model()
+        obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         doc.theme = DARK_MINIMAL
         assert "#20262B" == doc.theme._json['attrs']['Figure']['background_fill_color']
 
     def test_setting_built_in_theme_missing(self):
-        obj = Model()
+        obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         with pytest.raises(ValueError):
             doc.theme = 'some_theme_i_guess'
 
     def test_setting_built_in_theme_error(self):
-        obj = Model()
+        obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         with pytest.raises(ValueError):

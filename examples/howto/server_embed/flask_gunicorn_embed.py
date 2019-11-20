@@ -45,7 +45,7 @@ def bkapp(doc):
             data = df
         else:
             data = df.rolling('{0}D'.format(new)).mean()
-        source.data = ColumnDataSource(data=data).data
+        source.data = ColumnDataSource.from_df(data)
 
     slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")
     slider.on_change('value', callback)

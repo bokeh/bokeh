@@ -5,8 +5,7 @@ import h5py
 
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import Select
+from bokeh.models import ColumnDataSource, Select
 from bokeh.plotting import figure
 
 app_dir = dirname(__file__)

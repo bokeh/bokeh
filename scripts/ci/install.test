@@ -35,7 +35,7 @@ else
 fi
 
 # install the pre-built Bokeh package plus all test and runtime dependencies
-conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test` tornado=${TORNADO:-5}
+conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test` tornado=${TORNADO:-6} numpy=${NUMPY:-*}
 
 npm install -g npm
 

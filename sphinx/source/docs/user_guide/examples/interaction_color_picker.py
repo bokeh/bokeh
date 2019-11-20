@@ -1,7 +1,8 @@
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, CustomJS, ColorPicker
-from bokeh.plotting import Figure
 from bokeh.layouts import row, column
+from bokeh.models import ColorPicker, ColumnDataSource, CustomJS
+from bokeh.plotting import Figure
+
 cds = ColumnDataSource(data=dict(x=(0, 1), y=(0, 1)))
 
 p = Figure(x_range=(0, 1), y_range=(0, 1))

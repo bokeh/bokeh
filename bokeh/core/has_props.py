@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-import inspect
 from warnings import warn
 
 # External imports
@@ -201,7 +200,7 @@ def accumulate_from_superclasses(cls, propname):
     # classes, and the cache must be separate for each class
     if cachename not in cls.__dict__:
         s = set()
-        for c in inspect.getmro(cls):
+        for c in cls.__mro__:
             if issubclass(c, HasProps) and hasattr(c, propname):
                 base = getattr(c, propname)
                 s.update(base)
@@ -224,7 +223,7 @@ def accumulate_dict_from_superclasses(cls, propname):
     # classes, and the cache must be separate for each class
     if cachename not in cls.__dict__:
         d = dict()
-        for c in inspect.getmro(cls):
+        for c in cls.__mro__:
             if issubclass(c, HasProps) and hasattr(c, propname):
                 base = getattr(c, propname)
                 for k,v in base.items():

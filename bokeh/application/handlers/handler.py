@@ -155,7 +155,7 @@ class Handler(object):
         '''
         pass
 
-    def on_session_created(self, session_context):
+    async def on_session_created(self, session_context):
         ''' Execute code when a new session is created.
 
         Subclasses may implement this method to provide for any per-session
@@ -168,7 +168,7 @@ class Handler(object):
         '''
         pass
 
-    def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context):
         ''' Execute code when a session is destroyed.
 
         Subclasses may implement this method to provide for any per-session

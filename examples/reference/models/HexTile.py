@@ -1,6 +1,5 @@
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
-from bokeh.models.glyphs import HexTile
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, Grid, HexTile, LinearAxis, Plot
 
 source = ColumnDataSource(dict(
         q=[0,  0, -1, -1,  1, 1, 0],

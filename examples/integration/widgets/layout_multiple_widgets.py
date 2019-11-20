@@ -3,7 +3,7 @@ from datetime import date
 from bokeh.plotting import save
 from bokeh.layouts import column
 
-from bokeh.models.widgets import (
+from bokeh.models import (
     Button, Toggle, Dropdown,
     CheckboxButtonGroup, RadioButtonGroup,
     #CheckboxGroup, RadioGroup,

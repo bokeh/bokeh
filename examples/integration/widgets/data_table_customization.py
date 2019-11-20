@@ -1,6 +1,6 @@
 from bokeh.io import save
-from bokeh.models import ColumnDataSource, NumberFormatter, StringFormatter
-from bokeh.models.widgets import DataTable, TableColumn, HTMLTemplateFormatter
+from bokeh.models import (ColumnDataSource, DataTable, HTMLTemplateFormatter,
+                          NumberFormatter, StringFormatter, TableColumn)
 
 from bokeh.sampledata.periodic_table import elements
 

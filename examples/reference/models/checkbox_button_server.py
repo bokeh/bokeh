@@ -2,10 +2,9 @@
 
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource,CategoricalColorMapper
-from bokeh.models.widgets import CheckboxButtonGroup
-from bokeh.plotting import figure
+from bokeh.models import CheckboxButtonGroup, ColumnDataSource, CategoricalColorMapper
 from bokeh.palettes import RdBu3
+from bokeh.plotting import figure
 
 x=[3,4,6,12,10,1]
 y=[7,1,3,4,1,6]

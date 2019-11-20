@@ -19,7 +19,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models.tiles import WMTSTileSource
+from bokeh.models import WMTSTileSource
 #from bokeh._testing.util.api import verify_all
 
 # Module under test

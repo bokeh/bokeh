@@ -93,7 +93,7 @@ class Axis(GuideRenderer):
     .. code-block:: python
 
         from bokeh.plotting import figure
-        from bokeh.models.tickers import FixedTicker
+        from bokeh.models import FixedTicker
 
         p = figure()
         p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
@@ -308,7 +308,7 @@ class MercatorAxis(LinearAxis):
         super().__init__(**kw)
 
         # Just being careful. It would be defeat the purpose for anyone to actually
-        # configure this axis with differnet kinds of tickers or formatters.
+        # configure this axis with different kinds of tickers or formatters.
         if isinstance(self.ticker, MercatorTicker):
             self.ticker.dimension = dimension
         if isinstance(self.formatter, MercatorTickFormatter):

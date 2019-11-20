@@ -1,14 +1,14 @@
 ## Bokeh server for Slider
+import numpy as np
 import pandas as pd
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import Slider
+from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
-import numpy as np
 
 x = np.linspace(0, 10, 500)
-y=np.sin(x)
+y = np.sin(x)
 
 df=pd.DataFrame({'x':x,'y':y})
 
@@ -27,7 +27,6 @@ def slider_change(attr,old,new):
     y_change=np.sin(x*slider_value)
 
     source.data=dict(x=x, y=y_change)
-
 
 slider.on_change('value',slider_change)
 

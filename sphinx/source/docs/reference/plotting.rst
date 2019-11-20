@@ -14,3 +14,5 @@ bokeh.plotting
 .. autoclass:: bokeh.plotting.gmap.GMapPlot
     :members:
     :undoc-members:
+
+.. autofunction:: bokeh.plotting.graph.from_networkx

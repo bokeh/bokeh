@@ -1,9 +1,9 @@
 import numpy as np
 
 from bokeh.io import show
-from bokeh.plotting import Figure
-from bokeh.models import ColumnDataSource, CustomJS, Spinner
 from bokeh.layouts import row, column
+from bokeh.models import ColumnDataSource, CustomJS, Spinner
+from bokeh.plotting import Figure
 
 data = np.random.rand(10, 2)
 cds = ColumnDataSource(data=dict(x=data[:, 0], y=data[:, 1]))

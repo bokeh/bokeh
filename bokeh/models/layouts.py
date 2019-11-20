@@ -32,7 +32,6 @@ from ..core.validation.warnings import (BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT,
     FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY)
 from ..core.validation.errors import MIN_PREFERRED_MAX_WIDTH, MIN_PREFERRED_MAX_HEIGHT
 from ..model import Model
-from ..util.deprecation import deprecated
 from .callbacks import Callback
 
 #-----------------------------------------------------------------------------
@@ -411,17 +410,6 @@ class Column(Box):
 
     """)
 
-# TODO (bev) deprecation: 3.0
-class WidgetBox(Column):
-    ''' Create a column of bokeh widgets with predefined styling.
-
-    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
-
-    '''
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'Column' instead")
-
 class Panel(Model):
     ''' A single-widget container with title bar and controls.
 
@@ -476,3 +464,15 @@ class Tabs(LayoutDOM):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+# TODO (bev) deprecation: 3.0
+class WidgetBox(Column):
+    ''' Create a column of bokeh widgets with predefined styling.
+
+    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
+
+    '''
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        from ..util.deprecation import deprecated
+        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

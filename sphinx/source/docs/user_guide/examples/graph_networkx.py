@@ -1,10 +1,9 @@
 import networkx as nx
 
 from bokeh.io import show, output_file
-from bokeh.plotting import figure
-from bokeh.models.graphs import from_networkx
+from bokeh.plotting import figure, from_networkx
 
-G=nx.karate_club_graph()
+G = nx.karate_club_graph()
 
 plot = figure(title="Networkx Integration Demonstration", x_range=(-1.1,1.1), y_range=(-1.1,1.1),
               tools="", toolbar_location=None)

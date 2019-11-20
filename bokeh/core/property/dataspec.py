@@ -597,8 +597,7 @@ class ColorSpec(DataSpec):
         # at this point, since Color is very strict about only accepting
         # tuples of (integer) bytes. This conditions tuple values to only
         # have integer RGB components
-        if isinstance(value, tuple):
-            # TODO (bev) verify that all original floats are integer values?
+        if isinstance(value, tuple) and len(value) in (3, 4) and all(isinstance(v, (float, int)) for v in value):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
         return super().prepare_value(cls, name, value)
 

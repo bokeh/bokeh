@@ -6,8 +6,7 @@ import sqlite3 as sql
 
 from bokeh.plotting import figure
 from bokeh.layouts import layout, column
-from bokeh.models import ColumnDataSource, Div
-from bokeh.models.widgets import Slider, Select, TextInput
+from bokeh.models import ColumnDataSource, Div, Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
 

@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import ColorPicker
+from bokeh.models import ColorPicker
 
 output_file("color_picker.html")
 

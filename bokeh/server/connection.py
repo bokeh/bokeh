@@ -72,6 +72,7 @@ class ServerConnection(object):
     def send_patch_document(self, event):
         """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
         msg = self.protocol.create('PATCH-DOC', [event])
+        # yes, *return* the awaitable, it will be awaited when pending writes are processed
         return self._socket.send_message(msg)
 
     def send_ping(self):

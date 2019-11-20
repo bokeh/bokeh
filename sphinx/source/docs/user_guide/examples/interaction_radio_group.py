@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import RadioGroup
+from bokeh.models import RadioGroup
 
 output_file("radio_group.html")
 

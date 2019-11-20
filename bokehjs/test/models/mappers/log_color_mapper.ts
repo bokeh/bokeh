@@ -17,13 +17,6 @@ describe("LogColorMapper module", () => {
       expect([buf8_1[0], buf8_1[1], buf8_1[2], buf8_1[3]]).to.be.deep.equal([254, 224, 139, 255])
     })
 
-    it("Should correctly handle zero values", () => {
-      const palette = ["#3288bd", "#abdda4", "#fee08b"]
-      const color_mapper = new LogColorMapper({low: 0, high: 10, palette})
-
-      const buf8 = color_mapper.rgba_mapper.v_compute([0])
-      expect([buf8[0], buf8[1], buf8[2], buf8[3]]).to.be.deep.equal([50, 136, 189, 255])
-    })
   })
 
   describe("LogColorMapper.v_compute method", () => {

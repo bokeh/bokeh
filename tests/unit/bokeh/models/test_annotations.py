@@ -25,13 +25,7 @@ from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 
 from bokeh.models import (
-    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
-)
-
-
-
-# Module under test
-from bokeh.models.annotations import (
+    ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer,
     Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
     Title, Band, Whisker, Slope
 )

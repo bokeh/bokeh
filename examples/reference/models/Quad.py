@@ -1,8 +1,7 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
-from bokeh.models.glyphs import Quad
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, Grid, LinearAxis, Plot, Quad
 
 N = 9
 x = np.linspace(-2, 2, N)

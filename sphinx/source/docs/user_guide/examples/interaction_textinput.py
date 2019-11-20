@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import TextInput
+from bokeh.models import TextInput
 
 output_file("text_input.html")
 
