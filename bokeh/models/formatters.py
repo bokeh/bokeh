@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from bokeh.util.string import format_docstring
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String, AnyRef
@@ -32,6 +31,7 @@ from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from .tickers import Ticker
+from ..util.string import format_docstring
 
 #-----------------------------------------------------------------------------
 # Globals and constants
