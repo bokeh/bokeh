@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,14 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from importlib import import_module
 import shutil
-from subprocess import Popen, PIPE
-from packaging.version import Version as V
-from typing import Optional
+from importlib import import_module
+from subprocess import PIPE, Popen
 from types import ModuleType
+from typing import Optional
 
 # External imports
+from packaging.version import Version as V
 
 # Bokeh imports
 from ..settings import settings

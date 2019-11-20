@@ -1,5 +1,5 @@
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, LabelSet, LinearAxis, ColumnDataSource
+from bokeh.models import ColumnDataSource, LabelSet, LinearAxis, Plot, Range1d
 
 source = ColumnDataSource(data=dict(text=['one', 'two', 'three'],
                                     x1=[1,4,7],

@@ -8,25 +8,21 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
+# Bokeh imports
+from bokeh.settings import settings
+from bokeh.util.logconfig import basicConfig
 
 # Bokeh imports
-from bokeh.util.logconfig import basicConfig
-from bokeh.settings import settings
-
 from ..subcommand import Subcommand
 from ..util import report_server_init_errors
 from .serve import base_serve_args
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants

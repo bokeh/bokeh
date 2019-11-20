@@ -1,13 +1,13 @@
+import sqlite3 as sql
 from os.path import dirname, join
 
 import numpy as np
 import pandas.io.sql as psql
-import sqlite3 as sql
 
-from bokeh.plotting import figure
-from bokeh.layouts import layout, column
-from bokeh.models import ColumnDataSource, Div, Slider, Select, TextInput
 from bokeh.io import curdoc
+from bokeh.layouts import column, layout
+from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput
+from bokeh.plotting import figure
 from bokeh.sampledata.movies_data import movie_path
 
 conn = sql.connect(movie_path)

@@ -14,16 +14,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.models import WMTSTileSource
+
 #from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.tile_providers as bt
+import bokeh.tile_providers as bt # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

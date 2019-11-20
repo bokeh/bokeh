@@ -20,8 +20,6 @@ import os
 from subprocess import PIPE, Popen
 from sys import executable
 
-# External imports
-
 # Bokeh imports
 from . import TOP_PATH
 

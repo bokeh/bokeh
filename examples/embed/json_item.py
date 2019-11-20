@@ -1,12 +1,12 @@
 import json
 
+from flask import Flask
+from jinja2 import Template
+
 from bokeh.embed import json_item
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.sampledata.iris import flowers
-
-from flask import Flask
-from jinja2 import Template
 
 app = Flask(__name__)
 

@@ -1,6 +1,6 @@
 import os
-from urllib.request import urlretrieve
 import zipfile
+from urllib.request import urlretrieve
 
 
 def extract_hosted_zip(data_url, save_dir, exclude_term=None):

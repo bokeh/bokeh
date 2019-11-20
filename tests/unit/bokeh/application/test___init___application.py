@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.application as ba
+import bokeh.application as ba # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

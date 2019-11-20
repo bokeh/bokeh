@@ -11,8 +11,7 @@ types that Bokeh supports.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from difflib import get_close_matches
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,21 +19,33 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-
-# External imports
+from difflib import get_close_matches
 
 # Bokeh imports
 from ..core.enums import RenderLevel
 from ..core.has_props import abstract
-from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
+from ..core.properties import (
+    Auto,
+    Bool,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Override,
+    String,
+)
 from ..core.validation import error
-from ..core.validation.errors import (BAD_COLUMN_NAME, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH,
-                                      CDSVIEW_SOURCE_DOESNT_MATCH, MALFORMED_GRAPH_SOURCE)
+from ..core.validation.errors import (
+    BAD_COLUMN_NAME,
+    CDSVIEW_SOURCE_DOESNT_MATCH,
+    MALFORMED_GRAPH_SOURCE,
+    MISSING_GLYPH,
+    NO_SOURCE_FOR_GLYPH,
+)
 from ..model import Model
-
-from .glyphs import Glyph, Circle, MultiLine
-from .graphs import LayoutProvider, GraphHitTestPolicy, NodesOnly
-from .sources import ColumnDataSource, DataSource, WebSource, CDSView
+from .glyphs import Circle, Glyph, MultiLine
+from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
+from .sources import CDSView, ColumnDataSource, DataSource, WebSource
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------

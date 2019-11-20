@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,15 +21,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import re
 
-# External imports
-
 # Bokeh imports
 from ... import colors
 from .. import enums
 from .bases import Property
 from .container import Tuple
-from .enum import Enum
 from .either import Either
+from .enum import Enum
 from .numeric import Byte, Percent
 from .regex import Regex
 

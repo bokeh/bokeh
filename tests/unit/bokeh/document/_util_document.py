@@ -14,13 +14,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh.core.properties import DistanceSpec, Instance, Int, String
 from bokeh.model import Model
-from bokeh.core.properties import Int, Instance, String, DistanceSpec
 
 # Module under test
 

@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, output_file, show
 from bokeh.models import Range1d
+from bokeh.plotting import figure, output_file, show
 
 output_file("title.html")
 

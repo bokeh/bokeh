@@ -19,22 +19,19 @@ import json
 import logging
 import os
 
-# External imports
-
 # Bokeh imports
+from _util_server import http_get, url
 from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
 
 # Module under test
-import bokeh.server.tornado as tornado
+import bokeh.server.tornado as tornado # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-from _util_server import url, http_get
 
 logging.basicConfig(level=logging.DEBUG)
 

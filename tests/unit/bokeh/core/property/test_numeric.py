@@ -14,17 +14,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from _util_property import _TestHasProps, _TestModel
-from bokeh.core.properties import Float, Int
 from bokeh._testing.util.api import verify_all
+from bokeh.core.properties import Float, Int
 
 # Module under test
-import bokeh.core.property.numeric as bcpn
+import bokeh.core.property.numeric as bcpn # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

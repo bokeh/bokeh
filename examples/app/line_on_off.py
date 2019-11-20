@@ -6,9 +6,9 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import row
+from bokeh.models import CheckboxGroup
 from bokeh.palettes import Viridis3
 from bokeh.plotting import figure
-from bokeh.models import CheckboxGroup
 
 p = figure()
 props = dict(line_width=4, line_alpha=0.7)

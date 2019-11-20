@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.core.properties import Int, String
 
 # Module under test
-from bokeh.util.options import Options
+from bokeh.util.options import Options # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

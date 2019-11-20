@@ -15,23 +15,22 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from mock import patch
 from collections import OrderedDict
 
 # External imports
 import bs4
 from jinja2 import Template
+from mock import patch
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.embed.util import standalone_docs_json
+from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
-from bokeh.resources import CDN, JSResources, CSSResources
+from bokeh.resources import CDN, CSSResources, JSResources
 
 # Module under test
-import bokeh.embed.standalone as bes
-from bokeh.embed.util import RenderRoot
+import bokeh.embed.standalone as bes # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

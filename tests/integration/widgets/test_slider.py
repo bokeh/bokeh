@@ -18,12 +18,23 @@ import pytest ; pytest
 # Standard library imports
 from time import sleep
 
-# External imports
-
 # Bokeh imports
-from bokeh.models import Slider, ColumnDataSource, Plot, Circle, CustomAction, CustomJS, Range1d
+from bokeh._testing.util.selenium import (
+    RECORD,
+    ActionChains,
+    Keys,
+    select_element_and_press_key,
+)
 from bokeh.layouts import column
-from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, select_element_and_press_key
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+    Slider,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

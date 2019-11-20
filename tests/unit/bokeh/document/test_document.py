@@ -15,31 +15,42 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
-
-from copy import copy
 import json
-from mock import patch
+import logging
+from copy import copy
 
 # External imports
+from mock import patch
 
 # Bokeh imports
-
+from _util_document import (
+    AnotherModelInTestDocument,
+    ModelThatOverridesName,
+    ModelWithSpecInTestDocument,
+    SomeModelInTestDocument,
+)
+from bokeh.document.events import (
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
+    SessionCallbackAdded,
+    SessionCallbackRemoved,
+    TitleChangedEvent,
+)
 from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource
-from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
-                                   RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
 from bokeh.protocol.messages.patch_doc import process_document_events
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.document.document as document
+import bokeh.document.document as document # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_document import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
 
 #-----------------------------------------------------------------------------
 # General API

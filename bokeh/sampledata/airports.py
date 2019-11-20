@@ -18,7 +18,7 @@ on October 15, 2015.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -27,8 +27,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-
-# External imports
 
 # Bokeh imports
 from ..util.dependencies import import_required

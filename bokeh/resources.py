@@ -19,7 +19,7 @@ Attributes:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -27,18 +27,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import re
 import json
+import re
 from os.path import basename, join, relpath
-
-# External imports
 
 # Bokeh imports
 from . import __version__
-from .core.templates import JS_RESOURCES, CSS_RESOURCES
+from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import settings
-
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
 
@@ -50,11 +47,11 @@ DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
+# __all__ defined at the bottom on the class module
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-# __all__ defined at the bottom on the class module
 
 #-----------------------------------------------------------------------------
 # Dev API

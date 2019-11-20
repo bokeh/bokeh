@@ -66,19 +66,20 @@ as well as the ``Theme`` class that can be used to create new Themes.
 .. autoclass:: Theme
 
 '''
-import logging
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from . import _caliber, _dark_minimal, _light_minimal
+from .theme import Theme
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -96,8 +97,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-from .theme import Theme
 
 CALIBER       = 'caliber'
 LIGHT_MINIMAL = 'light_minimal'

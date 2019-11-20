@@ -1,4 +1,4 @@
-from bokeh.io import show, output_file
+from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FactorRange
 from bokeh.plotting import figure
 from bokeh.transform import factor_cmap

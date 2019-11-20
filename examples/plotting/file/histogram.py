@@ -2,7 +2,8 @@ import numpy as np
 import scipy.special
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
+
 
 def make_plot(title, hist, edges, x, pdf, cdf):
     p = figure(title=title, tools='', background_fill_color="#fafafa")

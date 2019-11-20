@@ -14,16 +14,14 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import mock
-
 # External imports
+import mock
 
 # Bokeh imports
 from bokeh.document import Document
 
 # Module under test
-import bokeh.server.session as bss
+import bokeh.server.session as bss # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

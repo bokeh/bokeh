@@ -8,18 +8,21 @@
 ''' Bokeh build and upload script for TravisCI release builds
 
 '''
+# Standard library imports
 import argparse
-from collections import defaultdict
 import glob
-from io import BytesIO
 import os
-from packaging.version import Version as V
 import re
-from subprocess import Popen, PIPE
 import sys
+from collections import defaultdict
+from io import BytesIO
+from subprocess import PIPE, Popen
 
+# External imports
 import boto
-import boto.s3.connection, boto.s3.key
+import boto.s3.connection
+import boto.s3.key
+from packaging.version import Version as V
 
 try:
     import colorama

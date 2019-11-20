@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, show, output_file
-from bokeh.tile_providers import get_provider, CARTODBPOSITRON
+from bokeh.plotting import figure, output_file, show
+from bokeh.tile_providers import CARTODBPOSITRON, get_provider
 
 output_file("tile_source.html")
 

@@ -15,7 +15,7 @@ other sessions hosted by the server.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -29,8 +29,6 @@ import hashlib
 import hmac
 import time
 from typing import Any, Optional, Tuple, Union
-
-# External imports
 
 # Bokeh imports
 from bokeh.settings import settings

@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -16,34 +16,66 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import OrderedDict
-from collections.abc import Iterable, Sequence
-
 import difflib
 import itertools
 import re
+import sys
 import textwrap
 import warnings
+from collections import OrderedDict
+from collections.abc import Iterable, Sequence
 
 # External imports
 import numpy as np
-import sys
 
 # Bokeh imports
+from ..core.properties import ColorSpec, Datetime, field, value
 from ..models import (
-    BoxSelectTool, BoxZoomTool, CategoricalAxis, MercatorAxis,
-    TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    FactorRange, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem, LinearAxis,
-    LogAxis, PanTool, ZoomInTool, ZoomOutTool, PolySelectTool, ContinuousTicker,
-    SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
-    WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
-    LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
-    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool,
+    BoxEditTool,
+    BoxSelectTool,
+    BoxZoomTool,
+    CategoricalAxis,
+    CategoricalScale,
+    Circle,
+    ColumnarDataSource,
+    ColumnDataSource,
+    ContinuousTicker,
+    CrosshairTool,
+    DataRange1d,
+    DatetimeAxis,
+    FactorRange,
+    GlyphRenderer,
+    Grid,
+    HelpTool,
+    HoverTool,
+    LassoSelectTool,
+    Legend,
+    LegendItem,
+    LinearAxis,
+    LinearScale,
+    LogAxis,
+    LogScale,
+    Marker,
+    MercatorAxis,
+    MultiLine,
+    PanTool,
+    PointDrawTool,
+    PolyDrawTool,
+    PolyEditTool,
+    PolySelectTool,
+    Range,
+    Range1d,
+    RedoTool,
+    ResetTool,
+    SaveTool,
+    TapTool,
+    Tool,
+    UndoTool,
+    WheelPanTool,
+    WheelZoomTool,
+    ZoomInTool,
+    ZoomOutTool,
 )
-from ..models.markers import Marker
-from ..models.renderers import GlyphRenderer
-
-from ..core.properties import ColorSpec, Datetime, value, field
 from ..transform import stack
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated

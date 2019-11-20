@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, output_file, show
 from bokeh.models import PolyDrawTool, PolyEditTool
+from bokeh.plotting import figure, output_file, show
 
 output_file("tools_poly_edit.html")
 

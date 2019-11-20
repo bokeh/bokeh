@@ -1,6 +1,6 @@
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
+from bokeh.io import output_file, show
 from bokeh.models import ImageURLTexture
+from bokeh.plotting import figure
 
 output_file("hatch_custom_image.html")
 

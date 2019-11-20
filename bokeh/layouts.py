@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,13 +22,11 @@ log = logging.getLogger(__name__)
 import math
 from collections import namedtuple
 
-# External imports
-
 # Bokeh imports
 from .core.enums import Location
-from .models.tools import ProxyToolbar, ToolbarBox
+from .models.layouts import Box, Column, GridBox, LayoutDOM, Row, Spacer, WidgetBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Box, Row, Column, GridBox, Spacer, WidgetBox
+from .models.tools import ProxyToolbar, ToolbarBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants

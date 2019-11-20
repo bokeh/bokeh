@@ -18,7 +18,7 @@ performance and efficiency. The list of supported dtypes is:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -30,16 +30,16 @@ import base64
 import datetime as dt
 import math
 import sys
-from threading import Lock
 import uuid
+from threading import Lock
 
 # External imports
 import numpy as np
 
 # Bokeh imports
 from ..settings import settings
-from .string import format_docstring
 from .dependencies import import_optional
+from .string import format_docstring
 
 #-----------------------------------------------------------------------------
 # Globals and constants

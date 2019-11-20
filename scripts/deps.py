@@ -1,8 +1,10 @@
+# Standard library imports
 import os
-from os.path import abspath, dirname, join
 import platform
 import sys
+from os.path import abspath, dirname, join
 
+# External imports
 import jinja2
 import setuptools
 import yaml

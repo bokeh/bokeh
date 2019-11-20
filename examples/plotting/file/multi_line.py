@@ -1,11 +1,12 @@
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
 from scipy.stats import norm
 
-from bokeh.plotting import show, figure
-from bokeh.models import HoverTool, TapTool
 from bokeh.layouts import gridplot
+from bokeh.models import HoverTool, TapTool
 from bokeh.palettes import Viridis6
+from bokeh.plotting import figure, show
 
 mass_spec = defaultdict(list)
 

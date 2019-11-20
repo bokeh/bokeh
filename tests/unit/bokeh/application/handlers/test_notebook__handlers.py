@@ -14,19 +14,17 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from packaging import version
-import nbformat
 import nbconvert
+import nbformat
+from packaging import version
 
 # Bokeh imports
-from bokeh.document import Document
 from bokeh._testing.util.filesystem import with_temporary_file
+from bokeh.document import Document
 
 # Module under test
-import bokeh.application.handlers.notebook as bahn
+import bokeh.application.handlers.notebook as bahn # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

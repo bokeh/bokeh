@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -33,10 +33,9 @@ from ..application import Application
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
-
 from .auth_provider import NullAuth
-from .contexts import ApplicationContext
 from .connection import ServerConnection
+from .contexts import ApplicationContext
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler

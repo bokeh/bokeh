@@ -16,14 +16,12 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-from mock import Mock, patch, PropertyMock
 
 # External imports
-
-# Bokeh imports
+from mock import Mock, PropertyMock, patch
 
 # Module under test
-import bokeh.io.util as biu
+import bokeh.io.util as biu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 N = 20
 img = np.empty((N,N), dtype=np.uint32)

@@ -54,7 +54,7 @@ The classes in this module provide this functionality.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -62,10 +62,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import numpy as np
 import copy
 
 # External imports
+import numpy as np
 
 # Bokeh imports
 from ...util.dependencies import import_optional

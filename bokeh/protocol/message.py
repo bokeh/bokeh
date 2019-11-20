@@ -47,20 +47,20 @@ The ``content`` fragment is defined by the specific message type.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado.escape import json_decode, json_encode
 
 # Bokeh imports
 import bokeh.util.serialization as bkserial
+
+# Bokeh imports
 from .exceptions import MessageError, ProtocolError
 
 #-----------------------------------------------------------------------------

@@ -8,20 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..models.renderers import GraphRenderer
 from ..models.graphs import StaticLayoutProvider
+from ..models.renderers import GraphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -34,7 +30,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
 
 def from_networkx(graph, layout_function, **kwargs):
         '''

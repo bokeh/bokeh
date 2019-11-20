@@ -1,18 +1,27 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
-import time
-import pytest
-import subprocess
 import platform
 import signal
-
+import subprocess
+import time
 from os.path import basename, dirname, split
 
-from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from bokeh._testing.util.screenshot import run_in_chrome
+# External imports
+import pytest
 
+# Bokeh imports
+from bokeh._testing.util.screenshot import run_in_chrome
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
-from bokeh.util.terminal import info, fail, ok, red, warn, white
+from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
+from bokeh.util.terminal import fail, info, ok, red, warn, white
 
 is_windows = platform.system() == "Windows"
 

@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.layouts import column, gridplot
 from bokeh.models import BoxSelectTool, Div
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)

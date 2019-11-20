@@ -12,17 +12,15 @@ or (if only one) redirects to the route of that applications.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from tornado.web import authenticated, RequestHandler
+from tornado.web import RequestHandler, authenticated
 
 # Bokeh imports
 from .auth_mixin import AuthMixin

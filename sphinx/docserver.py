@@ -1,14 +1,14 @@
-import flask
 import os
 import sys
 import threading
 import time
 import webbrowser
-import tornado
 
-from tornado.wsgi import WSGIContainer
+import flask
+import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from tornado.wsgi import WSGIContainer
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
 

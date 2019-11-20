@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh.model import Model
 
 # Module under test
-from bokeh import models
-from bokeh.model import Model
+from bokeh import models # isort:skip
 
 #-----------------------------------------------------------------------------
 # General API

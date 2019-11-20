@@ -36,7 +36,7 @@ Example:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -45,10 +45,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import partial
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

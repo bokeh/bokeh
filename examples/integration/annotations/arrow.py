@@ -1,6 +1,6 @@
 from bokeh.io import save
+from bokeh.models import Arrow, NormalHead, OpenHead, TeeHead, VeeHead
 from bokeh.plotting import figure
-from bokeh.models import Arrow, OpenHead, NormalHead, TeeHead, VeeHead
 
 # Have to specify x/y range as labels aren't included in the plot area solver
 plot = figure(width=600, height=600, x_range=(0,10), y_range=(0,10), toolbar_location=None)

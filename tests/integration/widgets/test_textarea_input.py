@@ -10,19 +10,28 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 import pytest ; pytest
+# External imports
 from selenium.webdriver.common.keys import Keys
+
+# Bokeh imports
+from bokeh._testing.util.selenium import RECORD, enter_text_in_element
+from bokeh.layouts import column
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+    TextAreaInput,
+)
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 
-# External imports
 
-# Bokeh imports
-from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, TextAreaInput
-from bokeh._testing.util.selenium import enter_text_in_element, RECORD
 
 #-----------------------------------------------------------------------------
 # Tests

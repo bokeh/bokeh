@@ -12,7 +12,7 @@ in a specified Python module.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import codecs
 import os
-
-# External imports
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback

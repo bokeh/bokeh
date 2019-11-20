@@ -6,11 +6,11 @@ with corresponding Python event callbacks.
 
 import numpy as np
 
-from bokeh.io import curdoc
-from bokeh.plotting import figure
 from bokeh import events
-from bokeh.models import CustomJS, Div, Button
+from bokeh.io import curdoc
 from bokeh.layouts import column, row
+from bokeh.models import Button, CustomJS, Div
+from bokeh.plotting import figure
 
 
 def display_event(div, attributes=[]):

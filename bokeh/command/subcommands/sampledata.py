@@ -27,20 +27,17 @@ Executing this command is equivalent to running the Python code
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh import sampledata
 
+# Bokeh imports
 from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------

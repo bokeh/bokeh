@@ -14,17 +14,18 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# External imports
 from mock import patch
 
-# External imports
-
 # Bokeh imports
-from bokeh.core.properties import Int, String, NumberSpec, List, Override, Either
-from bokeh.core.property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor
+from bokeh.core.properties import Either, Int, List, NumberSpec, Override, String
+from bokeh.core.property.descriptors import (
+    BasicPropertyDescriptor,
+    DataSpecPropertyDescriptor,
+)
 
 # Module under test
-import bokeh.core.has_props as hp
+import bokeh.core.has_props as hp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

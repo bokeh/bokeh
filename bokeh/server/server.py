@@ -23,7 +23,7 @@ There are two public classes in this module:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -46,9 +46,8 @@ from ..application import Application
 from ..core.properties import Bool, Int, List, String
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
-
+from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_whitelist
-from .tornado import BokehTornado, DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -21,15 +21,22 @@ from json import loads
 import numpy as np
 
 # Bokeh imports
-from bokeh.core.properties import Int, Instance
 import bokeh.document as document
-from bokeh.document.events import ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
+from bokeh.core.properties import Instance, Int
+from bokeh.document.events import (
+    ColumnDataChangedEvent,
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
+)
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 from bokeh.protocol import Protocol
 
 # Module under test
-from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.protocol.messages.patch_doc import process_document_events # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

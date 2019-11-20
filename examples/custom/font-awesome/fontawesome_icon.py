@@ -1,7 +1,7 @@
 from bokeh.core.properties import Bool, Enum, Float
 from bokeh.models import AbstractIcon
-
 from named_icon import NamedIcon
+
 
 class FontAwesomeIcon(AbstractIcon):
     """ A "stock" icon based on FontAwesome. """

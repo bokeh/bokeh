@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,14 +21,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from urllib.parse import urlparse
 
-# External imports
-
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
-from bokeh.embed.bundle import bundle_for_objs_and_resources, Script
+from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
 
+# Bokeh imports
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------

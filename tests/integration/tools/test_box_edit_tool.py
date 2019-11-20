@@ -18,13 +18,20 @@ import pytest ; pytest
 # Standard library imports
 import time
 
-# External imports
-
 # Bokeh imports
-from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, BoxEditTool, Div
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
+from bokeh.layouts import column
+from bokeh.models import (
+    BoxEditTool,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Div,
+    Plot,
+    Range1d,
+    Rect,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

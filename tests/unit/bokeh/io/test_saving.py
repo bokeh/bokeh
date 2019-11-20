@@ -14,17 +14,15 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from mock import patch
-
 # External imports
+from mock import patch
 
 # Bokeh imports
 from bokeh.io.state import curstate
 from bokeh.models import Plot
 
 # Module under test
-import bokeh.io.saving as bis
+import bokeh.io.saving as bis # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

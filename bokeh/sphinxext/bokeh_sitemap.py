@@ -19,7 +19,7 @@ configuration file ``conf.py``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -33,8 +33,6 @@ from os.path import join
 # External imports
 from sphinx.errors import SphinxError
 from sphinx.util import status_iterator
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

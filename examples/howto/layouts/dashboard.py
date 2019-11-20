@@ -1,7 +1,7 @@
 import numpy as np
 
-from bokeh.layouts import grid, column
-from bokeh.models import CustomJS, Slider, ColumnDataSource
+from bokeh.layouts import column, grid
+from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import figure, output_file, show
 
 output_file('dashboard.html')

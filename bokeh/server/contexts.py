@@ -11,25 +11,22 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado import gen
 
 # Bokeh imports
-from .session import ServerSession
-
 from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup
+from .session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants

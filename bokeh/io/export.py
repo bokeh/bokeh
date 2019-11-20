@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,8 +19,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import io
+import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
@@ -161,13 +161,13 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
 
     return filenames
 
+# this is part of the API for this module
+from .webdriver import terminate_webdriver ; terminate_webdriver
+from .webdriver import webdriver_control ; webdriver_control
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-# this is part of the API for this module
-from .webdriver import webdriver_control
-from .webdriver import terminate_webdriver # for back compat
 
 def create_webdriver():
     ''' Create a new webdriver.

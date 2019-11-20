@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -24,8 +24,6 @@ from warnings import warn
 # External imports
 import pytest
 from selenium import webdriver
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

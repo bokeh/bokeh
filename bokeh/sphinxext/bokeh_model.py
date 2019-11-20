@@ -44,7 +44,7 @@ in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -58,7 +58,6 @@ import warnings
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
-
 from sphinx.errors import SphinxError
 
 # Bokeh imports

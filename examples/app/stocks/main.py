@@ -24,7 +24,7 @@ from os.path import dirname, join
 import pandas as pd
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, PreText, Select
 from bokeh.plotting import figure
 

@@ -30,39 +30,58 @@ always be active regardless of what other tools are currently active.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..core.enums import (Anchor, Dimension, Dimensions, Location,
-                          TooltipFieldFormatter, TooltipAttachment)
+from ..core.enums import (
+    Anchor,
+    Dimension,
+    Dimensions,
+    Location,
+    TooltipAttachment,
+    TooltipFieldFormatter,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
-    Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Image, Int, Float,
-    Percent, Instance, List, Seq, String, Tuple
+    Auto,
+    Bool,
+    Color,
+    Date,
+    Datetime,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Image,
+    Instance,
+    Int,
+    List,
+    Percent,
+    Seq,
+    String,
+    Tuple,
 )
 from ..core.validation import error
 from ..core.validation.errors import (
-    INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_POLY_EDIT_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER, NO_RANGE_TOOL_RANGES
+    INCOMPATIBLE_BOX_EDIT_RENDERER,
+    INCOMPATIBLE_POINT_DRAW_RENDERER,
+    INCOMPATIBLE_POLY_DRAW_RENDERER,
+    INCOMPATIBLE_POLY_EDIT_RENDERER,
+    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
+    NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
-
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import XYGlyph, Rect, Patches, MultiLine
-from .ranges import Range1d
-from .renderers import Renderer, GlyphRenderer
+from .glyphs import MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
+from .ranges import Range1d
+from .renderers import GlyphRenderer, Renderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants

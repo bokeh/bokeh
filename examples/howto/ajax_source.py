@@ -1,8 +1,8 @@
 import numpy as np
 from flask import Flask, jsonify, make_response, request
 
-from bokeh.plotting import figure, show
 from bokeh.models import AjaxDataSource, CustomJS
+from bokeh.plotting import figure, show
 
 # Bokeh related code
 

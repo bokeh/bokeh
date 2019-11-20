@@ -1,9 +1,9 @@
 import math
 
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
-from bokeh.models import GraphRenderer, StaticLayoutProvider, Oval
+from bokeh.io import output_file, show
+from bokeh.models import GraphRenderer, Oval, StaticLayoutProvider
 from bokeh.palettes import Spectral8
+from bokeh.plotting import figure
 
 N = 8
 node_indices = list(range(N))

@@ -17,20 +17,35 @@ import pytest ; pytest
 # Standard library imports
 import datetime
 import itertools
-from mock import mock
 
 # External imports
 import numpy as np
+from mock import mock
 
 # Bokeh imports
-from bokeh.models import (ColumnDataSource, CDSView, GlyphRenderer, Legend,
-                          LegendItem, Marker, CategoricalAxis, LinearAxis,
-                          LogAxis, MercatorAxis, DatetimeAxis, Range1d, DataRange1d,
-                          FactorRange, LinearScale, LogScale, CategoricalScale)
+from bokeh.models import (
+    CategoricalAxis,
+    CategoricalScale,
+    CDSView,
+    ColumnDataSource,
+    DataRange1d,
+    DatetimeAxis,
+    FactorRange,
+    GlyphRenderer,
+    Legend,
+    LegendItem,
+    LinearAxis,
+    LinearScale,
+    LogAxis,
+    LogScale,
+    Marker,
+    MercatorAxis,
+    Range1d,
+)
 from bokeh.plotting import Figure
 
 # Module under test
-import bokeh.plotting.helpers as bph
+import bokeh.plotting.helpers as bph # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

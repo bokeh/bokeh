@@ -1,11 +1,11 @@
 # Based on https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
 
-import shapefile as shp
 import pandas as pd
+import shapefile as shp
 
-from bokeh.plotting import figure, show
+from bokeh.models import ColorBar, ColumnDataSource, Label, LinearColorMapper
 from bokeh.palettes import YlOrRd5
-from bokeh.models import ColumnDataSource, LinearColorMapper, Label, ColorBar
+from bokeh.plotting import figure, show
 from bokeh.sampledata.us_states import data
 
 states = pd.DataFrame.from_dict(data, orient="index")

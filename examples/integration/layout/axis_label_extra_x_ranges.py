@@ -1,5 +1,5 @@
+from bokeh.models import LinearAxis, Range1d
 from bokeh.plotting import figure, save
-from bokeh.models import Range1d, LinearAxis
 
 plot = figure(title=None, x_axis_location=None, y_axis_location=None)
 

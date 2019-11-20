@@ -12,21 +12,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.model import Model
 from bokeh.core.enums import enumeration
 from bokeh.core.properties import Auto, Either, Enum, Float, Int, List, String, Tuple
+from bokeh.model import Model
 from bokeh.util.options import Options
 
 #-----------------------------------------------------------------------------

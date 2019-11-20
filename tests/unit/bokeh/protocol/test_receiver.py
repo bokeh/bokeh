@@ -14,22 +14,18 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.protocol import Protocol
 from bokeh.protocol.exceptions import ValidationError
 
 # Module under test
-from bokeh.protocol import receiver
+from bokeh.protocol import receiver # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-_proto = Protocol()
+proto = Protocol()
 
 #-----------------------------------------------------------------------------
 # General API
@@ -40,8 +36,8 @@ def test_creation():
 
 @pytest.mark.asyncio
 async def test_validation_success():
-    msg = _proto.create('ACK')
-    r = receiver.Receiver(_proto)
+    msg = proto.create('ACK')
+    r = receiver.Receiver(proto)
 
     partial = await r.consume(msg.header_json)
     assert partial is None
@@ -58,7 +54,7 @@ async def test_validation_success():
 
 @pytest.mark.asyncio
 async def test_validation_success_with_one_buffer():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     assert partial is None
@@ -82,7 +78,7 @@ async def test_validation_success_with_one_buffer():
 
 @pytest.mark.asyncio
 async def test_multiple_validation_success_with_multiple_buffers():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     for N in range(10):
         partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":%d}' % N)
@@ -102,14 +98,14 @@ async def test_multiple_validation_success_with_multiple_buffers():
 
 @pytest.mark.asyncio
 async def test_binary_header_raises_error():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     with pytest.raises(ValidationError):
         await r.consume(b'header')
 
 @pytest.mark.asyncio
 async def test_binary_metadata_raises_error():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     await r.consume('header')
     with pytest.raises(ValidationError):
@@ -117,7 +113,7 @@ async def test_binary_metadata_raises_error():
 
 @pytest.mark.asyncio
 async def test_binary_content_raises_error():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     await r.consume('header')
     await r.consume('metadata')
@@ -126,7 +122,7 @@ async def test_binary_content_raises_error():
 
 @pytest.mark.asyncio
 async def test_binary_payload_header_raises_error():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     await r.consume('{}')
@@ -135,7 +131,7 @@ async def test_binary_payload_header_raises_error():
         await r.consume(b'buf_header')
 @pytest.mark.asyncio
 async def test_text_payload_buffer_raises_error():
-    r = receiver.Receiver(_proto)
+    r = receiver.Receiver(proto)
 
     await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     await r.consume('{}')

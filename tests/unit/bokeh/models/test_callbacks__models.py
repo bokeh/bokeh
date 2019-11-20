@@ -14,8 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from pytest import raises
 
@@ -23,7 +21,7 @@ from pytest import raises
 from bokeh.models import Slider
 
 # Module under test
-from bokeh.models import CustomJS
+from bokeh.models import CustomJS # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

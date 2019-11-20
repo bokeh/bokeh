@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.io import show
-from bokeh.layouts import row, column
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJS, Spinner
 from bokeh.plotting import Figure
 

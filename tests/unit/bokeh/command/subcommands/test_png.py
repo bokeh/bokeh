@@ -18,18 +18,16 @@ import pytest ; pytest
 import argparse
 import os
 
-# External imports
-
 # Bokeh imports
 import bokeh.command.subcommands.png as scpng
-from bokeh.command.bootstrap import main
+from _util_subcommands import basic_scatter_script
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
+from bokeh.command.bootstrap import main
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_subcommands import basic_scatter_script
 
 #-----------------------------------------------------------------------------
 # General API

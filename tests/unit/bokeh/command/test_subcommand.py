@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# External imports
 from mock import MagicMock
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.command.subcommand as sc
+import bokeh.command.subcommand as sc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Private API

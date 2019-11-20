@@ -24,14 +24,12 @@ in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 
 # External imports
 from docutils import nodes
@@ -40,6 +38,7 @@ from docutils.parsers.rst.directives import unchanged
 # Bokeh imports
 from bokeh.colors import named
 
+# Bokeh imports
 from .bokeh_directive import BokehDirective
 from .templates import COLOR_DETAIL
 

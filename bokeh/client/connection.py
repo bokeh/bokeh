@@ -15,7 +15,7 @@ instead for standard usage.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -28,13 +28,19 @@ from urllib.parse import quote_plus
 # External imports
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
-from tornado.websocket import websocket_connect, WebSocketError
+from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
-from .states import NOT_YET_CONNECTED, CONNECTED_BEFORE_ACK, CONNECTED_AFTER_ACK, DISCONNECTED, WAITING_FOR_REPLY
+from .states import (
+    CONNECTED_AFTER_ACK,
+    CONNECTED_BEFORE_ACK,
+    DISCONNECTED,
+    NOT_YET_CONNECTED,
+    WAITING_FOR_REPLY,
+)
 from .websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------

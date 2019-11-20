@@ -1,6 +1,7 @@
-from bokeh.plotting import figure
-from bokeh.models import CustomJS, ColumnDataSource
+# Bokeh imports
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, CustomJS
+from bokeh.plotting import figure
 
 source = ColumnDataSource(data=dict(x=[.5], y=[.5]))
 

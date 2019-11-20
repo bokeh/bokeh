@@ -15,16 +15,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import hashlib
+import io
 from os.path import abspath, join, split
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.core.templates as bct
+import bokeh.core.templates as bct # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -1,10 +1,10 @@
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
-from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 def bkapp(doc):
     df = sea_surface_temperature.copy()

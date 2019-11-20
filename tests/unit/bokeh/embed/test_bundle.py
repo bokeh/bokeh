@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.document import Document
 
 # Module under test
-import bokeh.embed.bundle as beb
+import bokeh.embed.bundle as beb # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

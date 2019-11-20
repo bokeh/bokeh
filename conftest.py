@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
 pytest_plugins = (
     "bokeh._testing.plugins.implicit_mark",
     "bokeh._testing.plugins.ipython",
@@ -5,7 +12,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.pandas",
 )
 
+# Bokeh imports
 from bokeh._testing.util.git import version_from_git
+
 
 # Unfortunately these seem to all need to be centrally defined at the top level
 def pytest_addoption(parser):

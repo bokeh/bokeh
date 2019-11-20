@@ -79,18 +79,15 @@ that can be used to attach Bokeh properties to Bokeh models.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-
 # Standard library imports
 from copy import copy
-
-# External imports
 
 # Bokeh imports
 from .wrappers import PropertyValueColumnData, PropertyValueContainer

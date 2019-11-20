@@ -16,13 +16,11 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
+# Bokeh imports
+from bokeh.ext import build
 
 # Bokeh imports
 from ..subcommand import Subcommand
-from bokeh.ext import build
 
 #-----------------------------------------------------------------------------
 # Globals and constants

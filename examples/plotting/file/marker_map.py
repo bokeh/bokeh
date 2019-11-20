@@ -1,4 +1,4 @@
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers
 from bokeh.transform import factor_cmap, factor_mark
 

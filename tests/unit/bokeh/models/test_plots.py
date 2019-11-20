@@ -14,22 +14,30 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# External imports
 import mock
 from mock import patch
 
-# External imports
-
 # Bokeh imports
 from bokeh.core.validation import check_integrity
+from bokeh.models import (
+    CategoricalScale,
+    CustomJS,
+    DataRange1d,
+    FactorRange,
+    GlyphRenderer,
+    Label,
+    LinearAxis,
+    LinearScale,
+    LogScale,
+    PanTool,
+    Plot,
+    Range1d,
+)
 from bokeh.plotting import figure
 
-from bokeh.models import (PanTool, GlyphRenderer, Label, Plot, LinearAxis,
-                          CustomJS, CategoricalScale, LinearScale, LogScale,
-                          FactorRange, DataRange1d, Range1d)
-
 # Module under test
-import bokeh.models.plots as bmp
+import bokeh.models.plots as bmp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

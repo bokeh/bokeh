@@ -12,7 +12,7 @@ interfaces to classes.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,8 +21,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import signature
-
-# External imports
 
 # Bokeh imports
 from ..events import Event

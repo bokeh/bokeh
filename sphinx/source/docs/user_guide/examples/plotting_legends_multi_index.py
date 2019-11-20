@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, show
 from bokeh.models import Legend, LegendItem
+from bokeh.plotting import figure, show
 
 p = figure()
 r = p.multi_line([[1,2,3], [1,2,3]], [[1,3,2], [3,4,3]],

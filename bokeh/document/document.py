@@ -24,7 +24,7 @@ figure below:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -32,10 +32,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from collections import defaultdict
 from functools import wraps
 from json import loads
-import sys
 
 # External imports
 import jinja2
@@ -47,15 +47,25 @@ from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
 from ..events import Event
-from ..themes import default as default_theme, built_in_themes
-from ..themes import Theme
+from ..themes import Theme, built_in_themes
+from ..themes import default as default_theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.version import __version__
-
-from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent
+from .events import (
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
+    SessionCallbackAdded,
+    SessionCallbackRemoved,
+    TitleChangedEvent,
+)
 from .locking import UnlockedDocumentProxy
-from .util import initialize_references_json, instantiate_references_json, references_json
+from .util import (
+    initialize_references_json,
+    instantiate_references_json,
+    references_json,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

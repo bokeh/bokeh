@@ -16,22 +16,16 @@ in the browser,  or with python callbacks that execute on a Bokeh server.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
-
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Int, Enum, Override
-
+from ...core.properties import Enum, Int, Override
 from ..layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------

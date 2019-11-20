@@ -17,13 +17,12 @@ import pytest ; pytest
 # Standard library imports
 from itertools import chain
 
-# External imports
-
 # Bokeh imports
-from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap
+from bokeh.core.enums import LineCap, LineJoin
+from bokeh.core.enums import NamedColor as Color
 
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

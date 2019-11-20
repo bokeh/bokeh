@@ -25,7 +25,7 @@ The default logging level is ``none``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -35,8 +35,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from typing import Any, Optional, cast
-
-# External imports
 
 # Bokeh imports
 from ..settings import settings

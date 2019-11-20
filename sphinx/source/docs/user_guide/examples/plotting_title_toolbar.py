@@ -1,4 +1,4 @@
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 p = figure(title="Top Title with Toolbar", toolbar_location="above",
            plot_width=600, plot_height=300)

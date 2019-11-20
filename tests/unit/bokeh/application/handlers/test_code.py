@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.document import Document
 
 # Module under test
-import bokeh.application.handlers.code as bahc
+import bokeh.application.handlers.code as bahc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -15,18 +15,18 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from copy import copy
 import datetime
+from copy import copy
 
 # External imports
 import numpy as np
 
 # Bokeh imports
-from bokeh.core.has_props import HasProps
 from bokeh._testing.util.api import verify_all
+from bokeh.core.has_props import HasProps
 
 # Module under test
-import bokeh.core.property.dataspec as bcpd
+import bokeh.core.property.dataspec as bcpd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

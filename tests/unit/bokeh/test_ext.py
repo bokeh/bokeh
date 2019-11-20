@@ -17,12 +17,8 @@ import pytest ; pytest
 # Standard library imports
 import os
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.ext as ext
+import bokeh.ext as ext # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

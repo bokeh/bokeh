@@ -18,13 +18,11 @@ import pytest ; pytest
 import logging
 import os
 
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.settings as bs
+import bokeh.settings as bs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

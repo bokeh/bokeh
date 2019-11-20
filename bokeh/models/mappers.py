@@ -13,7 +13,7 @@ Mappers (as opposed to scales) are not presumed to be invertible.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,13 +23,22 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import warnings
 
-# External imports
-
 # Bokeh imports
 from .. import palettes
-from ..core.has_props import abstract
-from ..core.properties import Color, Either, Enum, Float, HatchPatternType, Int, MarkerType, Seq, String, Tuple
 from ..core.enums import Palette
+from ..core.has_props import abstract
+from ..core.properties import (
+    Color,
+    Either,
+    Enum,
+    Float,
+    HatchPatternType,
+    Int,
+    MarkerType,
+    Seq,
+    String,
+    Tuple,
+)
 from .transforms import Transform
 
 #-----------------------------------------------------------------------------

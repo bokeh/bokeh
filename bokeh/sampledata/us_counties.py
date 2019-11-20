@@ -28,7 +28,7 @@ The combination of ``'detailed name'`` and ``'state'`` will always be unique.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -38,8 +38,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import csv
 import xml.etree.cElementTree as et
-
-# External imports
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv

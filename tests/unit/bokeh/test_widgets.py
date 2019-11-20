@@ -17,12 +17,8 @@ import pytest ; pytest
 # Standard library imports
 import inspect
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
-
+ # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------

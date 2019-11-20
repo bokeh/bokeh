@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import networkx as nx
 
-# Bokeh imports
-
 # Module under test
-from bokeh.models.graphs import StaticLayoutProvider, from_networkx
+from bokeh.models.graphs import StaticLayoutProvider, from_networkx # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

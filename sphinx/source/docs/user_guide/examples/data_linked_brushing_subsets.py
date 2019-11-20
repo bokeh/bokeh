@@ -1,6 +1,6 @@
-from bokeh.plotting import figure, output_file, show
 from bokeh.layouts import gridplot
-from bokeh.models import ColumnDataSource, CDSView, BooleanFilter
+from bokeh.models import BooleanFilter, CDSView, ColumnDataSource
+from bokeh.plotting import figure, output_file, show
 
 output_file("linked_selection_subsets.html")
 

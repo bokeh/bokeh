@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,save"
 

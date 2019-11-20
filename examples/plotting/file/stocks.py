@@ -1,8 +1,9 @@
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
+
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)

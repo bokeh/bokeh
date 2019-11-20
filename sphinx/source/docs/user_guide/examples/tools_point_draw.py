@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, output_file, show, Column
-from bokeh.models import DataTable, TableColumn, PointDrawTool, ColumnDataSource
+from bokeh.models import ColumnDataSource, DataTable, PointDrawTool, TableColumn
+from bokeh.plotting import Column, figure, output_file, show
 
 output_file("tools_point_draw.html")
 

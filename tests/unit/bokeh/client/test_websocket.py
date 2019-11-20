@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado import locks
 
-# Bokeh imports
-
 # Module under test
-import bokeh.client.websocket as bcw
+import bokeh.client.websocket as bcw # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

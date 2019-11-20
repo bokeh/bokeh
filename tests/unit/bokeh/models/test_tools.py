@@ -15,17 +15,15 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import mock
-
 # External imports
+import mock
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity
 from bokeh.models import LayoutDOM
 
 # Module under test
-from bokeh.models.tools import Toolbar, ToolbarBox
+from bokeh.models.tools import Toolbar, ToolbarBox # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

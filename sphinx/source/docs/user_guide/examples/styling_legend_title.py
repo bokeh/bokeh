@@ -2,7 +2,7 @@ import pandas as pd
 
 from bokeh.palettes import Spectral4
 from bokeh.plotting import figure, output_file, show
-from bokeh.sampledata.stocks import AAPL, IBM, MSFT, GOOG
+from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
 
 output_file("styling_legend_title.html", title="styling_legend_title.py example")
 

@@ -1,7 +1,7 @@
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
 from bokeh.models import Slope
+from bokeh.plotting import figure, output_file, show
 
 output_file("slope.html", title="slope.py example")
 

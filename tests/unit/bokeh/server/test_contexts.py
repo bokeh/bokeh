@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.application import Application
 
 # Module under test
-import bokeh.server.contexts as bsc
+import bokeh.server.contexts as bsc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

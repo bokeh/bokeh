@@ -1,5 +1,9 @@
-from bokeh.core.properties import String, Instance, Override
+from bokeh.core.properties import Instance, Override, String
+from bokeh.io import show
+from bokeh.layouts import column
 from bokeh.models import HTMLBox, Slider
+from bokeh.util.compiler import TypeScript
+
 
 CODE ="""
 import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
@@ -81,7 +85,6 @@ export class Custom extends HTMLBox {
 }
 """
 
-from bokeh.util.compiler import TypeScript
 
 class Custom(HTMLBox):
 
@@ -93,10 +96,7 @@ class Custom(HTMLBox):
 
     margin = Override(default=5)
 
-from bokeh.io import show
 
-from bokeh.layouts import column
-from bokeh.models import Slider
 
 slider = Slider(start=0, end=10, step=0.1, value=0, title="value")
 

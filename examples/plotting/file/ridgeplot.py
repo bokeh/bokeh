@@ -1,3 +1,4 @@
+import colorcet as cc
 from numpy import linspace
 from scipy.stats.kde import gaussian_kde
 
@@ -5,8 +6,6 @@ from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter
 from bokeh.plotting import figure
 from bokeh.sampledata.perceptions import probly
-
-import colorcet as cc
 
 output_file("ridgeplot.html")
 

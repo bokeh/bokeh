@@ -18,8 +18,6 @@ import pytest ; pytest
 # Standard library imports
 import time
 
-# External imports
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import Button, Plot, Range1d

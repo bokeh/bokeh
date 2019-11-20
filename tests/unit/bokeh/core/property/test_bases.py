@@ -14,18 +14,16 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from mock import patch
 import numpy as np
+from mock import patch
 
 # Bokeh imports
-from bokeh.core.has_props import HasProps
 from bokeh._testing.util.api import verify_all
+from bokeh.core.has_props import HasProps
 
 # Module under test
-import bokeh.core.property.bases as bcpb
+import bokeh.core.property.bases as bcpb # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -14,14 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.protocol.message as message
+import bokeh.protocol.message as message # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

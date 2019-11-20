@@ -15,13 +15,14 @@ Including another URLconf
 """
 from pathlib import Path
 
-from django.contrib import admin
-from django.urls import path
 from django.apps import apps
 from django.conf import settings
+from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.urls import path
 
 import bokeh
-from bokeh.server.django import autoload, document, directory
+from bokeh.server.django import autoload, directory, document
 
 from . import views
 
@@ -45,5 +46,4 @@ bokeh_apps = [
 apps_path = Path(bokeh.__file__).parent.parent / "examples" / "app"
 bokeh_apps += directory(apps_path)
 
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 urlpatterns += staticfiles_urlpatterns()

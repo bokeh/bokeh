@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.models import Circle, MultiLine, ColumnDataSource
+from bokeh.models import Circle, ColumnDataSource, MultiLine
 
 # Module under test
-from bokeh.models.renderers import GlyphRenderer, GraphRenderer
+from bokeh.models.renderers import GlyphRenderer, GraphRenderer # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

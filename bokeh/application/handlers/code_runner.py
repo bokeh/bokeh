@@ -12,7 +12,7 @@ Python source code.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -24,8 +24,6 @@ import os
 import sys
 import traceback
 from types import ModuleType
-
-# External imports
 
 # Bokeh imports
 from ...util.serialization import make_id

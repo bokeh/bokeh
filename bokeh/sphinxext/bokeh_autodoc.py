@@ -20,23 +20,25 @@ configured:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
+from sphinx.ext.autodoc import (
+    AttributeDocumenter,
+    ClassDocumenter,
+    ModuleLevelDocumenter,
+)
 
 # Bokeh imports
 from bokeh.colors.color import Color
-from bokeh.model import Model
 from bokeh.core.enums import Enumeration
 from bokeh.core.property.descriptors import PropertyDescriptor
+from bokeh.model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants

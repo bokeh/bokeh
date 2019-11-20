@@ -14,8 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from numpy.testing import assert_allclose
 
@@ -23,7 +21,7 @@ from numpy.testing import assert_allclose
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.driving as bd
+import bokeh.driving as bd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

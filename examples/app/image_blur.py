@@ -1,6 +1,6 @@
 import numpy as np
-from numba import njit
 import scipy.misc
+from numba import njit
 
 from bokeh.io import curdoc
 from bokeh.layouts import column

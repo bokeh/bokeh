@@ -23,9 +23,21 @@ from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
+from bokeh._testing.util.selenium import (
+    RECORD,
+    enter_text_in_element,
+    get_table_row,
+    shift_click,
+)
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomJS, DataTable, TableColumn, TextAreaInput, TextInput
-from bokeh._testing.util.selenium import enter_text_in_element, get_table_row, RECORD, shift_click
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    TableColumn,
+    TextAreaInput,
+    TextInput,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

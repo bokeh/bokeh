@@ -1,12 +1,14 @@
+# Standard library imports
+import inspect
 import io
 import os
 import sys
-import inspect
 from json import loads
 
-from bokeh.model import Model
+# Bokeh imports
 import bokeh.models as models
 from bokeh.core.json_encoder import serialize_json
+from bokeh.model import Model
 
 dest_dir = sys.argv[1]
 

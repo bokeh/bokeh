@@ -17,31 +17,38 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import logging
-from mock import patch
 import os
 import sys
 
 # External imports
+from mock import patch
 from tornado.httpclient import HTTPError
 
 # Bokeh imports
+import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
-from bokeh.client import pull_session, push_session, ClientSession
-import bokeh.document as document
+from bokeh.client import ClientSession, pull_session, push_session
+from bokeh.core.properties import (
+    AngleSpec,
+    Any,
+    Dict,
+    DistanceSpec,
+    Instance,
+    Int,
+    String,
+)
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
-from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
 from bokeh.model import Model
 from bokeh.models import Plot
+from server._util_server import http_get, url, websocket_open, ws_url
 
 # Module under test
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-from server._util_server import url, ws_url, http_get, websocket_open
 
 #-----------------------------------------------------------------------------
 # General API

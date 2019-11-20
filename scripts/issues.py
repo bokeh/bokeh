@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 
+# Standard library imports
 import argparse
 import datetime
-import dateutil.parser
-import dateutil.tz
 import gzip
 import json
 import logging
 import os
 import pickle
 import sys
-
 from collections import OrderedDict
 from functools import partial
 from itertools import count, groupby
-from urllib.request import urlopen, Request
+from urllib.request import Request, urlopen
+
+# External imports
+import dateutil.parser
+import dateutil.tz
 
 logging.basicConfig(level=logging.INFO)
 

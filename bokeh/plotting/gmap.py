@@ -8,25 +8,30 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..core.properties import Auto, Either, Enum, Int, Seq, Instance, String
-from ..models import GMapPlot, LinearAxis, MercatorTicker, MercatorTickFormatter, Range1d, Title, Tool
-from ..models import glyphs, markers
+from ..core.properties import Auto, Either, Enum, Instance, Int, Seq, String
+from ..models import (
+    GMapPlot,
+    LinearAxis,
+    MercatorTicker,
+    MercatorTickFormatter,
+    Range1d,
+    Title,
+    Tool,
+    glyphs,
+    markers,
+)
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
-from .helpers import _process_tools_arg, _process_active_tools, _glyph_function
+from .helpers import _glyph_function, _process_active_tools, _process_tools_arg
 
 #-----------------------------------------------------------------------------
 # Globals and constants

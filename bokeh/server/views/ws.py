@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -24,17 +24,18 @@ from urllib.parse import urlparse
 
 # External imports
 from tornado import locks
-from tornado.websocket import WebSocketHandler, WebSocketClosedError
+from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
-from ..protocol_handler import ProtocolHandler
+from bokeh.settings import settings
+from bokeh.util.session_id import check_session_id_signature
+
+# Bokeh imports
 from ...protocol import Protocol
 from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
-
-from bokeh.util.session_id import check_session_id_signature
-from bokeh.settings import settings
+from ..protocol_handler import ProtocolHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
