@@ -23,10 +23,22 @@ from copy import copy
 from mock import patch
 
 # Bokeh imports
-from _util_document import (AnotherModelInTestDocument, ModelThatOverridesName,
-                            ModelWithSpecInTestDocument, SomeModelInTestDocument)
-from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
-                                   RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
+from _util_document import (
+    AnotherModelInTestDocument,
+    ModelThatOverridesName,
+    ModelWithSpecInTestDocument,
+    SomeModelInTestDocument
+)
+from bokeh.document.events import (
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
+    SessionCallbackAdded,
+    SessionCallbackRemoved,
+    TitleChangedEvent
+)
 from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource
 from bokeh.protocol.messages.patch_doc import process_document_events

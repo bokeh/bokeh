@@ -1,8 +1,8 @@
 import numpy as np
 
 from bokeh.core.properties import Instance, String
-from bokeh.models import ColumnDataSource, LayoutDOM
 from bokeh.io import show
+from bokeh.models import ColumnDataSource, LayoutDOM
 from bokeh.util.compiler import TypeScript
 
 TS_CODE = """

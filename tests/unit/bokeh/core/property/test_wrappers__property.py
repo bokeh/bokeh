@@ -19,9 +19,30 @@ from mock import patch
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import (Angle, Any, Bool, Color, ColumnData, Complex, DashPattern,
-                                   Dict, Either, Enum, Float, Instance, Int, Interval, List,
-                                   MinMaxBounds, Percent, Regex, Seq, Size, String, Tuple)
+from bokeh.core.properties import (
+    Angle,
+    Any,
+    Bool,
+    Color,
+    ColumnData,
+    Complex,
+    DashPattern,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    Interval,
+    List,
+    MinMaxBounds,
+    Percent,
+    Regex,
+    Seq,
+    Size,
+    String,
+    Tuple
+)
 from bokeh.models import ColumnDataSource
 
 # Module under test

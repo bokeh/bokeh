@@ -1,7 +1,8 @@
-from bokeh.plotting import figure, show, output_file
-from bokeh.models import Band, ColumnDataSource
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+from bokeh.models import Band, ColumnDataSource
+from bokeh.plotting import figure, output_file, show
 
 output_file("band.html", title="band.py example")
 

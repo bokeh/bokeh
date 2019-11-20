@@ -21,13 +21,38 @@ from datetime import datetime
 import mock
 
 # Bokeh imports
-from _util_models import (ANGLE, FILL, LINE, TEXT, check_fill_properties, check_line_properties,
-                          check_properties_existence, check_text_properties, prefix)
+from _util_models import (
+    ANGLE,
+    FILL,
+    LINE,
+    TEXT,
+    check_fill_properties,
+    check_line_properties,
+    check_properties_existence,
+    check_text_properties,
+    prefix
+)
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
-from bokeh.models import (Arrow, ArrowHead, Band, BasicTicker, BasicTickFormatter,
-                          BoxAnnotation, ColorBar, ColumnDataSource, GlyphRenderer, Label,
-                          LabelSet, Legend, LegendItem, Slope, Span, Title, Whisker)
+from bokeh.models import (
+    Arrow,
+    ArrowHead,
+    Band,
+    BasicTicker,
+    BasicTickFormatter,
+    BoxAnnotation,
+    ColorBar,
+    ColumnDataSource,
+    GlyphRenderer,
+    Label,
+    LabelSet,
+    Legend,
+    LegendItem,
+    Slope,
+    Span,
+    Title,
+    Whisker
+)
 
 #-----------------------------------------------------------------------------
 # Setup

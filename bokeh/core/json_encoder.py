@@ -61,8 +61,14 @@ import numpy as np
 # Bokeh imports
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.serialization import (convert_datetime_type, convert_timedelta_type, is_datetime_type,
-                                  is_timedelta_type, transform_array, transform_series)
+from ..util.serialization import (
+    convert_datetime_type,
+    convert_timedelta_type,
+    is_datetime_type,
+    is_timedelta_type,
+    transform_array,
+    transform_series
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

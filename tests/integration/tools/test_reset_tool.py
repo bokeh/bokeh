@@ -17,8 +17,20 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh._testing.util.selenium import COUNT, RECORD
-from bokeh.models import (CategoricalScale, Circle, ColumnDataSource, CustomAction, CustomJS,
-                          DataRange1d, FactorRange, Plot, Range1d, Rect, ResetTool, ZoomInTool)
+from bokeh.models import (
+    CategoricalScale,
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    DataRange1d,
+    FactorRange,
+    Plot,
+    Range1d,
+    Rect,
+    ResetTool,
+    ZoomInTool
+)
 
 #-----------------------------------------------------------------------------
 # Tests

@@ -30,12 +30,52 @@ import numpy as np
 
 # Bokeh imports
 from ..core.properties import ColorSpec, Datetime, field, value
-from ..models import (BoxEditTool, BoxSelectTool, BoxZoomTool, CategoricalAxis, CategoricalScale, Circle,
-                      ColumnarDataSource, ColumnDataSource, ContinuousTicker, CrosshairTool, DataRange1d, DatetimeAxis,
-                      FactorRange, GlyphRenderer, Grid, HelpTool, HoverTool, LassoSelectTool, Legend, LegendItem,
-                      LinearAxis, LinearScale, LogAxis, LogScale, Marker, MercatorAxis, MultiLine, PanTool,
-                      PointDrawTool, PolyDrawTool, PolyEditTool, PolySelectTool, Range, Range1d, RedoTool, ResetTool,
-                      SaveTool, TapTool, Tool, UndoTool, WheelPanTool, WheelZoomTool, ZoomInTool, ZoomOutTool)
+from ..models import (
+    BoxEditTool,
+    BoxSelectTool,
+    BoxZoomTool,
+    CategoricalAxis,
+    CategoricalScale,
+    Circle,
+    ColumnarDataSource,
+    ColumnDataSource,
+    ContinuousTicker,
+    CrosshairTool,
+    DataRange1d,
+    DatetimeAxis,
+    FactorRange,
+    GlyphRenderer,
+    Grid,
+    HelpTool,
+    HoverTool,
+    LassoSelectTool,
+    Legend,
+    LegendItem,
+    LinearAxis,
+    LinearScale,
+    LogAxis,
+    LogScale,
+    Marker,
+    MercatorAxis,
+    MultiLine,
+    PanTool,
+    PointDrawTool,
+    PolyDrawTool,
+    PolyEditTool,
+    PolySelectTool,
+    Range,
+    Range1d,
+    RedoTool,
+    ResetTool,
+    SaveTool,
+    TapTool,
+    Tool,
+    UndoTool,
+    WheelPanTool,
+    WheelZoomTool,
+    ZoomInTool,
+    ZoomOutTool
+)
 from ..transform import stack
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated

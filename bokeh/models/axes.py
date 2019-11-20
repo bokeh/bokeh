@@ -22,11 +22,30 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import TickLabelOrientation
 from ..core.has_props import abstract
-from ..core.properties import (Auto, Datetime, Dict, Either, Enum, Float, Include,
-                               Instance, Int, Override, Seq, String, Tuple)
+from ..core.properties import (
+    Auto,
+    Datetime,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Include,
+    Instance,
+    Int,
+    Override,
+    Seq,
+    String,
+    Tuple
+)
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
-from .formatters import (BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter,
-                         LogTickFormatter, MercatorTickFormatter, TickFormatter)
+from .formatters import (
+    BasicTickFormatter,
+    CategoricalTickFormatter,
+    DatetimeTickFormatter,
+    LogTickFormatter,
+    MercatorTickFormatter,
+    TickFormatter
+)
 from .renderers import GuideRenderer
 from .tickers import BasicTicker, CategoricalTicker, DatetimeTicker, FixedTicker, LogTicker, MercatorTicker, Ticker
 

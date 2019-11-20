@@ -1,4 +1,5 @@
 import pandas as pd
+
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.stocks import AAPL
 

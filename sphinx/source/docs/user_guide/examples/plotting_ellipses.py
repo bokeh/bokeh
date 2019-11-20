@@ -1,5 +1,6 @@
 from math import pi
-from bokeh.plotting import figure, show, output_file
+
+from bokeh.plotting import figure, output_file, show
 
 output_file('ellipses.html')
 

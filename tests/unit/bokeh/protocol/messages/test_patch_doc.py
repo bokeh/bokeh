@@ -23,8 +23,14 @@ import numpy as np
 # Bokeh imports
 import bokeh.document as document
 from bokeh.core.properties import Instance, Int
-from bokeh.document.events import (ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent,
-                                   ModelChangedEvent, RootAddedEvent, RootRemovedEvent)
+from bokeh.document.events import (
+    ColumnDataChangedEvent,
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent
+)
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
 from bokeh.protocol import Protocol

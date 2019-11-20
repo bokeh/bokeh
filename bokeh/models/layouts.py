@@ -21,12 +21,32 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import Align, Location, SizingMode, SizingPolicy
 from ..core.has_props import abstract
-from ..core.properties import (Auto, Bool, Color, Dict, Either, Enum, Float, Instance,
-                               Int, List, NonNegativeInt, Seq, String, Struct, Tuple)
+from ..core.properties import (
+    Auto,
+    Bool,
+    Color,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    List,
+    NonNegativeInt,
+    Seq,
+    String,
+    Struct,
+    Tuple
+)
 from ..core.validation import error, warning
 from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH
-from ..core.validation.warnings import (BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT, FIXED_HEIGHT_POLICY,
-                                        FIXED_SIZING_MODE, FIXED_WIDTH_POLICY)
+from ..core.validation.warnings import (
+    BOTH_CHILD_AND_ROOT,
+    EMPTY_LAYOUT,
+    FIXED_HEIGHT_POLICY,
+    FIXED_SIZING_MODE,
+    FIXED_WIDTH_POLICY
+)
 from ..model import Model
 from .callbacks import Callback
 

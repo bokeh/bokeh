@@ -1,4 +1,5 @@
 import numpy as np
+
 from bokeh.plotting import figure, output_file, show
 
 output_file("tools_hover_tooltip_image.html")

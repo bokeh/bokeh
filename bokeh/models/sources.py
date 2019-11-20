@@ -20,8 +20,21 @@ import warnings
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import (JSON, Any, Bool, ColumnData, Dict, Enum, Instance, Int,
-                               List, PandasDataFrame, PandasGroupBy, Seq, String)
+from ..core.properties import (
+    JSON,
+    Any,
+    Bool,
+    ColumnData,
+    Dict,
+    Enum,
+    Instance,
+    Int,
+    List,
+    PandasDataFrame,
+    PandasGroupBy,
+    Seq,
+    String
+)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array

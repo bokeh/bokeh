@@ -1,5 +1,5 @@
 from bokeh.layouts import column
-from bokeh.models import CustomJS, ColumnDataSource, Slider
+from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import figure, output_file, show
 
 output_file("callback.html")

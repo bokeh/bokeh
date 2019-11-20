@@ -1,5 +1,5 @@
+from bokeh.models import Arrow, NormalHead, OpenHead, VeeHead
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import Arrow, OpenHead, NormalHead, VeeHead
 
 output_file("arrow.html", title="arrow.py example")
 

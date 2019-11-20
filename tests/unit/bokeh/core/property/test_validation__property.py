@@ -20,10 +20,40 @@ import re
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
-from bokeh.core.properties import (Angle, AngleSpec, Bool, Color, ColorSpec, ColumnData, Complex, DashPattern,
-                                   DataDistanceSpec, Date, Dict, DistanceSpec, Either, Enum, Float, FontSize,
-                                   FontSizeSpec, Instance, Int, Interval, List, MarkerType, MinMaxBounds, NumberSpec,
-                                   Percent, Regex, ScreenDistanceSpec, Seq, Size, String, StringSpec, Tuple)
+from bokeh.core.properties import (
+    Angle,
+    AngleSpec,
+    Bool,
+    Color,
+    ColorSpec,
+    ColumnData,
+    Complex,
+    DashPattern,
+    DataDistanceSpec,
+    Date,
+    Dict,
+    DistanceSpec,
+    Either,
+    Enum,
+    Float,
+    FontSize,
+    FontSizeSpec,
+    Instance,
+    Int,
+    Interval,
+    List,
+    MarkerType,
+    MinMaxBounds,
+    NumberSpec,
+    Percent,
+    Regex,
+    ScreenDistanceSpec,
+    Seq,
+    Size,
+    String,
+    StringSpec,
+    Tuple
+)
 from bokeh.core.property.bases import validation_on
 
 # Module under test

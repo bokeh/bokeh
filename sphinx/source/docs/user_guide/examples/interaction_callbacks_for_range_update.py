@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, CustomJS, Rect
-from bokeh.plotting import output_file, figure, show
+from bokeh.plotting import figure, output_file, show
 
 output_file('range_update_callback.html')
 

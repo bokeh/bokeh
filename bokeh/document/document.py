@@ -52,8 +52,14 @@ from ..themes import default as default_theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.version import __version__
-from .events import (ModelChangedEvent, RootAddedEvent, RootRemovedEvent,
-                     SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
+from .events import (
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
+    SessionCallbackAdded,
+    SessionCallbackRemoved,
+    TitleChangedEvent
+)
 from .locking import UnlockedDocumentProxy
 from .util import initialize_references_json, instantiate_references_json, references_json
 

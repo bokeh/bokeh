@@ -1,7 +1,7 @@
 from bokeh.io import output_file, show
-from bokeh.plotting import figure
 from bokeh.layouts import layout
-from bokeh.models import Toggle, BoxAnnotation
+from bokeh.models import BoxAnnotation, Toggle
+from bokeh.plotting import figure
 
 output_file("styling_visible_annotation_with_interaction.html")
 

@@ -16,8 +16,18 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
-from bokeh.models import (CategoricalColorMapper, CategoricalMarkerMapper, CategoricalPatternMapper,
-                          CumSum, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack)
+from bokeh.models import (
+    CategoricalColorMapper,
+    CategoricalMarkerMapper,
+    CategoricalPatternMapper,
+    CumSum,
+    Dodge,
+    FactorRange,
+    Jitter,
+    LinearColorMapper,
+    LogColorMapper,
+    Stack
+)
 
 # Module under test
 import bokeh.transform as bt # isort:skip

@@ -58,10 +58,29 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
-from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, Include,
-                               Instance, Int, NumberSpec, Override, String, StringSpec)
-from ..core.property_mixins import (FillProps, HatchProps, LineProps, ScalarFillProps,
-                                    ScalarHatchProps, ScalarLineProps, TextProps)
+from ..core.properties import (
+    AngleSpec,
+    Bool,
+    DistanceSpec,
+    Enum,
+    Float,
+    Include,
+    Instance,
+    Int,
+    NumberSpec,
+    Override,
+    String,
+    StringSpec
+)
+from ..core.property_mixins import (
+    FillProps,
+    HatchProps,
+    LineProps,
+    ScalarFillProps,
+    ScalarHatchProps,
+    ScalarLineProps,
+    TextProps
+)
 from ..model import Model
 from .mappers import ColorMapper, LinearColorMapper
 

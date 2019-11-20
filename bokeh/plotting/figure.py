@@ -24,8 +24,17 @@ from ..models import markers as _markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
-from .helpers import (_double_stack, _get_range, _get_scale, _glyph_function, _graph,
-                      _process_active_tools, _process_axis_and_grid, _process_tools_arg, _single_stack)
+from .helpers import (
+    _double_stack,
+    _get_range,
+    _get_scale,
+    _glyph_function,
+    _graph,
+    _process_active_tools,
+    _process_axis_and_grid,
+    _process_tools_arg,
+    _single_stack
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

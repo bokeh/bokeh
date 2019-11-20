@@ -15,8 +15,27 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import (Axis, BoxZoomTool, Circle, ColumnDataSource, DatetimeAxis, Glyph, GlyphRenderer, Grid, Line,
-                          LinearAxis, LogAxis, PanTool, Plot, Range1d, Rect, ResetTool, SaveTool, Tool, WheelZoomTool)
+from bokeh.models import (
+    Axis,
+    BoxZoomTool,
+    Circle,
+    ColumnDataSource,
+    DatetimeAxis,
+    Glyph,
+    GlyphRenderer,
+    Grid,
+    Line,
+    LinearAxis,
+    LogAxis,
+    PanTool,
+    Plot,
+    Range1d,
+    Rect,
+    ResetTool,
+    SaveTool,
+    Tool,
+    WheelZoomTool
+)
 
 # Module under test
 import bokeh.core.query as q # isort:skip

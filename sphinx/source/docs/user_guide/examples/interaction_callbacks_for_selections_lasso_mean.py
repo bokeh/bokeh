@@ -1,5 +1,6 @@
 from random import random
-from bokeh.models import CustomJS, ColumnDataSource
+
+from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.plotting import figure, output_file, show
 
 output_file("callback.html")

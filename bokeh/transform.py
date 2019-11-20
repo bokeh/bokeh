@@ -22,8 +22,13 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .core.properties import expr, field
 from .models.expressions import CumSum, Stack
-from .models.mappers import (CategoricalColorMapper, CategoricalMarkerMapper,
-                             CategoricalPatternMapper, LinearColorMapper, LogColorMapper)
+from .models.mappers import (
+    CategoricalColorMapper,
+    CategoricalMarkerMapper,
+    CategoricalPatternMapper,
+    LinearColorMapper,
+    LogColorMapper
+)
 from .models.transforms import Dodge, Jitter
 
 #-----------------------------------------------------------------------------

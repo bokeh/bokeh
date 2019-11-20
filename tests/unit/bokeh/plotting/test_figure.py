@@ -20,8 +20,19 @@ import re
 # Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
-from bokeh.models import (BoxZoomTool, Circle, ColumnDataSource, LassoSelectTool, Legend,
-                          LinearAxis, LogScale, PanTool, ResetTool, Scatter, Title)
+from bokeh.models import (
+    BoxZoomTool,
+    Circle,
+    ColumnDataSource,
+    LassoSelectTool,
+    Legend,
+    LinearAxis,
+    LogScale,
+    PanTool,
+    ResetTool,
+    Scatter,
+    Title
+)
 
 # Module under test
 # different import pattern due to figure function shadowing figure.py module

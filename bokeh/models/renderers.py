@@ -26,8 +26,13 @@ from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
 from ..core.validation import error
-from ..core.validation.errors import (BAD_COLUMN_NAME, CDSVIEW_SOURCE_DOESNT_MATCH,
-                                      MALFORMED_GRAPH_SOURCE, MISSING_GLYPH, NO_SOURCE_FOR_GLYPH)
+from ..core.validation.errors import (
+    BAD_COLUMN_NAME,
+    CDSVIEW_SOURCE_DOESNT_MATCH,
+    MALFORMED_GRAPH_SOURCE,
+    MISSING_GLYPH,
+    NO_SOURCE_FOR_GLYPH
+)
 from ..model import Model
 from .glyphs import Circle, Glyph, MultiLine
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly

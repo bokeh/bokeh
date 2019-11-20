@@ -1,5 +1,5 @@
 from bokeh.layouts import gridplot
-from bokeh.models import ColumnDataSource, CDSView, GroupFilter
+from bokeh.models import CDSView, ColumnDataSource, GroupFilter
 from bokeh.plotting import figure, show
 from bokeh.sampledata.iris import flowers
 

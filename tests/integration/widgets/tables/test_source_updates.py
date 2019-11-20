@@ -16,11 +16,31 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.selenium import (RECORD, alt_click, enter_text_in_cell, get_table_cell, get_table_column_cells,
-                                          get_table_row, get_table_selected_rows, shift_click, sort_table_column)
+from bokeh._testing.util.selenium import (
+    RECORD,
+    alt_click,
+    enter_text_in_cell,
+    get_table_cell,
+    get_table_column_cells,
+    get_table_row,
+    get_table_selected_rows,
+    shift_click,
+    sort_table_column
+)
 from bokeh.layouts import column
-from bokeh.models import (Button, ColumnDataSource, CustomAction, CustomJS, DataTable,
-                          NumberEditor, Plot, Range1d, Rect, TableColumn, TapTool)
+from bokeh.models import (
+    Button,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    DataTable,
+    NumberEditor,
+    Plot,
+    Range1d,
+    Rect,
+    TableColumn,
+    TapTool
+)
 
 #-----------------------------------------------------------------------------
 # Tests

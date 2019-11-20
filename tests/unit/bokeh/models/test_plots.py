@@ -20,8 +20,20 @@ from mock import patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity
-from bokeh.models import (CategoricalScale, CustomJS, DataRange1d, FactorRange, GlyphRenderer,
-                          Label, LinearAxis, LinearScale, LogScale, PanTool, Plot, Range1d)
+from bokeh.models import (
+    CategoricalScale,
+    CustomJS,
+    DataRange1d,
+    FactorRange,
+    GlyphRenderer,
+    Label,
+    LinearAxis,
+    LinearScale,
+    LogScale,
+    PanTool,
+    Plot,
+    Range1d
+)
 from bokeh.plotting import figure
 
 # Module under test

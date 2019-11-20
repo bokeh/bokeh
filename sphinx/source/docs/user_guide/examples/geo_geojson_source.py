@@ -1,8 +1,9 @@
+import json
+
 from bokeh.io import output_file, show
 from bokeh.models import GeoJSONDataSource
 from bokeh.plotting import figure
 from bokeh.sampledata.sample_geojson import geojson
-import json
 
 output_file("geojson.html")
 
