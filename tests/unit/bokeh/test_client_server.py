@@ -37,11 +37,10 @@ from bokeh.models import Plot
 from server._util_server import http_get, url, websocket_open, ws_url
 
 # Module under test
- # isort:skip
+
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
 
 #-----------------------------------------------------------------------------
 # General API

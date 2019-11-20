@@ -19,7 +19,6 @@ in the browser,  or with python callbacks that execute on a Bokeh server.
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------

@@ -14,7 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-
 # Module under test
 import bokeh.palettes as pal # isort:skip
 

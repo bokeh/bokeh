@@ -14,7 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-
 # Module under test
 import bokeh.command as command # isort:skip
 

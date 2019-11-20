@@ -14,7 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-
 # Module under test
 import bokeh.protocol.message as message # isort:skip
 

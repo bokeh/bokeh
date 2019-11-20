@@ -44,7 +44,6 @@ class EventCallback(object):
         self.event_name = event.event_name
         self.payload = {attr:getattr(event, attr) for attr in self.attributes}
 
-
 def test_event_metaclass():
     # All events currently in the namespace should be in the EVENT_CLASSES set
     assert len(concrete_events - set(events._CONCRETE_EVENT_CLASSES.values())) == 0
@@ -55,7 +54,6 @@ def test_common_decode_json():
         event = events.Event.decode_json({'event_name':event_cls.event_name,
                                           'event_values':{'model_id':'test-model-id'}})
         assert event._model_id == 'test-model-id'
-
 
 def test_pointevent_subclass_decode_json():
     event_values = dict(model_id='test-model-id', sx=3, sy=-2, x=10, y=100)

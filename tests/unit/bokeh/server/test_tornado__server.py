@@ -33,7 +33,6 @@ import bokeh.server.tornado as tornado # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-
 logging.basicConfig(level=logging.DEBUG)
 
 #-----------------------------------------------------------------------------

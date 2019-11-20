@@ -46,7 +46,6 @@ import bokeh.server.server as server # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-
 logging.basicConfig(level=logging.DEBUG)
 
 async def async_value(value):

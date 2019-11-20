@@ -22,9 +22,10 @@ from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
 from bokeh.models import (BoxZoomTool, Circle, ColumnDataSource, LassoSelectTool, Legend,
                           LinearAxis, LogScale, PanTool, ResetTool, Scatter, Title)
+
 # Module under test
-# different import pattern due to figure function shadowing figure.py module # isort:skip
-from bokeh.plotting import _figure as bpf
+# different import pattern due to figure function shadowing figure.py module
+from bokeh.plotting import _figure as bpf # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
