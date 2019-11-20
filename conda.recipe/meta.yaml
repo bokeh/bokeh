@@ -54,6 +54,7 @@ test:
 
     # tests
     - beautifulsoup4
+    - black
     - boto
     - colorama
     - coverage
