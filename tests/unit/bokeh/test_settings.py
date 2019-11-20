@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import logging
@@ -22,56 +22,58 @@ import os
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.settings as bs # isort:skip
+import bokeh.settings as bs  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-ALL = (
-    'settings',
-)
+ALL = ("settings",)
 
 logging.basicConfig(level=logging.DEBUG)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bs, ALL)
 
 _expected_settings = (
-    'allowed_ws_origin',
-    'auth_module',
-    'browser',
-    'cookie_secret',
-    'docs_cdn',
-    'docs_version',
-    'ignore_filename',
-    'log_level',
-    'minified',
-    'nodejs_path',
-    'perform_document_validation',
-    'phantomjs_path',
-    'pretty',
-    'py_log_level',
-    'resources',
-    'rootdir',
-    'secret_key',
-    'sign_sessions',
-    'simple_ids',
-    'ssl_certfile',
-    'ssl_keyfile',
-    'ssl_password',
-    'strict',
-    'version',
-    'xsrf_cookies',
+    "allowed_ws_origin",
+    "auth_module",
+    "browser",
+    "cookie_secret",
+    "docs_cdn",
+    "docs_version",
+    "ignore_filename",
+    "log_level",
+    "minified",
+    "nodejs_path",
+    "perform_document_validation",
+    "phantomjs_path",
+    "pretty",
+    "py_log_level",
+    "resources",
+    "rootdir",
+    "secret_key",
+    "sign_sessions",
+    "simple_ids",
+    "ssl_certfile",
+    "ssl_keyfile",
+    "ssl_password",
+    "strict",
+    "version",
+    "xsrf_cookies",
 )
 
-class TestSettings(object):
 
+class TestSettings(object):
     def test_standard_settings(self):
-        settings = [k for k,v in bs.settings.__class__.__dict__.items() if isinstance(v, bs.PrioritizedSetting)]
+        settings = [
+            k
+            for k, v in bs.settings.__class__.__dict__.items()
+            if isinstance(v, bs.PrioritizedSetting)
+        ]
         assert set(settings) == set(_expected_settings)
 
     @pytest.mark.parametrize("name", _expected_settings)
@@ -96,30 +98,38 @@ class TestSettings(object):
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
-        default_typed = set(_expected_settings) - set([
-            'ignore_filename',
-            'minified',
-            'perform_document_validation',
-            'simple_ids',
-            'strict',
-            'py_log_level',
-            'allowed_ws_origin',
-            'xsrf_cookies',
-        ])
+        default_typed = set(_expected_settings) - set(
+            [
+                "ignore_filename",
+                "minified",
+                "perform_document_validation",
+                "simple_ids",
+                "strict",
+                "py_log_level",
+                "allowed_ws_origin",
+                "xsrf_cookies",
+            ]
+        )
         for name in default_typed:
             ps = getattr(bs.settings, name)
             assert ps.convert_type == "String"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestConverters(object):
-    @pytest.mark.parametrize("value", ["Yes", "YES", "yes", "1", "ON", "on", "true", "True", True])
+    @pytest.mark.parametrize(
+        "value", ["Yes", "YES", "yes", "1", "ON", "on", "true", "True", True]
+    )
     def test_convert_bool(self, value):
         assert bs.convert_bool(value)
 
-    @pytest.mark.parametrize("value", ["No", "NO", "no", "0", "OFF", "off", "false", "False", False])
+    @pytest.mark.parametrize(
+        "value", ["No", "NO", "no", "0", "OFF", "off", "false", "False", False]
+    )
     def test_convert_bool_false(self, value):
         assert not bs.convert_bool(value)
 
@@ -155,6 +165,7 @@ class TestConverters(object):
     def test_convert_logging_bad(self):
         with pytest.raises(ValueError):
             bs.convert_logging("junk")
+
 
 class TestPrioritizedSetting(object):
     def test_env_var_property(self):
@@ -193,12 +204,14 @@ class TestPrioritizedSetting(object):
         assert ps(default=20) == 20
 
     def test_dev_default(self):
-        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10, dev_default=25)
+        ps = bs.PrioritizedSetting(
+            "foo", env_var="BOKEH_FOO", default=10, dev_default=25
+        )
         assert ps.dev_default == 25
-        os.environ['BOKEH_DEV'] = "yes"
+        os.environ["BOKEH_DEV"] = "yes"
         assert ps() == 25
         assert ps(default=20) == 25
-        del os.environ['BOKEH_DEV']
+        del os.environ["BOKEH_DEV"]
 
     def test_env_var(self):
         os.environ["BOKEH_FOO"] = "30"
@@ -247,7 +260,9 @@ class TestPrioritizedSetting(object):
             config_user = {}
             config_system = {}
 
-        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", convert=int, default=0, dev_default=15)
+        ps = bs.PrioritizedSetting(
+            "foo", env_var="BOKEH_FOO", convert=int, default=0, dev_default=15
+        )
         ps._parent = FakeSettings
 
         # 0. global default
@@ -257,17 +272,17 @@ class TestPrioritizedSetting(object):
         assert ps(default=10) == 10
 
         # 1.5. implicit default (DEV)
-        os.environ['BOKEH_DEV'] = "yes"
+        os.environ["BOKEH_DEV"] = "yes"
         assert ps() == 15
-        del os.environ['BOKEH_DEV']
+        del os.environ["BOKEH_DEV"]
 
         # 2. global config file
-        FakeSettings.config_system['foo'] = 20
+        FakeSettings.config_system["foo"] = 20
         assert ps() == 20
         assert ps(default=10) == 20
 
         # 3. local config file
-        FakeSettings.config_user['foo'] = 30
+        FakeSettings.config_user["foo"] = 30
         assert ps() == 30
         assert ps(default=10) == 30
 
@@ -277,7 +292,7 @@ class TestPrioritizedSetting(object):
         assert ps(default=10) == 40
 
         # 5. override config file
-        FakeSettings.config_override['foo'] = 50
+        FakeSettings.config_override["foo"] = 50
         assert ps() == 50
         assert ps(default=10) == 50
 
@@ -304,10 +319,11 @@ class TestPrioritizedSetting(object):
         s.bar = 20
         assert s.bar() == 20
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

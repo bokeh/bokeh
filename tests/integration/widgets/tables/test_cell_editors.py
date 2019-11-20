@@ -1,19 +1,19 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh._testing.util.selenium import (
@@ -32,25 +32,29 @@ from bokeh.models import (
     TableColumn,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh",)
+
 
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_CellEditor_Base(object):
-
     def setup_method(self):
-        source = ColumnDataSource({'values': self.values})
-        column = TableColumn(field='values', title='values', editor=self.editor())
-        self.table = DataTable(source=source, columns=[column], editable=True, width=600)
+        source = ColumnDataSource({"values": self.values})
+        column = TableColumn(field="values", title="values", editor=self.editor())
+        self.table = DataTable(
+            source=source, columns=[column], editable=True, width=600
+        )
 
         # this is triggered on selection changes
-        source.selected.js_on_change('indices', CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")))
+        source.selected.js_on_change(
+            "indices",
+            CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")),
+        )
+
 
 # XXX Chekbox editor is currently completely broken
 # class Test_CheckboxEditor(Test_CellEditor_Base):
@@ -101,12 +105,15 @@ class Test_CellEditor_Base(object):
 
 #         assert page.has_no_console_errors()
 
+
 class Test_IntEditor(Test_CellEditor_Base):
 
     values = [1, 2]
     editor = IntEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
+    def test_editing_does_not_update_source_on_noneditable_table(
+        self, bokeh_model_page
+    ):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -114,7 +121,7 @@ class Test_IntEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -124,11 +131,11 @@ class Test_IntEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         assert page.has_no_console_errors()
 
-    @pytest.mark.parametrize('bad', ["1.1", "text"])
+    @pytest.mark.parametrize("bad", ["1.1", "text"])
     def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
@@ -137,7 +144,7 @@ class Test_IntEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -147,7 +154,7 @@ class Test_IntEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         assert page.has_no_console_errors()
 
@@ -158,7 +165,7 @@ class Test_IntEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -168,16 +175,19 @@ class Test_IntEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == [33, 2]
+        assert results["values"] == [33, 2]
 
         assert page.has_no_console_errors()
+
 
 class Test_NumberEditor(Test_CellEditor_Base):
 
     values = [1.1, 2.2]
     editor = NumberEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
+    def test_editing_does_not_update_source_on_noneditable_table(
+        self, bokeh_model_page
+    ):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -185,7 +195,7 @@ class Test_NumberEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -195,11 +205,11 @@ class Test_NumberEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         assert page.has_no_console_errors()
 
-    @pytest.mark.parametrize('bad', ["text"])
+    @pytest.mark.parametrize("bad", ["text"])
     def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
@@ -208,7 +218,7 @@ class Test_NumberEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -218,7 +228,7 @@ class Test_NumberEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         assert page.has_no_console_errors()
 
@@ -229,7 +239,7 @@ class Test_NumberEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -239,16 +249,19 @@ class Test_NumberEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == [33.5, 2.2]
+        assert results["values"] == [33.5, 2.2]
 
         assert page.has_no_console_errors()
+
 
 class Test_StringEditor(Test_CellEditor_Base):
 
     values = ["foo", "bar"]
     editor = StringEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
+    def test_editing_does_not_update_source_on_noneditable_table(
+        self, bokeh_model_page
+    ):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -256,7 +269,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -266,11 +279,11 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         assert page.has_no_console_errors()
 
-    @pytest.mark.parametrize('bad', ["1", "1.1", "-1"])
+    @pytest.mark.parametrize("bad", ["1", "1.1", "-1"])
     def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
@@ -279,7 +292,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -289,7 +302,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         assert page.has_no_console_errors()
 
@@ -300,7 +313,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -310,7 +323,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == ["baz", "bar"]
+        assert results["values"] == ["baz", "bar"]
 
         assert page.has_no_console_errors()
 
@@ -321,7 +334,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 1, 1)
         cell.click()
         results = page.results
-        assert results['values'] == self.values
+        assert results["values"] == self.values
 
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
@@ -331,9 +344,10 @@ class Test_StringEditor(Test_CellEditor_Base):
         cell = get_table_cell(page.driver, 2, 1)
         cell.click()
         results = page.results
-        assert results['values'] == ["baz", "bar"]
+        assert results["values"] == ["baz", "bar"]
 
         assert page.has_no_console_errors()
+
 
 # XXX (bev) PercentEditor is currently completely broken
 # class Test_PercentEditor(Test_CellEditor_Base):

@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import datetime
@@ -26,53 +26,66 @@ from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 
 # Module under test
-import bokeh.core.property.dataspec as bcpd # isort:skip
+import bokeh.core.property.dataspec as bcpd  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ALL = (
-    'AngleSpec',
-    'ColorSpec',
-    'DataSpec',
-    'DataDistanceSpec',
-    'DistanceSpec',
-    'expr',
-    'field',
-    'FontSizeSpec',
-    'HatchPatternSpec',
-    'MarkerSpec',
-    'NumberSpec',
-    'ScreenDistanceSpec',
-    'StringSpec',
-    'UnitsSpec',
-    'value',
+    "AngleSpec",
+    "ColorSpec",
+    "DataSpec",
+    "DataDistanceSpec",
+    "DistanceSpec",
+    "expr",
+    "field",
+    "FontSizeSpec",
+    "HatchPatternSpec",
+    "MarkerSpec",
+    "NumberSpec",
+    "ScreenDistanceSpec",
+    "StringSpec",
+    "UnitsSpec",
+    "value",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def test_strict_dataspec_key_values():
-    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.DataDistanceSpec, bcpd.ScreenDistanceSpec):
+    for typ in (
+        bcpd.NumberSpec,
+        bcpd.StringSpec,
+        bcpd.FontSizeSpec,
+        bcpd.ColorSpec,
+        bcpd.DataDistanceSpec,
+        bcpd.ScreenDistanceSpec,
+    ):
+
         class Foo(HasProps):
             x = typ("x")
+
         f = Foo()
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk")
 
+
 def test_dataspec_dict_to_serializable():
     for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec):
+
         class Foo(HasProps):
             x = typ("x")
-        foo = Foo(x=dict(field='foo'))
+
+        foo = Foo(x=dict(field="foo"))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
+        assert props["x"]["field"] == "foo"
+        assert props["x"] is not foo.x
+
 
 class Test_AngleSpec(object):
-
     def test_default_none(self):
         class Foo(HasProps):
             x = bcpd.AngleSpec(None)
@@ -80,10 +93,10 @@ class Test_AngleSpec(object):
         a = Foo()
 
         assert a.x is None
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
         a.x = 14
         assert a.x == 14
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
 
     def test_autocreate_no_parens(self):
         class Foo(HasProps):
@@ -92,10 +105,10 @@ class Test_AngleSpec(object):
         a = Foo()
 
         assert a.x is None
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
         a.x = 14
         assert a.x == 14
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
 
     def test_default_value(self):
         class Foo(HasProps):
@@ -104,7 +117,7 @@ class Test_AngleSpec(object):
         a = Foo()
 
         assert a.x == 14
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
 
     def test_setting_dict_sets_units(self):
         class Foo(HasProps):
@@ -113,11 +126,11 @@ class Test_AngleSpec(object):
         a = Foo()
 
         assert a.x == 14
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
 
-        a.x = { 'value' : 180, 'units' : 'deg' }
-        assert a.x == { 'value' : 180 }
-        assert a.x_units == 'deg'
+        a.x = {"value": 180, "units": "deg"}
+        assert a.x == {"value": 180}
+        assert a.x_units == "deg"
 
     def test_setting_json_sets_units_keeps_dictness(self):
         class Foo(HasProps):
@@ -126,11 +139,11 @@ class Test_AngleSpec(object):
         a = Foo()
 
         assert a.x == 14
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
 
-        a.set_from_json('x', { 'value' : 180, 'units' : 'deg' })
+        a.set_from_json("x", {"value": 180, "units": "deg"})
         assert a.x == 180
-        assert a.x_units == 'deg'
+        assert a.x_units == "deg"
 
     def test_setting_dict_does_not_modify_original_dict(self):
         class Foo(HasProps):
@@ -139,23 +152,24 @@ class Test_AngleSpec(object):
         a = Foo()
 
         assert a.x == 14
-        assert a.x_units == 'rad'
+        assert a.x_units == "rad"
 
-        new_value = { 'value' : 180, 'units' : 'deg' }
+        new_value = {"value": 180, "units": "deg"}
         new_value_copy = copy(new_value)
         assert new_value_copy == new_value
 
         a.x = new_value
-        assert a.x == { 'value' : 180 }
-        assert a.x_units == 'deg'
+        assert a.x == {"value": 180}
+        assert a.x_units == "deg"
 
         assert new_value_copy == new_value
 
-class Test_ColorSpec(object):
 
+class Test_ColorSpec(object):
     def test_field(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == "colorfield"
@@ -167,6 +181,7 @@ class Test_ColorSpec(object):
     def test_field_default(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec(default="red")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == "red"
@@ -178,6 +193,7 @@ class Test_ColorSpec(object):
     def test_default_tuple(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec(default=(128, 255, 124))
+
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == (128, 255, 124)
@@ -186,6 +202,7 @@ class Test_ColorSpec(object):
     def test_fixed_value(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("gray")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         assert f.col == "gray"
@@ -194,6 +211,7 @@ class Test_ColorSpec(object):
     def test_named_value(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
 
@@ -207,6 +225,7 @@ class Test_ColorSpec(object):
     def test_case_insensitive_named_value(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
 
@@ -220,6 +239,7 @@ class Test_ColorSpec(object):
     def test_named_value_set_none(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = None
@@ -228,6 +248,7 @@ class Test_ColorSpec(object):
     def test_named_value_unset(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         assert desc.serializable_value(f) == {"field": "colorfield"}
@@ -235,6 +256,7 @@ class Test_ColorSpec(object):
     def test_named_color_overriding_default(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = "forestgreen"
@@ -247,6 +269,7 @@ class Test_ColorSpec(object):
     def test_hex_value(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = "#FF004A"
@@ -259,6 +282,7 @@ class Test_ColorSpec(object):
     def test_tuple_value(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = (128, 200, 255)
@@ -274,6 +298,7 @@ class Test_ColorSpec(object):
     def test_set_dict(self):
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
+
         desc = Foo.__dict__["col"]
         f = Foo()
         f.col = {"field": "myfield"}
@@ -283,16 +308,20 @@ class Test_ColorSpec(object):
         assert f.col == "field2"
         assert desc.serializable_value(f) == {"field": "field2"}
 
+
 class Test_DataDistanceSpec(object):
     def test_basic(self):
         assert issubclass(bcpd.DataDistanceSpec, bcpd.UnitsSpec)
+
         class Foo(HasProps):
             x = bcpd.DataDistanceSpec("x")
-        foo = Foo(x=dict(field='foo'))
+
+        foo = Foo(x=dict(field="foo"))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'data'
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
+        assert props["x"]["units"] == "data"
+        assert props["x"]["field"] == "foo"
+        assert props["x"] is not foo.x
+
 
 class Test_DistanceSpec(object):
     def test_default_none(self):
@@ -302,10 +331,10 @@ class Test_DistanceSpec(object):
         a = Foo()
 
         assert a.x is None
-        assert a.x_units == 'data'
+        assert a.x_units == "data"
         a.x = 14
         assert a.x == 14
-        assert a.x_units == 'data'
+        assert a.x_units == "data"
 
     def test_autocreate_no_parens(self):
         class Foo(HasProps):
@@ -314,10 +343,10 @@ class Test_DistanceSpec(object):
         a = Foo()
 
         assert a.x is None
-        assert a.x_units == 'data'
+        assert a.x_units == "data"
         a.x = 14
         assert a.x == 14
-        assert a.x_units == 'data'
+        assert a.x_units == "data"
 
     def test_default_value(self):
         class Foo(HasProps):
@@ -326,12 +355,14 @@ class Test_DistanceSpec(object):
         a = Foo()
 
         assert a.x == 14
-        assert a.x_units == 'data'
+        assert a.x_units == "data"
+
 
 def test_field_function():
     assert bcpd.field("foo") == dict(field="foo")
     assert bcpd.field("foo", "junk") == dict(field="foo", transform="junk")
     assert bcpd.field("foo", transform="junk") == dict(field="foo", transform="junk")
+
 
 class Test_FontSizeSpec(object):
     def test_font_size_from_string(self):
@@ -345,46 +376,46 @@ class Test_FontSizeSpec(object):
 
         for unit in css_units.split("|"):
 
-            v = '10%s' % unit
+            v = "10%s" % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup("x").serializable_value(a) == dict(value=v)
 
-            v = '10.2%s' % unit
+            v = "10.2%s" % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup("x").serializable_value(a) == dict(value=v)
 
-            f = '_10%s' % unit
+            f = "_10%s" % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup("x").serializable_value(a) == dict(field=f)
 
-            f = '_10.2%s' % unit
+            f = "_10.2%s" % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup("x").serializable_value(a) == dict(field=f)
 
         for unit in css_units.upper().split("|"):
-            v = '10%s' % unit
+            v = "10%s" % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup("x").serializable_value(a) == dict(value=v)
 
-            v = '10.2%s' % unit
+            v = "10.2%s" % unit
             a.x = v
             assert a.x == v
-            assert a.lookup('x').serializable_value(a) == dict(value=v)
+            assert a.lookup("x").serializable_value(a) == dict(value=v)
 
-            f = '_10%s' % unit
+            f = "_10%s" % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup("x").serializable_value(a) == dict(field=f)
 
-            f = '_10.2%s' % unit
+            f = "_10.2%s" % unit
             a.x = f
             assert a.x == f
-            assert a.lookup('x').serializable_value(a) == dict(field=f)
+            assert a.lookup("x").serializable_value(a) == dict(field=f)
 
     def test_bad_font_size_values(self):
         class Foo(HasProps):
@@ -419,11 +450,12 @@ class Test_FontSizeSpec(object):
         a.x = dict(field="foo")
         assert a.x == dict(field="foo")
 
-class Test_NumberSpec(object):
 
+class Test_NumberSpec(object):
     def test_field(self):
         class Foo(HasProps):
             x = bcpd.NumberSpec("xfield")
+
         f = Foo()
         assert f.x == "xfield"
         assert Foo.__dict__["x"].serializable_value(f) == {"field": "xfield"}
@@ -434,6 +466,7 @@ class Test_NumberSpec(object):
     def test_value(self):
         class Foo(HasProps):
             x = bcpd.NumberSpec("xfield")
+
         f = Foo()
         assert f.x == "xfield"
         f.x = 12
@@ -498,7 +531,6 @@ class Test_NumberSpec(object):
         f.dt = np.datetime64("2016-05-11")
         assert f.dt == 1462924800000.0
 
-
         with pytest.raises(ValueError):
             f.ndt = datetime.datetime(2016, 5, 11)
 
@@ -511,6 +543,7 @@ class Test_NumberSpec(object):
     def test_default(self):
         class Foo(HasProps):
             y = bcpd.NumberSpec(default=12)
+
         f = Foo()
         assert f.y == 12
         assert Foo.__dict__["y"].serializable_value(f) == {"value": 12}
@@ -559,7 +592,7 @@ class Test_NumberSpec(object):
         a.x = 14
         assert a.x == 14
         # set_from_json keeps the previous dict-ness or lack thereof
-        a.set_from_json('x', dict(value=16))
+        a.set_from_json("x", dict(value=16))
         assert a.x == 16
         # but regular assignment overwrites the previous dict-ness
         a.x = dict(value=17)
@@ -569,53 +602,60 @@ class Test_NumberSpec(object):
         a.x = "bar"
         assert a.x == "bar"
         # set_from_json keeps the previous dict-ness or lack thereof
-        a.set_from_json('x', dict(field="foo"))
+        a.set_from_json("x", dict(field="foo"))
         assert a.x == "foo"
         # but regular assignment overwrites the previous dict-ness
         a.x = dict(field="baz")
         assert a.x == dict(field="baz")
 
-class Test_UnitSpec(object):
 
+class Test_UnitSpec(object):
     def test_basic(self):
         assert issubclass(bcpd.ScreenDistanceSpec, bcpd.UnitsSpec)
+
         class Foo(HasProps):
             x = bcpd.ScreenDistanceSpec("x")
-        foo = Foo(x=dict(field='foo'))
+
+        foo = Foo(x=dict(field="foo"))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'screen'
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
+        assert props["x"]["units"] == "screen"
+        assert props["x"]["field"] == "foo"
+        assert props["x"] is not foo.x
 
     def test_strict_key_values(self):
         class FooUnits(HasProps):
             x = bcpd.DistanceSpec("x")
+
         f = FooUnits()
         f.x = dict(field="foo", units="screen")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")
+
         class FooUnits(HasProps):
             x = bcpd.AngleSpec("x")
+
         f = FooUnits()
         f.x = dict(field="foo", units="deg")
         with pytest.raises(ValueError):
             f.x = dict(field="foo", units="junk", foo="crap")
+
 
 def test_value_function():
     assert bcpd.value("foo") == dict(value="foo")
     assert bcpd.value("foo", "junk") == dict(value="foo", transform="junk")
     assert bcpd.value("foo", transform="junk") == dict(value="foo", transform="junk")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpd, ALL)

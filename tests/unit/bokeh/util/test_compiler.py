@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import io
@@ -23,46 +23,64 @@ import os
 from mock import patch
 
 # Module under test
-import bokeh.util.compiler as buc # isort:skip
+import bokeh.util.compiler as buc  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def test_nodejs_compile_javascript():
-    assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
-        dict(code="""\
+    assert buc.nodejs_compile(
+        """function f(a, b) { return a + b; };""", "javascript", "some.js"
+    ) == dict(
+        code="""\
 function f(a, b) { return a + b; }
 ;
-""", deps=[])
+""",
+        deps=[],
+    )
 
-    assert buc.nodejs_compile("""var some = require('some/module');""", "javascript", "some.js") == \
-        dict(code="""\
+    assert buc.nodejs_compile(
+        """var some = require('some/module');""", "javascript", "some.js"
+    ) == dict(
+        code="""\
 var some = require('some/module');
-""", deps=["some/module"])
+""",
+        deps=["some/module"],
+    )
 
-    assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
-        dict(error=
-            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - '
-            "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
-            '\n'
-            '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n')
+    assert buc.nodejs_compile(
+        """function f(a, b) { eturn a + b; };""", "javascript", "some.js"
+    ) == dict(
+        error="\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - "
+        "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
+        "\n"
+        "\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n"
+        "\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n"
+    )
+
 
 def test_nodejs_compile_less():
-    assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == \
-        dict(code=""".bk-some-style{color:#800080}""")
+    assert buc.nodejs_compile(
+        """.bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less"
+    ) == dict(code=""".bk-some-style{color:#800080}""")
 
-    assert buc.nodejs_compile(""".bk-some-style color: green; }""", "less", "some.less") == \
-        dict(error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n")
+    assert buc.nodejs_compile(
+        """.bk-some-style color: green; }""", "less", "some.less"
+    ) == dict(
+        error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n"
+    )
+
 
 def test_Implementation():
     obj = buc.Implementation()
     assert obj.file == None
+
 
 def test_Inline():
     obj = buc.Inline("code")
@@ -73,12 +91,14 @@ def test_Inline():
     assert obj.code == "code"
     assert obj.file == "file"
 
+
 def test_TypeScript():
     obj = buc.TypeScript("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
     assert obj.file == None
     assert obj.lang == "typescript"
+
 
 def test_JavaScript():
     obj = buc.JavaScript("code")
@@ -87,6 +107,7 @@ def test_JavaScript():
     assert obj.file == None
     assert obj.lang == "javascript"
 
+
 def test_Less():
     obj = buc.Less("code")
     assert isinstance(obj, buc.Inline)
@@ -94,7 +115,8 @@ def test_Less():
     assert obj.file == None
     assert obj.lang == "less"
 
-@patch('io.open')
+
+@patch("io.open")
 def test_FromFile(mock_open):
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
@@ -108,14 +130,19 @@ def test_FromFile(mock_open):
     obj = buc.FromFile("path.less")
     assert obj.lang == "less"
 
+
 def test_exts():
     assert buc.exts == (".ts", ".js", ".css", ".less")
 
+
 def test_jsons():
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
-        if file.endswith('.json'):
-            with io.open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
-                assert all(['\\' not in mod for mod in json.loads(f.read())])
+        if file.endswith(".json"):
+            with io.open(
+                os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8"
+            ) as f:
+                assert all(["\\" not in mod for mod in json.loads(f.read())])
+
 
 def test_inline_extension():
     from bokeh.io import save
@@ -149,21 +176,22 @@ def test_inline_extension():
 
     class TestFormatter2(TickFormatter):
 
-        __implementation__ = TypeScript("^") # invalid syntax on purpose
+        __implementation__ = TypeScript("^")  # invalid syntax on purpose
 
     p = figure()
     p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
     p.xaxis.formatter = TestFormatter()
     save(p)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

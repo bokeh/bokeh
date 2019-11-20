@@ -1,19 +1,19 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import json
@@ -26,16 +26,14 @@ from bokeh.embed import json_item
 from bokeh.models import Plot
 from bokeh.resources import INLINE
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-    "bokeh._testing.plugins.selenium",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh", "bokeh._testing.plugins.selenium")
 
-PAGE = Template("""
+PAGE = Template(
+    """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,12 +46,13 @@ PAGE = Template("""
     Bokeh.embed.embed_item({{ item }}, "_target");
   </script>
 </body>
-""")
+"""
+)
+
 
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_json_item(object):
-
     def test_bkroot_added_to_target(self, driver, test_file_path_and_url):
         p = Plot()
         html = PAGE.render(item=json.dumps(json_item(p)), resources=INLINE.render())

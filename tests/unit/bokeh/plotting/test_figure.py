@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import re
@@ -36,18 +36,18 @@ from bokeh.models import (
 
 # Module under test
 # different import pattern due to figure function shadowing figure.py module
-from bokeh.plotting import _figure as bpf # isort:skip
+from bokeh.plotting import _figure as bpf  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestFigure(object):
-
     def test_basic(self):
         p = bpf.figure()
         q = bpf.figure()
@@ -147,11 +147,11 @@ class TestFigure(object):
         assert set(p.axis) == expected
 
     def test_log_axis(self):
-        p = bpf.figure(x_axis_type='log')
+        p = bpf.figure(x_axis_type="log")
         p.circle([1, 2, 3], [1, 2, 3])
         assert isinstance(p.x_scale, LogScale)
 
-        p = bpf.figure(y_axis_type='log')
+        p = bpf.figure(y_axis_type="log")
         p.circle([1, 2, 3], [1, 2, 3])
         assert isinstance(p.y_scale, LogScale)
 
@@ -190,63 +190,75 @@ class TestFigure(object):
             assert isinstance(fig.tools[i], _type)
 
     def test_plot_fill_props(self):
-        p = bpf.figure(background_fill_color='red',
-                       background_fill_alpha=0.5,
-                       border_fill_color='blue',
-                       border_fill_alpha=0.8)
-        assert p.background_fill_color == 'red'
+        p = bpf.figure(
+            background_fill_color="red",
+            background_fill_alpha=0.5,
+            border_fill_color="blue",
+            border_fill_alpha=0.8,
+        )
+        assert p.background_fill_color == "red"
         assert p.background_fill_alpha == 0.5
-        assert p.border_fill_color == 'blue'
+        assert p.border_fill_color == "blue"
         assert p.border_fill_alpha == 0.8
 
-        p.background_fill_color = 'green'
-        p.border_fill_color = 'yellow'
-        assert p.background_fill_color == 'green'
-        assert p.border_fill_color == 'yellow'
+        p.background_fill_color = "green"
+        p.border_fill_color = "yellow"
+        assert p.background_fill_color == "green"
+        assert p.border_fill_color == "yellow"
 
     def test_title_kwarg_no_warning(self, recwarn):
         bpf.figure(title="title")
         assert len(recwarn) == 0
 
-
     def test_title_should_accept_Title(self):
-        title = Title(text='Great Title')
+        title = Title(text="Great Title")
         plot = bpf.figure(title=title)
         plot.line([1, 2, 3], [1, 2, 3])
-        assert plot.title.text == 'Great Title'
+        assert plot.title.text == "Great Title"
 
     def test_title_should_accept_string(self):
-        plot = bpf.figure(title='Great Title 2')
+        plot = bpf.figure(title="Great Title 2")
         plot.line([1, 2, 3], [1, 2, 3])
-        assert plot.title.text == 'Great Title 2'
+        assert plot.title.text == "Great Title 2"
 
     def test_columnsource_auto_conversion_from_dict(self):
         p = bpf.figure()
-        dct = {'x': [1, 2, 3], 'y': [2, 3, 4]}
-        p.circle(x='x', y='y', source=dct)
+        dct = {"x": [1, 2, 3], "y": [2, 3, 4]}
+        p.circle(x="x", y="y", source=dct)
 
     def test_columnsource_auto_conversion_from_pandas(self, pd):
         p = bpf.figure()
-        df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
-        p.circle(x='x', y='y', source=df)
+        df = pd.DataFrame({"x": [1, 2, 3], "y": [2, 3, 4]})
+        p.circle(x="x", y="y", source=df)
 
     def test_glyph_method_errors_on_sequence_literals_with_source(self):
         p = bpf.figure()
-        source = ColumnDataSource({'x': [1, 2, 3], 'y': [2, 3, 4]})
+        source = ColumnDataSource({"x": [1, 2, 3], "y": [2, 3, 4]})
 
-        with pytest.raises(RuntimeError, match=r"Expected y to reference fields in the supplied data source."):
-            p.circle(x='x', y=[1,2,3], source=source)
-        with pytest.raises(RuntimeError, match=r"Expected y and line_color to reference fields in the supplied data source."):
-            p.circle(x='x', y=[1,2,3], line_color=["red", "green", "blue"], source=source)
+        with pytest.raises(
+            RuntimeError,
+            match=r"Expected y to reference fields in the supplied data source.",
+        ):
+            p.circle(x="x", y=[1, 2, 3], source=source)
+        with pytest.raises(
+            RuntimeError,
+            match=r"Expected y and line_color to reference fields in the supplied data source.",
+        ):
+            p.circle(
+                x="x", y=[1, 2, 3], line_color=["red", "green", "blue"], source=source
+            )
         with pytest.raises(RuntimeError) as e:
-            p.circle(x='x', y=[1,2,3], color=["red", "green", "blue"], source=source)
-        m = re.search (r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
+            p.circle(x="x", y=[1, 2, 3], color=["red", "green", "blue"], source=source)
+        m = re.search(
+            r"Expected y, (.+) and (.+) to reference fields in the supplied data source.",
+            str(e.value),
+        )
         assert m is not None
         assert set(m.groups()) == set(["fill_color", "line_color"])
 
-class TestMarkers(object):
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+class TestMarkers(object):
+    @pytest.mark.parametrize("marker", list(MarkerType))
     def test_mixed_inputs(self, marker):
         p = bpf.figure()
         rgb = (100, 0, 0)
@@ -267,13 +279,20 @@ class TestMarkers(object):
         assert r.glyph.fill_color == rgb_other
 
         # alpha/line_alpha
-        r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1,
-                 line_alpha=alpha2)
+        r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1, line_alpha=alpha2)
         assert r.glyph.line_alpha == alpha2
         assert r.glyph.fill_alpha == alpha1
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
-    @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
+    @pytest.mark.parametrize("marker", list(MarkerType))
+    @pytest.mark.parametrize(
+        "color",
+        [
+            (100.0, 100.0, 100.0),
+            (50.0, 100.0, 50.0, 0.5),
+            (100, 100, 100),
+            (50, 100, 50, 0.5),
+        ],
+    )
     def test_color_input(self, color, marker):
         p = bpf.figure()
         func = getattr(p, marker)
@@ -286,8 +305,16 @@ class TestMarkers(object):
         for v in r.glyph.fill_color[0:3]:
             assert isinstance(v, int)
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
-    @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
+    @pytest.mark.parametrize("marker", list(MarkerType))
+    @pytest.mark.parametrize(
+        "color",
+        [
+            (100.0, 100.0, 100.0),
+            (50.0, 100.0, 50.0, 0.5),
+            (100, 100, 100),
+            (50, 100, 50, 0.5),
+        ],
+    )
     def test_line_color_input(self, color, marker):
         p = bpf.figure()
         func = getattr(p, marker)
@@ -297,8 +324,10 @@ class TestMarkers(object):
         for v in r.glyph.line_color[0:3]:
             assert isinstance(v, int)
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
-    @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (50, 100, 50, 0.5)])
+    @pytest.mark.parametrize("marker", list(MarkerType))
+    @pytest.mark.parametrize(
+        "color", [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (50, 100, 50, 0.5)]
+    )
     def test_fill_color_input(self, color, marker):
         p = bpf.figure()
         func = getattr(p, marker)
@@ -308,7 +337,7 @@ class TestMarkers(object):
         for v in r.glyph.fill_color[0:3]:
             assert isinstance(v, int)
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize("marker", list(MarkerType))
     def test_render_level(self, marker):
         p = bpf.figure()
         func = getattr(p, marker)
@@ -317,9 +346,9 @@ class TestMarkers(object):
         with pytest.raises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
 
-class Test_scatter(object):
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+class Test_scatter(object):
+    @pytest.mark.parametrize("marker", list(MarkerType))
     def test_marker_value(self, marker):
         p = bpf.figure()
         r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker)
@@ -329,7 +358,7 @@ class Test_scatter(object):
     def test_marker_column(self):
         p = bpf.figure()
         data = dict(x=[1, 2, 3], y=[1, 2, 3], foo=["hex", "square", "circle"])
-        r = p.scatter('x', 'y', marker='foo', source=data)
+        r = p.scatter("x", "y", marker="foo", source=data)
         assert isinstance(r.glyph, Scatter)
         assert r.glyph.marker == "foo"
 
@@ -339,94 +368,123 @@ class Test_scatter(object):
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2
 
-class Test_hbar_stack(object):
 
+class Test_hbar_stack(object):
     def test_returns_renderers(self):
-        fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+        fruits = ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"]
         years = ["2015", "2016", "2017"]
         colors = ["#c9d9d3", "#718dbf", "#e84d60"]
-        data = {'fruits' : fruits,
-            '2015'   : [2, 1, 4, 3, 2, 4],
-            '2016'   : [5, 3, 4, 2, 4, 6],
-            '2017'   : [3, 2, 4, 4, 5, 3]}
+        data = {
+            "fruits": fruits,
+            "2015": [2, 1, 4, 3, 2, 4],
+            "2016": [5, 3, 4, 2, 4, 6],
+            "2017": [3, 2, 4, 4, 5, 3],
+        }
         source = ColumnDataSource(data=data)
 
         p = bpf.figure()
-        renderers = p.hbar_stack(years, y='fruits', height=0.9, color=colors, source=source,
-                            legend_label=years, name=years)
+        renderers = p.hbar_stack(
+            years,
+            y="fruits",
+            height=0.9,
+            color=colors,
+            source=source,
+            legend_label=years,
+            name=years,
+        )
         assert len(renderers) == 3
         assert renderers[0].name == "2015"
         assert renderers[1].name == "2016"
         assert renderers[2].name == "2017"
+
 
 class Test_vbar_stack(object):
-
     def test_returns_renderers(self):
-        fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+        fruits = ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"]
         years = ["2015", "2016", "2017"]
         colors = ["#c9d9d3", "#718dbf", "#e84d60"]
-        data = {'fruits' : fruits,
-            '2015'   : [2, 1, 4, 3, 2, 4],
-            '2016'   : [5, 3, 4, 2, 4, 6],
-            '2017'   : [3, 2, 4, 4, 5, 3]}
+        data = {
+            "fruits": fruits,
+            "2015": [2, 1, 4, 3, 2, 4],
+            "2016": [5, 3, 4, 2, 4, 6],
+            "2017": [3, 2, 4, 4, 5, 3],
+        }
         source = ColumnDataSource(data=data)
 
         p = bpf.figure()
-        renderers = p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
-                            legend_label=years, name=years)
+        renderers = p.vbar_stack(
+            years,
+            x="fruits",
+            width=0.9,
+            color=colors,
+            source=source,
+            legend_label=years,
+            name=years,
+        )
         assert len(renderers) == 3
         assert renderers[0].name == "2015"
         assert renderers[1].name == "2016"
         assert renderers[2].name == "2017"
 
+
 def Test_figure_legends_DEPRECATED(obejct):
-
-    def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(self, p, source):
-        p.circle(x='x', y='y', legend='label', source=source)
+    def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(
+        self, p, source
+    ):
+        p.circle(x="x", y="y", legend="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == {"field": "label"}
 
-    def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(self, p, source):
-        p.circle(x='x', y='y', legend='milk', source=source)
+    def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(
+        self, p, source
+    ):
+        p.circle(x="x", y="y", legend="milk", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'value': 'milk'}
+        assert legends[0].items[0].label == {"value": "milk"}
 
-    def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(self, p, pd):
-        source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
-        p.circle(x='x', y='y', legend='label', source=source)
+    def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(
+        self, p, pd
+    ):
+        source = pd.DataFrame(
+            data=dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"])
+        )
+        p.circle(x="x", y="y", legend="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == {"field": "label"}
 
-
-    def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(self, p, pd):
-        source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
-        p.circle(x='x', y='y', legend='milk', source=source)
+    def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(
+        self, p, pd
+    ):
+        source = pd.DataFrame(
+            data=dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"])
+        )
+        p.circle(x="x", y="y", legend="milk", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'value': 'milk'}
+        assert legends[0].items[0].label == {"value": "milk"}
 
     def test_glyph_label_is_just_added_directly_if_not_string(self, p, source):
-        p.circle(x='x', y='y', legend={'field': 'milk'}, source=source)
+        p.circle(x="x", y="y", legend={"field": "milk"}, source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'milk'}
+        assert legends[0].items[0].label == {"field": "milk"}
 
     def test_no_legend_if_legend_is_none(self, p, source):
-        p.circle(x='x', y='y', legend=None, source=source)
+        p.circle(x="x", y="y", legend=None, source=source)
         legends = p.select(Legend)
         assert len(legends) == 0
 
     def test_legend_added_when_legend_set(self, p, source):
-        renderer = p.circle(x='x', y='y', legend='label', source=source)
+        renderer = p.circle(x="x", y="y", legend="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [renderer]
 
     def test_legend_not_added_when_no_legend(self, p, source):
-        p.circle(x='x', y='y', source=source)
+        p.circle(x="x", y="y", source=source)
         legends = p.select(Legend)
         assert len(legends) == 0
 
@@ -434,58 +492,61 @@ def Test_figure_legends_DEPRECATED(obejct):
         p.add_layout(Legend())
         p.add_layout(Legend())
         with pytest.raises(RuntimeError):
-            p.circle(x='x', y='y', legend='label', source=source)
+            p.circle(x="x", y="y", legend="label", source=source)
 
     def test_multiple_renderers_correctly_added_to_legend(self, p, source):
-        square = p.square(x='x', y='y', legend='square', source=source)
-        circle = p.circle(x='x', y='y', legend='circle', source=source)
+        square = p.square(x="x", y="y", legend="square", source=source)
+        circle = p.circle(x="x", y="y", legend="circle", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square]
-        assert legends[0].items[0].label == value('square')
+        assert legends[0].items[0].label == value("square")
         assert legends[0].items[1].renderers == [circle]
-        assert legends[0].items[1].label == value('circle')
+        assert legends[0].items[1].label == value("circle")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(self, p, source):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(
+        self, p, source
+    ):
         # 'compound legend string' is just a value
-        square = p.square(x='x', y='y', legend='compound legend string')
-        circle = p.circle(x='x', y='y', legend='compound legend string')
+        square = p.square(x="x", y="y", legend="compound legend string")
+        circle = p.circle(x="x", y="y", legend="compound legend string")
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == value('compound legend string')
+        assert legends[0].items[0].label == value("compound legend string")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(self, p, source):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(
+        self, p, source
+    ):
         # label is a field
-        square = p.square(x='x', y='y', legend='label', source=source)
-        circle = p.circle(x='x', y='y', legend='label', source=source)
+        square = p.square(x="x", y="y", legend="label", source=source)
+        circle = p.circle(x="x", y="y", legend="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == {"field": "label"}
 
 
 def Test_figure_legends(obejct):
-
     def test_glyph_legend_field(self, p, source):
-        p.circle(x='x', y='y', legend_field='label', source=source)
+        p.circle(x="x", y="y", legend_field="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == {"field": "label"}
 
     def test_no_legend_if_legend_is_none(self, p, source):
-        p.circle(x='x', y='y', legend_label=None, source=source)
+        p.circle(x="x", y="y", legend_label=None, source=source)
         legends = p.select(Legend)
         assert len(legends) == 0
 
     def test_legend_added_when_legend_set(self, p, source):
-        renderer = p.circle(x='x', y='y', legend_label='label', source=source)
+        renderer = p.circle(x="x", y="y", legend_label="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [renderer]
 
     def test_legend_not_added_when_no_legend(self, p, source):
-        p.circle(x='x', y='y', source=source)
+        p.circle(x="x", y="y", source=source)
         legends = p.select(Legend)
         assert len(legends) == 0
 
@@ -493,39 +554,43 @@ def Test_figure_legends(obejct):
         p.add_layout(Legend())
         p.add_layout(Legend())
         with pytest.raises(RuntimeError):
-            p.circle(x='x', y='y', legend_label='label', source=source)
+            p.circle(x="x", y="y", legend_label="label", source=source)
         with pytest.raises(RuntimeError):
-            p.circle(x='x', y='y', legend_field='label', source=source)
+            p.circle(x="x", y="y", legend_field="label", source=source)
         with pytest.raises(RuntimeError):
-            p.circle(x='x', y='y', legend_group='label', source=source)
+            p.circle(x="x", y="y", legend_group="label", source=source)
 
     def test_multiple_renderers_correctly_added_to_legend(self, p, source):
-        square = p.square(x='x', y='y', legend_label='square', source=source)
-        circle = p.circle(x='x', y='y', legend_label='circle', source=source)
+        square = p.square(x="x", y="y", legend_label="square", source=source)
+        circle = p.circle(x="x", y="y", legend_label="circle", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square]
-        assert legends[0].items[0].label == value('square')
+        assert legends[0].items[0].label == value("square")
         assert legends[0].items[1].renderers == [circle]
-        assert legends[0].items[1].label == value('circle')
+        assert legends[0].items[1].label == value("circle")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(self, p, source):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(
+        self, p, source
+    ):
         # 'compound legend string' is just a value
-        square = p.square(x='x', y='y', legend_label='compound legend string')
-        circle = p.circle(x='x', y='y', legend_label='compound legend string')
+        square = p.square(x="x", y="y", legend_label="compound legend string")
+        circle = p.circle(x="x", y="y", legend_label="compound legend string")
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == value('compound legend string')
+        assert legends[0].items[0].label == value("compound legend string")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(self, p, source):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(
+        self, p, source
+    ):
         # label is a field
-        square = p.square(x='x', y='y', legend_field='label', source=source)
-        circle = p.circle(x='x', y='y', legend_field='label', source=source)
+        square = p.square(x="x", y="y", legend_field="label", source=source)
+        circle = p.circle(x="x", y="y", legend_field="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].renderers == [square, circle]
-        assert legends[0].items[0].label == {'field': 'label'}
+        assert legends[0].items[0].label == {"field": "label"}
 
     # XXX (bev) this doesn't work yet because compound behaviour depends on renderer sources
     # matching, but passing a df means every renderer gets its own new source
@@ -541,23 +606,25 @@ def Test_figure_legends(obejct):
     #     assert legends[0].items[0].label == {'field': 'label'}
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 @pytest.fixture
 def source():
-    return ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
+    return ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"]))
 
 
 @pytest.fixture
 def p():
     return bpf.figure()
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

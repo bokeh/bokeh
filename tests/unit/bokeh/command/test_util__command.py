@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -27,19 +27,20 @@ from bokeh.layouts import row
 from bokeh.plotting import figure
 
 # Module under test
-import bokeh.command.util as util # isort:skip
+import bokeh.command.util as util  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def test_die(capsys):
     with pytest.raises(SystemExit):
@@ -48,16 +49,19 @@ def test_die(capsys):
     assert err == "foo\n"
     assert out == ""
 
+
 def test_build_single_handler_application_unknown_file():
     with pytest.raises(ValueError) as e:
         f = tempfile.NamedTemporaryFile(suffix=".bad")
         util.build_single_handler_application(f.name)
     assert "Expected a '.py' script or '.ipynb' notebook, got: " in str(e.value)
 
+
 def test_build_single_handler_application_nonexistent_file():
     with pytest.raises(ValueError) as e:
         util.build_single_handler_application("junkjunkjunk")
     assert "Path for Bokeh server application does not exist: " in str(e.value)
+
 
 DIRSTYLE_MAIN_WARNING_COPY = """
 It looks like you might be running the main.py of a directory app directly.
@@ -69,16 +73,19 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
-@patch('warnings.warn')
+
+@patch("warnings.warn")
 def test_build_single_handler_application_main_py(mock_warn):
     f = tempfile.NamedTemporaryFile(suffix="main.py", delete=False)
-    f.close() #close file to open it later on windows
+    f.close()  # close file to open it later on windows
     util.build_single_handler_application(f.name)
     assert mock_warn.called
     assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY,)
     os.remove(f.name)
 
+
 _SIZE_WARNING = "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
+
 
 class Test_set_single_plot_width_height(object):
     def test_neither(self):
@@ -133,10 +140,11 @@ class Test_set_single_plot_width_height(object):
             assert len(warns) == 1
             assert warns[0].message.args[0] == _SIZE_WARNING
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

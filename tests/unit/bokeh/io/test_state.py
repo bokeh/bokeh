@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from mock import patch
@@ -21,18 +21,18 @@ from mock import patch
 from bokeh.document import Document
 
 # Module under test
-import bokeh.io.state as bis # isort:skip
+import bokeh.io.state as bis  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_State(object):
-
     def test_creation(self):
         s = bis.State()
         assert isinstance(s.document, Document)
@@ -42,26 +42,26 @@ class Test_State(object):
     def test_default_file_resources(self):
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file['resources'].minified, True
+        assert s.file["resources"].minified, True
 
     def test_output_file(self):
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file['filename'] == "foo.html"
-        assert s.file['title'] == "Bokeh Plot"
-        assert s.file['resources'].log_level == 'info'
-        assert s.file['resources'].minified == True
+        assert s.file["filename"] == "foo.html"
+        assert s.file["title"] == "Bokeh Plot"
+        assert s.file["resources"].log_level == "info"
+        assert s.file["resources"].minified == True
 
-    @patch('bokeh.io.state.log')
-    @patch('os.path.isfile')
+    @patch("bokeh.io.state.log")
+    @patch("os.path.isfile")
     def test_output_file_file_exists(self, mock_isfile, mock_log):
         mock_isfile.return_value = True
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file['filename'] == "foo.html"
-        assert s.file['title'] == "Bokeh Plot"
-        assert s.file['resources'].log_level == 'info'
-        assert s.file['resources'].minified == True
+        assert s.file["filename"] == "foo.html"
+        assert s.file["title"] == "Bokeh Plot"
+        assert s.file["resources"].log_level == "info"
+        assert s.file["resources"].minified == True
         assert mock_log.info.call_count == 1
         assert mock_log.info.call_args[0] == (
             "Session output file 'foo.html' already exists, will be overwritten.",
@@ -71,20 +71,20 @@ class Test_State(object):
         s = bis.State()
         s.output_notebook()
         assert s.notebook == True
-        assert s.notebook_type == 'jupyter'
+        assert s.notebook_type == "jupyter"
 
     def test_output_notebook_witharg(self):
         s = bis.State()
-        s.output_notebook(notebook_type='notjup')
+        s.output_notebook(notebook_type="notjup")
         assert s.notebook == True
-        assert s.notebook_type == 'notjup'
+        assert s.notebook_type == "notjup"
 
     def test_output_invalid_notebook(self):
         s = bis.State()
         with pytest.raises(Exception):
-            s.notebook_type=None
+            s.notebook_type = None
         with pytest.raises(Exception):
-            s.notebook_type=10
+            s.notebook_type = 10
 
     def test_reset(self):
         s = bis.State()
@@ -104,6 +104,7 @@ class Test_State(object):
         assert isinstance(s.document, Document)
         assert s.document == d
 
+
 def test_curstate():
     cs = bis.curstate()
     assert cs is bis._STATE
@@ -120,14 +121,15 @@ def test_curstate():
     assert cs3 is not cs2
     bis._STATE = old_STATE
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

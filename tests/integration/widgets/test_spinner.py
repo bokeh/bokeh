@@ -1,19 +1,19 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, ActionChains, Keys
@@ -28,27 +28,35 @@ from bokeh.models import (
     Spinner,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+    plot = Plot(
+        plot_height=400,
+        plot_width=400,
+        x_range=Range1d(0, 1),
+        y_range=Range1d(0, 1),
+        min_border=0,
+    )
 
-    plot.add_glyph(source, Circle(x='x', y='y'))
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+    plot.add_glyph(source, Circle(x="x", y="y"))
+    plot.add_tools(
+        CustomAction(
+            callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))
+        )
+    )
     spinner = Spinner(low=-1, high=10, step=0.1, value=4, css_classes=["foo"])
 
     def cb(attr, old, new):
-        source.data['val'] = [old, new]
+        source.data["val"] = [old, new]
 
-    spinner.on_change('value', cb)
+    spinner.on_change("value", cb)
     doc.add_root(column(spinner, plot))
     return doc
 
@@ -67,14 +75,13 @@ def enter_value_in_spinner(driver, el, value, del_prev=True):
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_Spinner(object):
-
     def test_display_number_input(self, bokeh_model_page):
         spinner = Spinner(css_classes=["foo"])
 
         page = bokeh_model_page(spinner)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
-        assert el.get_attribute('type') == "number"
+        el = page.driver.find_element_by_css_selector(".foo input")
+        assert el.get_attribute("type") == "number"
 
         assert page.has_no_console_errors()
 
@@ -83,10 +90,10 @@ class Test_Spinner(object):
 
         page = bokeh_model_page(spinner)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
+        el = page.driver.find_element_by_css_selector(".foo label")
         assert el.text == "title"
-        el = page.driver.find_element_by_css_selector('.foo input')
-        assert el.get_attribute('type') == "number"
+        el = page.driver.find_element_by_css_selector(".foo input")
+        assert el.get_attribute("type") == "number"
 
         assert page.has_no_console_errors()
 
@@ -95,76 +102,82 @@ class Test_Spinner(object):
 
         page = bokeh_model_page(spinner)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = page.driver.find_element_by_css_selector(".foo input")
 
-        assert el.get_attribute('value') == '1'
-        assert el.get_attribute('step') == '1'
-        assert el.get_attribute('max') == '10'
-        assert el.get_attribute('min') == '0'
+        assert el.get_attribute("value") == "1"
+        assert el.get_attribute("step") == "1"
+        assert el.get_attribute("max") == "10"
+        assert el.get_attribute("min") == "0"
 
         assert page.has_no_console_errors()
 
     def test_server_on_change_round_trip(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = page.driver.find_element_by_css_selector(".foo input")
 
         # same value
         enter_value_in_spinner(page.driver, el, 4)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == ["a", "b"]
+        assert results["data"]["val"] == ["a", "b"]
 
         # new valid value
         enter_value_in_spinner(page.driver, el, 5)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [4, 5]
+        assert results["data"]["val"] == [4, 5]
 
         # new overflow value
         enter_value_in_spinner(page.driver, el, 11)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [5, 10]
+        assert results["data"]["val"] == [5, 10]
 
         # new underflow value
         enter_value_in_spinner(page.driver, el, -2)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [10, -1]
+        assert results["data"]["val"] == [10, -1]
 
         # new decimal value
         enter_value_in_spinner(page.driver, el, 5.1)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [-1, 5.1]
+        assert results["data"]["val"] == [-1, 5.1]
 
         # new decimal value test rounding
         enter_value_in_spinner(page.driver, el, 5.19)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [5.1, 5.2]
+        assert results["data"]["val"] == [5.1, 5.2]
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
     def test_callback_property_executes(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        spinner = Spinner(css_classes=['foo'], step=1, value=0)
+        plot = Plot(
+            plot_height=400,
+            plot_width=400,
+            x_range=Range1d(0, 1),
+            y_range=Range1d(0, 1),
+            min_border=0,
+        )
+        plot.add_glyph(source, Circle(x="x", y="y", size=20))
+        spinner = Spinner(css_classes=["foo"], step=1, value=0)
         spinner.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
 
         page = single_plot_page(column(spinner, plot))
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = page.driver.find_element_by_css_selector(".foo input")
 
         enter_value_in_spinner(page.driver, el, 4)
         results = page.results
-        assert results['value'] == 4
+        assert results["value"] == 4
 
         enter_value_in_spinner(page.driver, el, -5.1)
         results = page.results
-        assert results['value'] == -5
+        assert results["value"] == -5
 
         assert page.has_no_console_errors()

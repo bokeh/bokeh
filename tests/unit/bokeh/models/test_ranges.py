@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import datetime as dt
@@ -25,30 +25,33 @@ from _util_models import check_properties_existence
 from bokeh.core.validation import check_integrity
 
 # Module under test
-from bokeh.models import Range1d, DataRange1d, FactorRange # isort:skip
+from bokeh.models import Range1d, DataRange1d, FactorRange  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_Range1d(object):
-
     def test_basic(self):
         r = Range1d()
-        check_properties_existence(r, [
-            "callback",
-            "start",
-            "end",
-            "reset_start",
-            "reset_end",
-            "bounds",
-            "min_interval",
-            "max_interval"],
+        check_properties_existence(
+            r,
+            [
+                "callback",
+                "start",
+                "end",
+                "reset_start",
+                "reset_end",
+                "bounds",
+                "min_interval",
+                "max_interval",
+            ],
         )
 
     def test_init_with_timedelta(self):
@@ -58,7 +61,10 @@ class Test_Range1d(object):
         assert range1d.bounds is None
 
     def test_init_with_datetime(self):
-        range1d = Range1d(start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50))
+        range1d = Range1d(
+            start=dt.datetime(2016, 4, 28, 2, 20, 50),
+            end=dt.datetime(2017, 4, 28, 2, 20, 50),
+        )
         assert range1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
         assert range1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
         assert range1d.bounds is None
@@ -91,11 +97,9 @@ class Test_Range1d(object):
         with pytest.raises(ValueError):
             Range1d(1, 2, start=1, end=2)
 
-
     def test_cannot_initialize_with_three_positional_arguments(self):
         with pytest.raises(ValueError):
             Range1d(1, 2, 3)
-
 
     def test_with_max_bound_smaller_than_min_bounded_raises_valueerror(self):
         with pytest.raises(ValueError):
@@ -103,37 +107,40 @@ class Test_Range1d(object):
         with pytest.raises(ValueError):
             Range1d(1, 2, bounds=[1, 0])
 
-
     def test_bounds_with_text_rejected_as_the_correct_value_error(self):
         with pytest.raises(ValueError) as e:
-            Range1d(1, 2, bounds="21")  # The string is indexable, so this may not fail properly
-        assert e.value.args[0].startswith('expected an element of either')
-
+            Range1d(
+                1, 2, bounds="21"
+            )  # The string is indexable, so this may not fail properly
+        assert e.value.args[0].startswith("expected an element of either")
 
     def test_bounds_with_three_item_tuple_raises_valueerror(self):
         with pytest.raises(ValueError):
             Range1d(1, 2, bounds=(0, 1, 2))
 
-class Test_DataRange1d(object):
 
+class Test_DataRange1d(object):
     def test_basic(self):
         r = DataRange1d()
-        check_properties_existence(r, [
-            "callback",
-            "names",
-            "renderers",
-            "range_padding",
-            "range_padding_units",
-            "flipped",
-            "follow",
-            "follow_interval",
-            "default_span",
-            "start",
-            "end",
-            "bounds",
-            "min_interval",
-            "max_interval",
-            "only_visible"],
+        check_properties_existence(
+            r,
+            [
+                "callback",
+                "names",
+                "renderers",
+                "range_padding",
+                "range_padding_units",
+                "flipped",
+                "follow",
+                "follow_interval",
+                "default_span",
+                "start",
+                "end",
+                "bounds",
+                "min_interval",
+                "max_interval",
+                "only_visible",
+            ],
         )
 
     def test_init_with_no_arguments(self):
@@ -143,13 +150,18 @@ class Test_DataRange1d(object):
         assert datarange1d.bounds is None
 
     def test_init_with_timedelta(self):
-        datarange1d = DataRange1d(start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3))
+        datarange1d = DataRange1d(
+            start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3)
+        )
         assert datarange1d.start == -dt.timedelta(seconds=5)
         assert datarange1d.end == dt.timedelta(seconds=3)
         assert datarange1d.bounds is None
 
     def test_init_with_datetime(self):
-        datarange1d = DataRange1d(start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50))
+        datarange1d = DataRange1d(
+            start=dt.datetime(2016, 4, 28, 2, 20, 50),
+            end=dt.datetime(2017, 4, 28, 2, 20, 50),
+        )
         assert datarange1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
         assert datarange1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
         assert datarange1d.bounds is None
@@ -181,22 +193,24 @@ class Test_DataRange1d(object):
 
 
 class Test_FactorRange(object):
-
     def test_basic(self):
         r = FactorRange()
-        check_properties_existence(r, [
-            "callback",
-            "factors",
-            "factor_padding",
-            "group_padding",
-            "subgroup_padding",
-            "range_padding",
-            "range_padding_units",
-            "start",
-            "end",
-            "bounds",
-            "min_interval",
-            "max_interval"],
+        check_properties_existence(
+            r,
+            [
+                "callback",
+                "factors",
+                "factor_padding",
+                "group_padding",
+                "subgroup_padding",
+                "range_padding",
+                "range_padding_units",
+                "start",
+                "end",
+                "bounds",
+                "min_interval",
+                "max_interval",
+            ],
         )
 
     def test_init_defauls(self):
@@ -231,28 +245,31 @@ class Test_FactorRange(object):
 
     def test_duplicate_factors_raises_validation_error(self):
         r = FactorRange("foo", "bar", "foo")
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
-        r = FactorRange(factors=[("foo", "a"), ("foo", "b"),  ("foo", "a")])
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        r = FactorRange(factors=[("foo", "a"), ("foo", "b"), ("foo", "a")])
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
-        r = FactorRange(factors=[("foo", "a", "1"), ("foo", "a", "2"),  ("foo", "a", "1")])
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        r = FactorRange(
+            factors=[("foo", "a", "1"), ("foo", "a", "2"), ("foo", "a", "1")]
+        )
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

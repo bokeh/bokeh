@@ -1,35 +1,35 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh.application import Application
 
 # Module under test
-import bokeh.server.contexts as bsc # isort:skip
+import bokeh.server.contexts as bsc  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestBokehServerContext(object):
-
     def test_init(self):
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         c = bsc.BokehServerContext(ac)
@@ -39,10 +39,10 @@ class TestBokehServerContext(object):
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         ac._sessions = dict(foo=1, bar=2)
         c = bsc.BokehServerContext(ac)
-        assert set(c.sessions) == set([1,2])
+        assert set(c.sessions) == set([1, 2])
+
 
 class TestBokehSessionContext(object):
-
     def test_init(self):
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         sc = bsc.BokehServerContext(ac)
@@ -55,6 +55,7 @@ class TestBokehSessionContext(object):
     def test_destroyed(self):
         class FakeSession(object):
             destroyed = False
+
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         sc = bsc.BokehServerContext(ac)
         c = bsc.BokehSessionContext("id", sc, "doc")
@@ -73,8 +74,8 @@ class TestBokehSessionContext(object):
         assert not c.destroyed
         assert c.logout_url == "/logout"
 
-class TestApplicationContext(object):
 
+class TestApplicationContext(object):
     def test_init(self):
         c = bsc.ApplicationContext("app", io_loop="ioloop")
         assert c.io_loop == "ioloop"
@@ -89,7 +90,7 @@ class TestApplicationContext(object):
     def test_sessions(self):
         c = bsc.ApplicationContext("app", io_loop="ioloop")
         c._sessions = dict(foo=1, bar=2)
-        assert set(c.sessions) == set([1,2])
+        assert set(c.sessions) == set([1, 2])
 
     def test_get_session_success(self):
         c = bsc.ApplicationContext("app", io_loop="ioloop")
@@ -107,8 +108,10 @@ class TestApplicationContext(object):
     async def test_create_session_if_needed_new(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
+
         class FakeRequest(object):
             arguments = dict(foo=10)
+
         req = FakeRequest()
         s = await c.create_session_if_needed("foo", request=req)
         assert c.get_session("foo") == s
@@ -117,8 +120,10 @@ class TestApplicationContext(object):
     async def test_create_session_if_needed_exists(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
+
         class FakeRequest(object):
             arguments = dict(foo=10)
+
         req = FakeRequest()
         s1 = await c.create_session_if_needed("foo", request=req)
         s2 = await c.create_session_if_needed("foo", request=req)
@@ -128,8 +133,10 @@ class TestApplicationContext(object):
     async def test_create_session_if_needed_bad_sessionid(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
+
         class FakeRequest(object):
             arguments = dict(foo=10)
+
         req = FakeRequest()
         r = c.create_session_if_needed("", request=req)
         with pytest.raises(bsc.ProtocolError) as e:
@@ -140,22 +147,25 @@ class TestApplicationContext(object):
     async def test_create_session_if_needed_logout_url(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop", logout_url="/logout")
+
         class FakeRequest(object):
             arguments = dict(foo=10)
+
         req = FakeRequest()
         s = await c.create_session_if_needed("foo", request=req)
         session = c.get_session("foo")
         assert session == s
         assert c._session_contexts[session.id].logout_url == "/logout"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

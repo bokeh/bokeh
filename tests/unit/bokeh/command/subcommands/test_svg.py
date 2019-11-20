@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import argparse
@@ -24,20 +24,21 @@ from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_co
 from bokeh.command.bootstrap import main
 
 # Module under test
-import bokeh.command.subcommands.svg as scsvg # isort:skip
+import bokeh.command.subcommands.svg as scsvg  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def test_create():
     import argparse
@@ -46,50 +47,63 @@ def test_create():
     obj = scsvg.SVG(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
+
 def test_name():
     assert scsvg.SVG.name == "svg"
+
 
 def test_help():
     assert scsvg.SVG.help == "Create standalone SVG files for one or more applications"
 
+
 def test_args():
     assert scsvg.SVG.args == (
-
-        ('files', dict(
-            metavar='DIRECTORY-OR-SCRIPT',
-            nargs='+',
-            help="The app directories or scripts to generate SVG for",
-            default=None,
-        )),
-
-        ('--height', dict(
-            metavar='HEIGHT',
-            type=int,
-            help="The desired height of the exported layout obj only if it's a Plot instance",
-            default=None,
-        )),
-
-        ('--width', dict(
-            metavar='WIDTH',
-            type=int,
-            help="The desired width of the exported layout obj only if it's a Plot instance",
-            default=None,
-        )),
-
-        (('-o', '--output'), dict(
-            metavar='FILENAME',
-            action='append',
-            type=str,
-            help="Name of the output file or - for standard output."
-        )),
-
-        ('--args', dict(
-            metavar='COMMAND-LINE-ARGS',
-            nargs=argparse.REMAINDER,
-            help="Any command line arguments remaining are passed on to the application handler",
-        )),
-
+        (
+            "files",
+            dict(
+                metavar="DIRECTORY-OR-SCRIPT",
+                nargs="+",
+                help="The app directories or scripts to generate SVG for",
+                default=None,
+            ),
+        ),
+        (
+            "--height",
+            dict(
+                metavar="HEIGHT",
+                type=int,
+                help="The desired height of the exported layout obj only if it's a Plot instance",
+                default=None,
+            ),
+        ),
+        (
+            "--width",
+            dict(
+                metavar="WIDTH",
+                type=int,
+                help="The desired width of the exported layout obj only if it's a Plot instance",
+                default=None,
+            ),
+        ),
+        (
+            ("-o", "--output"),
+            dict(
+                metavar="FILENAME",
+                action="append",
+                type=str,
+                help="Name of the output file or - for standard output.",
+            ),
+        ),
+        (
+            "--args",
+            dict(
+                metavar="COMMAND-LINE-ARGS",
+                nargs=argparse.REMAINDER,
+                help="Any command line arguments remaining are passed on to the application handler",
+            ),
+        ),
     )
+
 
 def test_no_script(capsys):
     with (TmpDir(prefix="bokeh-svg-no-script")) as dirname:
@@ -98,12 +112,17 @@ def test_no_script(capsys):
                 main(["bokeh", "svg"])
         out, err = capsys.readouterr()
         too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
-        assert err == """usage: bokeh svg [-h] [--height HEIGHT] [--width WIDTH] [-o FILENAME]
+        assert (
+            err
+            == """usage: bokeh svg [-h] [--height HEIGHT] [--width WIDTH] [-o FILENAME]
                  [--args ...]
                  DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
 bokeh svg: error: %s
-""" % (too_few)
+"""
+            % (too_few)
+        )
         assert out == ""
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -117,7 +136,8 @@ def test_basic_script(capsys):
 
         assert set(["scatter.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
+    with_directory_contents({"scatter.py": basic_svg_scatter_script}, run)
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -131,7 +151,8 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
+    with_directory_contents({"scatter.py": basic_svg_scatter_script}, run)
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -145,7 +166,8 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
+    with_directory_contents({"scatter.py": basic_svg_scatter_script}, run)
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -156,11 +178,12 @@ def test_basic_script_with_output_stdout(capsys):
         out, err = capsys.readouterr()
         assert len(err) == 0
         assert len(out) > 0
-        assert out.startswith('<svg version=')
+        assert out.startswith("<svg version=")
 
         assert set(["scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
+    with_directory_contents({"scatter.py": basic_svg_scatter_script}, run)
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -172,12 +195,26 @@ def test_multiple_svg_scripts(capsys):
         assert err == ""
         assert out == ""
 
-        assert set(["scatter1.svg", "scatter2.svg", "scatter3.svg", "scatter1.py", "scatter2.py", "scatter3.py"]) == set(os.listdir(dirname))
+        assert set(
+            [
+                "scatter1.svg",
+                "scatter2.svg",
+                "scatter3.svg",
+                "scatter1.py",
+                "scatter2.py",
+                "scatter3.py",
+            ]
+        ) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter1.py' : basic_svg_scatter_script,
-                              'scatter2.py' : basic_svg_scatter_script,
-                              'scatter3.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents(
+        {
+            "scatter1.py": basic_svg_scatter_script,
+            "scatter2.py": basic_svg_scatter_script,
+            "scatter3.py": basic_svg_scatter_script,
+        },
+        run,
+    )
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -189,15 +226,17 @@ def test_basic_script_with_multiple_svg_plots(capsys):
         assert err == ""
         assert out == ""
 
-        assert set(["scatter.svg", "scatter_1.svg", "scatter.py"]) == set(os.listdir(dirname))
+        assert set(["scatter.svg", "scatter_1.svg", "scatter.py"]) == set(
+            os.listdir(dirname)
+        )
 
-    with_directory_contents({ 'scatter.py' : multi_svg_scatter_script },
-                            run)
+    with_directory_contents({"scatter.py": multi_svg_scatter_script}, run)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

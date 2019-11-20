@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import numpy as np
@@ -23,31 +23,23 @@ from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import Float, Instance, Int, String
 
 # Module under test
-import bokeh.core.property.container as bcpc # isort:skip
+import bokeh.core.property.container as bcpc  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-ALL = (
-    'Array',
-    'ColumnData',
-    'Dict',
-    'List',
-    'RelativeDelta',
-    'Seq',
-    'Tuple',
-)
+ALL = ("Array", "ColumnData", "Dict", "List", "RelativeDelta", "Seq", "Tuple")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # TODO (bev) class Test_ColumnData
 # TODO (bev) class Test_RelativeDelta
 
-class Test_Array(object):
 
+class Test_Array(object):
     def test_init(self):
         with pytest.raises(TypeError):
             bcpc.Array()
@@ -56,7 +48,7 @@ class Test_Array(object):
         prop = bcpc.Array(Float)
 
         assert prop.is_valid(None)
-        assert prop.is_valid(np.array([1,2,3]))
+        assert prop.is_valid(np.array([1, 2, 3]))
 
     def test_invalid(self):
         prop = bcpc.Array(Float)
@@ -67,7 +59,7 @@ class Test_Array(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
 
         assert not prop.is_valid("")
         assert not prop.is_valid(())
@@ -85,8 +77,8 @@ class Test_Array(object):
         prop = bcpc.Array(Float)
         assert str(prop) == "Array(Float)"
 
-class Test_Dict(object):
 
+class Test_Dict(object):
     def test_init(self):
         with pytest.raises(TypeError):
             bcpc.Dict()
@@ -96,7 +88,7 @@ class Test_Dict(object):
 
         assert prop.is_valid(None)
         assert prop.is_valid({})
-        assert prop.is_valid({"foo": [1,2,3]})
+        assert prop.is_valid({"foo": [1, 2, 3]})
 
     def test_invalid(self):
         prop = bcpc.Dict(String, bcpc.List(Int))
@@ -107,14 +99,14 @@ class Test_Dict(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
 
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
-        assert not prop.is_valid({"foo": [1,2,3.5]})
+        assert not prop.is_valid({"foo": [1, 2, 3.5]})
 
-        assert not prop.is_valid(np.array([1,2,3]))
+        assert not prop.is_valid(np.array([1, 2, 3]))
 
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
@@ -130,8 +122,8 @@ class Test_Dict(object):
         prop = bcpc.Dict(String, Int)
         assert str(prop) == "Dict(String, Int)"
 
-class Test_List(object):
 
+class Test_List(object):
     def test_init(self):
         with pytest.raises(TypeError):
             bcpc.List()
@@ -141,7 +133,7 @@ class Test_List(object):
 
         assert prop.is_valid(None)
         assert prop.is_valid([])
-        assert prop.is_valid([1,2,3])
+        assert prop.is_valid([1, 2, 3])
 
     def test_invalid(self):
         prop = bcpc.List(Int)
@@ -152,14 +144,14 @@ class Test_List(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
 
-        assert not prop.is_valid([1,2,3.5])
+        assert not prop.is_valid([1, 2, 3.5])
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid({})
 
-        assert not prop.is_valid(np.array([1,2,3]))
+        assert not prop.is_valid(np.array([1, 2, 3]))
 
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
@@ -175,8 +167,8 @@ class Test_List(object):
         prop = bcpc.List(Int)
         assert str(prop) == "List(Int)"
 
-class Test_Seq(object):
 
+class Test_Seq(object):
     def test_init(self):
         with pytest.raises(TypeError):
             bcpc.Seq()
@@ -188,7 +180,7 @@ class Test_Seq(object):
 
         assert prop.is_valid(())
         assert prop.is_valid([])
-        assert prop.is_valid(np.array([1,2,3]))
+        assert prop.is_valid(np.array([1, 2, 3]))
 
         assert prop.is_valid((1, 2))
         assert prop.is_valid([1, 2])
@@ -203,7 +195,7 @@ class Test_Seq(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
 
         assert not prop.is_valid(set([]))
@@ -233,8 +225,8 @@ class Test_Seq(object):
         prop = bcpc.Seq(Int)
         assert str(prop) == "Seq(Int)"
 
-class Test_Tuple(object):
 
+class Test_Tuple(object):
     def test_Tuple(self):
         with pytest.raises(TypeError):
             bcpc.Tuple()
@@ -258,14 +250,14 @@ class Test_Tuple(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
 
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
         assert not prop.is_valid({})
 
-        assert not prop.is_valid(np.array([1,2,3]))
+        assert not prop.is_valid(np.array([1, 2, 3]))
 
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
@@ -286,16 +278,17 @@ class Test_Tuple(object):
         prop = bcpc.Tuple(Int, Int)
         assert str(prop) == "Tuple(Int, Int)"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpc, ALL)

@@ -1,19 +1,19 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from time import sleep
@@ -39,30 +39,35 @@ from bokeh.models import (
     TextInput,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh",)
+
 
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_DataTableCopyPaste(object):
-
     @flaky(max_runs=5)
     def test_single_row_copy(self, bokeh_model_page):
-        data = {'x': [1,2,3,4], 'y': [1, 1, 1, 1], 'd': ['foo', 'bar', 'baz', 'quux']}
+        data = {
+            "x": [1, 2, 3, 4],
+            "y": [1, 1, 1, 1],
+            "d": ["foo", "bar", "baz", "quux"],
+        }
         source = ColumnDataSource(data)
-        table = DataTable(columns=[
-            TableColumn(field="x", title="x"),
-            TableColumn(field="y", title="y"),
-            TableColumn(field="d", title="d"),
-        ], source=source)
+        table = DataTable(
+            columns=[
+                TableColumn(field="x", title="x"),
+                TableColumn(field="y", title="y"),
+                TableColumn(field="d", title="d"),
+            ],
+            source=source,
+        )
 
         text_input = TextInput(css_classes=["foo"])
-        text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+        text_input.js_on_change("value", CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(column(table, text_input))
 
@@ -70,30 +75,41 @@ class Test_DataTableCopyPaste(object):
         row = get_table_row(page.driver, 2)
         row.click()
 
-        enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
+        enter_text_in_element(
+            page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False
+        )
 
-        input_el = page.driver.find_element_by_css_selector('.foo')
-        enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
+        input_el = page.driver.find_element_by_css_selector(".foo")
+        enter_text_in_element(
+            page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False
+        )
         enter_text_in_element(page.driver, input_el, "")
 
         sleep(0.5)
         results = page.results
 
-        assert results['value'] == '1\t2\t1\tbar'
+        assert results["value"] == "1\t2\t1\tbar"
 
         assert page.has_no_console_errors()
 
     def test_single_row_copy_with_zero(self, bokeh_model_page):
-        data = {'x': [1,2,3,4], 'y': [0, 0, 0, 0], 'd': ['foo', 'bar', 'baz', 'quux']}
+        data = {
+            "x": [1, 2, 3, 4],
+            "y": [0, 0, 0, 0],
+            "d": ["foo", "bar", "baz", "quux"],
+        }
         source = ColumnDataSource(data)
-        table = DataTable(columns=[
-            TableColumn(field="x", title="x"),
-            TableColumn(field="y", title="y"),
-            TableColumn(field="d", title="d"),
-        ], source=source)
+        table = DataTable(
+            columns=[
+                TableColumn(field="x", title="x"),
+                TableColumn(field="y", title="y"),
+                TableColumn(field="d", title="d"),
+            ],
+            source=source,
+        )
 
         text_input = TextAreaInput(css_classes=["foo"])
-        text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+        text_input.js_on_change("value", CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(column(table, text_input))
 
@@ -101,31 +117,42 @@ class Test_DataTableCopyPaste(object):
         row = get_table_row(page.driver, 2)
         row.click()
 
-        enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
+        enter_text_in_element(
+            page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False
+        )
 
-        input_el = page.driver.find_element_by_css_selector('.foo')
-        enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
-        #enter_text_in_element(page.driver, input_el, "")
+        input_el = page.driver.find_element_by_css_selector(".foo")
+        enter_text_in_element(
+            page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False
+        )
+        # enter_text_in_element(page.driver, input_el, "")
 
         sleep(0.5)
         results = page.results
 
-        assert results['value'] == '1\t2\t0\tbar\n'
+        assert results["value"] == "1\t2\t0\tbar\n"
 
         assert page.has_no_console_errors()
 
     @flaky(max_runs=5)
     def test_multi_row_copy(self, bokeh_model_page):
-        data = {'x': [1,2,3,4], 'y': [0, 1, 2, 3], 'd': ['foo', 'bar', 'baz', 'quux']}
+        data = {
+            "x": [1, 2, 3, 4],
+            "y": [0, 1, 2, 3],
+            "d": ["foo", "bar", "baz", "quux"],
+        }
         source = ColumnDataSource(data)
-        table = DataTable(columns=[
-            TableColumn(field="x", title="x"),
-            TableColumn(field="y", title="y"),
-            TableColumn(field="d", title="d"),
-        ], source=source)
+        table = DataTable(
+            columns=[
+                TableColumn(field="x", title="x"),
+                TableColumn(field="y", title="y"),
+                TableColumn(field="d", title="d"),
+            ],
+            source=source,
+        )
 
         text_input = TextAreaInput(css_classes=["foo"])
-        text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+        text_input.js_on_change("value", CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(column(table, text_input))
 
@@ -136,15 +163,19 @@ class Test_DataTableCopyPaste(object):
         row = get_table_row(page.driver, 3)
         shift_click(page.driver, row)
 
-        enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
+        enter_text_in_element(
+            page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False
+        )
 
-        input_el = page.driver.find_element_by_css_selector('.foo')
-        enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
-        #enter_text_in_element(page.driver, input_el, "")
+        input_el = page.driver.find_element_by_css_selector(".foo")
+        enter_text_in_element(
+            page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False
+        )
+        # enter_text_in_element(page.driver, input_el, "")
 
         sleep(2.0)
         results = page.results
 
-        assert results['value'] == '0\t1\t0\tfoo\n1\t2\t1\tbar\n2\t3\t2\tbaz\n'
+        assert results["value"] == "0\t1\t0\tfoo\n1\t2\t1\tbar\n2\t3\t2\tbaz\n"
 
         assert page.has_no_console_errors()

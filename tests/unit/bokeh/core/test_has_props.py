@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from mock import patch
@@ -25,40 +25,45 @@ from bokeh.core.property.descriptors import (
 )
 
 # Module under test
-import bokeh.core.has_props as hp # isort:skip
+import bokeh.core.has_props as hp  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Parent(hp.HasProps):
     int1 = Int(default=10)
     ds1 = NumberSpec()
     lst1 = List(String)
 
+
 class Child(Parent):
     int2 = Int()
     str2 = String(default="foo")
     ds2 = NumberSpec()
-    lst2 = List(Int, default=[1,2,3])
+    lst2 = List(Int, default=[1, 2, 3])
 
     @property
     def str2_proxy(self):
         return self.str2
+
     @str2_proxy.setter
     def str2_proxy(self, value):
-        self.str2 = value*2
+        self.str2 = value * 2
+
 
 class OverrideChild(Parent):
     int1 = Override(default=20)
+
 
 def test_HasProps_default_init():
     p = Parent()
@@ -73,7 +78,8 @@ def test_HasProps_default_init():
     assert c.int2 == None
     assert c.str2 == "foo"
     assert c.ds2 == None
-    assert c.lst2 == [1,2,3]
+    assert c.lst2 == [1, 2, 3]
+
 
 def test_HasProps_kw_init():
     p = Parent(int1=30, ds1="foo")
@@ -81,20 +87,22 @@ def test_HasProps_kw_init():
     assert p.ds1 == "foo"
     assert p.lst1 == []
 
-    c = Child(str2="bar", lst2=[2,3,4], ds2=10)
+    c = Child(str2="bar", lst2=[2, 3, 4], ds2=10)
     assert c.int1 == 10
     assert c.ds1 == None
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "bar"
     assert c.ds2 == 10
-    assert c.lst2 == [2,3,4]
+    assert c.lst2 == [2, 3, 4]
+
 
 def test_HasProps_override():
     ov = OverrideChild()
     assert ov.int1 == 20
     assert ov.ds1 == None
     assert ov.lst1 == []
+
 
 def test_HasProps_equals():
     p1 = Parent()
@@ -105,102 +113,112 @@ def test_HasProps_equals():
     p2.int1 = 25
     assert p1.equals(p2)
 
+
 def test_HasProps_update():
     c = Child()
-    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update(**dict(lst2=[1, 2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
     assert c.ds1 == dict(field="foo")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
-    assert c.ds2 ==  None
-    assert c.lst2 == [1,2]
+    assert c.ds2 == None
+    assert c.lst2 == [1, 2]
+
 
 def test_HasProps_set_from_json():
     c = Child()
-    c.set_from_json('lst2', [1,2])
+    c.set_from_json("lst2", [1, 2])
     assert c.int1 == 10
     assert c.ds1 == None
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "foo"
-    assert c.ds2 ==  None
-    assert c.lst2 == [1,2]
+    assert c.ds2 == None
+    assert c.lst2 == [1, 2]
 
-    c.set_from_json('ds1', "foo")
+    c.set_from_json("ds1", "foo")
     assert c.int1 == 10
     assert c.ds1 == "foo"
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "foo"
-    assert c.ds2 ==  None
-    assert c.lst2 == [1,2]
+    assert c.ds2 == None
+    assert c.lst2 == [1, 2]
 
-    c.set_from_json('int2', 100)
+    c.set_from_json("int2", 100)
     assert c.int1 == 10
     assert c.ds1 == "foo"
     assert c.lst1 == []
     assert c.int2 == 100
     assert c.str2 == "foo"
-    assert c.ds2 ==  None
-    assert c.lst2 == [1,2]
+    assert c.ds2 == None
+    assert c.lst2 == [1, 2]
 
 
 def test_HasProps_update_from_json():
     c = Child()
-    c.update_from_json(dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update_from_json(dict(lst2=[1, 2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
     assert c.ds1 == dict(field="foo")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
-    assert c.ds2 ==  None
-    assert c.lst2 == [1,2]
+    assert c.ds2 == None
+    assert c.lst2 == [1, 2]
 
-@patch('bokeh.core.has_props.HasProps.set_from_json')
+
+@patch("bokeh.core.has_props.HasProps.set_from_json")
 def test_HasProps_update_from_json_passes_models_and_setter(mock_set):
     c = Child()
-    c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
+    c.update_from_json(dict(lst1=[1, 2]), models="foo", setter="bar")
     assert mock_set.called
-    assert mock_set.call_args[0] == ('lst1', [1, 2], 'foo', 'bar')
+    assert mock_set.call_args[0] == ("lst1", [1, 2], "foo", "bar")
     assert mock_set.call_args[1] == {}
+
 
 def test_HasProps_set():
     c = Child()
-    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update(**dict(lst2=[1, 2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
     assert c.ds1 == dict(field="foo")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
-    assert c.ds2 ==  None
-    assert c.lst2 == [1,2]
+    assert c.ds2 == None
+    assert c.lst2 == [1, 2]
 
     c.str2_proxy = "some"
     assert c.str2 == "somesome"
     assert c.str2_proxy == "somesome"
 
+
 def test_HasProps_set_error():
     c = Child()
     with pytest.raises(AttributeError) as e:
         c.int3 = 10
-    assert str(e.value).endswith("unexpected attribute 'int3' to Child, similar attributes are int2 or int1")
+    assert str(e.value).endswith(
+        "unexpected attribute 'int3' to Child, similar attributes are int2 or int1"
+    )
     with pytest.raises(AttributeError) as e:
         c.junkjunk = 10
-    assert str(e.value).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
+    assert str(e.value).endswith(
+        "unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2"
+    )
 
 
 def test_HasProps_lookup():
     p = Parent()
-    d = p.lookup('int1')
+    d = p.lookup("int1")
     assert isinstance(d, BasicPropertyDescriptor)
-    assert d.name == 'int1'
-    d = p.lookup('ds1')
+    assert d.name == "int1"
+    d = p.lookup("ds1")
     assert isinstance(d, DataSpecPropertyDescriptor)
-    assert d.name == 'ds1'
-    d = p.lookup('lst1')
+    assert d.name == "ds1"
+    d = p.lookup("lst1")
     assert isinstance(d, BasicPropertyDescriptor)
-    assert d.name == 'lst1'
+    assert d.name == "lst1"
+
 
 def test_HasProps_apply_theme():
     c = Child()
@@ -217,7 +235,7 @@ def test_HasProps_apply_theme():
     assert c.ds1 == None
     assert c.str2 == "foo"
     assert c.ds2 == None
-    assert c.lst2 == [1,2,3]
+    assert c.lst2 == [1, 2, 3]
 
     c.int2 = 25
     assert c.int2 == 25
@@ -227,7 +245,7 @@ def test_HasProps_apply_theme():
     assert c.ds1 == None
     assert c.str2 == "foo"
     assert c.ds2 == None
-    assert c.lst2 == [1,2,3]
+    assert c.lst2 == [1, 2, 3]
 
     c.ds2 = "foo"
     assert c.int2 == 25
@@ -237,7 +255,8 @@ def test_HasProps_apply_theme():
     assert c.ds1 == None
     assert c.str2 == "foo"
     assert c.ds2 == "foo"
-    assert c.lst2 == [1,2,3]
+    assert c.lst2 == [1, 2, 3]
+
 
 def test_HasProps_unapply_theme():
     c = Child()
@@ -250,7 +269,7 @@ def test_HasProps_unapply_theme():
     assert c.ds1 == None
     assert c.str2 == "foo"
     assert c.ds2 == None
-    assert c.lst2 == [1,2,3]
+    assert c.lst2 == [1, 2, 3]
 
     c.unapply_theme()
     assert c.int2 == None
@@ -260,12 +279,14 @@ def test_HasProps_unapply_theme():
     assert c.ds1 == None
     assert c.str2 == "foo"
     assert c.ds2 == None
-    assert c.lst2 == [1,2,3]
+    assert c.lst2 == [1, 2, 3]
 
     assert c.themed_values() == None
 
+
 class EitherSimpleDefault(hp.HasProps):
     foo = Either(List(Int), Int, default=10)
+
 
 def test_HasProps_apply_theme_either_simple():
 
@@ -308,8 +329,10 @@ def test_HasProps_apply_theme_either_simple():
     c.apply_theme(theme)
     assert c.foo == [100]
 
+
 class EitherContainerDefault(hp.HasProps):
     foo = Either(List(Int), Int, default=[10])
+
 
 def test_HasProps_apply_theme_either_container():
 
@@ -352,8 +375,10 @@ def test_HasProps_apply_theme_either_container():
     c.apply_theme(theme)
     assert c.foo == 100
 
+
 class IntFuncDefault(hp.HasProps):
     foo = Int(default=lambda: 10)
+
 
 def test_HasProps_apply_theme_func_default():
 
@@ -383,10 +408,11 @@ def test_HasProps_apply_theme_func_default():
     c.foo = 50
     assert c.foo == 50
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

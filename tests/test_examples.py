@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -30,6 +30,7 @@ pytest_plugins = (
     "bokeh._testing.plugins.examples_report",
 )
 
+
 @pytest.mark.examples
 def test_js_examples(js_example, example, config, report):
     if example.no_js:
@@ -37,6 +38,7 @@ def test_js_examples(js_example, example, config, report):
             warn("skipping bokehjs for %s" % example.relpath)
     else:
         _run_in_browser(example, "file://%s" % example.path, config.option.verbose)
+
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, config, report):
@@ -60,7 +62,10 @@ def test_file_examples(file_example, example, config, report):
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "file://%s.html" % example.path_no_ext, config.option.verbose)
+        _run_in_browser(
+            example, "file://%s.html" % example.path_no_ext, config.option.verbose
+        )
+
 
 @pytest.mark.examples
 def test_server_examples(server_example, example, config, report, bokeh_server):
@@ -76,7 +81,7 @@ def test_server_examples(server_example, example, config, report, bokeh_server):
         elif isinstance(session_callback, TimeoutCallback):
             doc.remove_timeout_callback(session_callback)
         else:
-            raise RuntimeError('Unhandled callback type', type(session_callback))
+            raise RuntimeError("Unhandled callback type", type(session_callback))
 
     session_id = basename(example.path)
     push_session(doc, session_id=session_id)
@@ -85,7 +90,12 @@ def test_server_examples(server_example, example, config, report, bokeh_server):
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, config.option.verbose)
+        _run_in_browser(
+            example,
+            "http://localhost:5006/?bokeh-session-id=%s" % session_id,
+            config.option.verbose,
+        )
+
 
 def _get_path_parts(path):
     parts = []
@@ -93,29 +103,30 @@ def _get_path_parts(path):
         newpath, tail = split(path)
         parts.append(tail)
         path = newpath
-        if tail == 'examples':
+        if tail == "examples":
             break
     parts.reverse()
     return parts
 
 
 def _print_webengine_output(result):
-    errors = result['errors']
-    messages = result['messages']
+    errors = result["errors"]
+    messages = result["messages"]
 
     for message in messages:
-        level = message['level']
-        text = message['text']
-        url = message['url']
-        line = message['line']
-        col = message['col']
+        level = message["level"]
+        text = message["text"]
+        url = message["url"]
+        line = message["line"]
+        col = message["col"]
 
         msg = "{%s} %s:%s:%s %s" % (level, url, line, col, text)
         info(msg, label="JS")
 
     for error in errors:
-        for line in error['text'].split("\n"):
+        for line in error["text"].split("\n"):
             fail(line, label="JS")
+
 
 def _create_baseline(items):
     lines = []
@@ -127,18 +138,24 @@ def _create_baseline(items):
             bbox = item.get("bbox", None)
             children = item.get("children", [])
 
-            line = "%s%s" % ("  "*level, type)
+            line = "%s%s" % ("  " * level, type)
 
             if bbox is not None:
-                line += " bbox=[%s, %s, %s, %s]" % (bbox["x"], bbox["y"], bbox["width"], bbox["height"])
+                line += " bbox=[%s, %s, %s, %s]" % (
+                    bbox["x"],
+                    bbox["y"],
+                    bbox["width"],
+                    bbox["height"],
+                )
 
             line += "\n"
 
             lines.append(line)
-            descend(children, level+1)
+            descend(children, level + 1)
 
     descend(items, 0)
     return "".join(lines)
+
 
 def _run_in_browser(example, url, verbose=False):
     start = time.time()
@@ -181,7 +198,9 @@ def _run_in_browser(example, url, verbose=False):
 
             if result is not None:
                 baseline_ok = False
-                fail("BASELINE DOESN'T MATCH (make sure to update baselines before running tests):")
+                fail(
+                    "BASELINE DOESN'T MATCH (make sure to update baselines before running tests):"
+                )
 
                 for line in result.split("\n"):
                     fail(line)
@@ -225,21 +244,24 @@ warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
 with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
-""" % example.path.replace("\\", "\\\\")
+""" % example.path.replace(
+        "\\", "\\\\"
+    )
 
     cmd = ["python", "-c", code]
     cwd = dirname(example.path)
 
     env = os.environ.copy()
-    env['BOKEH_IGNORE_FILENAME'] = 'true'
-    env['BOKEH_RESOURCES'] = 'relative'
-    env['BOKEH_MINIFIED'] = 'false'
-    env['BOKEH_BROWSER'] = 'none'
+    env["BOKEH_IGNORE_FILENAME"] = "true"
+    env["BOKEH_RESOURCES"] = "relative"
+    env["BOKEH_MINIFIED"] = "false"
+    env["BOKEH_BROWSER"] = "none"
 
     class Timeout(Exception):
         pass
 
     if not is_windows:
+
         def alarm_handler(sig, frame):
             raise Timeout
 
@@ -248,11 +270,13 @@ with open(filename, 'rb') as example:
 
     start = time.time()
     try:
-        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         status = proc.wait()
     except Timeout:
         proc.kill()
-        status = 'timeout'
+        status = "timeout"
     finally:
         if not is_windows:
             signal.alarm(0)

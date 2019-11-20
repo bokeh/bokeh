@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import json
@@ -45,20 +45,20 @@ from bokeh.protocol.messages.patch_doc import process_document_events
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.document.document as document # isort:skip
+import bokeh.document.document as document  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestDocumentHold(object):
-
-    @pytest.mark.parametrize('policy', document.HoldPolicy)
+    @pytest.mark.parametrize("policy", document.HoldPolicy)
     @pytest.mark.unit
     def test_hold(self, policy):
         d = document.Document()
@@ -73,7 +73,9 @@ class TestDocumentHold(object):
         with pytest.raises(ValueError):
             d.hold("junk")
 
-    @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
+    @pytest.mark.parametrize(
+        "first,second", [("combine", "collect"), ("collect", "combine")]
+    )
     @pytest.mark.unit
     def test_rehold(self, first, second, caplog):
         d = document.Document()
@@ -87,7 +89,9 @@ class TestDocumentHold(object):
             assert len(caplog.records) == 0
 
             d.hold(second)
-            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
+            assert caplog.text.strip().endswith(
+                "hold already active with '%s', ignoring '%s'" % (first, second)
+            )
             assert len(caplog.records) == 1
 
             d.unhold()
@@ -95,7 +99,7 @@ class TestDocumentHold(object):
             d.hold(second)
             assert len(caplog.records) == 1
 
-    @pytest.mark.parametrize('policy', document.HoldPolicy)
+    @pytest.mark.parametrize("policy", document.HoldPolicy)
     @pytest.mark.unit
     def test_unhold(self, policy):
         d = document.Document()
@@ -110,61 +114,72 @@ class TestDocumentHold(object):
     @patch("bokeh.document.document.Document._trigger_on_change")
     def test_unhold_triggers_events(self, mock_trigger):
         d = document.Document()
-        d.hold('collect')
-        d._held_events = [1,2,3]
+        d.hold("collect")
+        d._held_events = [1, 2, 3]
         d.unhold()
         assert mock_trigger.call_count == 3
         assert mock_trigger.call_args[0] == (3,)
         assert mock_trigger.call_args[1] == {}
 
+
 extra = []
 
-class Test_Document_delete_modules(object):
 
+class Test_Document_delete_modules(object):
     def test_basic(self):
         d = document.Document()
         assert not d.roots
+
         class FakeMod(object):
-            __name__ = 'junkjunkjunk'
+            __name__ = "junkjunkjunk"
+
         mod = FakeMod()
         import sys
-        assert 'junkjunkjunk' not in sys.modules
-        sys.modules['junkjunkjunk'] = mod
+
+        assert "junkjunkjunk" not in sys.modules
+        sys.modules["junkjunkjunk"] = mod
         d._modules.append(mod)
-        assert 'junkjunkjunk' in sys.modules
+        assert "junkjunkjunk" in sys.modules
         d.delete_modules()
-        assert 'junkjunkjunk' not in sys.modules
+        assert "junkjunkjunk" not in sys.modules
         assert d._modules is None
 
     def test_extra_referrer_error(self, caplog):
         d = document.Document()
         assert not d.roots
+
         class FakeMod(object):
-            __name__ = 'junkjunkjunk'
+            __name__ = "junkjunkjunk"
+
         mod = FakeMod()
         import sys
-        assert 'junkjunkjunk' not in sys.modules
-        sys.modules['junkjunkjunk'] = mod
+
+        assert "junkjunkjunk" not in sys.modules
+        sys.modules["junkjunkjunk"] = mod
         d._modules.append(mod)
-        assert 'junkjunkjunk' in sys.modules
+        assert "junkjunkjunk" in sys.modules
 
         # add an extra referrer for delete_modules to complain about
         extra.append(mod)
         import gc
 
         # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
-        assert len(gc.get_referrers(mod)) in (3,4)
+        assert len(gc.get_referrers(mod)) in (3, 4)
 
         with caplog.at_level(logging.ERROR):
             d.delete_modules()
-            assert "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:" % mod in caplog.text
+            assert (
+                "Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers:"
+                % mod
+                in caplog.text
+            )
             assert len(caplog.records) == 1
 
-        assert 'junkjunkjunk' not in sys.modules
+        assert "junkjunkjunk" not in sys.modules
         assert d._modules is None
 
-class TestDocument(object):
 
+class TestDocument(object):
     def test_empty(self):
         d = document.Document()
         assert not d.roots
@@ -294,7 +309,7 @@ class TestDocument(object):
             d.get_model_by_name("foo")
         except ValueError as e:
             got_error = True
-            assert 'Found more than one' in repr(e)
+            assert "Found more than one" in repr(e)
         assert got_error
         d.remove_root(m)
         assert d.get_model_by_name("foo") == m2
@@ -304,11 +319,11 @@ class TestDocument(object):
         # our wrappers around it, so no need to try every kind of
         # query
         d = document.Document()
-        root1 = SomeModelInTestDocument(foo=42, name='a')
-        child1 = SomeModelInTestDocument(foo=43, name='b')
-        root2 = SomeModelInTestDocument(foo=44, name='c')
-        root3 = SomeModelInTestDocument(foo=44, name='d')
-        child3 = SomeModelInTestDocument(foo=45, name='c')
+        root1 = SomeModelInTestDocument(foo=42, name="a")
+        child1 = SomeModelInTestDocument(foo=43, name="b")
+        root2 = SomeModelInTestDocument(foo=44, name="c")
+        root3 = SomeModelInTestDocument(foo=44, name="d")
+        child3 = SomeModelInTestDocument(foo=45, name="c")
         root1.child = child1
         root3.child = child3
         d.add_root(root1)
@@ -317,45 +332,45 @@ class TestDocument(object):
 
         # select()
         assert set([root1]) == set(d.select(dict(foo=42)))
-        assert set([root1]) == set(d.select(dict(name='a')))
-        assert set([root2, child3])  == set(d.select(dict(name='c')))
-        assert set()  == set(d.select(dict(name='nope')))
+        assert set([root1]) == set(d.select(dict(name="a")))
+        assert set([root2, child3]) == set(d.select(dict(name="c")))
+        assert set() == set(d.select(dict(name="nope")))
 
         # select() on object
-        assert set() == set(root3.select(dict(name='a')))
-        assert set([child3]) == set(root3.select(dict(name='c')))
+        assert set() == set(root3.select(dict(name="a")))
+        assert set([child3]) == set(root3.select(dict(name="c")))
 
         # select_one()
-        assert root3 == d.select_one(dict(name='d'))
-        assert None == d.select_one(dict(name='nope'))
+        assert root3 == d.select_one(dict(name="d"))
+        assert None == d.select_one(dict(name="nope"))
         got_error = False
         try:
-            d.select_one(dict(name='c'))
+            d.select_one(dict(name="c"))
         except ValueError as e:
             got_error = True
-            assert 'Found more than one' in repr(e)
+            assert "Found more than one" in repr(e)
         assert got_error
 
         # select_one() on object
-        assert None == root3.select_one(dict(name='a'))
-        assert child3 == root3.select_one(dict(name='c'))
+        assert None == root3.select_one(dict(name="a"))
+        assert child3 == root3.select_one(dict(name="c"))
 
         # set_select()
-        d.set_select(dict(foo=44), dict(name='c'))
-        assert set([root2, child3, root3])  == set(d.select(dict(name='c')))
+        d.set_select(dict(foo=44), dict(name="c"))
+        assert set([root2, child3, root3]) == set(d.select(dict(name="c")))
 
         # set_select() on object
-        root3.set_select(dict(name='c'), dict(foo=57))
+        root3.set_select(dict(name="c"), dict(foo=57))
         assert set([child3, root3]) == set(d.select(dict(foo=57)))
         assert set([child3, root3]) == set(root3.select(dict(foo=57)))
 
     def test_is_single_string_selector(self):
         d = document.Document()
         # this is an implementation detail but just ensuring it works
-        assert d._is_single_string_selector(dict(foo='c'), 'foo')
-        assert d._is_single_string_selector(dict(foo=u'c'), 'foo')
-        assert not d._is_single_string_selector(dict(foo='c', bar='d'), 'foo')
-        assert not d._is_single_string_selector(dict(foo=42), 'foo')
+        assert d._is_single_string_selector(dict(foo="c"), "foo")
+        assert d._is_single_string_selector(dict(foo="c"), "foo")
+        assert not d._is_single_string_selector(dict(foo="c", bar="d"), "foo")
+        assert not d._is_single_string_selector(dict(foo=42), "foo")
 
     def test_all_models_with_multiple_references(self):
         d = document.Document()
@@ -426,9 +441,11 @@ class TestDocument(object):
         assert curdoc() is not d
         events = []
         curdoc_from_listener = []
+
         def listener(event):
             curdoc_from_listener.append(curdoc())
             events.append(event)
+
         d.on_change(listener)
         m.bar = 42
         assert events
@@ -436,7 +453,7 @@ class TestDocument(object):
         assert isinstance(event, ModelChangedEvent)
         assert event.document == d
         assert event.model == m
-        assert event.attr == 'bar'
+        assert event.attr == "bar"
         assert event.old == 1
         assert event.new == 42
         assert len(curdoc_from_listener) == 1
@@ -451,9 +468,11 @@ class TestDocument(object):
         assert curdoc() is not d
         events = []
         curdoc_from_listener = []
+
         def listener(event):
             curdoc_from_listener.append(curdoc())
             events.append(event)
+
         d.on_change(listener)
         m.stream(dict(a=[11, 12], b=[21, 22]), 200)
         assert events
@@ -465,7 +484,7 @@ class TestDocument(object):
         assert event.hint.column_source == m
         assert event.hint.data == dict(a=[11, 12], b=[21, 22])
         assert event.hint.rollover == 200
-        assert event.attr == 'data'
+        assert event.attr == "data"
         # old == new because stream events update in-place
         assert event.old == dict(a=[10, 11, 12], b=[20, 21, 22])
         assert event.new == dict(a=[10, 11, 12], b=[20, 21, 22])
@@ -475,17 +494,19 @@ class TestDocument(object):
     def test_patch_notification(self):
         d = document.Document()
         assert not d.roots
-        m = ColumnDataSource(data=dict(a=[10,11], b=[20,21]))
+        m = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         d.add_root(m)
         assert len(d.roots) == 1
         assert curdoc() is not d
         events = []
         curdoc_from_listener = []
+
         def listener(event):
             curdoc_from_listener.append(curdoc())
             events.append(event)
+
         d.on_change(listener)
-        m.patch(dict(a=[(0, 1)], b=[(0,0), (1,1)]))
+        m.patch(dict(a=[(0, 1)], b=[(0, 0), (1, 1)]))
         assert events
         event = events[0]
         assert isinstance(event, ModelChangedEvent)
@@ -493,14 +514,13 @@ class TestDocument(object):
         assert event.document == d
         assert event.model == m
         assert event.hint.column_source == m
-        assert event.hint.patches == dict(a=[(0, 1)], b=[(0,0), (1,1)])
-        assert event.attr == 'data'
+        assert event.hint.patches == dict(a=[(0, 1)], b=[(0, 0), (1, 1)])
+        assert event.attr == "data"
         # old == new because stream events update in-place
         assert event.old == dict(a=[1, 11], b=[0, 1])
         assert event.new == dict(a=[1, 11], b=[0, 1])
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
-
 
     def test_change_notification_removal(self):
         d = document.Document()
@@ -510,8 +530,10 @@ class TestDocument(object):
         assert len(d.roots) == 1
         assert m.bar == 1
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
         m.bar = 42
         assert len(events) == 1
@@ -525,8 +547,10 @@ class TestDocument(object):
         assert not d.roots
 
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
 
         m = AnotherModelInTestDocument(bar=1)
@@ -560,8 +584,10 @@ class TestDocument(object):
         assert d.title == document.DEFAULT_TITLE
 
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
 
         d.title = "Foo"
@@ -575,14 +601,17 @@ class TestDocument(object):
         d = document.Document()
 
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
 
         assert len(d.session_callbacks) == 0
         assert not events
 
-        def cb(): pass
+        def cb():
+            pass
 
         callback_obj = d.add_periodic_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
@@ -600,14 +629,17 @@ class TestDocument(object):
         d = document.Document()
 
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
 
         assert len(d.session_callbacks) == 0
         assert not events
 
-        def cb(): pass
+        def cb():
+            pass
 
         callback_obj = d.add_timeout_callback(cb, 1)
         assert len(d.session_callbacks) == len(events) == 1
@@ -623,17 +655,22 @@ class TestDocument(object):
 
     def test_add_partial_callback(self):
         from functools import partial
+
         d = document.Document()
 
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
 
         assert len(d.session_callbacks) == 0
         assert not events
 
-        def _cb(): pass
+        def _cb():
+            pass
+
         cb = partial(_cb)
 
         callback_obj = d.add_timeout_callback(cb, 1)
@@ -646,14 +683,17 @@ class TestDocument(object):
         d = document.Document()
 
         events = []
+
         def listener(event):
             events.append(event)
+
         d.on_change(listener)
 
         assert len(d.session_callbacks) == 0
         assert not events
 
-        def cb(): pass
+        def cb():
+            pass
 
         callback_obj = d.add_next_tick_callback(cb)
         assert len(d.session_callbacks) == len(events) == 1
@@ -670,8 +710,10 @@ class TestDocument(object):
         d = document.Document()
         assert curdoc() is not d
         curdoc_from_cb = []
+
         def cb():
             curdoc_from_cb.append(curdoc())
+
         callback_obj = d.add_periodic_callback(cb, 1)
         callback_obj.callback()
         assert len(curdoc_from_cb) == 1
@@ -681,8 +723,10 @@ class TestDocument(object):
         d = document.Document()
         assert curdoc() is not d
         curdoc_from_cb = []
+
         def cb():
             curdoc_from_cb.append(curdoc())
+
         callback_obj = d.add_timeout_callback(cb, 1)
         callback_obj.callback()
         assert len(curdoc_from_cb) == 1
@@ -692,8 +736,10 @@ class TestDocument(object):
         d = document.Document()
         assert curdoc() is not d
         curdoc_from_cb = []
+
         def cb():
             curdoc_from_cb.append(curdoc())
+
         callback_obj = d.add_next_tick_callback(cb)
         callback_obj.callback()
         assert len(curdoc_from_cb) == 1
@@ -705,9 +751,11 @@ class TestDocument(object):
         d.add_root(m)
         assert curdoc() is not d
         curdoc_from_cb = []
+
         def cb(attr, old, new):
             curdoc_from_cb.append(curdoc())
-        m.on_change('bar', cb)
+
+        m.on_change("bar", cb)
         m.bar = 43
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0] is d
@@ -724,7 +772,7 @@ class TestDocument(object):
         d.clear()
         assert not d.roots
         assert not d._all_models
-        assert d.title == "Foo" # do not reset title
+        assert d.title == "Foo"  # do not reset title
 
     def test_serialization_one_model(self):
         d = document.Document()
@@ -761,16 +809,17 @@ class TestDocument(object):
         for r in copy.roots:
             foos.append(r.foo)
         foos.sort()
-        assert [42,43] == foos
+        assert [42, 43] == foos
 
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
 
     def test_serialization_has_version(self):
         from bokeh import __version__
+
         d = document.Document()
         json = d.to_json()
-        assert json['version'] == __version__
+        assert json["version"] == __version__
 
     def test_patch_integer_property(self):
         d = document.Document()
@@ -785,13 +834,13 @@ class TestDocument(object):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
+        event1 = ModelChangedEvent(d, root1, "foo", root1.foo, 57, 57)
         patch1, buffers = process_document_events([event1])
         d.apply_json_patch_string(patch1)
 
         assert root1.foo == 57
 
-        event2 = ModelChangedEvent(d, child1, 'foo', child1.foo, 67, 67)
+        event2 = ModelChangedEvent(d, child1, "foo", child1.foo, 67, 67)
         patch2, buffers = process_document_events([event2])
         d.apply_json_patch_string(patch2)
 
@@ -806,49 +855,52 @@ class TestDocument(object):
         assert len(d.roots) == 1
 
         def patch_test(new_value):
-            serializable_new = root1.lookup('foo').property.to_serializable(root1,
-                                                                              'foo',
-                                                                              new_value)
-            event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
+            serializable_new = root1.lookup("foo").property.to_serializable(
+                root1, "foo", new_value
+            )
+            event1 = ModelChangedEvent(
+                d, root1, "foo", root1.foo, new_value, serializable_new
+            )
             patch1, buffers = process_document_events([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
                 expected = copy(new_value)
-                if 'units' not in expected:
-                    expected['units'] = root1.foo_units
-                assert expected == root1.lookup('foo').serializable_value(root1)
+                if "units" not in expected:
+                    expected["units"] = root1.foo_units
+                assert expected == root1.lookup("foo").serializable_value(root1)
             else:
                 assert new_value == root1.foo
+
         patch_test(57)
-        assert 'data' == root1.foo_units
+        assert "data" == root1.foo_units
         patch_test(dict(value=58))
-        assert 'data' == root1.foo_units
-        patch_test(dict(value=58, units='screen'))
-        assert 'screen' == root1.foo_units
-        patch_test(dict(value=59, units='screen'))
-        assert 'screen' == root1.foo_units
-        patch_test(dict(value=59, units='data'))
-        assert 'data' == root1.foo_units
-        patch_test(dict(value=60, units='data'))
-        assert 'data' == root1.foo_units
-        patch_test(dict(value=60, units='data'))
-        assert 'data' == root1.foo_units
+        assert "data" == root1.foo_units
+        patch_test(dict(value=58, units="screen"))
+        assert "screen" == root1.foo_units
+        patch_test(dict(value=59, units="screen"))
+        assert "screen" == root1.foo_units
+        patch_test(dict(value=59, units="data"))
+        assert "data" == root1.foo_units
+        patch_test(dict(value=60, units="data"))
+        assert "data" == root1.foo_units
+        patch_test(dict(value=60, units="data"))
+        assert "data" == root1.foo_units
         patch_test(61)
-        assert 'data' == root1.foo_units
-        root1.foo = "a_string" # so "woot" gets set as a string
+        assert "data" == root1.foo_units
+        root1.foo = "a_string"  # so "woot" gets set as a string
         patch_test("woot")
-        assert 'data' == root1.foo_units
+        assert "data" == root1.foo_units
         patch_test(dict(field="woot2"))
-        assert 'data' == root1.foo_units
-        patch_test(dict(field="woot2", units='screen'))
-        assert 'screen' == root1.foo_units
+        assert "data" == root1.foo_units
+        patch_test(dict(field="woot2", units="screen"))
+        assert "screen" == root1.foo_units
         patch_test(dict(field="woot3"))
-        assert 'screen' == root1.foo_units
+        assert "screen" == root1.foo_units
         patch_test(dict(value=70))
-        assert 'screen' == root1.foo_units
-        root1.foo = 123 # so 71 gets set as a number
+        assert "screen" == root1.foo_units
+        root1.foo = 123  # so 71 gets set as a number
         patch_test(71)
-        assert 'screen' == root1.foo_units
+        assert "screen" == root1.foo_units
 
     def test_patch_reference_property(self):
         d = document.Document()
@@ -869,7 +921,7 @@ class TestDocument(object):
         assert child2.id not in d._all_models
         assert child3.id not in d._all_models
 
-        event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
+        event1 = ModelChangedEvent(d, root1, "child", root1.child, child3, child3)
         patch1, buffers = process_document_events([event1])
         d.apply_json_patch_string(patch1)
 
@@ -880,7 +932,7 @@ class TestDocument(object):
         assert child3.id in d._all_models
 
         # put it back how it was before
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
+        event2 = ModelChangedEvent(d, root1, "child", root1.child, child1, child1)
         patch2, buffers = process_document_events([event2])
         d.apply_json_patch_string(patch2)
 
@@ -906,8 +958,8 @@ class TestDocument(object):
 
         child2 = SomeModelInTestDocument(foo=44)
 
-        event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, 57, 57)
-        event2 = ModelChangedEvent(d, root1, 'child', root1.child, child2, child2)
+        event1 = ModelChangedEvent(d, root1, "foo", root1.foo, 57, 57)
+        event2 = ModelChangedEvent(d, root1, "child", root1.child, child2, child2)
         patch1, buffers = process_document_events([event1, event2])
         d.apply_json_patch_string(patch1)
 
@@ -919,6 +971,7 @@ class TestDocument(object):
         from bokeh.io.doc import set_curdoc
         from bokeh.plotting import figure
         import numpy as np
+
         d = document.Document()
         set_curdoc(d)
         assert not d.roots
@@ -927,46 +980,60 @@ class TestDocument(object):
         N = 10
         x = np.linspace(0, 4 * np.pi, N)
         y = np.sin(x)
-        p1.scatter(x, y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+        p1.scatter(
+            x,
+            y,
+            color="#FF00FF",
+            nonselection_fill_color="#FFFF00",
+            nonselection_fill_alpha=1,
+        )
         # figure does not automatically add itself to the document
         d.add_root(p1)
         assert len(d.roots) == 1
 
     def test_event_handles_new_callbacks_in_event_callback(self):
         from bokeh.models import Button
+
         d = document.Document()
         button1 = Button(label="1")
         button2 = Button(label="2")
+
         def clicked_1():
             button2.on_click(clicked_2)
             d.add_root(button2)
+
         def clicked_2():
             pass
 
         button1.on_click(clicked_1)
         d.add_root(button1)
 
-        event_json = json.dumps({"event_name":"button_click","event_values":{"model_id":button1.id}})
+        event_json = json.dumps(
+            {"event_name": "button_click", "event_values": {"model_id": button1.id}}
+        )
         try:
             d.apply_json_event(event_json)
         except RuntimeError:
-            pytest.fail("apply_json_event probably did not copy models before modifying")
+            pytest.fail(
+                "apply_json_event probably did not copy models before modifying"
+            )
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
 
     # TODO test replace_with_json
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # needed for caplog tests to function
 basicConfig()

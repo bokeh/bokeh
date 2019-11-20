@@ -1,47 +1,55 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.models import CustomAction, CustomJS, TapTool
 from bokeh.plotting import figure
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 # TODO (bev):
 #
 # check that .names is respected
 # check that .renderers is respected
 
+
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_TapTool(object):
-
     def test_tap_triggers_no_callback_without_hit(self, single_plot_page):
-        plot = figure(height=800, width=1000, tools='')
+        plot = figure(height=800, width=1000, tools="")
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
-        plot.add_tools(TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices"))))
-        plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=RECORD("junk", "10"))))
+        plot.add_tools(
+            TapTool(
+                callback=CustomJS(
+                    code=RECORD("indices", "cb_data.source.selected.indices")
+                )
+            )
+        )
+        plot.add_tools(
+            CustomAction(
+                callback=CustomJS(args=dict(p=plot), code=RECORD("junk", "10"))
+            )
+        )
 
         page = single_plot_page(plot)
 
@@ -53,9 +61,15 @@ class Test_TapTool(object):
         assert page.has_no_console_errors()
 
     def test_tap_triggers_callback_with_indices(self, single_plot_page):
-        plot = figure(height=800, width=1000, tools='')
+        plot = figure(height=800, width=1000, tools="")
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
-        plot.add_tools(TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices"))))
+        plot.add_tools(
+            TapTool(
+                callback=CustomJS(
+                    code=RECORD("indices", "cb_data.source.selected.indices")
+                )
+            )
+        )
 
         page = single_plot_page(plot)
 
@@ -68,9 +82,15 @@ class Test_TapTool(object):
         assert page.has_no_console_errors()
 
     def test_tap_reports_all_indices_on_overlap(self, single_plot_page):
-        plot = figure(height=800, width=1000, tools='')
+        plot = figure(height=800, width=1000, tools="")
         plot.rect(x=[1, 1], y=[1, 1], width=1, height=1)
-        plot.add_tools(TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices"))))
+        plot.add_tools(
+            TapTool(
+                callback=CustomJS(
+                    code=RECORD("indices", "cb_data.source.selected.indices")
+                )
+            )
+        )
 
         page = single_plot_page(plot)
 

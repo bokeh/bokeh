@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from _util_property import _TestHasProps, _TestModel
@@ -20,28 +20,20 @@ from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import Float, Int
 
 # Module under test
-import bokeh.core.property.numeric as bcpn # isort:skip
+import bokeh.core.property.numeric as bcpn  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-ALL = (
-    'Angle',
-    'Byte',
-    'Interval',
-    'NonNegativeInt',
-    'Percent',
-    'PositiveInt',
-    'Size',
-)
+ALL = ("Angle", "Byte", "Interval", "NonNegativeInt", "Percent", "PositiveInt", "Size")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_Angle(object):
-
     def test_valid(self):
         prop = bcpn.Angle()
 
@@ -59,7 +51,7 @@ class Test_Angle(object):
     def test_invalid(self):
         prop = bcpn.Angle()
 
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -75,8 +67,8 @@ class Test_Angle(object):
         prop = bcpn.Angle()
         assert str(prop) == "Angle"
 
-class Test_Interval(object):
 
+class Test_Interval(object):
     def test_init(self):
         with pytest.raises(TypeError):
             bcpn.Interval()
@@ -102,7 +94,7 @@ class Test_Interval(object):
 
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -131,7 +123,7 @@ class Test_Interval(object):
     def test_invalid_float(self):
         prop = bcpn.Interval(Float, 0.0, 1.0)
 
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -140,7 +132,7 @@ class Test_Interval(object):
         assert not prop.is_valid(_TestModel())
 
         assert not prop.is_valid(-0.001)
-        assert not prop.is_valid( 1.001)
+        assert not prop.is_valid(1.001)
 
     def test_has_ref(self):
         prop = bcpn.Interval(Float, 0.0, 1.0)
@@ -150,8 +142,8 @@ class Test_Interval(object):
         prop = bcpn.Interval(Float, 0.0, 1.0)
         assert str(prop) == "Interval(Float, 0.0, 1.0)"
 
-class Test_Size(object):
 
+class Test_Size(object):
     def test_valid(self):
         prop = bcpn.Size()
 
@@ -171,7 +163,7 @@ class Test_Size(object):
     def test_invalid(self):
         prop = bcpn.Size()
 
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -190,8 +182,8 @@ class Test_Size(object):
         prop = bcpn.Size()
         assert str(prop) == "Size"
 
-class Test_Percent(object):
 
+class Test_Percent(object):
     def test_valid(self):
         prop = bcpn.Percent()
 
@@ -210,7 +202,7 @@ class Test_Percent(object):
     def test_invalid(self):
         prop = bcpn.Percent()
 
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -219,7 +211,7 @@ class Test_Percent(object):
         assert not prop.is_valid(_TestModel())
 
         assert not prop.is_valid(-0.001)
-        assert not prop.is_valid( 1.001)
+        assert not prop.is_valid(1.001)
 
     def test_has_ref(self):
         prop = bcpn.Percent()
@@ -229,8 +221,8 @@ class Test_Percent(object):
         prop = bcpn.Percent()
         assert str(prop) == "Percent"
 
-class Test_NonNegativeInt(object):
 
+class Test_NonNegativeInt(object):
     def test_valid(self):
         prop = bcpn.NonNegativeInt()
 
@@ -251,7 +243,7 @@ class Test_NonNegativeInt(object):
         assert not prop.is_valid(-1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -270,8 +262,8 @@ class Test_NonNegativeInt(object):
         prop = bcpn.NonNegativeInt()
         assert str(prop) == "NonNegativeInt"
 
-class Test_PositiveInt(object):
 
+class Test_PositiveInt(object):
     def test_valid(self):
         prop = bcpn.PositiveInt()
 
@@ -293,7 +285,7 @@ class Test_PositiveInt(object):
         assert not prop.is_valid(0)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -312,16 +304,17 @@ class Test_PositiveInt(object):
         prop = bcpn.PositiveInt()
         assert str(prop) == "PositiveInt"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpn, ALL)

@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from _util_models import (
@@ -63,41 +63,65 @@ from bokeh.models.glyphs import (
 )
 
 # Module under test
-from bokeh.models.glyphs import ( # isort:skip
-    AnnularWedge, Annulus, Arc,
+from bokeh.models.glyphs import (  # isort:skip
+    AnnularWedge,
+    Annulus,
+    Arc,
     Bezier,
     Circle,
     HArea,
     HBar,
-    Image, ImageRGBA, ImageURL,
+    Image,
+    ImageRGBA,
+    ImageURL,
     Line,
     MultiLine,
     MultiPolygons,
     Oval,
-    Patch, Patches,
-    Quad, Quadratic, Ray,
+    Patch,
+    Patches,
+    Quad,
+    Quadratic,
+    Ray,
     Rect,
     Segment,
     Step,
     Text,
     VArea,
     VBar,
-    Wedge)
+    Wedge,
+)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 # fool flake8
-(LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
- AngleUnits, Dimension, Anchor, Location, LegendLocation,
- DashPattern, ButtonType, MapType, Color)
+(
+    LineJoin,
+    LineDash,
+    LineCap,
+    FontStyle,
+    TextAlign,
+    TextBaseline,
+    Direction,
+    AngleUnits,
+    Dimension,
+    Anchor,
+    Location,
+    LegendLocation,
+    DashPattern,
+    ButtonType,
+    MapType,
+    Color,
+)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def test_AnnularWedge():
     glyph = AnnularWedge()
@@ -110,19 +134,25 @@ def test_AnnularWedge():
     assert glyph.direction == "anticlock"
     check_fill_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "inner_radius",
-        "inner_radius_units",
-        "outer_radius",
-        "outer_radius_units",
-        "start_angle",
-        "start_angle_units",
-        "end_angle",
-        "end_angle_units",
-        "direction",
-    ], FILL, LINE, GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "x",
+            "y",
+            "inner_radius",
+            "inner_radius_units",
+            "outer_radius",
+            "outer_radius_units",
+            "start_angle",
+            "start_angle_units",
+            "end_angle",
+            "end_angle_units",
+            "direction",
+        ],
+        FILL,
+        LINE,
+        GLYPH,
+    )
 
 
 def test_Annulus():
@@ -133,14 +163,20 @@ def test_Annulus():
     assert glyph.outer_radius is None
     check_fill_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "inner_radius",
-        "inner_radius_units",
-        "outer_radius",
-        "outer_radius_units",
-    ], FILL, LINE, GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "x",
+            "y",
+            "inner_radius",
+            "inner_radius_units",
+            "outer_radius",
+            "outer_radius_units",
+        ],
+        FILL,
+        LINE,
+        GLYPH,
+    )
 
 
 def test_Arc():
@@ -152,17 +188,22 @@ def test_Arc():
     assert glyph.end_angle is None
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "radius",
-        "radius_units",
-        "start_angle",
-        "start_angle_units",
-        "end_angle",
-        "end_angle_units",
-        "direction",
-    ], LINE, GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "x",
+            "y",
+            "radius",
+            "radius_units",
+            "start_angle",
+            "start_angle_units",
+            "end_angle",
+            "end_angle_units",
+            "direction",
+        ],
+        LINE,
+        GLYPH,
+    )
 
 
 def test_Bezier():
@@ -176,16 +217,9 @@ def test_Bezier():
     assert glyph.cx1 is None
     assert glyph.cy1 is None
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x0",
-        "y0",
-        "x1",
-        "y1",
-        "cx0",
-        "cy0",
-        "cx1",
-        "cy1",
-    ], LINE, GLYPH)
+    check_properties_existence(
+        glyph, ["x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"], LINE, GLYPH
+    )
 
 
 def test_HArea():
@@ -195,11 +229,7 @@ def test_HArea():
     assert glyph.x2 is None
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_properties_existence(glyph, [
-        "y",
-        "x1",
-        "x2",
-    ], FILL, HATCH, GLYPH)
+    check_properties_existence(glyph, ["y", "x1", "x2"], FILL, HATCH, GLYPH)
 
 
 def test_HBar():
@@ -211,12 +241,9 @@ def test_HBar():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "y",
-        "height",
-        "left",
-        "right",
-    ], FILL, HATCH, LINE, GLYPH)
+    check_properties_existence(
+        glyph, ["y", "height", "left", "right"], FILL, HATCH, LINE, GLYPH
+    )
 
 
 def test_Image():
@@ -227,18 +254,22 @@ def test_Image():
     assert glyph.dw is None
     assert glyph.dh is None
     assert glyph.dilate is False
-    check_properties_existence(glyph, [
-        "image",
-        "x",
-        "y",
-        "dw",
-        "dw_units",
-        "dh",
-        "dh_units",
-        "global_alpha",
-        "dilate",
-        "color_mapper",
-    ], GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "image",
+            "x",
+            "y",
+            "dw",
+            "dw_units",
+            "dh",
+            "dh_units",
+            "global_alpha",
+            "dilate",
+            "color_mapper",
+        ],
+        GLYPH,
+    )
 
 
 def test_ImageRGBA():
@@ -249,17 +280,21 @@ def test_ImageRGBA():
     assert glyph.dw is None
     assert glyph.dh is None
     assert glyph.dilate is False
-    check_properties_existence(glyph, [
-        "image",
-        "x",
-        "y",
-        "dw",
-        "dw_units",
-        "dh",
-        "dh_units",
-        "global_alpha",
-        "dilate",
-    ], GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "image",
+            "x",
+            "y",
+            "dw",
+            "dw_units",
+            "dh",
+            "dh_units",
+            "global_alpha",
+            "dilate",
+        ],
+        GLYPH,
+    )
 
 
 def test_ImageURL():
@@ -275,22 +310,26 @@ def test_ImageURL():
     assert glyph.retry_attempts == 0
     assert glyph.retry_timeout == 0
     assert glyph.global_alpha == 1.0
-    check_properties_existence(glyph, [
-        "url",
-        "x",
-        "y",
-        "w",
-        "w_units",
-        "h",
-        "h_units",
-        "angle",
-        "angle_units",
-        "dilate",
-        "anchor",
-        "retry_attempts",
-        "retry_timeout",
-        "global_alpha",
-    ], GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "url",
+            "x",
+            "y",
+            "w",
+            "w_units",
+            "h",
+            "h_units",
+            "angle",
+            "angle_units",
+            "dilate",
+            "anchor",
+            "retry_attempts",
+            "retry_timeout",
+            "global_alpha",
+        ],
+        GLYPH,
+    )
 
 
 def test_Line():
@@ -298,10 +337,7 @@ def test_Line():
     assert glyph.x is None
     assert glyph.y is None
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-    ], LINE, GLYPH)
+    check_properties_existence(glyph, ["x", "y"], LINE, GLYPH)
 
 
 def test_MultiLine():
@@ -309,10 +345,7 @@ def test_MultiLine():
     assert glyph.xs is None
     assert glyph.ys is None
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "xs",
-        "ys",
-    ], LINE, GLYPH)
+    check_properties_existence(glyph, ["xs", "ys"], LINE, GLYPH)
 
 
 def test_MultiPolygons():
@@ -322,10 +355,7 @@ def test_MultiPolygons():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "xs",
-        "ys",
-    ], FILL, HATCH, LINE, GLYPH)
+    check_properties_existence(glyph, ["xs", "ys"], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Oval():
@@ -337,16 +367,22 @@ def test_Oval():
     assert glyph.angle == 0
     check_fill_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "width",
-        "width_units",
-        "height",
-        "height_units",
-        "angle",
-        "angle_units",
-    ], FILL, LINE, GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "x",
+            "y",
+            "width",
+            "width_units",
+            "height",
+            "height_units",
+            "angle",
+            "angle_units",
+        ],
+        FILL,
+        LINE,
+        GLYPH,
+    )
 
 
 def test_Patch():
@@ -356,10 +392,7 @@ def test_Patch():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-    ], FILL, HATCH, LINE, GLYPH)
+    check_properties_existence(glyph, ["x", "y"], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Patches():
@@ -369,10 +402,7 @@ def test_Patches():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "xs",
-        "ys",
-    ], FILL, HATCH, LINE, GLYPH)
+    check_properties_existence(glyph, ["xs", "ys"], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Quad():
@@ -384,12 +414,9 @@ def test_Quad():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "left",
-        "right",
-        "bottom",
-        "top",
-    ], FILL, HATCH, LINE, GLYPH)
+    check_properties_existence(
+        glyph, ["left", "right", "bottom", "top"], FILL, HATCH, LINE, GLYPH
+    )
 
 
 def test_Quadratic():
@@ -401,14 +428,7 @@ def test_Quadratic():
     assert glyph.cx is None
     assert glyph.cy is None
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x0",
-        "y0",
-        "x1",
-        "y1",
-        "cx",
-        "cy",
-    ], LINE, GLYPH)
+    check_properties_existence(glyph, ["x0", "y0", "x1", "y1", "cx", "cy"], LINE, GLYPH)
 
 
 def test_Ray():
@@ -418,14 +438,9 @@ def test_Ray():
     assert glyph.angle is None
     assert glyph.length is None
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "angle",
-        "angle_units",
-        "length",
-        "length_units",
-    ], LINE, GLYPH)
+    check_properties_existence(
+        glyph, ["x", "y", "angle", "angle_units", "length", "length_units"], LINE, GLYPH
+    )
 
 
 def test_Rect():
@@ -438,17 +453,23 @@ def test_Rect():
     assert glyph.dilate is False
     check_fill_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "width",
-        "width_units",
-        "height",
-        "height_units",
-        "angle",
-        "angle_units",
-        "dilate",
-    ], FILL, LINE, GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "x",
+            "y",
+            "width",
+            "width_units",
+            "height",
+            "height_units",
+            "angle",
+            "angle_units",
+            "dilate",
+        ],
+        FILL,
+        LINE,
+        GLYPH,
+    )
 
 
 def test_Segment():
@@ -458,12 +479,7 @@ def test_Segment():
     assert glyph.x1 is None
     assert glyph.y1 is None
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x0",
-        "y0",
-        "x1",
-        "y1"
-    ], LINE, GLYPH)
+    check_properties_existence(glyph, ["x0", "y0", "x1", "y1"], LINE, GLYPH)
 
 
 def test_Step():
@@ -472,11 +488,7 @@ def test_Step():
     assert glyph.y is None
     assert glyph.mode == "before"
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "mode",
-    ], LINE, GLYPH)
+    check_properties_existence(glyph, ["x", "y", "mode"], LINE, GLYPH)
 
 
 def test_Text():
@@ -486,15 +498,12 @@ def test_Text():
     assert glyph.text == "text"
     assert glyph.angle == 0
     check_text_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "text",
-        "angle",
-        "angle_units",
-        "x_offset",
-        "y_offset"
-    ], TEXT, GLYPH)
+    check_properties_existence(
+        glyph,
+        ["x", "y", "text", "angle", "angle_units", "x_offset", "y_offset"],
+        TEXT,
+        GLYPH,
+    )
 
 
 def test_VArea():
@@ -504,11 +513,7 @@ def test_VArea():
     assert glyph.y2 is None
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y1",
-        "y2",
-    ], FILL, HATCH, GLYPH)
+    check_properties_existence(glyph, ["x", "y1", "y2"], FILL, HATCH, GLYPH)
 
 
 def test_VBar():
@@ -520,12 +525,9 @@ def test_VBar():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "width",
-        "top",
-        "bottom",
-    ], FILL, HATCH, LINE, GLYPH)
+    check_properties_existence(
+        glyph, ["x", "width", "top", "bottom"], FILL, HATCH, LINE, GLYPH
+    )
 
 
 def test_Wedge():
@@ -538,17 +540,23 @@ def test_Wedge():
     assert glyph.direction == "anticlock"
     check_fill_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(glyph, [
-        "x",
-        "y",
-        "radius",
-        "radius_units",
-        "start_angle",
-        "start_angle_units",
-        "end_angle",
-        "end_angle_units",
-        "direction",
-    ], FILL, LINE, GLYPH)
+    check_properties_existence(
+        glyph,
+        [
+            "x",
+            "y",
+            "radius",
+            "radius_units",
+            "start_angle",
+            "start_angle_units",
+            "end_angle",
+            "end_angle_units",
+            "direction",
+        ],
+        FILL,
+        LINE,
+        GLYPH,
+    )
 
 
 def test_Asterisk():
@@ -565,11 +573,14 @@ def test_Circle():
     assert marker.radius is None
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, [
-        "radius",
-        "radius_units",
-        "radius_dimension",
-    ], MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(
+        marker,
+        ["radius", "radius_units", "radius_dimension"],
+        MARKER,
+        FILL,
+        LINE,
+        GLYPH,
+    )
 
 
 def test_CircleCross():
@@ -667,14 +678,15 @@ def test_X():
     check_line_properties(marker)
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

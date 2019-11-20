@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from mock import Mock, patch
@@ -25,17 +25,18 @@ from bokeh.io.state import State, curstate
 from bokeh.models import GlyphRenderer, Plot
 
 # Module under test
-import bokeh.io.showing as bis # isort:skip
+import bokeh.io.showing as bis  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-@patch('bokeh.io.showing._show_with_state')
+
+@patch("bokeh.io.showing._show_with_state")
 def test_show_with_default_args(mock__show_with_state):
     curstate().reset()
     default_kwargs = dict(browser=None, new="tab", notebook_handle=False)
@@ -43,10 +44,11 @@ def test_show_with_default_args(mock__show_with_state):
     bis.show(p, **default_kwargs)
     assert mock__show_with_state.call_count == 1
     assert mock__show_with_state.call_args[0] == (p, curstate(), None, "tab")
-    assert mock__show_with_state.call_args[1] == {'notebook_handle': False}
+    assert mock__show_with_state.call_args[1] == {"notebook_handle": False}
     assert curdoc().roots == []
 
-@patch('bokeh.io.showing._show_with_state')
+
+@patch("bokeh.io.showing._show_with_state")
 def test_show_with_explicit_args(mock__show_with_state):
     curstate().reset()
     kwargs = dict(browser="browser", new="new", notebook_handle=True)
@@ -54,10 +56,11 @@ def test_show_with_explicit_args(mock__show_with_state):
     bis.show(p, **kwargs)
     assert mock__show_with_state.call_count == 1
     assert mock__show_with_state.call_args[0] == (p, curstate(), "browser", "new")
-    assert mock__show_with_state.call_args[1] == {'notebook_handle': True}
+    assert mock__show_with_state.call_args[1] == {"notebook_handle": True}
     assert curdoc().roots == []
 
-@patch('bokeh.io.showing.run_notebook_hook')
+
+@patch("bokeh.io.showing.run_notebook_hook")
 def test_show_with_app(mock_run_notebook_hook, ipython):
     curstate().reset()
     app = Application()
@@ -69,7 +72,8 @@ def test_show_with_app(mock_run_notebook_hook, ipython):
     assert mock_run_notebook_hook.call_args[0][1:] == ("app", app, curstate(), "baz")
     assert mock_run_notebook_hook.call_args[1] == {}
 
-@patch('bokeh.io.showing._show_with_state')
+
+@patch("bokeh.io.showing._show_with_state")
 def test_show_doesn_not_adds_obj_to_curdoc(m):
     curstate().reset()
     assert curstate().document.roots == []
@@ -80,26 +84,29 @@ def test_show_doesn_not_adds_obj_to_curdoc(m):
     bis.show(p)
     assert curstate().document.roots == []
 
-@pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer()])
+
+@pytest.mark.parametrize("obj", [1, 2.3, None, "str", GlyphRenderer()])
 @pytest.mark.unit
 def test_show_with_bad_object(obj):
     with pytest.raises(ValueError):
         bis.show(obj)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-@patch('bokeh.io.showing.run_notebook_hook')
-@patch('bokeh.io.showing._show_file_with_state')
-@patch('bokeh.io.showing.get_browser_controller')
-def test__show_with_state_with_notebook(mock_get_browser_controller,
-                                        mock__show_file_with_state,
-                                        mock_run_notebook_hook):
+
+@patch("bokeh.io.showing.run_notebook_hook")
+@patch("bokeh.io.showing._show_file_with_state")
+@patch("bokeh.io.showing.get_browser_controller")
+def test__show_with_state_with_notebook(
+    mock_get_browser_controller, mock__show_file_with_state, mock_run_notebook_hook
+):
     mock_get_browser_controller.return_value = "controller"
     s = State()
 
@@ -127,14 +134,17 @@ def test__show_with_state_with_notebook(mock_get_browser_controller,
     assert mock__show_file_with_state.call_args[0] == (p, s, "new", "controller")
     assert mock__show_file_with_state.call_args[1] == {}
 
-@patch('bokeh.io.notebook.get_comms')
-@patch('bokeh.io.notebook.show_doc')
-@patch('bokeh.io.showing._show_file_with_state')
-@patch('bokeh.io.showing.get_browser_controller')
-def test__show_with_state_with_no_notebook(mock_get_browser_controller,
-                                           mock__show_file_with_state,
-                                           mock_show_doc,
-                                           mock_get_comms):
+
+@patch("bokeh.io.notebook.get_comms")
+@patch("bokeh.io.notebook.show_doc")
+@patch("bokeh.io.showing._show_file_with_state")
+@patch("bokeh.io.showing.get_browser_controller")
+def test__show_with_state_with_no_notebook(
+    mock_get_browser_controller,
+    mock__show_file_with_state,
+    mock_show_doc,
+    mock_get_comms,
+):
     mock_get_browser_controller.return_value = "controller"
     mock_get_comms.return_value = "comms"
     s = State()
@@ -149,8 +159,9 @@ def test__show_with_state_with_no_notebook(mock_get_browser_controller,
     assert mock__show_file_with_state.call_args[0] == ("obj", s, "new", "controller")
     assert mock__show_file_with_state.call_args[1] == {}
 
-@patch('os.path.abspath')
-@patch('bokeh.io.showing.save')
+
+@patch("os.path.abspath")
+@patch("bokeh.io.showing.save")
 def test(mock_save, mock_abspath):
     controller = Mock()
     mock_save.return_value = "savepath"
@@ -178,6 +189,7 @@ def test(mock_save, mock_abspath):
     assert controller.open.call_args[0] == ("file://savepath",)
     assert controller.open.call_args[1] == {"new": 2}
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

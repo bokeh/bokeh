@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import datetime as dt
@@ -31,31 +31,33 @@ from bokeh.models import Range1d
 
 # Module under test
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class HP(HasProps):
     foo = Int(default=10)
     bar = String()
 
-class TestBokehJSONEncoder(object):
 
+class TestBokehJSONEncoder(object):
     def setup_method(self, test_method):
         from bokeh.core.json_encoder import BokehJSONEncoder
+
         self.encoder = BokehJSONEncoder()
 
     def test_fail(self):
         with pytest.raises(TypeError):
-            self.encoder.default({'testing': 1})
+            self.encoder.default({"testing": 1})
 
     def test_panda_series(self, pd):
         s = pd.Series([1, 3, 5, 6, 8])
@@ -81,7 +83,7 @@ class TestBokehJSONEncoder(object):
         assert isinstance(self.encoder.default(nptrue), bool)
 
     def test_numpydatetime64(self):
-        npdt64 = np.datetime64('2017-01-01')
+        npdt64 = np.datetime64("2017-01-01")
         assert self.encoder.default(npdt64) == 1483228800000.0
         assert isinstance(self.encoder.default(npdt64), float)
 
@@ -110,11 +112,11 @@ class TestBokehJSONEncoder(object):
         assert isinstance(self.encoder.default(hp), dict)
 
         hp.foo = 15
-        assert self.encoder.default(hp) == {'foo': 15}
+        assert self.encoder.default(hp) == {"foo": 15}
         assert isinstance(self.encoder.default(hp), dict)
 
         hp.bar = "test"
-        assert self.encoder.default(hp) == {'foo': 15, 'bar': 'test'}
+        assert self.encoder.default(hp) == {"foo": 15, "bar": "test"}
         assert isinstance(self.encoder.default(hp), dict)
 
     def test_color(self):
@@ -131,7 +133,7 @@ class TestBokehJSONEncoder(object):
         assert self.encoder.default(c) == dict(start=None, stop=2, step=None)
         assert isinstance(self.encoder.default(c), dict)
 
-        c = slice(0,2)
+        c = slice(0, 2)
         assert self.encoder.default(c) == dict(start=0, stop=2, step=None)
         assert isinstance(self.encoder.default(c), dict)
 
@@ -148,66 +150,74 @@ class TestBokehJSONEncoder(object):
         assert isinstance(self.encoder.default(c), dict)
 
     def test_pd_timestamp(self, pd):
-        ts = pd.Timestamp('April 28, 1948')
+        ts = pd.Timestamp("April 28, 1948")
         assert self.encoder.default(ts) == -684115200000
 
-class TestSerializeJson(object):
 
+class TestSerializeJson(object):
     def setup_method(self, test_method):
         from bokeh.core.json_encoder import serialize_json
         from json import loads
+
         self.serialize = serialize_json
         self.deserialize = loads
 
     def test_with_basic(self):
-        assert self.serialize({'test': [1, 2, 3]}) == '{"test":[1,2,3]}'
+        assert self.serialize({"test": [1, 2, 3]}) == '{"test":[1,2,3]}'
 
     def test_pretty(self):
-        assert self.serialize({'test': [1, 2, 3]}, pretty=True) == '{\n  "test": [\n    1,\n    2,\n    3\n  ]\n}'
+        assert (
+            self.serialize({"test": [1, 2, 3]}, pretty=True)
+            == '{\n  "test": [\n    1,\n    2,\n    3\n  ]\n}'
+        )
 
     def test_with_np_array(self):
         a = np.arange(5)
-        assert self.serialize(a) == '[0,1,2,3,4]'
+        assert self.serialize(a) == "[0,1,2,3,4]"
 
     def test_with_pd_series(self, pd):
         s = pd.Series([0, 1, 2, 3, 4])
-        assert self.serialize(s) == '[0,1,2,3,4]'
+        assert self.serialize(s) == "[0,1,2,3,4]"
 
     def test_nans_and_infs(self):
         arr = np.array([np.nan, np.inf, -np.inf, 0])
         serialized = self.serialize(arr)
         deserialized = self.deserialize(serialized)
-        assert deserialized[0] == 'NaN'
-        assert deserialized[1] == 'Infinity'
-        assert deserialized[2] == '-Infinity'
+        assert deserialized[0] == "NaN"
+        assert deserialized[1] == "Infinity"
+        assert deserialized[2] == "-Infinity"
         assert deserialized[3] == 0
 
     def test_nans_and_infs_pandas(self, pd):
         arr = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
         serialized = self.serialize(arr)
         deserialized = self.deserialize(serialized)
-        assert deserialized[0] == 'NaN'
-        assert deserialized[1] == 'Infinity'
-        assert deserialized[2] == '-Infinity'
+        assert deserialized[0] == "NaN"
+        assert deserialized[1] == "Infinity"
+        assert deserialized[2] == "-Infinity"
         assert deserialized[3] == 0
 
     def test_pandas_datetime_types(self, pd):
         """ should convert to millis """
-        idx = pd.date_range('2001-1-1', '2001-1-5')
-        df = pd.DataFrame({'vals' :idx}, index=idx)
-        serialized = self.serialize({'vals' : df.vals,
-                                     'idx' : df.index})
+        idx = pd.date_range("2001-1-1", "2001-1-5")
+        df = pd.DataFrame({"vals": idx}, index=idx)
+        serialized = self.serialize({"vals": df.vals, "idx": df.index})
         deserialized = self.deserialize(serialized)
-        baseline = {u'vals': [978307200000,
-                              978393600000,
-                              978480000000,
-                              978566400000,
-                              978652800000],
-                    u'idx': [978307200000,
-                             978393600000,
-                             978480000000,
-                             978566400000,
-                             978652800000]
+        baseline = {
+            "vals": [
+                978307200000,
+                978393600000,
+                978480000000,
+                978566400000,
+                978652800000,
+            ],
+            "idx": [
+                978307200000,
+                978393600000,
+                978480000000,
+                978566400000,
+                978652800000,
+            ],
         }
         assert deserialized == baseline
 
@@ -218,19 +228,17 @@ class TestSerializeJson(object):
 
         a = dt.date(2016, 4, 28)
         b = dt.datetime(2016, 4, 28, 2, 20, 50)
-        serialized = self.serialize({'a' : [a],
-                                     'b' : [b]})
+        serialized = self.serialize({"a": [a], "b": [b]})
         deserialized = self.deserialize(serialized)
 
-        baseline = {u'a': [(dt.datetime(*a.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000],
-                    u'b': [(b - DT_EPOCH).total_seconds() * 1000. + b.microsecond / 1000.],
+        baseline = {
+            "a": [(dt.datetime(*a.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000],
+            "b": [(b - DT_EPOCH).total_seconds() * 1000.0 + b.microsecond / 1000.0],
         }
         assert deserialized == baseline
 
         # test pre-computed values too
-        assert deserialized == {
-            u'a': [1461801600000.0], u'b': [1461810050000.0]
-        }
+        assert deserialized == {"a": [1461801600000.0], "b": [1461810050000.0]}
 
     def test_builtin_timedelta_types(self):
         """ should convert time delta to a dictionary """
@@ -240,12 +248,12 @@ class TestSerializeJson(object):
         assert deserialized == delta.total_seconds() * 1000
 
     def test_numpy_timedelta_types(self):
-        delta = np.timedelta64(3000, 'ms')
+        delta = np.timedelta64(3000, "ms")
         serialized = self.serialize(delta)
         deserialized = self.deserialize(serialized)
         assert deserialized == 3000
 
-        delta = np.timedelta64(3000, 's')
+        delta = np.timedelta64(3000, "s")
         serialized = self.serialize(delta)
         deserialized = self.deserialize(serialized)
         assert deserialized == 3000000
@@ -258,7 +266,7 @@ class TestSerializeJson(object):
 
     def test_deque(self):
         """Test that a deque is deserialized as a list."""
-        assert self.serialize(deque([0, 1, 2])) == '[0,1,2]'
+        assert self.serialize(deque([0, 1, 2])) == "[0,1,2]"
 
     def test_slice(self):
         """Test that a slice is deserialized as a list."""
@@ -266,7 +274,10 @@ class TestSerializeJson(object):
         assert self.serialize(slice(0, 2)) == '{"start":0,"step":null,"stop":2}'
         assert self.serialize(slice(0, 10, 2)) == '{"start":0,"step":2,"stop":10}'
         assert self.serialize(slice(0, None, 2)) == '{"start":0,"step":2,"stop":null}'
-        assert self.serialize(slice(None, None, None)) == '{"start":null,"step":null,"stop":null}'
+        assert (
+            self.serialize(slice(None, None, None))
+            == '{"start":null,"step":null,"stop":null}'
+        )
 
     def test_bad_kwargs(self):
         with pytest.raises(ValueError):
@@ -276,10 +287,11 @@ class TestSerializeJson(object):
         with pytest.raises(ValueError):
             self.serialize([1], sort_keys=False)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

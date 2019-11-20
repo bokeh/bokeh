@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import mock
@@ -37,11 +37,11 @@ from bokeh.models import (
 from bokeh.plotting import figure
 
 # Module under test
-import bokeh.models.plots as bmp # isort:skip
+import bokeh.models.plots as bmp  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _LEGEND_EMPTY_WARNING = """
 You are attempting to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
@@ -49,65 +49,68 @@ You are attempting to set `plot.legend.location` on a plot that has zero legends
 Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestPlotLegendProperty(object):
-
     def test_basic(self):
-        plot = figure(tools='')
+        plot = figure(tools="")
         x = plot.legend
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 0
-        plot.circle([1,2], [3,4], legend_label="foo")
+        plot.circle([1, 2], [3, 4], legend_label="foo")
         x = plot.legend
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 1
 
     def test_warnign(self):
-        plot = figure(tools='')
+        plot = figure(tools="")
         with pytest.warns(UserWarning) as warns:
             plot.legend.location = "above"
             assert len(warns) == 1
             assert warns[0].message.args[0] == _LEGEND_EMPTY_WARNING
 
+
 class TestPlotSelect(object):
-
     def setup_method(self):
-        self._plot = figure(tools='pan')
-        self._plot.circle([1,2,3], [3,2,1], name='foo')
+        self._plot = figure(tools="pan")
+        self._plot.circle([1, 2, 3], [3, 2, 1], name="foo")
 
-    @patch('bokeh.models.plots.find')
+    @patch("bokeh.models.plots.find")
     def test_string_arg(self, mock_find):
-        self._plot.select('foo')
+        self._plot.select("foo")
         assert mock_find.called
-        assert mock_find.call_args[0][1] == dict(name='foo')
+        assert mock_find.call_args[0][1] == dict(name="foo")
 
-    @patch('bokeh.models.plots.find')
+    @patch("bokeh.models.plots.find")
     def test_type_arg(self, mock_find):
         self._plot.select(PanTool)
         assert mock_find.called
         assert mock_find.call_args[0][1] == dict(type=PanTool)
 
-    @patch('bokeh.models.plots.find')
+    @patch("bokeh.models.plots.find")
     def test_kwargs(self, mock_find):
-        kw = dict(name='foo', type=GlyphRenderer)
+        kw = dict(name="foo", type=GlyphRenderer)
         self._plot.select(**kw)
         assert mock_find.called
         assert mock_find.call_args[0][1] == kw
 
-    @patch('bokeh.models.plots.find')
+    @patch("bokeh.models.plots.find")
     def test_single_selector_kwarg(self, mock_find):
-        kw = dict(name='foo', type=GlyphRenderer)
+        kw = dict(name="foo", type=GlyphRenderer)
         self._plot.select(selector=kw)
         assert mock_find.called
         assert mock_find.call_args[0][1] == kw
 
     def test_selector_kwarg_and_extra_kwargs(self):
         with pytest.raises(TypeError) as exc:
-            self._plot.select(selector=dict(foo='foo'), bar='bar')
-        assert "when passing 'selector' keyword arg, not other keyword args may be present" == str(exc.value)
+            self._plot.select(selector=dict(foo="foo"), bar="bar")
+        assert (
+            "when passing 'selector' keyword arg, not other keyword args may be present"
+            == str(exc.value)
+        )
 
     def test_bad_arg_type(self):
         with pytest.raises(TypeError) as exc:
@@ -116,61 +119,77 @@ class TestPlotSelect(object):
 
     def test_too_many_args(self):
         with pytest.raises(TypeError) as exc:
-            self._plot.select('foo', 'bar')
-        assert 'select accepts at most ONE positional argument.' == str(exc.value)
+            self._plot.select("foo", "bar")
+        assert "select accepts at most ONE positional argument." == str(exc.value)
 
     def test_no_input(self):
         with pytest.raises(TypeError) as exc:
             self._plot.select()
-        assert 'select requires EITHER a positional argument, OR keyword arguments.' == str(exc.value)
+        assert (
+            "select requires EITHER a positional argument, OR keyword arguments."
+            == str(exc.value)
+        )
 
     def test_arg_and_kwarg(self):
         with pytest.raises(TypeError) as exc:
-            self._plot.select('foo', type=PanTool)
-        assert 'select accepts EITHER a positional argument, OR keyword arguments (not both).' == str(exc.value)
+            self._plot.select("foo", type=PanTool)
+        assert (
+            "select accepts EITHER a positional argument, OR keyword arguments (not both)."
+            == str(exc.value)
+        )
+
 
 class TestPlotValidation(object):
-
     def test_missing_renderers(self):
         p = figure()
         p.renderers = []
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.warning.call_count == 1
-        assert mock_logger.warning.call_args[0][0].startswith("W-1000 (MISSING_RENDERERS): Plot has no renderers")
+        assert mock_logger.warning.call_args[0][0].startswith(
+            "W-1000 (MISSING_RENDERERS): Plot has no renderers"
+        )
 
     def test_missing_scale(self):
         p = figure()
         p.x_scale = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale")
+        assert mock_logger.error.call_args[0][0].startswith(
+            "E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale"
+        )
 
         p.y_scale = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale, y_scale")
+        assert mock_logger.error.call_args[0][0].startswith(
+            "E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale, y_scale"
+        )
 
     def test_missing_range(self):
         p = figure()
         p.x_range = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range")
+        assert mock_logger.error.call_args[0][0].startswith(
+            "E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range"
+        )
 
         p.y_range = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range, y_range")
+        assert mock_logger.error.call_args[0][0].startswith(
+            "E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range, y_range"
+        )
 
     def test_bad_extra_range_name(self):
         p = figure()
-        p.xaxis.x_range_name="junk"
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        p.xaxis.x_range_name = "junk"
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
@@ -178,9 +197,9 @@ class TestPlotValidation(object):
         )
 
         p = figure()
-        p.extra_x_ranges['foo'] = Range1d()
-        p.grid.x_range_name="junk"
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        p.extra_x_ranges["foo"] = Range1d()
+        p.grid.x_range_name = "junk"
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
@@ -191,13 +210,14 @@ class TestPlotValidation(object):
         # test whether adding a figure (*and* it's extra ranges)
         # to another's references doesn't create a false positive
         p, dep = figure(), figure()
-        dep.extra_x_ranges['foo'] = Range1d()
-        dep.grid.x_range_name="foo"
-        p.x_range.callback = CustomJS(code = "", args = {"dep": dep})
+        dep.extra_x_ranges["foo"] = Range1d()
+        dep.grid.x_range_name = "foo"
+        p.x_range.callback = CustomJS(code="", args={"dep": dep})
         assert dep in p.references()
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 0
+
 
 def test_plot_add_layout_raises_error_if_not_render():
     plot = figure()
@@ -215,7 +235,7 @@ def test_plot_add_layout_adds_label_to_plot_renderers():
 def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
     plot = figure()
     axis = LinearAxis()
-    plot.add_layout(axis, 'left')
+    plot.add_layout(axis, "left")
     assert axis in plot.left
 
 
@@ -229,15 +249,15 @@ class BaseTwinAxis(object):
 
     def verify_axis(self, axis_name):
         plot = Plot()
-        range_obj = getattr(plot, 'extra_{}_ranges'.format(axis_name))
-        range_obj['foo_range'] = self.get_range_instance()
-        assert range_obj['foo_range']
+        range_obj = getattr(plot, "extra_{}_ranges".format(axis_name))
+        range_obj["foo_range"] = self.get_range_instance()
+        assert range_obj["foo_range"]
 
     def test_x_range(self):
-        self.verify_axis('x')
+        self.verify_axis("x")
 
     def test_y_range(self):
-        self.verify_axis('y')
+        self.verify_axis("y")
 
     @staticmethod
     def get_range_instance():
@@ -249,7 +269,7 @@ class TestCategoricalTwinAxis(BaseTwinAxis, object):
 
     @staticmethod
     def get_range_instance():
-        return FactorRange('foo', 'bar')
+        return FactorRange("foo", "bar")
 
 
 class TestLinearTwinAxis(BaseTwinAxis, object):
@@ -291,7 +311,6 @@ def test__check_compatible_scale_and_ranges_compat_numeric():
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
 
-
     plot = Plot(y_scale=LogScale(), y_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
@@ -314,16 +333,17 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dev API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_list_attr_splat(object):
-
     def test_set(self):
         obj = bmp._list_attr_splat([DataRange1d(), DataRange1d()])
         assert len(obj) == 2
@@ -379,7 +399,9 @@ class Test_list_attr_splat(object):
         obj = bmp._list_attr_splat([])
         with pytest.raises(AttributeError) as e:
             obj.start
-        assert str(e.value).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
+        assert str(e.value).endswith(
+            "Trying to access %r attribute on an empty 'splattable' list" % "start"
+        )
 
     def test_get_index(self):
         obj = bmp._list_attr_splat([1, 2, 3])
@@ -390,6 +412,7 @@ class Test_list_attr_splat(object):
         obj.pop(1)
         assert obj == [1, 3]
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

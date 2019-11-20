@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import base64
@@ -30,30 +30,31 @@ from bokeh.core.enums import MarkerType
 from bokeh.core.has_props import HasProps
 
 # Module under test
-import bokeh.core.property.visual as bcpv # isort:skip
+import bokeh.core.property.visual as bcpv  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ALL = (
-    'DashPattern',
-    'FontSize',
-    'HatchPatternType',
-    'Image',
-    'MinMaxBounds',
-    'MarkerType',
+    "DashPattern",
+    "FontSize",
+    "HatchPatternType",
+    "Image",
+    "MinMaxBounds",
+    "MarkerType",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestDashPattern(object):
-
     def test_valid_named(self):
         class Foo(HasProps):
             pat = bcpv.DashPattern()
+
         f = Foo()
 
         assert f.pat == []
@@ -71,6 +72,7 @@ class TestDashPattern(object):
     def test_valid_string(self):
         class Foo(HasProps):
             pat = bcpv.DashPattern()
+
         f = Foo()
 
         f.pat = ""
@@ -88,6 +90,7 @@ class TestDashPattern(object):
     def test_valid_list(self):
         class Foo(HasProps):
             pat = bcpv.DashPattern()
+
         f = Foo()
 
         f.pat = ()
@@ -122,7 +125,6 @@ class TestDashPattern(object):
         assert prop.is_valid([1, 2, 3])
         assert prop.is_valid("1 2 3")
 
-
     def test_invalid(self):
         prop = bcpv.DashPattern()
 
@@ -132,7 +134,7 @@ class TestDashPattern(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
 
         assert not prop.is_valid("foo")
         assert not prop.is_valid("DASHDOT")
@@ -151,44 +153,45 @@ class TestDashPattern(object):
         prop = bcpv.DashPattern()
         assert str(prop) == "DashPattern"
 
+
 css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
 
-class Test_FontSize(object):
 
+class Test_FontSize(object):
     def test_valid(self):
         prop = bcpv.FontSize()
 
         assert prop.is_valid(None)
 
         for unit in css_units.split("|"):
-            v = '10%s' % unit
+            v = "10%s" % unit
             assert prop.is_valid(v)
 
-            v = '10.2%s' % unit
+            v = "10.2%s" % unit
             assert prop.is_valid(v)
 
         for unit in css_units.upper().split("|"):
-            v = '10%s' % unit
+            v = "10%s" % unit
             assert prop.is_valid(v)
 
-            v = '10.2%s' % unit
+            v = "10.2%s" % unit
             assert prop.is_valid(v)
 
     def test_invalid(self):
         prop = bcpv.FontSize()
 
         for unit in css_units.split("|"):
-            v = '_10%s' % unit
+            v = "_10%s" % unit
             assert not prop.is_valid(v)
 
-            v = '_10.2%s' % unit
+            v = "_10.2%s" % unit
             assert not prop.is_valid(v)
 
         for unit in css_units.upper().split("|"):
-            v = '_10%s' % unit
+            v = "_10%s" % unit
             assert not prop.is_valid(v)
 
-            v = '_10.2%s' % unit
+            v = "_10.2%s" % unit
             assert not prop.is_valid(v)
 
         assert not prop.is_valid(False)
@@ -197,7 +200,7 @@ class Test_FontSize(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -226,10 +229,10 @@ class Test_Image(object):
         prop = bcpv.Image()
         assert prop.is_valid("string")
 
-    @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
+    @pytest.mark.parametrize("typ", ("png", "gif", "tiff"))
     def test_validate_PIL(self, typ):
         file = BytesIO()
-        image = PIL.Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
+        image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
         image.save(file, typ)
         prop = bcpv.Image()
         assert prop.is_valid(image)
@@ -271,18 +274,22 @@ class Test_Image(object):
         value = PIL.Image.fromarray(data)
         out = BytesIO()
         value.save(out, "png")
-        expected = "data:image/png;base64," + base64.b64encode(out.getvalue()).decode('ascii')
+        expected = "data:image/png;base64," + base64.b64encode(out.getvalue()).decode(
+            "ascii"
+        )
 
         prop = bcpv.Image()
         assert prop.transform(data) == expected
 
-    @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
+    @pytest.mark.parametrize("typ", ("png", "gif", "tiff"))
     def test_transform_PIL(self, typ):
         image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
         out = BytesIO()
         image.save(out, typ)
         value = PIL.Image.open(out)
-        expected = "data:image/%s;base64," % typ + base64.b64encode(out.getvalue()).decode('ascii')
+        expected = "data:image/%s;base64," % typ + base64.b64encode(
+            out.getvalue()
+        ).decode("ascii")
 
         prop = bcpv.Image()
         assert prop.transform(value) == expected
@@ -300,12 +307,12 @@ class Test_Image(object):
         prop = bcpv.Image()
         assert str(prop) == "Image"
 
-class Test_MinMaxBounds(object):
 
+class Test_MinMaxBounds(object):
     def test_valid_no_datetime(self):
         prop = bcpv.MinMaxBounds(accept_datetime=False)
 
-        assert prop.is_valid('auto')
+        assert prop.is_valid("auto")
         assert prop.is_valid(None)
         assert prop.is_valid((12, 13))
         assert prop.is_valid((-32, -13))
@@ -316,12 +323,14 @@ class Test_MinMaxBounds(object):
     def test_invalid_no_datetime(self):
         prop = bcpv.MinMaxBounds(accept_datetime=False)
 
-        assert not prop.is_valid('string')
+        assert not prop.is_valid("string")
         assert not prop.is_valid(12)
-        assert not prop.is_valid(('a', 'b'))
+        assert not prop.is_valid(("a", "b"))
         assert not prop.is_valid((13, 12))
         assert not prop.is_valid((13.1, 12.2))
-        assert not prop.is_valid((datetime.date(2012, 10, 1), datetime.date(2012, 12, 2)))
+        assert not prop.is_valid(
+            (datetime.date(2012, 10, 1), datetime.date(2012, 12, 2))
+        )
 
     def test_MinMaxBounds_with_datetime(self):
         prop = bcpv.MinMaxBounds(accept_datetime=True)
@@ -340,7 +349,6 @@ class Test_MinMaxBounds(object):
 
 
 class Test_MarkerType(object):
-
     def test_valid(self):
         prop = bcpv.MarkerType()
 
@@ -358,7 +366,7 @@ class Test_MarkerType(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -379,16 +387,17 @@ class Test_MarkerType(object):
         prop = bcpv.MarkerType()
         assert str(prop).startswith("MarkerType(")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpv, ALL)

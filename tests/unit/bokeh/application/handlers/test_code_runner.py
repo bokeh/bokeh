@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -21,19 +21,20 @@ from os.path import abspath, dirname
 from types import ModuleType
 
 # Module under test
-import bokeh.application.handlers.code_runner as bahc # isort:skip
+import bokeh.application.handlers.code_runner as bahc  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestCodeRunner(object):
 
@@ -58,16 +59,16 @@ class TestCodeRunner(object):
         cr = bahc.CodeRunner("# test", "path", [])
         m = cr.new_module()
         assert isinstance(m, ModuleType)
-        assert m.__dict__['__name__'].startswith('bk_script_')
-        assert m.__dict__['__file__'] == abspath("path")
+        assert m.__dict__["__name__"].startswith("bk_script_")
+        assert m.__dict__["__file__"] == abspath("path")
 
     def test_new_module_resets_run_errors(self):
         cr = bahc.CodeRunner("# test", "path", [])
         cr._failed = True
         m = cr.new_module()
         assert isinstance(m, ModuleType)
-        assert m.__dict__['__name__'].startswith('bk_script_')
-        assert m.__dict__['__file__'] == abspath("path")
+        assert m.__dict__["__name__"].startswith("bk_script_")
+        assert m.__dict__["__file__"] == abspath("path")
 
     def test_new_module_returns_None_for_permanent_errors(self):
         cr = bahc.CodeRunner("This is a syntax error", "path", [])
@@ -105,8 +106,10 @@ class TestCodeRunner(object):
         m = cr.new_module()
         assert not cr.ran
         result = {}
+
         def post_check():
-            result['ran'] = True
+            result["ran"] = True
+
         cr.run(m, post_check)
         assert cr.ran
         assert result == dict(ran=True)
@@ -116,15 +119,17 @@ class TestCodeRunner(object):
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
-        assert m.__dict__['argv'] == ["path", "foo", 10]
+        assert m.__dict__["argv"] == ["path", "foo", 10]
 
     def test_run_fixups_path(self):
-        cr = bahc.CodeRunner("import sys; path = list(sys.path)", "/dir/to/path", ["foo", 10])
+        cr = bahc.CodeRunner(
+            "import sys; path = list(sys.path)", "/dir/to/path", ["foo", 10]
+        )
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
-        assert m.__dict__['path'][0] == dirname("/dir/to/path")
-        assert m.__dict__['path'][1:] == sys.path
+        assert m.__dict__["path"][0] == dirname("/dir/to/path")
+        assert m.__dict__["path"][1:] == sys.path
 
     def test_run_restores_cwd(self):
         old_cwd = os.getcwd()
@@ -150,10 +155,11 @@ class TestCodeRunner(object):
         cr.run(m, lambda: None)
         assert sys.path == old_path
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

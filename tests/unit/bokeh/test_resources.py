@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
@@ -22,25 +22,26 @@ from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
 
 # Module under test
-import bokeh.resources as resources # isort:skip
+import bokeh.resources as resources  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # if BOKEH_RESOURCES is set many tests in this file fail
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
+LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ## Test JSResources
+
 
 def test_js_resources_default_mode_is_cdn():
     r = resources.JSResources()
@@ -54,11 +55,12 @@ def test_js_resources_inline_has_no_css_resources():
 
     assert len(r.js_raw) == 5
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
-    assert hasattr(r, 'css_raw') is False
+    assert hasattr(r, "css_raw") is False
     assert r.messages == []
 
 
 ## Test CSSResources
+
 
 def test_css_resources_default_mode_is_cdn():
     r = resources.CSSResources()
@@ -71,12 +73,11 @@ def test_inline_css_resources():
     assert r.dev is False
 
     assert len(r.css_raw) == 0
-    assert hasattr(r, 'js_raw') is False
+    assert hasattr(r, "js_raw") is False
     assert r.messages == []
 
 
 class TestResources(object):
-
     def test_basic(self):
         r = resources.Resources()
         assert r.mode == "cdn"
@@ -108,8 +109,8 @@ class TestResources(object):
     def test_get_cdn_urls(self):
         dev_version = "0.0.1dev2"
         result = _get_cdn_urls(version=dev_version)
-        url = result['urls'](["bokeh"], 'js')[0]
-        assert 'bokeh/dev' in url
+        url = result["urls"](["bokeh"], "js")[0]
+        assert "bokeh/dev" in url
 
     def test_cdn(self):
         resources.__version__ = "1.0"
@@ -123,9 +124,11 @@ class TestResources(object):
 
         resources.__version__ = "1.0-1-abc"
         r = resources.Resources(mode="cdn", version="1.0")
-        assert r.messages == [{
-            'text': "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
-            'type': 'warn'}
+        assert r.messages == [
+            {
+                "text": "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
+                "type": "warn",
+            }
         ]
 
     def test_server_default(self):
@@ -137,10 +140,12 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        assert r.js_files == ['http://localhost:5006/static/js/bokeh.min.js',
-                              'http://localhost:5006/static/js/bokeh-widgets.min.js',
-                              'http://localhost:5006/static/js/bokeh-tables.min.js',
-                              'http://localhost:5006/static/js/bokeh-gl.min.js']
+        assert r.js_files == [
+            "http://localhost:5006/static/js/bokeh.min.js",
+            "http://localhost:5006/static/js/bokeh-widgets.min.js",
+            "http://localhost:5006/static/js/bokeh-tables.min.js",
+            "http://localhost:5006/static/js/bokeh-gl.min.js",
+        ]
 
     def test_server_root_url(self):
         r = resources.Resources(mode="server", root_url="http://foo/")
@@ -149,10 +154,12 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        assert r.js_files == ['http://foo/static/js/bokeh.min.js',
-                              'http://foo/static/js/bokeh-widgets.min.js',
-                              'http://foo/static/js/bokeh-tables.min.js',
-                              'http://foo/static/js/bokeh-gl.min.js']
+        assert r.js_files == [
+            "http://foo/static/js/bokeh.min.js",
+            "http://foo/static/js/bokeh-widgets.min.js",
+            "http://foo/static/js/bokeh-tables.min.js",
+            "http://foo/static/js/bokeh-gl.min.js",
+        ]
 
     def test_server_root_url_empty(self):
         r = resources.Resources(mode="server", root_url="")
@@ -161,23 +168,27 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        assert r.js_files == ['static/js/bokeh.min.js',
-                              'static/js/bokeh-widgets.min.js',
-                              'static/js/bokeh-tables.min.js',
-                              'static/js/bokeh-gl.min.js']
-
+        assert r.js_files == [
+            "static/js/bokeh.min.js",
+            "static/js/bokeh-widgets.min.js",
+            "static/js/bokeh-tables.min.js",
+            "static/js/bokeh-gl.min.js",
+        ]
 
     def test_server_with_versioner(self):
         def versioner(path):
             return path + "?v=VERSIONED"
 
-        r = resources.Resources(mode="server", root_url="http://foo/",
-                                path_versioner=versioner)
+        r = resources.Resources(
+            mode="server", root_url="http://foo/", path_versioner=versioner
+        )
 
-        assert r.js_files == ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
-                              'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
-                              'http://foo/static/js/bokeh-tables.min.js?v=VERSIONED',
-                              'http://foo/static/js/bokeh-gl.min.js?v=VERSIONED']
+        assert r.js_files == [
+            "http://foo/static/js/bokeh.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
+        ]
 
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")
@@ -234,20 +245,43 @@ class TestResources(object):
         with pytest.raises(ValueError):
             resources.Resources("foo")
 
-        for mode in ("inline", "cdn", "server", "server-dev", "absolute", "absolute-dev"):
+        for mode in (
+            "inline",
+            "cdn",
+            "server",
+            "server-dev",
+            "absolute",
+            "absolute-dev",
+        ):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_dir="foo")
 
-        for mode in ("inline", "server", "server-dev", "relative", "relative-dev", "absolute", "absolute-dev"):
+        for mode in (
+            "inline",
+            "server",
+            "server-dev",
+            "relative",
+            "relative-dev",
+            "absolute",
+            "absolute-dev",
+        ):
             with pytest.raises(ValueError):
                 resources.Resources(mode, version="foo")
 
-        for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
+        for mode in (
+            "inline",
+            "cdn",
+            "relative",
+            "relative-dev",
+            "absolute",
+            "absolute-dev",
+        ):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_url="foo")
 
 
 ## Test external resources
+
 
 def test_external_js_and_css_resource_embedding():
     """ This test method has to be at the end of the test modules because
@@ -301,14 +335,15 @@ def test_external_js_and_css_resource_ordering():
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

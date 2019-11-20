@@ -1,19 +1,19 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
@@ -28,36 +28,47 @@ from bokeh.models import (
     Rect,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh",)
+
 
 def _make_plot(tool):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-    plot = Plot(plot_height=400, plot_width=450, min_border_right=50, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-    plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
+    plot = Plot(
+        plot_height=400,
+        plot_width=450,
+        min_border_right=50,
+        x_range=Range1d(0, 1),
+        y_range=Range1d(0, 1),
+        min_border=0,
+    )
+    plot.add_glyph(source, Rect(x="x", y="y", width=0.9, height=0.9))
     plot.add_tools(tool)
-    code = RECORD("xrstart", "p.x_range.start") + RECORD("xrend", "p.x_range.end") + RECORD("yrstart", "p.y_range.start") + RECORD("yrend", "p.y_range.end")
+    code = (
+        RECORD("xrstart", "p.x_range.start")
+        + RECORD("xrend", "p.x_range.end")
+        + RECORD("yrstart", "p.y_range.start")
+        + RECORD("yrend", "p.y_range.end")
+    )
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
     plot.toolbar_sticky = False
     return plot
 
+
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_BoxZoomTool(object):
-
     def test_deselected_by_default_with_pan_tool(self, single_plot_page):
         plot = _make_plot(BoxZoomTool())
         plot.add_tools(PanTool())
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('box-zoom')
-        assert 'active' not in button.get_attribute('class')
+        button = page.get_toolbar_button("box-zoom")
+        assert "active" not in button.get_attribute("class")
 
         assert page.has_no_console_errors()
 
@@ -66,8 +77,8 @@ class Test_BoxZoomTool(object):
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('box-zoom')
-        assert 'active' in button.get_attribute('class')
+        button = page.get_toolbar_button("box-zoom")
+        assert "active" in button.get_attribute("class")
 
         assert page.has_no_console_errors()
 
@@ -78,28 +89,28 @@ class Test_BoxZoomTool(object):
         page = single_plot_page(plot)
 
         # Check is not active
-        button = page.get_toolbar_button('box-zoom')
-        assert 'active' not in button.get_attribute('class')
+        button = page.get_toolbar_button("box-zoom")
+        assert "active" not in button.get_attribute("class")
 
         # Click and check is active
-        button = page.get_toolbar_button('box-zoom')
+        button = page.get_toolbar_button("box-zoom")
         button.click()
-        assert 'active' in button.get_attribute('class')
+        assert "active" in button.get_attribute("class")
 
         # Click again and check is not active
-        button = page.get_toolbar_button('box-zoom')
+        button = page.get_toolbar_button("box-zoom")
         button.click()
-        assert 'active' not in button.get_attribute('class')
+        assert "active" not in button.get_attribute("class")
 
         assert page.has_no_console_errors()
 
-    @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
+    @pytest.mark.parametrize("dim", ["both", "width", "height"])
     def test_box_zoom_has_no_effect_when_deslected(self, dim, single_plot_page):
         plot = _make_plot(BoxZoomTool(dimensions=dim))
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('box-zoom')
+        button = page.get_toolbar_button("box-zoom")
         button.click()
 
         page.drag_canvas_at_position(100, 100, 20, 20)
@@ -107,10 +118,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] == 0
-        assert results['xrend'] == 1
-        assert results['yrstart'] == 0
-        assert results['yrend'] == 1
+        assert results["xrstart"] == 0
+        assert results["xrend"] == 1
+        assert results["yrstart"] == 0
+        assert results["yrend"] == 1
 
         assert page.has_no_console_errors()
 
@@ -124,10 +135,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] == pytest.approx(0.25)
-        assert results['xrend'] == pytest.approx(0.75)
-        assert results['yrstart'] == pytest.approx(0.25)
-        assert results['yrend'] == pytest.approx(0.75)
+        assert results["xrstart"] == pytest.approx(0.25)
+        assert results["xrend"] == pytest.approx(0.75)
+        assert results["yrstart"] == pytest.approx(0.25)
+        assert results["yrend"] == pytest.approx(0.75)
 
         assert page.has_no_console_errors()
 
@@ -141,8 +152,8 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert (results['xrstart'] + results['xrend'])/2.0 == pytest.approx(0.25)
-        assert (results['yrstart'] + results['yrend'])/2.0 == pytest.approx(0.75)
+        assert (results["xrstart"] + results["xrend"]) / 2.0 == pytest.approx(0.25)
+        assert (results["yrstart"] + results["yrend"]) / 2.0 == pytest.approx(0.75)
 
         assert page.has_no_console_errors()
 
@@ -156,10 +167,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] == 0
-        assert results['xrend'] == 1
-        assert results['yrstart'] == 0
-        assert results['yrend'] == 1
+        assert results["xrstart"] == 0
+        assert results["xrend"] == 1
+        assert results["yrstart"] == 0
+        assert results["yrend"] == 1
 
         assert page.has_no_console_errors()
 
@@ -173,10 +184,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] > 0.5
-        assert results['xrend'] < 1
-        assert results['yrstart'] == 0
-        assert results['yrend'] == 1
+        assert results["xrstart"] > 0.5
+        assert results["xrend"] < 1
+        assert results["yrstart"] == 0
+        assert results["yrend"] == 1
 
         assert page.has_no_console_errors()
 
@@ -190,10 +201,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] > 0.5
-        assert results['xrend'] == 1
-        assert results['yrstart'] == 0
-        assert results['yrend'] == 1
+        assert results["xrstart"] > 0.5
+        assert results["xrend"] == 1
+        assert results["yrstart"] == 0
+        assert results["yrend"] == 1
 
         assert page.has_no_console_errors()
 
@@ -207,10 +218,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] == 0
-        assert results['xrend'] == 1
-        assert results['yrstart'] > 0
-        assert results['yrend'] < 0.5
+        assert results["xrstart"] == 0
+        assert results["xrend"] == 1
+        assert results["yrstart"] > 0
+        assert results["yrend"] < 0.5
 
         assert page.has_no_console_errors()
 
@@ -224,10 +235,10 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert results['xrstart'] == 0
-        assert results['xrend'] == 1
-        assert results['yrstart'] == 0
-        assert results['yrend'] < 0.5
+        assert results["xrstart"] == 0
+        assert results["xrend"] == 1
+        assert results["yrstart"] == 0
+        assert results["yrend"] < 0.5
 
         assert page.has_no_console_errors()
 
@@ -242,6 +253,8 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert (results['xrend'] - results['xrstart']) / (results['yrend'] - results['yrstart']) == pytest.approx(2.0)
+        assert (results["xrend"] - results["xrstart"]) / (
+            results["yrend"] - results["yrstart"]
+        ) == pytest.approx(2.0)
 
         assert page.has_no_console_errors()

@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from collections import OrderedDict
@@ -30,28 +30,32 @@ from bokeh.plotting import figure
 from bokeh.resources import CDN, CSSResources, JSResources
 
 # Module under test
-import bokeh.embed.standalone as bes # isort:skip
+import bokeh.embed.standalone as bes  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def stable_id():
-    return 'ID'
+    return "ID"
+
 
 @pytest.fixture
 def test_plot():
     from bokeh.plotting import figure
+
     test_plot = figure()
     test_plot.circle([1, 2], [2, 3])
     return test_plot
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_autoload_static(object):
-
     def test_return_type(self, test_plot):
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
@@ -59,15 +63,14 @@ class Test_autoload_static(object):
     def test_script_attrs(self, test_plot):
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "lxml")
-        scripts = html.findAll(name='script')
+        scripts = html.findAll(name="script")
         assert len(scripts) == 1
         attrs = scripts[0].attrs
-        assert set(attrs) == set(['src', 'id'])
-        assert attrs['src'] == 'some/path'
+        assert set(attrs) == set(["src", "id"])
+        assert attrs["src"] == "some/path"
 
 
 class Test_components(object):
-
     def test_return_type(self):
         plot1 = figure()
         plot1.circle([], [])
@@ -94,7 +97,7 @@ class Test_components(object):
         assert isinstance(divs, OrderedDict)
         assert all(isinstance(x, str) for x in divs.keys())
 
-    @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
+    @patch("bokeh.embed.util.make_globally_unique_id", new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
         doc = Document()
         plot1 = figure()
@@ -114,30 +117,30 @@ class Test_components(object):
         _, plotids = bes.components((plot1, plot2), wrap_plot_info=False)
         assert plotids == (expected_plotdict_1, expected_plotdict_2)
 
-        _, plotiddict = bes.components({'p1': plot1, 'p2': plot2}, wrap_plot_info=False)
-        assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
+        _, plotiddict = bes.components({"p1": plot1, "p2": plot2}, wrap_plot_info=False)
+        assert plotiddict == {"p1": expected_plotdict_1, "p2": expected_plotdict_2}
 
     def test_result_attrs(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
-        scripts = html.findAll(name='script')
+        scripts = html.findAll(name="script")
         assert len(scripts) == 1
-        assert scripts[0].attrs == {'type': 'text/javascript'}
+        assert scripts[0].attrs == {"type": "text/javascript"}
 
-    @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
+    @patch("bokeh.embed.util.make_globally_unique_id", new=stable_id)
     def test_div_attrs(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(div, "lxml")
 
-        divs = html.findAll(name='div')
+        divs = html.findAll(name="div")
         assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
-        assert div.attrs['class'] == ['bk-root']
-        assert div.attrs['id'] == 'ID'
-        assert div.attrs['data-root-id'] == test_plot.id
-        assert div.text == ''
+        assert set(div.attrs) == set(["class", "id", "data-root-id"])
+        assert div.attrs["class"] == ["bk-root"]
+        assert div.attrs["id"] == "ID"
+        assert div.attrs["data-root-id"] == test_plot.id
+        assert div.text == ""
 
     def test_script_is_utf8_encoded(self, test_plot):
         script, div = bes.components(test_plot)
@@ -146,20 +149,19 @@ class Test_components(object):
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
-        scripts = html.findAll(name='script')
+        scripts = html.findAll(name="script")
         assert len(scripts) == 1
 
         # XXX: this needs to account for indentation
-        #script_content = scripts[0].getText()
+        # script_content = scripts[0].getText()
 
-        #rawscript, div = bes.components(test_plot, wrap_script=False)
-        #self.maxDiff = None
-        #assert rawscript.strip() == script_content.strip()
+        # rawscript, div = bes.components(test_plot, wrap_script=False)
+        # self.maxDiff = None
+        # assert rawscript.strip() == script_content.strip()
+
 
 class Test_file_html(object):
-
     def test_return_type(self, test_plot):
-
         class fake_template:
             def __init__(self, tester, user_template_variables=None):
                 self.tester = tester
@@ -185,41 +187,49 @@ class Test_file_html(object):
         r = bes.file_html(test_plot, CDN, "title", fake_template(self))
         assert isinstance(r, str)
 
-        r = bes.file_html(test_plot, CDN, "title",
-                            fake_template(self, {"test_var"}),
-                            {"test_var": "test"})
+        r = bes.file_html(
+            test_plot,
+            CDN,
+            "title",
+            fake_template(self, {"test_var"}),
+            {"test_var": "test"},
+        )
         assert isinstance(r, str)
 
-    @patch('bokeh.embed.bundle.warn')
+    @patch("bokeh.embed.bundle.warn")
     def test_file_html_handles_js_only_resources(self, mock_warn, test_plot):
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
-        output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
+        output = bes.file_html(
+            test_plot, (js_resources, None), "title", template=template
+        )
         html = "<head>%s</head><body></body>" % js_resources.render_js()
         assert output == html
 
-    @patch('bokeh.embed.bundle.warn')
+    @patch("bokeh.embed.bundle.warn")
     def test_file_html_provides_warning_if_no_css(self, mock_warn, test_plot):
         js_resources = JSResources()
         bes.file_html(test_plot, (js_resources, None), "title")
         mock_warn.assert_called_once_with(
-            'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
+            "No Bokeh CSS Resources provided to template. If required you will need to provide them manually."
         )
 
-    @patch('bokeh.embed.bundle.warn')
+    @patch("bokeh.embed.bundle.warn")
     def test_file_html_handles_css_only_resources(self, mock_warn, test_plot):
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
-        output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
+        output = bes.file_html(
+            test_plot, (None, css_resources), "title", template=template
+        )
         html = "<head>%s</head><body></body>" % css_resources.render_css()
         assert output == html
 
-    @patch('bokeh.embed.bundle.warn')
+    @patch("bokeh.embed.bundle.warn")
     def test_file_html_provides_warning_if_no_js(self, mock_warn, test_plot):
         css_resources = CSSResources()
         bes.file_html(test_plot, (None, css_resources), "title")
         mock_warn.assert_called_once_with(
-            'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
+            "No Bokeh JS Resources provided to template. If required you will need to provide them manually."
         )
 
     def test_file_html_title_is_escaped(self, test_plot):
@@ -243,30 +253,30 @@ class Test_file_html(object):
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
 
-class Test_json_item(object):
 
+class Test_json_item(object):
     def test_with_target_id(self, test_plot):
         out = bes.json_item(test_plot, target="foo")
-        assert out['target_id'] == "foo"
+        assert out["target_id"] == "foo"
 
     def test_without_target_id(self, test_plot):
         out = bes.json_item(test_plot)
-        assert out['target_id'] == None
+        assert out["target_id"] == None
 
     def test_doc_json(self, test_plot):
         out = bes.json_item(test_plot, target="foo")
         expected = list(standalone_docs_json([test_plot]).values())[0]
-        assert out['doc'] == expected
+        assert out["doc"] == expected
 
     def test_doc_title(self, test_plot):
         out = bes.json_item(test_plot, target="foo")
-        assert out['doc']['title'] == ""
+        assert out["doc"]["title"] == ""
 
     def test_root_id(self, test_plot):
         out = bes.json_item(test_plot, target="foo")
-        assert out['doc']['roots']['root_ids'][0] == out['root_id']
+        assert out["doc"]["roots"]["root_ids"][0] == out["root_id"]
 
-    @patch('bokeh.embed.standalone.OutputDocumentFor')
+    @patch("bokeh.embed.standalone.OutputDocumentFor")
     def test_apply_theme(self, mock_OFD, test_plot):
         # the subsequent call inside ODF will fail since the model was never
         # added to a document. Ignoring that since we just want to make sure
@@ -278,17 +288,19 @@ class Test_json_item(object):
         mock_OFD.assert_called_once_with([test_plot], apply_theme="foo")
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test__title_from_models(object):
     pass
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

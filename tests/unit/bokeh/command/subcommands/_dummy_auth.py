@@ -1,3 +1,5 @@
-def get_user(request): pass
+def get_user(request):
+    pass
+
 
 login_url = "/login"

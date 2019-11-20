@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import numpy as np
@@ -34,84 +34,84 @@ from bokeh.core.properties import (
 from bokeh.models import Plot
 
 # Module under test
-import bokeh.core.properties as bcp # isort:skip
+import bokeh.core.properties as bcp  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ALL = (
-    'Angle',
-    'AngleSpec',
-    'Any',
-    'AnyRef',
-    'Array',
-    'Auto',
-    'Bool',
-    'Byte',
-    'Color',
-    'ColorHex',
-    'ColorSpec',
-    'ColumnData',
-    'Complex',
-    'DashPattern',
-    'DataDistanceSpec',
-    'DataSpec',
-    'Date',
-    'Datetime',
-    'Dict',
-    'DistanceSpec',
-    'Either',
-    'Enum',
-    'Float',
-    'FontSize',
-    'FontSizeSpec',
-    'HatchPatternSpec',
-    'HatchPatternType',
-    'Image',
-    'Include',
-    'Instance',
-    'Int',
-    'Interval',
-    'JSON',
-    'List',
-    'MarkerSpec',
-    'MarkerType',
-    'MinMaxBounds',
-    'NonNegativeInt',
-    'NumberSpec',
-    'Override',
-    'PandasDataFrame',
-    'PandasGroupBy',
-    'Percent',
-    'PositiveInt',
-    'RGB',
-    'Regex',
-    'RelativeDelta',
-    'ScreenDistanceSpec',
-    'Seq',
-    'Size',
-    'String',
-    'StringSpec',
-    'Struct',
-    'TimeDelta',
-    'Tuple',
-    'UnitsSpec',
-    'expr',
-    'field',
-    'validate',
-    'value',
-    'without_property_validation'
+    "Angle",
+    "AngleSpec",
+    "Any",
+    "AnyRef",
+    "Array",
+    "Auto",
+    "Bool",
+    "Byte",
+    "Color",
+    "ColorHex",
+    "ColorSpec",
+    "ColumnData",
+    "Complex",
+    "DashPattern",
+    "DataDistanceSpec",
+    "DataSpec",
+    "Date",
+    "Datetime",
+    "Dict",
+    "DistanceSpec",
+    "Either",
+    "Enum",
+    "Float",
+    "FontSize",
+    "FontSizeSpec",
+    "HatchPatternSpec",
+    "HatchPatternType",
+    "Image",
+    "Include",
+    "Instance",
+    "Int",
+    "Interval",
+    "JSON",
+    "List",
+    "MarkerSpec",
+    "MarkerType",
+    "MinMaxBounds",
+    "NonNegativeInt",
+    "NumberSpec",
+    "Override",
+    "PandasDataFrame",
+    "PandasGroupBy",
+    "Percent",
+    "PositiveInt",
+    "RGB",
+    "Regex",
+    "RelativeDelta",
+    "ScreenDistanceSpec",
+    "Seq",
+    "Size",
+    "String",
+    "StringSpec",
+    "Struct",
+    "TimeDelta",
+    "Tuple",
+    "UnitsSpec",
+    "expr",
+    "field",
+    "validate",
+    "value",
+    "without_property_validation",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 # TODO (bev) These tests should be moved to better places
 
-class Basictest(object):
 
+class Basictest(object):
     def test_simple_class(self):
         class Foo(HasProps):
             x = Int(12)
@@ -126,10 +126,9 @@ class Basictest(object):
         assert np.array_equal(np.array([1, 2, 3]), f.z)
         assert f.s is None
 
-
         assert set(["x", "y", "z", "zz", "s"]) == f.properties()
         with_defaults = f.properties_with_values(include_defaults=True)
-        assert dict(x=12, y="hello", z=[1,2,3], zz={}, s=None) == with_defaults
+        assert dict(x=12, y="hello", z=[1, 2, 3], zz={}, s=None) == with_defaults
         without_defaults = f.properties_with_values(include_defaults=False)
         assert dict() == without_defaults
 
@@ -145,16 +144,16 @@ class Basictest(object):
         f.z[0] = 100
 
         without_defaults = f.properties_with_values(include_defaults=False)
-        assert dict(x=18, y="bar", z=[100,2,3]) == without_defaults
+        assert dict(x=18, y="bar", z=[100, 2, 3]) == without_defaults
 
-        f.zz = {'a': 10}
+        f.zz = {"a": 10}
 
         without_defaults = f.properties_with_values(include_defaults=False)
-        assert dict(x=18, y="bar", z=[100,2,3], zz={'a': 10}) == without_defaults
+        assert dict(x=18, y="bar", z=[100, 2, 3], zz={"a": 10}) == without_defaults
 
     def test_enum(self):
         class Foo(HasProps):
-            x = Enum("blue", "red", "green")     # the first item is the default
+            x = Enum("blue", "red", "green")  # the first item is the default
             y = Enum("small", "medium", "large", default="large")
 
         f = Foo()
@@ -182,7 +181,7 @@ class Basictest(object):
             z = Float(3.14)
 
         c = Child()
-        assert frozenset(['x', 'y', 'z']) == frozenset(c.properties())
+        assert frozenset(["x", "y", "z"]) == frozenset(c.properties())
         assert c.y == "hello"
 
     def test_set(self):
@@ -206,6 +205,7 @@ class Basictest(object):
         class Foo(HasProps):
             x = Int
             y = Int()
+
         f = Foo()
         assert f.x == f.y
         f.x = 13
@@ -238,17 +238,51 @@ class Basictest(object):
         assert set(["mixin_child"]) == m.properties_with_refs()
         assert set(["mixin_container"]) == m.properties_containers()
         assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties()
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=True)
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=False)
+        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(
+            with_bases=True
+        )
+        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(
+            with_bases=False
+        )
 
         s = Sub()
         assert set(["child", "sub_child", "mixin_child"]) == s.properties_with_refs()
-        assert set(["container", "sub_container", "mixin_container"]) == s.properties_containers()
-        assert set(["num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"]) == s.properties()
+        assert (
+            set(["container", "sub_container", "mixin_container"])
+            == s.properties_containers()
+        )
+        assert (
+            set(
+                [
+                    "num",
+                    "container",
+                    "child",
+                    "mixin_num",
+                    "mixin_container",
+                    "mixin_child",
+                    "sub_num",
+                    "sub_container",
+                    "sub_child",
+                ]
+            )
+            == s.properties()
+        )
         assert set(
-            ["num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"]
+            [
+                "num",
+                "container",
+                "child",
+                "mixin_num",
+                "mixin_container",
+                "mixin_child",
+                "sub_num",
+                "sub_container",
+                "sub_child",
+            ]
         ) == s.properties(with_bases=True)
-        assert set(["sub_num", "sub_container", "sub_child"]) == s.properties(with_bases=False)
+        assert set(["sub_num", "sub_container", "sub_child"]) == s.properties(
+            with_bases=False
+        )
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
@@ -257,7 +291,7 @@ class Basictest(object):
         assert s.properties(with_bases=True) is s.properties(with_bases=True)
         # this one isn't cached because we store it as a list __properties__ and wrap it
         # in a new set every time
-        #assert s.properties(with_bases=False) is s.properties(with_bases=False)
+        # assert s.properties(with_bases=False) is s.properties(with_bases=False)
 
     def test_accurate_dataspecs(self):
         class Base(HasProps):
@@ -278,9 +312,16 @@ class Basictest(object):
         assert set(["mixin_num"]) == mixin.dataspecs()
         assert set(["num", "mixin_num", "sub_num"]) == sub.dataspecs()
 
-        assert dict(num=base.lookup("num")) ==  base.dataspecs_with_props()
+        assert dict(num=base.lookup("num")) == base.dataspecs_with_props()
         assert dict(mixin_num=mixin.lookup("mixin_num")) == mixin.dataspecs_with_props()
-        assert dict(num=sub.lookup("num"), mixin_num=sub.lookup("mixin_num"), sub_num=sub.lookup("sub_num")) == sub.dataspecs_with_props()
+        assert (
+            dict(
+                num=sub.lookup("num"),
+                mixin_num=sub.lookup("mixin_num"),
+                sub_num=sub.lookup("sub_num"),
+            )
+            == sub.dataspecs_with_props()
+        )
 
     def test_not_serialized(self):
         class NotSerialized(HasProps):
@@ -289,51 +330,51 @@ class Basictest(object):
 
         o = NotSerialized()
         assert o.x == 12
-        assert o.y == 'hello'
+        assert o.y == "hello"
 
         # non-serialized props are still in the list of props
-        assert 'x' in o.properties()
-        assert 'y' in o.properties()
+        assert "x" in o.properties()
+        assert "y" in o.properties()
 
         # but they aren't in the dict of props with values, since their
         # values are not important (already included in other values,
         # as with the _units properties)
-        assert 'x' not in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' not in o.properties_with_values(include_defaults=False)
-        assert 'y' not in o.properties_with_values(include_defaults=False)
+        assert "x" not in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" not in o.properties_with_values(include_defaults=False)
+        assert "y" not in o.properties_with_values(include_defaults=False)
 
         o.x = 42
-        o.y = 'world'
+        o.y = "world"
 
-        assert 'x' not in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' not in o.properties_with_values(include_defaults=False)
-        assert 'y' in o.properties_with_values(include_defaults=False)
+        assert "x" not in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" not in o.properties_with_values(include_defaults=False)
+        assert "y" in o.properties_with_values(include_defaults=False)
 
     def test_readonly(self):
         class Readonly(HasProps):
-            x = Int(12, readonly=True)    # with default
-            y = Int(readonly=True)        # without default
+            x = Int(12, readonly=True)  # with default
+            y = Int(readonly=True)  # without default
             z = String("hello")
 
         o = Readonly()
         assert o.x == 12
         assert o.y == None
-        assert o.z == 'hello'
+        assert o.z == "hello"
 
         # readonly props are still in the list of props
-        assert 'x' in o.properties()
-        assert 'y' in o.properties()
-        assert 'z' in o.properties()
+        assert "x" in o.properties()
+        assert "y" in o.properties()
+        assert "z" in o.properties()
 
         # but they aren't in the dict of props with values
-        assert 'x' not in o.properties_with_values(include_defaults=True)
-        assert 'y' not in o.properties_with_values(include_defaults=True)
-        assert 'z' in o.properties_with_values(include_defaults=True)
-        assert 'x' not in o.properties_with_values(include_defaults=False)
-        assert 'y' not in o.properties_with_values(include_defaults=False)
-        assert 'z' not in o.properties_with_values(include_defaults=False)
+        assert "x" not in o.properties_with_values(include_defaults=True)
+        assert "y" not in o.properties_with_values(include_defaults=True)
+        assert "z" in o.properties_with_values(include_defaults=True)
+        assert "x" not in o.properties_with_values(include_defaults=False)
+        assert "y" not in o.properties_with_values(include_defaults=False)
+        assert "z" not in o.properties_with_values(include_defaults=False)
 
         with pytest.raises(RuntimeError):
             o.x = 7
@@ -343,7 +384,7 @@ class Basictest(object):
 
         assert o.x == 12
         assert o.y == None
-        assert o.z == 'xyz'
+        assert o.z == "xyz"
 
     def test_include_defaults(self):
         class IncludeDefaultsTest(HasProps):
@@ -352,20 +393,20 @@ class Basictest(object):
 
         o = IncludeDefaultsTest()
         assert o.x == 12
-        assert o.y == 'hello'
+        assert o.y == "hello"
 
-        assert 'x' in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' not in o.properties_with_values(include_defaults=False)
-        assert 'y' not in o.properties_with_values(include_defaults=False)
+        assert "x" in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" not in o.properties_with_values(include_defaults=False)
+        assert "y" not in o.properties_with_values(include_defaults=False)
 
         o.x = 42
-        o.y = 'world'
+        o.y = "world"
 
-        assert 'x' in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' in o.properties_with_values(include_defaults=False)
-        assert 'y' in o.properties_with_values(include_defaults=False)
+        assert "x" in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" in o.properties_with_values(include_defaults=False)
+        assert "y" in o.properties_with_values(include_defaults=False)
 
     def test_include_defaults_with_kwargs(self):
         class IncludeDefaultsKwargsTest(HasProps):
@@ -374,12 +415,12 @@ class Basictest(object):
 
         o = IncludeDefaultsKwargsTest(x=14, y="world")
         assert o.x == 14
-        assert o.y == 'world'
+        assert o.y == "world"
 
-        assert 'x' in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' in o.properties_with_values(include_defaults=False)
-        assert 'y' in o.properties_with_values(include_defaults=False)
+        assert "x" in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" in o.properties_with_values(include_defaults=False)
+        assert "y" in o.properties_with_values(include_defaults=False)
 
     def test_include_defaults_set_to_same(self):
         class IncludeDefaultsSetToSameTest(HasProps):
@@ -388,19 +429,19 @@ class Basictest(object):
 
         o = IncludeDefaultsSetToSameTest()
 
-        assert 'x' in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' not in o.properties_with_values(include_defaults=False)
-        assert 'y' not in o.properties_with_values(include_defaults=False)
+        assert "x" in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" not in o.properties_with_values(include_defaults=False)
+        assert "y" not in o.properties_with_values(include_defaults=False)
 
         # this should no-op
         o.x = 12
         o.y = "hello"
 
-        assert 'x' in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
-        assert 'x' not in o.properties_with_values(include_defaults=False)
-        assert 'y' not in o.properties_with_values(include_defaults=False)
+        assert "x" in o.properties_with_values(include_defaults=True)
+        assert "y" in o.properties_with_values(include_defaults=True)
+        assert "x" not in o.properties_with_values(include_defaults=False)
+        assert "y" not in o.properties_with_values(include_defaults=False)
 
     def test_override_defaults(self):
         class FooBase(HasProps):
@@ -423,13 +464,13 @@ class Basictest(object):
         assert f_sub.x == 14
         assert f_sub_sub.x == 16
 
-        assert 12 == f_base.properties_with_values(include_defaults=True)['x']
-        assert 14 == f_sub.properties_with_values(include_defaults=True)['x']
-        assert 16 == f_sub_sub.properties_with_values(include_defaults=True)['x']
+        assert 12 == f_base.properties_with_values(include_defaults=True)["x"]
+        assert 14 == f_sub.properties_with_values(include_defaults=True)["x"]
+        assert 16 == f_sub_sub.properties_with_values(include_defaults=True)["x"]
 
-        assert 'x' not in f_base.properties_with_values(include_defaults=False)
-        assert 'x' not in f_sub.properties_with_values(include_defaults=False)
-        assert 'x' not in f_sub_sub.properties_with_values(include_defaults=False)
+        assert "x" not in f_base.properties_with_values(include_defaults=False)
+        assert "x" not in f_sub.properties_with_values(include_defaults=False)
+        assert "x" not in f_sub_sub.properties_with_values(include_defaults=False)
 
     # def test_kwargs_init(self):
     #     class Foo(HasProps):
@@ -444,25 +485,29 @@ class Basictest(object):
     #         # This should raise a TypeError: object.__init__() takes no parameters
     #         g = Foo(z = 3.14, q = "blah")
 
+
 class Foo(HasProps):
     pass
+
 
 class Bar(HasProps):
     pass
 
+
 class Baz(HasProps):
     pass
+
 
 def test_HasProps_equals():
     class Foo(HasProps):
         x = Int(12)
         y = String("hello")
-        z = List(Int, [1,2,3])
+        z = List(Int, [1, 2, 3])
 
     class FooUnrelated(HasProps):
         x = Int(12)
         y = String("hello")
-        z = List(Int, [1,2,3])
+        z = List(Int, [1, 2, 3])
 
     v = Foo().equals(Foo())
     assert v is True
@@ -479,6 +524,7 @@ def test_HasProps_equals():
     v = Foo().equals(FooUnrelated())
     assert v is False
 
+
 def test_HasProps_clone():
     p1 = Plot(plot_width=1000)
     c1 = p1.properties_with_values(include_defaults=False)
@@ -486,16 +532,17 @@ def test_HasProps_clone():
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcp, ALL)

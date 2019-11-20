@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import logging
@@ -29,25 +29,29 @@ from bokeh.plotting import figure
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.application.application as baa # isort:skip
+import bokeh.application.application as baa  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # needed for caplog tests to function
 basicConfig()
 
+
 class AnotherModelInTestApplication(Model):
     baar = Int(1)
+
 
 class SomeModelInTestApplication(Model):
     foo = Int(2)
     child = Instance(Model)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_Application(object):
 
@@ -64,9 +68,11 @@ class Test_Application(object):
 
     def test_one_handler(self):
         a = baa.Application()
+
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
             doc.add_root(SomeModelInTestApplication())
+
         handler = FunctionHandler(add_roots)
         a.add(handler)
         doc = a.create_document()
@@ -74,11 +80,14 @@ class Test_Application(object):
 
     def test_two_handlers(self):
         a = baa.Application()
+
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
             doc.add_root(SomeModelInTestApplication())
+
         def add_one_root(doc):
             doc.add_root(AnotherModelInTestApplication())
+
         handler = FunctionHandler(add_roots)
         a.add(handler)
         handler2 = FunctionHandler(add_one_root)
@@ -98,11 +107,14 @@ class Test_Application(object):
 
     def test_no_static_path(self):
         a = baa.Application()
+
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
             doc.add_root(SomeModelInTestApplication())
+
         def add_one_root(doc):
             doc.add_root(AnotherModelInTestApplication())
+
         handler = FunctionHandler(add_roots)
         a.add(handler)
         handler2 = FunctionHandler(add_one_root)
@@ -111,11 +123,14 @@ class Test_Application(object):
 
     def test_static_path(self):
         a = baa.Application()
+
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
             doc.add_root(SomeModelInTestApplication())
+
         def add_one_root(doc):
             doc.add_root(AnotherModelInTestApplication())
+
         handler = FunctionHandler(add_roots)
         handler._static = "foo"
         a.add(handler)
@@ -125,11 +140,14 @@ class Test_Application(object):
 
     def test_excess_static_path(self):
         a = baa.Application()
+
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
             doc.add_root(SomeModelInTestApplication())
+
         def add_one_root(doc):
             doc.add_root(AnotherModelInTestApplication())
+
         handler = FunctionHandler(add_roots)
         handler._static = "foo"
         a.add(handler)
@@ -139,7 +157,7 @@ class Test_Application(object):
             a.add(handler2)
         assert "More than one static path" in str(e.value)
 
-    @mock.patch('bokeh.document.document.check_integrity')
+    @mock.patch("bokeh.document.document.check_integrity")
     def test_application_validates_document_by_default(self, check_integrity):
         a = baa.Application()
         d = Document()
@@ -147,8 +165,10 @@ class Test_Application(object):
         a.initialize_document(d)
         assert check_integrity.called
 
-    @mock.patch('bokeh.document.document.check_integrity')
-    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch):
+    @mock.patch("bokeh.document.document.check_integrity")
+    def test_application_doesnt_validate_document_due_to_env_var(
+        self, check_integrity, monkeypatch
+    ):
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         a = baa.Application()
         d = Document()
@@ -156,9 +176,11 @@ class Test_Application(object):
         a.initialize_document(d)
         assert not check_integrity.called
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_ServerContext(object):
 
@@ -168,16 +190,17 @@ class Test_ServerContext(object):
         with pytest.raises(TypeError):
             baa.ServerContext()
 
-class Test_SessionContext(object):
 
+class Test_SessionContext(object):
     def test_abstract(self):
         with pytest.raises(TypeError):
             baa.SessionContext()
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

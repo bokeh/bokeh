@@ -1,19 +1,19 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
@@ -28,27 +28,38 @@ from bokeh.models import (
     Range1d,
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+    plot = Plot(
+        plot_height=400,
+        plot_width=400,
+        x_range=Range1d(0, 1),
+        y_range=Range1d(0, 1),
+        min_border=0,
+    )
 
-    plot.add_glyph(source, Circle(x='x', y='y'))
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-    colorpicker = ColorPicker(color='red', css_classes=["foo"])
+    plot.add_glyph(source, Circle(x="x", y="y"))
+    plot.add_tools(
+        CustomAction(
+            callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))
+        )
+    )
+    colorpicker = ColorPicker(color="red", css_classes=["foo"])
 
     def cb(attr, old, new):
-        source.data['val'] = [old.lower(), new.lower()]  # ensure lowercase of hexa strings
+        source.data["val"] = [
+            old.lower(),
+            new.lower(),
+        ]  # ensure lowercase of hexa strings
 
-    colorpicker.on_change('color', cb)
+    colorpicker.on_change("color", cb)
     doc.add_root(column(colorpicker, plot))
     return doc
 
@@ -61,14 +72,13 @@ def enter_value_in_color_picker(driver, el, color):
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_ColorPicker(object):
-
     def test_display_color_input(self, bokeh_model_page):
         colorpicker = ColorPicker(css_classes=["foo"])
 
         page = bokeh_model_page(colorpicker)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
-        assert el.get_attribute('type') == "color"
+        el = page.driver.find_element_by_css_selector(".foo input")
+        assert el.get_attribute("type") == "color"
 
         assert page.has_no_console_errors()
 
@@ -77,35 +87,35 @@ class Test_ColorPicker(object):
 
         page = bokeh_model_page(colorpicker)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
+        el = page.driver.find_element_by_css_selector(".foo label")
         assert el.text == "title"
 
-        el = page.driver.find_element_by_css_selector('.foo input')
-        assert el.get_attribute('type') == "color"
+        el = page.driver.find_element_by_css_selector(".foo input")
+        assert el.get_attribute("type") == "color"
 
         assert page.has_no_console_errors()
 
     def test_input_value(self, bokeh_model_page):
-        colorpicker = ColorPicker(color='red', css_classes=["foo"])
+        colorpicker = ColorPicker(color="red", css_classes=["foo"])
 
         page = bokeh_model_page(colorpicker)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = page.driver.find_element_by_css_selector(".foo input")
 
-        assert el.get_attribute('value') == '#ff0000'
+        assert el.get_attribute("value") == "#ff0000"
 
         assert page.has_no_console_errors()
 
     def test_server_on_change_round_trip(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('.foo input')
+        el = page.driver.find_element_by_css_selector(".foo input")
 
         # new value
-        enter_value_in_color_picker(page.driver, el, '#0000ff')
+        enter_value_in_color_picker(page.driver, el, "#0000ff")
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == ['#ff0000', '#0000ff']
+        assert results["data"]["val"] == ["#ff0000", "#0000ff"]
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()

@@ -1,28 +1,29 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Bokeh imports
 from bokeh.document import Document
 
 # Module under test
-import bokeh.application.handlers.document_lifecycle as bahd # isort:skip
+import bokeh.application.handlers.document_lifecycle as bahd  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class MockSessionContext(object):
     def __init__(self, doc):
@@ -30,17 +31,19 @@ class MockSessionContext(object):
         self.status = None
         self.counter = 0
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_DocumentLifecycleHandler(object):
 
@@ -62,13 +65,13 @@ class Test_DocumentLifecycleHandler(object):
 
         def destroy(session_context):
             assert doc is session_context._document
-            session_context.status = 'Destroyed'
+            session_context.status = "Destroyed"
 
         doc.on_session_destroyed(destroy)
 
         session_context = MockSessionContext(doc)
         await handler.on_session_destroyed(session_context)
-        assert session_context.status == 'Destroyed'
+        assert session_context.status == "Destroyed"
         assert session_context._document.session_destroyed_callbacks == set()
 
     @pytest.mark.asyncio
@@ -88,4 +91,6 @@ class Test_DocumentLifecycleHandler(object):
         handler = bahd.DocumentLifecycleHandler()
         session_context = MockSessionContext(doc)
         await handler.on_session_destroyed(session_context)
-        assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'
+        assert (
+            session_context.counter == 3
+        ), "DocumentLifecycleHandler did not call all callbacks"

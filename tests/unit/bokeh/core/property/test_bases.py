@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import numpy as np
@@ -23,27 +23,27 @@ from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 
 # Module under test
-import bokeh.core.property.bases as bcpb # isort:skip
+import bokeh.core.property.bases as bcpb  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 ALL = (
-    'ContainerProperty',
-    'DeserializationError',
-    'PrimitiveProperty',
-    'Property',
-    'validation_on',
+    "ContainerProperty",
+    "DeserializationError",
+    "PrimitiveProperty",
+    "Property",
+    "validation_on",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class TestProperty(object):
-
-    @patch('bokeh.core.property.bases.Property.validate')
+    @patch("bokeh.core.property.bases.Property.validate")
     def test_is_valid_supresses_validation_detail(self, mock_validate):
         p = bcpb.Property()
         p.is_valid(None)
@@ -65,7 +65,6 @@ class TestProperty(object):
         assert p.serialized == True
         assert p.readonly == True
 
-
     def test_assert_bools(self):
         hp = HasProps()
         p = bcpb.Property()
@@ -75,8 +74,8 @@ class TestProperty(object):
 
         p.asserts(False, "false")
         with pytest.raises(ValueError) as e:
-                p.prepare_value(hp, "foo", 10)
-                assert str(e) == "false"
+            p.prepare_value(hp, "foo", 10)
+            assert str(e) == "false"
 
     def test_assert_functions(self):
         hp = HasProps()
@@ -84,32 +83,37 @@ class TestProperty(object):
 
         p.asserts(lambda obj, value: True, "true")
         p.asserts(lambda obj, value: obj is hp, "true")
-        p.asserts(lambda obj, value: value==10, "true")
+        p.asserts(lambda obj, value: value == 10, "true")
         assert p.prepare_value(hp, "foo", 10) == 10
 
         p.asserts(lambda obj, value: False, "false")
         with pytest.raises(ValueError) as e:
-                p.prepare_value(hp, "foo", 10)
-                assert str(e) == "false"
+            p.prepare_value(hp, "foo", 10)
+            assert str(e) == "false"
 
     def test_assert_msg_funcs(self):
         hp = HasProps()
         p = bcpb.Property()
 
         def raise_(ex):
-                raise ex
+            raise ex
 
-        p.asserts(False, lambda obj, name, value: raise_(ValueError("bad %s %s %s" % (hp==obj, name, value))))
+        p.asserts(
+            False,
+            lambda obj, name, value: raise_(
+                ValueError("bad %s %s %s" % (hp == obj, name, value))
+            ),
+        )
 
         with pytest.raises(ValueError) as e:
-                p.prepare_value(hp, "foo", 10)
-                assert str(e) == "bad True name, 10"
+            p.prepare_value(hp, "foo", 10)
+            assert str(e) == "bad True name, 10"
 
     def test_matches_basic_types(self, capsys):
         p = bcpb.Property()
         for x in [1, 1.2, "a", np.arange(4), None, False, True, {}, []]:
-                assert p.matches(x, x) is True
-                assert p.matches(x, "junk") is False
+            assert p.matches(x, x) is True
+            assert p.matches(x, "junk") is False
         out, err = capsys.readouterr()
         assert err == ""
 
@@ -118,10 +122,10 @@ class TestProperty(object):
         a = np.arange(5)
         b = np.arange(5)
         assert p.matches(a, b) is True
-        assert p.matches(a, b+1) is False
+        assert p.matches(a, b + 1) is False
         for x in [1, 1.2, "a", np.arange(4), None, False]:
-                assert p.matches(a, x) is False
-                assert p.matches(x, b) is False
+            assert p.matches(a, x) is False
+            assert p.matches(x, b) is False
         out, err = capsys.readouterr()
         assert err == ""
 
@@ -178,7 +182,7 @@ class TestProperty(object):
         assert p.matches(d1.foo, (range(10))) is True
 
         assert p.matches(d1.foo, np.arange(11)) is False
-        assert p.matches(d1.foo, np.arange(10)+1) is False
+        assert p.matches(d1.foo, np.arange(10) + 1) is False
         assert p.matches(d1.foo, 10) is False
         out, err = capsys.readouterr()
         assert err == ""
@@ -195,7 +199,7 @@ class TestProperty(object):
         assert p.matches(d1.index, list(range(10))) is True
 
         assert p.matches(d1.index, np.arange(11)) is False
-        assert p.matches(d1.index, np.arange(10)+1) is False
+        assert p.matches(d1.index, np.arange(10) + 1) is False
         assert p.matches(d1.index, 10) is False
         out, err = capsys.readouterr()
         assert err == ""
@@ -210,16 +214,17 @@ class TestProperty(object):
         bcpb.Property._should_validate = True
         assert bcpb.validation_on()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpb, ALL)

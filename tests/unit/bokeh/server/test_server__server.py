@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import asyncio
@@ -40,20 +40,23 @@ from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
 
 # Module under test
-import bokeh.server.server as server # isort:skip
+import bokeh.server.server as server  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 async def async_value(value):
-    await asyncio.sleep(0) # this ensures we actually return to the loop
+    await asyncio.sleep(0)  # this ensures we actually return to the loop
     return value
+
 
 class HookListModel(Model):
     hooks = List(String)
+
 
 class HookTestHandler(Handler):
     def __init__(self):
@@ -80,7 +83,9 @@ class HookTestHandler(Handler):
 
         server_context.add_next_tick_callback(self.on_next_tick_server)
         server_context.add_timeout_callback(self.on_timeout_server, 2)
-        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_server, 3)
+        periodic_cb_id = server_context.add_periodic_callback(
+            self.on_periodic_server, 3
+        )
 
         def remover():
             server_context.remove_periodic_callback(periodic_cb_id)
@@ -97,6 +102,7 @@ class HookTestHandler(Handler):
             # session creation hook is allowed to init the document
             # before any modify_document() handlers kick in
             from bokeh.document import DEFAULT_TITLE
+
             hook_list = HookListModel()
             assert doc.title == DEFAULT_TITLE
             assert len(doc.roots) == 0
@@ -112,7 +118,9 @@ class HookTestHandler(Handler):
         server_context = session_context.server_context
         server_context.add_next_tick_callback(self.on_next_tick_session)
         server_context.add_timeout_callback(self.on_timeout_session, 2)
-        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_session, 3)
+        periodic_cb_id = server_context.add_periodic_callback(
+            self.on_periodic_session, 3
+        )
 
         def remover():
             server_context.remove_periodic_callback(periodic_cb_id)
@@ -129,6 +137,7 @@ class HookTestHandler(Handler):
             self.session_creation_async_value = await async_value(4)
             self.session_creation_async_value = await async_value(5)
             self.session_creation_async_value = await async_value(6)
+
         await session_context.with_locked_document(shutdown_document)
 
         self.hooks.append("session_destroyed")
@@ -153,9 +162,11 @@ class HookTestHandler(Handler):
         self.hooks.append("periodic_session")
         self.session_periodic_remover()
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def test_prefix(ManagedServerLoop):
     application = Application()
@@ -165,6 +176,7 @@ def test_prefix(ManagedServerLoop):
     with ManagedServerLoop(application, prefix="foo") as server:
         assert server.prefix == "foo"
 
+
 def test_index(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -173,19 +185,20 @@ def test_index(ManagedServerLoop):
     with ManagedServerLoop(application, index="foo") as server:
         assert server.index == "foo"
 
+
 @pytest.mark.asyncio
 async def test_get_sessions(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        server_sessions = server.get_sessions('/')
+        server_sessions = server.get_sessions("/")
         assert len(server_sessions) == 0
 
         await http_get(server.io_loop, url(server))
-        server_sessions = server.get_sessions('/')
+        server_sessions = server.get_sessions("/")
         assert len(server_sessions) == 1
 
         await http_get(server.io_loop, url(server))
-        server_sessions = server.get_sessions('/')
+        server_sessions = server.get_sessions("/")
         assert len(server_sessions) == 2
 
         server_sessions = server.get_sessions()
@@ -196,88 +209,106 @@ async def test_get_sessions(ManagedServerLoop):
 
     with ManagedServerLoop({"/foo": application, "/bar": application}) as server:
         await http_get(server.io_loop, url(server) + "foo")
-        server_sessions = server.get_sessions('/foo')
+        server_sessions = server.get_sessions("/foo")
         assert len(server_sessions) == 1
-        server_sessions = server.get_sessions('/bar')
+        server_sessions = server.get_sessions("/bar")
         assert len(server_sessions) == 0
         server_sessions = server.get_sessions()
         assert len(server_sessions) == 1
 
-
         await http_get(server.io_loop, url(server) + "foo")
-        server_sessions = server.get_sessions('/foo')
+        server_sessions = server.get_sessions("/foo")
         assert len(server_sessions) == 2
-        server_sessions = server.get_sessions('/bar')
+        server_sessions = server.get_sessions("/bar")
         assert len(server_sessions) == 0
         server_sessions = server.get_sessions()
         assert len(server_sessions) == 2
 
         await http_get(server.io_loop, url(server) + "bar")
-        server_sessions = server.get_sessions('/foo')
+        server_sessions = server.get_sessions("/foo")
         assert len(server_sessions) == 2
-        server_sessions = server.get_sessions('/bar')
+        server_sessions = server.get_sessions("/bar")
         assert len(server_sessions) == 1
         server_sessions = server.get_sessions()
         assert len(server_sessions) == 3
+
 
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
+
+
 def extract_sessionid_from_json(html):
     if not isinstance(html, str):
         import codecs
-        html = codecs.decode(html, 'utf-8')
+
+        html = codecs.decode(html, "utf-8")
     match = sessionid_in_json.search(html)
     return match.group(1)
+
 
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
+
+
 def extract_use_for_title_from_json(html):
     if not isinstance(html, str):
         import codecs
-        html = codecs.decode(html, 'utf-8')
+
+        html = codecs.decode(html, "utf-8")
     match = use_for_title_in_json.search(html)
     return match.group(1)
 
 
 def autoload_url(server):
-    return url(server) + \
-        "autoload.js?bokeh-autoload-element=foo"
+    return url(server) + "autoload.js?bokeh-autoload-element=foo"
+
 
 def resource_files_requested(response, requested=True):
     if not isinstance(response, str):
         import codecs
-        response = codecs.decode(response, 'utf-8')
-    for file in [
-        'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
+
+        response = codecs.decode(response, "utf-8")
+    for file in ["static/js/bokeh.min.js", "static/js/bokeh-widgets.min.js"]:
         if requested:
             assert file in response
         else:
             assert file not in response
+
 
 def test_use_xheaders(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders == True
 
+
 def test_ssl_args_plumbing(ManagedServerLoop):
-    with mock.patch.object(ssl, 'SSLContext'):
+    with mock.patch.object(ssl, "SSLContext"):
         with ManagedServerLoop({}, ssl_certfile="foo") as server:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
-            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile=None, password=None)
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(
+                certfile="foo", keyfile=None, password=None
+            )
 
-    with mock.patch.object(ssl, 'SSLContext'):
+    with mock.patch.object(ssl, "SSLContext"):
         with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz") as server:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
-            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password=None)
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(
+                certfile="foo", keyfile="baz", password=None
+            )
 
-    with mock.patch.object(ssl, 'SSLContext'):
-        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar") as server:
+    with mock.patch.object(ssl, "SSLContext"):
+        with ManagedServerLoop(
+            {}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar"
+        ) as server:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
-            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(
+                certfile="foo", keyfile="baz", password="bar"
+            )
+
 
 # This test just maintains basic creation and setup, detailed functionality
 # is exercised by Server tests above
@@ -299,6 +330,7 @@ def test_base_server():
     server.stop()
     server.io_loop.close()
 
+
 @pytest.mark.asyncio
 async def test_server_applications_callable_arg(ManagedServerLoop):
     def modify_doc(doc):
@@ -306,47 +338,54 @@ async def test_server_applications_callable_arg(ManagedServerLoop):
 
     with ManagedServerLoop(modify_doc, port=0) as server:
         await http_get(server.io_loop, url(server))
-        session = server.get_sessions('/')[0]
+        session = server.get_sessions("/")[0]
         assert session.document.title == "Hello, world!"
 
     with ManagedServerLoop({"/foo": modify_doc}, port=0) as server:
         await http_get(server.io_loop, url(server) + "foo")
-        session = server.get_sessions('/foo')[0]
+        session = server.get_sessions("/foo")[0]
         assert session.document.title == "Hello, world!"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-@pytest.mark.skipif(sys.platform == "win32",
-                    reason="Lifecycle hooks order different on Windows (TODO open issue)")
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Lifecycle hooks order different on Windows (TODO open issue)",
+)
 def test__lifecycle_hooks(ManagedServerLoop):
     application = Application()
     handler = HookTestHandler()
     application.add(handler)
-    with ManagedServerLoop(application, check_unused_sessions_milliseconds=30) as server:
+    with ManagedServerLoop(
+        application, check_unused_sessions_milliseconds=30
+    ) as server:
         # wait for server callbacks to run before we mix in the
         # session, this keeps the test deterministic
         def check_done():
             if len(handler.hooks) == 4:
                 server.io_loop.stop()
+
         server_load_checker = PeriodicCallback(check_done, 1)
         server_load_checker.start()
         server.io_loop.start()
         server_load_checker.stop()
 
         # now we create a session
-        client_session = pull_session(session_id='test__lifecycle_hooks',
-                                      url=url(server),
-                                      io_loop=server.io_loop)
+        client_session = pull_session(
+            session_id="test__lifecycle_hooks", url=url(server), io_loop=server.io_loop
+        )
         client_doc = client_session.document
         assert len(client_doc.roots) == 1
 
-        server_session = server.get_session('/', client_session.id)
+        server_session = server.get_session("/", client_session.id)
         server_doc = server_session.document
         assert len(server_doc.roots) == 1
 
@@ -367,17 +406,19 @@ def test__lifecycle_hooks(ManagedServerLoop):
 
         server.io_loop.start()
 
-    assert handler.hooks == ["server_loaded",
-                             "next_tick_server",
-                             "timeout_server",
-                             "periodic_server",
-                             "session_created",
-                             "modify",
-                             "next_tick_session",
-                             "timeout_session",
-                             "periodic_session",
-                             "session_destroyed",
-                             "server_unloaded"]
+    assert handler.hooks == [
+        "server_loaded",
+        "next_tick_server",
+        "timeout_server",
+        "periodic_server",
+        "session_created",
+        "modify",
+        "next_tick_session",
+        "timeout_session",
+        "periodic_session",
+        "session_destroyed",
+        "server_unloaded",
+    ]
 
     assert handler.load_count == 1
     assert handler.unload_count == 1
@@ -391,6 +432,7 @@ def test__lifecycle_hooks(ManagedServerLoop):
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify"]
 
+
 @pytest.mark.asyncio
 async def test__request_in_session_context(ManagedServerLoop):
     application = Application()
@@ -399,11 +441,12 @@ async def test__request_in_session_context(ManagedServerLoop):
         html = response.body
         sessionid = extract_sessionid_from_json(html)
 
-        server_session = server.get_session('/', sessionid)
+        server_session = server.get_session("/", sessionid)
         server_doc = server_session.document
         session_context = server_doc.session_context
         # do we have a request
         assert session_context.request is not None
+
 
 @pytest.mark.asyncio
 async def test__request_in_session_context_has_arguments(ManagedServerLoop):
@@ -413,11 +456,12 @@ async def test__request_in_session_context_has_arguments(ManagedServerLoop):
         html = response.body
         sessionid = extract_sessionid_from_json(html)
 
-        server_session = server.get_session('/', sessionid)
+        server_session = server.get_session("/", sessionid)
         server_doc = server_session.document
         session_context = server_doc.session_context
         # test if we can get the argument from the request
-        assert session_context.request.arguments['foo'] == [b'10']
+        assert session_context.request.arguments["foo"] == [b"10"]
+
 
 @pytest.mark.asyncio
 async def test__no_request_arguments_in_session_context(ManagedServerLoop):
@@ -427,19 +471,23 @@ async def test__no_request_arguments_in_session_context(ManagedServerLoop):
         html = response.body
         sessionid = extract_sessionid_from_json(html)
 
-        server_session = server.get_session('/', sessionid)
+        server_session = server.get_session("/", sessionid)
         server_doc = server_session.document
         session_context = server_doc.session_context
         # if we do not pass any arguments to the url, the request arguments
         # should be empty
         assert len(session_context.request.arguments) == 0
 
-@pytest.mark.parametrize("querystring,requested", [
-    ("", True),
-    ("&resources=default", True),
-    ("&resources=whatever", True),
-    ("&resources=none", False),
-])
+
+@pytest.mark.parametrize(
+    "querystring,requested",
+    [
+        ("", True),
+        ("&resources=default", True),
+        ("&resources=whatever", True),
+        ("&resources=none", False),
+    ],
+)
 @pytest.mark.unit
 @pytest.mark.asyncio
 async def test__resource_files_requested(querystring, requested, ManagedServerLoop):
@@ -452,26 +500,28 @@ async def test__resource_files_requested(querystring, requested, ManagedServerLo
         response = await http_get(server.io_loop, autoload_url(server) + querystring)
         resource_files_requested(response.body, requested=requested)
 
+
 @pytest.mark.asyncio
 async def test__autocreate_session_autoload(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         response = await http_get(server.io_loop, autoload_url(server))
         js = response.body
         sessionid = extract_sessionid_from_json(js)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
+
 
 @pytest.mark.asyncio
 async def test__no_set_title_autoload(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         response = await http_get(server.io_loop, autoload_url(server))
@@ -479,205 +529,232 @@ async def test__no_set_title_autoload(ManagedServerLoop):
         use_for_title = extract_use_for_title_from_json(js)
         assert use_for_title == "false"
 
+
 @pytest.mark.asyncio
 async def test__autocreate_session_doc(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         response = await http_get(server.io_loop, url(server))
         html = response.body
         sessionid = extract_sessionid_from_json(html)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
+
 
 @pytest.mark.asyncio
 async def test__no_autocreate_session_websocket(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         await websocket_open(server.io_loop, ws_url(server))
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
+
 
 @pytest.mark.asyncio
 async def test__use_provided_session_autoload(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-        expected = 'foo'
-        response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
+        expected = "foo"
+        response = await http_get(
+            server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected
+        )
         js = response.body
         sessionid = extract_sessionid_from_json(js)
         assert expected == sessionid
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert expected == sessions[0].id
+
 
 @pytest.mark.asyncio
 async def test__use_provided_session_doc(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-        expected = 'foo'
-        response = await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
+        expected = "foo"
+        response = await http_get(
+            server.io_loop, url(server) + "?bokeh-session-id=" + expected
+        )
         html = response.body
         sessionid = extract_sessionid_from_json(html)
         assert expected == sessionid
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert expected == sessions[0].id
+
 
 @pytest.mark.asyncio
 async def test__use_provided_session_websocket(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-        expected = 'foo'
+        expected = "foo"
         url = ws_url(server) + "?bokeh-session-id=" + expected
         await websocket_open(server.io_loop, url)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert expected == sessions[0].id
+
 
 @pytest.mark.asyncio
 async def test__autocreate_signed_session_autoload(ManagedServerLoop):
     application = Application()
-    with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
-        sessions = server.get_sessions('/')
+    with ManagedServerLoop(application, sign_sessions=True, secret_key="foo") as server:
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         response = await http_get(server.io_loop, autoload_url(server))
         js = response.body
         sessionid = extract_sessionid_from_json(js)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-        assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
+        assert check_session_id_signature(sessionid, signed=True, secret_key="foo")
+
 
 @pytest.mark.asyncio
 async def test__autocreate_signed_session_doc(ManagedServerLoop):
     application = Application()
-    with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
-        sessions = server.get_sessions('/')
+    with ManagedServerLoop(application, sign_sessions=True, secret_key="foo") as server:
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         response = await http_get(server.io_loop, url(server))
         html = response.body
         sessionid = extract_sessionid_from_json(html)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-        assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
+        assert check_session_id_signature(sessionid, signed=True, secret_key="foo")
+
 
 @pytest.mark.asyncio
 async def test__reject_unsigned_session_autoload(ManagedServerLoop):
     application = Application()
-    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
-        sessions = server.get_sessions('/')
+    with ManagedServerLoop(application, sign_sessions=True, secret_key="bar") as server:
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-        expected = 'foo'
+        expected = "foo"
         with (pytest.raises(HTTPError)) as info:
-            await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
-        assert 'Invalid session ID' in repr(info.value)
+            await http_get(
+                server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected
+            )
+        assert "Invalid session ID" in repr(info.value)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
+
 
 @pytest.mark.asyncio
 async def test__reject_unsigned_session_doc(ManagedServerLoop):
     application = Application()
-    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
-        sessions = server.get_sessions('/')
+    with ManagedServerLoop(application, sign_sessions=True, secret_key="bar") as server:
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-        expected = 'foo'
+        expected = "foo"
         with (pytest.raises(HTTPError)) as info:
-            await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
-        assert 'Invalid session ID' in repr(info.value)
+            await http_get(
+                server.io_loop, url(server) + "?bokeh-session-id=" + expected
+            )
+        assert "Invalid session ID" in repr(info.value)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
+
 
 @pytest.mark.asyncio
 async def test__reject_unsigned_session_websocket(ManagedServerLoop):
     application = Application()
-    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
-        sessions = server.get_sessions('/')
+    with ManagedServerLoop(application, sign_sessions=True, secret_key="bar") as server:
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-        expected = 'foo'
+        expected = "foo"
         url = ws_url(server) + "?bokeh-session-id=" + expected
         await websocket_open(server.io_loop, url)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
+
+
 @pytest.mark.asyncio
 async def test__no_generate_session_autoload(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         with (pytest.raises(HTTPError)) as info:
             await http_get(server.io_loop, autoload_url(server))
-        assert 'No bokeh-session-id provided' in repr(info.value)
+        assert "No bokeh-session-id provided" in repr(info.value)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
+
 
 @pytest.mark.asyncio
 async def test__no_generate_session_doc(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
         with (pytest.raises(HTTPError)) as info:
             await http_get(server.io_loop, url(server))
-        assert 'No bokeh-session-id provided' in repr(info.value)
+        assert "No bokeh-session-id provided" in repr(info.value)
 
-        sessions = server.get_sessions('/')
+        sessions = server.get_sessions("/")
         assert 0 == len(sessions)
 
-@pytest.mark.skipif(sys.platform == "win32",
-                    reason="multiple processes not supported on Windows")
+
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="multiple processes not supported on Windows"
+)
 def test__server_multiple_processes():
 
     # Can't use an ioloop in this test
-    with mock.patch('tornado.httpserver.HTTPServer.add_sockets'):
-        with mock.patch('tornado.process.fork_processes') as tornado_fp:
+    with mock.patch("tornado.httpserver.HTTPServer.add_sockets"):
+        with mock.patch("tornado.process.fork_processes") as tornado_fp:
             application = Application()
             server.Server(application, num_procs=3, port=0)
 
         tornado_fp.assert_called_with(3, mock.ANY)
 
-def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop):
+
+def test__existing_ioloop_with_multiple_processes_exception(
+    ManagedServerLoop, event_loop
+):
     application = Application()
     loop = IOLoop.current()
     with pytest.raises(RuntimeError):
         with ManagedServerLoop(application, io_loop=loop, num_procs=3):
             pass
+
 
 @pytest.mark.asyncio
 async def test__actual_port_number(ManagedServerLoop):
@@ -686,6 +763,7 @@ async def test__actual_port_number(ManagedServerLoop):
         port = server.port
         assert port > 0
         await http_get(server.io_loop, url(server))
+
 
 def test__ioloop_not_forcibly_stopped():
     # Issue #5494
@@ -711,6 +789,7 @@ def test__ioloop_not_forcibly_stopped():
     loop.start()
     assert result == [None]
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,18 +1,18 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import numpy as np
@@ -22,26 +22,20 @@ from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.primitive as bcpp # isort:skip
+import bokeh.core.property.primitive as bcpp  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-ALL = (
-    'Bool',
-    'Complex',
-    'Int',
-    'Float',
-    'String',
-)
+ALL = ("Bool", "Complex", "Int", "Float", "String")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class Test_Bool(object):
-
     def test_valid(self):
         prop = bcpp.Bool()
 
@@ -60,7 +54,7 @@ class Test_Bool(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -90,10 +84,10 @@ class Test_Bool(object):
         assert not prop.is_valid(np.float32(1))
         assert not prop.is_valid(np.float64(0))
         assert not prop.is_valid(np.float64(1))
-        assert not prop.is_valid(np.complex64(1.0+1.0j))
-        assert not prop.is_valid(np.complex128(1.0+1.0j))
+        assert not prop.is_valid(np.complex64(1.0 + 1.0j))
+        assert not prop.is_valid(np.complex128(1.0 + 1.0j))
         if hasattr(np, "complex256"):
-            assert not prop.is_valid(np.complex256(1.0+1.0j))
+            assert not prop.is_valid(np.complex256(1.0 + 1.0j))
 
     def test_has_ref(self):
         prop = bcpp.Bool()
@@ -103,8 +97,8 @@ class Test_Bool(object):
         prop = bcpp.Bool()
         assert str(prop) == "Bool"
 
-class Test_Complex(object):
 
+class Test_Complex(object):
     def test_valid(self):
         prop = bcpp.Complex()
 
@@ -114,7 +108,7 @@ class Test_Complex(object):
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
         assert prop.is_valid(1.0)
-        assert prop.is_valid(1.0+1.0j)
+        assert prop.is_valid(1.0 + 1.0j)
 
         assert prop.is_valid(np.int8(0))
         assert prop.is_valid(np.int8(1))
@@ -138,10 +132,10 @@ class Test_Complex(object):
         assert prop.is_valid(np.float32(1))
         assert prop.is_valid(np.float64(0))
         assert prop.is_valid(np.float64(1))
-        assert prop.is_valid(np.complex64(1.0+1.0j))
-        assert prop.is_valid(np.complex128(1.0+1.0j))
+        assert prop.is_valid(np.complex64(1.0 + 1.0j))
+        assert prop.is_valid(np.complex128(1.0 + 1.0j))
         if hasattr(np, "complex256"):
-            assert prop.is_valid(np.complex256(1.0+1.0j))
+            assert prop.is_valid(np.complex256(1.0 + 1.0j))
 
         # TODO (bev) should fail
         assert prop.is_valid(False)
@@ -168,8 +162,8 @@ class Test_Complex(object):
         prop = bcpp.Complex()
         assert str(prop) == "Complex"
 
-class Test_Float(object):
 
+class Test_Float(object):
     def test_valid(self):
         prop = bcpp.Float()
 
@@ -210,7 +204,7 @@ class Test_Float(object):
     def test_invalid(self):
         prop = bcpp.Float()
 
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -220,10 +214,10 @@ class Test_Float(object):
 
         assert not prop.is_valid(np.bool8(False))
         assert not prop.is_valid(np.bool8(True))
-        assert not prop.is_valid(np.complex64(1.0+1.0j))
-        assert not prop.is_valid(np.complex128(1.0+1.0j))
+        assert not prop.is_valid(np.complex64(1.0 + 1.0j))
+        assert not prop.is_valid(np.complex128(1.0 + 1.0j))
         if hasattr(np, "complex256"):
-            assert not prop.is_valid(np.complex256(1.0+1.0j))
+            assert not prop.is_valid(np.complex256(1.0 + 1.0j))
 
     def test_has_ref(self):
         prop = bcpp.Float()
@@ -233,8 +227,8 @@ class Test_Float(object):
         prop = bcpp.Float()
         assert str(prop) == "Float"
 
-class Test_Int(object):
 
+class Test_Int(object):
     def test_valid(self):
         prop = bcpp.Int()
 
@@ -269,7 +263,7 @@ class Test_Int(object):
 
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -285,10 +279,10 @@ class Test_Int(object):
         assert not prop.is_valid(np.float32(1))
         assert not prop.is_valid(np.float64(0))
         assert not prop.is_valid(np.float64(1))
-        assert not prop.is_valid(np.complex64(1.0+1.0j))
-        assert not prop.is_valid(np.complex128(1.0+1.0j))
+        assert not prop.is_valid(np.complex64(1.0 + 1.0j))
+        assert not prop.is_valid(np.complex128(1.0 + 1.0j))
         if hasattr(np, "complex256"):
-            assert not prop.is_valid(np.complex256(1.0+1.0j))
+            assert not prop.is_valid(np.complex256(1.0 + 1.0j))
 
     def test_has_ref(self):
         prop = bcpp.Int()
@@ -298,8 +292,8 @@ class Test_Int(object):
         prop = bcpp.Int()
         assert str(prop) == "Int"
 
-class Test_String(object):
 
+class Test_String(object):
     def test_valid(self):
         prop = bcpp.String()
 
@@ -317,7 +311,7 @@ class Test_String(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
 
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -333,16 +327,17 @@ class Test_String(object):
         prop = bcpp.String()
         assert str(prop) == "String"
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpp, ALL)
