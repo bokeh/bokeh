@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import Button, CustomJS
 from bokeh.plotting import show

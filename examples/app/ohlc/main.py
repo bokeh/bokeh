@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.driving import count
 from bokeh.layouts import column, gridplot, row
 from bokeh.models import ColumnDataSource, Select, Slider

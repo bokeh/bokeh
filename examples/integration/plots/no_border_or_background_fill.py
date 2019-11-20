@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import save
 from bokeh.models import Circle, LinearAxis, Plot, Range1d
 

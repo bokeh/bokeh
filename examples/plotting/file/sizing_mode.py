@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.enums import SizingMode
 from bokeh.layouts import column
 from bokeh.models import Select

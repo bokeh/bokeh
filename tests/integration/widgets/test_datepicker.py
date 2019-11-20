@@ -21,7 +21,15 @@ from datetime import datetime
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, DatePicker, Plot, Range1d
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    DatePicker,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

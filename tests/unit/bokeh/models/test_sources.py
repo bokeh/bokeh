@@ -24,7 +24,10 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.models import Selection
-from bokeh.util.serialization import convert_datetime_array, transform_column_source_data
+from bokeh.util.serialization import (
+    convert_datetime_array,
+    transform_column_source_data,
+)
 
 # Module under test
 import bokeh.models.sources as bms # isort:skip

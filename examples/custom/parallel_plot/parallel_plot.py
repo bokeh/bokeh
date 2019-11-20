@@ -1,10 +1,9 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.layouts import column
-from bokeh.models import (BasicTickFormatter, ColumnDataSource, Div, FixedTicker,
-                          FuncTickFormatter, LinearAxis, LinearColorMapper, MultiLine, Range1d)
+from bokeh.models import (BasicTickFormatter, ColumnDataSource, Div,
+                          FixedTicker, FuncTickFormatter, LinearAxis,
+                          LinearColorMapper, MultiLine, Range1d,)
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg_clean as df
 from parallel_reset import ParallelResetTool

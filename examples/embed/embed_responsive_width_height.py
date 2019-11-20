@@ -8,10 +8,8 @@ body element in this case. A more realistic example might be embedding
 a plot in a Phosphor widget.
 
 """
-# Standard library imports
 import random
 
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
 

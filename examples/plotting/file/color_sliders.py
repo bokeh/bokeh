@@ -1,10 +1,7 @@
-# Standard library imports
 import colorsys
 
-# External imports
 import yaml
 
-# Bokeh imports
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import curdoc, figure, output_file, show

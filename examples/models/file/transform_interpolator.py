@@ -1,5 +1,5 @@
-# Bokeh imports
-from bokeh.models import Column, ColumnDataSource, CustomJS, LinearInterpolator, Select, StepInterpolator
+from bokeh.models import (Column, ColumnDataSource, CustomJS,
+                          LinearInterpolator, Select, StepInterpolator,)
 from bokeh.plotting import figure, output_file, show
 
 N = 600

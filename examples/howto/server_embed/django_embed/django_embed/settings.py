@@ -10,11 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-# Standard library imports
 from os.path import abspath, dirname, join
 from pathlib import Path
 
-# Bokeh imports
 from bokeh.settings import bokehjsdir
 
 # Build paths inside the project like this: join(BASE_DIR, ...)

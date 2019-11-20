@@ -1,12 +1,11 @@
-# External imports
 import numpy as np
 import sympy as sy
 
-# Bokeh imports
 from bokeh.core.properties import value
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, Legend, LegendItem, PreText, Slider, TextInput
+from bokeh.models import (ColumnDataSource, Legend, LegendItem,
+                          PreText, Slider, TextInput,)
 from bokeh.plotting import figure
 
 xs = sy.Symbol('x')

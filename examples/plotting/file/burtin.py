@@ -1,13 +1,10 @@
-# Standard library imports
 from collections import OrderedDict
 from io import StringIO
 from math import log, sqrt
 
-# External imports
 import numpy as np
 import pandas as pd
 
-# Bokeh imports
 from bokeh.plotting import figure, output_file, show
 
 antibiotics = """

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.properties import Bool, Enum, Float
 from bokeh.models import AbstractIcon
 from named_icon import NamedIcon

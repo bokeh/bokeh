@@ -1,10 +1,7 @@
-# Standard library imports
 import itertools
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.plotting import figure, output_file, show
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,save"

@@ -13,21 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# Standard library imports
 from pathlib import Path
 
-# External imports
 from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
-# Bokeh imports
 import bokeh
 from bokeh.server.django import autoload, directory, document
 
-# Bokeh imports
 from . import views
 
 bokeh_app_config = apps.get_app_config('bokeh.server.django')

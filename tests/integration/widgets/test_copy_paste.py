@@ -23,7 +23,7 @@ from bokeh._testing.util.selenium import (
     copy_table_rows,
     enter_text_in_cell_with_click_enter,
     get_page_element,
-    paste_values
+    paste_values,
 )
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, DataTable, Div, TableColumn

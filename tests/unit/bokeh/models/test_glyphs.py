@@ -27,7 +27,7 @@ from _util_models import (
     check_line_properties,
     check_marker_properties,
     check_properties_existence,
-    check_text_properties
+    check_text_properties,
 )
 from bokeh.core.enums import (
     Anchor,
@@ -42,7 +42,7 @@ from bokeh.core.enums import (
     LineDash,
     LineJoin,
     Location,
-    MapType
+    MapType,
 )
 from bokeh.core.enums import NamedColor as Color
 from bokeh.core.enums import TextAlign, TextBaseline
@@ -59,7 +59,7 @@ from bokeh.models.glyphs import (
     SquareCross,
     SquareX,
     Triangle,
-    X
+    X,
 )
 
 # Module under test

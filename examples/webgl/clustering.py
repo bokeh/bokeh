@@ -3,12 +3,10 @@
 http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html
 
 '''
-# External imports
 import numpy as np
 from sklearn import cluster, datasets
 from sklearn.preprocessing import StandardScaler
 
-# Bokeh imports
 from bokeh.layouts import column, row
 from bokeh.plotting import figure, output_file, show
 

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.properties import Any, Dict, Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM
 

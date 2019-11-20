@@ -1,7 +1,5 @@
-# External imports
 from numpy.random import random
 
-# Bokeh imports
 from bokeh.plotting import figure, output_file, show
 
 

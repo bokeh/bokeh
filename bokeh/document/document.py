@@ -58,10 +58,14 @@ from .events import (
     RootRemovedEvent,
     SessionCallbackAdded,
     SessionCallbackRemoved,
-    TitleChangedEvent
+    TitleChangedEvent,
 )
 from .locking import UnlockedDocumentProxy
-from .util import initialize_references_json, instantiate_references_json, references_json
+from .util import (
+    initialize_references_json,
+    instantiate_references_json,
+    references_json,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

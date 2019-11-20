@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.core.enums import SizingMode
 from bokeh.io import show
 from bokeh.layouts import column, grid

@@ -1,10 +1,7 @@
-# Standard library imports
 import io
 
-# External imports
 from jinja2 import Template
 
-# Bokeh imports
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE

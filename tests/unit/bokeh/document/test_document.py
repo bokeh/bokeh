@@ -27,7 +27,7 @@ from _util_document import (
     AnotherModelInTestDocument,
     ModelThatOverridesName,
     ModelWithSpecInTestDocument,
-    SomeModelInTestDocument
+    SomeModelInTestDocument,
 )
 from bokeh.document.events import (
     ColumnsPatchedEvent,
@@ -37,7 +37,7 @@ from bokeh.document.events import (
     RootRemovedEvent,
     SessionCallbackAdded,
     SessionCallbackRemoved,
-    TitleChangedEvent
+    TitleChangedEvent,
 )
 from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource

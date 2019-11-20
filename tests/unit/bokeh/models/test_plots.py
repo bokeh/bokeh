@@ -32,7 +32,7 @@ from bokeh.models import (
     LogScale,
     PanTool,
     Plot,
-    Range1d
+    Range1d,
 )
 from bokeh.plotting import figure
 

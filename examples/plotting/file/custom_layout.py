@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.util.browser import view

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.models import GMapOptions, Label
 from bokeh.plotting import gmap

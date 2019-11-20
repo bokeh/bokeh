@@ -1,15 +1,13 @@
-# Standard library imports
 from collections import Counter
 from math import pi
 
-# External imports
 import numpy as np
 import pandas as pd
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, DataTable, NumberFormatter, RangeTool, StringFormatter, TableColumn
+from bokeh.models import (ColumnDataSource, DataTable, NumberFormatter,
+                          RangeTool, StringFormatter, TableColumn,)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg

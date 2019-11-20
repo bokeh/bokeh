@@ -50,7 +50,15 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import enumeration
 from ..core.has_props import abstract
-from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, MarkerSpec, NumberSpec, ScreenDistanceSpec
+from ..core.properties import (
+    AngleSpec,
+    DistanceSpec,
+    Enum,
+    Include,
+    MarkerSpec,
+    NumberSpec,
+    ScreenDistanceSpec,
+)
 from ..core.property_mixins import FillProps, LineProps
 from .glyphs import XYGlyph
 

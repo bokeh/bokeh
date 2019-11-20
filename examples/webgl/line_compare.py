@@ -1,10 +1,8 @@
 """ Compare WebGL, SVG with canvas line.
 
 """
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.layouts import column, row
 from bokeh.models import CustomJS, Dropdown, Slider
 from bokeh.plotting import figure, output_file, show

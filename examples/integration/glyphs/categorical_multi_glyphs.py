@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import show
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure

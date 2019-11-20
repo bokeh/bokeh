@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.layouts import layout
 from bokeh.plotting import figure, output_file, show
 

@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.events import ButtonClick
 from bokeh.io import curdoc
 from bokeh.layouts import column, row

@@ -1,8 +1,6 @@
-# External imports
 import numpy as np
 import scipy.special
 
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure, output_file, show
 

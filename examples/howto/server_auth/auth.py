@@ -1,4 +1,3 @@
-# External imports
 import tornado
 from tornado.web import RequestHandler
 

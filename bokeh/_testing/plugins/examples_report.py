@@ -22,7 +22,16 @@ log = logging.getLogger(__name__)
 import io
 import os
 import re
-from os.path import abspath, dirname, exists, expanduser, expandvars, join, normpath, pardir
+from os.path import (
+    abspath,
+    dirname,
+    exists,
+    expanduser,
+    expandvars,
+    join,
+    normpath,
+    pardir,
+)
 
 # External imports
 import jinja2

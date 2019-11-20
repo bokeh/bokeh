@@ -34,7 +34,7 @@ from bokeh.models import (
     ResetTool,
     SaveTool,
     Tool,
-    WheelZoomTool
+    WheelZoomTool,
 )
 
 # Module under test

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.properties import AngleSpec, Include, NumberSpec
 from bokeh.core.property_mixins import FillProps, LineProps
 from bokeh.models import Glyph

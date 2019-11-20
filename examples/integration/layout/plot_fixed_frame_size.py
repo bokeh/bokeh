@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.plotting import figure, save
 
 template = """

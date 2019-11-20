@@ -29,7 +29,15 @@ import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import ClientSession, pull_session, push_session
-from bokeh.core.properties import AngleSpec, Any, Dict, DistanceSpec, Instance, Int, String
+from bokeh.core.properties import (
+    AngleSpec,
+    Any,
+    Dict,
+    DistanceSpec,
+    Instance,
+    Int,
+    String,
+)
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model

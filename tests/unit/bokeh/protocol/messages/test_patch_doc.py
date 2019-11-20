@@ -29,7 +29,7 @@ from bokeh.document.events import (
     ColumnsStreamedEvent,
     ModelChangedEvent,
     RootAddedEvent,
-    RootRemovedEvent
+    RootRemovedEvent,
 )
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource

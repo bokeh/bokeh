@@ -20,7 +20,17 @@ import numpy as np
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
-from bokeh.core.properties import Dict, Enum, Float, Instance, Int, List, NumberSpec, Override, String
+from bokeh.core.properties import (
+    Dict,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    List,
+    NumberSpec,
+    Override,
+    String,
+)
 from bokeh.models import Plot
 
 # Module under test

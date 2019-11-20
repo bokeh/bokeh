@@ -41,7 +41,7 @@ from bokeh.core.properties import (
     Seq,
     Size,
     String,
-    Tuple
+    Tuple,
 )
 from bokeh.models import ColumnDataSource
 

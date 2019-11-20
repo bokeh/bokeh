@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import show
 from bokeh.models import TickFormatter
 from bokeh.plotting import figure

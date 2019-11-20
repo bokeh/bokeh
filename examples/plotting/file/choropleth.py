@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.palettes import Viridis6
 from bokeh.plotting import figure, show
 from bokeh.sampledata.unemployment import data as unemployment

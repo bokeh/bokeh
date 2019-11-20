@@ -1,10 +1,9 @@
-# Standard library imports
 from datetime import date
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import Column, CustomJS, DateRangeSlider, DateSlider, Div, RangeSlider, Row, Slider
+from bokeh.models import (Column, CustomJS, DateRangeSlider,
+                          DateSlider, Div, RangeSlider, Row, Slider,)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

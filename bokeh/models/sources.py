@@ -33,7 +33,7 @@ from ..core.properties import (
     PandasDataFrame,
     PandasGroupBy,
     Seq,
-    String
+    String,
 )
 from ..model import Model
 from ..util.dependencies import import_optional

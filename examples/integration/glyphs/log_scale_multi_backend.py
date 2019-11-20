@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import save
 from bokeh.layouts import row
 from bokeh.plotting import figure

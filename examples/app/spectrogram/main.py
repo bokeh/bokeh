@@ -1,11 +1,8 @@
-# Standard library imports
 from math import ceil
 from os.path import dirname, join
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 import audio
 from audio import MAX_FREQ, NUM_BINS, TIMESLICE
 from bokeh.io import curdoc

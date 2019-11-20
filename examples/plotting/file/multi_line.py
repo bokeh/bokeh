@@ -1,11 +1,8 @@
-# Standard library imports
 from collections import defaultdict
 
-# External imports
 import numpy as np
 from scipy.stats import norm
 
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.models import HoverTool, TapTool
 from bokeh.palettes import Viridis6

@@ -70,7 +70,7 @@ from ..core.properties import (
     NumberSpec,
     Override,
     String,
-    StringSpec
+    StringSpec,
 )
 from ..core.property_mixins import (
     FillProps,
@@ -79,7 +79,7 @@ from ..core.property_mixins import (
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
-    TextProps
+    TextProps,
 )
 from ..model import Model
 from .mappers import ColorMapper, LinearColorMapper

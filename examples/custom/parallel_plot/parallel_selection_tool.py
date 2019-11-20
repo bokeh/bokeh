@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.properties import Float, Instance
 from bokeh.models import BoxSelectTool, Renderer
 

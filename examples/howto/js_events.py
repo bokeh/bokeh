@@ -2,10 +2,8 @@
 of the color_scatter example from the bokeh gallery
 """
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh import events
 from bokeh.io import output_file, show
 from bokeh.layouts import column, row

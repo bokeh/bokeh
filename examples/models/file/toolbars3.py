@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.layouts import column, row
 from bokeh.models import ToolbarBox
 from bokeh.plotting import figure, output_file, show

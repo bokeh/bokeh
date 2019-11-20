@@ -1,7 +1,5 @@
-# Standard library imports
 from math import pi
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJSTransform, FuncTickFormatter, Select

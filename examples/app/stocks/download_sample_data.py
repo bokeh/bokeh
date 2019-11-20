@@ -1,4 +1,3 @@
-# Standard library imports
 import os
 import zipfile
 from urllib.request import urlretrieve

@@ -1,11 +1,9 @@
-# External imports
 import pandas as pd
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import layout
 from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
-                          HoverTool, Label, SingleIntervalTicker, Slider)
+                          HoverTool, Label, SingleIntervalTicker, Slider,)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 from data import process_data

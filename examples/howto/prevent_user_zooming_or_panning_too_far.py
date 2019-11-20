@@ -1,10 +1,7 @@
-# Standard library imports
 from datetime import date, timedelta
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.layouts import column, row
 from bokeh.models import LinearAxis, Range1d

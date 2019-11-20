@@ -34,7 +34,13 @@ from tornado.websocket import WebSocketError, websocket_connect
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
-from .states import CONNECTED_AFTER_ACK, CONNECTED_BEFORE_ACK, DISCONNECTED, NOT_YET_CONNECTED, WAITING_FOR_REPLY
+from .states import (
+    CONNECTED_AFTER_ACK,
+    CONNECTED_BEFORE_ACK,
+    DISCONNECTED,
+    NOT_YET_CONNECTED,
+    WAITING_FOR_REPLY,
+)
 from .websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.properties import Instance
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, Tool

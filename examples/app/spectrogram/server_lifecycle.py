@@ -1,7 +1,5 @@
-# Standard library imports
 from threading import Thread
 
-# Bokeh imports
 import audio
 
 

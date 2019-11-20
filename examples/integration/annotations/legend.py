@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.properties import field
 from bokeh.io import save
 from bokeh.models import Circle, ColumnDataSource, Legend, LegendItem, Plot, Range1d

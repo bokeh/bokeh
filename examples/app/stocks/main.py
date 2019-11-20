@@ -18,14 +18,11 @@ at your command prompt. Then navigate to the URL
 .. _README: https://github.com/bokeh/bokeh/blob/master/examples/app/stocks/README.md
 
 '''
-# Standard library imports
 from functools import lru_cache
 from os.path import dirname, join
 
-# External imports
 import pandas as pd
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, PreText, Select

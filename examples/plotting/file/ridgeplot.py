@@ -1,9 +1,7 @@
-# External imports
 import colorcet as cc
 from numpy import linspace
 from scipy.stats.kde import gaussian_kde
 
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter
 from bokeh.plotting import figure

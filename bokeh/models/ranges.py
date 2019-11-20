@@ -38,7 +38,7 @@ from ..core.properties import (
     Seq,
     String,
     TimeDelta,
-    Tuple
+    Tuple,
 )
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS

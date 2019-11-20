@@ -1,10 +1,7 @@
-# Standard library imports
 from math import pi
 
-# External imports
 import pandas as pd
 
-# Bokeh imports
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.stocks import MSFT
 

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import save
 from bokeh.models import Arrow, NormalHead, OpenHead, TeeHead, VeeHead
 from bokeh.plotting import figure

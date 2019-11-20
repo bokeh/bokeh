@@ -1,9 +1,7 @@
-# External imports
 import numpy as np
 import scipy.misc
 from numba import njit
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider

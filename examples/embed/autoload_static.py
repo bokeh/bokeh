@@ -1,9 +1,7 @@
-# External imports
 from jinja2 import Template
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
-# Bokeh imports
 from bokeh.embed import autoload_static
 from bokeh.plotting import figure
 from bokeh.resources import CDN

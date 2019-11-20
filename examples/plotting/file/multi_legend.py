@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.models import Legend, LegendItem
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.stocks import AAPL, MSFT

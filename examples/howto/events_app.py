@@ -4,10 +4,8 @@ from the bokeh gallery. This example extends the js_events.py example
 with corresponding Python event callbacks.
 """
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh import events
 from bokeh.io import curdoc
 from bokeh.layouts import column, row

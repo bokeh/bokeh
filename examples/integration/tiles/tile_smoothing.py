@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.layouts import column
 from bokeh.plotting import figure, output_file, show
 from bokeh.tile_providers import CARTODBPOSITRON, get_provider

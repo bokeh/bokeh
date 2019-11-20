@@ -1,13 +1,11 @@
-# Standard library imports
 import time
 
-# External imports
 from numpy import exp, linspace, pi, sin
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import Circle, ColumnDataSource, DatetimeAxis, PanTool, Plot, WheelZoomTool
+from bokeh.models import (Circle, ColumnDataSource, DatetimeAxis,
+                          PanTool, Plot, WheelZoomTool,)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

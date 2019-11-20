@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.models import LinearAxis, Range1d
 from bokeh.plotting import figure, save

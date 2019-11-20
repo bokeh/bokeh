@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Div, Slider

@@ -1,10 +1,8 @@
 """ The LaTeX example was derived from: http://matplotlib.org/users/usetex.html. """
 
-# External imports
 import numpy as np
 from scipy.special import jv
 
-# Bokeh imports
 from bokeh.ext import build
 from bokeh.palettes import Spectral4
 from bokeh.plotting import figure, output_file, show

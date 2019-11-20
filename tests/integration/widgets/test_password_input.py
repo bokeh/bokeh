@@ -21,7 +21,15 @@ from flaky import flaky
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, enter_text_in_element
 from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, PasswordInput, Plot, Range1d
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    PasswordInput,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

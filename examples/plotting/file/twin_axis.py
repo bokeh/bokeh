@@ -1,7 +1,5 @@
-# External imports
 from numpy import arange, linspace, pi, sin
 
-# Bokeh imports
 from bokeh.models import LinearAxis, Range1d
 from bokeh.plotting import figure, output_file, show
 

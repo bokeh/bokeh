@@ -1,7 +1,5 @@
-# External imports
 import pandas as pd
 
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
 from bokeh.sampledata.stocks import MSFT

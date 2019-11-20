@@ -36,7 +36,7 @@ from ..core.properties import (
     Seq,
     String,
     Struct,
-    Tuple
+    Tuple,
 )
 from ..core.validation import error, warning
 from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH
@@ -45,7 +45,7 @@ from ..core.validation.warnings import (
     EMPTY_LAYOUT,
     FIXED_HEIGHT_POLICY,
     FIXED_SIZING_MODE,
-    FIXED_WIDTH_POLICY
+    FIXED_WIDTH_POLICY,
 )
 from ..model import Model
 from .callbacks import Callback

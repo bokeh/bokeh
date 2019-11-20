@@ -19,7 +19,15 @@ import pytest ; pytest
 from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
 from bokeh.layouts import column
-from bokeh.models import Button, Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d
+from bokeh.models import (
+    Button,
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

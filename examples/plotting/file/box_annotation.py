@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.models import BoxAnnotation
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.glucose import data

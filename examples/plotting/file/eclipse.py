@@ -1,10 +1,8 @@
 # Based on https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
 
-# External imports
 import pandas as pd
 import shapefile as shp
 
-# Bokeh imports
 from bokeh.models import ColorBar, ColumnDataSource, Label, LinearColorMapper
 from bokeh.palettes import YlOrRd5
 from bokeh.plotting import figure, show

@@ -40,7 +40,7 @@ from bokeh.models import (
     LogScale,
     Marker,
     MercatorAxis,
-    Range1d
+    Range1d,
 )
 from bokeh.plotting import Figure
 

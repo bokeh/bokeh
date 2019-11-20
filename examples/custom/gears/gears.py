@@ -1,10 +1,9 @@
-# Standard library imports
 from math import pi
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import BoxZoomTool, PanTool, Plot, Range1d, RedoTool, ResetTool, UndoTool, WheelZoomTool
+from bokeh.models import (BoxZoomTool, PanTool, Plot, Range1d,
+                          RedoTool, ResetTool, UndoTool, WheelZoomTool,)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from gear import Gear

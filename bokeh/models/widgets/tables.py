@@ -19,9 +19,26 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import DateFormat, FontStyle, NumeralLanguage, RoundingFunction, TextAlign
+from ...core.enums import (
+    DateFormat,
+    FontStyle,
+    NumeralLanguage,
+    RoundingFunction,
+    TextAlign,
+)
 from ...core.has_props import abstract
-from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
+from ...core.properties import (
+    Bool,
+    Color,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    List,
+    Override,
+    String,
+)
 from ...model import Model
 from ..sources import CDSView, DataSource
 from .widget import Widget

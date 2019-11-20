@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import save
 from bokeh.layouts import row
 from bokeh.plotting import figure

@@ -1,8 +1,6 @@
-# External imports
 import numpy as np
 import pandas as pd
 
-# Bokeh imports
 from bokeh.plotting import figure, output_file, show
 
 # generate some synthetic time series for six different categories

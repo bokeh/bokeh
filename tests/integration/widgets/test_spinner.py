@@ -18,7 +18,15 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, ActionChains, Keys
 from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Spinner
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+    Spinner,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

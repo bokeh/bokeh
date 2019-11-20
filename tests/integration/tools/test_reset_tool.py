@@ -29,7 +29,7 @@ from bokeh.models import (
     Range1d,
     Rect,
     ResetTool,
-    ZoomInTool
+    ZoomInTool,
 )
 
 #-----------------------------------------------------------------------------

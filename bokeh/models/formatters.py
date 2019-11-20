@@ -22,7 +22,18 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..core.properties import (
+    AnyRef,
+    Auto,
+    Bool,
+    Dict,
+    Either,
+    Enum,
+    Instance,
+    Int,
+    List,
+    String,
+)
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model

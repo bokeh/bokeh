@@ -59,7 +59,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .enums import FontStyle, HatchPattern, HatchPatternAbbreviation, LineCap, LineJoin, TextAlign, TextBaseline
+from .enums import (
+    FontStyle,
+    HatchPattern,
+    HatchPatternAbbreviation,
+    LineCap,
+    LineJoin,
+    TextAlign,
+    TextBaseline,
+)
 from .has_props import HasProps
 from .properties import (
     Color,
@@ -78,7 +86,7 @@ from .properties import (
     Percent,
     Size,
     String,
-    value
+    value,
 )
 
 #-----------------------------------------------------------------------------

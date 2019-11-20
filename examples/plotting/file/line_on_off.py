@@ -2,10 +2,8 @@
 
 """
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.layouts import row
 from bokeh.models import CheckboxGroup, CustomJS

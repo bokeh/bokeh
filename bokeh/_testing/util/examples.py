@@ -22,7 +22,17 @@ log = logging.getLogger(__name__)
 import io
 import os
 from base64 import b64decode
-from os.path import basename, dirname, exists, isdir, isfile, join, normpath, relpath, splitext
+from os.path import (
+    basename,
+    dirname,
+    exists,
+    isdir,
+    isfile,
+    join,
+    normpath,
+    relpath,
+    splitext,
+)
 from subprocess import PIPE, Popen
 
 # External imports

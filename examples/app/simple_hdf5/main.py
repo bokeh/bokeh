@@ -1,11 +1,8 @@
-# Standard library imports
 import os
 from os.path import dirname, join
 
-# External imports
 import h5py
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Select

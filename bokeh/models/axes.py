@@ -35,7 +35,7 @@ from ..core.properties import (
     Override,
     Seq,
     String,
-    Tuple
+    Tuple,
 )
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
 from .formatters import (
@@ -44,10 +44,18 @@ from .formatters import (
     DatetimeTickFormatter,
     LogTickFormatter,
     MercatorTickFormatter,
-    TickFormatter
+    TickFormatter,
 )
 from .renderers import GuideRenderer
-from .tickers import BasicTicker, CategoricalTicker, DatetimeTicker, FixedTicker, LogTicker, MercatorTicker, Ticker
+from .tickers import (
+    BasicTicker,
+    CategoricalTicker,
+    DatetimeTicker,
+    FixedTicker,
+    LogTicker,
+    MercatorTicker,
+    Ticker,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

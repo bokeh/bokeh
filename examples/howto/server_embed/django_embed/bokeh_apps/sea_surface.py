@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider

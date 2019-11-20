@@ -1,10 +1,7 @@
-# Standard library imports
 from typing import Any, List, Tuple
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure, output_file, show
 

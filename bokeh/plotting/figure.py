@@ -17,7 +17,18 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
-from ..core.properties import Any, Auto, Either, Enum, Instance, Int, List, Seq, String, Tuple
+from ..core.properties import (
+    Any,
+    Auto,
+    Either,
+    Enum,
+    Instance,
+    Int,
+    List,
+    Seq,
+    String,
+    Tuple,
+)
 from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool
 from ..models import glyphs as _glyphs
 from ..models import markers as _markers
@@ -33,7 +44,7 @@ from .helpers import (
     _process_active_tools,
     _process_axis_and_grid,
     _process_tools_arg,
-    _single_stack
+    _single_stack,
 )
 
 #-----------------------------------------------------------------------------

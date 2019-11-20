@@ -1,12 +1,9 @@
-# Standard library imports
 import sqlite3 as sql
 from os.path import dirname, join
 
-# External imports
 import numpy as np
 import pandas.io.sql as psql
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column, layout
 from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput

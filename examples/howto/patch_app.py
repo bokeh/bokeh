@@ -4,10 +4,8 @@
 #     bokeh serve --show patch_app.py
 #
 # Running "python patch_app.py" will NOT work.
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import gridplot
 from bokeh.models import ColumnDataSource

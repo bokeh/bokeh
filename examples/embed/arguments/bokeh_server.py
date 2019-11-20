@@ -12,10 +12,8 @@ in this directory, and navigate to:
     http://localhost:5000
 
 '''
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, Slider, TextInput

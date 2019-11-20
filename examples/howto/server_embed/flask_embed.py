@@ -1,11 +1,8 @@
-# Standard library imports
 from threading import Thread
 
-# External imports
 from flask import Flask, render_template
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider

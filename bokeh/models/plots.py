@@ -23,12 +23,33 @@ import warnings
 
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
-from ..core.properties import Bool, Dict, Enum, Float, Include, Instance, Int, List, Override, String
+from ..core.properties import (
+    Bool,
+    Dict,
+    Enum,
+    Float,
+    Include,
+    Instance,
+    Int,
+    List,
+    Override,
+    String,
+)
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, INCOMPATIBLE_SCALE_AND_RANGE, REQUIRED_RANGE, REQUIRED_SCALE
-from ..core.validation.warnings import FIXED_HEIGHT_POLICY, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, MISSING_RENDERERS
+from ..core.validation.errors import (
+    BAD_EXTRA_RANGE_NAME,
+    INCOMPATIBLE_SCALE_AND_RANGE,
+    REQUIRED_RANGE,
+    REQUIRED_SCALE,
+)
+from ..core.validation.warnings import (
+    FIXED_HEIGHT_POLICY,
+    FIXED_SIZING_MODE,
+    FIXED_WIDTH_POLICY,
+    MISSING_RENDERERS,
+)
 from ..model import Model, collect_filtered_models
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title

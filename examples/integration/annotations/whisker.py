@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import save
 from bokeh.models import ColumnDataSource, OpenHead, Plot, Range1d, Whisker
 

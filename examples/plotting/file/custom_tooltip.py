@@ -1,7 +1,5 @@
-# External imports
 import pandas as pd
 
-# Bokeh imports
 from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 

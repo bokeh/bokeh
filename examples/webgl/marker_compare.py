@@ -4,7 +4,6 @@ This covers all markers supported by scatter. The plots are put in tabs,
 so that you can easily switch to compare positioning and appearance.
 
 """
-# Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Panel, Tabs

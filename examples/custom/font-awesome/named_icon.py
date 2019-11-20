@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.core.enums import enumeration
 
 NamedIcon = enumeration(*[

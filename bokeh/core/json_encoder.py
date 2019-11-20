@@ -67,7 +67,7 @@ from ..util.serialization import (
     is_datetime_type,
     is_timedelta_type,
     transform_array,
-    transform_series
+    transform_series,
 )
 
 #-----------------------------------------------------------------------------

@@ -15,14 +15,11 @@ in your browser.
 .. _this video: https://www.youtube.com/watch?v=LznjC4Lo7lE
 
 '''
-# Standard library imports
 from collections import OrderedDict
 
-# External imports
 import numpy as np
 from numpy import pi
 
-# Bokeh imports
 from bokeh.driving import repeat
 from bokeh.io import curdoc
 from bokeh.layouts import column

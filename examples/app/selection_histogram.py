@@ -12,10 +12,8 @@ in your browser.
 
 '''
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.models import BoxSelectTool, LassoSelectTool
 from bokeh.plotting import curdoc, figure

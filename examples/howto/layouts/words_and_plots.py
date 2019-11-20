@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.layouts import layout
 from bokeh.models import ColumnDataSource, Div, HoverTool, Paragraph

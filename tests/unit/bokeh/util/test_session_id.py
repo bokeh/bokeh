@@ -31,7 +31,7 @@ from bokeh.util.session_id import (
     _signature,
     check_session_id_signature,
     generate_secret_key,
-    generate_session_id
+    generate_session_id,
 )
 
 # Module under test

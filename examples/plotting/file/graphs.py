@@ -1,8 +1,7 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
-from bokeh.models import ColumnDataSource, HoverTool, NodesAndLinkedEdges, StaticLayoutProvider, TapTool
+from bokeh.models import (ColumnDataSource, HoverTool, NodesAndLinkedEdges,
+                          StaticLayoutProvider, TapTool,)
 from bokeh.palettes import Set3_12
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.airport_routes import airports, routes

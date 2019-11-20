@@ -1,16 +1,13 @@
-# Standard library imports
 import datetime as dt
 from time import mktime
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (ColumnDataSource, DatetimeAxis, DatetimeTickFormatter,
-                          FixedTicker, Legend, LegendItem, Line, Patch, Plot, Text)
+                          FixedTicker, Legend, LegendItem, Line, Patch, Plot, Text,)
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view

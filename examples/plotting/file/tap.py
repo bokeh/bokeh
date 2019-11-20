@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.models import TapTool
 from bokeh.plotting import figure, output_file, show
 

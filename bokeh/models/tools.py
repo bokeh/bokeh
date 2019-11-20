@@ -38,7 +38,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipAttachment, TooltipFieldFormatter
+from ..core.enums import (
+    Anchor,
+    Dimension,
+    Dimensions,
+    Location,
+    TooltipAttachment,
+    TooltipFieldFormatter,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -57,7 +64,7 @@ from ..core.properties import (
     Percent,
     Seq,
     String,
-    Tuple
+    Tuple,
 )
 from ..core.validation import error
 from ..core.validation.errors import (
@@ -66,7 +73,7 @@ from ..core.validation.errors import (
     INCOMPATIBLE_POLY_DRAW_RENDERER,
     INCOMPATIBLE_POLY_EDIT_RENDERER,
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
-    NO_RANGE_TOOL_RANGES
+    NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation

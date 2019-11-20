@@ -30,7 +30,7 @@ from ..core.enums import (
     SpatialUnits,
     TextAlign,
     TooltipAttachment,
-    VerticalAlign
+    VerticalAlign,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -56,11 +56,21 @@ from ..core.properties import (
     StringSpec,
     Tuple,
     UnitsSpec,
-    value
+    value,
 )
-from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, ScalarTextProps, TextProps
+from ..core.property_mixins import (
+    FillProps,
+    LineProps,
+    ScalarFillProps,
+    ScalarLineProps,
+    ScalarTextProps,
+    TextProps,
+)
 from ..core.validation import error
-from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
+from ..core.validation.errors import (
+    BAD_COLUMN_NAME,
+    NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS,
+)
 from ..model import Model
 from ..util.serialization import convert_datetime_type
 from .formatters import BasicTickFormatter, TickFormatter

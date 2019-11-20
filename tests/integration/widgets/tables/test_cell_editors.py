@@ -16,8 +16,21 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD, enter_text_in_cell, enter_text_in_cell_with_click_enter, get_table_cell
-from bokeh.models import ColumnDataSource, CustomJS, DataTable, IntEditor, NumberEditor, StringEditor, TableColumn
+from bokeh._testing.util.selenium import (
+    RECORD,
+    enter_text_in_cell,
+    enter_text_in_cell_with_click_enter,
+    get_table_cell,
+)
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    IntEditor,
+    NumberEditor,
+    StringEditor,
+    TableColumn,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

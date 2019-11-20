@@ -1,13 +1,10 @@
-# Standard library imports
 import json
 from datetime import datetime
 from time import sleep
 
-# External imports
 import numpy as np
 from flask import Flask, Response, make_response, request
 
-# Bokeh imports
 from bokeh.models import CustomJS, ServerSentDataSource
 from bokeh.plotting import figure, output_file, show
 

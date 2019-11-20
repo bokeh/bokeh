@@ -26,7 +26,7 @@ from bokeh.models import (
     Jitter,
     LinearColorMapper,
     LogColorMapper,
-    Stack
+    Stack,
 )
 
 # Module under test

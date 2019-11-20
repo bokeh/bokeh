@@ -30,7 +30,7 @@ from _util_models import (
     check_line_properties,
     check_properties_existence,
     check_text_properties,
-    prefix
+    prefix,
 )
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
@@ -51,7 +51,7 @@ from bokeh.models import (
     Slope,
     Span,
     Title,
-    Whisker
+    Whisker,
 )
 
 #-----------------------------------------------------------------------------

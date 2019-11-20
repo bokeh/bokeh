@@ -1,7 +1,5 @@
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import show
 from bokeh.layouts import gridplot
 from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, LogColorMapper

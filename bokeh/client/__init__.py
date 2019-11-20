@@ -29,7 +29,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .session import DEFAULT_SESSION_ID, ClientSession, pull_session, push_session, show_session
+from .session import (
+    DEFAULT_SESSION_ID,
+    ClientSession,
+    pull_session,
+    push_session,
+    show_session,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

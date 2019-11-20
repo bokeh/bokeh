@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.models import Circle, ColumnDataSource, LinearAxis, Plot, Range1d, Title
 from bokeh.plotting import output_file, show
 

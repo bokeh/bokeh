@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.palettes import Spectral5
 from bokeh.plotting import figure

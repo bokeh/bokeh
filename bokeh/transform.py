@@ -27,7 +27,7 @@ from .models.mappers import (
     CategoricalMarkerMapper,
     CategoricalPatternMapper,
     LinearColorMapper,
-    LogColorMapper
+    LogColorMapper,
 )
 from .models.transforms import Dodge, Jitter
 

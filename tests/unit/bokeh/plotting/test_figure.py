@@ -31,7 +31,7 @@ from bokeh.models import (
     PanTool,
     ResetTool,
     Scatter,
-    Title
+    Title,
 )
 
 # Module under test

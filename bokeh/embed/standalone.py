@@ -32,7 +32,13 @@ from ..resources import CSSResources, JSResources, Resources
 from ..themes import Theme
 from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
-from .util import FromCurdoc, OutputDocumentFor, RenderRoot, standalone_docs_json, standalone_docs_json_and_render_items
+from .util import (
+    FromCurdoc,
+    OutputDocumentFor,
+    RenderRoot,
+    standalone_docs_json,
+    standalone_docs_json_and_render_items,
+)
 from .wrappers import wrap_in_onload
 
 #-----------------------------------------------------------------------------

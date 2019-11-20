@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.io import output_file, show
 from bokeh.models import ImageURLTexture
 from bokeh.plotting import figure

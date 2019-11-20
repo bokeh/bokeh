@@ -52,7 +52,7 @@ from bokeh.core.properties import (
     Size,
     String,
     StringSpec,
-    Tuple
+    Tuple,
 )
 from bokeh.core.property.bases import validation_on
 

@@ -3,15 +3,12 @@ try:
 except ImportError:
     raise RuntimeError("This example requries Python3 / asyncio")
 
-# Standard library imports
 from threading import Thread
 
-# External imports
 from flask import Flask, render_template
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.embed import server_document

@@ -1,4 +1,3 @@
-# Standard library imports
 import sys
 from os.path import dirname, exists, join
 

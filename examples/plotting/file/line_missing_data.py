@@ -1,10 +1,8 @@
 # Example similar to line.py, but demoing special data
 # values: masked arrays, nans, and inf
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.plotting import figure, output_file, show
 
 x = np.linspace(0, 4*np.pi, 200)

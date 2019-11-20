@@ -1,8 +1,6 @@
-# External imports
 from jinja2 import Environment, FileSystemLoader
 from tornado.web import RequestHandler
 
-# Bokeh imports
 from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider

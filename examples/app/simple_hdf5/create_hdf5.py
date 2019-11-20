@@ -1,7 +1,5 @@
-# Standard library imports
 from os.path import join
 
-# External imports
 import h5py
 import numpy as np
 import scipy.stats as ss

@@ -1,10 +1,7 @@
-# Standard library imports
 from math import pi
 
-# External imports
 import pandas as pd
 
-# Bokeh imports
 from bokeh.io import show
 from bokeh.models import BasicTicker, ColorBar, LinearColorMapper, PrintfTickFormatter
 from bokeh.plotting import figure

@@ -10,14 +10,11 @@ in this directory, and navigate to:
     http://localhost:5000
 
 '''
-# Standard library imports
 import atexit
 import subprocess
 
-# External imports
 from flask import Flask, render_template_string
 
-# Bokeh imports
 from bokeh.embed import server_document
 
 home_html = """

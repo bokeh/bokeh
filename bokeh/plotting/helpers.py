@@ -74,7 +74,7 @@ from ..models import (
     WheelPanTool,
     WheelZoomTool,
     ZoomInTool,
-    ZoomOutTool
+    ZoomOutTool,
 )
 from ..transform import stack
 from ..util.dependencies import import_optional

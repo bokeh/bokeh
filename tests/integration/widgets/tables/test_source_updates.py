@@ -25,7 +25,7 @@ from bokeh._testing.util.selenium import (
     get_table_row,
     get_table_selected_rows,
     shift_click,
-    sort_table_column
+    sort_table_column,
 )
 from bokeh.layouts import column
 from bokeh.models import (
@@ -39,7 +39,7 @@ from bokeh.models import (
     Range1d,
     Rect,
     TableColumn,
-    TapTool
+    TapTool,
 )
 
 #-----------------------------------------------------------------------------
