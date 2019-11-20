@@ -9,7 +9,7 @@ jobs:
       matrix:
         node_version: [10, 12]
         python_version: [3.7]
-        os: [windows-latest, macos-latest]
+        os: [macos-latest]
 
     steps:
       - uses: actions/checkout@master
