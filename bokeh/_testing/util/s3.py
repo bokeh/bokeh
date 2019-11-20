@@ -59,9 +59,7 @@ def connect_to_s3():
     except NoAuthHandlerFound:
         fail("Upload was requested but could not connect to S3.")
         fail("This is expected if you are an external contributor submitting a PR to Bokeh.")
-        fail(
-            "This could also happen if S3 credentials are not available on the machine where this test is running."
-        )
+        fail("This could also happen if S3 credentials are not available on the machine where this test is running.")
         return None
 
 

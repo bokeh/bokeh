@@ -1,7 +1,6 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (Circle, ColumnDataSource, GMapOptions,
-                          GMapPlot, Label, PanTool, WheelZoomTool,)
+from bokeh.models import Circle, ColumnDataSource, GMapOptions, GMapPlot, Label, PanTool, WheelZoomTool
 from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
 from bokeh.util.browser import view

@@ -48,10 +48,7 @@ class Build(Subcommand):
 
     args = (
         ("base_dir", dict(metavar="BASE_DIR", type=str, nargs="?", default=".")),
-        (
-            "--rebuild",
-            dict(action="store_true", help="Ignore all caches and perform a full rebuild"),
-        ),
+        ("--rebuild", dict(action="store_true", help="Ignore all caches and perform a full rebuild")),
         ("--debug", dict(action="store_true", help="Run nodejs in debug mode (use --inspect-brk)")),
     )
 

@@ -341,10 +341,7 @@ class Server(BaseServer):
         ``BokehTornado``.
 
         """
-        log.info(
-            "Starting Bokeh server version %s (running on Tornado %s)"
-            % (__version__, tornado.version)
-        )
+        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         from bokeh.application.handlers.function import FunctionHandler
         from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
@@ -358,10 +355,7 @@ class Server(BaseServer):
         for k, v in list(applications.items()):
             if callable(v):
                 applications[k] = Application(FunctionHandler(v))
-            if all(
-                not isinstance(handler, DocumentLifecycleHandler)
-                for handler in applications[k]._handlers
-            ):
+            if all(not isinstance(handler, DocumentLifecycleHandler) for handler in applications[k]._handlers):
                 applications[k].add(DocumentLifecycleHandler())
 
         opts = _ServerOpts(kwargs)
@@ -393,9 +387,7 @@ class Server(BaseServer):
             import ssl
 
             context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            context.load_cert_chain(
-                certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password
-            )
+            context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
             http_server_kwargs["ssl_options"] = context
 
         sockets, self._port = bind_sockets(self.address, self.port)

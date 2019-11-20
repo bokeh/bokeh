@@ -55,18 +55,7 @@ from .callbacks import Callback
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "Box",
-    "Column",
-    "GridBox",
-    "HTMLBox",
-    "LayoutDOM",
-    "Panel",
-    "Row",
-    "Spacer",
-    "Tabs",
-    "WidgetBox",
-)
+__all__ = ("Box", "Column", "GridBox", "HTMLBox", "LayoutDOM", "Panel", "Row", "Spacer", "Tabs", "WidgetBox")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -394,9 +383,7 @@ IntOrString = Either(Int, String)  # XXX: work around issue #8166
 class GridBox(LayoutDOM):
 
     children = List(
-        Either(
-            Tuple(Instance(LayoutDOM), Int, Int), Tuple(Instance(LayoutDOM), Int, Int, Int, Int)
-        ),
+        Either(Tuple(Instance(LayoutDOM), Int, Int), Tuple(Instance(LayoutDOM), Int, Int, Int, Int)),
         default=[],
         help="""
     A list of children with their associated position in the grid (row, column).
@@ -630,6 +617,4 @@ class WidgetBox(Column):
         super().__init__(*args, **kw)
         from ..util.deprecation import deprecated
 
-        deprecated(
-            "'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead"
-        )
+        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

@@ -86,10 +86,7 @@ def test_args():
         (
             ("-o", "--output"),
             dict(
-                metavar="FILENAME",
-                action="append",
-                type=str,
-                help="Name of the output file or - for standard output.",
+                metavar="FILENAME", action="append", type=str, help="Name of the output file or - for standard output."
             ),
         ),
         (
@@ -194,22 +191,11 @@ def test_basic_script_with_multiple_png_plots(capsys):
         assert out == ""
 
         assert set(
-            [
-                "scatter1.png",
-                "scatter2.png",
-                "scatter3.png",
-                "scatter1.py",
-                "scatter2.py",
-                "scatter3.py",
-            ]
+            ["scatter1.png", "scatter2.png", "scatter3.png", "scatter1.py", "scatter2.py", "scatter3.py"]
         ) == set(os.listdir(dirname))
 
     with_directory_contents(
-        {
-            "scatter1.py": basic_scatter_script,
-            "scatter2.py": basic_scatter_script,
-            "scatter3.py": basic_scatter_script,
-        },
+        {"scatter1.py": basic_scatter_script, "scatter2.py": basic_scatter_script, "scatter3.py": basic_scatter_script},
         run,
     )
 

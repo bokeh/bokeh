@@ -148,9 +148,7 @@ def _single_stack(stackers, spec, **kw):
                 % sorted(list(lengths))
             )
         if lengths.pop() != len(stackers):
-            raise ValueError(
-                "Keyword argument sequences for broadcasting must be the same length as stackers"
-            )
+            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
     s = []
 
@@ -188,9 +186,7 @@ def _double_stack(stackers, spec0, spec1, **kw):
                 % sorted(list(lengths))
             )
         if lengths.pop() != len(stackers):
-            raise ValueError(
-                "Keyword argument sequences for broadcasting must be the same length as stackers"
-            )
+            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
 
     s0 = []
     s1 = []
@@ -279,11 +275,7 @@ def _graph(node_source, edge_source, **kwargs):
     nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca)
 
     ## node stuff
-    node_kwargs = {
-        k.lstrip("node_"): v
-        for k, v in kwargs.copy().items()
-        if k.lstrip("node_") in Circle.properties()
-    }
+    node_kwargs = {k.lstrip("node_"): v for k, v in kwargs.copy().items() if k.lstrip("node_") in Circle.properties()}
 
     node_glyph = _make_glyph(Circle, node_kwargs, node_ca)
     nsnode_glyph = _make_glyph(Circle, node_kwargs, nsnode_ca)
@@ -302,9 +294,7 @@ def _graph(node_source, edge_source, **kwargs):
 
     ## edge stuff
     edge_kwargs = {
-        k.lstrip("edge_"): v
-        for k, v in kwargs.copy().items()
-        if k.lstrip("edge_") in MultiLine.properties()
+        k.lstrip("edge_"): v for k, v in kwargs.copy().items() if k.lstrip("edge_") in MultiLine.properties()
     }
 
     edge_glyph = _make_glyph(MultiLine, edge_kwargs, edge_ca)
@@ -433,8 +423,7 @@ def _pop_legend_kwarg(kwargs):
     result = {attr: kwargs.pop(attr) for attr in _LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
         raise ValueError(
-            "Only one of %s may be provided, got: %s"
-            % (nice_join(_LEGEND_ARGS), nice_join(result.keys()))
+            "Only one of %s may be provided, got: %s" % (nice_join(_LEGEND_ARGS), nice_join(result.keys()))
         )
     return result
 
@@ -519,8 +508,7 @@ def _get_or_create_legend(plot):
     if len(legends) == 1:
         return legends[0]
     raise RuntimeError(
-        "Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments"
-        % plot
+        "Plot %s configured with more than one legend renderer, cannot use legend_* convenience arguments" % plot
     )
 
 
@@ -575,9 +563,7 @@ def _handle_legend_group(label, legend, glyph_renderer):
 
     source = glyph_renderer.data_source
     if source is None:
-        raise ValueError(
-            "Cannot use 'legend_group' on a glyph without a data source already configured"
-        )
+        raise ValueError("Cannot use 'legend_group' on a glyph without a data source already configured")
     if not (hasattr(source, "column_names") and label in source.column_names):
         raise ValueError("Column to be grouped does not exist in glyph data source")
 
@@ -751,9 +737,7 @@ def _tool_from_string(name):
         if not matches:
             matches, text = known_tools, "possible"
 
-        raise ValueError(
-            "unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches))
-        )
+        raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
 
 def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
@@ -832,9 +816,7 @@ def _process_tools_arg(plot, tools, tooltips=None):
     return tool_objs, tool_map
 
 
-def _process_active_tools(
-    toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap
-):
+def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap):
     """ Adds tools to the plot object
 
     Args:
@@ -857,8 +839,7 @@ def _process_active_tools(
         toolbar.active_drag = tool_map[active_drag]
     else:
         raise ValueError(
-            "Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument"
-            % active_drag
+            "Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag
         )
 
     if (
@@ -871,8 +852,7 @@ def _process_active_tools(
         toolbar.active_inspect = tool_map[active_inspect]
     else:
         raise ValueError(
-            "Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument"
-            % active_scroll
+            "Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll
         )
 
     if active_scroll in ["auto", None] or isinstance(active_scroll, Tool):
@@ -881,8 +861,7 @@ def _process_active_tools(
         toolbar.active_scroll = tool_map[active_scroll]
     else:
         raise ValueError(
-            "Got unknown %r for 'active_scroll', which was not a string supplied in 'tools' argument"
-            % active_scroll
+            "Got unknown %r for 'active_scroll', which was not a string supplied in 'tools' argument" % active_scroll
         )
 
     if active_tap in ["auto", None] or isinstance(active_tap, Tool):
@@ -891,8 +870,7 @@ def _process_active_tools(
         toolbar.active_tap = tool_map[active_tap]
     else:
         raise ValueError(
-            "Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument"
-            % active_tap
+            "Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap
         )
 
 
@@ -1041,24 +1019,14 @@ def _glyph_function(glyphclass, extra_docs=None):
         # handle the main glyph, need to process literals
         glyph_ca = _pop_visuals(glyphclass, kwargs)
         incompatible_literal_spec_values = []
-        incompatible_literal_spec_values += _process_sequence_literals(
-            glyphclass, kwargs, source, is_user_source
-        )
-        incompatible_literal_spec_values += _process_sequence_literals(
-            glyphclass, glyph_ca, source, is_user_source
-        )
+        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
+        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
         if incompatible_literal_spec_values:
-            raise RuntimeError(
-                _GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and")
-            )
+            raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
         # handle the nonselection glyph, we always set one
         nsglyph_ca = _pop_visuals(
-            glyphclass,
-            kwargs,
-            prefix="nonselection_",
-            defaults=glyph_ca,
-            trait_defaults={"alpha": 0.1},
+            glyphclass, kwargs, prefix="nonselection_", defaults=glyph_ca, trait_defaults={"alpha": 0.1}
         )
 
         # handle the selection glyph, if any properties were given

@@ -48,21 +48,13 @@ class Init(Subcommand):
 
     args = (
         ("base_dir", dict(metavar="BASE_DIR", type=str, nargs="?", default=".")),
-        (
-            "--interactive",
-            dict(action="store_true", help="Walk the user through creating an extension"),
-        ),
+        ("--interactive", dict(action="store_true", help="Walk the user through creating an extension")),
         ("--bokehjs_version", dict(action="store_true", help="Use a specific version of bokehjs")),
         ("--debug", dict(action="store_true", help="Run nodejs in debug mode (use --inspect-brk)")),
     )
 
     def invoke(self, args):
-        return init(
-            args.base_dir,
-            interactive=args.interactive,
-            bokehjs_version=args.bokehjs_version,
-            debug=args.debug,
-        )
+        return init(args.base_dir, interactive=args.interactive, bokehjs_version=args.bokehjs_version, debug=args.debug)
 
 
 # -----------------------------------------------------------------------------

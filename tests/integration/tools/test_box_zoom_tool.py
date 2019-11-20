@@ -17,16 +17,7 @@ import pytest  # noqa isort:skip
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
-from bokeh.models import (
-    BoxZoomTool,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    PanTool,
-    Plot,
-    Range1d,
-    Rect,
-)
+from bokeh.models import BoxZoomTool, ColumnDataSource, CustomAction, CustomJS, PanTool, Plot, Range1d, Rect
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -38,12 +29,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 def _make_plot(tool):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     plot = Plot(
-        plot_height=400,
-        plot_width=450,
-        min_border_right=50,
-        x_range=Range1d(0, 1),
-        y_range=Range1d(0, 1),
-        min_border=0,
+        plot_height=400, plot_width=450, min_border_right=50, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
     )
     plot.add_glyph(source, Rect(x="x", y="y", width=0.9, height=0.9))
     plot.add_tools(tool)
@@ -253,8 +239,6 @@ class Test_BoxZoomTool(object):
         page.click_custom_action()
 
         results = page.results
-        assert (results["xrend"] - results["xrstart"]) / (
-            results["yrend"] - results["yrstart"]
-        ) == pytest.approx(2.0)
+        assert (results["xrend"] - results["xrstart"]) / (results["yrend"] - results["yrstart"]) == pytest.approx(2.0)
 
         assert page.has_no_console_errors()

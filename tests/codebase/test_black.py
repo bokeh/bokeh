@@ -33,9 +33,7 @@ def test_flake8():
 
     """
     chdir(TOP_PATH)
-    proc = Popen(
-        ["black", "-l", "100", "-t", "py36", "--check", "bokeh", "tests"], stdout=PIPE, stderr=PIPE
-    )
+    proc = Popen(["black", "-l", "120", "-t", "py36", "--check", "bokeh", "tests"], stdout=PIPE, stderr=PIPE)
     _, err = proc.communicate()
     assert proc.returncode == 0, "isort issues:\n%s" % err.decode("utf-8")
 

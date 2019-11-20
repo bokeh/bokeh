@@ -286,32 +286,18 @@ class TestColumnDataSource(object):
 
     def test_stream_bad_data(self):
         ds = bms.ColumnDataSource(data=dict(a=[10], b=[20]))
-        with pytest.raises(
-            ValueError, match=r"Must stream updates to all existing columns \(missing: a, b\)"
-        ):
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: a, b\)"):
             ds.stream(dict())
-        with pytest.raises(
-            ValueError, match=r"Must stream updates to all existing columns \(missing: b\)"
-        ):
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: b\)"):
             ds.stream(dict(a=[10]))
-        with pytest.raises(
-            ValueError, match=r"Must stream updates to all existing columns \(extra: x\)"
-        ):
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(extra: x\)"):
             ds.stream(dict(a=[10], b=[10], x=[10]))
-        with pytest.raises(
-            ValueError,
-            match=r"Must stream updates to all existing columns \(missing: b, extra: x\)",
-        ):
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: b, extra: x\)"):
             ds.stream(dict(a=[10], x=[10]))
-        with pytest.raises(
-            ValueError, match=r"All streaming column updates must be the same length"
-        ):
+        with pytest.raises(ValueError, match=r"All streaming column updates must be the same length"):
             ds.stream(dict(a=[10], b=[10, 20]))
 
-        with pytest.raises(
-            ValueError,
-            match=r"stream\(...\) only supports 1d sequences, got ndarray with size \(.*",
-        ):
+        with pytest.raises(ValueError, match=r"stream\(...\) only supports 1d sequences, got ndarray with size \(.*"):
             ds.stream(dict(a=[10], b=np.ones((1, 1))))
 
     def test__df_index_name_with_named_index(self, pd):
@@ -432,9 +418,7 @@ Lime,Green,99,$0.39
 
         ds.data._stream = mock
         new_df = pd.DataFrame(
-            index=df.index + pd.to_timedelta("30m"),
-            columns=df.columns,
-            data=np.random.standard_normal(30),
+            index=df.index + pd.to_timedelta("30m"), columns=df.columns, data=np.random.standard_normal(30)
         )
         ds._stream(new_df, "foo", mock_setter)
         assert np.array_equal(stuff["args"][2]["index"], new_df.index.values)
@@ -457,9 +441,7 @@ Lime,Green,99,$0.39
 
         ds.data._stream = mock
         new_df = pd.DataFrame(
-            index=df.index + pd.to_timedelta("30m"),
-            columns=df.columns,
-            data=np.random.standard_normal(30),
+            index=df.index + pd.to_timedelta("30m"), columns=df.columns, data=np.random.standard_normal(30)
         )
         ds._stream({"index": new_df.index, "A": new_df.A}, "foo", mock_setter)
         assert np.array_equal(stuff["args"][2]["index"], new_df.index.values)
@@ -471,9 +453,7 @@ Lime,Green,99,$0.39
             columns=["A"],
             data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
-        ds = bms.ColumnDataSource(
-            data={"index": convert_datetime_array(df.index.values), "A": df.A}
-        )
+        ds = bms.ColumnDataSource(data={"index": convert_datetime_array(df.index.values), "A": df.A})
         ds._document = "doc"
         stuff = {}
         mock_setter = object()
@@ -484,14 +464,10 @@ Lime,Green,99,$0.39
 
         ds.data._stream = mock
         new_df = pd.DataFrame(
-            index=df.index + pd.to_timedelta("30m"),
-            columns=df.columns,
-            data=np.random.standard_normal(30),
+            index=df.index + pd.to_timedelta("30m"), columns=df.columns, data=np.random.standard_normal(30)
         )
         ds._stream({"index": new_df.index, "A": new_df.A}, "foo", mock_setter)
-        assert np.array_equal(
-            stuff["args"][2]["index"], convert_datetime_array(new_df.index.values)
-        )
+        assert np.array_equal(stuff["args"][2]["index"], convert_datetime_array(new_df.index.values))
         assert np.array_equal(stuff["args"][2]["A"], new_df.A.values)
 
     def _assert_equal_dicts_of_arrays(self, d1, d2):
@@ -526,13 +502,7 @@ Lime,Green,99,$0.39
         ds._stream(dict(a=[11, 12], b=np.array([21, 22]), c=pd.Series([31, 32])), 7)
 
         assert len(stream_stuff["args"]) == 5
-        expected_stream_args = (
-            "doc",
-            ds,
-            dict(a=[11, 12], b=np.array([21, 22]), c=pd.Series([31, 32])),
-            7,
-            None,
-        )
+        expected_stream_args = ("doc", ds, dict(a=[11, 12], b=np.array([21, 22]), c=pd.Series([31, 32])), 7, None)
         for i, (arg, ex_arg) in enumerate(zip(stream_stuff["args"], expected_stream_args)):
             if i == 2:
                 assert arg["a"] == ex_arg["a"]
@@ -545,13 +515,11 @@ Lime,Green,99,$0.39
 
         assert len(notify_owners_stuff["args"]) == 1
         self._assert_equal_dicts_of_arrays(
-            notify_owners_stuff["args"][0],
-            dict(a=np.array([10]), b=np.array([20]), c=np.array([30])),
+            notify_owners_stuff["args"][0], dict(a=np.array([10]), b=np.array([20]), c=np.array([30]))
         )
 
         self._assert_equal_dicts_of_arrays(
-            dict(ds.data),
-            dict(a=np.array([10, 11, 12]), b=np.array([20, 21, 22]), c=np.array([30, 31, 32])),
+            dict(ds.data), dict(a=np.array([10, 11, 12]), b=np.array([20, 21, 22]), c=np.array([30, 31, 32]))
         )
 
     def test_stream_series_to_ds_created_from_df(self, pd):
@@ -600,12 +568,7 @@ Lime,Green,99,$0.39
 
         self._assert_equal_dicts_of_arrays(
             dict(ds.data),
-            dict(
-                a=np.array([10, 11]),
-                b=np.array([20, 21]),
-                c=np.array([30, 31]),
-                index=np.array([0, 0]),
-            ),
+            dict(a=np.array([10, 11]), b=np.array([20, 21]), c=np.array([30, 31]), index=np.array([0, 0])),
         )
 
     def test_stream_df_to_ds_created_from_df_named_index(self, pd):
@@ -648,13 +611,11 @@ Lime,Green,99,$0.39
 
         assert len(notify_owners_stuff["args"]) == 1
         self._assert_equal_dicts_of_arrays(
-            notify_owners_stuff["args"][0],
-            dict(a=np.array([10]), b=np.array([20]), c=np.array([30])),
+            notify_owners_stuff["args"][0], dict(a=np.array([10]), b=np.array([20]), c=np.array([30]))
         )
 
         self._assert_equal_dicts_of_arrays(
-            dict(ds.data),
-            dict(a=np.array([10, 11, 12]), b=np.array([20, 21, 22]), c=np.array([30, 31, 32])),
+            dict(ds.data), dict(a=np.array([10, 11, 12]), b=np.array([20, 21, 22]), c=np.array([30, 31, 32]))
         )
 
     def test_stream_df_to_ds_created_from_df_default_index(self, pd):
@@ -683,9 +644,7 @@ Lime,Green,99,$0.39
         ds._stream(pd.DataFrame(dict(a=[11, 12], b=[21, 22], c=[31, 32])), 7)
 
         assert len(stream_stuff["args"]) == 5
-        expected_df = pd.DataFrame(
-            dict(a=np.array([11, 12]), b=np.array([21, 22]), c=np.array([31, 32]))
-        )
+        expected_df = pd.DataFrame(dict(a=np.array([11, 12]), b=np.array([21, 22]), c=np.array([31, 32])))
         expected_stream_data = expected_df.to_dict("series")
         expected_stream_data["index"] = expected_df.index.values
         expected_args = ("doc", ds, expected_stream_data, 7, None)
@@ -707,10 +666,7 @@ Lime,Green,99,$0.39
         self._assert_equal_dicts_of_arrays(
             dict(ds.data),
             dict(
-                a=np.array([10, 11, 12]),
-                b=np.array([20, 21, 22]),
-                c=np.array([30, 31, 32]),
-                index=np.array([0, 0, 1]),
+                a=np.array([10, 11, 12]), b=np.array([20, 21, 22]), c=np.array([30, 31, 32]), index=np.array([0, 0, 1])
             ),
         )
 
@@ -743,26 +699,18 @@ Lime,Green,99,$0.39
 
     def test_patch_bad_slice_indices(self):
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
-        with pytest.raises(
-            ValueError, match=r"Out-of bounds slice index stop \(10\) in patch for column: a"
-        ):
+        with pytest.raises(ValueError, match=r"Out-of bounds slice index stop \(10\) in patch for column: a"):
             ds.patch(dict(a=[(slice(10), list(range(10)))]))
-        with pytest.raises(
-            ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, None\)"
-        ):
+        with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, None\)"):
             ds.patch(dict(a=[(slice(10, 1), list(range(10)))]))
         with pytest.raises(
             ValueError,
             match=r"Patch slices must have non-negative \(start, stop, step\) values, got slice\(None, 10, -1\)",
         ):
             ds.patch(dict(a=[(slice(None, 10, -1), list(range(10)))]))
-        with pytest.raises(
-            ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, 1\)"
-        ):
+        with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, 1\)"):
             ds.patch(dict(a=[(slice(10, 1, 1), list(range(10)))]))
-        with pytest.raises(
-            ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, -1\)"
-        ):
+        with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, -1\)"):
             ds.patch(dict(a=[(slice(10, 1, -1), list(range(10)))]))
         with pytest.raises(
             ValueError,
@@ -782,19 +730,13 @@ Lime,Green,99,$0.39
 
         ds.data._patch = mock
         ds.patch(
-            dict(
-                a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])],
-                b=[(slice(0, None, 2), [100, 101, 102])],
-            ),
+            dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]),
             mock_setter,
         )
         assert stuff["args"] == (
             "doc",
             ds,
-            dict(
-                a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])],
-                b=[(slice(0, None, 2), [100, 101, 102])],
-            ),
+            dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]),
             mock_setter,
         )
         assert stuff["kw"] == {}

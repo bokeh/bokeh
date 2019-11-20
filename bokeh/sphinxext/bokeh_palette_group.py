@@ -52,12 +52,7 @@ from .templates import PALETTE_GROUP_DETAIL
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "bokeh_palette_group",
-    "BokehPaletteGroupDirective",
-    "html_visit_bokeh_palette_group",
-    "setup",
-)
+__all__ = ("bokeh_palette_group", "BokehPaletteGroupDirective", "html_visit_bokeh_palette_group", "setup")
 
 # -----------------------------------------------------------------------------
 # General API

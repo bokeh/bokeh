@@ -87,9 +87,7 @@ class TestDocumentHold(object):
             assert len(caplog.records) == 0
 
             d.hold(second)
-            assert caplog.text.strip().endswith(
-                "hold already active with '%s', ignoring '%s'" % (first, second)
-            )
+            assert caplog.text.strip().endswith("hold already active with '%s', ignoring '%s'" % (first, second))
             assert len(caplog.records) == 1
 
             d.unhold()
@@ -197,11 +195,7 @@ class TestDocument(object):
     def test_roots_preserves_insertion_order(self):
         d = document.Document()
         assert not d.roots
-        roots = [
-            AnotherModelInTestDocument(),
-            AnotherModelInTestDocument(),
-            AnotherModelInTestDocument(),
-        ]
+        roots = [AnotherModelInTestDocument(), AnotherModelInTestDocument(), AnotherModelInTestDocument()]
         for r in roots:
             d.add_root(r)
         assert len(d.roots) == 3
@@ -974,9 +968,7 @@ class TestDocument(object):
         N = 10
         x = np.linspace(0, 4 * np.pi, N)
         y = np.sin(x)
-        p1.scatter(
-            x, y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1
-        )
+        p1.scatter(x, y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
         # figure does not automatically add itself to the document
         d.add_root(p1)
         assert len(d.roots) == 1
@@ -998,9 +990,7 @@ class TestDocument(object):
         button1.on_click(clicked_1)
         d.add_root(button1)
 
-        event_json = json.dumps(
-            {"event_name": "button_click", "event_values": {"model_id": button1.id}}
-        )
+        event_json = json.dumps({"event_name": "button_click", "event_values": {"model_id": button1.id}})
         try:
             d.apply_json_event(event_json)
         except RuntimeError:

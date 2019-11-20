@@ -68,13 +68,7 @@ class DashPattern(Either):
 
     """
 
-    _dash_patterns = {
-        "solid": [],
-        "dashed": [6],
-        "dotted": [2, 4],
-        "dotdash": [2, 4, 6, 4],
-        "dashdot": [6, 4, 2, 4],
-    }
+    _dash_patterns = {"solid": [], "dashed": [6], "dotted": [2, 4], "dotdash": [2, 4, 6, 4], "dashdot": [6, 4, 2, 4]}
 
     def __init__(self, default=[], help=None):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
@@ -100,9 +94,7 @@ class DashPattern(Either):
 
 class FontSize(String):
 
-    _font_size_re = re.compile(
-        r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I
-    )
+    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -184,9 +176,7 @@ class Image(Property):
             out = BytesIO()
             fmt = value.format or "PNG"
             value.save(out, fmt)
-            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode(
-                "ascii"
-            )
+            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode("ascii")
 
         raise ValueError("Could not transform %r" % value)
 
@@ -204,12 +194,7 @@ class MinMaxBounds(Either):
 
     def __init__(self, accept_datetime=False, default="auto", help=None):
         if accept_datetime:
-            types = (
-                Auto,
-                Tuple(Float, Float),
-                Tuple(TimeDelta, TimeDelta),
-                Tuple(Datetime, Datetime),
-            )
+            types = (Auto, Tuple(Float, Float), Tuple(TimeDelta, TimeDelta), Tuple(Datetime, Datetime))
         else:
             types = (Auto, Tuple(Float, Float), Tuple(TimeDelta, TimeDelta))
         super().__init__(*types, default=default, help=help)
@@ -224,11 +209,7 @@ class MinMaxBounds(Either):
             pass
 
         elif value[0] >= value[1]:
-            msg = (
-                ""
-                if not detail
-                else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
-            )
+            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
             raise ValueError(msg)
 
         return True

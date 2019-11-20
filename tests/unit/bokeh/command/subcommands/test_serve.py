@@ -69,10 +69,7 @@ def test_args():
     from bokeh.util.string import nice_join
 
     assert scserve.Serve.args == (
-        (
-            "--port",
-            dict(metavar="PORT", type=int, help="Port to listen on", default=DEFAULT_SERVER_PORT),
-        ),
+        ("--port", dict(metavar="PORT", type=int, help="Port to listen on", default=DEFAULT_SERVER_PORT)),
         ("--address", dict(metavar="ADDRESS", type=str, help="Address to listen on", default=None)),
         (
             "--log-level",
@@ -103,12 +100,7 @@ def test_args():
                 help="A filename to write logs to, or None to write to the standard stream (default: None)",
             ),
         ),
-        (
-            "--use-config",
-            dict(
-                metavar="CONFIG", type=str, help="Use a YAML config file for settings", default=None
-            ),
-        ),
+        ("--use-config", dict(metavar="CONFIG", type=str, help="Use a YAML config file for settings", default=None)),
         (
             "files",
             dict(
@@ -159,10 +151,7 @@ def test_args():
                 help="Public hostnames which may connect to the Bokeh websocket",
             ),
         ),
-        (
-            "--prefix",
-            dict(metavar="PREFIX", type=str, help="URL prefix for Bokeh server URLs", default=None),
-        ),
+        ("--prefix", dict(metavar="PREFIX", type=str, help="URL prefix for Bokeh server URLs", default=None)),
         (
             "--keep-alive",
             dict(
@@ -174,36 +163,18 @@ def test_args():
         ),
         (
             "--check-unused-sessions",
-            dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How often to check for unused sessions",
-                default=None,
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How often to check for unused sessions", default=None),
         ),
         (
             "--unused-session-lifetime",
-            dict(
-                metavar="MILLISECONDS", type=int, help="How long unused sessions last", default=None
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How long unused sessions last", default=None),
         ),
-        (
-            "--stats-log-frequency",
-            dict(metavar="MILLISECONDS", type=int, help="How often to log stats", default=None),
-        ),
+        ("--stats-log-frequency", dict(metavar="MILLISECONDS", type=int, help="How often to log stats", default=None)),
         (
             "--mem-log-frequency",
-            dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How often to log memory usage information",
-                default=None,
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How often to log memory usage information", default=None),
         ),
-        (
-            "--use-xheaders",
-            dict(action="store_true", help="Prefer X-headers for IP/protocol information"),
-        ),
+        ("--use-xheaders", dict(action="store_true", help="Prefer X-headers for IP/protocol information")),
         (
             "--ssl-certfile",
             dict(
@@ -262,21 +233,10 @@ def test_args():
         ),
         (
             "--index",
-            dict(
-                metavar="INDEX",
-                action="store",
-                default=None,
-                help="Path to a template to use for the site index",
-            ),
+            dict(metavar="INDEX", action="store", default=None, help="Path to a template to use for the site index"),
         ),
-        (
-            "--disable-index",
-            dict(action="store_true", help="Do not use the default index on the root path"),
-        ),
-        (
-            "--disable-index-redirect",
-            dict(action="store_true", help="Do not redirect to running app from root path"),
-        ),
+        ("--disable-index", dict(action="store_true", help="Do not use the default index on the root path")),
+        ("--disable-index-redirect", dict(action="store_true", help="Do not redirect to running app from root path")),
         (
             "--num-procs",
             dict(

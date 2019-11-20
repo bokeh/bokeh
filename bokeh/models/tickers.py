@@ -303,11 +303,7 @@ class DatetimeTicker(CompositeTicker):
     tickers = Override(
         default=lambda: [
             AdaptiveTicker(
-                mantissas=[1, 2, 5],
-                base=10,
-                min_interval=0,
-                max_interval=500 * ONE_MILLI,
-                num_minor_ticks=0,
+                mantissas=[1, 2, 5], base=10, min_interval=0, max_interval=500 * ONE_MILLI, num_minor_ticks=0
             ),
             AdaptiveTicker(
                 mantissas=[1, 2, 5, 10, 15, 20, 30],

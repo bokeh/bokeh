@@ -18,15 +18,7 @@ import pytest  # noqa isort:skip
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    RadioButtonGroup,
-    Range1d,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Plot, RadioButtonGroup, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -43,17 +35,9 @@ class Test_RadioButtonGroup(object):
     def test_server_on_change_round_trip(self, bokeh_server_page):
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             group = RadioButtonGroup(labels=LABELS, css_classes=["foo"])
 
             def cb(active):

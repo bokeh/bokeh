@@ -32,13 +32,9 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Circle(x="x", y="y", size=20))
-    plot.add_tools(
-        CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-    )
+    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
     text_input = TextInput(css_classes=["foo"])
 
     def cb(attr, old, new):
@@ -92,9 +88,7 @@ class Test_TextInput(object):
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector(".foo input")
-        enter_text_in_element(
-            page.driver, el, "pre", enter=False
-        )  # not change event if enter is not pressed
+        enter_text_in_element(page.driver, el, "pre", enter=False)  # not change event if enter is not pressed
 
         page.click_custom_action()
 
@@ -138,13 +132,7 @@ class Test_TextInput(object):
 
     def test_callback_property_executes(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 1),
-            y_range=Range1d(0, 1),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x="x", y="y", size=20))
         text_input = TextInput(css_classes=["foo"])
         text_input.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
@@ -174,13 +162,7 @@ class Test_TextInput(object):
 
     def test_js_on_change_executes(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 1),
-            y_range=Range1d(0, 1),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x="x", y="y", size=20))
         text_input = TextInput(css_classes=["foo"])
         text_input.js_on_change("value", CustomJS(code=RECORD("value", "cb_obj.value")))

@@ -156,11 +156,7 @@ class State(object):
             every time ``show()`` or ``save()`` is called.
 
         """
-        self._file = {
-            "filename": filename,
-            "resources": Resources(mode=mode, root_dir=root_dir),
-            "title": title,
-        }
+        self._file = {"filename": filename, "resources": Resources(mode=mode, root_dir=root_dir), "title": title}
 
         if os.path.isfile(filename):
             log.info("Session output file '%s' already exists, will be overwritten." % filename)

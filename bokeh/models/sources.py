@@ -199,8 +199,7 @@ class ColumnDataSource(ColumnarDataSource):
             lambda _, data: len(set(len(x) for x in data.values())) <= 1,
             lambda obj, name, data: warnings.warn(
                 "ColumnDataSource's columns must be of the same length. "
-                + "Current lengths: %s"
-                % ", ".join(sorted(str((k, len(v))) for k, v in data.items())),
+                + "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())),
                 BokehUserWarning,
             ),
         )
@@ -253,10 +252,7 @@ class ColumnDataSource(ColumnarDataSource):
             try:
                 _df.columns = ["_".join(col) for col in _df.columns.values]
             except TypeError:
-                raise TypeError(
-                    "Could not flatten MultiIndex columns. "
-                    "use string column names or flatten manually"
-                )
+                raise TypeError("Could not flatten MultiIndex columns. " "use string column names or flatten manually")
         # Transform columns CategoricalIndex in list
         if isinstance(df.columns, pd.CategoricalIndex):
             _df.columns = df.columns.tolist()
@@ -527,14 +523,10 @@ class ColumnDataSource(ColumnarDataSource):
                 )
             elif missing:
                 raise ValueError(
-                    "Must stream updates to all existing columns (missing: %s)"
-                    % ", ".join(sorted(missing))
+                    "Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing))
                 )
             else:
-                raise ValueError(
-                    "Must stream updates to all existing columns (extra: %s)"
-                    % ", ".join(sorted(extra))
-                )
+                raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
 
         import numpy as np
 
@@ -545,8 +537,7 @@ class ColumnDataSource(ColumnarDataSource):
                 if isinstance(x, arr_types):
                     if len(x.shape) != 1:
                         raise ValueError(
-                            "stream(...) only supports 1d sequences, got ndarray with size %r"
-                            % (x.shape,)
+                            "stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,)
                         )
                     lengths.add(x.shape[0])
                 else:
@@ -676,9 +667,7 @@ class ColumnDataSource(ColumnarDataSource):
         extra = set(patches.keys()) - set(self.data.keys())
 
         if extra:
-            raise ValueError(
-                "Can only patch existing columns (extra: %s)" % ", ".join(sorted(extra))
-            )
+            raise ValueError("Can only patch existing columns (extra: %s)" % ", ".join(sorted(extra)))
 
         for name, patch in patches.items():
 
@@ -689,17 +678,14 @@ class ColumnDataSource(ColumnarDataSource):
                 # integer index, patch single value of 1d column
                 if isinstance(ind, int):
                     if ind > col_len or ind < 0:
-                        raise ValueError(
-                            "Out-of bounds index (%d) in patch for column: %s" % (ind, name)
-                        )
+                        raise ValueError("Out-of bounds index (%d) in patch for column: %s" % (ind, name))
 
                 # slice index, patch multiple values of 1d column
                 elif isinstance(ind, slice):
                     _check_slice(ind)
                     if ind.stop is not None and ind.stop > col_len:
                         raise ValueError(
-                            "Out-of bounds slice index stop (%d) in patch for column: %s"
-                            % (ind.stop, name)
+                            "Out-of bounds slice index stop (%d) in patch for column: %s" % (ind.stop, name)
                         )
 
                 # multi-index, patch sub-regions of "n-d" column
@@ -711,15 +697,10 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError("Patch multi-index must contain more than one subindex")
 
                     if not isinstance(ind[0], int):
-                        raise ValueError(
-                            "Initial patch sub-index may only be integer, got: %s" % ind[0]
-                        )
+                        raise ValueError("Initial patch sub-index may only be integer, got: %s" % ind[0])
 
                     if ind[0] > col_len or ind[0] < 0:
-                        raise ValueError(
-                            "Out-of bounds initial sub-index (%d) in patch for column: %s"
-                            % (ind, name)
-                        )
+                        raise ValueError("Out-of bounds initial sub-index (%d) in patch for column: %s" % (ind, name))
 
                     if not isinstance(self.data[name][ind[0]], np.ndarray):
                         raise ValueError("Can only sub-patch into columns with NumPy array items")
@@ -933,9 +914,7 @@ def _check_slice(s):
         or (s.stop is not None and s.stop < 0)
         or (s.step is not None and s.step < 0)
     ):
-        raise ValueError(
-            "Patch slices must have non-negative (start, stop, step) values, got %s" % s
-        )
+        raise ValueError("Patch slices must have non-negative (start, stop, step) values, got %s" % s)
 
 
 # -----------------------------------------------------------------------------

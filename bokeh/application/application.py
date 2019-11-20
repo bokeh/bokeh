@@ -143,9 +143,7 @@ class Application(object):
         static_paths = set(h.static_path() for h in self.handlers)
         static_paths.discard(None)
         if len(static_paths) > 1:
-            raise RuntimeError(
-                "More than one static path requested for app: %r" % list(static_paths)
-            )
+            raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))
         elif len(static_paths) == 1:
             self._static_path = static_paths.pop()
         else:
@@ -169,9 +167,7 @@ class Application(object):
             # somehow get these errors to the client.
             h.modify_document(doc)
             if h.failed:
-                log.error(
-                    "Error running application handler %r: %s %s ", h, h.error, h.error_detail
-                )
+                log.error("Error running application handler %r: %s %s ", h, h.error, h.error_detail)
 
         if settings.perform_document_validation():
             doc.validate()

@@ -206,13 +206,9 @@ class _DocumentCallbackGroup(object):
 
         """
         if isinstance(callback_obj, PeriodicCallback):
-            self._group.add_periodic_callback(
-                callback_obj.callback, callback_obj.period, callback_obj.id
-            )
+            self._group.add_periodic_callback(callback_obj.callback, callback_obj.period, callback_obj.id)
         elif isinstance(callback_obj, TimeoutCallback):
-            self._group.add_timeout_callback(
-                callback_obj.callback, callback_obj.timeout, callback_obj.id
-            )
+            self._group.add_timeout_callback(callback_obj.callback, callback_obj.timeout, callback_obj.id)
         elif isinstance(callback_obj, NextTickCallback):
             self._group.add_next_tick_callback(callback_obj.callback, callback_obj.id)
         else:

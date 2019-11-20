@@ -91,10 +91,7 @@ def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
 
 
 def view(
-    location: str,
-    browser: Optional[str] = None,
-    new: Literal["same", "window", "tab"] = "same",
-    autoraise: bool = True,
+    location: str, browser: Optional[str] = None, new: Literal["same", "window", "tab"] = "same", autoraise: bool = True
 ) -> None:
     """ Open a browser to view the specified location.
 
@@ -121,10 +118,7 @@ def view(
     try:
         new_id = {"same": 0, "window": 1, "tab": 2}[new]
     except KeyError:
-        raise RuntimeError(
-            "invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'"
-            % new
-        )
+        raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
 
     if location.startswith("http"):
         url = location

@@ -27,14 +27,7 @@ from ..model import Model
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "TileSource",
-    "MercatorTileSource",
-    "TMSTileSource",
-    "WMTSTileSource",
-    "QUADKEYTileSource",
-    "BBoxTileSource",
-)
+__all__ = ("TileSource", "MercatorTileSource", "TMSTileSource", "WMTSTileSource", "QUADKEYTileSource", "BBoxTileSource")
 
 # -----------------------------------------------------------------------------
 # General API

@@ -66,12 +66,7 @@ def on_session_destroyed(session_context):
 
 
 def script_adds_two_roots(some_model_name, another_model_name):
-    return script_adds_two_roots_template % (
-        another_model_name,
-        some_model_name,
-        another_model_name,
-        some_model_name,
-    )
+    return script_adds_two_roots_template % (another_model_name, some_model_name, another_model_name, some_model_name)
 
 
 class Test_DirectoryHandler(object):
@@ -101,12 +96,7 @@ class Test_DirectoryHandler(object):
                 raise RuntimeError(handler.error)
 
         with_directory_contents(
-            {
-                "main.py": script_adds_two_roots(
-                    "SomeModelInTestDirectory", "AnotherModelInTestDirectory"
-                )
-            },
-            load,
+            {"main.py": script_adds_two_roots("SomeModelInTestDirectory", "AnotherModelInTestDirectory")}, load
         )
 
         assert len(doc.roots) == 2
@@ -170,9 +160,7 @@ attrs:
 
         with_directory_contents(
             {
-                "main.py": script_adds_two_roots(
-                    "SomeModelInTestDirectoryTheme", "AnotherModelInTestDirectoryTheme"
-                )
+                "main.py": script_adds_two_roots("SomeModelInTestDirectoryTheme", "AnotherModelInTestDirectoryTheme")
                 + """
 # we're testing that the script can override the theme
 some = next(m for m in curdoc().roots if isinstance(m, SomeModelInTestDirectoryTheme))
@@ -184,12 +172,8 @@ some.foo = 57
         )
 
         assert len(doc.roots) == 2
-        some_model = next(
-            m for m in doc.roots if m.__class__.__name__ == "SomeModelInTestDirectoryTheme"
-        )
-        another_model = next(
-            m for m in doc.roots if m.__class__.__name__ == "AnotherModelInTestDirectoryTheme"
-        )
+        some_model = next(m for m in doc.roots if m.__class__.__name__ == "SomeModelInTestDirectoryTheme")
+        another_model = next(m for m in doc.roots if m.__class__.__name__ == "AnotherModelInTestDirectoryTheme")
         assert another_model.bar == 42
         assert some_model.foo == 57
         # test that we use the theme if we delete our explicit-set value
@@ -215,8 +199,7 @@ some.foo = 57
         with_directory_contents(
             {
                 "main.py": script_adds_two_roots(
-                    "SomeModelInTestDirectoryWithLifecycle",
-                    "AnotherModelInTestDirectoryWithLifecycle",
+                    "SomeModelInTestDirectoryWithLifecycle", "AnotherModelInTestDirectoryWithLifecycle"
                 ),
                 "server_lifecycle.py": script_has_lifecycle_handlers,
             },
@@ -243,9 +226,7 @@ some.foo = 57
             if handler.failed:
                 raise RuntimeError(handler.error)
 
-        with_directory_contents(
-            {"main.py": "# This script does nothing", "static/js/foo.js": "# some JS"}, load
-        )
+        with_directory_contents({"main.py": "# This script does nothing", "static/js/foo.js": "# some JS"}, load)
 
         assert not doc.roots
 
@@ -283,11 +264,7 @@ some.foo = 57
                 raise RuntimeError(handler.error)
 
         with_directory_contents(
-            {
-                "main.py": "# This script does nothing",
-                "templates/index.html": "<div>some HTML</div>",
-            },
-            load,
+            {"main.py": "# This script does nothing", "templates/index.html": "<div>some HTML</div>"}, load
         )
 
         assert not doc.roots

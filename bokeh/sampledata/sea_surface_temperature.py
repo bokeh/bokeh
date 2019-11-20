@@ -42,9 +42,7 @@ __all__ = ("sea_surface_temperature",)
 
 
 def _read_data():
-    df = package_csv(
-        "sea_surface_temperature", "sea_surface_temperature.csv.gz", parse_dates=True, index_col=0
-    )
+    df = package_csv("sea_surface_temperature", "sea_surface_temperature.csv.gz", parse_dates=True, index_col=0)
     df = df.rename(columns={"temperature (celsius)": "temperature"})
     df.index.name = "time"
     return df

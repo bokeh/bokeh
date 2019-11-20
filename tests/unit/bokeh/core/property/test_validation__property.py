@@ -65,16 +65,7 @@ import bokeh.core.property.validation as bcpv  # isort:skip
 
 ALL = ("validate", "without_property_validation")
 
-SPECS = (
-    AngleSpec,
-    ColorSpec,
-    DataDistanceSpec,
-    DistanceSpec,
-    FontSizeSpec,
-    NumberSpec,
-    ScreenDistanceSpec,
-    StringSpec,
-)
+SPECS = (AngleSpec, ColorSpec, DataDistanceSpec, DistanceSpec, FontSizeSpec, NumberSpec, ScreenDistanceSpec, StringSpec)
 
 # -----------------------------------------------------------------------------
 # General API
@@ -126,9 +117,7 @@ class TestValidateDetailDefault(object):
         p = Bool()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a value of type bool or bool_, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected a value of type bool or bool_, got junk of type str")
 
     def test_Complex(self):
         p = Complex()
@@ -194,34 +183,25 @@ class TestValidateDetailDefault(object):
         p = Color()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an element of either Enum\(.*\), .* or RGB, got 'junk'"
-        )
+        assert matches(str(e.value), r"expected an element of either Enum\(.*\), .* or RGB, got 'junk'")
 
     def test_ColumnData(self):
         p = ColumnData(String, Seq(Float))
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an element of ColumnData\(String, Seq\(Float\)\), got 'junk'"
-        )
+        assert matches(str(e.value), r"expected an element of ColumnData\(String, Seq\(Float\)\), got 'junk'")
 
     def test_Date(self):
         p = Date()
         with pytest.raises(ValueError) as e:
             p.validate(object())
-        assert matches(
-            str(e.value), r"expected a date, string or timestamp, got <object object at 0x.*>"
-        )
+        assert matches(str(e.value), r"expected a date, string or timestamp, got <object object at 0x.*>")
 
     def test_DashPattern(self):
         p = DashPattern()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value),
-            r"expected an element of either Enum\(.*\), Regex\(.*\) or Seq\(Int\), got 'junk'",
-        )
+        assert matches(str(e.value), r"expected an element of either Enum\(.*\), Regex\(.*\) or Seq\(Int\), got 'junk'")
 
     def test_Either(self):
         p = Either(Int, Float)
@@ -279,9 +259,7 @@ class TestValidateDetailDefault(object):
         p = spec(default=None)
         with pytest.raises(ValueError) as e:
             p.validate(dict(bad="junk"))
-        assert matches(
-            str(e.value), r"expected an element of either String, .*, got {'bad': 'junk'}"
-        )
+        assert matches(str(e.value), r"expected an element of either String, .*, got {'bad': 'junk'}")
 
 
 @pytest.mark.parametrize("detail", [True, False])

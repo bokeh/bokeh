@@ -22,15 +22,7 @@ from selenium.webdriver.common.keys import Keys
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, enter_text_in_element, hover_element
 from bokeh.layouts import column
-from bokeh.models import (
-    AutocompleteInput,
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-)
+from bokeh.models import AutocompleteInput, Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -41,13 +33,9 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Circle(x="x", y="y", size=20))
-    plot.add_tools(
-        CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-    )
+    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
     input_box = AutocompleteInput(css_classes=["foo"])
     input_box.title = "title"
     input_box.value = "400"
@@ -65,8 +53,7 @@ def modify_doc(doc):
 class Test_AutocompleteInput(object):
     def test_displays_text_input(self, bokeh_model_page):
         text_input = AutocompleteInput(
-            css_classes=["foo"],
-            completions=["100001", "12344556", "12344557", "3194567289", "209374209374"],
+            css_classes=["foo"], completions=["100001", "12344556", "12344557", "3194567289", "209374209374"]
         )
 
         page = bokeh_model_page(text_input)
@@ -269,9 +256,7 @@ class Test_AutocompleteInput(object):
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector(".foo input")
-        enter_text_in_element(
-            page.driver, el, "pre", enter=False
-        )  # not change event if enter is not pressed
+        enter_text_in_element(page.driver, el, "pre", enter=False)  # not change event if enter is not pressed
 
         page.click_custom_action()
 

@@ -55,9 +55,7 @@ class TestCodeHandler(object):
 
     def test_empty_script(self):
         doc = Document()
-        handler = bahc.CodeHandler(
-            source="# This script does nothing", filename="path/to/test_filename"
-        )
+        handler = bahc.CodeHandler(source="# This script does nothing", filename="path/to/test_filename")
         handler.modify_document(doc)
         if handler.failed:
             raise RuntimeError(handler.error)
@@ -75,9 +73,7 @@ class TestCodeHandler(object):
 
     def test_script_bad_syntax(self):
         doc = Document()
-        handler = bahc.CodeHandler(
-            source="This is a syntax error", filename="path/to/test_filename"
-        )
+        handler = bahc.CodeHandler(source="This is a syntax error", filename="path/to/test_filename")
         handler.modify_document(doc)
 
         assert handler.error is not None
@@ -85,9 +81,7 @@ class TestCodeHandler(object):
 
     def test_script_runtime_error(self):
         doc = Document()
-        handler = bahc.CodeHandler(
-            source="raise RuntimeError('nope')", filename="path/to/test_filename"
-        )
+        handler = bahc.CodeHandler(source="raise RuntimeError('nope')", filename="path/to/test_filename")
         handler.modify_document(doc)
 
         assert handler.error is not None
@@ -96,8 +90,7 @@ class TestCodeHandler(object):
     def test_script_sys_path(self):
         doc = Document()
         handler = bahc.CodeHandler(
-            source="""import sys; raise RuntimeError("path: '%s'" % sys.path[0])""",
-            filename="path/to/test_filename",
+            source="""import sys; raise RuntimeError("path: '%s'" % sys.path[0])""", filename="path/to/test_filename"
         )
         handler.modify_document(doc)
 
@@ -107,8 +100,7 @@ class TestCodeHandler(object):
     def test_script_argv(self):
         doc = Document()
         handler = bahc.CodeHandler(
-            source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""",
-            filename="path/to/test_filename",
+            source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""", filename="path/to/test_filename"
         )
         handler.modify_document(doc)
 
@@ -128,9 +120,7 @@ class TestCodeHandler(object):
 
     def test_safe_to_fork(self):
         doc = Document()
-        handler = bahc.CodeHandler(
-            source="# This script does nothing", filename="path/to/test_filename"
-        )
+        handler = bahc.CodeHandler(source="# This script does nothing", filename="path/to/test_filename")
         assert handler.safe_to_fork
         handler.modify_document(doc)
         if handler.failed:

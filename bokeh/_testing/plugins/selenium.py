@@ -43,11 +43,7 @@ def pytest_report_collectionfinish(config, startdir, items):
     """
     driver = config.getoption("driver", "chrome").lower()
     asserts = "ON" if driver == "chrome" else "OFF"
-    return [
-        "",
-        "Bokeh selenium tests using %r driver (no-console-error assertions: %s)"
-        % (driver, asserts),
-    ]
+    return ["", "Bokeh selenium tests using %r driver (no-console-error assertions: %s)" % (driver, asserts)]
 
 
 @pytest.yield_fixture(scope="session")

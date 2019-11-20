@@ -166,10 +166,7 @@ class TestSerializeJson(object):
         assert self.serialize({"test": [1, 2, 3]}) == '{"test":[1,2,3]}'
 
     def test_pretty(self):
-        assert (
-            self.serialize({"test": [1, 2, 3]}, pretty=True)
-            == '{\n  "test": [\n    1,\n    2,\n    3\n  ]\n}'
-        )
+        assert self.serialize({"test": [1, 2, 3]}, pretty=True) == '{\n  "test": [\n    1,\n    2,\n    3\n  ]\n}'
 
     def test_with_np_array(self):
         a = np.arange(5)

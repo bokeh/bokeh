@@ -107,9 +107,7 @@ def npmjs_version():
 
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
-    output = _run_nodejs(
-        [compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir)
-    )
+    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
     lines = output.split("\n")
     for i, line in enumerate(lines):
         if not line.startswith("LOG"):
@@ -519,10 +517,7 @@ def _compile_models(custom_models):
 
     if dependencies:
         dependencies = sorted(dependencies, key=lambda name_version: name_version[0])
-        _run_npmjs(
-            ["install", "--no-progress"]
-            + [name + "@" + version for (name, version) in dependencies]
-        )
+        _run_npmjs(["install", "--no-progress"] + [name + "@" + version for (name, version) in dependencies])
 
     for model in ordered_models:
         impl = model.implementation
@@ -628,12 +623,8 @@ def _bundle_models(custom_models):
 
     sep = ",\n"
 
-    exports = sep.join(
-        _export_template % dict(name=name, module=module) for (name, module) in exports
-    )
-    modules = sep.join(
-        _module_template % dict(module=module, source=code) for (module, code) in modules
-    )
+    exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
+    modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in modules)
 
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)

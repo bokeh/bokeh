@@ -61,9 +61,7 @@ def div_for_render_item(item: RenderItem) -> str:
     return PLOT_DIV.render(doc=item, macros=MACROS)
 
 
-def html_page_for_render_items(
-    bundle, docs_json, render_items, title, template=None, template_variables={}
-):
+def html_page_for_render_items(bundle, docs_json, render_items, title, template=None, template_variables={}):
     """ Render an HTML page from a template and Bokeh render items.
 
     Args:
@@ -131,10 +129,7 @@ def html_page_for_render_items(
 
 
 def script_for_render_items(
-    docs_json_or_id,
-    render_items: List[RenderItem],
-    app_path: Optional[str] = None,
-    absolute_url: Optional[str] = None,
+    docs_json_or_id, render_items: List[RenderItem], app_path: Optional[str] = None, absolute_url: Optional[str] = None
 ) -> str:
     """ Render an script for Bokeh render items.
     Args:

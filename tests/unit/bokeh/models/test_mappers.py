@@ -41,9 +41,7 @@ class Test_CategoricalColorMapper(object):
         assert len(recwarn) == 1
 
     def test_no_warning_with_long_palette(self, recwarn):
-        bmm.CategoricalColorMapper(
-            factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"]
-        )
+        bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
         assert len(recwarn) == 0
 
     def test_with_pandas_index(self, pd):
@@ -74,17 +72,13 @@ class Test_CategoricalMarkerMapper(object):
 class Test_LinearColorMapper(object):
     def test_basic(self):
         mapper = bmm.LinearColorMapper()
-        check_properties_existence(
-            mapper, ["palette", "low", "high", "low_color", "high_color", "nan_color"]
-        )
+        check_properties_existence(mapper, ["palette", "low", "high", "low_color", "high_color", "nan_color"])
 
 
 class Test_LogColorMapper(object):
     def test_basic(self):
         mapper = bmm.LogColorMapper()
-        check_properties_existence(
-            mapper, ["palette", "low", "high", "low_color", "high_color", "nan_color"]
-        )
+        check_properties_existence(mapper, ["palette", "low", "high", "low_color", "high_color", "nan_color"])
 
 
 # -----------------------------------------------------------------------------

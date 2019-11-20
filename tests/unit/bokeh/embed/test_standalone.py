@@ -165,15 +165,7 @@ class Test_file_html(object):
         class fake_template:
             def __init__(self, tester, user_template_variables=None):
                 self.tester = tester
-                self.template_variables = {
-                    "title",
-                    "bokeh_js",
-                    "bokeh_css",
-                    "plot_script",
-                    "doc",
-                    "docs",
-                    "base",
-                }
+                self.template_variables = {"title", "bokeh_js", "bokeh_css", "plot_script", "doc", "docs", "base"}
                 if user_template_variables is not None:
                     self.template_variables.update(user_template_variables)
 
@@ -187,9 +179,7 @@ class Test_file_html(object):
         r = bes.file_html(test_plot, CDN, "title", fake_template(self))
         assert isinstance(r, str)
 
-        r = bes.file_html(
-            test_plot, CDN, "title", fake_template(self, {"test_var"}), {"test_var": "test"}
-        )
+        r = bes.file_html(test_plot, CDN, "title", fake_template(self, {"test_var"}), {"test_var": "test"})
         assert isinstance(r, str)
 
     @patch("bokeh.embed.bundle.warn")

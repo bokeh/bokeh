@@ -90,19 +90,13 @@ def pytest_generate_tests(metafunc):
             params = [pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_js]
             metafunc.parametrize("js_example,example,config", params)
         if "file_example" in metafunc.fixturenames:
-            params = [
-                pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_file
-            ]
+            params = [pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_file]
             metafunc.parametrize("file_example,example,config", params)
         if "server_example" in metafunc.fixturenames:
-            params = [
-                pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_server
-            ]
+            params = [pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_server]
             metafunc.parametrize("server_example,example,config", params)
         if "notebook_example" in metafunc.fixturenames:
-            params = [
-                pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_notebook
-            ]
+            params = [pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_notebook]
             metafunc.parametrize("notebook_example,example,config", params)
 
 
@@ -236,9 +230,7 @@ class ExamplesTestReport(object):
                 example.upload_imgs()
 
             upload_file_to_s3_by_job_id(
-                session.config.option.report_path,
-                "text/html",
-                "EXAMPLES REPORT SUCCESSFULLY UPLOADED",
+                session.config.option.report_path, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED"
             )
             upload_file_to_s3_by_job_id(
                 session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED"

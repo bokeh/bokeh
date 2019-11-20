@@ -22,16 +22,7 @@ import time
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    BoxEditTool,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Div,
-    Plot,
-    Range1d,
-    Rect,
-)
+from bokeh.models import BoxEditTool, ColumnDataSource, CustomAction, CustomJS, Div, Plot, Range1d, Rect
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -42,9 +33,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def _make_plot(dimensions="both", num_objects=0):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], width=[0.5, 0.5], height=[0.5, 0.5]))
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     renderer = plot.add_glyph(source, Rect(x="x", y="y", width="width", height="height"))
     tool = BoxEditTool(dimensions=dimensions, num_objects=num_objects, renderers=[renderer])
     plot.add_tools(tool)
@@ -63,13 +52,7 @@ def _make_plot(dimensions="both", num_objects=0):
 def _make_server_plot(expected, num_objects=0):
     def modify_doc(doc):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], width=[0.5, 0.5], height=[0.5, 0.5]))
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 3),
-            y_range=Range1d(0, 3),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, Rect(x="x", y="y", width="width", height="height"))
         tool = BoxEditTool(dimensions="both", num_objects=num_objects, renderers=[renderer])
         plot.add_tools(tool)

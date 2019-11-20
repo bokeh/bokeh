@@ -244,15 +244,11 @@ def get_table_selected_rows(driver):
 
 
 def get_table_cell(driver, row, col):
-    return driver.find_element_by_css_selector(
-        ".grid-canvas .slick-row:nth-child(%d) .r%d" % (row, col)
-    )
+    return driver.find_element_by_css_selector(".grid-canvas .slick-row:nth-child(%d) .r%d" % (row, col))
 
 
 def get_table_header(driver, col):
-    return driver.find_element_by_css_selector(
-        ".slick-header-columns .slick-header-column:nth-child(%d)" % col
-    )
+    return driver.find_element_by_css_selector(".slick-header-columns .slick-header-column:nth-child(%d)" % col)
 
 
 def get_page_element(driver, element_selector):
@@ -268,9 +264,7 @@ def shift_click(driver, element):
 
 
 def sort_table_column(driver, col, double=False):
-    elt = driver.find_element_by_css_selector(
-        ".slick-header-columns .slick-header-column:nth-child(%d)" % col
-    )
+    elt = driver.find_element_by_css_selector(".slick-header-columns .slick-header-column:nth-child(%d)" % col)
     elt.click()
     if double:
         elt.click()

@@ -70,9 +70,7 @@ def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
     curstate().output_file(filename, title=title, mode=mode, root_dir=root_dir)
 
 
-def output_notebook(
-    resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type="jupyter"
-):
+def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type="jupyter"):
     """ Configure the default output state to generate output in notebook cells
     when :func:`show` is called. Note that, :func:`show` may be called multiple
     times in a single cell to display multiple objects in the output cell. The

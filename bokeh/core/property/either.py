@@ -109,10 +109,7 @@ class Either(ParameterizedProperty):
 
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             msg = (
-                ""
-                if not detail
-                else "expected an element of either %s, got %r"
-                % (nice_join(self.type_params), value)
+                "" if not detail else "expected an element of either %s, got %r" % (nice_join(self.type_params), value)
             )
             raise ValueError(msg)
 
@@ -121,9 +118,7 @@ class Either(ParameterizedProperty):
     #     return any(tp._may_have_unstable_default() for tp in self.type_params)
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s )" % ", ".join(
-            x._sphinx_type() for x in self.type_params
-        )
+        return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
 
 
 # -----------------------------------------------------------------------------

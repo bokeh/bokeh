@@ -29,13 +29,7 @@ import bokeh.core.property.bases as bcpb  # isort:skip
 # Setup
 # -----------------------------------------------------------------------------
 
-ALL = (
-    "ContainerProperty",
-    "DeserializationError",
-    "PrimitiveProperty",
-    "Property",
-    "validation_on",
-)
+ALL = ("ContainerProperty", "DeserializationError", "PrimitiveProperty", "Property", "validation_on")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -98,10 +92,7 @@ class TestProperty(object):
         def raise_(ex):
             raise ex
 
-        p.asserts(
-            False,
-            lambda obj, name, value: raise_(ValueError("bad %s %s %s" % (hp == obj, name, value))),
-        )
+        p.asserts(False, lambda obj, name, value: raise_(ValueError("bad %s %s %s" % (hp == obj, name, value))))
 
         with pytest.raises(ValueError) as e:
             p.prepare_value(hp, "foo", 10)

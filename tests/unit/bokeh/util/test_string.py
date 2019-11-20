@@ -70,19 +70,13 @@ class Test_nice_join(object):
         assert bus.nice_join(["one"], conjuction="and") == "one"
         assert bus.nice_join(["one", "two"], conjuction="and") == "one and two"
         assert bus.nice_join(["one", "two", "three"], conjuction="and") == "one, two and three"
-        assert (
-            bus.nice_join(["one", "two", "three", "four"], conjuction="and")
-            == "one, two, three and four"
-        )
+        assert bus.nice_join(["one", "two", "three", "four"], conjuction="and") == "one, two, three and four"
 
     def test_None_conjunction(self):
         assert bus.nice_join(["one"], conjuction=None) == "one"
         assert bus.nice_join(["one", "two"], conjuction=None) == "one, two"
         assert bus.nice_join(["one", "two", "three"], conjuction=None) == "one, two, three"
-        assert (
-            bus.nice_join(["one", "two", "three", "four"], conjuction=None)
-            == "one, two, three, four"
-        )
+        assert bus.nice_join(["one", "two", "three", "four"], conjuction=None) == "one, two, three, four"
 
     def test_sep(self):
         assert bus.nice_join(["one"], sep="; ") == "one"

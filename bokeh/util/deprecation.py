@@ -51,10 +51,7 @@ def deprecated(since_or_msg: str) -> None:
 
 
 def deprecated(
-    since_or_msg: Union[Version, str],
-    old: Optional[str] = None,
-    new: Optional[str] = None,
-    extra: Optional[str] = None,
+    since_or_msg: Union[Version, str], old: Optional[str] = None, new: Optional[str] = None, extra: Optional[str] = None
 ) -> None:
     """ Issue a nicely formatted deprecation warning. """
 

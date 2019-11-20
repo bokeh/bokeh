@@ -37,20 +37,8 @@ class Test_Plot(object):
         data = {}
 
         def modify_doc(doc):
-            p1 = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=10,
-            )
-            p2 = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=10,
-            )
+            p1 = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=10)
+            p2 = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=10)
             button = Button(css_classes=["foo"])
             layout = column(p1, button)
 

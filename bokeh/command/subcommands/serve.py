@@ -439,10 +439,7 @@ SESSION_ID_MODES = ("unsigned", "signed", "external-signed")
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
 base_serve_args = (
-    (
-        "--port",
-        dict(metavar="PORT", type=int, help="Port to listen on", default=DEFAULT_SERVER_PORT),
-    ),
+    ("--port", dict(metavar="PORT", type=int, help="Port to listen on", default=DEFAULT_SERVER_PORT)),
     ("--address", dict(metavar="ADDRESS", type=str, help="Address to listen on", default=None)),
     (
         "--log-level",
@@ -460,8 +457,7 @@ base_serve_args = (
             metavar="LOG-FORMAT",
             action="store",
             default=DEFAULT_LOG_FORMAT,
-            help="A standard Python logging format string (default: %r)"
-            % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+            help="A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
         ),
     ),
     (
@@ -473,10 +469,7 @@ base_serve_args = (
             help="A filename to write logs to, or None to write to the standard stream (default: None)",
         ),
     ),
-    (
-        "--use-config",
-        dict(metavar="CONFIG", type=str, help="Use a YAML config file for settings", default=None),
-    ),
+    ("--use-config", dict(metavar="CONFIG", type=str, help="Use a YAML config file for settings", default=None)),
 )
 
 __all__ = ("Serve",)
@@ -547,10 +540,7 @@ class Serve(Subcommand):
                 help="Public hostnames which may connect to the Bokeh websocket",
             ),
         ),
-        (
-            "--prefix",
-            dict(metavar="PREFIX", type=str, help="URL prefix for Bokeh server URLs", default=None),
-        ),
+        ("--prefix", dict(metavar="PREFIX", type=str, help="URL prefix for Bokeh server URLs", default=None)),
         (
             "--keep-alive",
             dict(
@@ -562,36 +552,18 @@ class Serve(Subcommand):
         ),
         (
             "--check-unused-sessions",
-            dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How often to check for unused sessions",
-                default=None,
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How often to check for unused sessions", default=None),
         ),
         (
             "--unused-session-lifetime",
-            dict(
-                metavar="MILLISECONDS", type=int, help="How long unused sessions last", default=None
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How long unused sessions last", default=None),
         ),
-        (
-            "--stats-log-frequency",
-            dict(metavar="MILLISECONDS", type=int, help="How often to log stats", default=None),
-        ),
+        ("--stats-log-frequency", dict(metavar="MILLISECONDS", type=int, help="How often to log stats", default=None)),
         (
             "--mem-log-frequency",
-            dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How often to log memory usage information",
-                default=None,
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How often to log memory usage information", default=None),
         ),
-        (
-            "--use-xheaders",
-            dict(action="store_true", help="Prefer X-headers for IP/protocol information"),
-        ),
+        ("--use-xheaders", dict(action="store_true", help="Prefer X-headers for IP/protocol information")),
         (
             "--ssl-certfile",
             dict(
@@ -650,21 +622,10 @@ class Serve(Subcommand):
         ),
         (
             "--index",
-            dict(
-                metavar="INDEX",
-                action="store",
-                default=None,
-                help="Path to a template to use for the site index",
-            ),
+            dict(metavar="INDEX", action="store", default=None, help="Path to a template to use for the site index"),
         ),
-        (
-            "--disable-index",
-            dict(action="store_true", help="Do not use the default index on the root path"),
-        ),
-        (
-            "--disable-index-redirect",
-            dict(action="store_true", help="Do not redirect to running app from root path"),
-        ),
+        ("--disable-index", dict(action="store_true", help="Do not use the default index on the root path")),
+        ("--disable-index-redirect", dict(action="store_true", help="Do not redirect to running app from root path")),
         (
             "--num-procs",
             dict(
@@ -778,9 +739,7 @@ class Serve(Subcommand):
             server_kwargs["sign_sessions"] = True
             server_kwargs["generate_session_ids"] = False
         else:
-            raise RuntimeError(
-                "argparse should have filtered out --session-ids mode " + args.session_ids
-            )
+            raise RuntimeError("argparse should have filtered out --session-ids mode " + args.session_ids)
 
         if server_kwargs["sign_sessions"] and not server_kwargs["secret_key"]:
             die(
@@ -794,12 +753,8 @@ class Serve(Subcommand):
         else:
             server_kwargs["auth_provider"] = NullAuth()
 
-        server_kwargs["xsrf_cookies"] = settings.xsrf_cookies(
-            getattr(args, "enable_xsrf_cookies", False)
-        )
-        server_kwargs["cookie_secret"] = settings.cookie_secret(
-            getattr(args, "cookie_secret", None)
-        )
+        server_kwargs["xsrf_cookies"] = settings.xsrf_cookies(getattr(args, "enable_xsrf_cookies", False))
+        server_kwargs["cookie_secret"] = settings.cookie_secret(getattr(args, "cookie_secret", None))
         server_kwargs["use_index"] = not args.disable_index
         server_kwargs["redirect_root"] = not args.disable_index_redirect
         server_kwargs["autoreload"] = args.dev is not None

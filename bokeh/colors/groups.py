@@ -26,19 +26,7 @@ from .util import ColorGroup
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "black",
-    "blue",
-    "brown",
-    "cyan",
-    "green",
-    "orange",
-    "pink",
-    "purple",
-    "red",
-    "white",
-    "yellow",
-)
+__all__ = ("black", "blue", "brown", "cyan", "green", "orange", "pink", "purple", "red", "white", "yellow")
 
 # -----------------------------------------------------------------------------
 # General API

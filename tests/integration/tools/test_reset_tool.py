@@ -41,9 +41,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def _make_plot():
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Rect(x="x", y="y", width=0.9, height=0.9))
     plot.add_tools(ResetTool(), ZoomInTool())
     code = (
@@ -109,13 +107,7 @@ class Test_ResetTool(object):
         # XXX (bev) string key for multiline_indices seems questionable
         source.selected.multiline_indices = {"0": [0]}
 
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 1),
-            y_range=Range1d(0, 1),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x="x", y="y", size=20))
         plot.add_tools(ResetTool())
         code = (
@@ -151,13 +143,7 @@ class Test_ResetTool(object):
 
     def test_reset_triggers_range1d_callbacks(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 1),
-            y_range=Range1d(0, 1),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x="x", y="y", size=20))
         plot.add_tools(ResetTool(), ZoomInTool())
         plot.x_range.callback = CustomJS(code=COUNT("xrcb"))
@@ -197,13 +183,7 @@ class Test_ResetTool(object):
 
     def test_reset_triggers_datarange1d_callbacks(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=DataRange1d(),
-            y_range=DataRange1d(),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=DataRange1d(), y_range=DataRange1d(), min_border=0)
         plot.add_glyph(source, Circle(x="x", y="y", size=20))
         plot.add_tools(ResetTool(), ZoomInTool())
         plot.x_range.callback = CustomJS(code=COUNT("xrcb"))

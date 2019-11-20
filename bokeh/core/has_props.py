@@ -40,13 +40,7 @@ from .property.wrappers import PropertyValueContainer
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "abstract",
-    "accumulate_dict_from_superclasses",
-    "accumulate_from_superclasses",
-    "HasProps",
-    "MetaHasProps",
-)
+__all__ = ("abstract", "accumulate_dict_from_superclasses", "accumulate_from_superclasses", "HasProps", "MetaHasProps")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -200,8 +194,7 @@ class MetaHasProps(type):
             for key in cls.__dict__["__overridden_defaults__"].keys():
                 if key not in our_props:
                     warn(
-                        ("Override() of %s in class %s does not override anything.")
-                        % (key, class_name),
+                        ("Override() of %s in class %s does not override anything.") % (key, class_name),
                         RuntimeWarning,
                         stacklevel=2,
                     )
@@ -591,10 +584,7 @@ class HasProps(object, metaclass=MetaHasProps):
 
             value = descriptor.serializable_value(self)
             if not include_defaults and key not in themed_keys:
-                if (
-                    isinstance(value, PropertyValueContainer)
-                    and key in self._unstable_default_values
-                ):
+                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                     continue
             result[key] = value
 

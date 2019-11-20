@@ -70,8 +70,7 @@ class Enum(String):
             msg = (
                 ""
                 if not detail
-                else "invalid value: %r; allowed values are %s"
-                % (value, nice_join(self.allowed_values))
+                else "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
             )
             raise ValueError(msg)
 

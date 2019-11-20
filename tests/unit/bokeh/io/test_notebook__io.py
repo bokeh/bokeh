@@ -67,9 +67,7 @@ def test_show_doc_no_server(mock_notebook_content, mock__publish_display_data, m
     assert mock__publish_display_data.call_count == 0
     binb.show_doc(Obj(), s, True)
 
-    expected_args = (
-        {"application/javascript": "notebook_script", "application/vnd.bokehjs_exec.v0+json": ""},
-    )
+    expected_args = ({"application/javascript": "notebook_script", "application/vnd.bokehjs_exec.v0+json": ""},)
     expected_kwargs = {"metadata": {"application/vnd.bokehjs_exec.v0+json": {"id": None}}}
 
     assert d._hold is not None

@@ -78,9 +78,7 @@ NP_MS_DELTA = np.timedelta64(1, "ms")
 
 DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
-__doc__ = format_docstring(
-    __doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES)
-)
+__doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
 __all__ = (
     "array_encoding_disabled",
@@ -520,12 +518,7 @@ def encode_binary_dict(array, buffers):
     buf = (dict(id=buffer_id), array.tobytes())
     buffers.append(buf)
 
-    return {
-        "__buffer__": buffer_id,
-        "shape": array.shape,
-        "dtype": array.dtype.name,
-        "order": sys.byteorder,
-    }
+    return {"__buffer__": buffer_id, "shape": array.shape, "dtype": array.dtype.name, "order": sys.byteorder}
 
 
 def encode_base64_dict(array):

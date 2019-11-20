@@ -60,15 +60,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Bokeh imports
-from .enums import (
-    FontStyle,
-    HatchPattern,
-    HatchPatternAbbreviation,
-    LineCap,
-    LineJoin,
-    TextAlign,
-    TextBaseline,
-)
+from .enums import FontStyle, HatchPattern, HatchPatternAbbreviation, LineCap, LineJoin, TextAlign, TextBaseline
 from .has_props import HasProps
 from .properties import (
     Color,
@@ -273,9 +265,7 @@ class FillProps(HasProps):
     """
 
     fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
-    fill_alpha = NumberSpec(
-        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths"
-    )
+    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
 
 
 class ScalarFillProps(HasProps):
@@ -320,16 +310,10 @@ class HatchProps(HasProps):
     """
 
     hatch_color = ColorSpec(default="black", help=_color_help % "hatching")
-    hatch_alpha = NumberSpec(
-        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "hatching"
-    )
-    hatch_scale = NumberSpec(
-        default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help
-    )
+    hatch_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "hatching")
+    hatch_scale = NumberSpec(default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help)
     hatch_pattern = HatchPatternSpec(default=None, help=_hatch_pattern_help)
-    hatch_weight = NumberSpec(
-        default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help
-    )
+    hatch_weight = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help)
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
 
 
@@ -343,9 +327,7 @@ class ScalarHatchProps(HasProps):
     hatch_color = Color(default="black", help=_color_help % "hatching")
     hatch_alpha = Percent(default=1.0, help=_alpha_help % "hatching")
     hatch_scale = Size(default=12.0, help=_hatch_scale_help)
-    hatch_pattern = String(
-        default=None, help=_hatch_pattern_help
-    )  # String to accommodate user custom values
+    hatch_pattern = String(default=None, help=_hatch_pattern_help)  # String to accommodate user custom values
     hatch_weight = Size(default=1.0, help=_hatch_weight_help)
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
 
@@ -365,14 +347,9 @@ class LineProps(HasProps):
     base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
-    line_width = NumberSpec(
-        default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help
-    )
+    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
     line_alpha = NumberSpec(
-        default=1.0,
-        accept_datetime=False,
-        accept_timedelta=False,
-        help=_alpha_help % "stroke paths",
+        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths"
     )
 
 
@@ -407,9 +384,7 @@ class TextProps(HasProps):
 
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
 
-    text_alpha = NumberSpec(
-        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill text"
-    )
+    text_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill text")
 
 
 class ScalarTextProps(HasProps):

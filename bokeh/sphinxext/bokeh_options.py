@@ -97,8 +97,7 @@ class BokehOptionsDirective(BokehDirective):
             module = importlib.import_module(module_name)
         except ImportError:
             raise SphinxError(
-                "Unable to generate reference docs for %s, couldn't import module '%s'"
-                % (options_name, module_name)
+                "Unable to generate reference docs for %s, couldn't import module '%s'" % (options_name, module_name)
             )
 
         options = getattr(module, options_name, None)
@@ -124,9 +123,7 @@ class BokehOptionsDirective(BokehDirective):
                     name=prop_name,
                     type=descriptor.property._sphinx_type(),
                     default=repr(descriptor.instance_default(options_obj)),
-                    doc=""
-                    if descriptor.__doc__ is None
-                    else textwrap.dedent(descriptor.__doc__.rstrip()),
+                    doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__.rstrip()),
                 )
             )
 

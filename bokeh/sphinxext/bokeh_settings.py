@@ -78,15 +78,13 @@ class BokehSettingsDirective(BokehDirective):
             module = importlib.import_module(module_name)
         except ImportError:
             raise SphinxError(
-                "Unable to generate reference docs for %s, couldn't import module '%s'"
-                % (obj_name, module_name)
+                "Unable to generate reference docs for %s, couldn't import module '%s'" % (obj_name, module_name)
             )
 
         obj = getattr(module, obj_name, None)
         if obj is None:
             raise SphinxError(
-                "Unable to generate reference docs for %s, no model '%s' in %s"
-                % (obj_name, obj_name, module_name)
+                "Unable to generate reference docs for %s, no model '%s' in %s" % (obj_name, obj_name, module_name)
             )
 
         settings = []

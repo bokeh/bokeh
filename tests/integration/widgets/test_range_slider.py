@@ -21,15 +21,7 @@ from time import sleep
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, select_element_and_press_key
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-    RangeSlider,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, RangeSlider
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -80,9 +72,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_displays_title(self, bokeh_model_page):
-        slider = RangeSlider(
-            start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
-        )
+        slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
 
@@ -95,9 +85,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_title_updates(self, bokeh_model_page):
-        slider = RangeSlider(
-            start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
-        )
+        slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
 
@@ -120,9 +108,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_keypress_event(self, bokeh_model_page):
-        slider = RangeSlider(
-            start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
-        )
+        slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
         el = page.driver.find_element_by_css_selector(".foo")
         handle_lower = el.find_element_by_css_selector(".bk-noUi-handle-lower")
@@ -144,13 +130,7 @@ class Test_Slider(object):
 
     def test_displays_bar_color(self, bokeh_model_page):
         slider = RangeSlider(
-            start=0,
-            end=10,
-            value=(1, 5),
-            title="bar",
-            css_classes=["foo"],
-            width=300,
-            bar_color="red",
+            start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300, bar_color="red"
         )
 
         page = bokeh_model_page(slider)
@@ -163,9 +143,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_js_on_change_executes(self, bokeh_model_page):
-        slider = RangeSlider(
-            start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
-        )
+        slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
         slider.js_on_change("value", CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(slider)
@@ -187,20 +165,10 @@ class Test_Slider(object):
     def test_server_on_change_round_trip(self, bokeh_server_page):
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
-            slider = RangeSlider(
-                start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
-            )
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+            slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):
                 source.data["val"] = [old, new]
@@ -246,16 +214,8 @@ class Test_Slider(object):
 
     def test_server_bar_color_updates(self, bokeh_server_page):
         def modify_doc(doc):
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            slider = RangeSlider(
-                start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):
                 slider.bar_color = "rgba(255, 255, 0, 1)"

@@ -1,6 +1,5 @@
 from bokeh.io import save
-from bokeh.models import (ColorBar, Column, LinearColorMapper,
-                          LogColorMapper, LogTicker, Plot, Range1d,)
+from bokeh.models import ColorBar, Column, LinearColorMapper, LogColorMapper, LogTicker, Plot, Range1d
 
 WIDTH = 600
 HEIGHT = 600

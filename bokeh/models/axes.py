@@ -48,29 +48,13 @@ from .formatters import (
     TickFormatter,
 )
 from .renderers import GuideRenderer
-from .tickers import (
-    BasicTicker,
-    CategoricalTicker,
-    DatetimeTicker,
-    FixedTicker,
-    LogTicker,
-    MercatorTicker,
-    Ticker,
-)
+from .tickers import BasicTicker, CategoricalTicker, DatetimeTicker, FixedTicker, LogTicker, MercatorTicker, Ticker
 
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "Axis",
-    "CategoricalAxis",
-    "ContinuousAxis",
-    "DatetimeAxis",
-    "LinearAxis",
-    "LogAxis",
-    "MercatorAxis",
-)
+__all__ = ("Axis", "CategoricalAxis", "ContinuousAxis", "DatetimeAxis", "LinearAxis", "LogAxis", "MercatorAxis")
 
 # -----------------------------------------------------------------------------
 # General API

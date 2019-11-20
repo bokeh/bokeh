@@ -76,9 +76,7 @@ class TestClientServer(object):
             # uses the same main loop as the client, so
             # if we start either one it starts both
             session = ClientSession(
-                session_id="test_minimal_connect_and_disconnect",
-                io_loop=server.io_loop,
-                websocket_url=ws_url(server),
+                session_id="test_minimal_connect_and_disconnect", io_loop=server.io_loop, websocket_url=ws_url(server)
             )
             session.connect()
             assert session.connected
@@ -87,16 +85,12 @@ class TestClientServer(object):
         application = Application()
         with ManagedServerLoop(application) as server:
             session = ClientSession(
-                session_id="test_disconnect_on_error",
-                websocket_url=ws_url(server),
-                io_loop=server.io_loop,
+                session_id="test_disconnect_on_error", websocket_url=ws_url(server), io_loop=server.io_loop
             )
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            server.io_loop.spawn_callback(
-                session._connection._socket.write_message, b"xx", binary=True
-            )
+            server.io_loop.spawn_callback(session._connection._socket.write_message, b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -133,9 +127,7 @@ class TestClientServer(object):
     @pytest.mark.asyncio
     async def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
-            await websocket_open(
-                server.io_loop, ws_url(server) + "?bokeh-session-id=foo", origin=origin
-            )
+            await websocket_open(server.io_loop, ws_url(server) + "?bokeh-session-id=foo", origin=origin)
 
     @pytest.mark.asyncio
     async def check_http_gets(self, server):
@@ -144,9 +136,7 @@ class TestClientServer(object):
 
     @pytest.mark.asyncio
     async def check_connect_session(self, server, origin):
-        await websocket_open(
-            server.io_loop, ws_url(server) + "?bokeh-session-id=foo", origin=origin
-        )
+        await websocket_open(server.io_loop, ws_url(server) + "?bokeh-session-id=foo", origin=origin)
 
     @pytest.mark.asyncio
     async def check_http_ok_socket_ok(self, server, origin=None):
@@ -232,9 +222,7 @@ class TestClientServer(object):
             doc.add_root(AnotherModelInTestClientServer(bar=43))
             doc.add_root(SomeModelInTestClientServer(foo=42))
 
-            client_session = push_session(
-                doc, session_id="test_push_document", url=url(server), io_loop=server.io_loop
-            )
+            client_session = push_session(doc, session_id="test_push_document", url=url(server), io_loop=server.io_loop)
 
             assert client_session.document == doc
             assert len(client_session.document.roots) == 2
@@ -266,9 +254,7 @@ class TestClientServer(object):
         application.add(handler)
 
         with ManagedServerLoop(application) as server:
-            client_session = pull_session(
-                session_id="test_pull_document", url=url(server), io_loop=server.io_loop
-            )
+            client_session = pull_session(session_id="test_pull_document", url=url(server), io_loop=server.io_loop)
             assert len(client_session.document.roots) == 2
 
             server_session = server.get_session("/", client_session.id)
@@ -291,9 +277,7 @@ class TestClientServer(object):
         application = Application()
         with ManagedServerLoop(application) as server:
             session = ClientSession(
-                session_id="test_request_server_info",
-                websocket_url=ws_url(server),
-                io_loop=server.io_loop,
+                session_id="test_request_server_info", websocket_url=ws_url(server), io_loop=server.io_loop
             )
             session.connect()
             assert session.connected
@@ -314,9 +298,7 @@ class TestClientServer(object):
     def test_ping(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
-            session = ClientSession(
-                session_id="test_ping", websocket_url=ws_url(server), io_loop=server.io_loop
-            )
+            session = ClientSession(session_id="test_ping", websocket_url=ws_url(server), io_loop=server.io_loop)
             session.connect()
             assert session.connected
             assert session.document is None
@@ -345,10 +327,7 @@ class TestClientServer(object):
             client_root = SomeModelInTestClientServer(foo=42)
 
             client_session = push_session(
-                doc,
-                session_id="test_client_changes_go_to_server",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_changes_go_to_server", url=url(server), io_loop=server.io_loop
             )
             server_session = server.get_session("/", client_session.id)
 
@@ -396,10 +375,7 @@ class TestClientServer(object):
             doc = document.Document()
 
             client_session = push_session(
-                doc,
-                session_id="test_server_changes_go_to_client",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_server_changes_go_to_client", url=url(server), io_loop=server.io_loop
             )
             server_session = server.get_session("/", client_session.id)
 
@@ -437,9 +413,7 @@ class TestClientServer(object):
             def do_set_property_on_server():
                 server_root.foo = 57
 
-            server.io_loop.spawn_callback(
-                server_session.with_document_locked, do_set_property_on_server
-            )
+            server.io_loop.spawn_callback(server_session.with_document_locked, do_set_property_on_server)
 
             # there is no great way to block until the server
             # has applied changes, since patches are sent
@@ -453,9 +427,7 @@ class TestClientServer(object):
             def do_remove_server_root():
                 server_session.document.remove_root(server_root)
 
-            server.io_loop.spawn_callback(
-                server_session.with_document_locked, do_remove_server_root
-            )
+            server.io_loop.spawn_callback(server_session.with_document_locked, do_remove_server_root)
 
             def client_lacks_root():
                 return len(doc.roots) == 0
@@ -477,10 +449,7 @@ class TestClientServer(object):
             doc = document.Document()
 
             client_session = push_session(
-                doc,
-                session_id="test_client_session_timeout_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_session_timeout_async", url=url(server), io_loop=server.io_loop
             )
 
             result = DictModel()
@@ -525,10 +494,7 @@ class TestClientServer(object):
             cb_id = doc.add_timeout_callback(cb, 10)
 
             client_session = push_session(
-                doc,
-                session_id="test_client_session_timeout_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_session_timeout_async", url=url(server), io_loop=server.io_loop
             )
 
             client_session._loop_until_closed()
@@ -547,10 +513,7 @@ class TestClientServer(object):
             doc.add_root(DictModel())
 
             client_session = push_session(
-                doc,
-                session_id="test_server_session_timeout_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_server_session_timeout_async", url=url(server), io_loop=server.io_loop
             )
             server_session = server.get_session("/", client_session.id)
 
@@ -583,10 +546,7 @@ class TestClientServer(object):
             doc = document.Document()
 
             client_session = push_session(
-                doc,
-                session_id="test_client_session_next_tick_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_session_next_tick_async", url=url(server), io_loop=server.io_loop
             )
 
             result = DictModel()
@@ -631,10 +591,7 @@ class TestClientServer(object):
             cb_id = doc.add_next_tick_callback(cb)
 
             client_session = push_session(
-                doc,
-                session_id="test_client_session_next_tick_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_session_next_tick_async", url=url(server), io_loop=server.io_loop
             )
 
             client_session._loop_until_closed()
@@ -653,10 +610,7 @@ class TestClientServer(object):
             doc.add_root(DictModel())
 
             client_session = push_session(
-                doc,
-                session_id="test_server_session_next_tick_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_server_session_next_tick_async", url=url(server), io_loop=server.io_loop
             )
             server_session = server.get_session("/", client_session.id)
 
@@ -689,10 +643,7 @@ class TestClientServer(object):
             doc = document.Document()
 
             client_session = push_session(
-                doc,
-                session_id="test_client_session_periodic_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_session_periodic_async", url=url(server), io_loop=server.io_loop
             )
 
             result = DictModel()
@@ -735,10 +686,7 @@ class TestClientServer(object):
             cb_id = doc.add_periodic_callback(cb, 10)
 
             client_session = push_session(
-                doc,
-                session_id="test_client_session_periodic_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_client_session_periodic_async", url=url(server), io_loop=server.io_loop
             )
 
             client_session._loop_until_closed()
@@ -755,10 +703,7 @@ class TestClientServer(object):
             doc.add_root(DictModel())
 
             client_session = push_session(
-                doc,
-                session_id="test_server_session_periodic_async",
-                url=url(server),
-                io_loop=server.io_loop,
+                doc, session_id="test_server_session_periodic_async", url=url(server), io_loop=server.io_loop
             )
             server_session = server.get_session("/", client_session.id)
 
@@ -832,9 +777,7 @@ class TestClientServer(object):
         # keep_alive_milliseconds=1 sends pings as fast as the OS will let us
         with ManagedServerLoop(application, keep_alive_milliseconds=1) as server:
             session = pull_session(
-                session_id="test_lots_of_concurrent_messages",
-                url=url(server),
-                io_loop=server.io_loop,
+                session_id="test_lots_of_concurrent_messages", url=url(server), io_loop=server.io_loop
             )
             assert session.connected
 
@@ -859,9 +802,7 @@ class TestClientServer(object):
             def end_test():
                 result["connected"] = session.connected
                 result["server_connection_count"] = server_session.connection_count
-                result["server_close_code"] = next(
-                    iter(server._tornado._clients)
-                )._socket.close_code
+                result["server_close_code"] = next(iter(server._tornado._clients))._socket.close_code
                 result["doc"] = session.document.to_json()
                 session.close()
 
@@ -897,10 +838,7 @@ def test_client_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
         doc.add_root(client_root)
 
         client_session = push_session(
-            doc,
-            session_id="test_client_changes_do_not_boomerang",
-            url=url(server),
-            io_loop=server.io_loop,
+            doc, session_id="test_client_changes_do_not_boomerang", url=url(server), io_loop=server.io_loop
         )
         server_session = server.get_session("/", client_session.id)
 
@@ -948,10 +886,7 @@ def test_server_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
         doc.add_root(client_root)
 
         client_session = push_session(
-            doc,
-            session_id="test_server_changes_do_not_boomerang",
-            url=url(server),
-            io_loop=server.io_loop,
+            doc, session_id="test_server_changes_do_not_boomerang", url=url(server), io_loop=server.io_loop
         )
         server_session = server.get_session("/", client_session.id)
 
@@ -1004,10 +939,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
         doc.add_root(client_root)
 
         client_session = push_session(
-            doc,
-            session_id="test_unit_spec_changes_do_not_boomerang",
-            url=url(server),
-            io_loop=server.io_loop,
+            doc, session_id="test_unit_spec_changes_do_not_boomerang", url=url(server), io_loop=server.io_loop
         )
         server_session = server.get_session("/", client_session.id)
 
@@ -1036,10 +968,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
             # wait until server side change made ... but we may not have the
             # boomerang yet
             def server_change_made():
-                return (
-                    server_root.distance != server_previous_distance
-                    and server_root.angle != server_previous_angle
-                )
+                return server_root.distance != server_previous_distance and server_root.angle != server_previous_angle
 
             client_session._connection._loop_until(server_change_made)
 

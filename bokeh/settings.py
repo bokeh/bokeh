@@ -245,9 +245,7 @@ def convert_logging(value):
     if value in _log_levels:
         return _log_levels[value]
 
-    raise ValueError(
-        "Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels))
-    )
+    raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
 
 
 class _Unset:
@@ -287,9 +285,7 @@ class PrioritizedSetting(object):
     to ``logging`` module values.
     """
 
-    def __init__(
-        self, name, env_var=None, default=_Unset, dev_default=_Unset, convert=None, help=""
-    ):
+    def __init__(self, name, env_var=None, default=_Unset, dev_default=_Unset, convert=None, help=""):
         self._convert = convert if convert else convert_str
         self._default = default
         self._dev_default = dev_default

@@ -126,9 +126,7 @@ def notify_owner(func):
         self._notify_owners(old)
         return result
 
-    wrapper.__doc__ = (
-        "Container method ``%s`` instrumented to notify property owners" % func.__name__
-    )
+    wrapper.__doc__ = "Container method ``%s`` instrumented to notify property owners" % func.__name__
     return wrapper
 
 

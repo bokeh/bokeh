@@ -80,9 +80,7 @@ class ConsumerHelper(AsyncConsumer):
         mode = settings.resources(default="server")
         if mode == "server":
             root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-            return Resources(
-                mode="server", root_url=root_url, path_versioner=StaticHandler.append_version
-            )
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
         return Resources(mode=mode)
 
 
@@ -128,18 +126,10 @@ class AutoloadJsConsumer(SessionConsumer):
         bundle = bundle_for_objs_and_resources(None, resources)
 
         render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        bundle.add(
-            Script(
-                script_for_render_items(
-                    None, render_items, app_path=app_path, absolute_url=absolute_url
-                )
-            )
-        )
+        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
-        await self.send_response(
-            200, js.encode(), headers=[(b"Content-Type", b"application/javascript")]
-        )
+        await self.send_response(200, js.encode(), headers=[(b"Content-Type", b"application/javascript")])
 
 
 class DocConsumer(SessionConsumer):
@@ -225,9 +215,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             self.handler = ProtocolHandler()
             log.debug("ProtocolHandler created for %r", protocol)
 
-            self.connection = self._new_connection(
-                protocol, self, self.application_context, session
-            )
+            self.connection = self._new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
 
         except Exception as e:
@@ -261,11 +249,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
         return sent
 
     def _new_connection(
-        self,
-        protocol: Protocol,
-        socket: AsyncConsumer,
-        application_context: ApplicationContext,
-        session: ServerSession,
+        self, protocol: Protocol, socket: AsyncConsumer, application_context: ApplicationContext, session: ServerSession
     ) -> ServerConnection:
         connection = AsyncServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)

@@ -29,11 +29,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 
 def is_cds_data_changed(evt):
-    return (
-        evt["kind"] == "ModelChanged"
-        and evt["model"]["type"] == "ColumnDataSource"
-        and evt["attr"] == "data"
-    )
+    return evt["kind"] == "ModelChanged" and evt["model"]["type"] == "ColumnDataSource" and evt["attr"] == "data"
 
 
 def is_cds_data_patched(evt):
@@ -52,16 +48,8 @@ class Test_ColumnDataSource(object):
         source = ColumnDataSource(data)
 
         def modify_doc(doc):
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             button = Button(css_classes=["foo"])
             button.js_on_click(CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})"))
@@ -105,21 +93,11 @@ class Test_ColumnDataSource(object):
         source = ColumnDataSource(data)
 
         def modify_doc(doc):
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             button = Button(css_classes=["foo"])
-            button.js_on_click(
-                CustomJS(args=dict(s=source), code="s.stream({'x': [100], 'y': [200]})")
-            )
+            button.js_on_click(CustomJS(args=dict(s=source), code="s.stream({'x': [100], 'y': [200]})"))
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)

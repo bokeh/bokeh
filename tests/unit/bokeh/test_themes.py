@@ -140,11 +140,7 @@ class TestThemes(object):
         assert [("string", "hello", "w00t")] == changes["calls"]
 
     def test_subclass_theme_used_rather_than_base(self):
-        theme = Theme(
-            json={
-                "attrs": {"ThemedModel": {"string": "w00t"}, "SubOfThemedModel": {"string": "bar"}}
-            }
-        )
+        theme = Theme(json={"attrs": {"ThemedModel": {"string": "w00t"}, "SubOfThemedModel": {"string": "bar"}}})
         obj = SubOfThemedModel()
         assert "hello" == obj.string
         changes = dict(calls=[])
@@ -222,15 +218,9 @@ class TestThemes(object):
                 raise RuntimeError("Model %r has no property %s" % (model, name))
             default = property.class_default(model_class)
             if default != value:
-                print(
-                    "%s.%s differs default %r theme %r"
-                    % (model_class.__name__, name, default, value)
-                )
+                print("%s.%s differs default %r theme %r" % (model_class.__name__, name, default, value))
             else:
-                print(
-                    "%s.%s default %r is identical in the theme"
-                    % (model_class.__name__, name, default)
-                )
+                print("%s.%s default %r is identical in the theme" % (model_class.__name__, name, default))
 
     def _compare_dict_to_model_defaults(self, props, model_name):
         import bokeh.models as models

@@ -29,13 +29,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def _make_plot(**kw):
     source = ColumnDataSource(dict(x=[1, 2], y1=[0, 1], y2=[10, 11]))
-    plot = Plot(
-        plot_height=400,
-        plot_width=400,
-        x_range=DataRange1d(),
-        y_range=DataRange1d(**kw),
-        min_border=0,
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=DataRange1d(), y_range=DataRange1d(**kw), min_border=0)
     plot.add_glyph(source, Circle(x="x", y="y1"))
     glyph = plot.add_glyph(source, Circle(x="x", y="y2"))
     glyph.visible = False
@@ -90,11 +84,7 @@ class Test_DataRange1d(object):
     def test_updates_when_visibility_is_toggled(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y1=[0, 1], y2=[10, 11]))
         plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=DataRange1d(),
-            y_range=DataRange1d(only_visible=True),
-            min_border=0,
+            plot_height=400, plot_width=400, x_range=DataRange1d(), y_range=DataRange1d(only_visible=True), min_border=0
         )
         plot.add_glyph(source, Circle(x="x", y="y1"))
         glyph = plot.add_glyph(source, Circle(x="x", y="y2"))

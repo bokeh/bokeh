@@ -117,10 +117,7 @@ class Test_enumeration(object):
     def test_quote(self):
         e = bce.enumeration("foo", "bar", "baz", quote=True)
         assert isinstance(e, bce.Enumeration)
-        assert (
-            str(e) == 'Enumeration("foo", "bar", "baz")'
-            or str(e) == "Enumeration('foo', 'bar', 'baz')"
-        )
+        assert str(e) == 'Enumeration("foo", "bar", "baz")' or str(e) == "Enumeration('foo', 'bar', 'baz')"
         assert [x for x in e] == ["foo", "bar", "baz"]
         for x in ["foo", "bar", "baz"]:
             assert x in e
@@ -363,14 +360,7 @@ class Test_bce(object):
         assert tuple(bce.ResetPolicy) == ("standard", "event_only")
 
     def test_RoundingFunction(self):
-        assert tuple(bce.RoundingFunction) == (
-            "round",
-            "nearest",
-            "floor",
-            "rounddown",
-            "ceil",
-            "roundup",
-        )
+        assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
     def test_SizingMode(self):
         assert tuple(bce.SizingMode) == (
@@ -399,14 +389,7 @@ class Test_bce(object):
         assert tuple(bce.TextAlign) == ("left", "right", "center")
 
     def test_TextBaseline(self):
-        assert tuple(bce.TextBaseline) == (
-            "top",
-            "middle",
-            "bottom",
-            "alphabetic",
-            "hanging",
-            "ideographic",
-        )
+        assert tuple(bce.TextBaseline) == ("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
     def test_TextureRepetition(self):
         assert tuple(bce.TextureRepetition) == ("repeat", "repeat_x", "repeat_y", "no_repeat")
@@ -415,14 +398,7 @@ class Test_bce(object):
         assert tuple(bce.TickLabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
 
     def test_TooltipAttachment(self):
-        assert tuple(bce.TooltipAttachment) == (
-            "horizontal",
-            "vertical",
-            "left",
-            "right",
-            "above",
-            "below",
-        )
+        assert tuple(bce.TooltipAttachment) == ("horizontal", "vertical", "left", "right", "above", "below")
 
     def test_TooltipFieldFormatter(self):
         assert tuple(bce.TooltipFieldFormatter) == ("numeral", "datetime", "printf")

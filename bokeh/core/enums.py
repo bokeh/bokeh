@@ -268,16 +268,7 @@ DateFormat = enumeration(
 
 #: Specify a date/time scale
 DatetimeUnits = enumeration(
-    "microseconds",
-    "milliseconds",
-    "seconds",
-    "minsec",
-    "minutes",
-    "hourmin",
-    "hours",
-    "days",
-    "months",
-    "years",
+    "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years"
 )
 
 #: Specify a vertical/horizontal dimension
@@ -453,13 +444,7 @@ RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil",
 
 #: Sizing mode policies
 SizingMode = enumeration(
-    "stretch_width",
-    "stretch_height",
-    "stretch_both",
-    "scale_width",
-    "scale_height",
-    "scale_both",
-    "fixed",
+    "stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed"
 )
 
 #: Individual sizing mode policies

@@ -297,9 +297,7 @@ def test_ssl_args_plumbing(ManagedServerLoop):
             )
 
     with mock.patch.object(ssl, "SSLContext"):
-        with ManagedServerLoop(
-            {}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar"
-        ) as server:
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar") as server:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
             assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(
                 certfile="foo", keyfile="baz", password="bar"
@@ -352,9 +350,7 @@ async def test_server_applications_callable_arg(ManagedServerLoop):
 # -----------------------------------------------------------------------------
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="Lifecycle hooks order different on Windows (TODO open issue)"
-)
+@pytest.mark.skipif(sys.platform == "win32", reason="Lifecycle hooks order different on Windows (TODO open issue)")
 def test__lifecycle_hooks(ManagedServerLoop):
     application = Application()
     handler = HookTestHandler()
@@ -372,9 +368,7 @@ def test__lifecycle_hooks(ManagedServerLoop):
         server_load_checker.stop()
 
         # now we create a session
-        client_session = pull_session(
-            session_id="test__lifecycle_hooks", url=url(server), io_loop=server.io_loop
-        )
+        client_session = pull_session(session_id="test__lifecycle_hooks", url=url(server), io_loop=server.io_loop)
         client_doc = client_session.document
         assert len(client_doc.roots) == 1
 
@@ -474,12 +468,7 @@ async def test__no_request_arguments_in_session_context(ManagedServerLoop):
 
 @pytest.mark.parametrize(
     "querystring,requested",
-    [
-        ("", True),
-        ("&resources=default", True),
-        ("&resources=whatever", True),
-        ("&resources=none", False),
-    ],
+    [("", True), ("&resources=default", True), ("&resources=whatever", True), ("&resources=none", False)],
 )
 @pytest.mark.unit
 @pytest.mark.asyncio
@@ -560,9 +549,7 @@ async def test__use_provided_session_autoload(ManagedServerLoop):
         assert 0 == len(sessions)
 
         expected = "foo"
-        response = await http_get(
-            server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected
-        )
+        response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
         js = response.body
         sessionid = extract_sessionid_from_json(js)
         assert expected == sessionid

@@ -49,13 +49,7 @@ pd = import_optional("pandas")
 # General API
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "ContainerProperty",
-    "DeserializationError",
-    "PrimitiveProperty",
-    "Property",
-    "validation_on",
-)
+__all__ = ("ContainerProperty", "DeserializationError", "PrimitiveProperty", "Property", "validation_on")
 
 # -----------------------------------------------------------------------------
 # Dev API
@@ -455,11 +449,7 @@ class PrimitiveProperty(Property):
                 ""
                 if not detail
                 else "expected a value of type %s, got %s of type %s"
-                % (
-                    nice_join([cls.__name__ for cls in self._underlying_type]),
-                    value,
-                    type(value).__name__,
-                )
+                % (nice_join([cls.__name__ for cls in self._underlying_type]), value, type(value).__name__)
             )
             raise ValueError(msg)
 

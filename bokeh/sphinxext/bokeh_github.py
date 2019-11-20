@@ -94,9 +94,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
             raise ValueError
     except ValueError:
         msg = inliner.reporter.error(
-            "Github issue number must be a number greater than or equal to 1; "
-            '"%s" is invalid.' % text,
-            line=lineno,
+            "Github issue number must be a number greater than or equal to 1; " '"%s" is invalid.' % text, line=lineno
         )
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
@@ -119,15 +117,12 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
             raise ValueError
     except ValueError:
         msg = inliner.reporter.error(
-            "Github pull request number must be a number greater than or equal to 1; "
-            '"%s" is invalid.' % text,
+            "Github pull request number must be a number greater than or equal to 1; " '"%s" is invalid.' % text,
             line=lineno,
         )
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = _make_gh_link_node(
-        app, rawtext, "pull", "pull request ", "pull", str(issue_num), options
-    )
+    node = _make_gh_link_node(app, rawtext, "pull", "pull request ", "pull", str(issue_num), options)
     return [node], []
 
 

@@ -39,14 +39,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import (
-    Anchor,
-    Dimension,
-    Dimensions,
-    Location,
-    TooltipAttachment,
-    TooltipFieldFormatter,
-)
+from ..core.enums import Anchor, Dimension, Dimensions, Location, TooltipAttachment, TooltipFieldFormatter
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -1605,9 +1598,7 @@ class BoxEditTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, Rect):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ", ".join(
-                type(renderer.glyph).__name__ for renderer in incompatible_renderers
-            )
+            glyph_types = ", ".join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 
@@ -1676,9 +1667,7 @@ class PointDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, XYGlyph):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ", ".join(
-                type(renderer.glyph).__name__ for renderer in incompatible_renderers
-            )
+            glyph_types = ", ".join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 
@@ -1747,9 +1736,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, (MultiLine, Patches)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ", ".join(
-                type(renderer.glyph).__name__ for renderer in incompatible_renderers
-            )
+            glyph_types = ", ".join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
     @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
@@ -1800,9 +1787,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, (MultiLine, Patches)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ", ".join(
-                type(renderer.glyph).__name__ for renderer in incompatible_renderers
-            )
+            glyph_types = ", ".join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 
@@ -1857,9 +1842,7 @@ class PolyEditTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, (MultiLine, Patches)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ", ".join(
-                type(renderer.glyph).__name__ for renderer in incompatible_renderers
-            )
+            glyph_types = ", ".join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 

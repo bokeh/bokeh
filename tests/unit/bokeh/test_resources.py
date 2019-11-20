@@ -247,15 +247,7 @@ class TestResources(object):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_dir="foo")
 
-        for mode in (
-            "inline",
-            "server",
-            "server-dev",
-            "relative",
-            "relative-dev",
-            "absolute",
-            "absolute-dev",
-        ):
+        for mode in ("inline", "server", "server-dev", "relative", "relative-dev", "absolute", "absolute-dev"):
             with pytest.raises(ValueError):
                 resources.Resources(mode, version="foo")
 

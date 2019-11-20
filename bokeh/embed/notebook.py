@@ -92,9 +92,7 @@ def notebook_content(
     if notebook_comms_target:
         render_item["notebook_comms_target"] = notebook_comms_target
 
-    script = DOC_NB_JS.render(
-        docs_json=serialize_json(docs_json), render_items=serialize_json([render_item])
-    )
+    script = DOC_NB_JS.render(docs_json=serialize_json(docs_json), render_items=serialize_json([render_item]))
 
     return script, div, new_doc
 

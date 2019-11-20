@@ -208,9 +208,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         # and handling any subtype relationships or custom implementations
         previous = cls.model_class_reverse_map.get(qualified, None)
         if previous is not None and not hasattr(cls, "__implementation__"):
-            raise Warning(
-                f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}"
-            )
+            raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
         cls.model_class_reverse_map[qualified] = cls
 
     def __new__(cls, *args, **kwargs):
@@ -477,9 +475,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         """
         if len(callbacks) == 0:
-            raise ValueError(
-                "js_on_change takes an event name and one or more callbacks, got only one parameter"
-            )
+            raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
 
         # handle any CustomJS callbacks here
         from bokeh.models import CustomJS
@@ -527,8 +523,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         """
         if attr not in self.properties():
             raise ValueError(
-                "attempted to add a callback on nonexistent %s.%s property"
-                % (self.__class__.__name__, attr)
+                "attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr)
             )
         super().on_change(attr, *callbacks)
 
@@ -668,9 +663,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         """
         if self._document is not None and self._document is not doc:
-            raise RuntimeError(
-                "Models must be owned by only a single document, %r is already in a doc" % (self)
-            )
+            raise RuntimeError("Models must be owned by only a single document, %r is already in a doc" % (self))
         doc.theme.apply_to_model(self)
         self._document = doc
         self._update_event_callbacks()
@@ -678,9 +671,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     @staticmethod
     def _clear_extensions():
         Model.model_class_reverse_map = {
-            k: v
-            for k, v in Model.model_class_reverse_map.items()
-            if getattr(v, "__implementation__", None) is None
+            k: v for k, v in Model.model_class_reverse_map.items() if getattr(v, "__implementation__", None) is None
         }
 
     def _detach_document(self):

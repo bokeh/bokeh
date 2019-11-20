@@ -103,12 +103,7 @@ class Interval(ParameterizedProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s, %r, %r)" % (
-            self.__class__.__name__,
-            self.interval_type,
-            self.start,
-            self.end,
-        )
+        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.interval_type, self.start, self.end)
 
     @property
     def type_params(self):
@@ -117,12 +112,7 @@ class Interval(ParameterizedProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (
-            value is None
-            or self.interval_type.is_valid(value)
-            and value >= self.start
-            and value <= self.end
-        ):
+        if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
             msg = (
                 ""
                 if not detail

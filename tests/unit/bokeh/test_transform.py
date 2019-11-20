@@ -98,9 +98,7 @@ class Test_dodge(object):
 
 class Test_factor_cmap(object):
     def test_basic(self):
-        t = bt.factor_cmap(
-            "foo", ["red", "green"], ["foo", "bar"], start=1, end=2, nan_color="pink"
-        )
+        t = bt.factor_cmap("foo", ["red", "green"], ["foo", "bar"], start=1, end=2, nan_color="pink")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
         assert t["field"] == "foo"
@@ -211,9 +209,7 @@ class Test_jitter(object):
 
 class Test_linear_cmap(object):
     def test_basic(self):
-        t = bt.linear_cmap(
-            "foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink"
-        )
+        t = bt.linear_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
         assert t["field"] == "foo"
@@ -241,9 +237,7 @@ class Test_linear_cmap(object):
 
 class Test_log_cmap(object):
     def test_basic(self):
-        t = bt.log_cmap(
-            "foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink"
-        )
+        t = bt.log_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
         assert t["field"] == "foo"

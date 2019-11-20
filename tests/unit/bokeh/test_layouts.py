@@ -47,15 +47,7 @@ def test_gridplot_merge_tools_with_None():
 
 
 def test_gridplot_merge_tools_nested():
-    p1, p2, p3, p4, p5, p6, p7 = (
-        figure(),
-        figure(),
-        figure(),
-        figure(),
-        figure(),
-        figure(),
-        figure(),
-    )
+    p1, p2, p3, p4, p5, p6, p7 = (figure(), figure(), figure(), figure(), figure(), figure(), figure())
     r1 = row(p1, p2)
     r2 = row(p3, p4)
     c = column(row(p5), row(p6))

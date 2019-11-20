@@ -68,12 +68,10 @@ class NotebookHandler(CodeHandler):
 
         """
         nbformat = import_required(
-            "nbformat",
-            "The Bokeh notebook application handler requires Jupyter Notebook to be installed.",
+            "nbformat", "The Bokeh notebook application handler requires Jupyter Notebook to be installed."
         )
         nbconvert = import_required(
-            "nbconvert",
-            "The Bokeh notebook application handler requires Jupyter Notebook to be installed.",
+            "nbconvert", "The Bokeh notebook application handler requires Jupyter Notebook to be installed."
         )
 
         if "filename" not in kwargs:

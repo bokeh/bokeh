@@ -136,14 +136,10 @@ def bundle_for_objs_and_resources(objs, resources):
         js_resources, css_resources = resources
 
         if js_resources and not css_resources:
-            warn(
-                "No Bokeh CSS Resources provided to template. If required you will need to provide them manually."
-            )
+            warn("No Bokeh CSS Resources provided to template. If required you will need to provide them manually.")
 
         if css_resources and not js_resources:
-            warn(
-                "No Bokeh JS Resources provided to template. If required you will need to provide them manually."
-            )
+            warn("No Bokeh JS Resources provided to template. If required you will need to provide them manually.")
     else:
         raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
 

@@ -126,9 +126,7 @@ class WSHandler(WebSocketHandler):
             raise ProtocolError("No bokeh-session-id specified")
 
         if not check_session_id_signature(
-            session_id,
-            signed=self.application.sign_sessions,
-            secret_key=self.application.secret_key,
+            session_id, signed=self.application.sign_sessions, secret_key=self.application.secret_key
         ):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
@@ -171,9 +169,7 @@ class WSHandler(WebSocketHandler):
             self.handler = ProtocolHandler()
             log.debug("ProtocolHandler created for %r", protocol)
 
-            self.connection = self.application.new_connection(
-                protocol, self, self.application_context, session
-            )
+            self.connection = self.application.new_connection(protocol, self, self.application_context, session)
             log.info("ServerConnection created")
 
         except ProtocolError as e:
@@ -265,9 +261,7 @@ class WSHandler(WebSocketHandler):
         """ Clean up when the connection is closed.
 
         """
-        log.info(
-            "WebSocket connection closed: code=%s, reason=%r", self.close_code, self.close_reason
-        )
+        log.info("WebSocket connection closed: code=%s, reason=%r", self.close_code, self.close_reason)
         if self.connection is not None:
             self.application.client_lost(self.connection)
 

@@ -27,20 +27,7 @@ from typing import Optional
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "bright",
-    "dim",
-    "fail",
-    "green",
-    "info",
-    "ok",
-    "red",
-    "trace",
-    "white",
-    "yellow",
-    "warn",
-    "write",
-)
+__all__ = ("bright", "dim", "fail", "green", "info", "ok", "red", "trace", "white", "yellow", "warn", "write")
 
 # -----------------------------------------------------------------------------
 # General API

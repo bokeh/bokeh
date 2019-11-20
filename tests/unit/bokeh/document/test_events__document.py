@@ -156,15 +156,7 @@ class TestModelChangedEvent(object):
 
     def test_init_ignores_hint_with_setter(self):
         e = bde.ModelChangedEvent(
-            "doc",
-            "model",
-            "attr",
-            "old",
-            "new",
-            "snew",
-            setter="setter",
-            hint="hint",
-            callback_invoker="invoker",
+            "doc", "model", "attr", "old", "new", "snew", setter="setter", hint="hint", callback_invoker="invoker"
         )
         assert e.document == "doc"
         assert e.setter == "setter"
@@ -178,9 +170,7 @@ class TestModelChangedEvent(object):
         assert e.callback_invoker == "invoker"
 
     def test_init_uses_hint_with_no_setter(self):
-        e = bde.ModelChangedEvent(
-            "doc", "model", "attr", "old", "new", "snew", hint="hint", callback_invoker="invoker"
-        )
+        e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", hint="hint", callback_invoker="invoker")
         assert e.document == "doc"
         assert e.setter == None
         assert e.callback_invoker == "invoker"
@@ -227,12 +217,8 @@ class TestModelChangedEvent(object):
         assert e.combine(e2) == False
 
     def test_combine_with_matching_model_changed_event(self):
-        e = bde.ModelChangedEvent(
-            "doc", "model", "attr", "old", "new", "snew", callback_invoker="invoker"
-        )
-        e2 = bde.ModelChangedEvent(
-            "doc", "model", "attr", "old2", "new2", "snew2", callback_invoker="invoker2"
-        )
+        e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", callback_invoker="invoker")
+        e2 = bde.ModelChangedEvent("doc", "model", "attr", "old2", "new2", "snew2", callback_invoker="invoker2")
         assert e.combine(e2) == True
         assert e.old == "old"  # keeps original old value
         assert e.new == "new2"
@@ -245,9 +231,7 @@ class TestModelChangedEvent(object):
         m = FakeModel()
         h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
         h2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "setter", "invoker")
-        e = bde.ModelChangedEvent(
-            "doc", "model", "attr", "old", "new", "snew", hint=h, callback_invoker="invoker"
-        )
+        e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", hint=h, callback_invoker="invoker")
         e2 = bde.ModelChangedEvent(
             "doc", "model", "attr", "old2", "new2", "snew2", hint=h2, callback_invoker="invoker2"
         )
@@ -318,9 +302,7 @@ class TestColumnsStreamedEvent(object):
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(
-            kind="ColumnsStreamed", column_source="ref", data=dict(foo=1), rollover=200
-        )
+        assert r == dict(kind="ColumnsStreamed", column_source="ref", data=dict(foo=1), rollover=200)
         assert refs == dict(foo=10)
         assert bufs == set()
 

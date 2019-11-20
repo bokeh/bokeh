@@ -34,10 +34,7 @@ def test_cmap_generator_function():
     assert pal.gray(256) == pal.Greys256
     assert pal.grey(256) == pal.Greys256
     assert pal.turbo(256) == pal.Turbo256
-    assert (
-        pal.diverging_palette(pal.Reds9, pal.Greys9, n=18, midpoint=0.5)
-        == pal.Reds9 + pal.Greys9[::-1]
-    )
+    assert pal.diverging_palette(pal.Reds9, pal.Greys9, n=18, midpoint=0.5) == pal.Reds9 + pal.Greys9[::-1]
 
 
 def test_all_palettes___palettes__():

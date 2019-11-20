@@ -22,17 +22,7 @@ import time
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Div,
-    MultiLine,
-    Plot,
-    PolyEditTool,
-    Range1d,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Div, MultiLine, Plot, PolyEditTool, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -44,9 +34,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 def _make_plot():
     data = {"xs": [[1, 2], [1.6, 2.45]], "ys": [[1, 1], [1.5, 0.75]]}
     source = ColumnDataSource(data)
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     renderer = plot.add_glyph(source, MultiLine(xs="xs", ys="ys", line_width=10))
     tool = PolyEditTool(renderers=[renderer])
     psource = ColumnDataSource(dict(x=[], y=[]))
@@ -64,13 +52,7 @@ def _make_server_plot(expected):
     def modify_doc(doc):
         data = {"xs": [[1, 2], [1.6, 2.45]], "ys": [[1, 1], [1.5, 0.75]]}
         source = ColumnDataSource(data)
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 3),
-            y_range=Range1d(0, 3),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, MultiLine(xs="xs", ys="ys"))
         tool = PolyEditTool(renderers=[renderer])
         psource = ColumnDataSource(dict(x=[], y=[]))
@@ -190,10 +172,7 @@ class Test_PolyEditTool(object):
         time.sleep(0.5)
         page.click_custom_action()
 
-        expected = {
-            "xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]],
-            "ys": [[1, 1], [1.5, 0.75, 1.5]],
-        }
+        expected = {"xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]], "ys": [[1, 1], [1.5, 0.75, 1.5]]}
         assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
@@ -216,19 +195,13 @@ class Test_PolyEditTool(object):
         page.send_keys("\ue003")  # Escape
         page.click_custom_action()
 
-        expected = {
-            "xs": [[1, 2], [1.6, 2.027027027027027]],
-            "ys": [[1, 1], [1.5, 1.8749999999999998]],
-        }
+        expected = {"xs": [[1, 2], [1.6, 2.027027027027027]], "ys": [[1, 1], [1.5, 1.8749999999999998]]}
         assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
     def _test_poly_edit_syncs_to_server(self, bokeh_server_page):
-        expected = {
-            "xs": [[1, 2], [1.6, 2.45, 2.027027027027027]],
-            "ys": [[1, 1], [1.5, 0.75, 1.8749999999999998]],
-        }
+        expected = {"xs": [[1, 2], [1.6, 2.45, 2.027027027027027]], "ys": [[1, 1], [1.5, 0.75, 1.8749999999999998]]}
         page = bokeh_server_page(_make_server_plot(expected))
 
         # ensure double clicking shows vertices and edits them
@@ -243,10 +216,7 @@ class Test_PolyEditTool(object):
         assert page.results == {"matches": "True"}
 
     def _test_poly_drag_syncs_to_server(self, bokeh_server_page):
-        expected = {
-            "xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]],
-            "ys": [[1, 1], [1.5, 0.75, 1.5]],
-        }
+        expected = {"xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]], "ys": [[1, 1], [1.5, 0.75, 1.5]]}
 
         page = bokeh_server_page(_make_server_plot(expected))
 
@@ -265,10 +235,7 @@ class Test_PolyEditTool(object):
         assert page.results == {"matches": "True"}
 
     def test_poly_delete_syncs_to_server(self, bokeh_server_page):
-        expected = {
-            "xs": [[1, 2], [1.6, 2.027027027027027]],
-            "ys": [[1, 1], [1.5, 1.8749999999999998]],
-        }
+        expected = {"xs": [[1, 2], [1.6, 2.027027027027027]], "ys": [[1, 1], [1.5, 1.8749999999999998]]}
         page = bokeh_server_page(_make_server_plot(expected))
 
         # ensure backspace removes vertex

@@ -44,14 +44,7 @@ from .tiles import TileSource, WMTSTileSource
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "DataRenderer",
-    "GlyphRenderer",
-    "GraphRenderer",
-    "GuideRenderer",
-    "Renderer",
-    "TileRenderer",
-)
+__all__ = ("DataRenderer", "GlyphRenderer", "GraphRenderer", "GuideRenderer", "Renderer", "TileRenderer")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -185,14 +178,9 @@ class GlyphRenderer(DataRenderer):
         if missing_values:
             suggestions = [
                 '" (closest match: "%s")' % s[0] if s else '"'
-                for s in [
-                    get_close_matches(term[0], self.data_source.column_names, n=1)
-                    for term in missing_values
-                ]
+                for s in [get_close_matches(term[0], self.data_source.column_names, n=1) for term in missing_values]
             ]
-            missing_values = [
-                ("".join([m[0], s]), m[1]) for m, s in zip(missing_values, suggestions)
-            ]
+            missing_values = [("".join([m[0], s]), m[1]) for m, s in zip(missing_values, suggestions)]
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
@@ -272,9 +260,7 @@ class GlyphRenderer(DataRenderer):
     )
 
 
-_DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
-    glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
-)
+_DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[])))
 
 _DEFAULT_EDGE_RENDERER = lambda: GlyphRenderer(
     glyph=MultiLine(), data_source=ColumnDataSource(data=dict(start=[], end=[]))

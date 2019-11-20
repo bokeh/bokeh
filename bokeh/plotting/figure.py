@@ -133,13 +133,9 @@ class Figure(Plot):
     def __init__(self, *arg, **kw):
 
         if "plot_width" in kw and "width" in kw:
-            raise ValueError(
-                "Figure called with both 'plot_width' and 'width' supplied, supply only one"
-            )
+            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
         if "plot_height" in kw and "height" in kw:
-            raise ValueError(
-                "Figure called with both 'plot_height' and 'height' supplied, supply only one"
-            )
+            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
         if "height" in kw:
             kw["plot_height"] = kw.pop("height")
         if "width" in kw:
@@ -160,33 +156,16 @@ class Figure(Plot):
         self.y_scale = _get_scale(self.y_range, opts.y_axis_type)
 
         _process_axis_and_grid(
-            self,
-            opts.x_axis_type,
-            opts.x_axis_location,
-            opts.x_minor_ticks,
-            opts.x_axis_label,
-            self.x_range,
-            0,
+            self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0
         )
         _process_axis_and_grid(
-            self,
-            opts.y_axis_type,
-            opts.y_axis_location,
-            opts.y_minor_ticks,
-            opts.y_axis_label,
-            self.y_range,
-            1,
+            self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1
         )
 
         tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
         _process_active_tools(
-            self.toolbar,
-            tool_map,
-            opts.active_drag,
-            opts.active_inspect,
-            opts.active_scroll,
-            opts.active_tap,
+            self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap
         )
 
     annular_wedge = _glyph_function(_glyphs.AnnularWedge)

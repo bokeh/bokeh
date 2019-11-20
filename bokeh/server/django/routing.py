@@ -56,9 +56,7 @@ class Routing:
     document: bool
     autoload: bool
 
-    def __init__(
-        self, url: str, app: ApplicationLike, *, document: bool = False, autoload: bool = False
-    ) -> None:
+    def __init__(self, url: str, app: ApplicationLike, *, document: bool = False, autoload: bool = False) -> None:
         self.url = url
         self.app = self._fixup(self._normalize(app))
         self.app_context = ApplicationContext(self.app, url=self.url)
@@ -126,9 +124,7 @@ class RoutingConfiguration(object):
         if routing.document:
             self._http_urlpatterns.append(url(urlpattern(), DocConsumer, kwargs=kwargs))
         if routing.autoload:
-            self._http_urlpatterns.append(
-                url(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs)
-            )
+            self._http_urlpatterns.append(url(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs))
 
         self._websocket_urlpatterns.append(url(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
 
@@ -143,9 +139,7 @@ class RoutingConfiguration(object):
 
 
 def is_bokeh_app(entry: Path) -> bool:
-    return (entry.is_dir() or entry.name.endswith((".py", ".ipynb"))) and not entry.name.startswith(
-        (".", "_")
-    )
+    return (entry.is_dir() or entry.name.endswith((".py", ".ipynb"))) and not entry.name.startswith((".", "_"))
 
 
 # -----------------------------------------------------------------------------

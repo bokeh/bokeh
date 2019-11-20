@@ -45,9 +45,7 @@ def _read_data():
     """
 
     """
-    df = external_csv(
-        "population", "WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.csv", encoding="CP1250"
-    )
+    df = external_csv("population", "WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.csv", encoding="CP1250")
     df = df[df.Sex != "Both"]
     df = df.drop(["VarID", "Variant", "MidPeriod", "SexID", "AgeGrpSpan"], axis=1)
     df = df.rename(columns={"Time": "Year"})

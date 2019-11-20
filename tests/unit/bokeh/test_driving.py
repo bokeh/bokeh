@@ -62,9 +62,7 @@ def test_cosine():
     func = bd.cosine(w, A, phi, offset)(_collector(results))
     for i in range(4):
         func()
-    assert_allclose(
-        results, [4.985012495834077, 4.763182982008655, 4.294526561853465, 3.6209069176044197]
-    )
+    assert_allclose(results, [4.985012495834077, 4.763182982008655, 4.294526561853465, 3.6209069176044197])
 
 
 def test_count():
@@ -108,9 +106,7 @@ def test_sine():
     func = bd.sine(w, A, phi, offset)(_collector(results))
     for i in range(4):
         func()
-    assert_allclose(
-        results, [2.2995002499404844, 3.1682550269259515, 3.932653061713073, 4.524412954423689]
-    )
+    assert_allclose(results, [2.2995002499404844, 3.1682550269259515, 3.932653061713073, 4.524412954423689])
 
 
 # -----------------------------------------------------------------------------

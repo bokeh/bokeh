@@ -164,10 +164,7 @@ class CodeHandler(Handler):
                 newdoc = curdoc()
                 # script is supposed to edit the doc not replace it
                 if newdoc is not doc:
-                    raise RuntimeError(
-                        "%s at '%s' replaced the output document"
-                        % (self._origin, self._runner.path)
-                    )
+                    raise RuntimeError("%s at '%s' replaced the output document" % (self._origin, self._runner.path))
 
             self._runner.run(module, post_check)
         finally:

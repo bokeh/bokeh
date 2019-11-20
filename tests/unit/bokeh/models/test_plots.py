@@ -107,9 +107,7 @@ class TestPlotSelect(object):
     def test_selector_kwarg_and_extra_kwargs(self):
         with pytest.raises(TypeError) as exc:
             self._plot.select(selector=dict(foo="foo"), bar="bar")
-        assert "when passing 'selector' keyword arg, not other keyword args may be present" == str(
-            exc.value
-        )
+        assert "when passing 'selector' keyword arg, not other keyword args may be present" == str(exc.value)
 
     def test_bad_arg_type(self):
         with pytest.raises(TypeError) as exc:
@@ -124,17 +122,12 @@ class TestPlotSelect(object):
     def test_no_input(self):
         with pytest.raises(TypeError) as exc:
             self._plot.select()
-        assert "select requires EITHER a positional argument, OR keyword arguments." == str(
-            exc.value
-        )
+        assert "select requires EITHER a positional argument, OR keyword arguments." == str(exc.value)
 
     def test_arg_and_kwarg(self):
         with pytest.raises(TypeError) as exc:
             self._plot.select("foo", type=PanTool)
-        assert (
-            "select accepts EITHER a positional argument, OR keyword arguments (not both)."
-            == str(exc.value)
-        )
+        assert "select accepts EITHER a positional argument, OR keyword arguments (not both)." == str(exc.value)
 
 
 class TestPlotValidation(object):
@@ -144,9 +137,7 @@ class TestPlotValidation(object):
         with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([p])
         assert mock_logger.warning.call_count == 1
-        assert mock_logger.warning.call_args[0][0].startswith(
-            "W-1000 (MISSING_RENDERERS): Plot has no renderers"
-        )
+        assert mock_logger.warning.call_args[0][0].startswith("W-1000 (MISSING_RENDERERS): Plot has no renderers")
 
     def test_missing_scale(self):
         p = figure()
@@ -397,9 +388,7 @@ class Test_list_attr_splat(object):
         obj = bmp._list_attr_splat([])
         with pytest.raises(AttributeError) as e:
             obj.start
-        assert str(e.value).endswith(
-            "Trying to access %r attribute on an empty 'splattable' list" % "start"
-        )
+        assert str(e.value).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
 
     def test_get_index(self):
         obj = bmp._list_attr_splat([1, 2, 3])

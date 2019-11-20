@@ -92,9 +92,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
 
     """
 
-    image = get_screenshot_as_png(
-        obj, height=height, width=width, driver=webdriver, timeout=timeout
-    )
+    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver, timeout=timeout)
 
     if filename is None:
         filename = default_filename("png")
@@ -322,15 +320,9 @@ def wait_until_render_complete(driver, timeout):
         # Firefox webdriver does not currently support logs
         if not isinstance(driver, Firefox):
             browser_logs = driver.get_log("browser")
-            messages = [
-                l.get("message")
-                for l in browser_logs
-                if l.get("level") in ["WARNING", "ERROR", "SEVERE"]
-            ]
+            messages = [l.get("message") for l in browser_logs if l.get("level") in ["WARNING", "ERROR", "SEVERE"]]
             if len(messages) > 0:
-                log.warning(
-                    "There were browser warnings and/or errors that may have affected your export"
-                )
+                log.warning("There were browser warnings and/or errors that may have affected your export")
                 for message in messages:
                     log.warning(message)
 

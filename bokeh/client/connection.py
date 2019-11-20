@@ -35,13 +35,7 @@ from tornado.websocket import WebSocketError, websocket_connect
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
-from .states import (
-    CONNECTED_AFTER_ACK,
-    CONNECTED_BEFORE_ACK,
-    DISCONNECTED,
-    NOT_YET_CONNECTED,
-    WAITING_FOR_REPLY,
-)
+from .states import CONNECTED_AFTER_ACK, CONNECTED_BEFORE_ACK, DISCONNECTED, NOT_YET_CONNECTED, WAITING_FOR_REPLY
 from .websocket import WebSocketClientConnectionWrapper
 
 # -----------------------------------------------------------------------------
@@ -109,9 +103,7 @@ class ClientConnection(object):
         def connected_or_closed():
             # we should be looking at the same state here as the 'connected' property above, so connected
             # means both connected and that we did our initial message exchange
-            return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(
-                self._state, DISCONNECTED
-            )
+            return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(self._state, DISCONNECTED)
 
         self._loop_until(connected_or_closed)
 

@@ -166,9 +166,7 @@ class Test_Application(object):
         assert check_integrity.called
 
     @mock.patch("bokeh.document.document.check_integrity")
-    def test_application_doesnt_validate_document_due_to_env_var(
-        self, check_integrity, monkeypatch
-    ):
+    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch):
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         a = baa.Application()
         d = Document()

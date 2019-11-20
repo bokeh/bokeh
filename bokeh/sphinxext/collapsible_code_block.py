@@ -119,10 +119,7 @@ def html_depart_collapsible_code_block(self, node):
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(
-        collapsible_code_block,
-        html=(html_visit_collapsible_code_block, html_depart_collapsible_code_block),
-    )
+    app.add_node(collapsible_code_block, html=(html_visit_collapsible_code_block, html_depart_collapsible_code_block))
     app.add_directive("collapsible-code-block", CollapsibleCodeBlock)
 
 

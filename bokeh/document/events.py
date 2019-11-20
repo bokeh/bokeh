@@ -158,16 +158,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
     """
 
     def __init__(
-        self,
-        document,
-        model,
-        attr,
-        old,
-        new,
-        serializable_new,
-        hint=None,
-        setter=None,
-        callback_invoker=None,
+        self, document, model, attr, old, new, serializable_new, hint=None, setter=None, callback_invoker=None
     ):
         """
 
@@ -385,9 +376,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         """
         from ..util.serialization import transform_column_source_data
 
-        data_dict = transform_column_source_data(
-            self.column_source.data, buffers=buffers, cols=self.cols
-        )
+        data_dict = transform_column_source_data(self.column_source.data, buffers=buffers, cols=self.cols)
 
         return {
             "kind": "ColumnDataChanged",
@@ -565,11 +554,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
                 modified in-place.
 
         """
-        return {
-            "kind": "ColumnsPatched",
-            "column_source": self.column_source.ref,
-            "patches": self.patches,
-        }
+        return {"kind": "ColumnsPatched", "column_source": self.column_source.ref, "patches": self.patches}
 
 
 class TitleChangedEvent(DocumentPatchedEvent):

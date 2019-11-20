@@ -74,10 +74,7 @@ def test_args():
         (
             ("-o", "--output"),
             dict(
-                metavar="FILENAME",
-                action="append",
-                type=str,
-                help="Name of the output file or - for standard output.",
+                metavar="FILENAME", action="append", type=str, help="Name of the output file or - for standard output."
             ),
         ),
         (

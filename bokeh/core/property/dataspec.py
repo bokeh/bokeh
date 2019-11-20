@@ -235,12 +235,7 @@ class NumberSpec(DataSpec):
     """
 
     def __init__(
-        self,
-        default=None,
-        help=None,
-        key_type=_ExprFieldValueTransform,
-        accept_datetime=True,
-        accept_timedelta=True,
+        self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True
     ):
         super().__init__(key_type, Float, default=default, help=help)
         if accept_timedelta:
@@ -305,11 +300,7 @@ class FontSizeSpec(DataSpec):
         # validations makes m.font_size = "" or m.font_size = "6" an error
         super().validate(value, detail)
         if isinstance(value, str):
-            if (
-                len(value) == 0
-                or value[0].isdigit()
-                and FontSize._font_size_re.match(value) is None
-            ):
+            if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
 
@@ -416,12 +407,7 @@ class AngleSpec(UnitsSpec):
     """
 
     def __init__(self, default=None, units_default="rad", help=None):
-        super().__init__(
-            default=default,
-            units_type=Enum(enums.AngleUnits),
-            units_default=units_default,
-            help=help,
-        )
+        super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 
 class DistanceSpec(UnitsSpec):
@@ -433,12 +419,7 @@ class DistanceSpec(UnitsSpec):
     """
 
     def __init__(self, default=None, units_default="data", help=None):
-        super().__init__(
-            default=default,
-            units_type=Enum(enums.SpatialUnits),
-            units_default=units_default,
-            help=help,
-        )
+        super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
         try:
@@ -461,10 +442,7 @@ class ScreenDistanceSpec(UnitsSpec):
 
     def __init__(self, default=None, help=None):
         super().__init__(
-            default=default,
-            units_type=Enum(enums.enumeration("screen")),
-            units_default="screen",
-            help=help,
+            default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help
         )
 
     def prepare_value(self, cls, name, value):
@@ -517,12 +495,7 @@ class DataDistanceSpec(UnitsSpec):
     """
 
     def __init__(self, default=None, help=None):
-        super().__init__(
-            default=default,
-            units_type=Enum(enums.enumeration("data")),
-            units_default="data",
-            help=help,
-        )
+        super().__init__(default=default, units_type=Enum(enums.enumeration("data")), units_default="data", help=help)
 
     def prepare_value(self, cls, name, value):
         try:
@@ -605,9 +578,7 @@ class ColorSpec(DataSpec):
             True, if the value is a string color literal
 
         """
-        return isinstance(val, str) and (
-            (len(val) == 7 and val[0] == "#") or val in enums.NamedColor
-        )
+        return isinstance(val, str) and ((len(val) == 7 and val[0] == "#") or val in enums.NamedColor)
 
     def to_serializable(self, obj, name, val):
         if val is None:
@@ -644,11 +615,7 @@ class ColorSpec(DataSpec):
         # at this point, since Color is very strict about only accepting
         # tuples of (integer) bytes. This conditions tuple values to only
         # have integer RGB components
-        if (
-            isinstance(value, tuple)
-            and len(value) in (3, 4)
-            and all(isinstance(v, (float, int)) for v in value)
-        ):
+        if isinstance(value, tuple) and len(value) in (3, 4) and all(isinstance(v, (float, int)) for v in value):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
         return super().prepare_value(cls, name, value)
 

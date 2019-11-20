@@ -64,15 +64,7 @@ def _read_data(name):
 
     """
     filename = external_path(name + ".csv")
-    data = {
-        "date": [],
-        "open": [],
-        "high": [],
-        "low": [],
-        "close": [],
-        "volume": [],
-        "adj_close": [],
-    }
+    data = {"date": [], "open": [], "high": [], "low": [], "close": [], "volume": [], "adj_close": []}
     with open_csv(filename) as f:
         next(f)
         reader = csv.reader(f, delimiter=str(","))

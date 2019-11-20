@@ -671,10 +671,7 @@ class Image(XYGlyph):
 
     # a hook to specify any additional kwargs handled by an initializer
     _extra_kws = {
-        "palette": (
-            "str or list[color value]",
-            "a palette to construct a value for the color mapper property from",
-        )
+        "palette": ("str or list[color value]", "a palette to construct a value for the color mapper property from")
     }
 
     image = NumberSpec(

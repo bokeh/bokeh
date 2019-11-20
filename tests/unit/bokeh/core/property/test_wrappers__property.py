@@ -52,13 +52,7 @@ import bokeh.core.property.wrappers as bcpw  # isort:skip
 # Setup
 # -----------------------------------------------------------------------------
 
-ALL = (
-    "notify_owner",
-    "PropertyValueContainer",
-    "PropertyValueList",
-    "PropertyValueDict",
-    "PropertyValueColumnData",
-)
+ALL = ("notify_owner", "PropertyValueContainer", "PropertyValueList", "PropertyValueDict", "PropertyValueColumnData")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -184,9 +178,7 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify):
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == (
-        {"foo": [10, 20]},
-    )  # streaming to list, "old" is actually updated value
+    assert mock_notify.call_args[0] == ({"foo": [10, 20]},)  # streaming to list, "old" is actually updated value
     assert "hint" in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]["hint"], ColumnsStreamedEvent)
     assert mock_notify.call_args[1]["hint"].setter == "setter"
@@ -221,9 +213,7 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify):
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
     assert mock_notify.call_count == 1
-    assert mock_notify.call_args[0] == (
-        {"foo": [20, 30, 40]},
-    )  # streaming to list, "old" is actually updated value
+    assert mock_notify.call_args[0] == ({"foo": [20, 30, 40]},)  # streaming to list, "old" is actually updated value
     assert "hint" in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]["hint"], ColumnsStreamedEvent)
     assert mock_notify.call_args[1]["hint"].setter == "setter"
@@ -262,9 +252,7 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify):
     assert mock_notify.call_count == 1
     assert len(mock_notify.call_args[0]) == 1
     assert "foo" in mock_notify.call_args[0][0]
-    assert mock_notify.call_args[0] == (
-        {"foo": [10, 20]},
-    )  # streaming to list, "old" is actually updated value
+    assert mock_notify.call_args[0] == ({"foo": [10, 20]},)  # streaming to list, "old" is actually updated value
     assert "hint" in mock_notify.call_args[1]
     assert isinstance(mock_notify.call_args[1]["hint"], ColumnsStreamedEvent)
     assert mock_notify.call_args[1]["hint"].setter == "setter"
@@ -350,9 +338,7 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
     pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
-    pvcd._patch(
-        "doc", source, dict(foo=[(slice(2), [1, 2]), (slice(1, 3), [1000, 2000])]), setter="setter"
-    )
+    pvcd._patch("doc", source, dict(foo=[(slice(2), [1, 2]), (slice(1, 3), [1000, 2000])]), setter="setter")
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == ({"foo": [1, 1000, 2000, 40, 50]},)
     assert pvcd == dict(foo=[1, 1000, 2000, 40, 50])

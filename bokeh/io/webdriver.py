@@ -59,9 +59,7 @@ def kill_proc_tree(pid, including_parent=True):
 
 def create_phantomjs_webdriver():
     with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver"
-        )
+        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
 
         webdriver = import_required(
             "selenium.webdriver",

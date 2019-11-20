@@ -248,9 +248,7 @@ class Document(object):
         from ..server.callbacks import NextTickCallback
 
         cb = NextTickCallback(self, None)
-        return self._add_session_callback(
-            cb, callback, one_shot=True, originator=self.add_next_tick_callback
-        )
+        return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_next_tick_callback)
 
     def add_periodic_callback(self, callback, period_milliseconds):
         """ Add a callback to be invoked on a session periodically.
@@ -274,9 +272,7 @@ class Document(object):
         from ..server.callbacks import PeriodicCallback
 
         cb = PeriodicCallback(self, None, period_milliseconds)
-        return self._add_session_callback(
-            cb, callback, one_shot=False, originator=self.add_periodic_callback
-        )
+        return self._add_session_callback(cb, callback, one_shot=False, originator=self.add_periodic_callback)
 
     def add_root(self, model, setter=None):
         """ Add a model as a root of this Document.
@@ -336,9 +332,7 @@ class Document(object):
         from ..server.callbacks import TimeoutCallback
 
         cb = TimeoutCallback(self, None, timeout_milliseconds)
-        return self._add_session_callback(
-            cb, callback, one_shot=True, originator=self.add_timeout_callback
-        )
+        return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_timeout_callback)
 
     def apply_json_event(self, json):
         event = loads(json, object_hook=Event.decode_json)
@@ -395,15 +389,9 @@ class Document(object):
                 patched_id = event_json["model"]["id"]
                 if patched_id not in self._all_models:
                     if patched_id not in self._all_former_model_ids:
-                        raise RuntimeError(
-                            "Cannot apply patch to %s which is not in the document"
-                            % (str(patched_id))
-                        )
+                        raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
                     else:
-                        log.warning(
-                            "Cannot apply patch to %s which is not in the document anymore"
-                            % (str(patched_id))
-                        )
+                        log.warning("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
                         break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json["attr"]
@@ -413,9 +401,7 @@ class Document(object):
             elif event_json["kind"] == "ColumnDataChanged":
                 source_id = event_json["column_source"]["id"]
                 if source_id not in self._all_models:
-                    raise RuntimeError(
-                        "Cannot apply patch to %s which is not in the document" % (str(source_id))
-                    )
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 value = event_json["new"]
                 source.set_from_json("data", value, models=references, setter=setter)
@@ -423,9 +409,7 @@ class Document(object):
             elif event_json["kind"] == "ColumnsStreamed":
                 source_id = event_json["column_source"]["id"]
                 if source_id not in self._all_models:
-                    raise RuntimeError(
-                        "Cannot stream to %s which is not in the document" % (str(source_id))
-                    )
+                    raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 data = event_json["data"]
                 rollover = event_json.get("rollover", None)
@@ -434,9 +418,7 @@ class Document(object):
             elif event_json["kind"] == "ColumnsPatched":
                 source_id = event_json["column_source"]["id"]
                 if source_id not in self._all_models:
-                    raise RuntimeError(
-                        "Cannot apply patch to %s which is not in the document" % (str(source_id))
-                    )
+                    raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 patches = event_json["patches"]
                 source.patch(patches, setter)
@@ -1029,9 +1011,7 @@ class Document(object):
         else:
             serializable_new = None
 
-        event = ModelChangedEvent(
-            self, model, attr, old, new, serializable_new, hint, setter, callback_invoker
-        )
+        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
         self._trigger_on_change(event)
 
     def _push_all_models_freeze(self):

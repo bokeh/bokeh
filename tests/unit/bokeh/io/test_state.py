@@ -63,9 +63,7 @@ class Test_State(object):
         assert s.file["resources"].log_level == "info"
         assert s.file["resources"].minified == True
         assert mock_log.info.call_count == 1
-        assert mock_log.info.call_args[0] == (
-            "Session output file 'foo.html' already exists, will be overwritten.",
-        )
+        assert mock_log.info.call_args[0] == ("Session output file 'foo.html' already exists, will be overwritten.",)
 
     def test_output_notebook_noarg(self):
         s = bis.State()

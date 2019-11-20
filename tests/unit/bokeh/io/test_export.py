@@ -152,9 +152,7 @@ def test_get_screenshot_as_png_large_plot(webdriver):
 def test_get_screenshot_as_png_with_unicode_minified(webdriver):
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(
-        p, driver=webdriver, resources=Resources(mode="inline", minified=True)
-    )
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
     assert len(png.tobytes()) > 0
 
 
@@ -163,18 +161,14 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver):
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(
-        p, driver=webdriver, resources=Resources(mode="inline", minified=False)
-    )
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
     assert len(png.tobytes()) > 0
 
 
 @pytest.mark.unit
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present():
-    layout = Plot(
-        x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None
-    )
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
 
     svgs = bie.get_svgs(layout)
     assert svgs == []
@@ -224,9 +218,7 @@ def test_get_svgs_with_svg_present(webdriver):
 def test_get_layout_html_resets_plot_dims():
     initial_height, initial_width = 200, 250
 
-    layout = Plot(
-        x_range=Range1d(), y_range=Range1d(), plot_height=initial_height, plot_width=initial_width
-    )
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=initial_height, plot_width=initial_width)
 
     bie.get_layout_html(layout, height=100, width=100)
 

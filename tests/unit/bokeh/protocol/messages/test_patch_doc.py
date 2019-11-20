@@ -153,13 +153,7 @@ class TestPatchDocument(object):
 
         # ColumnsStreamed
         event4 = ModelChangedEvent(
-            sample,
-            cds,
-            "data",
-            10,
-            None,
-            None,
-            hint=ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session),
+            sample, cds, "data", 10, None, None, hint=ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session)
         )
         msg4 = proto.create("PATCH-DOC", [event4])
         msg4.apply_to_document(sample, mock_session)
@@ -167,13 +161,7 @@ class TestPatchDocument(object):
 
         # ColumnsPatched
         event5 = ModelChangedEvent(
-            sample,
-            cds,
-            "data",
-            10,
-            None,
-            None,
-            hint=ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}),
+            sample, cds, "data", 10, None, None, hint=ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]})
         )
         msg5 = proto.create("PATCH-DOC", [event5])
         msg5.apply_to_document(sample, mock_session)
@@ -181,13 +169,7 @@ class TestPatchDocument(object):
 
         # ColumnDataChanged, use_buffers=False
         event6 = ModelChangedEvent(
-            sample,
-            cds,
-            "data",
-            {"a": np.array([0.0, 1.0])},
-            None,
-            None,
-            hint=ColumnDataChangedEvent(sample, cds),
+            sample, cds, "data", {"a": np.array([0.0, 1.0])}, None, None, hint=ColumnDataChangedEvent(sample, cds)
         )
         msg6 = proto.create("PATCH-DOC", [event6], use_buffers=False)
         msg6.apply_to_document(sample, mock_session)
@@ -196,13 +178,7 @@ class TestPatchDocument(object):
         print(cds.data)
         # ColumnDataChanged, use_buffers=True
         event7 = ModelChangedEvent(
-            sample,
-            cds,
-            "data",
-            {"a": np.array([0.0, 1.0])},
-            None,
-            None,
-            hint=ColumnDataChangedEvent(sample, cds),
+            sample, cds, "data", {"a": np.array([0.0, 1.0])}, None, None, hint=ColumnDataChangedEvent(sample, cds)
         )
         msg7 = proto.create("PATCH-DOC", [event7])
         # can't test apply, doc not set up to *receive* binary buffers

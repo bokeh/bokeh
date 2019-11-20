@@ -191,18 +191,11 @@ def test_disjuction():
     res = list(q.find(plot.references(), {q.OR: [dict(type=Axis), dict(name="mycircle")]}))
     assert len(res) == 4
 
-    res = list(
-        q.find(
-            plot.references(), {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]}
-        )
-    )
+    res = list(q.find(plot.references(), {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]}))
     assert len(res) == 6
 
     res = list(
-        q.find(
-            plot.references(),
-            {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]},
-        )
+        q.find(plot.references(), {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]})
     )
     assert len(res) == 6
 

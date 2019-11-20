@@ -191,10 +191,7 @@ class TestFigure(object):
 
     def test_plot_fill_props(self):
         p = bpf.figure(
-            background_fill_color="red",
-            background_fill_alpha=0.5,
-            border_fill_color="blue",
-            border_fill_alpha=0.8,
+            background_fill_color="red", background_fill_alpha=0.5, border_fill_color="blue", border_fill_alpha=0.8
         )
         assert p.background_fill_color == "red"
         assert p.background_fill_alpha == 0.5
@@ -235,21 +232,15 @@ class TestFigure(object):
         p = bpf.figure()
         source = ColumnDataSource({"x": [1, 2, 3], "y": [2, 3, 4]})
 
-        with pytest.raises(
-            RuntimeError, match=r"Expected y to reference fields in the supplied data source."
-        ):
+        with pytest.raises(RuntimeError, match=r"Expected y to reference fields in the supplied data source."):
             p.circle(x="x", y=[1, 2, 3], source=source)
         with pytest.raises(
-            RuntimeError,
-            match=r"Expected y and line_color to reference fields in the supplied data source.",
+            RuntimeError, match=r"Expected y and line_color to reference fields in the supplied data source."
         ):
             p.circle(x="x", y=[1, 2, 3], line_color=["red", "green", "blue"], source=source)
         with pytest.raises(RuntimeError) as e:
             p.circle(x="x", y=[1, 2, 3], color=["red", "green", "blue"], source=source)
-        m = re.search(
-            r"Expected y, (.+) and (.+) to reference fields in the supplied data source.",
-            str(e.value),
-        )
+        m = re.search(r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
         assert m is not None
         assert set(m.groups()) == set(["fill_color", "line_color"])
 
@@ -282,8 +273,7 @@ class TestMarkers(object):
 
     @pytest.mark.parametrize("marker", list(MarkerType))
     @pytest.mark.parametrize(
-        "color",
-        [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (100, 100, 100), (50, 100, 50, 0.5)],
+        "color", [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (100, 100, 100), (50, 100, 50, 0.5)]
     )
     def test_color_input(self, color, marker):
         p = bpf.figure()
@@ -299,8 +289,7 @@ class TestMarkers(object):
 
     @pytest.mark.parametrize("marker", list(MarkerType))
     @pytest.mark.parametrize(
-        "color",
-        [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (100, 100, 100), (50, 100, 50, 0.5)],
+        "color", [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (100, 100, 100), (50, 100, 50, 0.5)]
     )
     def test_line_color_input(self, color, marker):
         p = bpf.figure()
@@ -312,9 +301,7 @@ class TestMarkers(object):
             assert isinstance(v, int)
 
     @pytest.mark.parametrize("marker", list(MarkerType))
-    @pytest.mark.parametrize(
-        "color", [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (50, 100, 50, 0.5)]
-    )
+    @pytest.mark.parametrize("color", [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (50, 100, 50, 0.5)])
     def test_fill_color_input(self, color, marker):
         p = bpf.figure()
         func = getattr(p, marker)
@@ -361,23 +348,12 @@ class Test_hbar_stack(object):
         fruits = ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"]
         years = ["2015", "2016", "2017"]
         colors = ["#c9d9d3", "#718dbf", "#e84d60"]
-        data = {
-            "fruits": fruits,
-            "2015": [2, 1, 4, 3, 2, 4],
-            "2016": [5, 3, 4, 2, 4, 6],
-            "2017": [3, 2, 4, 4, 5, 3],
-        }
+        data = {"fruits": fruits, "2015": [2, 1, 4, 3, 2, 4], "2016": [5, 3, 4, 2, 4, 6], "2017": [3, 2, 4, 4, 5, 3]}
         source = ColumnDataSource(data=data)
 
         p = bpf.figure()
         renderers = p.hbar_stack(
-            years,
-            y="fruits",
-            height=0.9,
-            color=colors,
-            source=source,
-            legend_label=years,
-            name=years,
+            years, y="fruits", height=0.9, color=colors, source=source, legend_label=years, name=years
         )
         assert len(renderers) == 3
         assert renderers[0].name == "2015"
@@ -390,23 +366,12 @@ class Test_vbar_stack(object):
         fruits = ["Apples", "Pears", "Nectarines", "Plums", "Grapes", "Strawberries"]
         years = ["2015", "2016", "2017"]
         colors = ["#c9d9d3", "#718dbf", "#e84d60"]
-        data = {
-            "fruits": fruits,
-            "2015": [2, 1, 4, 3, 2, 4],
-            "2016": [5, 3, 4, 2, 4, 6],
-            "2017": [3, 2, 4, 4, 5, 3],
-        }
+        data = {"fruits": fruits, "2015": [2, 1, 4, 3, 2, 4], "2016": [5, 3, 4, 2, 4, 6], "2017": [3, 2, 4, 4, 5, 3]}
         source = ColumnDataSource(data=data)
 
         p = bpf.figure()
         renderers = p.vbar_stack(
-            years,
-            x="fruits",
-            width=0.9,
-            color=colors,
-            source=source,
-            legend_label=years,
-            name=years,
+            years, x="fruits", width=0.9, color=colors, source=source, legend_label=years, name=years
         )
         assert len(renderers) == 3
         assert renderers[0].name == "2015"
@@ -479,9 +444,7 @@ def Test_figure_legends_DEPRECATED(obejct):
         assert legends[0].items[1].renderers == [circle]
         assert legends[0].items[1].label == value("circle")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(
-        self, p, source
-    ):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(self, p, source):
         # 'compound legend string' is just a value
         square = p.square(x="x", y="y", legend="compound legend string")
         circle = p.circle(x="x", y="y", legend="compound legend string")
@@ -490,9 +453,7 @@ def Test_figure_legends_DEPRECATED(obejct):
         assert legends[0].items[0].renderers == [square, circle]
         assert legends[0].items[0].label == value("compound legend string")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(
-        self, p, source
-    ):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(self, p, source):
         # label is a field
         square = p.square(x="x", y="y", legend="label", source=source)
         circle = p.circle(x="x", y="y", legend="label", source=source)
@@ -545,9 +506,7 @@ def Test_figure_legends(obejct):
         assert legends[0].items[1].renderers == [circle]
         assert legends[0].items[1].label == value("circle")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(
-        self, p, source
-    ):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers(self, p, source):
         # 'compound legend string' is just a value
         square = p.square(x="x", y="y", legend_label="compound legend string")
         circle = p.circle(x="x", y="y", legend_label="compound legend string")
@@ -556,9 +515,7 @@ def Test_figure_legends(obejct):
         assert legends[0].items[0].renderers == [square, circle]
         assert legends[0].items[0].label == value("compound legend string")
 
-    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(
-        self, p, source
-    ):
+    def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field(self, p, source):
         # label is a field
         square = p.square(x="x", y="y", legend_field="label", source=source)
         circle = p.circle(x="x", y="y", legend_field="label", source=source)

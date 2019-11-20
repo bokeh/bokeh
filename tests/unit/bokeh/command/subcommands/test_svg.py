@@ -88,10 +88,7 @@ def test_args():
         (
             ("-o", "--output"),
             dict(
-                metavar="FILENAME",
-                action="append",
-                type=str,
-                help="Name of the output file or - for standard output.",
+                metavar="FILENAME", action="append", type=str, help="Name of the output file or - for standard output."
             ),
         ),
         (
@@ -196,14 +193,7 @@ def test_multiple_svg_scripts(capsys):
         assert out == ""
 
         assert set(
-            [
-                "scatter1.svg",
-                "scatter2.svg",
-                "scatter3.svg",
-                "scatter1.py",
-                "scatter2.py",
-                "scatter3.py",
-            ]
+            ["scatter1.svg", "scatter2.svg", "scatter3.svg", "scatter1.py", "scatter2.py", "scatter3.py"]
         ) == set(os.listdir(dirname))
 
     with_directory_contents(

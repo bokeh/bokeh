@@ -94,9 +94,7 @@ class Info(Subcommand):
 
     help = "Print information about Bokeh and Bokeh server configuration"
 
-    args = (
-        ("--static", dict(action="store_true", help="Print the locations of BokehJS static files")),
-    )
+    args = (("--static", dict(action="store_true", help="Print the locations of BokehJS static files")),)
 
     def invoke(self, args):
         """

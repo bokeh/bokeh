@@ -71,9 +71,7 @@ class Static(Subcommand):
         applications = {}
 
         _allowed_keys = ["port", "address"]
-        server_kwargs = {
-            key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None
-        }
+        server_kwargs = {key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None}
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)

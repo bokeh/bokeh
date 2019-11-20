@@ -16,21 +16,8 @@ import pytest  # noqa isort:skip
 # -----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.selenium import (
-    RECORD,
-    enter_text_in_cell,
-    enter_text_in_cell_with_click_enter,
-    get_table_cell,
-)
-from bokeh.models import (
-    ColumnDataSource,
-    CustomJS,
-    DataTable,
-    IntEditor,
-    NumberEditor,
-    StringEditor,
-    TableColumn,
-)
+from bokeh._testing.util.selenium import RECORD, enter_text_in_cell, enter_text_in_cell_with_click_enter, get_table_cell
+from bokeh.models import ColumnDataSource, CustomJS, DataTable, IntEditor, NumberEditor, StringEditor, TableColumn
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -48,9 +35,7 @@ class Test_CellEditor_Base(object):
         self.table = DataTable(source=source, columns=[column], editable=True, width=600)
 
         # this is triggered on selection changes
-        source.selected.js_on_change(
-            "indices", CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values"))
-        )
+        source.selected.js_on_change("indices", CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")))
 
 
 # XXX Chekbox editor is currently completely broken

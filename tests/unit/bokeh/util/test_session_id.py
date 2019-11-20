@@ -65,7 +65,9 @@ def _nie():
     return func
 
 
-_MERSENNE_MSG = "A secure pseudo-random number generator is not available on your system. Falling back to Mersenne Twister."
+_MERSENNE_MSG = (
+    "A secure pseudo-random number generator is not available on your system. Falling back to Mersenne Twister."
+)
 
 # -----------------------------------------------------------------------------
 # General API

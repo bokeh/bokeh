@@ -88,10 +88,7 @@ class CommsHandle(object):
 
     def _repr_html_(self):
         if self._cellno is not None:
-            return (
-                "<p><code>&lt;Bokeh Notebook handle for <strong>In[%s]</strong>&gt;</code></p>"
-                % str(self._cellno)
-            )
+            return "<p><code>&lt;Bokeh Notebook handle for <strong>In[%s]</strong>&gt;</code></p>" % str(self._cellno)
         else:
             return "<p><code>&lt;Bokeh Notebook handle&gt;</code></p>"
 
@@ -402,13 +399,9 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
             css_info = "inline"
         else:
             js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
-            css_info = (
-                resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
-            )
+            css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
 
-        warnings = [
-            "Warning: " + msg["text"] for msg in resources.messages if msg["type"] == "warn"
-        ]
+        warnings = ["Warning: " + msg["text"] for msg in resources.messages if msg["type"] == "warn"]
         if _NOTEBOOK_LOADED and verbose:
             warnings.append("Warning: BokehJS previously loaded")
 
@@ -513,8 +506,7 @@ def show_app(app, state, notebook_url, port=0, **kw):
     script = server_document(url, resources=None)
 
     publish_display_data(
-        {HTML_MIME_TYPE: script, EXEC_MIME_TYPE: ""},
-        metadata={EXEC_MIME_TYPE: {"server_id": server_id}},
+        {HTML_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"server_id": server_id}}
     )
 
 
@@ -531,9 +523,7 @@ def show_doc(obj, state, notebook_handle):
     (script, div, cell_doc) = notebook_content(obj, comms_target)
 
     publish_display_data({HTML_MIME_TYPE: div})
-    publish_display_data(
-        {JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}}
-    )
+    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}})
 
     # Comms handling relies on the fact that the cell_doc returned by
     # notebook copy has models with the same IDs as the original curdoc
@@ -561,11 +551,7 @@ def _loading_js(bundle, element_id, load_timeout=5000, register_mime=True):
     from ..core.templates import AUTOLOAD_NB_JS
 
     return AUTOLOAD_NB_JS.render(
-        bundle=bundle,
-        elementid=element_id,
-        force=True,
-        timeout=load_timeout,
-        register_mime=register_mime,
+        bundle=bundle, elementid=element_id, force=True, timeout=load_timeout, register_mime=register_mime
     )
 
 

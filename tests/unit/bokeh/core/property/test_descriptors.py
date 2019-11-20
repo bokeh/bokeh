@@ -165,9 +165,7 @@ class Test_BasicPropertyDescriptor(object):
         d = bcpd.BasicPropertyDescriptor("foo", f)
         with pytest.raises(RuntimeError) as e:
             d.__set__("junk", None)
-        assert str(e.value).endswith(
-            "Cannot set a property value 'foo' on a str instance before HasProps.__init__"
-        )
+        assert str(e.value).endswith("Cannot set a property value 'foo' on a str instance before HasProps.__init__")
 
     def test___delete__(self):
         class Foo(Model):

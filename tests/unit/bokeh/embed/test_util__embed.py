@@ -540,10 +540,7 @@ class Test_standalone_docs_json_and_render_items(object):
         p1 = SomeModel()
         with pytest.raises(ValueError) as e:
             beu.standalone_docs_json_and_render_items([p1])
-        assert (
-            str(e.value)
-            == "A Bokeh Model must be part of a Document to render as standalone content"
-        )
+        assert str(e.value) == "A Bokeh Model must be part of a Document to render as standalone content"
 
     def test_log_warning_if_python_property_callback(self, caplog):
         d = Document()

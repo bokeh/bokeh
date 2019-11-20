@@ -23,17 +23,7 @@ import bokeh.colors.groups as bcg  # isort:skip
 
 _pink = ("Pink", "LightPink", "HotPink", "DeepPink", "PaleVioletRed", "MediumVioletRed")
 
-_red = (
-    "LightSalmon",
-    "Salmon",
-    "DarkSalmon",
-    "LightCoral",
-    "IndianRed",
-    "Crimson",
-    "FireBrick",
-    "DarkRed",
-    "Red",
-)
+_red = ("LightSalmon", "Salmon", "DarkSalmon", "LightCoral", "IndianRed", "Crimson", "FireBrick", "DarkRed", "Red")
 
 _orange = ("OrangeRed", "Tomato", "Coral", "DarkOrange", "Orange")
 

@@ -38,9 +38,7 @@ class Test_detect_phantomjs(object):
     def test_detect_phantomjs_bad_version(self):
         with pytest.raises(RuntimeError) as e:
             dep.detect_phantomjs("10.1")
-        assert str(e.value).endswith(
-            "PhantomJS version to old. Version>=10.1 required, installed: 2.1.1"
-        )
+        assert str(e.value).endswith("PhantomJS version to old. Version>=10.1 required, installed: 2.1.1")
 
     def test_detect_phantomjs_default_required_version(self):
         assert dep.detect_phantomjs.__defaults__ == ("2.1",)

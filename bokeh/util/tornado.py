@@ -186,9 +186,7 @@ class _CallbackGroup(object):
         def remover():
             wrapper.removed = True
 
-        callback_id = self._assign_remover(
-            callback, callback_id, self._next_tick_callback_removers, remover
-        )
+        callback_id = self._assign_remover(callback, callback_id, self._next_tick_callback_removers, remover)
         self._loop.add_callback(wrapper)
         return callback_id
 
@@ -210,9 +208,7 @@ class _CallbackGroup(object):
             if handle is not None:
                 self._loop.remove_timeout(handle)
 
-        callback_id = self._assign_remover(
-            callback, callback_id, self._timeout_callback_removers, remover
-        )
+        callback_id = self._assign_remover(callback, callback_id, self._timeout_callback_removers, remover)
         handle = self._loop.call_later(timeout_milliseconds / 1000.0, wrapper)
         return callback_id
 
@@ -225,9 +221,7 @@ class _CallbackGroup(object):
         Returns an ID that can be used with remove_periodic_callback."""
 
         cb = _AsyncPeriodic(callback, period_milliseconds, io_loop=self._loop)
-        callback_id = self._assign_remover(
-            callback, callback_id, self._periodic_callback_removers, cb.stop
-        )
+        callback_id = self._assign_remover(callback, callback_id, self._periodic_callback_removers, cb.stop)
         cb.start()
         return callback_id
 

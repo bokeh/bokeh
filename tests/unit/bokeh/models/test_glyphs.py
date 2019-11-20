@@ -164,11 +164,7 @@ def test_Annulus():
     check_fill_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(
-        glyph,
-        ["x", "y", "inner_radius", "inner_radius_units", "outer_radius", "outer_radius_units"],
-        FILL,
-        LINE,
-        GLYPH,
+        glyph, ["x", "y", "inner_radius", "inner_radius_units", "outer_radius", "outer_radius_units"], FILL, LINE, GLYPH
     )
 
 
@@ -210,9 +206,7 @@ def test_Bezier():
     assert glyph.cx1 is None
     assert glyph.cy1 is None
     check_line_properties(glyph)
-    check_properties_existence(
-        glyph, ["x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"], LINE, GLYPH
-    )
+    check_properties_existence(glyph, ["x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"], LINE, GLYPH)
 
 
 def test_HArea():
@@ -246,20 +240,7 @@ def test_Image():
     assert glyph.dh is None
     assert glyph.dilate is False
     check_properties_existence(
-        glyph,
-        [
-            "image",
-            "x",
-            "y",
-            "dw",
-            "dw_units",
-            "dh",
-            "dh_units",
-            "global_alpha",
-            "dilate",
-            "color_mapper",
-        ],
-        GLYPH,
+        glyph, ["image", "x", "y", "dw", "dw_units", "dh", "dh_units", "global_alpha", "dilate", "color_mapper"], GLYPH
     )
 
 
@@ -272,9 +253,7 @@ def test_ImageRGBA():
     assert glyph.dh is None
     assert glyph.dilate is False
     check_properties_existence(
-        glyph,
-        ["image", "x", "y", "dw", "dw_units", "dh", "dh_units", "global_alpha", "dilate"],
-        GLYPH,
+        glyph, ["image", "x", "y", "dw", "dw_units", "dh", "dh_units", "global_alpha", "dilate"], GLYPH
     )
 
 
@@ -349,11 +328,7 @@ def test_Oval():
     check_fill_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(
-        glyph,
-        ["x", "y", "width", "width_units", "height", "height_units", "angle", "angle_units"],
-        FILL,
-        LINE,
-        GLYPH,
+        glyph, ["x", "y", "width", "width_units", "height", "height_units", "angle", "angle_units"], FILL, LINE, GLYPH
     )
 
 
@@ -408,9 +383,7 @@ def test_Ray():
     assert glyph.angle is None
     assert glyph.length is None
     check_line_properties(glyph)
-    check_properties_existence(
-        glyph, ["x", "y", "angle", "angle_units", "length", "length_units"], LINE, GLYPH
-    )
+    check_properties_existence(glyph, ["x", "y", "angle", "angle_units", "length", "length_units"], LINE, GLYPH)
 
 
 def test_Rect():
@@ -425,17 +398,7 @@ def test_Rect():
     check_line_properties(glyph)
     check_properties_existence(
         glyph,
-        [
-            "x",
-            "y",
-            "width",
-            "width_units",
-            "height",
-            "height_units",
-            "angle",
-            "angle_units",
-            "dilate",
-        ],
+        ["x", "y", "width", "width_units", "height", "height_units", "angle", "angle_units", "dilate"],
         FILL,
         LINE,
         GLYPH,
@@ -468,9 +431,7 @@ def test_Text():
     assert glyph.text == "text"
     assert glyph.angle == 0
     check_text_properties(glyph)
-    check_properties_existence(
-        glyph, ["x", "y", "text", "angle", "angle_units", "x_offset", "y_offset"], TEXT, GLYPH
-    )
+    check_properties_existence(glyph, ["x", "y", "text", "angle", "angle_units", "x_offset", "y_offset"], TEXT, GLYPH)
 
 
 def test_VArea():
@@ -538,9 +499,7 @@ def test_Circle():
     assert marker.radius is None
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(
-        marker, ["radius", "radius_units", "radius_dimension"], MARKER, FILL, LINE, GLYPH
-    )
+    check_properties_existence(marker, ["radius", "radius_units", "radius_dimension"], MARKER, FILL, LINE, GLYPH)
 
 
 def test_CircleCross():

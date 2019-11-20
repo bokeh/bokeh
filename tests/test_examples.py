@@ -85,11 +85,7 @@ def test_server_examples(server_example, example, config, report, bokeh_server):
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(
-            example,
-            "http://localhost:5006/?bokeh-session-id=%s" % session_id,
-            config.option.verbose,
-        )
+        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, config.option.verbose)
 
 
 def _get_path_parts(path):
@@ -136,12 +132,7 @@ def _create_baseline(items):
             line = "%s%s" % ("  " * level, type)
 
             if bbox is not None:
-                line += " bbox=[%s, %s, %s, %s]" % (
-                    bbox["x"],
-                    bbox["y"],
-                    bbox["width"],
-                    bbox["height"],
-                )
+                line += " bbox=[%s, %s, %s, %s]" % (bbox["x"], bbox["y"], bbox["width"], bbox["height"])
 
             line += "\n"
 
@@ -263,9 +254,7 @@ with open(filename, 'rb') as example:
 
     start = time.time()
     try:
-        proc = subprocess.Popen(
-            cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         status = proc.wait()
     except Timeout:
         proc.kill()

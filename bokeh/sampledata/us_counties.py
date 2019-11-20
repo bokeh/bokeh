@@ -74,9 +74,7 @@ def _read_data():
         next(f)
         reader = csv.reader(f, delimiter=str(","), quotechar=str('"'))
         for row in reader:
-            name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = (
-                row
-            )
+            name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = row
             xml = et.fromstring(geometry)
             lats = []
             lons = []

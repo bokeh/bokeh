@@ -61,9 +61,7 @@ class BokehGalleryDirective(BokehDirective):
 
         gallery_dir = join(dirname(dirname(gallery_file)), "gallery")
         if not exists(gallery_dir) and isdir(gallery_dir):
-            raise SphinxError(
-                "gallery dir %r missing for gallery file %r" % (gallery_dir, gallery_file)
-            )
+            raise SphinxError("gallery dir %r missing for gallery file %r" % (gallery_dir, gallery_file))
 
         spec = json.load(open(gallery_file))
         names = [detail["name"] for detail in spec["details"]]
@@ -78,10 +76,7 @@ def config_inited_handler(app, config):
     gallery_file = gallery_dir + ".json"
 
     if not exists(gallery_file) and isfile(gallery_file):
-        raise SphinxError(
-            "could not find gallery file %r for configured gallery dir %r"
-            % (gallery_file, gallery_dir)
-        )
+        raise SphinxError("could not find gallery file %r for configured gallery dir %r" % (gallery_file, gallery_dir))
 
     gallery_file_mtime = getmtime(gallery_file)
 

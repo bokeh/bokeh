@@ -83,10 +83,7 @@ class BokehEnumDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
-    option_spec = {
-        "module": unchanged,
-        "noindex": lambda x: True,  # directives.flag weirdly returns None
-    }
+    option_spec = {"module": unchanged, "noindex": lambda x: True}  # directives.flag weirdly returns None
 
     def run(self):
         name = self.arguments[0]

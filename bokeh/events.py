@@ -167,9 +167,7 @@ class Event(object):
         event_name = dct["event_name"]
 
         if event_name not in _CONCRETE_EVENT_CLASSES:
-            raise ValueError(
-                "Could not find appropriate Event class for event_name: %r" % event_name
-            )
+            raise ValueError("Could not find appropriate Event class for event_name: %r" % event_name)
 
         event_values = dct["event_values"]
         model_id = event_values.pop("model_id")

@@ -194,9 +194,7 @@ class Message(object):
             ProtocolError
         """
         if self.header.get("num_buffers", 0) <= len(self._buffers):
-            raise ProtocolError(
-                "too many buffers received expecting " + str(self.header["num_buffers"])
-            )
+            raise ProtocolError("too many buffers received expecting " + str(self.header["num_buffers"]))
         self._buffers.append((buf_header, buf_payload))
 
     async def write_buffers(self, conn, locked=True):

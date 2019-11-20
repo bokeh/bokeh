@@ -79,13 +79,7 @@ if False:
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "bokehjs_content",
-    "BokehJSContent",
-    "html_depart_bokehjs_content",
-    "html_visit_bokehjs_content",
-    "setup",
-)
+__all__ = ("bokehjs_content", "BokehJSContent", "html_depart_bokehjs_content", "html_visit_bokehjs_content", "setup")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -130,8 +124,7 @@ class BokehJSContent(CodeBlock):
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
                     log.warning(
-                        __("line number spec is out of range(1-%d): %r")
-                        % (nlines, self.options["emphasize-lines"]),
+                        __("line number spec is out of range(1-%d): %r") % (nlines, self.options["emphasize-lines"]),
                         location=location,
                     )
 
@@ -244,9 +237,7 @@ def html_visit_bokehjs_content(self, node):
         # we only want to inject the CODEPEN_INIT on one
         # bokehjs-content block per page
         resources = get_sphinx_resources(include_bokehjs_api=True)
-        self.body.append(
-            BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files)
-        )
+        self.body.append(BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files))
 
     self.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"]))
 
@@ -254,9 +245,7 @@ def html_visit_bokehjs_content(self, node):
 def html_depart_bokehjs_content(self, node):
     self.body.append(
         BJS_EPILOGUE.render(
-            title=node["title"],
-            enable_codepen=not node["disable_codepen"],
-            js_source=node["js_source"],
+            title=node["title"], enable_codepen=not node["disable_codepen"], js_source=node["js_source"]
         )
     )
 

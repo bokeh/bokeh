@@ -37,20 +37,14 @@ class Test_Toobar_Autohide(object):
 
         page = single_plot_page(plot)
 
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "visible"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "visible"
 
         ActionChains(page.driver).move_to_element(page.canvas).perform()
 
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "visible"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "visible"
 
         page.drag_canvas_at_position(100, 100, 20, 20)
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "visible"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "visible"
 
         assert page.has_no_console_errors()
 
@@ -60,28 +54,20 @@ class Test_Toobar_Autohide(object):
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
 
         page = single_plot_page(plot)
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "hidden"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "hidden"
 
         ActionChains(page.driver).move_to_element(page.canvas).perform()
 
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "visible"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "visible"
 
         # Pan around with drag_canvas and check that the toolbar is still visible
         page.drag_canvas_at_position(100, 100, 20, 20)
         plot.tools
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "visible"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "visible"
 
         # Click the reset tool and check that the toolbar is still visible
         button = page.get_toolbar_button("reset")
         button.click()
-        assert (
-            page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")
-        ) == "visible"
+        assert (page.driver.find_element_by_class_name("bk-toolbar").value_of_css_property("visibility")) == "visible"
 
         assert page.has_no_console_errors()

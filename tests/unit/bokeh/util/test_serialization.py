@@ -121,10 +121,7 @@ def test_is_datetime_type_pandas_types(pd):
 
 
 def test_convert_datetime_type_non_pandas_types():
-    assert (
-        bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452))
-        == 1514993879922.452
-    )
+    assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452)) == 1514993879922.452
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59)) == 1514993879000.0
     assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
@@ -153,9 +150,7 @@ def test_convert_datetime_type_array_ignores_non_datetime_array():
 
 
 def test_convert_datetime_type_array():
-    a = np.array(
-        ["2018-01-03T15:37:59", "2018-01-03T15:37:59.922452", "2016-05-11"], dtype="datetime64"
-    )
+    a = np.array(["2018-01-03T15:37:59", "2018-01-03T15:37:59.922452", "2016-05-11"], dtype="datetime64")
     r = bus.convert_datetime_array(a)
     assert r[0] == 1514993879000.0
     assert r[1] == 1514993879922.452
@@ -167,10 +162,7 @@ def test_convert_datetime_type_with_tz():
     # This ensures datetimes are sent to BokehJS timezone-naive
     # see https://github.com/bokeh/bokeh/issues/6480
     for tz in pytz.all_timezones:
-        assert (
-            bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz)))
-            == 1462924800000.0
-        )
+        assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz))) == 1462924800000.0
 
 
 testing = [[float("nan"), 3], [float("-inf"), [float("inf")]]]

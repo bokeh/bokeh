@@ -67,9 +67,7 @@ class Date(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (
-            value is None or isinstance(value, (datetime.date, str, float) + bokeh_integer_types)
-        ):
+        if not (value is None or isinstance(value, (datetime.date, str, float) + bokeh_integer_types)):
             msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
             raise ValueError(msg)
 

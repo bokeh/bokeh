@@ -188,25 +188,11 @@ class TestModel(object):
         assert testObject2.id is not None
 
         assert (
-            set(
-                [
-                    "name",
-                    "tags",
-                    "js_property_callbacks",
-                    "subscribed_events",
-                    "js_event_callbacks",
-                    "some",
-                ]
-            )
+            set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks", "some"])
             == testObject.properties()
         )
         assert dict(
-            name=None,
-            tags=[],
-            js_property_callbacks={},
-            js_event_callbacks={},
-            subscribed_events=[],
-            some=None,
+            name=None, tags=[], js_property_callbacks={}, js_event_callbacks={}, subscribed_events=[], some=None
         ) == testObject.properties_with_values(include_defaults=True)
         assert dict() == testObject.properties_with_values(include_defaults=False)
 
@@ -614,9 +600,7 @@ class TestDictMutation(TestContainerMutation):
         def mutate(x):
             x[2] = "bar"
 
-        self._check_mutation(
-            obj, "foo", mutate, {1: "a", 2: "b", 3: "c"}, {1: "a", 2: "bar", 3: "c"}
-        )
+        self._check_mutation(obj, "foo", mutate, {1: "a", 2: "b", 3: "c"}, {1: "a", 2: "bar", 3: "c"})
 
     def test_dict_clear(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))

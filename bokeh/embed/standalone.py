@@ -33,13 +33,7 @@ from ..resources import CSSResources, JSResources, Resources
 from ..themes import Theme
 from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
-from .util import (
-    FromCurdoc,
-    OutputDocumentFor,
-    RenderRoot,
-    standalone_docs_json,
-    standalone_docs_json_and_render_items,
-)
+from .util import FromCurdoc, OutputDocumentFor, RenderRoot, standalone_docs_json, standalone_docs_json_and_render_items
 from .wrappers import wrap_in_onload
 
 # -----------------------------------------------------------------------------
@@ -58,9 +52,7 @@ ModelLikeCollection = Union[Sequence[ModelLike], Dict[str, ModelLike]]
 ThemeLike = Union[Theme, Type[FromCurdoc]]
 
 
-def autoload_static(
-    model: Union[Model, Document], resources: Resources, script_path: str
-) -> Tuple[str, str]:
+def autoload_static(model: Union[Model, Document], resources: Resources, script_path: str) -> Tuple[str, str]:
     """ Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
@@ -311,18 +303,11 @@ def file_html(
         title = _title_from_models(models_seq, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(
-            bundle,
-            docs_json,
-            render_items,
-            title=title,
-            template=template,
-            template_variables=template_variables,
+            bundle, docs_json, render_items, title=title, template=template, template_variables=template_variables
         )
 
 
-def json_item(
-    model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc
-) -> Any:  # TODO: TypedDict?
+def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc) -> Any:  # TODO: TypedDict?
     """ Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:

@@ -24,13 +24,7 @@ log = logging.getLogger(__name__)
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "CONNECTED_BEFORE_ACK",
-    "CONNECTED_AFTER_ACK",
-    "DISCONNECTED",
-    "NOT_YET_CONNECTED",
-    "WAITING_FOR_REPLY",
-)
+__all__ = ("CONNECTED_BEFORE_ACK", "CONNECTED_AFTER_ACK", "DISCONNECTED", "NOT_YET_CONNECTED", "WAITING_FOR_REPLY")
 
 # -----------------------------------------------------------------------------
 # General API

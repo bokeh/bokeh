@@ -50,11 +50,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 
 def _is_cds_data_patch(evt):
-    return (
-        evt["kind"] == "ModelChanged"
-        and evt["model"]["type"] == "ColumnDataSource"
-        and evt["attr"] == "data"
-    )
+    return evt["kind"] == "ModelChanged" and evt["model"]["type"] == "ColumnDataSource" and evt["attr"] == "data"
 
 
 def has_cds_data_patches(msgs):
@@ -74,22 +70,10 @@ class Test_DataTableSource(object):
             data = {"x": [1, 2, 3, 4], "y": [10, 20, 30, 40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            table = DataTable(
-                columns=[TableColumn(field="x"), TableColumn(field="y")],
-                source=source,
-                editable=False,
-            )
+            table = DataTable(columns=[TableColumn(field="x"), TableColumn(field="y")], source=source, editable=False)
 
             btn = Button(label="Click Me!", css_classes=["foo"])
 
@@ -137,22 +121,10 @@ class Test_DataTableSource(object):
             data = {"x": [1, 2, 3, 4], "y": [10, 20, 30, 40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            table = DataTable(
-                columns=[TableColumn(field="x"), TableColumn(field="y")],
-                source=source,
-                editable=False,
-            )
+            table = DataTable(columns=[TableColumn(field="x"), TableColumn(field="y")], source=source, editable=False)
 
             btn = Button(label="Click Me!", css_classes=["foo"])
 
@@ -200,22 +172,10 @@ class Test_DataTableSource(object):
             data = {"x": [1, 2, 3, 4], "y": [10, 20, 30, 40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
-            table = DataTable(
-                columns=[TableColumn(field="x"), TableColumn(field="y")],
-                source=source,
-                editable=False,
-            )
+            table = DataTable(columns=[TableColumn(field="x"), TableColumn(field="y")], source=source, editable=False)
 
             btn = Button(label="Click Me!", css_classes=["foo"])
 
@@ -263,16 +223,8 @@ class Test_DataTableSource(object):
             data = {"x": [1, 2, 3, 4], "y": [10, 20, 30, 40]}
             source = ColumnDataSource(data)
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(
                 columns=[TableColumn(field="x"), TableColumn(field="y", editor=NumberEditor())],
@@ -322,26 +274,12 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("indices", "s.selected.indices")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices")))
             )
 
-            table = DataTable(
-                columns=[TableColumn(field="x"), TableColumn(field="y")],
-                source=source,
-                editable=False,
-            )
+            table = DataTable(columns=[TableColumn(field="x"), TableColumn(field="y")], source=source, editable=False)
 
             doc.add_root(column(plot, table))
 
@@ -385,26 +323,12 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("indices", "s.selected.indices")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices")))
             )
 
-            table = DataTable(
-                columns=[TableColumn(field="x"), TableColumn(field="y")],
-                source=source,
-                editable=False,
-            )
+            table = DataTable(columns=[TableColumn(field="x"), TableColumn(field="y")], source=source, editable=False)
 
             doc.add_root(column(plot, table))
 
@@ -450,16 +374,8 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(
                 columns=[
@@ -505,22 +421,11 @@ class Test_DataTableSource(object):
         page.click_custom_action()
 
         results = page.results
-        assert results == {
-            "data": {"x": [0, 1, 2, 3, 4, 5, 6, 7], "y": [70, 60, 50, 40, 30, 20, 10, 0]}
-        }
+        assert results == {"data": {"x": [0, 1, 2, 3, 4, 5, 6, 7], "y": [70, 60, 50, 40, 30, 20, 10, 0]}}
         assert source.data == {"x": [0, 1, 2, 3, 4, 5, 6, 7], "y": [70, 60, 50, 40, 30, 20, 10, 0]}
 
         assert get_table_column_cells(page.driver, 1) == ["7", "6", "5", "4", "3", "2", "1", "0"]
-        assert get_table_column_cells(page.driver, 2) == [
-            "0",
-            "10",
-            "20",
-            "30",
-            "40",
-            "50",
-            "60",
-            "70",
-        ]
+        assert get_table_column_cells(page.driver, 2) == ["0", "10", "20", "30", "40", "50", "60", "70"]
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
@@ -532,16 +437,8 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(
                 columns=[
@@ -603,16 +500,8 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(
                 columns=[
@@ -674,16 +563,8 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(
                 columns=[
@@ -738,16 +619,8 @@ class Test_DataTableSource(object):
 
         def modify_doc(doc):
 
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
 
             table = DataTable(
                 columns=[
@@ -793,13 +666,7 @@ class Test_DataTableSource(object):
         result = []
 
         def modify_doc(doc):
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
             table = DataTable(
                 columns=[
@@ -844,9 +711,7 @@ class Test_DataTableSource(object):
         )
 
         plot.add_glyph(source, Rect(x="x", y="y", width=1.5, height=1))
-        plot.add_tools(
-            TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices")))
-        )
+        plot.add_tools(TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices"))))
 
         page = single_plot_page(column(plot, table))
 

@@ -22,16 +22,7 @@ import time
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Div,
-    FreehandDrawTool,
-    MultiLine,
-    Plot,
-    Range1d,
-)
+from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Div, FreehandDrawTool, MultiLine, Plot, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -42,9 +33,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def _make_plot(num_objects=0):
     source = ColumnDataSource(dict(xs=[], ys=[]))
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     renderer = plot.add_glyph(source, MultiLine(xs="xs", ys="ys"))
     tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
     plot.add_tools(tool)
@@ -58,13 +47,7 @@ def _make_plot(num_objects=0):
 def _make_server_plot(expected, num_objects=0):
     def modify_doc(doc):
         source = ColumnDataSource(dict(xs=[], ys=[]))
-        plot = Plot(
-            plot_height=400,
-            plot_width=400,
-            x_range=Range1d(0, 3),
-            y_range=Range1d(0, 3),
-            min_border=0,
-        )
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, MultiLine(xs="xs", ys="ys"))
         tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
         plot.add_tools(tool)
@@ -145,9 +128,7 @@ class Test_FreehandDrawTool(object):
         page.click_custom_action()
 
         expected = {
-            "xs": [
-                [0.8108108108108109, 1.6216216216216217, 1.6216216216216217, 1.6216216216216217]
-            ],
+            "xs": [[0.8108108108108109, 1.6216216216216217, 1.6216216216216217, 1.6216216216216217]],
             "ys": [[2.25, 1.5, 1.5, 1.5]],
         }
         assert cds_data_almost_equal(page.results, expected)

@@ -67,17 +67,11 @@ def test_args():
                 default=None,
             ),
         ),
-        (
-            "--indent",
-            dict(metavar="LEVEL", type=int, help="indentation to use when printing", default=None),
-        ),
+        ("--indent", dict(metavar="LEVEL", type=int, help="indentation to use when printing", default=None)),
         (
             ("-o", "--output"),
             dict(
-                metavar="FILENAME",
-                action="append",
-                type=str,
-                help="Name of the output file or - for standard output.",
+                metavar="FILENAME", action="append", type=str, help="Name of the output file or - for standard output."
             ),
         ),
         (

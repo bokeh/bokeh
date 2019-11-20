@@ -112,8 +112,7 @@ class BaseResources(object):
         ]:
             raise ValueError(
                 "wrong value for 'mode' parameter, expected "
-                "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r"
-                % self.mode
+                "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode
             )
 
         if self.root_dir and not self.mode.startswith("relative"):
@@ -150,9 +149,7 @@ class BaseResources(object):
     def log_level(self, level):
         valid_levels = ["trace", "debug", "info", "warn", "error", "fatal"]
         if not (level is None or level in valid_levels):
-            raise ValueError(
-                "Unknown log level '{}', valid levels are: {}".format(level, str(valid_levels))
-            )
+            raise ValueError("Unknown log level '{}', valid levels are: {}".format(level, str(valid_levels)))
         self._log_level = level
 
     @property
@@ -198,9 +195,7 @@ class BaseResources(object):
         return _get_cdn_urls(self.version, self.minified)
 
     def _server_urls(self):
-        return _get_server_urls(
-            self.root_url, False if self.dev else self.minified, self.path_versioner
-        )
+        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)
@@ -451,9 +446,7 @@ class _SessionCoordinates(object):
             self._url = DEFAULT_SERVER_HTTP_URL
 
         if self._url.startswith("ws"):
-            raise ValueError(
-                "url should be the http or https URL for the server, not the websocket URL"
-            )
+            raise ValueError("url should be the http or https URL for the server, not the websocket URL")
 
         self._url = self._url.rstrip("/")
 
@@ -513,10 +506,7 @@ def _get_cdn_urls(version=None, minified=True):
     def mk_url(comp, kind):
         return "%s/%s/%s-%s%s.%s" % (base_url, container, comp, version, _min, kind)
 
-    result = {
-        "urls": lambda components, kind: [mk_url(component, kind) for component in components],
-        "messages": [],
-    }
+    result = {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
 
     if len(__version__.split("-")) > 1:
         result["messages"].append(
@@ -541,10 +531,7 @@ def _get_server_urls(root_url, minified=True, path_versioner=None):
             path = path_versioner(path)
         return "%sstatic/%s" % (root_url, path)
 
-    return {
-        "urls": lambda components, kind: [mk_url(component, kind) for component in components],
-        "messages": [],
-    }
+    return {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
 
 
 # -----------------------------------------------------------------------------

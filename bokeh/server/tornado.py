@@ -217,26 +217,19 @@ class BokehTornado(TornadoApplication):
             if keep_alive_milliseconds == 0:
                 log.info("Keep-alive ping disabled")
             elif keep_alive_milliseconds != DEFAULT_KEEP_ALIVE_MS:
-                log.info(
-                    "Keep-alive ping configured every %d milliseconds", keep_alive_milliseconds
-                )
+                log.info("Keep-alive ping configured every %d milliseconds", keep_alive_milliseconds)
         self._keep_alive_milliseconds = keep_alive_milliseconds
 
         if check_unused_sessions_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
         elif check_unused_sessions_milliseconds != DEFAULT_CHECK_UNUSED_MS:
-            log.info(
-                "Check for unused sessions every %d milliseconds",
-                check_unused_sessions_milliseconds,
-            )
+            log.info("Check for unused sessions every %d milliseconds", check_unused_sessions_milliseconds)
         self._check_unused_sessions_milliseconds = check_unused_sessions_milliseconds
 
         if unused_session_lifetime_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
         elif unused_session_lifetime_milliseconds != DEFAULT_UNUSED_LIFETIME_MS:
-            log.info(
-                "Unused sessions last for %d milliseconds", unused_session_lifetime_milliseconds
-            )
+            log.info("Unused sessions last for %d milliseconds", unused_session_lifetime_milliseconds)
         self._unused_session_lifetime_milliseconds = unused_session_lifetime_milliseconds
 
         if stats_log_frequency_milliseconds <= 0:
@@ -286,16 +279,12 @@ class BokehTornado(TornadoApplication):
         self._secret_key = secret_key
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
-        log.debug(
-            "These host origins can connect to the websocket: %r", list(self._websocket_origins)
-        )
+        log.debug("These host origins can connect to the websocket: %r", list(self._websocket_origins))
 
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k, v in applications.items():
-            self._applications[k] = ApplicationContext(
-                v, url=k, logout_url=self.auth_provider.logout_url
-            )
+            self._applications[k] = ApplicationContext(v, url=k, logout_url=self.auth_provider.logout_url)
 
         extra_patterns = extra_patterns or []
         extra_patterns.extend(self.auth_provider.endpoints)
@@ -350,9 +339,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super().__init__(
-            all_patterns, websocket_max_message_size=websocket_max_message_size_bytes, **kwargs
-        )
+        super().__init__(all_patterns, websocket_max_message_size=websocket_max_message_size_bytes, **kwargs)
 
     def initialize(self, io_loop):
         """ Start a Bokeh Server Tornado Application on a given Tornado IOLoop.
@@ -372,9 +359,7 @@ class BokehTornado(TornadoApplication):
         else:
             self._mem_job = None
 
-        self._cleanup_job = PeriodicCallback(
-            self._cleanup_sessions, self._check_unused_sessions_milliseconds
-        )
+        self._cleanup_job = PeriodicCallback(self._cleanup_sessions, self._check_unused_sessions_milliseconds)
 
         if self._keep_alive_milliseconds > 0:
             self._ping_job = PeriodicCallback(self._keep_alive, self._keep_alive_milliseconds)
@@ -457,9 +442,7 @@ class BokehTornado(TornadoApplication):
         mode = settings.resources(default="server")
         if mode == "server":
             root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-            return Resources(
-                mode="server", root_url=root_url, path_versioner=StaticHandler.append_version
-            )
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
         return Resources(mode=mode)
 
     def start(self):
@@ -571,11 +554,7 @@ class BokehTornado(TornadoApplication):
                 if s.connection_count == 0:
                     unused_count += 1
             log.debug(
-                "[pid %d]   %s has %d sessions with %d unused",
-                os.getpid(),
-                app_path,
-                len(sessions),
-                unused_count,
+                "[pid %d]   %s has %d sessions with %d unused", os.getpid(), app_path, len(sessions), unused_count
             )
 
     def _log_mem(self):

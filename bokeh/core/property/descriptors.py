@@ -214,9 +214,7 @@ class PropertyDescriptor(object):
     # This would probably be cleaner with some form of multiple dispatch
     # on (descriptor, property). Currently this method has to know about
     # various other classes, and that is annoying.
-    def add_prop_descriptor_to_class(
-        self, class_name, new_class_attrs, names_with_refs, container_names, dataspecs
-    ):
+    def add_prop_descriptor_to_class(self, class_name, new_class_attrs, names_with_refs, container_names, dataspecs):
         """ ``MetaHasProps`` calls this during class creation as it iterates
         over properties to add, to update its registry of new properties.
 

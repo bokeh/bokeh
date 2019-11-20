@@ -59,8 +59,7 @@ def _needs_document_lock(func):
             with await self._lock.acquire():
                 if self._pending_writes is not None:
                     raise RuntimeError(
-                        "internal class invariant violated: _pending_writes "
-                        + "should be None if lock is not held"
+                        "internal class invariant violated: _pending_writes " + "should be None if lock is not held"
                     )
                 self._pending_writes = []
                 try:
@@ -223,10 +222,7 @@ class ServerSession(object):
         # up with the state of the other and their final states will differ.
         for connection in self._subscribed_connections:
             if may_suppress and connection is self._current_patch_connection:
-                log.trace(
-                    "Not sending notification back to client %r for a change it requested",
-                    connection,
-                )
+                log.trace("Not sending notification back to client %r for a change it requested", connection)
             else:
                 self._pending_writes.append(connection.send_patch_document(event))
 

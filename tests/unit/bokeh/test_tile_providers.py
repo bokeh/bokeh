@@ -69,13 +69,7 @@ _STAMEN_LIC = {
 
 @pytest.mark.parametrize(
     "name",
-    [
-        "STAMEN_TERRAIN",
-        "STAMEN_TERRAIN_RETINA",
-        "STAMEN_TONER",
-        "STAMEN_TONER_BACKGROUND",
-        "STAMEN_TONER_LABELS",
-    ],
+    ["STAMEN_TERRAIN", "STAMEN_TERRAIN_RETINA", "STAMEN_TONER", "STAMEN_TONER_BACKGROUND", "STAMEN_TONER_LABELS"],
 )
 @pytest.mark.unit
 class Test_StamenProviders(object):

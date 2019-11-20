@@ -75,10 +75,7 @@ class JSON(FileOutputSubcommand):
 
     args = (
         FileOutputSubcommand.files_arg("JSON"),
-        (
-            "--indent",
-            dict(metavar="LEVEL", type=int, help="indentation to use when printing", default=None),
-        ),
+        ("--indent", dict(metavar="LEVEL", type=int, help="indentation to use when printing", default=None)),
     ) + FileOutputSubcommand.other_args()
 
     def file_contents(self, args, doc):

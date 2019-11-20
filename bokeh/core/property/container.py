@@ -78,8 +78,7 @@ class Seq(ContainerProperty):
                     msg = (
                         ""
                         if not detail
-                        else "expected an element of %s, got seq with invalid items %r"
-                        % (self, invalid)
+                        else "expected an element of %s, got seq with invalid items %r" % (self, invalid)
                     )
                     raise ValueError(msg)
                 else:
@@ -88,9 +87,7 @@ class Seq(ContainerProperty):
 
     @classmethod
     def _is_seq(cls, value):
-        return (isinstance(value, Sequence) or cls._is_seq_like(value)) and not isinstance(
-            value, str
-        )
+        return (isinstance(value, Sequence) or cls._is_seq_like(value)) and not isinstance(value, str)
 
     @classmethod
     def _is_seq_like(cls, value):
@@ -190,10 +187,7 @@ class Dict(ContainerProperty):
         if value is not None:
             if not (
                 isinstance(value, dict)
-                and all(
-                    self.keys_type.is_valid(key) and self.values_type.is_valid(val)
-                    for key, val in value.items()
-                )
+                and all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.items())
             ):
                 msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
@@ -255,9 +249,7 @@ class ColumnData(Dict):
             key = self.keys_type.from_json(key, models)
             if isinstance(value, dict) and "__ndarray__" in value:
                 new_data[key] = decode_base64_dict(value)
-            elif isinstance(value, list) and any(
-                isinstance(el, dict) and "__ndarray__" in el for el in value
-            ):
+            elif isinstance(value, list) and any(isinstance(el, dict) and "__ndarray__" in el for el in value):
                 new_list = []
                 for el in value:
                     if isinstance(el, dict) and "__ndarray__" in el:
@@ -307,10 +299,7 @@ class Tuple(ContainerProperty):
         if json is None:
             return None
         elif isinstance(json, list):
-            return tuple(
-                type_param.from_json(item, models)
-                for type_param, item in zip(self.type_params, json)
-            )
+            return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
@@ -321,17 +310,13 @@ class Tuple(ContainerProperty):
             if not (
                 isinstance(value, (tuple, list))
                 and len(self.type_params) == len(value)
-                and all(
-                    type_param.is_valid(item) for type_param, item in zip(self.type_params, value)
-                )
+                and all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))
             ):
                 msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s )" % ", ".join(
-            x._sphinx_type() for x in self.type_params
-        )
+        return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
 
 
 class RelativeDelta(Dict):

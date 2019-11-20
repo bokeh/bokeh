@@ -19,17 +19,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
 from ..core.properties import Auto, Either, Enum, Instance, Int, Seq, String
-from ..models import (
-    GMapPlot,
-    LinearAxis,
-    MercatorTicker,
-    MercatorTickFormatter,
-    Range1d,
-    Title,
-    Tool,
-    glyphs,
-    markers,
-)
+from ..models import GMapPlot, LinearAxis, MercatorTicker, MercatorTickFormatter, Range1d, Title, Tool, glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
 from .helpers import _glyph_function, _process_active_tools, _process_tools_arg
@@ -75,13 +65,9 @@ class GMap(GMapPlot):
     def __init__(self, **kw):
 
         if "plot_width" in kw and "width" in kw:
-            raise ValueError(
-                "Figure called with both 'plot_width' and 'width' supplied, supply only one"
-            )
+            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
         if "plot_height" in kw and "height" in kw:
-            raise ValueError(
-                "Figure called with both 'plot_height' and 'height' supplied, supply only one"
-            )
+            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
         if "height" in kw:
             kw["plot_height"] = kw.pop("height")
         if "width" in kw:
@@ -106,12 +92,7 @@ class GMap(GMapPlot):
         tool_objs, tool_map = _process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
         _process_active_tools(
-            self.toolbar,
-            tool_map,
-            opts.active_drag,
-            opts.active_inspect,
-            opts.active_scroll,
-            opts.active_tap,
+            self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap
         )
 
     annular_wedge = _glyph_function(glyphs.AnnularWedge)

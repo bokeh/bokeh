@@ -64,15 +64,12 @@ def from_networkx(graph, layout_function, **kwargs):
     # Handles nx 1.x vs 2.x data structure change
     # Convert node attributes
     node_dict = dict()
-    node_attr_keys = [
-        attr_key for node in list(graph.nodes(data=True)) for attr_key in node[1].keys()
-    ]
+    node_attr_keys = [attr_key for node in list(graph.nodes(data=True)) for attr_key in node[1].keys()]
     node_attr_keys = list(set(node_attr_keys))
 
     for attr_key in node_attr_keys:
         values = [
-            node_attr[attr_key] if attr_key in node_attr.keys() else None
-            for _, node_attr in graph.nodes(data=True)
+            node_attr[attr_key] if attr_key in node_attr.keys() else None for _, node_attr in graph.nodes(data=True)
         ]
 
         values = _handle_sublists(values)
@@ -96,8 +93,7 @@ def from_networkx(graph, layout_function, **kwargs):
 
     for attr_key in edge_attr_keys:
         values = [
-            edge_attr[attr_key] if attr_key in edge_attr.keys() else None
-            for _, _, edge_attr in graph.edges(data=True)
+            edge_attr[attr_key] if attr_key in edge_attr.keys() else None for _, _, edge_attr in graph.edges(data=True)
         ]
 
         values = _handle_sublists(values)

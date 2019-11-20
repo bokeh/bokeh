@@ -23,12 +23,7 @@ from sys import executable
 # Setup
 # -----------------------------------------------------------------------------
 
-BASIC_IMPORTS = [
-    "import bokeh.embed",
-    "import bokeh.io",
-    "import bokeh.models",
-    "import bokeh.plotting",
-]
+BASIC_IMPORTS = ["import bokeh.embed", "import bokeh.io", "import bokeh.models", "import bokeh.plotting"]
 
 # -----------------------------------------------------------------------------
 # Tests

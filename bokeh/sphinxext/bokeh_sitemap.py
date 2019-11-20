@@ -66,11 +66,7 @@ def build_finished(app, exception):
     filename = join(app.outdir, "sitemap.xml")
 
     links_iter = status_iterator(
-        sorted(app.sitemap_links),
-        "adding links to sitemap... ",
-        "brown",
-        len(app.sitemap_links),
-        app.verbosity,
+        sorted(app.sitemap_links), "adding links to sitemap... ", "brown", len(app.sitemap_links), app.verbosity
     )
 
     try:

@@ -130,9 +130,7 @@ def test_ColorBar():
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
     check_text_properties(color_bar, "title_", "10pt", "bottom", "italic", scalar=True)
-    check_text_properties(
-        color_bar, "major_label_", "8pt", "middle", "normal", "center", scalar=True
-    )
+    check_text_properties(color_bar, "major_label_", "8pt", "middle", "normal", "center", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")
     check_line_properties(color_bar, "minor_tick_", None)
     check_line_properties(color_bar, "bar_", None)
@@ -398,16 +396,7 @@ def test_Span():
     check_line_properties(line, "", "black", 1.0)
     check_properties_existence(
         line,
-        [
-            "visible",
-            "location",
-            "location_units",
-            "dimension",
-            "x_range_name",
-            "y_range_name",
-            "level",
-            "render_mode",
-        ],
+        ["visible", "location", "location_units", "dimension", "x_range_name", "y_range_name", "level", "render_mode"],
         LINE,
     )
 

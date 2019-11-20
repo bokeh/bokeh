@@ -31,13 +31,7 @@ import tempfile
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "makedirs_ok_if_exists",
-    "TmpDir",
-    "with_directory_contents",
-    "with_temporary_file",
-    "WorkingDir",
-)
+__all__ = ("makedirs_ok_if_exists", "TmpDir", "with_directory_contents", "with_temporary_file", "WorkingDir")
 
 # -----------------------------------------------------------------------------
 # General API

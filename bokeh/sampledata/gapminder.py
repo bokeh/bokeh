@@ -48,15 +48,9 @@ __all__ = ("fertility", "life_expectancy", "population", "regions")
 # Code
 # -----------------------------------------------------------------------------
 
-fertility = external_csv(
-    "gapminder", "gapminder_fertility.csv", index_col="Country", encoding="utf-8"
-)
-life_expectancy = external_csv(
-    "gapminder", "gapminder_life_expectancy.csv", index_col="Country", encoding="utf-8"
-)
-population = external_csv(
-    "gapminder", "gapminder_population.csv", index_col="Country", encoding="utf-8"
-)
+fertility = external_csv("gapminder", "gapminder_fertility.csv", index_col="Country", encoding="utf-8")
+life_expectancy = external_csv("gapminder", "gapminder_life_expectancy.csv", index_col="Country", encoding="utf-8")
+population = external_csv("gapminder", "gapminder_population.csv", index_col="Country", encoding="utf-8")
 regions = external_csv("gapminder", "gapminder_regions.csv", index_col="Country", encoding="utf-8")
 
 

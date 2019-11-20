@@ -69,11 +69,7 @@ _expected_settings = (
 
 class TestSettings(object):
     def test_standard_settings(self):
-        settings = [
-            k
-            for k, v in bs.settings.__class__.__dict__.items()
-            if isinstance(v, bs.PrioritizedSetting)
-        ]
+        settings = [k for k, v in bs.settings.__class__.__dict__.items() if isinstance(v, bs.PrioritizedSetting)]
         assert set(settings) == set(_expected_settings)
 
     @pytest.mark.parametrize("name", _expected_settings)
@@ -125,9 +121,7 @@ class TestConverters(object):
     def test_convert_bool(self, value):
         assert bs.convert_bool(value)
 
-    @pytest.mark.parametrize(
-        "value", ["No", "NO", "no", "0", "OFF", "off", "false", "False", False]
-    )
+    @pytest.mark.parametrize("value", ["No", "NO", "no", "0", "OFF", "off", "false", "False", False])
     def test_convert_bool_false(self, value):
         assert not bs.convert_bool(value)
 
@@ -256,9 +250,7 @@ class TestPrioritizedSetting(object):
             config_user = {}
             config_system = {}
 
-        ps = bs.PrioritizedSetting(
-            "foo", env_var="BOKEH_FOO", convert=int, default=0, dev_default=15
-        )
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", convert=int, default=0, dev_default=15)
         ps._parent = FakeSettings
 
         # 0. global default

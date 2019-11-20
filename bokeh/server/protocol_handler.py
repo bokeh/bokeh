@@ -91,9 +91,7 @@ class ProtocolHandler(object):
         try:
             work = await handler(message, connection)
         except Exception as e:
-            log.error(
-                "error handling message\n message: %r \n error: %r", message, e, exc_info=True
-            )
+            log.error("error handling message\n message: %r \n error: %r", message, e, exc_info=True)
             work = connection.error(message, repr(e))
         return work
 

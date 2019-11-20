@@ -139,9 +139,7 @@ class BokehPlotDirective(Directive):
             path = env.bokeh_plot_auxdir  # code runner just needs any real path
             source = "\n".join(self.content)
         else:
-            log.debug(
-                "[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0]
-            )
+            log.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
             path = self.arguments[0]
             if not path.startswith("/"):
                 path = join(env.app.srcdir, path)
@@ -152,9 +150,7 @@ class BokehPlotDirective(Directive):
         try:
             (script, js, js_path, source) = _process_script(source, path, env, js_name)
         except Exception as e:
-            raise RuntimeError(
-                "Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s" % (e, source)
-            )
+            raise RuntimeError("Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s" % (e, source))
         env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id

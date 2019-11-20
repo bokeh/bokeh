@@ -60,13 +60,7 @@ def test_from_networkx_method_with_kwargs():
 
 def test_from_networkx_with_scalar_attributes():
     G = nx.Graph()
-    G.add_nodes_from(
-        [
-            (0, {"attr_1": "a", "attr_2": 10}),
-            (1, {"attr_1": "b"}),
-            (2, {"attr_1": "c", "attr_2": 30}),
-        ]
-    )
+    G.add_nodes_from([(0, {"attr_1": "a", "attr_2": 10}), (1, {"attr_1": "b"}), (2, {"attr_1": "c", "attr_2": 30})])
     G.add_edges_from([(0, 1, {"attr_1": "A"}), (0, 2, {"attr_1": "B", "attr_2": 10})])
 
     renderer = bpg.from_networkx(G, nx.circular_layout)
@@ -84,16 +78,8 @@ def test_from_networkx_with_scalar_attributes():
 @pytest.mark.parametrize("typ", [list, tuple])
 def test_from_networkx_with_sequence_attributes(typ):
     G = nx.Graph()
-    G.add_nodes_from(
-        [
-            (0, {"attr_1": typ([1, 2]), "attr_2": 10}),
-            (1, {}),
-            (2, {"attr_1": typ([3]), "attr_2": 30}),
-        ]
-    )
-    G.add_edges_from(
-        [(0, 1, {"attr_1": typ([1, 11])}), (0, 2, {"attr_1": typ([2, 22]), "attr_2": 10})]
-    )
+    G.add_nodes_from([(0, {"attr_1": typ([1, 2]), "attr_2": 10}), (1, {}), (2, {"attr_1": typ([3]), "attr_2": 30})])
+    G.add_edges_from([(0, 1, {"attr_1": typ([1, 11])}), (0, 2, {"attr_1": typ([2, 22]), "attr_2": 10})])
 
     renderer = bpg.from_networkx(G, nx.circular_layout)
 
@@ -109,9 +95,7 @@ def test_from_networkx_with_sequence_attributes(typ):
 
 def test_from_networkx_errors_with_mixed_attributes():
     G = nx.Graph()
-    G.add_nodes_from(
-        [(0, {"attr_1": [1, 2], "attr_2": 10}), (1, {}), (2, {"attr_1": 3, "attr_2": 30})]
-    )
+    G.add_nodes_from([(0, {"attr_1": [1, 2], "attr_2": 10}), (1, {}), (2, {"attr_1": 3, "attr_2": 30})])
 
     with pytest.raises(ValueError):
         bpg.from_networkx(G, nx.circular_layout)

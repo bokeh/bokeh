@@ -53,9 +53,7 @@ import bokeh.plotting.helpers as bph  # isort:skip
 
 
 def all_combinations(lst):
-    return itertools.chain.from_iterable(
-        itertools.combinations(lst, i + 1) for i in range(2, len(lst))
-    )
+    return itertools.chain.from_iterable(itertools.combinations(lst, i + 1) for i in range(2, len(lst)))
 
 
 LEGEND_KWS = ["legend", "legend_label", "legend_field", "legend_group"]
@@ -87,9 +85,7 @@ def test__pop_legend_kwarg_error(keys):
 
 
 def test__find_legend_item():
-    legend = Legend(
-        items=[LegendItem(label=dict(value="foo")), LegendItem(label=dict(field="bar"))]
-    )
+    legend = Legend(items=[LegendItem(label=dict(value="foo")), LegendItem(label=dict(field="bar"))])
     assert bph._find_legend_item(dict(value="baz"), legend) is None
     assert bph._find_legend_item(dict(value="foo"), legend) is legend.items[0]
     assert bph._find_legend_item(dict(field="bar"), legend) is legend.items[1]
@@ -97,17 +93,7 @@ def test__find_legend_item():
 
 class Test__handle_legend_deprecated(object):
     @pytest.mark.parametrize(
-        "arg",
-        [
-            1,
-            2.7,
-            None,
-            False,
-            [],
-            {"junk": 10},
-            {"label": "foo", "junk": 10},
-            {"value": "foo", "junk": 10},
-        ],
+        "arg", [1, 2.7, None, False, [], {"junk": 10}, {"label": "foo", "junk": 10}, {"value": "foo", "junk": 10}]
     )
     def test_bad_arg(self, arg):
         with pytest.raises(ValueError):
@@ -189,9 +175,7 @@ class Test__handle_legend_group(object):
         with pytest.raises(ValueError):
             bph._handle_legend_group("foo", "legend", GlyphRenderer())
         with pytest.raises(ValueError):
-            bph._handle_legend_group(
-                "foo", "legend", GlyphRenderer(data_source=ColumnDataSource(data=dict(bar=[])))
-            )
+            bph._handle_legend_group("foo", "legend", GlyphRenderer(data_source=ColumnDataSource(data=dict(bar=[]))))
 
     def test_items(self):
         source = ColumnDataSource(data=dict(foo=[10, 10, 20, 30, 20, 30, 40]))
@@ -261,9 +245,7 @@ def test__single_stack_raises_when_kwargs_list_lengths_and_stackers_lengths_diff
     with pytest.raises(ValueError) as e:
         bph._single_stack(["a", "b", "c"], "foo", baz=[1, 2], quux=[3, 4])
 
-    assert str(e.value).endswith(
-        "Keyword argument sequences for broadcasting must be the same length as stackers"
-    )
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
 
 
 def test__single_stack_broadcast_with_no_kwargs():
@@ -349,9 +331,7 @@ def test__double_stack_raises_when_kwargs_list_lengths_and_stackers_lengths_diff
     with pytest.raises(ValueError) as e:
         bph._double_stack(["a", "b", "c"], "foo", "bar", baz=[1, 2], quux=[3, 4])
 
-    assert str(e.value).endswith(
-        "Keyword argument sequences for broadcasting must be the same length as stackers"
-    )
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
 
 
 def test__double_stack_broadcast_with_no_kwargs():
@@ -531,14 +511,8 @@ class Test__get_axis_class(object):
         assert (bph._get_axis_class("auto", DataRange1d(), 1)) == (LinearAxis, {})
         assert (bph._get_axis_class("auto", Range1d(), 0)) == (LinearAxis, {})
         assert (bph._get_axis_class("auto", Range1d(), 1)) == (LinearAxis, {})
-        assert (bph._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 0)) == (
-            DatetimeAxis,
-            {},
-        )
-        assert (bph._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 1)) == (
-            DatetimeAxis,
-            {},
-        )
+        assert (bph._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 0)) == (DatetimeAxis, {})
+        assert (bph._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 1)) == (DatetimeAxis, {})
 
     @pytest.mark.parametrize("range", _RANGES)
     @pytest.mark.unit
@@ -657,9 +631,7 @@ _renderer_args_values = {
 }
 
 
-@pytest.mark.parametrize(
-    "arg,values", [(arg, _renderer_args_values[arg]) for arg in bph._RENDERER_ARGS]
-)
+@pytest.mark.parametrize("arg,values", [(arg, _renderer_args_values[arg]) for arg in bph._RENDERER_ARGS])
 @pytest.mark.unit
 def test__glyph_receives_renderer_arg(arg, values):
     for value in values:

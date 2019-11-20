@@ -90,10 +90,7 @@ def external_csv(module: str, name: str, **kw: Any) -> DataFrame:
     """
     from .dependencies import import_required
 
-    pd = import_required(
-        "pandas",
-        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module,
-    )
+    pd = import_required("pandas", "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module)
     return cast(Any, pd).read_csv(external_path(name), **kw)
 
 
@@ -117,9 +114,7 @@ def external_data_dir(create: bool = False) -> str:
 
     if not exists(data_dir):
         if not create:
-            raise RuntimeError(
-                "bokeh sample data directory does not exist, please execute bokeh.sampledata.download()"
-            )
+            raise RuntimeError("bokeh sample data directory does not exist, please execute bokeh.sampledata.download()")
         print("Creating %s directory" % data_dir)
         try:
             mkdir(data_dir)
@@ -136,10 +131,7 @@ def external_path(filename: str) -> str:
     data_dir = external_data_dir()
     fn = join(data_dir, filename)
     if not exists(fn) and isfile(fn):
-        raise RuntimeError(
-            "Could not locate external data file %s. Please execute bokeh.sampledata.download()"
-            % fn
-        )
+        raise RuntimeError("Could not locate external data file %s. Please execute bokeh.sampledata.download()" % fn)
     return fn
 
 
@@ -149,10 +141,7 @@ def package_csv(module: str, name: str, **kw: Any) -> DataFrame:
     """
     from .dependencies import import_required
 
-    pd = import_required(
-        "pandas",
-        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module,
-    )
+    pd = import_required("pandas", "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module)
     return cast(Any, pd).read_csv(package_path(name), **kw)
 
 

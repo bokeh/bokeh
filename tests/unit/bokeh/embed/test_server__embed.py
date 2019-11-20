@@ -64,13 +64,10 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs), set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s"
-            % (
-                "http://localhost:8081/foo/bar/sliders",
-                divid,
-                "http://localhost:8081/foo/bar/sliders",
-            )
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % (
+            "http://localhost:8081/foo/bar/sliders",
+            divid,
+            "http://localhost:8081/foo/bar/sliders",
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -100,13 +97,10 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s"
-            % (
-                "http://localhost:8081/foo/bar/sliders",
-                divid,
-                "http://localhost:8081/foo/bar/sliders",
-            )
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % (
+            "http://localhost:8081/foo/bar/sliders",
+            divid,
+            "http://localhost:8081/foo/bar/sliders",
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -140,9 +134,10 @@ class TestServerSession(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession"
-            % ("http://localhost:5006", divid, "http://localhost:5006")
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % (
+            "http://localhost:5006",
+            divid,
+            "http://localhost:5006",
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -168,9 +163,10 @@ class TestServerSession(object):
         attrs = scripts[0].attrs
         assert set(attrs), set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession"
-            % ("http://localhost:5006", divid, "http://localhost:5006")
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % (
+            "http://localhost:5006",
+            divid,
+            "http://localhost:5006",
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -183,9 +179,10 @@ class TestServerSession(object):
         attrs = scripts[0].attrs
         assert set(attrs), set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession"
-            % ("http://localhost:5006", divid, "http://localhost:5006")
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % (
+            "http://localhost:5006",
+            divid,
+            "http://localhost:5006",
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -275,10 +272,7 @@ class Test__process_session_id(object):
 
 def Test__src_path(object):
     def test_args(self):
-        assert (
-            bes._src_path("http://foo", "1234")
-            == "http://foo/autoload.js?bokeh-autoload-element=1234"
-        )
+        assert bes._src_path("http://foo", "1234") == "http://foo/autoload.js?bokeh-autoload-element=1234"
 
 
 # -----------------------------------------------------------------------------

@@ -91,10 +91,7 @@ def test_get_browser_controller_value_with_env(mock_get):
 def test_view_bad_new():
     with pytest.raises(RuntimeError) as e:
         bub.view("foo", new="junk")
-        assert (
-            str(e)
-            == "invalid 'new' value passed to view: 'junk', valid values are: 'same', 'window', or 'tab'"
-        )
+        assert str(e) == "invalid 'new' value passed to view: 'junk', valid values are: 'same', 'window', or 'tab'"
 
 
 def test_view_args():

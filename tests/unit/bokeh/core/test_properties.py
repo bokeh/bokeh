@@ -20,17 +20,7 @@ import numpy as np
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
-from bokeh.core.properties import (
-    Dict,
-    Enum,
-    Float,
-    Instance,
-    Int,
-    List,
-    NumberSpec,
-    Override,
-    String,
-)
+from bokeh.core.properties import Dict, Enum, Float, Instance, Int, List, NumberSpec, Override, String
 from bokeh.models import Plot
 
 # Module under test
@@ -239,9 +229,7 @@ class Basictest(object):
         assert set(["mixin_container"]) == m.properties_containers()
         assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties()
         assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=True)
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(
-            with_bases=False
-        )
+        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=False)
 
         s = Sub()
         assert set(["child", "sub_child", "mixin_child"]) == s.properties_with_refs()
@@ -308,11 +296,7 @@ class Basictest(object):
         assert dict(num=base.lookup("num")) == base.dataspecs_with_props()
         assert dict(mixin_num=mixin.lookup("mixin_num")) == mixin.dataspecs_with_props()
         assert (
-            dict(
-                num=sub.lookup("num"),
-                mixin_num=sub.lookup("mixin_num"),
-                sub_num=sub.lookup("sub_num"),
-            )
+            dict(num=sub.lookup("num"), mixin_num=sub.lookup("mixin_num"), sub_num=sub.lookup("sub_num"))
             == sub.dataspecs_with_props()
         )
 

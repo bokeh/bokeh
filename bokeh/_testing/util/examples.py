@@ -215,9 +215,7 @@ class Example(object):
 
     @property
     def diff_path(self):
-        return join(
-            self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID)
-        )
+        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
     def img_url(self):
@@ -241,11 +239,7 @@ class Example(object):
 
     @property
     def diff_url_path(self):
-        return (
-            join("travis", "image_refs", __version__, self.relpath_no_ext)
-            + self._diff_ref
-            + "-diff.png"
-        )
+        return join("travis", "image_refs", __version__, self.relpath_no_ext) + self._diff_ref + "-diff.png"
 
     @property
     def has_ref(self):
@@ -282,15 +276,7 @@ class Example(object):
 
 
 def add_examples(
-    list_of_examples,
-    path,
-    examples_dir,
-    example_type=None,
-    slow=None,
-    skip=None,
-    xfail=None,
-    no_js=None,
-    no_diff=None,
+    list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None, no_diff=None
 ):
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])

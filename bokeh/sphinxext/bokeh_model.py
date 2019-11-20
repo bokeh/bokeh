@@ -103,21 +103,18 @@ class BokehModelDirective(BokehDirective):
             module = importlib.import_module(module_name)
         except ImportError:
             raise SphinxError(
-                "Unable to generate reference docs for %s, couldn't import module '%s'"
-                % (model_name, module_name)
+                "Unable to generate reference docs for %s, couldn't import module '%s'" % (model_name, module_name)
             )
 
         model = getattr(module, model_name, None)
         if model is None:
             raise SphinxError(
-                "Unable to generate reference docs for %s, no model '%s' in %s"
-                % (model_name, model_name, module_name)
+                "Unable to generate reference docs for %s, no model '%s' in %s" % (model_name, model_name, module_name)
             )
 
         if not issubclass(model, Model):
             raise SphinxError(
-                "Unable to generate reference docs for %s, model '%s' is a subclass of Model"
-                % (model_name, model_name)
+                "Unable to generate reference docs for %s, model '%s' is a subclass of Model" % (model_name, model_name)
             )
 
         # We may need to instantiate deprecated objects as part of documenting
@@ -128,15 +125,10 @@ class BokehModelDirective(BokehDirective):
             model_obj = model()
 
         model_json = json.dumps(
-            model_obj.to_json(include_defaults=True),
-            sort_keys=True,
-            indent=2,
-            separators=(",", ": "),
+            model_obj.to_json(include_defaults=True), sort_keys=True, indent=2, separators=(",", ": ")
         )
 
-        rst_text = MODEL_DETAIL.render(
-            name=model_name, module_name=module_name, model_json=model_json
-        )
+        rst_text = MODEL_DETAIL.render(name=model_name, module_name=module_name, model_json=model_json)
 
         return self._parse(rst_text, "<bokeh-model>")
 

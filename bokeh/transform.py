@@ -123,10 +123,7 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
 
     """
     return field(
-        field_name,
-        CategoricalColorMapper(
-            palette=palette, factors=factors, start=start, end=end, nan_color=nan_color
-        ),
+        field_name, CategoricalColorMapper(palette=palette, factors=factors, start=start, end=end, nan_color=nan_color)
     )
 
 
@@ -155,10 +152,7 @@ def factor_hatch(field_name, patterns, factors, start=0, end=None):
     Added in version 1.1.1
 
     """
-    return field(
-        field_name,
-        CategoricalPatternMapper(patterns=patterns, factors=factors, start=start, end=end),
-    )
+    return field(field_name, CategoricalPatternMapper(patterns=patterns, factors=factors, start=start, end=end))
 
 
 def factor_mark(field_name, markers, factors, start=0, end=None):
@@ -188,9 +182,7 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
         dict
 
     """
-    return field(
-        field_name, CategoricalMarkerMapper(markers=markers, factors=factors, start=start, end=end)
-    )
+    return field(field_name, CategoricalMarkerMapper(markers=markers, factors=factors, start=start, end=end))
 
 
 def jitter(field_name, width, mean=0, distribution="uniform", range=None):
@@ -248,12 +240,7 @@ def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None,
     return field(
         field_name,
         LinearColorMapper(
-            palette=palette,
-            low=low,
-            high=high,
-            nan_color=nan_color,
-            low_color=low_color,
-            high_color=high_color,
+            palette=palette, low=low, high=high, nan_color=nan_color, low_color=low_color, high_color=high_color
         ),
     )
 
@@ -288,12 +275,7 @@ def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, na
     return field(
         field_name,
         LogColorMapper(
-            palette=palette,
-            low=low,
-            high=high,
-            nan_color=nan_color,
-            low_color=low_color,
-            high_color=high_color,
+            palette=palette, low=low, high=high, nan_color=nan_color, low_color=low_color, high_color=high_color
         ),
     )
 

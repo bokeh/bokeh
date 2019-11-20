@@ -35,9 +35,7 @@ import bokeh.util.compiler as buc  # isort:skip
 
 
 def test_nodejs_compile_javascript():
-    assert buc.nodejs_compile(
-        """function f(a, b) { return a + b; };""", "javascript", "some.js"
-    ) == dict(
+    assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == dict(
         code="""\
 function f(a, b) { return a + b; }
 ;
@@ -45,18 +43,14 @@ function f(a, b) { return a + b; }
         deps=[],
     )
 
-    assert buc.nodejs_compile(
-        """var some = require('some/module');""", "javascript", "some.js"
-    ) == dict(
+    assert buc.nodejs_compile("""var some = require('some/module');""", "javascript", "some.js") == dict(
         code="""\
 var some = require('some/module');
 """,
         deps=["some/module"],
     )
 
-    assert buc.nodejs_compile(
-        """function f(a, b) { eturn a + b; };""", "javascript", "some.js"
-    ) == dict(
+    assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == dict(
         error="\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - "
         "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
         "\n"
@@ -66,9 +60,9 @@ var some = require('some/module');
 
 
 def test_nodejs_compile_less():
-    assert buc.nodejs_compile(
-        """.bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less"
-    ) == dict(code=""".bk-some-style{color:#800080}""")
+    assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == dict(
+        code=""".bk-some-style{color:#800080}"""
+    )
 
     assert buc.nodejs_compile(""".bk-some-style color: green; }""", "less", "some.less") == dict(
         error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n"

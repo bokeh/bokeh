@@ -24,33 +24,12 @@ import warnings
 
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
-from ..core.properties import (
-    Bool,
-    Dict,
-    Enum,
-    Float,
-    Include,
-    Instance,
-    Int,
-    List,
-    Override,
-    String,
-)
+from ..core.properties import Bool, Dict, Enum, Float, Include, Instance, Int, List, Override, String
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import (
-    BAD_EXTRA_RANGE_NAME,
-    INCOMPATIBLE_SCALE_AND_RANGE,
-    REQUIRED_RANGE,
-    REQUIRED_SCALE,
-)
-from ..core.validation.warnings import (
-    FIXED_HEIGHT_POLICY,
-    FIXED_SIZING_MODE,
-    FIXED_WIDTH_POLICY,
-    MISSING_RENDERERS,
-)
+from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, INCOMPATIBLE_SCALE_AND_RANGE, REQUIRED_RANGE, REQUIRED_SCALE
+from ..core.validation.warnings import FIXED_HEIGHT_POLICY, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, MISSING_RENDERERS
 from ..model import Model, collect_filtered_models
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
@@ -256,8 +235,7 @@ class Plot(LayoutDOM):
         valid_places = ["left", "right", "above", "below", "center"]
         if place not in valid_places:
             raise ValueError(
-                "Invalid place '%s' specified. Valid place values are: %s"
-                % (place, nice_join(valid_places))
+                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
             )
 
         getattr(self, place).append(obj)
@@ -361,57 +339,30 @@ class Plot(LayoutDOM):
 
         if self.x_scale is not None:
             for rng in x_ranges:
-                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(
-                    self.x_scale, (LinearScale, LogScale)
-                ):
-                    incompatible.append(
-                        "incompatibility on x-dimension: %s, %s" % (rng, self.x_scale)
-                    )
-                elif isinstance(rng, FactorRange) and not isinstance(
-                    self.x_scale, CategoricalScale
-                ):
-                    incompatible.append(
-                        "incompatibility on x-dimension: %s/%s" % (rng, self.x_scale)
-                    )
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                    incompatible.append("incompatibility on x-dimension: %s, %s" % (rng, self.x_scale))
+                elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
+                    incompatible.append("incompatibility on x-dimension: %s/%s" % (rng, self.x_scale))
                 # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(
-                    self.x_scale, CategoricalScale
-                ):
-                    incompatible.append(
-                        "incompatibility on x-dimension: %s, %s" % (rng, self.x_scale)
-                    )
+                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
+                    incompatible.append("incompatibility on x-dimension: %s, %s" % (rng, self.x_scale))
 
         if self.y_scale is not None:
             for rng in y_ranges:
-                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(
-                    self.y_scale, (LinearScale, LogScale)
-                ):
-                    incompatible.append(
-                        "incompatibility on y-dimension: %s/%s" % (rng, self.y_scale)
-                    )
-                elif isinstance(rng, FactorRange) and not isinstance(
-                    self.y_scale, CategoricalScale
-                ):
-                    incompatible.append(
-                        "incompatibility on y-dimension: %s/%s" % (rng, self.y_scale)
-                    )
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                    incompatible.append("incompatibility on y-dimension: %s/%s" % (rng, self.y_scale))
+                elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
+                    incompatible.append("incompatibility on y-dimension: %s/%s" % (rng, self.y_scale))
                 # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(
-                    self.y_scale, CategoricalScale
-                ):
-                    incompatible.append(
-                        "incompatibility on y-dimension: %s, %s" % (rng, self.y_scale)
-                    )
+                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
+                    incompatible.append("incompatibility on y-dimension: %s, %s" % (rng, self.y_scale))
 
         if incompatible:
             return ", ".join(incompatible) + " [%s]" % self
 
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
-        if (
-            len(self.renderers) == 0
-            and len([x for x in self.center if isinstance(x, Annotation)]) == 0
-        ):
+        if len(self.renderers) == 0 and len([x for x in self.center if isinstance(x, Annotation)]) == 0:
             return str(self)
 
     @error(BAD_EXTRA_RANGE_NAME)
@@ -910,9 +861,7 @@ class _list_attr_splat(list):
         if attr in dir(list):
             return list.__getattribute__(self, attr)
         if len(self) == 0:
-            raise AttributeError(
-                "Trying to access %r attribute on an empty 'splattable' list" % attr
-            )
+            raise AttributeError("Trying to access %r attribute on an empty 'splattable' list" % attr)
         if len(self) == 1:
             return getattr(self[0], attr)
         try:
@@ -955,9 +904,7 @@ def _select_helper(args, kwargs):
         raise TypeError("select accepts at most ONE positional argument.")
 
     if len(args) > 0 and len(kwargs) > 0:
-        raise TypeError(
-            "select accepts EITHER a positional argument, OR keyword arguments (not both)."
-        )
+        raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
 
     if len(args) == 0 and len(kwargs) == 0:
         raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
@@ -977,9 +924,7 @@ def _select_helper(args, kwargs):
         if len(kwargs) == 1:
             selector = kwargs["selector"]
         else:
-            raise TypeError(
-                "when passing 'selector' keyword arg, not other keyword args may be present"
-            )
+            raise TypeError("when passing 'selector' keyword arg, not other keyword args may be present")
 
     else:
         selector = kwargs

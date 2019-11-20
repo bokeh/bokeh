@@ -110,17 +110,12 @@ def detect_phantomjs(version: str = "2.1") -> str:
         out = proc.communicate()
 
         if len(out[1]) > 0:
-            raise RuntimeError(
-                "Error encountered in PhantomJS detection: %r" % out[1].decode("utf8")
-            )
+            raise RuntimeError("Error encountered in PhantomJS detection: %r" % out[1].decode("utf8"))
 
         required = V(version)
         installed = V(out[0].decode("utf8"))
         if installed < required:
-            raise RuntimeError(
-                "PhantomJS version to old. Version>=%s required, installed: %s"
-                % (required, installed)
-            )
+            raise RuntimeError("PhantomJS version to old. Version>=%s required, installed: %s" % (required, installed))
 
     except OSError:
         raise RuntimeError(

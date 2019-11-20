@@ -163,17 +163,13 @@ def push_session(document, session_id=None, url="default", io_loop=None):
     """
     coords = _SessionCoordinates(session_id=session_id, url=url)
     session = ClientSession(
-        session_id=coords.session_id,
-        websocket_url=websocket_url_for_server_url(coords.url),
-        io_loop=io_loop,
+        session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop
     )
     session.push(document)
     return session
 
 
-def show_session(
-    session_id=None, url="default", session=None, browser=None, new="tab", controller=None
-):
+def show_session(session_id=None, url="default", session=None, browser=None, new="tab", controller=None):
     """ Open a browser displaying a session document.
 
         If you have a session from ``pull_session()`` or ``push_session`` you
@@ -242,13 +238,7 @@ class ClientSession(object):
 
     """
 
-    def __init__(
-        self,
-        session_id=None,
-        websocket_url=DEFAULT_SERVER_WEBSOCKET_URL,
-        io_loop=None,
-        arguments=None,
-    ):
+    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None, arguments=None):
         """ A connection which attaches to a particular named session on the
         server.
 
@@ -397,9 +387,7 @@ class ClientSession(object):
             if document is None:
                 doc = self.document
             else:
-                raise ValueError(
-                    "Cannot push() a different document from existing session.document"
-                )
+                raise ValueError("Cannot push() a different document from existing session.document")
 
         self.connect()
         if not self.connected:

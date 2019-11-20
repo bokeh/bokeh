@@ -41,17 +41,7 @@ class Test_Range1d(object):
     def test_basic(self):
         r = Range1d()
         check_properties_existence(
-            r,
-            [
-                "callback",
-                "start",
-                "end",
-                "reset_start",
-                "reset_end",
-                "bounds",
-                "min_interval",
-                "max_interval",
-            ],
+            r, ["callback", "start", "end", "reset_start", "reset_end", "bounds", "min_interval", "max_interval"]
         )
 
     def test_init_with_timedelta(self):
@@ -61,9 +51,7 @@ class Test_Range1d(object):
         assert range1d.bounds is None
 
     def test_init_with_datetime(self):
-        range1d = Range1d(
-            start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50)
-        )
+        range1d = Range1d(start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50))
         assert range1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
         assert range1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
         assert range1d.bounds is None
@@ -153,9 +141,7 @@ class Test_DataRange1d(object):
         assert datarange1d.bounds is None
 
     def test_init_with_datetime(self):
-        datarange1d = DataRange1d(
-            start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50)
-        )
+        datarange1d = DataRange1d(start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50))
         assert datarange1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
         assert datarange1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
         assert datarange1d.bounds is None

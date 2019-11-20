@@ -118,11 +118,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     # Note: Comms handling relies on the fact that the new_doc returned
     # has models with the same IDs as they were started with
 
-    if (
-        not isinstance(objs, Sequence)
-        or len(objs) == 0
-        or not all(isinstance(x, Model) for x in objs)
-    ):
+    if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
         raise ValueError("OutputDocumentFor expects a sequence of Models")
 
     def finish():
@@ -293,9 +289,7 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
             doc = model.document
 
             if doc is None:
-                raise ValueError(
-                    "A Bokeh Model must be part of a Document to render as standalone content"
-                )
+                raise ValueError("A Bokeh Model must be part of a Document to render as standalone content")
 
         if doc not in docs:
             docs[doc] = (make_globally_unique_id(), OrderedDict())

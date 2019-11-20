@@ -100,9 +100,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
     return tag
 
 
-def server_session(
-    model=None, session_id=None, url="default", relative_urls=False, resources="default"
-):
+def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default"):
     """ Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -177,9 +175,7 @@ def server_session(
     src_path += _process_session_id(session_id)
     src_path += _process_resources(resources)
 
-    tag = AUTOLOAD_TAG.render(
-        src_path=src_path, app_path=app_path, elementid=elementid, modelid=modelid
-    )
+    tag = AUTOLOAD_TAG.render(src_path=src_path, app_path=app_path, elementid=elementid, modelid=modelid)
 
     return tag
 
@@ -240,9 +236,7 @@ def _clean_url(url):
         url = DEFAULT_SERVER_HTTP_URL
 
     if url.startswith("ws"):
-        raise ValueError(
-            "url should be the http or https URL for the server, not the websocket URL"
-        )
+        raise ValueError("url should be the http or https URL for the server, not the websocket URL")
 
     return url.rstrip("/")
 

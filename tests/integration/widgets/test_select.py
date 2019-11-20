@@ -29,13 +29,9 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(
-        plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
-    )
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Circle(x="x", y="y", size=20))
-    plot.add_tools(
-        CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-    )
+    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
     select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"])
 
     def cb(attr, old, new):
@@ -49,9 +45,7 @@ def modify_doc(doc):
 @pytest.mark.selenium
 class Test_Select(object):
     def test_displays_title(self, bokeh_model_page):
-        select = Select(
-            options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"], title="title"
-        )
+        select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"], title="title")
 
         page = bokeh_model_page(select)
 
@@ -80,9 +74,7 @@ class Test_Select(object):
         assert page.has_no_console_errors()
 
     def test_displays_options_list_of_string_options_with_default_value(self, bokeh_model_page):
-        select = Select(
-            options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"], value="Option 3"
-        )
+        select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"], value="Option 3")
 
         page = bokeh_model_page(select)
 
@@ -101,9 +93,7 @@ class Test_Select(object):
         assert page.has_no_console_errors()
 
     def test_displays_list_of_tuple_options(self, bokeh_model_page):
-        select = Select(
-            options=[("1", "Option 1"), ("2", "Option 2"), ("3", "Option 3")], css_classes=["foo"]
-        )
+        select = Select(options=[("1", "Option 1"), ("2", "Option 2"), ("3", "Option 3")], css_classes=["foo"])
 
         page = bokeh_model_page(select)
 
@@ -122,9 +112,7 @@ class Test_Select(object):
 
     def test_displays_list_of_tuple_options_with_default_value(self, bokeh_model_page):
         select = Select(
-            options=[("1", "Option 1"), ("2", "Option 2"), ("3", "Option 3")],
-            css_classes=["foo"],
-            value="3",
+            options=[("1", "Option 1"), ("2", "Option 2"), ("3", "Option 3")], css_classes=["foo"], value="3"
         )
 
         page = bokeh_model_page(select)
@@ -144,9 +132,7 @@ class Test_Select(object):
         assert page.has_no_console_errors()
 
     def test_displays_options_dict_of_list_of_string_options(self, bokeh_model_page):
-        select = Select(
-            options=dict(g1=["Option 11"], g2=["Option 21", "Option 22"]), css_classes=["foo"]
-        )
+        select = Select(options=dict(g1=["Option 11"], g2=["Option 21", "Option 22"]), css_classes=["foo"])
 
         page = bokeh_model_page(select)
 
@@ -167,13 +153,9 @@ class Test_Select(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_options_dict_of_list_of_string_options_with_default_value(
-        self, bokeh_model_page
-    ):
+    def test_displays_options_dict_of_list_of_string_options_with_default_value(self, bokeh_model_page):
         select = Select(
-            options=dict(g1=["Option 11"], g2=["Option 21", "Option 22"]),
-            css_classes=["foo"],
-            value="Option 22",
+            options=dict(g1=["Option 11"], g2=["Option 21", "Option 22"]), css_classes=["foo"], value="Option 22"
         )
 
         page = bokeh_model_page(select)
@@ -198,8 +180,7 @@ class Test_Select(object):
 
     def test_displays_dict_of_list_of_tuple_options(self, bokeh_model_page):
         select = Select(
-            options=dict(g1=[("11", "Option 11")], g2=[("21", "Option 21"), ("22", "Option 22")]),
-            css_classes=["foo"],
+            options=dict(g1=[("11", "Option 11")], g2=[("21", "Option 21"), ("22", "Option 22")]), css_classes=["foo"]
         )
 
         page = bokeh_model_page(select)
@@ -251,17 +232,9 @@ class Test_Select(object):
     def test_server_on_change_round_trip(self, bokeh_server_page):
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(
-                plot_height=400,
-                plot_width=400,
-                x_range=Range1d(0, 1),
-                y_range=Range1d(0, 1),
-                min_border=0,
-            )
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
-            plot.add_tools(
-                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
-            )
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"])
 
             def cb(attr, old, new):

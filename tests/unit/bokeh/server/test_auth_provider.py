@@ -306,8 +306,7 @@ def get_user_async(handler): return 20
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
                 assert (
-                    str(e)
-                    == "When user authentication is enabled, one of login_url or get_login_url must be supplied"
+                    str(e) == "When user authentication is enabled, one of login_url or get_login_url must be supplied"
                 )
 
         with_file_contents(
@@ -434,11 +433,7 @@ def test_load_auth_module():
     def func(filename):
         m = bsa.load_auth_module(filename)
         assert isinstance(m, ModuleType)
-        assert [x for x in sorted(dir(m)) if not x.startswith("__")] == [
-            "LoginHandler",
-            "get_login_url",
-            "logout_url",
-        ]
+        assert [x for x in sorted(dir(m)) if not x.startswith("__")] == ["LoginHandler", "get_login_url", "logout_url"]
 
     with_file_contents(_source, func, suffix=".py")
 

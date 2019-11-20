@@ -211,9 +211,7 @@ class _TileProvidersModule(types.ModuleType):
         if selected_provider.startswith("CARTO"):
             attribution = self._CARTO_ATTRIBUTION
         elif selected_provider.startswith("STAMEN"):
-            attribution = (
-                self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
-            )
+            attribution = self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
         else:
             raise ValueError("Can not retrieve attribution for %s" % selected_provider)
         return WMTSTileSource(url=url, attribution=attribution)

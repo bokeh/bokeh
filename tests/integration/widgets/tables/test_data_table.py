@@ -36,9 +36,7 @@ class Test_CellEditor_Base(object):
         self.table = DataTable(source=source, columns=[column], editable=True, width=600)
 
         # this is triggered on selection changes
-        source.selected.js_on_change(
-            "indices", CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values"))
-        )
+        source.selected.js_on_change("indices", CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")))
 
 
 @pytest.mark.integration

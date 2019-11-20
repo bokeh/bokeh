@@ -55,8 +55,7 @@ def generate_secret_key() -> str:
 
 
 def generate_session_id(
-    secret_key: Optional[bytes] = settings.secret_key_bytes(),
-    signed: bool = settings.sign_sessions(),
+    secret_key: Optional[bytes] = settings.secret_key_bytes(), signed: bool = settings.sign_sessions()
 ) -> str:
     """Generate a random session ID.
     Typically, each browser tab connected to a Bokeh application

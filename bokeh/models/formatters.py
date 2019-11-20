@@ -586,45 +586,41 @@ class DatetimeTickFormatter(TickFormatter):
 
     """
 
-    microseconds = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"), default=["%fus"]
-    ).accepts(String, lambda fmt: [fmt])
+    microseconds = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"), default=["%fus"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
     milliseconds = List(
         String, help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"), default=["%3Nms", "%S.%3Ns"]
     ).accepts(String, lambda fmt: [fmt])
 
-    seconds = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"), default=["%Ss"]
-    ).accepts(String, lambda fmt: [fmt])
+    seconds = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``seconds``"), default=["%Ss"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
     minsec = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
-        default=[":%M:%S"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"), default=[":%M:%S"]
     ).accepts(String, lambda fmt: [fmt])
 
-    minutes = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"), default=[":%M", "%Mm"]
-    ).accepts(String, lambda fmt: [fmt])
+    minutes = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"), default=[":%M", "%Mm"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
     hourmin = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
-        default=["%H:%M"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"), default=["%H:%M"]
     ).accepts(String, lambda fmt: [fmt])
 
-    hours = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``hours``"), default=["%Hh", "%H:%M"]
-    ).accepts(String, lambda fmt: [fmt])
+    hours = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``hours``"), default=["%Hh", "%H:%M"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
-    days = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``days``"), default=["%m/%d", "%a%d"]
-    ).accepts(String, lambda fmt: [fmt])
+    days = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``days``"), default=["%m/%d", "%a%d"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
-    months = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``months``"), default=["%m/%Y", "%b %Y"]
-    ).accepts(String, lambda fmt: [fmt])
+    months = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``months``"), default=["%m/%Y", "%b %Y"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
     years = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``years``"), default=["%Y"]).accepts(
         String, lambda fmt: [fmt]
@@ -654,11 +650,7 @@ _df_fields = [
     "years",
 ]
 _df_defaults = _df.properties_with_values()
-_df_defaults_string = "\n\n        ".join(
-    "%s = %s" % (name, _df_defaults[name]) for name in _df_fields
-)
+_df_defaults_string = "\n\n        ".join("%s = %s" % (name, _df_defaults[name]) for name in _df_fields)
 
-DatetimeTickFormatter.__doc__ = format_docstring(
-    DatetimeTickFormatter.__doc__, defaults=_df_defaults_string
-)
+DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=_df_defaults_string)
 del _df, _df_fields, _df_defaults, _df_defaults_string
