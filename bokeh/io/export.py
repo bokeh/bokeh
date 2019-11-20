@@ -32,9 +32,6 @@ from PIL import Image
 from ..embed import file_html
 from ..resources import INLINE
 from .util import default_filename
-# this is part of the API for this module
-from .webdriver import terminate_webdriver  # for back compat
-from .webdriver import webdriver_control
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -164,10 +161,13 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
 
     return filenames
 
+# this is part of the API for this module
+from .webdriver import terminate_webdriver ; terminate_webdriver
+from .webdriver import webdriver_control ; webdriver_control
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
 
 def create_webdriver():
     ''' Create a new webdriver.

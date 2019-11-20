@@ -69,11 +69,10 @@ from .util import get_sphinx_resources
 
 if False:
     # For type annotation
-    #From directives.code.CodeBlock.run
+    # from directives.code.CodeBlock.run
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants

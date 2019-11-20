@@ -26,9 +26,6 @@ from .output import output_file, output_notebook, reset_output
 from .saving import save
 from .showing import show
 
-# External Imports
-
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

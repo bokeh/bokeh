@@ -70,13 +70,18 @@ The inline example code above produces the following output:
     show(p)
 
 '''
-
-
-
-
-# Standard library imports
 #-----------------------------------------------------------------------------
 # Boilerplate
+#-----------------------------------------------------------------------------
+# use the wrapped sphinx logger
+from sphinx.util import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from os import getenv
 from os.path import basename, dirname, join
 from uuid import uuid4
@@ -86,9 +91,7 @@ from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
-#-----------------------------------------------------------------------------
-# use the wrapped sphinx logger
-from sphinx.util import copyfile, ensuredir, logging, status_iterator
+from sphinx.util import copyfile, ensuredir, status_iterator
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
@@ -97,16 +100,6 @@ from ..embed import autoload_static
 from ..model import Model
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
-
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-
-
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants

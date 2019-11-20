@@ -47,11 +47,11 @@ DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
+# __all__ defined at the bottom on the class module
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-# __all__ defined at the bottom on the class module
 
 #-----------------------------------------------------------------------------
 # Dev API

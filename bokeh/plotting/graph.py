@@ -31,7 +31,6 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-
 def from_networkx(graph, layout_function, **kwargs):
         '''
         Generate a ``GraphRenderer`` from a ``networkx.Graph`` object and networkx

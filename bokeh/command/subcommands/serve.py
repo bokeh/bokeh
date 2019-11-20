@@ -429,13 +429,13 @@ from bokeh.util.string import format_docstring, nice_join
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 
-LOGLEVELS = ('trace', 'debug', 'info', 'warning', 'error', 'critical')
-SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
-DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+LOGLEVELS = ('trace', 'debug', 'info', 'warning', 'error', 'critical')
+SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
+DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
 base_serve_args = (
     ('--port', dict(

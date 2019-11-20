@@ -98,7 +98,6 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-
 CALIBER       = 'caliber'
 LIGHT_MINIMAL = 'light_minimal'
 DARK_MINIMAL  = 'dark_minimal'
