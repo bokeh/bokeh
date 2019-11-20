@@ -1,10 +1,13 @@
-from datetime import date
+# Standard library imports
 import json
+from datetime import date
+
+# Bokeh imports
+from bokeh.model import Model
 
 import bokeh.models as bm; bm
 import bokeh.models.widgets as bmw; bmw
 
-from bokeh.model import Model
 
 def _proto(obj, defaults=False):
     return json.dumps(obj.to_json(defaults), sort_keys=True, indent=None)

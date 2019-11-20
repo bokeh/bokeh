@@ -1,11 +1,12 @@
+# Standard library imports
 import argparse
 import importlib
+import json
 import os
-from shutil import rmtree
 import sys
 import textwrap
 import time
-import json
+from shutil import rmtree
 
 # TODO:
 #       catch and log exceptions in examples files that fail to open
