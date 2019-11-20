@@ -68,6 +68,4 @@ def collect_errors():
         with io.open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
-    return [
-        msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors
-    ]
+    return [msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors]

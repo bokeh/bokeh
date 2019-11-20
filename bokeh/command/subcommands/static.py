@@ -72,9 +72,7 @@ class Static(Subcommand):
 
         _allowed_keys = ["port", "address"]
         server_kwargs = {
-            key: getattr(args, key)
-            for key in _allowed_keys
-            if getattr(args, key, None) is not None
+            key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None
         }
 
         with report_server_init_errors(**server_kwargs):
@@ -84,9 +82,7 @@ class Static(Subcommand):
             if server.address is not None and server.address != "":
                 address_string = " address " + server.address
 
-            log.info(
-                "Starting Bokeh static server on port %d%s", server.port, address_string
-            )
+            log.info("Starting Bokeh static server on port %d%s", server.port, address_string)
             server.run_until_shutdown()
 
 

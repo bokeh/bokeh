@@ -43,14 +43,7 @@ from .regex import Regex
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "DashPattern",
-    "FontSize",
-    "HatchPatternType",
-    "Image",
-    "MinMaxBounds",
-    "MarkerType",
-)
+__all__ = ("DashPattern", "FontSize", "HatchPatternType", "Image", "MinMaxBounds", "MarkerType")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -108,8 +101,7 @@ class DashPattern(Either):
 class FontSize(String):
 
     _font_size_re = re.compile(
-        r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$",
-        re.I,
+        r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I
     )
 
     def validate(self, value, detail=True):
@@ -117,9 +109,7 @@ class FontSize(String):
 
         if isinstance(value, str):
             if len(value) == 0:
-                msg = (
-                    "" if not detail else "empty string is not a valid font size value"
-                )
+                msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
             elif self._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
@@ -167,11 +157,7 @@ class Image(Property):
             valid = True
 
         if isinstance(value, np.ndarray):
-            valid = (
-                value.dtype == "uint8"
-                and len(value.shape) == 3
-                and value.shape[2] in (3, 4)
-            )
+            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
 
         if not valid:
             msg = (
@@ -198,9 +184,9 @@ class Image(Property):
             out = BytesIO()
             fmt = value.format or "PNG"
             value.save(out, fmt)
-            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(
-                out.getvalue()
-            ).decode("ascii")
+            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode(
+                "ascii"
+            )
 
         raise ValueError("Could not transform %r" % value)
 

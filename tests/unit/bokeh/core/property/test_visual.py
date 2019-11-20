@@ -36,14 +36,7 @@ import bokeh.core.property.visual as bcpv  # isort:skip
 # Setup
 # -----------------------------------------------------------------------------
 
-ALL = (
-    "DashPattern",
-    "FontSize",
-    "HatchPatternType",
-    "Image",
-    "MinMaxBounds",
-    "MarkerType",
-)
+ALL = ("DashPattern", "FontSize", "HatchPatternType", "Image", "MinMaxBounds", "MarkerType")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -274,9 +267,7 @@ class Test_Image(object):
         value = PIL.Image.fromarray(data)
         out = BytesIO()
         value.save(out, "png")
-        expected = "data:image/png;base64," + base64.b64encode(out.getvalue()).decode(
-            "ascii"
-        )
+        expected = "data:image/png;base64," + base64.b64encode(out.getvalue()).decode("ascii")
 
         prop = bcpv.Image()
         assert prop.transform(data) == expected
@@ -287,9 +278,7 @@ class Test_Image(object):
         out = BytesIO()
         image.save(out, typ)
         value = PIL.Image.open(out)
-        expected = "data:image/%s;base64," % typ + base64.b64encode(
-            out.getvalue()
-        ).decode("ascii")
+        expected = "data:image/%s;base64," % typ + base64.b64encode(out.getvalue()).decode("ascii")
 
         prop = bcpv.Image()
         assert prop.transform(value) == expected
@@ -328,9 +317,7 @@ class Test_MinMaxBounds(object):
         assert not prop.is_valid(("a", "b"))
         assert not prop.is_valid((13, 12))
         assert not prop.is_valid((13.1, 12.2))
-        assert not prop.is_valid(
-            (datetime.date(2012, 10, 1), datetime.date(2012, 12, 2))
-        )
+        assert not prop.is_valid((datetime.date(2012, 10, 1), datetime.date(2012, 12, 2)))
 
     def test_MinMaxBounds_with_datetime(self):
         prop = bcpv.MinMaxBounds(accept_datetime=True)

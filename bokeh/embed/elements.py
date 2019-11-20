@@ -36,11 +36,7 @@ from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "div_for_render_item",
-    "html_page_for_render_items",
-    "script_for_render_items",
-)
+__all__ = ("div_for_render_item", "html_page_for_render_items", "script_for_render_items")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -169,9 +165,7 @@ def script_for_render_items(
 
     js = DOC_JS.render(
         docs_json=docs_json,
-        render_items=serialize_json(
-            [item.to_json() for item in render_items], pretty=False
-        ),
+        render_items=serialize_json([item.to_json() for item in render_items], pretty=False),
         app_path=app_path,
         absolute_url=absolute_url,
     )

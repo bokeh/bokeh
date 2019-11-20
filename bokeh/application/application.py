@@ -170,10 +170,7 @@ class Application(object):
             h.modify_document(doc)
             if h.failed:
                 log.error(
-                    "Error running application handler %r: %s %s ",
-                    h,
-                    h.error,
-                    h.error_detail,
+                    "Error running application handler %r: %s %s ", h, h.error, h.error_detail
                 )
 
         if settings.perform_document_validation():

@@ -43,11 +43,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 def _make_plot(num_objects=0):
     source = ColumnDataSource(dict(xs=[], ys=[]))
     plot = Plot(
-        plot_height=400,
-        plot_width=400,
-        x_range=Range1d(0, 3),
-        y_range=Range1d(0, 3),
-        min_border=0,
+        plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0
     )
     renderer = plot.add_glyph(source, MultiLine(xs="xs", ys="ys"))
     tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
@@ -131,14 +127,7 @@ class Test_FreehandDrawTool(object):
         page.click_custom_action()
 
         expected = {
-            "xs": [
-                [
-                    1.6216216216216217,
-                    2.027027027027027,
-                    2.027027027027027,
-                    2.027027027027027,
-                ]
-            ],
+            "xs": [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
             "ys": [[1.5, 1.125, 1.125, 1.125]],
         }
         assert cds_data_almost_equal(page.results, expected)
@@ -157,12 +146,7 @@ class Test_FreehandDrawTool(object):
 
         expected = {
             "xs": [
-                [
-                    0.8108108108108109,
-                    1.6216216216216217,
-                    1.6216216216216217,
-                    1.6216216216216217,
-                ]
+                [0.8108108108108109, 1.6216216216216217, 1.6216216216216217, 1.6216216216216217]
             ],
             "ys": [[2.25, 1.5, 1.5, 1.5]],
         }
@@ -172,14 +156,7 @@ class Test_FreehandDrawTool(object):
 
     def test_freehand_draw_syncs_to_server(self, bokeh_server_page):
         expected = {
-            "xs": [
-                [
-                    1.6216216216216217,
-                    2.027027027027027,
-                    2.027027027027027,
-                    2.027027027027027,
-                ]
-            ],
+            "xs": [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
             "ys": [[1.5, 1.125, 1.125, 1.125]],
         }
 

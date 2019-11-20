@@ -52,18 +52,12 @@ class Test_CheckboxButtonGroup(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             group = CheckboxButtonGroup(labels=LABELS, css_classes=["foo"])
 
             def cb(active):
-                source.data["val"] = (active + [0, 0])[
-                    :2
-                ]  # keep col length at 2, padded with zero
+                source.data["val"] = (active + [0, 0])[:2]  # keep col length at 2, padded with zero
 
             group.on_click(cb)
             doc.add_root(column(group, plot))

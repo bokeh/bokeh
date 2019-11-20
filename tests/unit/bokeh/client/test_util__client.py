@@ -35,9 +35,7 @@ class Test_server_url_for_websocket_url(object):
         assert bcu.server_url_for_websocket_url("ws://foo.com/ws") == "http://foo.com/"
 
     def test_with_wss(self):
-        assert (
-            bcu.server_url_for_websocket_url("wss://foo.com/ws") == "https://foo.com/"
-        )
+        assert bcu.server_url_for_websocket_url("wss://foo.com/ws") == "https://foo.com/"
 
     def test_bad_proto(self):
         with pytest.raises(ValueError):
@@ -57,9 +55,7 @@ class Test_websocket_url_for_server_url(object):
 
     def test_with_https(self):
         assert bcu.websocket_url_for_server_url("https://foo.com") == "wss://foo.com/ws"
-        assert (
-            bcu.websocket_url_for_server_url("https://foo.com/") == "wss://foo.com/ws"
-        )
+        assert bcu.websocket_url_for_server_url("https://foo.com/") == "wss://foo.com/ws"
 
     def test_bad_proto(self):
         with pytest.raises(ValueError):

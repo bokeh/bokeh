@@ -78,9 +78,7 @@ class patch_doc(Message):
 
         docs = {event.document for event in events}
         if len(docs) != 1:
-            raise ValueError(
-                "PATCH-DOC message configured with events for more than one document"
-            )
+            raise ValueError("PATCH-DOC message configured with events for more than one document")
 
         # this roundtrip is fortunate, but is needed because there are type conversions
         # in BokehJSONEncoder which keep us from easily generating non-string JSON

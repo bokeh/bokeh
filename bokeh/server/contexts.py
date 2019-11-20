@@ -181,10 +181,7 @@ class ApplicationContext(object):
         if len(session_id) == 0:
             raise ProtocolError("Session ID must not be empty")
 
-        if (
-            session_id not in self._sessions
-            and session_id not in self._pending_sessions
-        ):
+        if session_id not in self._sessions and session_id not in self._pending_sessions:
             future = self._pending_sessions[session_id] = gen.Future()
 
             doc = Document()
@@ -233,9 +230,7 @@ class ApplicationContext(object):
 
     async def _discard_session(self, session, should_discard):
         if session.connection_count > 0:
-            raise RuntimeError(
-                "Should not be discarding a session with open connections"
-            )
+            raise RuntimeError("Should not be discarding a session with open connections")
         log.debug(
             "Discarding session %r last in use %r milliseconds ago",
             session.id,
@@ -258,10 +253,7 @@ class ApplicationContext(object):
                 del self._session_contexts[session.id]
                 log.trace("Session %r was successfully discarded", session.id)
             else:
-                log.warning(
-                    "Session %r was scheduled to discard but came back to life",
-                    session.id,
-                )
+                log.warning("Session %r was scheduled to discard but came back to life", session.id)
 
         await session.with_document_locked(do_discard)
 
@@ -278,28 +270,21 @@ class ApplicationContext(object):
     async def _cleanup_sessions(self, unused_session_linger_milliseconds):
         def should_discard_ignoring_block(session):
             return session.connection_count == 0 and (
-                session.milliseconds_since_last_unsubscribe
-                > unused_session_linger_milliseconds
+                session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds
                 or session.expiration_requested
             )
 
         # build a temp list to avoid trouble from self._sessions changes
         to_discard = []
         for session in self._sessions.values():
-            if (
-                should_discard_ignoring_block(session)
-                and not session.expiration_blocked
-            ):
+            if should_discard_ignoring_block(session) and not session.expiration_blocked:
                 to_discard.append(session)
 
         if len(to_discard) > 0:
             log.debug("Scheduling %s sessions to discard" % len(to_discard))
         # asynchronously reconsider each session
         for session in to_discard:
-            if (
-                should_discard_ignoring_block(session)
-                and not session.expiration_blocked
-            ):
+            if should_discard_ignoring_block(session) and not session.expiration_blocked:
                 await self._discard_session(session, should_discard_ignoring_block)
 
         return None

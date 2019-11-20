@@ -102,9 +102,7 @@ def has_no_console_errors(pytestconfig):
         def func(driver):
             logs = driver.get_log("browser")
             severe_errors = [x for x in logs if x.get("level") == "SEVERE"]
-            non_network_errors = [
-                l for l in severe_errors if l.get("type") != "network"
-            ]
+            non_network_errors = [l for l in severe_errors if l.get("type") != "network"]
 
             if len(non_network_errors) == 0:
                 if len(severe_errors) != 0:

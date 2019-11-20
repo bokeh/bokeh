@@ -56,9 +56,7 @@ def test_name():
 
 
 def test_help():
-    assert (
-        schtml.HTML.help == "Create standalone HTML files for one or more applications"
-    )
+    assert schtml.HTML.help == "Create standalone HTML files for one or more applications"
 
 
 def test_args():
@@ -72,10 +70,7 @@ def test_args():
                 default=None,
             ),
         ),
-        (
-            "--show",
-            dict(action="store_true", help="Open generated file(s) in a browser"),
-        ),
+        ("--show", dict(action="store_true", help="Open generated file(s) in a browser")),
         (
             ("-o", "--output"),
             dict(

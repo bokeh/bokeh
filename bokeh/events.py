@@ -215,9 +215,7 @@ class PlotEvent(Event):
         from .models import Plot
 
         if model is not None and not isinstance(model, Plot):
-            raise ValueError(
-                f"{self.__class__.__name__} event only applies to Plot models"
-            )
+            raise ValueError(f"{self.__class__.__name__} event only applies to Plot models")
         super().__init__(model)
 
 

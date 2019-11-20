@@ -91,9 +91,7 @@ def from_networkx(graph, layout_function, **kwargs):
 
     # Convert edge attributes
     edge_dict = dict()
-    edge_attr_keys = [
-        attr_key for edge in graph.edges(data=True) for attr_key in edge[2].keys()
-    ]
+    edge_attr_keys = [attr_key for edge in graph.edges(data=True) for attr_key in edge[2].keys()]
     edge_attr_keys = list(set(edge_attr_keys))
 
     for attr_key in edge_attr_keys:
@@ -153,9 +151,7 @@ def _handle_sublists(values):
     # if any of the items is non-scalar, they all must be
     if any(isinstance(x, (list, tuple)) for x in values):
         if not all(isinstance(x, (list, tuple)) for x in values if x is not None):
-            raise ValueError(
-                "Can't mix scalar and non-scalar values for graph attributes"
-            )
+            raise ValueError("Can't mix scalar and non-scalar values for graph attributes")
         return [[] if x is None else list(x) for x in values]
     return values
 

@@ -39,16 +39,10 @@ class Test_TapTool(object):
         plot = figure(height=800, width=1000, tools="")
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
         plot.add_tools(
-            TapTool(
-                callback=CustomJS(
-                    code=RECORD("indices", "cb_data.source.selected.indices")
-                )
-            )
+            TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices")))
         )
         plot.add_tools(
-            CustomAction(
-                callback=CustomJS(args=dict(p=plot), code=RECORD("junk", "10"))
-            )
+            CustomAction(callback=CustomJS(args=dict(p=plot), code=RECORD("junk", "10")))
         )
 
         page = single_plot_page(plot)
@@ -64,11 +58,7 @@ class Test_TapTool(object):
         plot = figure(height=800, width=1000, tools="")
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
         plot.add_tools(
-            TapTool(
-                callback=CustomJS(
-                    code=RECORD("indices", "cb_data.source.selected.indices")
-                )
-            )
+            TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices")))
         )
 
         page = single_plot_page(plot)
@@ -85,11 +75,7 @@ class Test_TapTool(object):
         plot = figure(height=800, width=1000, tools="")
         plot.rect(x=[1, 1], y=[1, 1], width=1, height=1)
         plot.add_tools(
-            TapTool(
-                callback=CustomJS(
-                    code=RECORD("indices", "cb_data.source.selected.indices")
-                )
-            )
+            TapTool(callback=CustomJS(code=RECORD("indices", "cb_data.source.selected.indices")))
         )
 
         page = single_plot_page(plot)

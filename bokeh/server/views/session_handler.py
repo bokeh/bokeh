@@ -63,13 +63,10 @@ class SessionHandler(AuthMixin, RequestHandler):
         if session_id is None:
             if self.application.generate_session_ids:
                 session_id = generate_session_id(
-                    secret_key=self.application.secret_key,
-                    signed=self.application.sign_sessions,
+                    secret_key=self.application.secret_key, signed=self.application.sign_sessions
                 )
             else:
-                log.debug(
-                    "Server configured not to generate session IDs and none was provided"
-                )
+                log.debug("Server configured not to generate session IDs and none was provided")
                 raise HTTPError(status_code=403, reason="No bokeh-session-id provided")
         elif not check_session_id_signature(
             session_id,
@@ -79,9 +76,7 @@ class SessionHandler(AuthMixin, RequestHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise HTTPError(status_code=403, reason="Invalid session ID")
 
-        session = await self.application_context.create_session_if_needed(
-            session_id, self.request
-        )
+        session = await self.application_context.create_session_if_needed(session_id, self.request)
 
         return session
 

@@ -22,16 +22,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import ButtonType
 from ...core.has_props import HasProps, abstract
-from ...core.properties import (
-    Bool,
-    Either,
-    Enum,
-    Instance,
-    List,
-    Override,
-    String,
-    Tuple,
-)
+from ...core.properties import Bool, Either, Enum, Instance, List, Override, String, Tuple
 from ...events import ButtonClick, MenuItemClick
 from ..callbacks import Callback
 from .icons import AbstractIcon

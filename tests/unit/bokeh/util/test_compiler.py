@@ -70,9 +70,7 @@ def test_nodejs_compile_less():
         """.bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less"
     ) == dict(code=""".bk-some-style{color:#800080}""")
 
-    assert buc.nodejs_compile(
-        """.bk-some-style color: green; }""", "less", "some.less"
-    ) == dict(
+    assert buc.nodejs_compile(""".bk-some-style color: green; }""", "less", "some.less") == dict(
         error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n"
     )
 
@@ -138,9 +136,7 @@ def test_exts():
 def test_jsons():
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
         if file.endswith(".json"):
-            with io.open(
-                os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8"
-            ) as f:
+            with io.open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
                 assert all(["\\" not in mod for mod in json.loads(f.read())])
 
 

@@ -59,13 +59,7 @@ TEXT = [
 
 ANGLE = ["angle", "angle_units"]
 
-PROPS = [
-    "name",
-    "tags",
-    "js_property_callbacks",
-    "js_event_callbacks",
-    "subscribed_events",
-]
+PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events"]
 GLYPH = []
 
 MARKER = ["x", "y", "size", "angle", "angle_units"]
@@ -84,9 +78,7 @@ def check_properties_existence(model, *props):
     found = set(model.properties())
     missing = expected.difference(found)
     extra = found.difference(expected)
-    assert len(missing) == 0, "Properties missing: {0}".format(
-        ", ".join(sorted(missing))
-    )
+    assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
     assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
 
@@ -113,9 +105,7 @@ def check_hatch_properties(
     assert getattr(model, prefix + "hatch_extra") == hatch_extra
 
 
-def check_line_properties(
-    model, prefix="", line_color=Color.black, line_width=1.0, line_alpha=1.0
-):
+def check_line_properties(model, prefix="", line_color=Color.black, line_width=1.0, line_alpha=1.0):
     assert getattr(model, prefix + "line_color") == line_color
     assert getattr(model, prefix + "line_width") == line_width
     assert getattr(model, prefix + "line_alpha") == line_alpha

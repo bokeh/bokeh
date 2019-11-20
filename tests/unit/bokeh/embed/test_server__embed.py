@@ -42,24 +42,16 @@ def test_plot():
 class TestServerDocument(object):
     def test_invalid_resources_param(self):
         with pytest.raises(ValueError):
-            bes.server_document(
-                url="http://localhost:8081/foo/bar/sliders", resources=123
-            )
+            bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=123)
         with pytest.raises(ValueError):
-            bes.server_document(
-                url="http://localhost:8081/foo/bar/sliders", resources="whatever"
-            )
+            bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="whatever")
 
     def test_resources_default_is_implicit(self):
-        r = bes.server_document(
-            url="http://localhost:8081/foo/bar/sliders", resources="default"
-        )
+        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="default")
         assert "resources=" not in r
 
     def test_resources_none(self):
-        r = bes.server_document(
-            url="http://localhost:8081/foo/bar/sliders", resources=None
-        )
+        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=None)
         assert "resources=none" in r
 
     def test_general(self):
@@ -91,9 +83,10 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10"
-            % ("http://localhost:5006", divid, "http://localhost:5006")
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10" % (
+            "http://localhost:5006",
+            divid,
+            "http://localhost:5006",
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -118,9 +111,7 @@ class TestServerDocument(object):
         assert attrs == {"id": divid, "src": src}
 
     def test_script_attrs_url_provided(self):
-        r = bes.server_document(
-            url="http://localhost:8081/foo/bar/sliders", relative_urls=True
-        )
+        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
         assert "bokeh-app-path=/foo/bar/sliders" in r
         html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name="script")
@@ -128,9 +119,9 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set(["src", "id"])
         divid = attrs["id"]
-        src = (
-            "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders"
-            % ("http://localhost:8081/foo/bar/sliders", divid)
+        src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % (
+            "http://localhost:8081/foo/bar/sliders",
+            divid,
         )
         assert attrs == {"id": divid, "src": src}
 
@@ -159,9 +150,7 @@ class TestServerSession(object):
         with pytest.raises(ValueError):
             bes.server_session(test_plot, session_id="fakesession", resources=123)
         with pytest.raises(ValueError):
-            bes.server_session(
-                test_plot, session_id="fakesession", resources="whatever"
-            )
+            bes.server_session(test_plot, session_id="fakesession", resources="whatever")
 
     def test_resources_default_is_implicit(self, test_plot):
         r = bes.server_session(test_plot, session_id="fakesession", resources="default")
@@ -264,9 +253,7 @@ class Test__process_relative_urls(object):
         assert bes._process_relative_urls(True, "/stuff") == ""
 
     def test_Flase(self):
-        assert (
-            bes._process_relative_urls(False, "/stuff") == "&bokeh-absolute-url=/stuff"
-        )
+        assert bes._process_relative_urls(False, "/stuff") == "&bokeh-absolute-url=/stuff"
 
 
 class Test__process_resources(object):

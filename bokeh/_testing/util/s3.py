@@ -58,18 +58,14 @@ def connect_to_s3():
         return boto.connect_s3(calling_format=OrdinaryCallingFormat())
     except NoAuthHandlerFound:
         fail("Upload was requested but could not connect to S3.")
-        fail(
-            "This is expected if you are an external contributor submitting a PR to Bokeh."
-        )
+        fail("This is expected if you are an external contributor submitting a PR to Bokeh.")
         fail(
             "This could also happen if S3 credentials are not available on the machine where this test is running."
         )
         return None
 
 
-def upload_file_to_s3_by_job_id(
-    file_path, content_type="text/html", extra_message=None
-):
+def upload_file_to_s3_by_job_id(file_path, content_type="text/html", extra_message=None):
     """ Upload a file to the ci.bokeh.org s3 bucket under a travis/JOB_ID
 
     """
@@ -77,9 +73,7 @@ def upload_file_to_s3_by_job_id(
     return upload_file_to_s3(file_path, s3_filename, content_type, extra_message)
 
 
-def upload_file_to_s3(
-    file_path, s3_filename, content_type="text/html", extra_message=None
-):
+def upload_file_to_s3(file_path, s3_filename, content_type="text/html", extra_message=None):
     """ Upload a file to the ci.bokeh.org s3 bucket
 
     """

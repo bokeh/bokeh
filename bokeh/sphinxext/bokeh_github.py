@@ -75,9 +75,7 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=Non
 
     """
     app = inliner.document.settings.env.app
-    node = _make_gh_link_node(
-        app, rawtext, "commit", "commit ", "commit", text, options
-    )
+    node = _make_gh_link_node(app, rawtext, "commit", "commit ", "commit", text, options)
     return [node], []
 
 
@@ -102,9 +100,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
         )
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = _make_gh_link_node(
-        app, rawtext, "issue", "#", "issues", str(issue_num), options
-    )
+    node = _make_gh_link_node(app, rawtext, "issue", "#", "issues", str(issue_num), options)
     return [node], []
 
 

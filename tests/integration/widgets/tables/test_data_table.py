@@ -33,14 +33,11 @@ class Test_CellEditor_Base(object):
     def setup_method(self):
         source = ColumnDataSource({"values": self.values})
         column = TableColumn(field="values", title="values", editor=self.editor())
-        self.table = DataTable(
-            source=source, columns=[column], editable=True, width=600
-        )
+        self.table = DataTable(source=source, columns=[column], editable=True, width=600)
 
         # this is triggered on selection changes
         source.selected.js_on_change(
-            "indices",
-            CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")),
+            "indices", CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values"))
         )
 
 

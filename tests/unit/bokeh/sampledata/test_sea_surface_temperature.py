@@ -30,9 +30,7 @@ ALL = ("sea_surface_temperature",)
 # General API
 # -----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(
-    verify_all("bokeh.sampledata.sea_surface_temperature", ALL)
-)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.sea_surface_temperature", ALL))
 
 
 @pytest.mark.sampledata

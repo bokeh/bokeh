@@ -347,9 +347,7 @@ class Server(BaseServer):
         )
 
         from bokeh.application.handlers.function import FunctionHandler
-        from bokeh.application.handlers.document_lifecycle import (
-            DocumentLifecycleHandler,
-        )
+        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))
@@ -396,17 +394,13 @@ class Server(BaseServer):
 
             context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             context.load_cert_chain(
-                certfile=opts.ssl_certfile,
-                keyfile=opts.ssl_keyfile,
-                password=opts.ssl_password,
+                certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password
             )
             http_server_kwargs["ssl_options"] = context
 
         sockets, self._port = bind_sockets(self.address, self.port)
 
-        extra_websocket_origins = create_hosts_whitelist(
-            opts.allow_websocket_origin, self.port
-        )
+        extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
         try:
             tornado_app = BokehTornado(
                 applications,

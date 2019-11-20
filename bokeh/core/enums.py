@@ -449,9 +449,7 @@ RenderMode = enumeration("canvas", "css")
 ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
-RoundingFunction = enumeration(
-    "round", "nearest", "floor", "rounddown", "ceil", "roundup"
-)
+RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
 #: Sizing mode policies
 SizingMode = enumeration(
@@ -483,9 +481,7 @@ StepMode = enumeration("before", "after", "center")
 TextAlign = enumeration("left", "right", "center")
 
 #: Specify the baseline location for rendering text
-TextBaseline = enumeration(
-    "top", "middle", "bottom", "alphabetic", "hanging", "ideographic"
-)
+TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
 #: Specify how textures used as canvas patterns should repeat
 TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
@@ -494,9 +490,7 @@ TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
 TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
 
 #: Specify an attachment for tooltips
-TooltipAttachment = enumeration(
-    "horizontal", "vertical", "left", "right", "above", "below"
-)
+TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "above", "below")
 
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")

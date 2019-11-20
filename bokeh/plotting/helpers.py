@@ -242,9 +242,7 @@ def _graph(node_source, edge_source, **kwargs):
     node_ca = _pop_visuals(Circle, kwargs, prefix="node_")
 
     if any(x.startswith("node_selection_") for x in kwargs):
-        snode_ca = _pop_visuals(
-            Circle, kwargs, prefix="node_selection_", defaults=node_ca
-        )
+        snode_ca = _pop_visuals(Circle, kwargs, prefix="node_selection_", defaults=node_ca)
     else:
         snode_ca = None
 
@@ -258,37 +256,27 @@ def _graph(node_source, edge_source, **kwargs):
     else:
         mnode_ca = None
 
-    nsnode_ca = _pop_visuals(
-        Circle, kwargs, prefix="node_nonselection_", defaults=node_ca
-    )
+    nsnode_ca = _pop_visuals(Circle, kwargs, prefix="node_nonselection_", defaults=node_ca)
 
     ## edge stuff
     edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
 
     if any(x.startswith("edge_selection_") for x in kwargs):
-        sedge_ca = _pop_visuals(
-            MultiLine, kwargs, prefix="edge_selection_", defaults=edge_ca
-        )
+        sedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_selection_", defaults=edge_ca)
     else:
         sedge_ca = None
 
     if any(x.startswith("edge_hover_") for x in kwargs):
-        hedge_ca = _pop_visuals(
-            MultiLine, kwargs, prefix="edge_hover_", defaults=edge_ca
-        )
+        hedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_hover_", defaults=edge_ca)
     else:
         hedge_ca = None
 
     if any(x.startswith("edge_muted_") for x in kwargs):
-        medge_ca = _pop_visuals(
-            MultiLine, kwargs, prefix="edge_muted_", defaults=edge_ca
-        )
+        medge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_ca)
     else:
         medge_ca = None
 
-    nsedge_ca = _pop_visuals(
-        MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca
-    )
+    nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca)
 
     ## node stuff
     node_kwargs = {
@@ -344,9 +332,7 @@ def _graph(node_source, edge_source, **kwargs):
         "inspection_policy",
     ]
 
-    renderer_kwargs = {
-        attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs
-    }
+    renderer_kwargs = {attr: kwargs.pop(attr) for attr in _RENDERER_ARGS if attr in kwargs}
 
     renderer_kwargs["node_renderer"] = node_renderer
     renderer_kwargs["edge_renderer"] = edge_renderer
@@ -354,15 +340,7 @@ def _graph(node_source, edge_source, **kwargs):
     return renderer_kwargs
 
 
-_RENDERER_ARGS = [
-    "name",
-    "x_range_name",
-    "y_range_name",
-    "level",
-    "view",
-    "visible",
-    "muted",
-]
+_RENDERER_ARGS = ["name", "x_range_name", "y_range_name", "level", "view", "visible", "muted"]
 
 
 def _pop_renderer_args(kwargs):
@@ -573,11 +551,7 @@ def _handle_legend_deprecated(label, legend, glyph_renderer):
             raise ValueError("Bad 'legend' parameter value: %s" % label)
     else:
         source = glyph_renderer.data_source
-        if (
-            source is not None
-            and hasattr(source, "column_names")
-            and label in source.column_names
-        ):
+        if source is not None and hasattr(source, "column_names") and label in source.column_names:
             _handle_legend_field(label, legend, glyph_renderer)
         else:
             _handle_legend_label(label, legend, glyph_renderer)
@@ -676,9 +650,7 @@ def _get_scale(range_input, axis_type):
     elif isinstance(range_input, FactorRange):
         return CategoricalScale()
     else:
-        raise ValueError(
-            "Unable to determine proper scale for: '%s'" % str(range_input)
-        )
+        raise ValueError("Unable to determine proper scale for: '%s'" % str(range_input))
 
 
 def _get_axis_class(axis_type, range_input, dim):
@@ -747,11 +719,7 @@ _known_tools = {
     "xbox_zoom": lambda: BoxZoomTool(dimensions="width"),
     "ybox_zoom": lambda: BoxZoomTool(dimensions="height"),
     "hover": lambda: HoverTool(
-        tooltips=[
-            ("index", "$index"),
-            ("data (x, y)", "($x, $y)"),
-            ("screen (x, y)", "($sx, $sy)"),
-        ]
+        tooltips=[("index", "$index"), ("data (x, y)", "($x, $y)"), ("screen (x, y)", "($sx, $sy)")]
     ),
     "save": lambda: SaveTool(),
     "previewsave": "save",
@@ -784,14 +752,11 @@ def _tool_from_string(name):
             matches, text = known_tools, "possible"
 
         raise ValueError(
-            "unexpected tool name '%s', %s tools are %s"
-            % (name, text, nice_join(matches))
+            "unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches))
         )
 
 
-def _process_axis_and_grid(
-    plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim
-):
+def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
     axiscls, axiskw = _get_axis_class(axis_type, rng, dim)
 
     if axiscls:
@@ -849,9 +814,7 @@ def _process_tools_arg(plot, tools, tooltips=None):
         tool_objs.append(tool_obj)
         tool_map[tool] = tool_obj
 
-    for typename, group in itertools.groupby(
-        sorted(tool.__class__.__name__ for tool in tool_objs)
-    ):
+    for typename, group in itertools.groupby(sorted(tool.__class__.__name__ for tool in tool_objs)):
         if len(list(group)) > 1:
             repeated_tools.append(typename)
 
@@ -941,9 +904,7 @@ def _get_argspecs(glyphclass):
 
         # running python with -OO will discard docstrings -> __doc__ is None
         if descriptor.__doc__:
-            spec["desc"] = "\n        ".join(
-                textwrap.dedent(descriptor.__doc__).split("\n")
-            )
+            spec["desc"] = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
             spec["desc"] = ""
         spec["default"] = descriptor.class_default(glyphclass)
@@ -1034,9 +995,7 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
             desc = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
         else:
             desc = ""
-        kwlines.append(
-            _arg_template % (kw, typ, desc, descriptor.class_default(glyphclass))
-        )
+        kwlines.append(_arg_template % (kw, typ, desc, descriptor.class_default(glyphclass)))
     extra_kws = getattr(glyphclass, "_extra_kws", {})
     for kw, (typ, desc) in extra_kws.items():
         kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
@@ -1044,17 +1003,10 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
 
     arglines = []
     for arg, spec in argspecs.items():
-        arglines.append(
-            _arg_template % (arg, spec["type"], spec["desc"], spec["default"])
-        )
+        arglines.append(_arg_template % (arg, spec["type"], spec["desc"], spec["default"]))
 
     mod = "markers" if issubclass(glyphclass, Marker) else "glyphs"
-    func.__doc__ = _doc_template % (
-        mod,
-        func.__name__,
-        "\n".join(arglines),
-        "\n".join(kwlines),
-    )
+    func.__doc__ = _doc_template % (mod, func.__name__, "\n".join(arglines), "\n".join(kwlines))
     if extra_docs:
         func.__doc__ += extra_docs
 
@@ -1097,8 +1049,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         )
         if incompatible_literal_spec_values:
             raise RuntimeError(
-                _GLYPH_SOURCE_MSG
-                % nice_join(incompatible_literal_spec_values, conjuction="and")
+                _GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and")
             )
 
         # handle the nonselection glyph, we always set one
@@ -1112,25 +1063,19 @@ def _glyph_function(glyphclass, extra_docs=None):
 
         # handle the selection glyph, if any properties were given
         if any(x.startswith("selection_") for x in kwargs):
-            sglyph_ca = _pop_visuals(
-                glyphclass, kwargs, prefix="selection_", defaults=glyph_ca
-            )
+            sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix="selection_", defaults=glyph_ca)
         else:
             sglyph_ca = None
 
         # handle the hover glyph, if any properties were given
         if any(x.startswith("hover_") for x in kwargs):
-            hglyph_ca = _pop_visuals(
-                glyphclass, kwargs, prefix="hover_", defaults=glyph_ca
-            )
+            hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix="hover_", defaults=glyph_ca)
         else:
             hglyph_ca = None
 
         # handle the mute glyph, if any properties were given
         if any(x.startswith("muted_") for x in kwargs):
-            mglyph_ca = _pop_visuals(
-                glyphclass, kwargs, prefix="muted_", defaults=glyph_ca
-            )
+            mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix="muted_", defaults=glyph_ca)
         else:
             mglyph_ca = None
 

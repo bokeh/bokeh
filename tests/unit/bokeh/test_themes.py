@@ -25,12 +25,7 @@ from bokeh.document import Document
 from bokeh.model import Model
 
 # Module under test
-from bokeh.themes import (  # isort:skip
-    Theme,
-    built_in_themes,
-    DARK_MINIMAL,
-    LIGHT_MINIMAL,
-)
+from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL  # isort:skip
 
 # -----------------------------------------------------------------------------
 # Setup
@@ -112,9 +107,7 @@ class TestThemes(object):
             file.file.flush()
             theme = Theme(filename=file.name)
             assert dict(number=57) == theme._for_class(ThemedModel)
-            assert dict(number=57, another_string="boo") == theme._for_class(
-                SubOfThemedModel
-            )
+            assert dict(number=57, another_string="boo") == theme._for_class(SubOfThemedModel)
         file.close()
         os.remove(file.name)
 
@@ -149,10 +142,7 @@ class TestThemes(object):
     def test_subclass_theme_used_rather_than_base(self):
         theme = Theme(
             json={
-                "attrs": {
-                    "ThemedModel": {"string": "w00t"},
-                    "SubOfThemedModel": {"string": "bar"},
-                }
+                "attrs": {"ThemedModel": {"string": "w00t"}, "SubOfThemedModel": {"string": "bar"}}
             }
         )
         obj = SubOfThemedModel()
@@ -184,9 +174,7 @@ class TestThemes(object):
         assert "w00t" == obj.string
         doc.remove_root(obj)
         assert "hello" == obj.string
-        assert [("string", "hello", "w00t"), ("string", "w00t", "hello")] == changes[
-            "calls"
-        ]
+        assert [("string", "hello", "w00t"), ("string", "w00t", "hello")] == changes["calls"]
 
     def test_theming_a_document_before_adding_root(self):
         theme = Theme(json={"attrs": {"ThemedModel": {"string": "w00t"}}})
@@ -205,9 +193,7 @@ class TestThemes(object):
         assert "w00t" == obj.string
         doc.remove_root(obj)
         assert "hello" == obj.string
-        assert [("string", "hello", "w00t"), ("string", "w00t", "hello")] == changes[
-            "calls"
-        ]
+        assert [("string", "hello", "w00t"), ("string", "w00t", "hello")] == changes["calls"]
 
     def test_setting_document_theme_to_none(self):
         theme = Theme(json={"attrs": {"ThemedModel": {"string": "w00t"}}})
@@ -226,9 +212,7 @@ class TestThemes(object):
         doc.theme = None
         assert doc.theme is not None
         assert "hello" == obj.string
-        assert [("string", "hello", "w00t"), ("string", "w00t", "hello")] == changes[
-            "calls"
-        ]
+        assert [("string", "hello", "w00t"), ("string", "w00t", "hello")] == changes["calls"]
 
     def _compare_dict_to_model_class_defaults(self, props, model_class):
         model = model_class()
@@ -253,13 +237,9 @@ class TestThemes(object):
         import bokeh.models.widgets as widgets
 
         if hasattr(models, model_name):
-            self._compare_dict_to_model_class_defaults(
-                props, getattr(models, model_name)
-            )
+            self._compare_dict_to_model_class_defaults(props, getattr(models, model_name))
         elif hasattr(widgets, model_name):
-            self._compare_dict_to_model_class_defaults(
-                props, getattr(widgets, model_name)
-            )
+            self._compare_dict_to_model_class_defaults(props, getattr(widgets, model_name))
         else:
             raise RuntimeError("Could not find class for " + model_name)
 

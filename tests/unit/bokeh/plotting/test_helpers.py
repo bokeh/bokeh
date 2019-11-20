@@ -135,9 +135,7 @@ class Test__handle_legend_deprecated(object):
 
     def test_field_string(self):
         legend = Legend(items=[LegendItem(label=dict(field="foo"))])
-        renderer = GlyphRenderer(
-            data_source=ColumnDataSource(data=dict(foo=[], bar=[]))
-        )
+        renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
         bph._handle_legend_deprecated("foo", legend, renderer)
         assert len(legend.items) == 1
         assert all("field" in item.label for item in legend.items)
@@ -147,9 +145,7 @@ class Test__handle_legend_deprecated(object):
 
     def test_field_dict(self):
         legend = Legend(items=[LegendItem(label=dict(field="foo"))])
-        renderer = GlyphRenderer(
-            data_source=ColumnDataSource(data=dict(foo=[], bar=[]))
-        )
+        renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
         bph._handle_legend_deprecated(dict(field="foo"), legend, renderer)
         assert len(legend.items) == 1
         assert all("field" in item.label for item in legend.items)
@@ -194,9 +190,7 @@ class Test__handle_legend_group(object):
             bph._handle_legend_group("foo", "legend", GlyphRenderer())
         with pytest.raises(ValueError):
             bph._handle_legend_group(
-                "foo",
-                "legend",
-                GlyphRenderer(data_source=ColumnDataSource(data=dict(bar=[]))),
+                "foo", "legend", GlyphRenderer(data_source=ColumnDataSource(data=dict(bar=[])))
             )
 
     def test_items(self):
@@ -307,9 +301,7 @@ def test__single_stack_broadcast_with_list_kwargs():
 
 def test__single_stack_broadcast_name_scalar_overrides():
     stackers = ["a", "b", "c", "d"]
-    kws = bph._single_stack(
-        stackers, "start", foo=[10, 20, 30, 40], bar="baz", name="name"
-    )
+    kws = bph._single_stack(stackers, "start", foo=[10, 20, 30, 40], bar="baz", name="name")
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
         assert set(["start", "foo", "bar", "name"]) == set(kw.keys())
@@ -322,9 +314,7 @@ def test__single_stack_broadcast_name_scalar_overrides():
 def test__single_stack_broadcast_name_list_overrides():
     names = ["aa", "bb", "cc", "dd"]
     stackers = ["a", "b", "c", "d"]
-    kws = bph._single_stack(
-        stackers, "start", foo=[10, 20, 30, 40], bar="baz", name=names
-    )
+    kws = bph._single_stack(stackers, "start", foo=[10, 20, 30, 40], bar="baz", name=names)
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
         assert set(["start", "foo", "bar", "name"]) == set(kw.keys())
@@ -402,9 +392,7 @@ def test__double_stack_broadcast_with_list_kwargs():
 
 def test__double_stack_broadcast_name_scalar_overrides():
     stackers = ["a", "b", "c", "d"]
-    kws = bph._double_stack(
-        stackers, "start", "end", foo=[10, 20, 30, 40], bar="baz", name="name"
-    )
+    kws = bph._double_stack(stackers, "start", "end", foo=[10, 20, 30, 40], bar="baz", name="name")
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
         assert set(["start", "end", "foo", "bar", "name"]) == set(kw.keys())
@@ -418,9 +406,7 @@ def test__double_stack_broadcast_name_scalar_overrides():
 def test__double_stack_broadcast_name_list_overrides():
     names = ["aa", "bb", "cc", "dd"]
     stackers = ["a", "b", "c", "d"]
-    kws = bph._double_stack(
-        stackers, "start", "end", foo=[10, 20, 30, 40], bar="baz", name=names
-    )
+    kws = bph._double_stack(stackers, "start", "end", foo=[10, 20, 30, 40], bar="baz", name=names)
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
         assert set(["start", "end", "foo", "bar", "name"]) == set(kw.keys())
@@ -439,12 +425,7 @@ def test__graph_will_convert_dataframes_to_sources(pd):
 
     # 'index' column is added from pandas df
     assert set(kw["node_renderer"].data_source.data.keys()) == {"index", "foo"}
-    assert set(kw["edge_renderer"].data_source.data.keys()) == {
-        "index",
-        "start",
-        "end",
-        "bar",
-    }
+    assert set(kw["edge_renderer"].data_source.data.keys()) == {"index", "start", "end", "bar"}
 
 
 def test__graph_will_handle_sources_correctly():
@@ -540,14 +521,8 @@ class Test__get_axis_class(object):
     @pytest.mark.parametrize("range", _RANGES)
     @pytest.mark.unit
     def test_axis_type_mercator(self, range):
-        assert (bph._get_axis_class("mercator", range, 0)) == (
-            MercatorAxis,
-            {"dimension": "lon"},
-        )
-        assert (bph._get_axis_class("mercator", range, 1)) == (
-            MercatorAxis,
-            {"dimension": "lat"},
-        )
+        assert (bph._get_axis_class("mercator", range, 0)) == (MercatorAxis, {"dimension": "lon"})
+        assert (bph._get_axis_class("mercator", range, 1)) == (MercatorAxis, {"dimension": "lat"})
 
     def test_axis_type_auto(self):
         assert (bph._get_axis_class("auto", FactorRange(), 0)) == (CategoricalAxis, {})
@@ -556,16 +531,14 @@ class Test__get_axis_class(object):
         assert (bph._get_axis_class("auto", DataRange1d(), 1)) == (LinearAxis, {})
         assert (bph._get_axis_class("auto", Range1d(), 0)) == (LinearAxis, {})
         assert (bph._get_axis_class("auto", Range1d(), 1)) == (LinearAxis, {})
-        assert (
-            bph._get_axis_class(
-                "auto", Range1d(start=datetime.datetime(2018, 3, 21)), 0
-            )
-        ) == (DatetimeAxis, {})
-        assert (
-            bph._get_axis_class(
-                "auto", Range1d(start=datetime.datetime(2018, 3, 21)), 1
-            )
-        ) == (DatetimeAxis, {})
+        assert (bph._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 0)) == (
+            DatetimeAxis,
+            {},
+        )
+        assert (bph._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 1)) == (
+            DatetimeAxis,
+            {},
+        )
 
     @pytest.mark.parametrize("range", _RANGES)
     @pytest.mark.unit
@@ -690,9 +663,7 @@ _renderer_args_values = {
 @pytest.mark.unit
 def test__glyph_receives_renderer_arg(arg, values):
     for value in values:
-        with mock.patch(
-            "bokeh.plotting.helpers.GlyphRenderer", autospec=True
-        ) as gr_mock:
+        with mock.patch("bokeh.plotting.helpers.GlyphRenderer", autospec=True) as gr_mock:
             fn = bph._glyph_function(Marker)
             fn(Figure(), x=0, y=0, **{arg: value})
             _, kwargs = gr_mock.call_args

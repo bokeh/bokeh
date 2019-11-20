@@ -23,18 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
-from ..core.properties import (
-    AnyRef,
-    Auto,
-    Bool,
-    Dict,
-    Either,
-    Enum,
-    Instance,
-    Int,
-    List,
-    String,
-)
+from ..core.properties import AnyRef, Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
@@ -602,9 +591,7 @@ class DatetimeTickFormatter(TickFormatter):
     ).accepts(String, lambda fmt: [fmt])
 
     milliseconds = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"),
-        default=["%3Nms", "%S.%3Ns"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``milliseconds``"), default=["%3Nms", "%S.%3Ns"]
     ).accepts(String, lambda fmt: [fmt])
 
     seconds = List(
@@ -613,47 +600,35 @@ class DatetimeTickFormatter(TickFormatter):
 
     minsec = List(
         String,
-        help=_DATETIME_TICK_FORMATTER_HELP(
-            "``minsec`` (for combined minutes and seconds)"
-        ),
+        help=_DATETIME_TICK_FORMATTER_HELP("``minsec`` (for combined minutes and seconds)"),
         default=[":%M:%S"],
     ).accepts(String, lambda fmt: [fmt])
 
     minutes = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"),
-        default=[":%M", "%Mm"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``minutes``"), default=[":%M", "%Mm"]
     ).accepts(String, lambda fmt: [fmt])
 
     hourmin = List(
         String,
-        help=_DATETIME_TICK_FORMATTER_HELP(
-            "``hourmin`` (for combined hours and minutes)"
-        ),
+        help=_DATETIME_TICK_FORMATTER_HELP("``hourmin`` (for combined hours and minutes)"),
         default=["%H:%M"],
     ).accepts(String, lambda fmt: [fmt])
 
     hours = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``hours``"),
-        default=["%Hh", "%H:%M"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``hours``"), default=["%Hh", "%H:%M"]
     ).accepts(String, lambda fmt: [fmt])
 
     days = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``days``"),
-        default=["%m/%d", "%a%d"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``days``"), default=["%m/%d", "%a%d"]
     ).accepts(String, lambda fmt: [fmt])
 
     months = List(
-        String,
-        help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
-        default=["%m/%Y", "%b %Y"],
+        String, help=_DATETIME_TICK_FORMATTER_HELP("``months``"), default=["%m/%Y", "%b %Y"]
     ).accepts(String, lambda fmt: [fmt])
 
-    years = List(
-        String, help=_DATETIME_TICK_FORMATTER_HELP("``years``"), default=["%Y"]
-    ).accepts(String, lambda fmt: [fmt])
+    years = List(String, help=_DATETIME_TICK_FORMATTER_HELP("``years``"), default=["%Y"]).accepts(
+        String, lambda fmt: [fmt]
+    )
 
 
 # -----------------------------------------------------------------------------

@@ -54,18 +54,12 @@ class _ColorGroupMeta(type):
         if isinstance(v, str):
             if v in self._colors:
                 return getattr(named, v.lower())
-            raise KeyError(
-                "Color group %r has no color %r" % (self.__class__.__name__, v)
-            )
+            raise KeyError("Color group %r has no color %r" % (self.__class__.__name__, v))
         if isinstance(v, int):
             if v >= 0 and v < len(self):
                 return getattr(named, self._colors[v].lower())
-            raise IndexError(
-                "Index out of range for color group %r" % self.__class__.__name__
-            )
-        raise ValueError(
-            "Unknown index %r for color group %r" % (v, self.__class__.__name__)
-        )
+            raise IndexError("Index out of range for color group %r" % self.__class__.__name__)
+        raise ValueError("Unknown index %r for color group %r" % (v, self.__class__.__name__))
 
     def __iter__(self):
         from . import named

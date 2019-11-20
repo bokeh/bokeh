@@ -72,9 +72,7 @@ def _read_data():
             xml = et.fromstring(geometry)
             lats = []
             lons = []
-            for i, poly in enumerate(
-                xml.findall(".//outerBoundaryIs/LinearRing/coordinates")
-            ):
+            for i, poly in enumerate(xml.findall(".//outerBoundaryIs/LinearRing/coordinates")):
                 if i > 0:
                     lats.append(nan)
                     lons.append(nan)

@@ -121,9 +121,7 @@ class ServerSession(object):
         self._expiration_requested = False
         self._expiration_blocked_count = 0
 
-        wrapped_callbacks = self._wrap_session_callbacks(
-            self._document.session_callbacks
-        )
+        wrapped_callbacks = self._wrap_session_callbacks(self._document.session_callbacks)
         self._callbacks.add_session_callbacks(wrapped_callbacks)
 
     @property
@@ -235,9 +233,7 @@ class ServerSession(object):
     @_needs_document_lock
     def _handle_pull(self, message, connection):
         log.debug("Sending pull-doc-reply from session %r", self.id)
-        return connection.protocol.create(
-            "PULL-DOC-REPLY", message.header["msgid"], self.document
-        )
+        return connection.protocol.create("PULL-DOC-REPLY", message.header["msgid"], self.document)
 
     def _session_callback_added(self, event):
         wrapped = self._wrap_session_callback(event.callback)

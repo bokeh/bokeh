@@ -30,9 +30,7 @@ ALL = ("elements",)
 # General API
 # -----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(
-    verify_all("bokeh.sampledata.periodic_table", ALL)
-)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.periodic_table", ALL))
 
 
 @pytest.mark.sampledata

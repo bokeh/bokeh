@@ -120,50 +120,39 @@ class TestValidateDetailDefault(object):
         p = Angle()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a value of type Real, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected a value of type Real, got junk of type str")
 
     def test_Bool(self):
         p = Bool()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
         assert matches(
-            str(e.value),
-            r"expected a value of type bool or bool_, got junk of type str",
+            str(e.value), r"expected a value of type bool or bool_, got junk of type str"
         )
 
     def test_Complex(self):
         p = Complex()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a value of type Complex, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected a value of type Complex, got junk of type str")
 
     def test_Float(self):
         p = Float()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a value of type Real, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected a value of type Real, got junk of type str")
 
     def test_Int(self):
         p = Int()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a value of type Integral, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected a value of type Integral, got junk of type str")
 
     def test_Interval(self):
         p = Interval(Float, 0.0, 1.0)
         with pytest.raises(ValueError) as e:
             p.validate(2)
-        assert matches(
-            str(e.value), r"expected a value of type Float in range \[0.0, 1.0\], got 2"
-        )
+        assert matches(str(e.value), r"expected a value of type Float in range \[0.0, 1.0\], got 2")
 
     def test_Percent(self):
         p = Percent()
@@ -175,17 +164,13 @@ class TestValidateDetailDefault(object):
         p = Size()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a value of type Real, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected a value of type Real, got junk of type str")
 
     def test_List(self):
         p = List(Float)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an element of List\(Float\), got 'junk'"
-        )
+        assert matches(str(e.value), r"expected an element of List\(Float\), got 'junk'")
 
     def test_Seq(self):
         p = Seq(Float)
@@ -197,25 +182,20 @@ class TestValidateDetailDefault(object):
         p = Dict(String, Float)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an element of Dict\(String, Float\), got 'junk'"
-        )
+        assert matches(str(e.value), r"expected an element of Dict\(String, Float\), got 'junk'")
 
     def test_Tuple(self):
         p = Tuple(Int, Int)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an element of Tuple\(Int, Int\), got 'junk'"
-        )
+        assert matches(str(e.value), r"expected an element of Tuple\(Int, Int\), got 'junk'")
 
     def test_Color(self):
         p = Color()
         with pytest.raises(ValueError) as e:
             p.validate("junk")
         assert matches(
-            str(e.value),
-            r"expected an element of either Enum\(.*\), .* or RGB, got 'junk'",
+            str(e.value), r"expected an element of either Enum\(.*\), .* or RGB, got 'junk'"
         )
 
     def test_ColumnData(self):
@@ -223,8 +203,7 @@ class TestValidateDetailDefault(object):
         with pytest.raises(ValueError) as e:
             p.validate("junk")
         assert matches(
-            str(e.value),
-            r"expected an element of ColumnData\(String, Seq\(Float\)\), got 'junk'",
+            str(e.value), r"expected an element of ColumnData\(String, Seq\(Float\)\), got 'junk'"
         )
 
     def test_Date(self):
@@ -232,8 +211,7 @@ class TestValidateDetailDefault(object):
         with pytest.raises(ValueError) as e:
             p.validate(object())
         assert matches(
-            str(e.value),
-            r"expected a date, string or timestamp, got <object object at 0x.*>",
+            str(e.value), r"expected a date, string or timestamp, got <object object at 0x.*>"
         )
 
     def test_DashPattern(self):
@@ -249,17 +227,13 @@ class TestValidateDetailDefault(object):
         p = Either(Int, Float)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an element of either Int or Float, got 'junk'"
-        )
+        assert matches(str(e.value), r"expected an element of either Int or Float, got 'junk'")
 
     def test_Enum(self):
         p = Enum("red", "green")
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"invalid value: 'junk'; allowed values are red or green"
-        )
+        assert matches(str(e.value), r"invalid value: 'junk'; allowed values are red or green")
 
     def test_FontSize(self):
         p = FontSize()
@@ -271,9 +245,7 @@ class TestValidateDetailDefault(object):
         p = Instance(HasProps)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected an instance of type HasProps, got junk of type str"
-        )
+        assert matches(str(e.value), r"expected an instance of type HasProps, got junk of type str")
 
     def test_MinMaxBounds(self):
         p = MinMaxBounds()
@@ -288,25 +260,19 @@ class TestValidateDetailDefault(object):
         p = Regex("green")
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(
-            str(e.value), r"expected a string matching 'green' pattern, got 'junk'"
-        )
+        assert matches(str(e.value), r"expected a string matching 'green' pattern, got 'junk'")
 
     def test_String(self):
         p = String()
         with pytest.raises(ValueError) as e:
             p.validate(10)
-        assert matches(
-            str(e.value), r"expected a value of type str, got 10 of type int"
-        )
+        assert matches(str(e.value), r"expected a value of type str, got 10 of type int")
 
     def test_MarkerType(self):
         p = MarkerType()
         with pytest.raises(ValueError) as e:
             p.validate("foo")
-        assert matches(
-            str(e.value), r"invalid value: 'foo'; allowed values are asterisk, .* or x"
-        )
+        assert matches(str(e.value), r"invalid value: 'foo'; allowed values are asterisk, .* or x")
 
     @pytest.mark.parametrize("spec", SPECS)
     def test_Spec(self, spec):
@@ -314,8 +280,7 @@ class TestValidateDetailDefault(object):
         with pytest.raises(ValueError) as e:
             p.validate(dict(bad="junk"))
         assert matches(
-            str(e.value),
-            r"expected an element of either String, .*, got {'bad': 'junk'}",
+            str(e.value), r"expected an element of either String, .*, got {'bad': 'junk'}"
         )
 
 

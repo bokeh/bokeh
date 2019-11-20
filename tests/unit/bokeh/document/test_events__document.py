@@ -179,14 +179,7 @@ class TestModelChangedEvent(object):
 
     def test_init_uses_hint_with_no_setter(self):
         e = bde.ModelChangedEvent(
-            "doc",
-            "model",
-            "attr",
-            "old",
-            "new",
-            "snew",
-            hint="hint",
-            callback_invoker="invoker",
+            "doc", "model", "attr", "old", "new", "snew", hint="hint", callback_invoker="invoker"
         )
         assert e.document == "doc"
         assert e.setter == None
@@ -206,11 +199,7 @@ class TestModelChangedEvent(object):
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
-        assert d.called == [
-            "_document_changed",
-            "_document_patched",
-            "_document_model_changed",
-        ]
+        assert d.called == ["_document_changed", "_document_patched", "_document_model_changed"]
 
     def test_combine_ignores_except_title_changd_event(self):
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew")
@@ -218,12 +207,8 @@ class TestModelChangedEvent(object):
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_setter(self):
-        e = bde.ModelChangedEvent(
-            "doc", "model", "attr", "old", "new", "snew", None, "setter"
-        )
-        e2 = bde.ModelChangedEvent(
-            "doc", "model", "attr", "old2", "new2", "snew2", None, "setter2"
-        )
+        e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", None, "setter")
+        e2 = bde.ModelChangedEvent("doc", "model", "attr", "old2", "new2", "snew2", None, "setter2")
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_doc(self):
@@ -261,24 +246,10 @@ class TestModelChangedEvent(object):
         h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
         h2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "setter", "invoker")
         e = bde.ModelChangedEvent(
-            "doc",
-            "model",
-            "attr",
-            "old",
-            "new",
-            "snew",
-            hint=h,
-            callback_invoker="invoker",
+            "doc", "model", "attr", "old", "new", "snew", hint=h, callback_invoker="invoker"
         )
         e2 = bde.ModelChangedEvent(
-            "doc",
-            "model",
-            "attr",
-            "old2",
-            "new2",
-            "snew2",
-            hint=h2,
-            callback_invoker="invoker2",
+            "doc", "model", "attr", "old2", "new2", "snew2", hint=h2, callback_invoker="invoker2"
         )
         assert e.combine(e2) == False
         assert mock_combine.call_count == 1
@@ -307,9 +278,7 @@ class TestColumnDataChangedEvent(object):
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
-        assert r == dict(
-            kind="ColumnDataChanged", column_source="ref", new="new", cols=[1, 2]
-        )
+        assert r == dict(kind="ColumnDataChanged", column_source="ref", new="new", cols=[1, 2])
         assert refs == dict(foo=10)
         assert bufs == set()
 
@@ -319,11 +288,7 @@ class TestColumnDataChangedEvent(object):
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
-        assert d.called == [
-            "_document_changed",
-            "_document_patched",
-            "_column_data_changed",
-        ]
+        assert d.called == ["_document_changed", "_document_patched", "_column_data_changed"]
 
     def test_combine_ignores_all(self):
         m = FakeModel()
@@ -365,11 +330,7 @@ class TestColumnsStreamedEvent(object):
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
-        assert d.called == [
-            "_document_changed",
-            "_document_patched",
-            "_columns_streamed",
-        ]
+        assert d.called == ["_document_changed", "_document_patched", "_columns_streamed"]
 
     def test_combine_ignores_all(self):
         m = FakeModel()
@@ -417,11 +378,7 @@ class TestColumnsPatchedEvent(object):
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
-        assert d.called == [
-            "_document_changed",
-            "_document_patched",
-            "_columns_patched",
-        ]
+        assert d.called == ["_document_changed", "_document_patched", "_columns_patched"]
 
     def test_combine_ignores_all(self):
         m = FakeModel()

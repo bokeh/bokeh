@@ -45,14 +45,11 @@ class Test_CellEditor_Base(object):
     def setup_method(self):
         source = ColumnDataSource({"values": self.values})
         column = TableColumn(field="values", title="values", editor=self.editor())
-        self.table = DataTable(
-            source=source, columns=[column], editable=True, width=600
-        )
+        self.table = DataTable(source=source, columns=[column], editable=True, width=600)
 
         # this is triggered on selection changes
         source.selected.js_on_change(
-            "indices",
-            CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")),
+            "indices", CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values"))
         )
 
 
@@ -111,9 +108,7 @@ class Test_IntEditor(Test_CellEditor_Base):
     values = [1, 2]
     editor = IntEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(
-        self, bokeh_model_page
-    ):
+    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -185,9 +180,7 @@ class Test_NumberEditor(Test_CellEditor_Base):
     values = [1.1, 2.2]
     editor = NumberEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(
-        self, bokeh_model_page
-    ):
+    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -259,9 +252,7 @@ class Test_StringEditor(Test_CellEditor_Base):
     values = ["foo", "bar"]
     editor = StringEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(
-        self, bokeh_model_page
-    ):
+    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 

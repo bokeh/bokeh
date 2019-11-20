@@ -226,9 +226,7 @@ def test_basic_script_with_multiple_svg_plots(capsys):
         assert err == ""
         assert out == ""
 
-        assert set(["scatter.svg", "scatter_1.svg", "scatter.py"]) == set(
-            os.listdir(dirname)
-        )
+        assert set(["scatter.svg", "scatter_1.svg", "scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({"scatter.py": multi_svg_scatter_script}, run)
 

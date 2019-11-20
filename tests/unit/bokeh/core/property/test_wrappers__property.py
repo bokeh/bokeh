@@ -86,10 +86,7 @@ def test_notify_owner():
     f = Foo()
     f.test()
     assert result["old"] == "foo"
-    assert (
-        f.test.__doc__
-        == "Container method ``test`` instrumented to notify property owners"
-    )
+    assert f.test.__doc__ == "Container method ``test`` instrumented to notify property owners"
 
 
 def test_PropertyValueContainer():
@@ -354,10 +351,7 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
 
     mock_notify.reset_mock()
     pvcd._patch(
-        "doc",
-        source,
-        dict(foo=[(slice(2), [1, 2]), (slice(1, 3), [1000, 2000])]),
-        setter="setter",
+        "doc", source, dict(foo=[(slice(2), [1, 2]), (slice(1, 3), [1000, 2000])]), setter="setter"
     )
     assert mock_notify.call_count == 1
     assert mock_notify.call_args[0] == ({"foo": [1, 1000, 2000, 40, 50]},)

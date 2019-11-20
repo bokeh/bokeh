@@ -155,9 +155,7 @@ class Test_BasicPropertyDescriptor(object):
         d = bcpd.BasicPropertyDescriptor("foo", f)
         with pytest.raises(ValueError) as e:
             d.__get__(None, None)
-        assert str(e.value).endswith(
-            "both 'obj' and 'owner' are None, don't know what to do"
-        )
+        assert str(e.value).endswith("both 'obj' and 'owner' are None, don't know what to do")
 
     def test___set__improper(self):
         class Foo(object):

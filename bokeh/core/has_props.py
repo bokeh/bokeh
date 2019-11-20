@@ -104,9 +104,7 @@ class MetaHasProps(type):
         for name, generator in class_dict.items():
             if isinstance(generator, PropertyDescriptorFactory):
                 generators[name] = generator
-            elif isinstance(generator, type) and issubclass(
-                generator, PropertyDescriptorFactory
-            ):
+            elif isinstance(generator, type) and issubclass(generator, PropertyDescriptorFactory):
                 # Support the user adding a property without using parens,
                 # i.e. using just the Property subclass instead of an
                 # instance of the subclass
@@ -125,11 +123,7 @@ class MetaHasProps(type):
                         # standard case like `foo = Int()`
                         replaced_self = True
                         prop_descriptor.add_prop_descriptor_to_class(
-                            class_name,
-                            new_class_attrs,
-                            names_with_refs,
-                            container_names,
-                            dataspecs,
+                            class_name, new_class_attrs, names_with_refs, container_names, dataspecs
                         )
                     else:
                         # if a generator tries to overwrite another
@@ -139,11 +133,7 @@ class MetaHasProps(type):
                         pass
                 else:
                     prop_descriptor.add_prop_descriptor_to_class(
-                        class_name,
-                        new_class_attrs,
-                        names_with_refs,
-                        container_names,
-                        dataspecs,
+                        class_name, new_class_attrs, names_with_refs, container_names, dataspecs
                     )
             # if we won't overwrite ourselves anyway, delete the generator
             if not replaced_self:
@@ -552,9 +542,7 @@ class HasProps(object, metaclass=MetaHasProps):
            dict : mapping from property names to their values
 
         """
-        return self.query_properties_with_values(
-            lambda prop: prop.serialized, include_defaults
-        )
+        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults)
 
     @classmethod
     def _overridden_defaults(cls):
@@ -591,9 +579,7 @@ class HasProps(object, metaclass=MetaHasProps):
             # always getting serialized, even defaults, and adding unstable defaults here
             # accomplishes that. Unmodified defaults for property value containers will be
             # weeded out below.
-            keys = set(self._property_values.keys()) | set(
-                self._unstable_default_values.keys()
-            )
+            keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
             if self.themed_values():
                 themed_keys = set(self.themed_values().keys())
                 keys |= themed_keys

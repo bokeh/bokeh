@@ -1272,11 +1272,7 @@ class HoverTool(Inspection):
     tooltips = Either(
         String,
         List(Tuple(String, String)),
-        default=[
-            ("index", "$index"),
-            ("data (x, y)", "($x, $y)"),
-            ("screen (x, y)", "($sx, $sy)"),
-        ],
+        default=[("index", "$index"), ("data (x, y)", "($x, $y)"), ("screen (x, y)", "($sx, $sy)")],
         help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.

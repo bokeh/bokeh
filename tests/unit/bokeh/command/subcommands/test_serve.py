@@ -54,14 +54,7 @@ def test_create():
 
 
 def test_loglevels():
-    assert scserve.LOGLEVELS == (
-        "trace",
-        "debug",
-        "info",
-        "warning",
-        "error",
-        "critical",
-    )
+    assert scserve.LOGLEVELS == ("trace", "debug", "info", "warning", "error", "critical")
 
 
 def test_name():
@@ -78,19 +71,9 @@ def test_args():
     assert scserve.Serve.args == (
         (
             "--port",
-            dict(
-                metavar="PORT",
-                type=int,
-                help="Port to listen on",
-                default=DEFAULT_SERVER_PORT,
-            ),
+            dict(metavar="PORT", type=int, help="Port to listen on", default=DEFAULT_SERVER_PORT),
         ),
-        (
-            "--address",
-            dict(
-                metavar="ADDRESS", type=str, help="Address to listen on", default=None
-            ),
-        ),
+        ("--address", dict(metavar="ADDRESS", type=str, help="Address to listen on", default=None)),
         (
             "--log-level",
             dict(
@@ -123,10 +106,7 @@ def test_args():
         (
             "--use-config",
             dict(
-                metavar="CONFIG",
-                type=str,
-                help="Use a YAML config file for settings",
-                default=None,
+                metavar="CONFIG", type=str, help="Use a YAML config file for settings", default=None
             ),
         ),
         (
@@ -181,12 +161,7 @@ def test_args():
         ),
         (
             "--prefix",
-            dict(
-                metavar="PREFIX",
-                type=str,
-                help="URL prefix for Bokeh server URLs",
-                default=None,
-            ),
+            dict(metavar="PREFIX", type=str, help="URL prefix for Bokeh server URLs", default=None),
         ),
         (
             "--keep-alive",
@@ -209,20 +184,12 @@ def test_args():
         (
             "--unused-session-lifetime",
             dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How long unused sessions last",
-                default=None,
+                metavar="MILLISECONDS", type=int, help="How long unused sessions last", default=None
             ),
         ),
         (
             "--stats-log-frequency",
-            dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How often to log stats",
-                default=None,
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How often to log stats", default=None),
         ),
         (
             "--mem-log-frequency",
@@ -235,9 +202,7 @@ def test_args():
         ),
         (
             "--use-xheaders",
-            dict(
-                action="store_true", help="Prefer X-headers for IP/protocol information"
-            ),
+            dict(action="store_true", help="Prefer X-headers for IP/protocol information"),
         ),
         (
             "--ssl-certfile",
@@ -306,17 +271,11 @@ def test_args():
         ),
         (
             "--disable-index",
-            dict(
-                action="store_true",
-                help="Do not use the default index on the root path",
-            ),
+            dict(action="store_true", help="Do not use the default index on the root path"),
         ),
         (
             "--disable-index-redirect",
-            dict(
-                action="store_true",
-                help="Do not redirect to running app from root path",
-            ),
+            dict(action="store_true", help="Do not redirect to running app from root path"),
         ),
         (
             "--num-procs",
@@ -334,16 +293,12 @@ def test_args():
             dict(
                 metavar="BYTES",
                 action="store",
-                help="Set the Tornado websocket_max_message_size value "
-                "(default: 20MB)",
+                help="Set the Tornado websocket_max_message_size value " "(default: 20MB)",
                 default=20 * 1024 * 1024,
                 type=int,
             ),
         ),
-        (
-            "--glob",
-            dict(action="store_true", help="Process all filename arguments as globs"),
-        ),
+        ("--glob", dict(action="store_true", help="Process all filename arguments as globs")),
     )
 
 
@@ -511,9 +466,7 @@ def test_auth_module_printed():
 
     pat = re.compile(r"User authentication hooks provided \(no default user\)")
     m = None
-    with run_bokeh_serve(
-        ["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]
-    ) as p:
+    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as p:
         flags = fcntl(p.stdout, F_GETFL)
         fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
         sleep(2)

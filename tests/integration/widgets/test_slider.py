@@ -19,22 +19,9 @@ import pytest  # noqa isort:skip
 from time import sleep
 
 # Bokeh imports
-from bokeh._testing.util.selenium import (
-    RECORD,
-    ActionChains,
-    Keys,
-    select_element_and_press_key,
-)
+from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, select_element_and_press_key
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-    Slider,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Slider
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -57,16 +44,12 @@ def drag_slider(driver, css_class, distance, release=True):
 
 def get_title_text(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector(
-        "div.bk-input-group > div.bk-slider-title"
-    ).text
+    return el.find_element_by_css_selector("div.bk-input-group > div.bk-slider-title").text
 
 
 def get_title_value(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector(
-        "div.bk-input-group > div > span.bk-slider-value"
-    ).text
+    return el.find_element_by_css_selector("div.bk-input-group > div > span.bk-slider-value").text
 
 
 def get_bar_color(driver, css_class):
@@ -90,9 +73,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_displays_title(self, bokeh_model_page):
-        slider = Slider(
-            start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-        )
+        slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
 
@@ -105,9 +86,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_title_updates(self, bokeh_model_page):
-        slider = Slider(
-            start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-        )
+        slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
 
@@ -127,15 +106,11 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_keypress_event(self, bokeh_model_page):
-        slider = Slider(
-            start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-        )
+        slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
         el = page.driver.find_element_by_css_selector(".foo")
         handle = el.find_element_by_css_selector(".bk-noUi-handle")
-        select_element_and_press_key(
-            page.driver, handle, Keys.ARROW_RIGHT, press_number=1
-        )
+        select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT, press_number=1)
         assert float(get_title_value(page.driver, ".foo")) == 2
         select_element_and_press_key(
             page.driver, handle, Keys.ARROW_LEFT, press_number=3
@@ -149,13 +124,7 @@ class Test_Slider(object):
 
     def test_displays_bar_color(self, bokeh_model_page):
         slider = Slider(
-            start=0,
-            end=10,
-            value=1,
-            title="bar",
-            css_classes=["foo"],
-            width=300,
-            bar_color="red",
+            start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300, bar_color="red"
         )
 
         page = bokeh_model_page(slider)
@@ -168,9 +137,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_js_on_change_executes(self, bokeh_model_page):
-        slider = Slider(
-            start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-        )
+        slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
         slider.js_on_change("value", CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(slider)
@@ -194,15 +161,9 @@ class Test_Slider(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
-            slider = Slider(
-                start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-            )
+            slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):
                 source.data["val"] = [old, new]
@@ -257,9 +218,7 @@ class Test_Slider(object):
                 y_range=Range1d(0, 1),
                 min_border=0,
             )
-            slider = Slider(
-                start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-            )
+            slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
             def cbv(attr, old, new):
                 junk["v"] += 1
@@ -300,9 +259,7 @@ class Test_Slider(object):
                 y_range=Range1d(0, 1),
                 min_border=0,
             )
-            slider = Slider(
-                start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-            )
+            slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):
                 slider.bar_color = "rgba(255, 255, 0, 1)"
@@ -330,9 +287,7 @@ class Test_Slider(object):
                 y_range=Range1d(0, 1),
                 min_border=0,
             )
-            slider = Slider(
-                start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300
-            )
+            slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):
                 slider.title = "baz"

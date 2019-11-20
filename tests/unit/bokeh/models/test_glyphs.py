@@ -165,14 +165,7 @@ def test_Annulus():
     check_line_properties(glyph)
     check_properties_existence(
         glyph,
-        [
-            "x",
-            "y",
-            "inner_radius",
-            "inner_radius_units",
-            "outer_radius",
-            "outer_radius_units",
-        ],
+        ["x", "y", "inner_radius", "inner_radius_units", "outer_radius", "outer_radius_units"],
         FILL,
         LINE,
         GLYPH,
@@ -241,9 +234,7 @@ def test_HBar():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(
-        glyph, ["y", "height", "left", "right"], FILL, HATCH, LINE, GLYPH
-    )
+    check_properties_existence(glyph, ["y", "height", "left", "right"], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Image():
@@ -282,17 +273,7 @@ def test_ImageRGBA():
     assert glyph.dilate is False
     check_properties_existence(
         glyph,
-        [
-            "image",
-            "x",
-            "y",
-            "dw",
-            "dw_units",
-            "dh",
-            "dh_units",
-            "global_alpha",
-            "dilate",
-        ],
+        ["image", "x", "y", "dw", "dw_units", "dh", "dh_units", "global_alpha", "dilate"],
         GLYPH,
     )
 
@@ -369,16 +350,7 @@ def test_Oval():
     check_line_properties(glyph)
     check_properties_existence(
         glyph,
-        [
-            "x",
-            "y",
-            "width",
-            "width_units",
-            "height",
-            "height_units",
-            "angle",
-            "angle_units",
-        ],
+        ["x", "y", "width", "width_units", "height", "height_units", "angle", "angle_units"],
         FILL,
         LINE,
         GLYPH,
@@ -414,9 +386,7 @@ def test_Quad():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(
-        glyph, ["left", "right", "bottom", "top"], FILL, HATCH, LINE, GLYPH
-    )
+    check_properties_existence(glyph, ["left", "right", "bottom", "top"], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Quadratic():
@@ -499,10 +469,7 @@ def test_Text():
     assert glyph.angle == 0
     check_text_properties(glyph)
     check_properties_existence(
-        glyph,
-        ["x", "y", "text", "angle", "angle_units", "x_offset", "y_offset"],
-        TEXT,
-        GLYPH,
+        glyph, ["x", "y", "text", "angle", "angle_units", "x_offset", "y_offset"], TEXT, GLYPH
     )
 
 
@@ -525,9 +492,7 @@ def test_VBar():
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
-    check_properties_existence(
-        glyph, ["x", "width", "top", "bottom"], FILL, HATCH, LINE, GLYPH
-    )
+    check_properties_existence(glyph, ["x", "width", "top", "bottom"], FILL, HATCH, LINE, GLYPH)
 
 
 def test_Wedge():
@@ -574,12 +539,7 @@ def test_Circle():
     check_fill_properties(marker)
     check_line_properties(marker)
     check_properties_existence(
-        marker,
-        ["radius", "radius_units", "radius_dimension"],
-        MARKER,
-        FILL,
-        LINE,
-        GLYPH,
+        marker, ["radius", "radius_units", "radius_dimension"], MARKER, FILL, LINE, GLYPH
     )
 
 

@@ -200,9 +200,7 @@ class _TileProvidersModule(types.ModuleType):
 
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
-            return WMTSTileSource(
-                url=provider_name.url, attribution=provider_name.attribution
-            )
+            return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
 
         selected_provider = provider_name.upper()
 
@@ -214,8 +212,7 @@ class _TileProvidersModule(types.ModuleType):
             attribution = self._CARTO_ATTRIBUTION
         elif selected_provider.startswith("STAMEN"):
             attribution = (
-                self._STAMEN_ATTRIBUTION
-                % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
+                self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
             )
         else:
             raise ValueError("Can not retrieve attribution for %s" % selected_provider)

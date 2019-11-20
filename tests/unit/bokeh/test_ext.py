@@ -35,12 +35,7 @@ def test_ext_commands(tmpdir):
     assert _names(tmp) == []
 
     assert ext.init(tmp, bokehjs_version="1.3.4") is True
-    assert _names(tmp) == [
-        "bokeh.ext.json",
-        "index.ts",
-        "package.json",
-        "tsconfig.json",
-    ]
+    assert _names(tmp) == ["bokeh.ext.json", "index.ts", "package.json", "tsconfig.json"]
 
     assert ext.build(tmp) is True
     assert _names(tmp) == [

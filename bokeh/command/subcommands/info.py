@@ -95,12 +95,7 @@ class Info(Subcommand):
     help = "Print information about Bokeh and Bokeh server configuration"
 
     args = (
-        (
-            "--static",
-            dict(
-                action="store_true", help="Print the locations of BokehJS static files"
-            ),
-        ),
+        ("--static", dict(action="store_true", help="Print the locations of BokehJS static files")),
     )
 
     def invoke(self, args):
@@ -113,14 +108,8 @@ class Info(Subcommand):
             if_installed = lambda version_or_none: version_or_none or "(not installed)"
 
             print("Python version      :  %s" % sys.version.split("\n")[0])
-            print(
-                "IPython version     :  %s"
-                % if_installed(_version("IPython", "__version__"))
-            )
-            print(
-                "Tornado version     :  %s"
-                % if_installed(_version("tornado", "version"))
-            )
+            print("IPython version     :  %s" % if_installed(_version("IPython", "__version__")))
+            print("Tornado version     :  %s" % if_installed(_version("tornado", "version")))
             print("Bokeh version       :  %s" % __version__)
             print("BokehJS static path :  %s" % settings.bokehjsdir())
             print("node.js version     :  %s" % if_installed(nodejs_version()))

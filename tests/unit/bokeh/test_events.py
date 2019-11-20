@@ -28,18 +28,12 @@ concrete_events = set(
     [
         v
         for v in globals().values()
-        if isinstance(v, type)
-        and issubclass(v, events.Event)
-        and v.event_name is not None
+        if isinstance(v, type) and issubclass(v, events.Event) and v.event_name is not None
     ]
 )
 
 point_events = set(
-    [
-        v
-        for v in globals().values()
-        if isinstance(v, type) and issubclass(v, events.PointEvent)
-    ]
+    [v for v in globals().values() if isinstance(v, type) and issubclass(v, events.PointEvent)]
 )
 
 # -----------------------------------------------------------------------------
@@ -68,10 +62,7 @@ def test_common_decode_json():
         if event_name is None:
             continue  # Skip abstract base class
         event = events.Event.decode_json(
-            {
-                "event_name": event_cls.event_name,
-                "event_values": {"model_id": "test-model-id"},
-            }
+            {"event_name": event_cls.event_name, "event_values": {"model_id": "test-model-id"}}
         )
         assert event._model_id == "test-model-id"
 
@@ -110,10 +101,7 @@ def test_panevent_decode_json():
 def test_mousewheelevent_decode_json():
     event_values = dict(model_id="test-model-id", delta=-0.1, sx=3, sy=-2, x=10, y=100)
     event = events.Event.decode_json(
-        {
-            "event_name": events.MouseWheel.event_name,
-            "event_values": event_values.copy(),
-        }
+        {"event_name": events.MouseWheel.event_name, "event_values": event_values.copy()}
     )
     assert event.delta == -0.1
     assert event.sx == 3

@@ -44,11 +44,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 def _make_plot(num_objects=0, drag=True, vertices=False):
     source = ColumnDataSource(dict(xs=[[1, 2]], ys=[[1, 1]]))
     plot = Plot(
-        plot_height=400,
-        plot_width=400,
-        x_range=Range1d(0, 3),
-        y_range=Range1d(0, 3),
-        min_border=0,
+        plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0
     )
     renderer = plot.add_glyph(source, MultiLine(xs="xs", ys="ys"))
     tool = PolyDrawTool(num_objects=num_objects, drag=drag, renderers=[renderer])
@@ -159,10 +155,7 @@ class Test_PolyDrawTool(object):
         page.click_custom_action()
 
         expected = {
-            "xs": [
-                [1, 2],
-                [1.6216216216216217, 2.4324324324324325, 1.6216216216216217],
-            ],
+            "xs": [[1, 2], [1.6216216216216217, 2.4324324324324325, 1.6216216216216217]],
             "ys": [[1, 1], [1.5, 0.75, 1.5]],
         }
         assert cds_data_almost_equal(page.results, expected)
@@ -181,10 +174,7 @@ class Test_PolyDrawTool(object):
         page.drag_canvas_at_position(200, 200, 70, 50)
         page.click_custom_action()
 
-        expected = {
-            "xs": [[1, 2], [2.1891891891891895, 3]],
-            "ys": [[1, 1], [1.125, 0.375]],
-        }
+        expected = {"xs": [[1, 2], [2.1891891891891895, 3]], "ys": [[1, 1], [1.125, 0.375]]}
         assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
@@ -243,10 +233,7 @@ class Test_PolyDrawTool(object):
         assert page.results == {"matches": "True"}
 
     def test_poly_drag_syncs_to_server(self, bokeh_server_page):
-        expected = {
-            "xs": [[1, 2], [2.1891891891891895, 3]],
-            "ys": [[1, 1], [1.125, 0.375]],
-        }
+        expected = {"xs": [[1, 2], [2.1891891891891895, 3]], "ys": [[1, 1], [1.125, 0.375]]}
 
         page = bokeh_server_page(_make_server_plot(expected))
 

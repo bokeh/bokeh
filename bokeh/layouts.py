@@ -33,16 +33,7 @@ from .models.tools import ProxyToolbar, ToolbarBox
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "column",
-    "grid",
-    "gridplot",
-    "GridSpec",
-    "layout",
-    "row",
-    "Spacer",
-    "widgetbox",
-)
+__all__ = ("column", "grid", "gridplot", "GridSpec", "layout", "row", "Spacer", "widgetbox")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -439,9 +430,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                     factor = nrows // child.nrows
 
                     for (layout, r0, c0, r1, c1) in child.items:
-                        items.append(
-                            (layout, factor * r0, c0 + offset, factor * r1, c1 + offset)
-                        )
+                        items.append((layout, factor * r0, c0 + offset, factor * r1, c1 + offset))
 
                     offset += child.ncols
 
@@ -460,9 +449,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                     factor = ncols // child.ncols
 
                     for (layout, r0, c0, r1, c1) in child.items:
-                        items.append(
-                            (layout, r0 + offset, factor * c0, r1 + offset, factor * c1)
-                        )
+                        items.append((layout, r0 + offset, factor * c0, r1 + offset, factor * c1))
 
                     offset += child.nrows
 
@@ -575,19 +562,13 @@ class GridSpec(object):
             self._arrangement[row1, col1] = obj
         elif row2 is None:
             for col in range(col1, col2):
-                self._arrangement[row1, col] = get_or_else(
-                    lambda: obj[col - col1], None
-                )
+                self._arrangement[row1, col] = get_or_else(lambda: obj[col - col1], None)
         elif col2 is None:
             for row in range(row1, row2):
-                self._arrangement[row, col1] = get_or_else(
-                    lambda: obj[row - row1], None
-                )
+                self._arrangement[row, col1] = get_or_else(lambda: obj[row - row1], None)
         else:
             for row, col in zip(range(row1, row2), range(col1, col2)):
-                self._arrangement[row, col] = get_or_else(
-                    lambda: obj[row - row1][col - col1], None
-                )
+                self._arrangement[row, col] = get_or_else(lambda: obj[row - row1][col - col1], None)
 
     def __iter__(self):
         array = [[None] * self.ncols for _ in range(0, self.nrows)]
@@ -602,11 +583,7 @@ class GridSpec(object):
 
 
 def _has_auto_sizing(item):
-    return (
-        item.sizing_mode is None
-        and item.width_policy == "auto"
-        and item.height_policy == "auto"
-    )
+    return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
 
 def _handle_children(*args, **kwargs):

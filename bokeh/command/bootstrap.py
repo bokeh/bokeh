@@ -95,8 +95,7 @@ def main(argv):
         )
 
     parser = argparse.ArgumentParser(
-        prog=argv[0],
-        epilog="See '<command> --help' to read about a specific subcommand.",
+        prog=argv[0], epilog="See '<command> --help' to read about a specific subcommand."
     )
 
     # we don't use settings.version() because the point of this option

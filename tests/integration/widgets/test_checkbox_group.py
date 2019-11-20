@@ -41,9 +41,7 @@ LABELS = ["Option 1", "Option 2", "Option 3"]
 @pytest.mark.selenium
 class Test_CheckboxGroup(object):
     @pytest.mark.parametrize("inline", [True, False])
-    def test_displays_options_list_of_string_labels_setting_inline(
-        self, inline, bokeh_model_page
-    ):
+    def test_displays_options_list_of_string_labels_setting_inline(self, inline, bokeh_model_page):
         group = CheckboxGroup(labels=LABELS, css_classes=["foo"], inline=inline)
 
         page = bokeh_model_page(group)
@@ -70,18 +68,12 @@ class Test_CheckboxGroup(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             group = CheckboxGroup(labels=LABELS, css_classes=["foo"])
 
             def cb(active):
-                source.data["val"] = (active + [0, 0])[
-                    :2
-                ]  # keep col length at 2, padded with zero
+                source.data["val"] = (active + [0, 0])[:2]  # keep col length at 2, padded with zero
 
             group.on_click(cb)
             doc.add_root(column(group, plot))

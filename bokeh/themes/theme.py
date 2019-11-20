@@ -120,9 +120,7 @@ class Theme(object):
 
     def __init__(self, filename=None, json=None):
         if (filename is not None) and (json is not None):
-            raise ValueError(
-                "Theme should be constructed from a file or from json not both"
-            )
+            raise ValueError("Theme should be constructed from a file or from json not both")
 
         if filename is not None:
             f = open(filename)

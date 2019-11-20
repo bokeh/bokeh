@@ -37,11 +37,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 def _make_plot(dimensions="both"):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     plot = Plot(
-        plot_height=400,
-        plot_width=400,
-        x_range=Range1d(0, 1),
-        y_range=Range1d(0, 1),
-        min_border=0,
+        plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
     )
     plot.add_glyph(source, Rect(x="x", y="y", width=0.9, height=0.9))
     plot.add_tools(WheelZoomTool(dimensions=dimensions))

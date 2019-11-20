@@ -52,18 +52,14 @@ def _read_data():
     """
 
     """
-    df = package_csv(
-        "browsers", "browsers_nov_2013.csv", names=["Version", "Share"], skiprows=1
-    )
+    df = package_csv("browsers", "browsers_nov_2013.csv", names=["Version", "Share"], skiprows=1)
     _versions = df.Version.map(lambda x: x.rsplit(" ", 1))
     df["Browser"] = _versions.map(lambda x: x[0])
     df["VersionNumber"] = _versions.map(lambda x: x[1] if len(x) == 2 else "0")
 
     icons = {}
     for browser in ["Chrome", "Firefox", "Safari", "Opera", "IE"]:
-        with open(
-            package_path(join("icons", browser.lower() + "_32x32.png")), "rb"
-        ) as icon:
+        with open(package_path(join("icons", browser.lower() + "_32x32.png")), "rb") as icon:
             icons[browser] = icon.read()
 
     return df, icons

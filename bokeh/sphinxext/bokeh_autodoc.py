@@ -29,11 +29,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # External imports
-from sphinx.ext.autodoc import (
-    AttributeDocumenter,
-    ClassDocumenter,
-    ModuleLevelDocumenter,
-)
+from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
 
 # Bokeh imports
 from bokeh.colors.color import Color
@@ -45,13 +41,7 @@ from bokeh.model import Model
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "ColorDocumenter",
-    "EnumDocumenter",
-    "ModelDocumenter",
-    "PropDocumenter",
-    "setup",
-)
+__all__ = ("ColorDocumenter", "EnumDocumenter", "ModelDocumenter", "PropDocumenter", "setup")
 
 # -----------------------------------------------------------------------------
 # General API

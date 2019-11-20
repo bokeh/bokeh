@@ -52,9 +52,7 @@ def test_install_notebook_hook():
 @patch("bokeh.io.notebook.get_comms")
 @patch("bokeh.io.notebook.publish_display_data")
 @patch("bokeh.embed.notebook.notebook_content")
-def test_show_doc_no_server(
-    mock_notebook_content, mock__publish_display_data, mock_get_comms
-):
+def test_show_doc_no_server(mock_notebook_content, mock__publish_display_data, mock_get_comms):
     mock_get_comms.return_value = "comms"
     s = State()
     d = Document()
@@ -70,14 +68,9 @@ def test_show_doc_no_server(
     binb.show_doc(Obj(), s, True)
 
     expected_args = (
-        {
-            "application/javascript": "notebook_script",
-            "application/vnd.bokehjs_exec.v0+json": "",
-        },
+        {"application/javascript": "notebook_script", "application/vnd.bokehjs_exec.v0+json": ""},
     )
-    expected_kwargs = {
-        "metadata": {"application/vnd.bokehjs_exec.v0+json": {"id": None}}
-    }
+    expected_kwargs = {"metadata": {"application/vnd.bokehjs_exec.v0+json": {"id": None}}}
 
     assert d._hold is not None
     assert mock__publish_display_data.call_count == 2  # two mime types

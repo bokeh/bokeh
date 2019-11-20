@@ -382,9 +382,7 @@ def test_Slope():
     assert slope.level == "annotation"
     check_line_properties(slope, "", "black", 1.0)
     check_properties_existence(
-        slope,
-        ["visible", "gradient", "y_intercept", "x_range_name", "y_range_name", "level"],
-        LINE,
+        slope, ["visible", "gradient", "y_intercept", "x_range_name", "y_range_name", "level"], LINE
     )
 
 

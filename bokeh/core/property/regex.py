@@ -91,8 +91,7 @@ class Regex(String):
             msg = (
                 ""
                 if not detail
-                else "expected a string matching %r pattern, got %r"
-                % (self.regex.pattern, value)
+                else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
             )
             raise ValueError(msg)
 

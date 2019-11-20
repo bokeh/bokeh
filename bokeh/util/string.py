@@ -85,9 +85,7 @@ def snakify(name: str, sep: str = "_") -> str:
     return name.lower()
 
 
-def format_docstring(
-    docstring: Optional[str], *args: Any, **kwargs: Any
-) -> Optional[str]:
+def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Optional[str]:
     """ Safely format docstrings.
 
     When Python is executed with the ``-OO`` option, doc strings are removed and

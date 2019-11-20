@@ -34,9 +34,7 @@ Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.gapminder", A
 
 
 @pytest.mark.sampledata
-@pytest.mark.parametrize(
-    "name", ["fertility", "life_expectancy", "population", "regions"]
-)
+@pytest.mark.parametrize("name", ["fertility", "life_expectancy", "population", "regions"])
 def test_data(pd, name):
     import bokeh.sampledata.gapminder as bsg
 

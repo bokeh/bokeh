@@ -61,22 +61,15 @@ class Seq(ContainerProperty):
         if json is None:
             return None
         elif isinstance(json, list):
-            return self._new_instance(
-                [self.item_type.from_json(item, models) for item in json]
-            )
+            return self._new_instance([self.item_type.from_json(item, models) for item in json])
         else:
-            raise DeserializationError(
-                "%s expected a list or None, got %s" % (self, json)
-            )
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
         super().validate(value, True)
 
         if value is not None:
-            if not (
-                self._is_seq(value)
-                and all(self.item_type.is_valid(item) for item in value)
-            ):
+            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
                 if self._is_seq(value):
                     invalid = []
                     for item in value:
@@ -90,26 +83,20 @@ class Seq(ContainerProperty):
                     )
                     raise ValueError(msg)
                 else:
-                    msg = (
-                        ""
-                        if not detail
-                        else "expected an element of %s, got %r" % (self, value)
-                    )
+                    msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                     raise ValueError(msg)
 
     @classmethod
     def _is_seq(cls, value):
-        return (
-            isinstance(value, Sequence) or cls._is_seq_like(value)
-        ) and not isinstance(value, str)
+        return (isinstance(value, Sequence) or cls._is_seq_like(value)) and not isinstance(
+            value, str
+        )
 
     @classmethod
     def _is_seq_like(cls, value):
         return (
             isinstance(value, (Container, Sized, Iterable))
-            and hasattr(
-                value, "__getitem__"
-            )  # NOTE: this is what makes it disallow set type
+            and hasattr(value, "__getitem__")  # NOTE: this is what makes it disallow set type
             and not isinstance(value, Mapping)
         )
 
@@ -180,11 +167,7 @@ class Dict(ContainerProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s, %s)" % (
-            self.__class__.__name__,
-            self.keys_type,
-            self.values_type,
-        )
+        return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
 
     @property
     def type_params(self):
@@ -195,15 +178,11 @@ class Dict(ContainerProperty):
             return None
         elif isinstance(json, dict):
             return {
-                self.keys_type.from_json(key, models): self.values_type.from_json(
-                    value, models
-                )
+                self.keys_type.from_json(key, models): self.values_type.from_json(value, models)
                 for key, value in json.items()
             }
         else:
-            raise DeserializationError(
-                "%s expected a dict or None, got %s" % (self, json)
-            )
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -216,11 +195,7 @@ class Dict(ContainerProperty):
                     for key, val in value.items()
                 )
             ):
-                msg = (
-                    ""
-                    if not detail
-                    else "expected an element of %s, got %r" % (self, value)
-                )
+                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
     @classmethod
@@ -274,9 +249,7 @@ class ColumnData(Dict):
         if json is None:
             return None
         elif not isinstance(json, dict):
-            raise DeserializationError(
-                "%s expected a dict or None, got %s" % (self, json)
-            )
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
         new_data = {}
         for key, value in json.items():
             key = self.keys_type.from_json(key, models)
@@ -320,16 +293,11 @@ class Tuple(ContainerProperty):
     """
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
-        self._type_params = list(
-            map(self._validate_type_param, (tp1, tp2) + type_params)
-        )
+        self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
 
     def __str__(self):
-        return "%s(%s)" % (
-            self.__class__.__name__,
-            ", ".join(map(str, self.type_params)),
-        )
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
     @property
     def type_params(self):
@@ -344,9 +312,7 @@ class Tuple(ContainerProperty):
                 for type_param, item in zip(self.type_params, json)
             )
         else:
-            raise DeserializationError(
-                "%s expected a list or None, got %s" % (self, json)
-            )
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -356,15 +322,10 @@ class Tuple(ContainerProperty):
                 isinstance(value, (tuple, list))
                 and len(self.type_params) == len(value)
                 and all(
-                    type_param.is_valid(item)
-                    for type_param, item in zip(self.type_params, value)
+                    type_param.is_valid(item) for type_param, item in zip(self.type_params, value)
                 )
             ):
-                msg = (
-                    ""
-                    if not detail
-                    else "expected an element of %s, got %r" % (self, value)
-                )
+                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
     def _sphinx_type(self):
@@ -379,9 +340,7 @@ class RelativeDelta(Dict):
     """
 
     def __init__(self, default={}, help=None):
-        keys = Enum(
-            "years", "months", "days", "hours", "minutes", "seconds", "microseconds"
-        )
+        keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
 

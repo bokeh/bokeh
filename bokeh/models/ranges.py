@@ -174,13 +174,9 @@ class Range1d(Range):
 
     def __init__(self, *args, **kwargs):
         if args and ("start" in kwargs or "end" in kwargs):
-            raise ValueError(
-                "'start' and 'end' keywords cannot be used with positional arguments"
-            )
+            raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
         if args and len(args) != 2:
-            raise ValueError(
-                "Only Range1d(start, end) acceptable when using positional arguments"
-            )
+            raise ValueError("Only Range1d(start, end) acceptable when using positional arguments")
 
         if args:
             kwargs["start"] = args[0]
@@ -591,9 +587,7 @@ class FactorRange(Range):
 
     def __init__(self, *args, **kwargs):
         if args and "factors" in kwargs:
-            raise ValueError(
-                "'factors' keyword cannot be used with positional arguments"
-            )
+            raise ValueError("'factors' keyword cannot be used with positional arguments")
         elif args:
             kwargs["factors"] = list(args)
         super().__init__(**kwargs)

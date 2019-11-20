@@ -369,16 +369,7 @@ YlGn4 = ("#238443", "#78c679", "#c2e699", "#ffffcc")
 YlGn5 = ("#006837", "#31a354", "#78c679", "#c2e699", "#ffffcc")
 YlGn6 = ("#006837", "#31a354", "#78c679", "#addd8e", "#d9f0a3", "#ffffcc")
 YlGn7 = ("#005a32", "#238443", "#41ab5d", "#78c679", "#addd8e", "#d9f0a3", "#ffffcc")
-YlGn8 = (
-    "#005a32",
-    "#238443",
-    "#41ab5d",
-    "#78c679",
-    "#addd8e",
-    "#d9f0a3",
-    "#f7fcb9",
-    "#ffffe5",
-)
+YlGn8 = ("#005a32", "#238443", "#41ab5d", "#78c679", "#addd8e", "#d9f0a3", "#f7fcb9", "#ffffe5")
 YlGn9 = (
     "#004529",
     "#006837",
@@ -396,16 +387,7 @@ YlGnBu4 = ("#225ea8", "#41b6c4", "#a1dab4", "#ffffcc")
 YlGnBu5 = ("#253494", "#2c7fb8", "#41b6c4", "#a1dab4", "#ffffcc")
 YlGnBu6 = ("#253494", "#2c7fb8", "#41b6c4", "#7fcdbb", "#c7e9b4", "#ffffcc")
 YlGnBu7 = ("#0c2c84", "#225ea8", "#1d91c0", "#41b6c4", "#7fcdbb", "#c7e9b4", "#ffffcc")
-YlGnBu8 = (
-    "#0c2c84",
-    "#225ea8",
-    "#1d91c0",
-    "#41b6c4",
-    "#7fcdbb",
-    "#c7e9b4",
-    "#edf8b1",
-    "#ffffd9",
-)
+YlGnBu8 = ("#0c2c84", "#225ea8", "#1d91c0", "#41b6c4", "#7fcdbb", "#c7e9b4", "#edf8b1", "#ffffd9")
 YlGnBu9 = (
     "#081d58",
     "#253494",
@@ -423,16 +405,7 @@ GnBu4 = ("#2b8cbe", "#7bccc4", "#bae4bc", "#f0f9e8")
 GnBu5 = ("#0868ac", "#43a2ca", "#7bccc4", "#bae4bc", "#f0f9e8")
 GnBu6 = ("#0868ac", "#43a2ca", "#7bccc4", "#a8ddb5", "#ccebc5", "#f0f9e8")
 GnBu7 = ("#08589e", "#2b8cbe", "#4eb3d3", "#7bccc4", "#a8ddb5", "#ccebc5", "#f0f9e8")
-GnBu8 = (
-    "#08589e",
-    "#2b8cbe",
-    "#4eb3d3",
-    "#7bccc4",
-    "#a8ddb5",
-    "#ccebc5",
-    "#e0f3db",
-    "#f7fcf0",
-)
+GnBu8 = ("#08589e", "#2b8cbe", "#4eb3d3", "#7bccc4", "#a8ddb5", "#ccebc5", "#e0f3db", "#f7fcf0")
 GnBu9 = (
     "#084081",
     "#0868ac",
@@ -450,16 +423,7 @@ BuGn4 = ("#238b45", "#66c2a4", "#b2e2e2", "#edf8fb")
 BuGn5 = ("#006d2c", "#2ca25f", "#66c2a4", "#b2e2e2", "#edf8fb")
 BuGn6 = ("#006d2c", "#2ca25f", "#66c2a4", "#99d8c9", "#ccece6", "#edf8fb")
 BuGn7 = ("#005824", "#238b45", "#41ae76", "#66c2a4", "#99d8c9", "#ccece6", "#edf8fb")
-BuGn8 = (
-    "#005824",
-    "#238b45",
-    "#41ae76",
-    "#66c2a4",
-    "#99d8c9",
-    "#ccece6",
-    "#e5f5f9",
-    "#f7fcfd",
-)
+BuGn8 = ("#005824", "#238b45", "#41ae76", "#66c2a4", "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd")
 BuGn9 = (
     "#00441b",
     "#006d2c",
@@ -477,16 +441,7 @@ PuBuGn4 = ("#02818a", "#67a9cf", "#bdc9e1", "#f6eff7")
 PuBuGn5 = ("#016c59", "#1c9099", "#67a9cf", "#bdc9e1", "#f6eff7")
 PuBuGn6 = ("#016c59", "#1c9099", "#67a9cf", "#a6bddb", "#d0d1e6", "#f6eff7")
 PuBuGn7 = ("#016450", "#02818a", "#3690c0", "#67a9cf", "#a6bddb", "#d0d1e6", "#f6eff7")
-PuBuGn8 = (
-    "#016450",
-    "#02818a",
-    "#3690c0",
-    "#67a9cf",
-    "#a6bddb",
-    "#d0d1e6",
-    "#ece2f0",
-    "#fff7fb",
-)
+PuBuGn8 = ("#016450", "#02818a", "#3690c0", "#67a9cf", "#a6bddb", "#d0d1e6", "#ece2f0", "#fff7fb")
 PuBuGn9 = (
     "#014636",
     "#016c59",
@@ -504,16 +459,7 @@ PuBu4 = ("#0570b0", "#74a9cf", "#bdc9e1", "#f1eef6")
 PuBu5 = ("#045a8d", "#2b8cbe", "#74a9cf", "#bdc9e1", "#f1eef6")
 PuBu6 = ("#045a8d", "#2b8cbe", "#74a9cf", "#a6bddb", "#d0d1e6", "#f1eef6")
 PuBu7 = ("#034e7b", "#0570b0", "#3690c0", "#74a9cf", "#a6bddb", "#d0d1e6", "#f1eef6")
-PuBu8 = (
-    "#034e7b",
-    "#0570b0",
-    "#3690c0",
-    "#74a9cf",
-    "#a6bddb",
-    "#d0d1e6",
-    "#ece7f2",
-    "#fff7fb",
-)
+PuBu8 = ("#034e7b", "#0570b0", "#3690c0", "#74a9cf", "#a6bddb", "#d0d1e6", "#ece7f2", "#fff7fb")
 PuBu9 = (
     "#023858",
     "#045a8d",
@@ -531,16 +477,7 @@ BuPu4 = ("#88419d", "#8c96c6", "#b3cde3", "#edf8fb")
 BuPu5 = ("#810f7c", "#8856a7", "#8c96c6", "#b3cde3", "#edf8fb")
 BuPu6 = ("#810f7c", "#8856a7", "#8c96c6", "#9ebcda", "#bfd3e6", "#edf8fb")
 BuPu7 = ("#6e016b", "#88419d", "#8c6bb1", "#8c96c6", "#9ebcda", "#bfd3e6", "#edf8fb")
-BuPu8 = (
-    "#6e016b",
-    "#88419d",
-    "#8c6bb1",
-    "#8c96c6",
-    "#9ebcda",
-    "#bfd3e6",
-    "#e0ecf4",
-    "#f7fcfd",
-)
+BuPu8 = ("#6e016b", "#88419d", "#8c6bb1", "#8c96c6", "#9ebcda", "#bfd3e6", "#e0ecf4", "#f7fcfd")
 BuPu9 = (
     "#4d004b",
     "#810f7c",
@@ -558,16 +495,7 @@ RdPu4 = ("#ae017e", "#f768a1", "#fbb4b9", "#feebe2")
 RdPu5 = ("#7a0177", "#c51b8a", "#f768a1", "#fbb4b9", "#feebe2")
 RdPu6 = ("#7a0177", "#c51b8a", "#f768a1", "#fa9fb5", "#fcc5c0", "#feebe2")
 RdPu7 = ("#7a0177", "#ae017e", "#dd3497", "#f768a1", "#fa9fb5", "#fcc5c0", "#feebe2")
-RdPu8 = (
-    "#7a0177",
-    "#ae017e",
-    "#dd3497",
-    "#f768a1",
-    "#fa9fb5",
-    "#fcc5c0",
-    "#fde0dd",
-    "#fff7f3",
-)
+RdPu8 = ("#7a0177", "#ae017e", "#dd3497", "#f768a1", "#fa9fb5", "#fcc5c0", "#fde0dd", "#fff7f3")
 RdPu9 = (
     "#49006a",
     "#7a0177",
@@ -585,16 +513,7 @@ PuRd4 = ("#ce1256", "#df65b0", "#d7b5d8", "#f1eef6")
 PuRd5 = ("#980043", "#dd1c77", "#df65b0", "#d7b5d8", "#f1eef6")
 PuRd6 = ("#980043", "#dd1c77", "#df65b0", "#c994c7", "#d4b9da", "#f1eef6")
 PuRd7 = ("#91003f", "#ce1256", "#e7298a", "#df65b0", "#c994c7", "#d4b9da", "#f1eef6")
-PuRd8 = (
-    "#91003f",
-    "#ce1256",
-    "#e7298a",
-    "#df65b0",
-    "#c994c7",
-    "#d4b9da",
-    "#e7e1ef",
-    "#f7f4f9",
-)
+PuRd8 = ("#91003f", "#ce1256", "#e7298a", "#df65b0", "#c994c7", "#d4b9da", "#e7e1ef", "#f7f4f9")
 PuRd9 = (
     "#67001f",
     "#980043",
@@ -612,16 +531,7 @@ OrRd4 = ("#d7301f", "#fc8d59", "#fdcc8a", "#fef0d9")
 OrRd5 = ("#b30000", "#e34a33", "#fc8d59", "#fdcc8a", "#fef0d9")
 OrRd6 = ("#b30000", "#e34a33", "#fc8d59", "#fdbb84", "#fdd49e", "#fef0d9")
 OrRd7 = ("#990000", "#d7301f", "#ef6548", "#fc8d59", "#fdbb84", "#fdd49e", "#fef0d9")
-OrRd8 = (
-    "#990000",
-    "#d7301f",
-    "#ef6548",
-    "#fc8d59",
-    "#fdbb84",
-    "#fdd49e",
-    "#fee8c8",
-    "#fff7ec",
-)
+OrRd8 = ("#990000", "#d7301f", "#ef6548", "#fc8d59", "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec")
 OrRd9 = (
     "#7f0000",
     "#b30000",
@@ -639,16 +549,7 @@ YlOrRd4 = ("#e31a1c", "#fd8d3c", "#fecc5c", "#ffffb2")
 YlOrRd5 = ("#bd0026", "#f03b20", "#fd8d3c", "#fecc5c", "#ffffb2")
 YlOrRd6 = ("#bd0026", "#f03b20", "#fd8d3c", "#feb24c", "#fed976", "#ffffb2")
 YlOrRd7 = ("#b10026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffffb2")
-YlOrRd8 = (
-    "#b10026",
-    "#e31a1c",
-    "#fc4e2a",
-    "#fd8d3c",
-    "#feb24c",
-    "#fed976",
-    "#ffeda0",
-    "#ffffcc",
-)
+YlOrRd8 = ("#b10026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffeda0", "#ffffcc")
 YlOrRd9 = (
     "#800026",
     "#bd0026",
@@ -666,16 +567,7 @@ YlOrBr4 = ("#cc4c02", "#fe9929", "#fed98e", "#ffffd4")
 YlOrBr5 = ("#993404", "#d95f0e", "#fe9929", "#fed98e", "#ffffd4")
 YlOrBr6 = ("#993404", "#d95f0e", "#fe9929", "#fec44f", "#fee391", "#ffffd4")
 YlOrBr7 = ("#8c2d04", "#cc4c02", "#ec7014", "#fe9929", "#fec44f", "#fee391", "#ffffd4")
-YlOrBr8 = (
-    "#8c2d04",
-    "#cc4c02",
-    "#ec7014",
-    "#fe9929",
-    "#fec44f",
-    "#fee391",
-    "#fff7bc",
-    "#ffffe5",
-)
+YlOrBr8 = ("#8c2d04", "#cc4c02", "#ec7014", "#fe9929", "#fec44f", "#fee391", "#fff7bc", "#ffffe5")
 YlOrBr9 = (
     "#662506",
     "#993404",
@@ -693,16 +585,7 @@ Purples4 = ("#6a51a3", "#9e9ac8", "#cbc9e2", "#f2f0f7")
 Purples5 = ("#54278f", "#756bb1", "#9e9ac8", "#cbc9e2", "#f2f0f7")
 Purples6 = ("#54278f", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#f2f0f7")
 Purples7 = ("#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#f2f0f7")
-Purples8 = (
-    "#4a1486",
-    "#6a51a3",
-    "#807dba",
-    "#9e9ac8",
-    "#bcbddc",
-    "#dadaeb",
-    "#efedf5",
-    "#fcfbfd",
-)
+Purples8 = ("#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd")
 Purples9 = (
     "#3f007d",
     "#54278f",
@@ -978,16 +861,7 @@ Blues4 = ("#2171b5", "#6baed6", "#bdd7e7", "#eff3ff")
 Blues5 = ("#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff")
 Blues6 = ("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff")
 Blues7 = ("#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff")
-Blues8 = (
-    "#084594",
-    "#2171b5",
-    "#4292c6",
-    "#6baed6",
-    "#9ecae1",
-    "#c6dbef",
-    "#deebf7",
-    "#f7fbff",
-)
+Blues8 = ("#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff")
 Blues9 = (
     "#08306b",
     "#08519c",
@@ -1263,16 +1137,7 @@ Greens4 = ("#238b45", "#74c476", "#bae4b3", "#edf8e9")
 Greens5 = ("#006d2c", "#31a354", "#74c476", "#bae4b3", "#edf8e9")
 Greens6 = ("#006d2c", "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#edf8e9")
 Greens7 = ("#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#edf8e9")
-Greens8 = (
-    "#005a32",
-    "#238b45",
-    "#41ab5d",
-    "#74c476",
-    "#a1d99b",
-    "#c7e9c0",
-    "#e5f5e0",
-    "#f7fcf5",
-)
+Greens8 = ("#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0", "#f7fcf5")
 Greens9 = (
     "#00441b",
     "#006d2c",
@@ -1548,16 +1413,7 @@ Oranges4 = ("#d94701", "#fd8d3c", "#fdbe85", "#feedde")
 Oranges5 = ("#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
 Oranges6 = ("#a63603", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#feedde")
 Oranges7 = ("#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#feedde")
-Oranges8 = (
-    "#8c2d04",
-    "#d94801",
-    "#f16913",
-    "#fd8d3c",
-    "#fdae6b",
-    "#fdd0a2",
-    "#fee6ce",
-    "#fff5eb",
-)
+Oranges8 = ("#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#fee6ce", "#fff5eb")
 Oranges9 = (
     "#7f2704",
     "#a63603",
@@ -1833,16 +1689,7 @@ Reds4 = ("#cb181d", "#fb6a4a", "#fcae91", "#fee5d9")
 Reds5 = ("#a50f15", "#de2d26", "#fb6a4a", "#fcae91", "#fee5d9")
 Reds6 = ("#a50f15", "#de2d26", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9")
 Reds7 = ("#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9")
-Reds8 = (
-    "#99000d",
-    "#cb181d",
-    "#ef3b2c",
-    "#fb6a4a",
-    "#fc9272",
-    "#fcbba1",
-    "#fee0d2",
-    "#fff5f0",
-)
+Reds8 = ("#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0")
 Reds9 = (
     "#67000d",
     "#a50f15",
@@ -2118,16 +1965,7 @@ Greys4 = ("#525252", "#969696", "#cccccc", "#f7f7f7")
 Greys5 = ("#252525", "#636363", "#969696", "#cccccc", "#f7f7f7")
 Greys6 = ("#252525", "#636363", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7")
 Greys7 = ("#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7")
-Greys8 = (
-    "#252525",
-    "#525252",
-    "#737373",
-    "#969696",
-    "#bdbdbd",
-    "#d9d9d9",
-    "#f0f0f0",
-    "#ffffff",
-)
+Greys8 = ("#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff")
 Greys9 = (
     "#000000",
     "#252525",
@@ -2428,16 +2266,7 @@ PuOr4 = ("#5e3c99", "#b2abd2", "#fdb863", "#e66101")
 PuOr5 = ("#5e3c99", "#b2abd2", "#f7f7f7", "#fdb863", "#e66101")
 PuOr6 = ("#542788", "#998ec3", "#d8daeb", "#fee0b6", "#f1a340", "#b35806")
 PuOr7 = ("#542788", "#998ec3", "#d8daeb", "#f7f7f7", "#fee0b6", "#f1a340", "#b35806")
-PuOr8 = (
-    "#542788",
-    "#8073ac",
-    "#b2abd2",
-    "#d8daeb",
-    "#fee0b6",
-    "#fdb863",
-    "#e08214",
-    "#b35806",
-)
+PuOr8 = ("#542788", "#8073ac", "#b2abd2", "#d8daeb", "#fee0b6", "#fdb863", "#e08214", "#b35806")
 PuOr9 = (
     "#542788",
     "#8073ac",
@@ -2480,16 +2309,7 @@ BrBG4 = ("#018571", "#80cdc1", "#dfc27d", "#a6611a")
 BrBG5 = ("#018571", "#80cdc1", "#f5f5f5", "#dfc27d", "#a6611a")
 BrBG6 = ("#01665e", "#5ab4ac", "#c7eae5", "#f6e8c3", "#d8b365", "#8c510a")
 BrBG7 = ("#01665e", "#5ab4ac", "#c7eae5", "#f5f5f5", "#f6e8c3", "#d8b365", "#8c510a")
-BrBG8 = (
-    "#01665e",
-    "#35978f",
-    "#80cdc1",
-    "#c7eae5",
-    "#f6e8c3",
-    "#dfc27d",
-    "#bf812d",
-    "#8c510a",
-)
+BrBG8 = ("#01665e", "#35978f", "#80cdc1", "#c7eae5", "#f6e8c3", "#dfc27d", "#bf812d", "#8c510a")
 BrBG9 = (
     "#01665e",
     "#35978f",
@@ -2532,16 +2352,7 @@ PRGn4 = ("#008837", "#a6dba0", "#c2a5cf", "#7b3294")
 PRGn5 = ("#008837", "#a6dba0", "#f7f7f7", "#c2a5cf", "#7b3294")
 PRGn6 = ("#1b7837", "#7fbf7b", "#d9f0d3", "#e7d4e8", "#af8dc3", "#762a83")
 PRGn7 = ("#1b7837", "#7fbf7b", "#d9f0d3", "#f7f7f7", "#e7d4e8", "#af8dc3", "#762a83")
-PRGn8 = (
-    "#1b7837",
-    "#5aae61",
-    "#a6dba0",
-    "#d9f0d3",
-    "#e7d4e8",
-    "#c2a5cf",
-    "#9970ab",
-    "#762a83",
-)
+PRGn8 = ("#1b7837", "#5aae61", "#a6dba0", "#d9f0d3", "#e7d4e8", "#c2a5cf", "#9970ab", "#762a83")
 PRGn9 = (
     "#1b7837",
     "#5aae61",
@@ -2584,16 +2395,7 @@ PiYG4 = ("#4dac26", "#b8e186", "#f1b6da", "#d01c8b")
 PiYG5 = ("#4dac26", "#b8e186", "#f7f7f7", "#f1b6da", "#d01c8b")
 PiYG6 = ("#4d9221", "#a1d76a", "#e6f5d0", "#fde0ef", "#e9a3c9", "#c51b7d")
 PiYG7 = ("#4d9221", "#a1d76a", "#e6f5d0", "#f7f7f7", "#fde0ef", "#e9a3c9", "#c51b7d")
-PiYG8 = (
-    "#4d9221",
-    "#7fbc41",
-    "#b8e186",
-    "#e6f5d0",
-    "#fde0ef",
-    "#f1b6da",
-    "#de77ae",
-    "#c51b7d",
-)
+PiYG8 = ("#4d9221", "#7fbc41", "#b8e186", "#e6f5d0", "#fde0ef", "#f1b6da", "#de77ae", "#c51b7d")
 PiYG9 = (
     "#4d9221",
     "#7fbc41",
@@ -2636,16 +2438,7 @@ RdBu4 = ("#0571b0", "#92c5de", "#f4a582", "#ca0020")
 RdBu5 = ("#0571b0", "#92c5de", "#f7f7f7", "#f4a582", "#ca0020")
 RdBu6 = ("#2166ac", "#67a9cf", "#d1e5f0", "#fddbc7", "#ef8a62", "#b2182b")
 RdBu7 = ("#2166ac", "#67a9cf", "#d1e5f0", "#f7f7f7", "#fddbc7", "#ef8a62", "#b2182b")
-RdBu8 = (
-    "#2166ac",
-    "#4393c3",
-    "#92c5de",
-    "#d1e5f0",
-    "#fddbc7",
-    "#f4a582",
-    "#d6604d",
-    "#b2182b",
-)
+RdBu8 = ("#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 RdBu9 = (
     "#2166ac",
     "#4393c3",
@@ -2688,16 +2481,7 @@ RdGy4 = ("#404040", "#bababa", "#f4a582", "#ca0020")
 RdGy5 = ("#404040", "#bababa", "#ffffff", "#f4a582", "#ca0020")
 RdGy6 = ("#4d4d4d", "#999999", "#e0e0e0", "#fddbc7", "#ef8a62", "#b2182b")
 RdGy7 = ("#4d4d4d", "#999999", "#e0e0e0", "#ffffff", "#fddbc7", "#ef8a62", "#b2182b")
-RdGy8 = (
-    "#4d4d4d",
-    "#878787",
-    "#bababa",
-    "#e0e0e0",
-    "#fddbc7",
-    "#f4a582",
-    "#d6604d",
-    "#b2182b",
-)
+RdGy8 = ("#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#fddbc7", "#f4a582", "#d6604d", "#b2182b")
 RdGy9 = (
     "#4d4d4d",
     "#878787",
@@ -2740,16 +2524,7 @@ RdYlBu4 = ("#2c7bb6", "#abd9e9", "#fdae61", "#d7191c")
 RdYlBu5 = ("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 RdYlBu6 = ("#4575b4", "#91bfdb", "#e0f3f8", "#fee090", "#fc8d59", "#d73027")
 RdYlBu7 = ("#4575b4", "#91bfdb", "#e0f3f8", "#ffffbf", "#fee090", "#fc8d59", "#d73027")
-RdYlBu8 = (
-    "#4575b4",
-    "#74add1",
-    "#abd9e9",
-    "#e0f3f8",
-    "#fee090",
-    "#fdae61",
-    "#f46d43",
-    "#d73027",
-)
+RdYlBu8 = ("#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#fee090", "#fdae61", "#f46d43", "#d73027")
 RdYlBu9 = (
     "#4575b4",
     "#74add1",
@@ -2791,25 +2566,8 @@ Spectral3 = ("#99d594", "#ffffbf", "#fc8d59")
 Spectral4 = ("#2b83ba", "#abdda4", "#fdae61", "#d7191c")
 Spectral5 = ("#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c")
 Spectral6 = ("#3288bd", "#99d594", "#e6f598", "#fee08b", "#fc8d59", "#d53e4f")
-Spectral7 = (
-    "#3288bd",
-    "#99d594",
-    "#e6f598",
-    "#ffffbf",
-    "#fee08b",
-    "#fc8d59",
-    "#d53e4f",
-)
-Spectral8 = (
-    "#3288bd",
-    "#66c2a5",
-    "#abdda4",
-    "#e6f598",
-    "#fee08b",
-    "#fdae61",
-    "#f46d43",
-    "#d53e4f",
-)
+Spectral7 = ("#3288bd", "#99d594", "#e6f598", "#ffffbf", "#fee08b", "#fc8d59", "#d53e4f")
+Spectral8 = ("#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#fee08b", "#fdae61", "#f46d43", "#d53e4f")
 Spectral9 = (
     "#3288bd",
     "#66c2a5",
@@ -2852,16 +2610,7 @@ RdYlGn4 = ("#1a9641", "#a6d96a", "#fdae61", "#d7191c")
 RdYlGn5 = ("#1a9641", "#a6d96a", "#ffffbf", "#fdae61", "#d7191c")
 RdYlGn6 = ("#1a9850", "#91cf60", "#d9ef8b", "#fee08b", "#fc8d59", "#d73027")
 RdYlGn7 = ("#1a9850", "#91cf60", "#d9ef8b", "#ffffbf", "#fee08b", "#fc8d59", "#d73027")
-RdYlGn8 = (
-    "#1a9850",
-    "#66bd63",
-    "#a6d96a",
-    "#d9ef8b",
-    "#fee08b",
-    "#fdae61",
-    "#f46d43",
-    "#d73027",
-)
+RdYlGn8 = ("#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#fee08b", "#fdae61", "#f46d43", "#d73027")
 RdYlGn9 = (
     "#1a9850",
     "#66bd63",
@@ -2900,16 +2649,7 @@ RdYlGn11 = (
 )
 
 # http://colorbrewer2.org/?type=qualitative&scheme=Accent&n=8
-Accent8 = (
-    "#7fc97f",
-    "#beaed4",
-    "#fdc086",
-    "#ffff99",
-    "#386cb0",
-    "#f0027f",
-    "#bf5b17",
-    "#666666",
-)
+Accent8 = ("#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0", "#f0027f", "#bf5b17", "#666666")
 Accent7 = Accent8[:7]
 Accent6 = Accent8[:6]
 Accent5 = Accent8[:5]
@@ -2917,16 +2657,7 @@ Accent4 = Accent8[:4]
 Accent3 = Accent8[:3]
 
 # http://colorbrewer2.org/?type=qualitative&scheme=Dark2&n=8
-Dark2_8 = (
-    "#1b9e77",
-    "#d95f02",
-    "#7570b3",
-    "#e7298a",
-    "#66a61e",
-    "#e6ab02",
-    "#a6761d",
-    "#666666",
-)
+Dark2_8 = ("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666")
 Dark2_7 = Dark2_8[:7]
 Dark2_6 = Dark2_8[:6]
 Dark2_5 = Dark2_8[:5]
@@ -2978,16 +2709,7 @@ Pastel1_4 = Pastel1_9[:4]
 Pastel1_3 = Pastel1_9[:3]
 
 # http://colorbrewer2.org/?type=qualitative&scheme=Pastel2&n=8
-Pastel2_8 = (
-    "#b3e2cd",
-    "#fdcdac",
-    "#cbd5e8",
-    "#f4cae4",
-    "#e6f5c9",
-    "#fff2ae",
-    "#f1e2cc",
-    "#cccccc",
-)
+Pastel2_8 = ("#b3e2cd", "#fdcdac", "#cbd5e8", "#f4cae4", "#e6f5c9", "#fff2ae", "#f1e2cc", "#cccccc")
 Pastel2_7 = Pastel2_8[:7]
 Pastel2_6 = Pastel2_8[:6]
 Pastel2_5 = Pastel2_8[:5]
@@ -3014,16 +2736,7 @@ Set1_4 = Set1_9[:4]
 Set1_3 = Set1_9[:3]
 
 # http://colorbrewer2.org/?type=qualitative&scheme=Set2&n=8
-Set2_8 = (
-    "#66c2a5",
-    "#fc8d62",
-    "#8da0cb",
-    "#e78ac3",
-    "#a6d854",
-    "#ffd92f",
-    "#e5c494",
-    "#b3b3b3",
-)
+Set2_8 = ("#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f", "#e5c494", "#b3b3b3")
 Set2_7 = Set2_8[:7]
 Set2_6 = Set2_8[:6]
 Set2_5 = Set2_8[:5]
@@ -3060,16 +2773,7 @@ Inferno4 = ("#000003", "#781C6D", "#ED6825", "#FCFEA4")
 Inferno5 = ("#000003", "#550F6D", "#BA3655", "#F98C09", "#FCFEA4")
 Inferno6 = ("#000003", "#410967", "#932567", "#DC5039", "#FBA40A", "#FCFEA4")
 Inferno7 = ("#000003", "#32095D", "#781C6D", "#BA3655", "#ED6825", "#FBB318", "#FCFEA4")
-Inferno8 = (
-    "#000003",
-    "#270B52",
-    "#63146E",
-    "#9E2963",
-    "#D24742",
-    "#F57C15",
-    "#FABF25",
-    "#FCFEA4",
-)
+Inferno8 = ("#000003", "#270B52", "#63146E", "#9E2963", "#D24742", "#F57C15", "#FABF25", "#FCFEA4")
 Inferno9 = (
     "#000003",
     "#1F0C47",
@@ -3370,16 +3074,7 @@ Magma4 = ("#000003", "#711F81", "#F0605D", "#FBFCBF")
 Magma5 = ("#000003", "#4F117B", "#B53679", "#FB8660", "#FBFCBF")
 Magma6 = ("#000003", "#3B0F6F", "#8C2980", "#DD4968", "#FD9F6C", "#FBFCBF")
 Magma7 = ("#000003", "#2B115E", "#711F81", "#B53679", "#F0605D", "#FEAE76", "#FBFCBF")
-Magma8 = (
-    "#000003",
-    "#221150",
-    "#5D177E",
-    "#972C7F",
-    "#D1426E",
-    "#F8755C",
-    "#FEB97F",
-    "#FBFCBF",
-)
+Magma8 = ("#000003", "#221150", "#5D177E", "#972C7F", "#D1426E", "#F8755C", "#FEB97F", "#FBFCBF")
 Magma9 = (
     "#000003",
     "#1B1044",
@@ -3680,16 +3375,7 @@ Plasma4 = ("#0C0786", "#9B179E", "#EC7853", "#EFF821")
 Plasma5 = ("#0C0786", "#7C02A7", "#CA4678", "#F79341", "#EFF821")
 Plasma6 = ("#0C0786", "#6A00A7", "#B02A8F", "#E06461", "#FCA635", "#EFF821")
 Plasma7 = ("#0C0786", "#5C00A5", "#9B179E", "#CA4678", "#EC7853", "#FDB22F", "#EFF821")
-Plasma8 = (
-    "#0C0786",
-    "#5201A3",
-    "#8908A5",
-    "#B83289",
-    "#DA5A68",
-    "#F38748",
-    "#FDBB2B",
-    "#EFF821",
-)
+Plasma8 = ("#0C0786", "#5201A3", "#8908A5", "#B83289", "#DA5A68", "#F38748", "#FDBB2B", "#EFF821")
 Plasma9 = (
     "#0C0786",
     "#4A02A0",
@@ -3990,16 +3676,7 @@ Viridis4 = ("#440154", "#30678D", "#35B778", "#FDE724")
 Viridis5 = ("#440154", "#3B518A", "#208F8C", "#5BC862", "#FDE724")
 Viridis6 = ("#440154", "#404387", "#29788E", "#22A784", "#79D151", "#FDE724")
 Viridis7 = ("#440154", "#443982", "#30678D", "#208F8C", "#35B778", "#8DD644", "#FDE724")
-Viridis8 = (
-    "#440154",
-    "#46317E",
-    "#365A8C",
-    "#277E8E",
-    "#1EA087",
-    "#49C16D",
-    "#9DD93A",
-    "#FDE724",
-)
+Viridis8 = ("#440154", "#46317E", "#365A8C", "#277E8E", "#1EA087", "#49C16D", "#9DD93A", "#FDE724")
 Viridis9 = (
     "#440154",
     "#472B7A",
@@ -4300,16 +3977,7 @@ Cividis4 = ("#00204C", "#565C6C", "#A69C75", "#FFE945")
 Cividis5 = ("#00204C", "#404C6B", "#7B7B78", "#BCAE6E", "#FFE945")
 Cividis6 = ("#00204C", "#31446B", "#666870", "#958F78", "#CAB969", "#FFE945")
 Cividis7 = ("#00204C", "#223D6C", "#565C6C", "#7B7B78", "#A69C75", "#D3C065", "#FFE945")
-Cividis8 = (
-    "#00204C",
-    "#15396D",
-    "#49536B",
-    "#6C6D72",
-    "#8D8878",
-    "#B2A672",
-    "#D9C661",
-    "#FFE945",
-)
+Cividis8 = ("#00204C", "#15396D", "#49536B", "#6C6D72", "#8D8878", "#B2A672", "#D9C661", "#FFE945")
 Cividis9 = (
     "#00204C",
     "#01356E",
@@ -4610,16 +4278,7 @@ Turbo4 = ("#30123b", "#1ae4b6", "#f9ba38", "#7a0402")
 Turbo5 = ("#30123b", "#2ab9ed", "#a1fc3d", "#fb8022", "#7a0402")
 Turbo6 = ("#30123b", "#3e9bfe", "#46f783", "#e1dc37", "#ef5a11", "#7a0402")
 Turbo7 = ("#30123b", "#4584f9", "#1ae4b6", "#a1fc3d", "#f9ba38", "#e5460a", "#7a0402")
-Turbo8 = (
-    "#30123b",
-    "#4675ed",
-    "#1ccdd7",
-    "#61fc6c",
-    "#cfea34",
-    "#fe9b2d",
-    "#db3a07",
-    "#7a0402",
-)
+Turbo8 = ("#30123b", "#4675ed", "#1ccdd7", "#61fc6c", "#cfea34", "#fe9b2d", "#db3a07", "#7a0402")
 Turbo9 = (
     "#30123b",
     "#4668e0",
@@ -5074,49 +4733,17 @@ Colorblind4 = Colorblind8[:4]
 Colorblind3 = Colorblind8[:3]
 
 YlGn = {3: YlGn3, 4: YlGn4, 5: YlGn5, 6: YlGn6, 7: YlGn7, 8: YlGn8, 9: YlGn9}
-YlGnBu = {
-    3: YlGnBu3,
-    4: YlGnBu4,
-    5: YlGnBu5,
-    6: YlGnBu6,
-    7: YlGnBu7,
-    8: YlGnBu8,
-    9: YlGnBu9,
-}
+YlGnBu = {3: YlGnBu3, 4: YlGnBu4, 5: YlGnBu5, 6: YlGnBu6, 7: YlGnBu7, 8: YlGnBu8, 9: YlGnBu9}
 GnBu = {3: GnBu3, 4: GnBu4, 5: GnBu5, 6: GnBu6, 7: GnBu7, 8: GnBu8, 9: GnBu9}
 BuGn = {3: BuGn3, 4: BuGn4, 5: BuGn5, 6: BuGn6, 7: BuGn7, 8: BuGn8, 9: BuGn9}
-PuBuGn = {
-    3: PuBuGn3,
-    4: PuBuGn4,
-    5: PuBuGn5,
-    6: PuBuGn6,
-    7: PuBuGn7,
-    8: PuBuGn8,
-    9: PuBuGn9,
-}
+PuBuGn = {3: PuBuGn3, 4: PuBuGn4, 5: PuBuGn5, 6: PuBuGn6, 7: PuBuGn7, 8: PuBuGn8, 9: PuBuGn9}
 PuBu = {3: PuBu3, 4: PuBu4, 5: PuBu5, 6: PuBu6, 7: PuBu7, 8: PuBu8, 9: PuBu9}
 BuPu = {3: BuPu3, 4: BuPu4, 5: BuPu5, 6: BuPu6, 7: BuPu7, 8: BuPu8, 9: BuPu9}
 RdPu = {3: RdPu3, 4: RdPu4, 5: RdPu5, 6: RdPu6, 7: RdPu7, 8: RdPu8, 9: RdPu9}
 PuRd = {3: PuRd3, 4: PuRd4, 5: PuRd5, 6: PuRd6, 7: PuRd7, 8: PuRd8, 9: PuRd9}
 OrRd = {3: OrRd3, 4: OrRd4, 5: OrRd5, 6: OrRd6, 7: OrRd7, 8: OrRd8, 9: OrRd9}
-YlOrRd = {
-    3: YlOrRd3,
-    4: YlOrRd4,
-    5: YlOrRd5,
-    6: YlOrRd6,
-    7: YlOrRd7,
-    8: YlOrRd8,
-    9: YlOrRd9,
-}
-YlOrBr = {
-    3: YlOrBr3,
-    4: YlOrBr4,
-    5: YlOrBr5,
-    6: YlOrBr6,
-    7: YlOrBr7,
-    8: YlOrBr8,
-    9: YlOrBr9,
-}
+YlOrRd = {3: YlOrRd3, 4: YlOrRd4, 5: YlOrRd5, 6: YlOrRd6, 7: YlOrRd7, 8: YlOrRd8, 9: YlOrRd9}
+YlOrBr = {3: YlOrBr3, 4: YlOrBr4, 5: YlOrBr5, 6: YlOrBr6, 7: YlOrBr7, 8: YlOrBr8, 9: YlOrBr9}
 Purples = {
     3: Purples3,
     4: Purples4,
@@ -5127,16 +4754,7 @@ Purples = {
     9: Purples9,
     256: Purples256,
 }
-Blues = {
-    3: Blues3,
-    4: Blues4,
-    5: Blues5,
-    6: Blues6,
-    7: Blues7,
-    8: Blues8,
-    9: Blues9,
-    256: Blues256,
-}
+Blues = {3: Blues3, 4: Blues4, 5: Blues5, 6: Blues6, 7: Blues7, 8: Blues8, 9: Blues9, 256: Blues256}
 Greens = {
     3: Greens3,
     4: Greens4,
@@ -5157,26 +4775,8 @@ Oranges = {
     9: Oranges9,
     256: Oranges256,
 }
-Reds = {
-    3: Reds3,
-    4: Reds4,
-    5: Reds5,
-    6: Reds6,
-    7: Reds7,
-    8: Reds8,
-    9: Reds9,
-    256: Reds256,
-}
-Greys = {
-    3: Greys3,
-    4: Greys4,
-    5: Greys5,
-    6: Greys6,
-    7: Greys7,
-    8: Greys8,
-    9: Greys9,
-    256: Greys256,
-}
+Reds = {3: Reds3, 4: Reds4, 5: Reds5, 6: Reds6, 7: Reds7, 8: Reds8, 9: Reds9, 256: Reds256}
+Greys = {3: Greys3, 4: Greys4, 5: Greys5, 6: Greys6, 7: Greys7, 8: Greys8, 9: Greys9, 256: Greys256}
 PuOr = {
     3: PuOr3,
     4: PuOr4,
@@ -5299,14 +4899,7 @@ Pastel1 = {
     8: Pastel1_8,
     9: Pastel1_9,
 }
-Pastel2 = {
-    3: Pastel2_3,
-    4: Pastel2_4,
-    5: Pastel2_5,
-    6: Pastel2_6,
-    7: Pastel2_7,
-    8: Pastel2_8,
-}
+Pastel2 = {3: Pastel2_3, 4: Pastel2_4, 5: Pastel2_5, 6: Pastel2_6, 7: Pastel2_7, 8: Pastel2_8}
 Set1 = {3: Set1_3, 4: Set1_4, 5: Set1_5, 6: Set1_6, 7: Set1_7, 8: Set1_8, 9: Set1_9}
 Set2 = {3: Set2_3, 4: Set2_4, 5: Set2_5, 6: Set2_6, 7: Set2_7, 8: Set2_8}
 Set3 = {
@@ -5517,13 +5110,7 @@ d3 = {
     "Category20c": Category20c,
 }
 
-mpl = {
-    "Magma": Magma,
-    "Inferno": Inferno,
-    "Plasma": Plasma,
-    "Viridis": Viridis,
-    "Cividis": Cividis,
-}
+mpl = {"Magma": Magma, "Inferno": Inferno, "Plasma": Plasma, "Viridis": Viridis, "Cividis": Cividis}
 
 colorblind = {"Colorblind": Colorblind}
 
@@ -5570,9 +5157,7 @@ def linear_palette(palette: Palette, n: int) -> Palette:
             "Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)"
             % dict(r=n, l=len(palette))
         )
-    return tuple(
-        palette[int(math.floor(i))] for i in np.linspace(0, len(palette) - 1, num=n)
-    )
+    return tuple(palette[int(math.floor(i))] for i in np.linspace(0, len(palette) - 1, num=n))
 
 
 def diverging_palette(

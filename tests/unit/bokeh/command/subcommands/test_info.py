@@ -49,20 +49,12 @@ def test_name():
 
 
 def test_help():
-    assert (
-        scinfo.Info.help
-        == "Print information about Bokeh and Bokeh server configuration"
-    )
+    assert scinfo.Info.help == "Print information about Bokeh and Bokeh server configuration"
 
 
 def test_args():
     assert scinfo.Info.args == (
-        (
-            "--static",
-            dict(
-                action="store_true", help="Print the locations of BokehJS static files"
-            ),
-        ),
+        ("--static", dict(action="store_true", help="Print the locations of BokehJS static files")),
     )
 
 

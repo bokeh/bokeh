@@ -71,11 +71,7 @@ def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
 
 
 def output_notebook(
-    resources=None,
-    verbose=False,
-    hide_banner=False,
-    load_timeout=5000,
-    notebook_type="jupyter",
+    resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type="jupyter"
 ):
     """ Configure the default output state to generate output in notebook cells
     when :func:`show` is called. Note that, :func:`show` may be called multiple
@@ -108,9 +104,7 @@ def output_notebook(
     """
     # verify notebook_type first in curstate().output_notebook
     curstate().output_notebook(notebook_type)
-    run_notebook_hook(
-        notebook_type, "load", resources, verbose, hide_banner, load_timeout
-    )
+    run_notebook_hook(notebook_type, "load", resources, verbose, hide_banner, load_timeout)
 
 
 def reset_output(state=None):

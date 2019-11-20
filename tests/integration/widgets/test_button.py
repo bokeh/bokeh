@@ -19,15 +19,7 @@ import pytest  # noqa isort:skip
 from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
 from bokeh.layouts import column
-from bokeh.models import (
-    Button,
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-)
+from bokeh.models import Button, Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -68,11 +60,7 @@ class Test_Button(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             button = Button(css_classes=["foo"])
 
@@ -107,11 +95,7 @@ class Test_Button(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             button = Button(css_classes=["foo"])
 

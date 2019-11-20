@@ -67,9 +67,7 @@ class ScriptHandler(CodeHandler):
 
     """
 
-    _logger_text = (
-        "%s: call to %s() ignored when running scripts with the 'bokeh' command."
-    )
+    _logger_text = "%s: call to %s() ignored when running scripts with the 'bokeh' command."
 
     _origin = "Script"
 

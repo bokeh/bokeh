@@ -52,11 +52,7 @@ class Test_RadioButtonGroup(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             group = RadioButtonGroup(labels=LABELS, css_classes=["foo"])
 

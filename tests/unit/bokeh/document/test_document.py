@@ -73,9 +73,7 @@ class TestDocumentHold(object):
         with pytest.raises(ValueError):
             d.hold("junk")
 
-    @pytest.mark.parametrize(
-        "first,second", [("combine", "collect"), ("collect", "combine")]
-    )
+    @pytest.mark.parametrize("first,second", [("combine", "collect"), ("collect", "combine")])
     @pytest.mark.unit
     def test_rehold(self, first, second, caplog):
         d = document.Document()
@@ -855,12 +853,8 @@ class TestDocument(object):
         assert len(d.roots) == 1
 
         def patch_test(new_value):
-            serializable_new = root1.lookup("foo").property.to_serializable(
-                root1, "foo", new_value
-            )
-            event1 = ModelChangedEvent(
-                d, root1, "foo", root1.foo, new_value, serializable_new
-            )
+            serializable_new = root1.lookup("foo").property.to_serializable(root1, "foo", new_value)
+            event1 = ModelChangedEvent(d, root1, "foo", root1.foo, new_value, serializable_new)
             patch1, buffers = process_document_events([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
@@ -981,11 +975,7 @@ class TestDocument(object):
         x = np.linspace(0, 4 * np.pi, N)
         y = np.sin(x)
         p1.scatter(
-            x,
-            y,
-            color="#FF00FF",
-            nonselection_fill_color="#FFFF00",
-            nonselection_fill_alpha=1,
+            x, y, color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1
         )
         # figure does not automatically add itself to the document
         d.add_root(p1)
@@ -1014,9 +1004,7 @@ class TestDocument(object):
         try:
             d.apply_json_event(event_json)
         except RuntimeError:
-            pytest.fail(
-                "apply_json_event probably did not copy models before modifying"
-            )
+            pytest.fail("apply_json_event probably did not copy models before modifying")
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
 

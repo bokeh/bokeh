@@ -59,9 +59,7 @@ async def test_validation_success():
 async def test_validation_success_with_one_buffer():
     r = receiver.Receiver(proto)
 
-    partial = await r.consume(
-        '{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}'
-    )
+    partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":1}')
     assert partial is None
 
     partial = await r.consume("{}")
@@ -87,9 +85,7 @@ async def test_multiple_validation_success_with_multiple_buffers():
     r = receiver.Receiver(proto)
 
     for N in range(10):
-        partial = await r.consume(
-            '{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":%d}' % N
-        )
+        partial = await r.consume('{"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers":%d}' % N)
         partial = await r.consume("{}")
         partial = await r.consume('{"bar": 10}')
 
@@ -99,11 +95,7 @@ async def test_multiple_validation_success_with_multiple_buffers():
 
         assert partial is not None
         assert partial.msgtype == "PATCH-DOC"
-        assert partial.header == {
-            "msgtype": "PATCH-DOC",
-            "msgid": "10",
-            "num_buffers": N,
-        }
+        assert partial.header == {"msgtype": "PATCH-DOC", "msgid": "10", "num_buffers": N}
         assert partial.content == {"bar": 10}
         assert partial.metadata == {}
         assert partial.buffers == [("header%d" % i, b"payload%d" % i) for i in range(N)]

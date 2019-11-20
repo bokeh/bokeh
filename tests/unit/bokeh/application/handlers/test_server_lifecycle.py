@@ -112,9 +112,7 @@ def on_server_loaded(a,b):
 
         handler = result["handler"]
         assert handler.error is not None
-        assert (
-            "on_server_loaded must have signature func(server_context)" in handler.error
-        )
+        assert "on_server_loaded must have signature func(server_context)" in handler.error
         assert "func(a, b)" in handler.error
         assert "Traceback" in handler.error_detail
 
@@ -135,10 +133,7 @@ def on_server_unloaded(a,b):
 
         handler = result["handler"]
         assert handler.error is not None
-        assert (
-            "on_server_unloaded must have signature func(server_context)"
-            in handler.error
-        )
+        assert "on_server_unloaded must have signature func(server_context)" in handler.error
         assert "func(a, b)" in handler.error
         assert "Traceback" in handler.error_detail
 
@@ -159,10 +154,7 @@ def on_session_created(a,b):
 
         handler = result["handler"]
         assert handler.error is not None
-        assert (
-            "on_session_created must have signature func(session_context)"
-            in handler.error
-        )
+        assert "on_session_created must have signature func(session_context)" in handler.error
         assert "func(a, b)" in handler.error
 
     def test_lifecycle_bad_session_destroyed_signature(self):
@@ -182,10 +174,7 @@ def on_session_destroyed(a,b):
 
         handler = result["handler"]
         assert handler.error is not None
-        assert (
-            "on_session_destroyed must have signature func(session_context)"
-            in handler.error
-        )
+        assert "on_session_destroyed must have signature func(session_context)" in handler.error
         assert "func(a, b)" in handler.error
 
     @pytest.mark.asyncio

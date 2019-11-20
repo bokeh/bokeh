@@ -28,11 +28,7 @@ from ..model import get_class
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "initialize_references_json",
-    "instantiate_references_json",
-    "references_json",
-)
+__all__ = ("initialize_references_json", "instantiate_references_json", "references_json")
 
 # -----------------------------------------------------------------------------
 # General API

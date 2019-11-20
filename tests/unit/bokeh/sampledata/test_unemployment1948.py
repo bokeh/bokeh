@@ -30,9 +30,7 @@ ALL = ("data",)
 # General API
 # -----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(
-    verify_all("bokeh.sampledata.unemployment1948", ALL)
-)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.unemployment1948", ALL))
 
 
 @pytest.mark.sampledata

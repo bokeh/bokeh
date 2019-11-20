@@ -441,17 +441,9 @@ DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 base_serve_args = (
     (
         "--port",
-        dict(
-            metavar="PORT",
-            type=int,
-            help="Port to listen on",
-            default=DEFAULT_SERVER_PORT,
-        ),
+        dict(metavar="PORT", type=int, help="Port to listen on", default=DEFAULT_SERVER_PORT),
     ),
-    (
-        "--address",
-        dict(metavar="ADDRESS", type=str, help="Address to listen on", default=None),
-    ),
+    ("--address", dict(metavar="ADDRESS", type=str, help="Address to listen on", default=None)),
     (
         "--log-level",
         dict(
@@ -483,12 +475,7 @@ base_serve_args = (
     ),
     (
         "--use-config",
-        dict(
-            metavar="CONFIG",
-            type=str,
-            help="Use a YAML config file for settings",
-            default=None,
-        ),
+        dict(metavar="CONFIG", type=str, help="Use a YAML config file for settings", default=None),
     ),
 )
 
@@ -562,12 +549,7 @@ class Serve(Subcommand):
         ),
         (
             "--prefix",
-            dict(
-                metavar="PREFIX",
-                type=str,
-                help="URL prefix for Bokeh server URLs",
-                default=None,
-            ),
+            dict(metavar="PREFIX", type=str, help="URL prefix for Bokeh server URLs", default=None),
         ),
         (
             "--keep-alive",
@@ -590,20 +572,12 @@ class Serve(Subcommand):
         (
             "--unused-session-lifetime",
             dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How long unused sessions last",
-                default=None,
+                metavar="MILLISECONDS", type=int, help="How long unused sessions last", default=None
             ),
         ),
         (
             "--stats-log-frequency",
-            dict(
-                metavar="MILLISECONDS",
-                type=int,
-                help="How often to log stats",
-                default=None,
-            ),
+            dict(metavar="MILLISECONDS", type=int, help="How often to log stats", default=None),
         ),
         (
             "--mem-log-frequency",
@@ -616,9 +590,7 @@ class Serve(Subcommand):
         ),
         (
             "--use-xheaders",
-            dict(
-                action="store_true", help="Prefer X-headers for IP/protocol information"
-            ),
+            dict(action="store_true", help="Prefer X-headers for IP/protocol information"),
         ),
         (
             "--ssl-certfile",
@@ -687,17 +659,11 @@ class Serve(Subcommand):
         ),
         (
             "--disable-index",
-            dict(
-                action="store_true",
-                help="Do not use the default index on the root path",
-            ),
+            dict(action="store_true", help="Do not use the default index on the root path"),
         ),
         (
             "--disable-index-redirect",
-            dict(
-                action="store_true",
-                help="Do not redirect to running app from root path",
-            ),
+            dict(action="store_true", help="Do not redirect to running app from root path"),
         ),
         (
             "--num-procs",
@@ -715,16 +681,12 @@ class Serve(Subcommand):
             dict(
                 metavar="BYTES",
                 action="store",
-                help="Set the Tornado websocket_max_message_size value "
-                "(default: 20MB)",
+                help="Set the Tornado websocket_max_message_size value " "(default: 20MB)",
                 default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                 type=int,
             ),
         ),
-        (
-            "--glob",
-            dict(action="store_true", help="Process all filename arguments as globs"),
-        ),
+        ("--glob", dict(action="store_true", help="Process all filename arguments as globs")),
     )
 
     def invoke(self, args):
@@ -801,12 +763,8 @@ class Serve(Subcommand):
 
         server_kwargs["sign_sessions"] = settings.sign_sessions()
         server_kwargs["secret_key"] = settings.secret_key_bytes()
-        server_kwargs["ssl_certfile"] = settings.ssl_certfile(
-            getattr(args, "ssl_certfile", None)
-        )
-        server_kwargs["ssl_keyfile"] = settings.ssl_keyfile(
-            getattr(args, "ssl_keyfile", None)
-        )
+        server_kwargs["ssl_certfile"] = settings.ssl_certfile(getattr(args, "ssl_certfile", None))
+        server_kwargs["ssl_keyfile"] = settings.ssl_keyfile(getattr(args, "ssl_keyfile", None))
         server_kwargs["ssl_password"] = settings.ssl_password()
         server_kwargs["generate_session_ids"] = True
         if args.session_ids is None:
@@ -821,8 +779,7 @@ class Serve(Subcommand):
             server_kwargs["generate_session_ids"] = False
         else:
             raise RuntimeError(
-                "argparse should have filtered out --session-ids mode "
-                + args.session_ids
+                "argparse should have filtered out --session-ids mode " + args.session_ids
             )
 
         if server_kwargs["sign_sessions"] and not server_kwargs["secret_key"]:
@@ -854,11 +811,7 @@ class Serve(Subcommand):
 
             for path, subdirs, files in os.walk(path):
                 for name in files:
-                    if (
-                        fnmatch(name, "*.html")
-                        or fnmatch(name, "*.css")
-                        or fnmatch(name, "*.yaml")
-                    ):
+                    if fnmatch(name, "*.html") or fnmatch(name, "*.css") or fnmatch(name, "*.yaml"):
                         log.info("Watching: " + os.path.join(path, name))
                         watch(os.path.join(path, name))
 
@@ -897,12 +850,7 @@ class Serve(Subcommand):
                 address_string = server.address
 
             for route in sorted(applications.keys()):
-                url = "http://%s:%d%s%s" % (
-                    address_string,
-                    server.port,
-                    server.prefix,
-                    route,
-                )
+                url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
                 log.info("Bokeh app running at: %s" % url)
 
             log.info("Starting Bokeh server with process id: %d" % os.getpid())

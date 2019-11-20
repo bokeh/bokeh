@@ -262,14 +262,7 @@ class pink(ColorGroup):
     .. bokeh-color:: mediumvioletred
     """
 
-    _colors = (
-        "Pink",
-        "LightPink",
-        "HotPink",
-        "DeepPink",
-        "PaleVioletRed",
-        "MediumVioletRed",
-    )
+    _colors = ("Pink", "LightPink", "HotPink", "DeepPink", "PaleVioletRed", "MediumVioletRed")
 
 
 class purple(ColorGroup):

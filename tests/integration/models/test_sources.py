@@ -18,15 +18,7 @@ import pytest  # noqa isort:skip
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    Button,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-    TapTool,
-)
+from bokeh.models import Button, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, TapTool
 from bokeh.plotting import figure
 
 # -----------------------------------------------------------------------------
@@ -45,17 +37,11 @@ def is_cds_data_changed(evt):
 
 
 def is_cds_data_patched(evt):
-    return (
-        evt["kind"] == "ColumnsPatched"
-        and evt["column_source"]["type"] == "ColumnDataSource"
-    )
+    return evt["kind"] == "ColumnsPatched" and evt["column_source"]["type"] == "ColumnDataSource"
 
 
 def is_cds_data_streamed(evt):
-    return (
-        evt["kind"] == "ColumnsStreamed"
-        and evt["column_source"]["type"] == "ColumnDataSource"
-    )
+    return evt["kind"] == "ColumnsStreamed" and evt["column_source"]["type"] == "ColumnDataSource"
 
 
 @pytest.mark.integration
@@ -74,17 +60,11 @@ class Test_ColumnDataSource(object):
                 min_border=0,
             )
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
 
             button = Button(css_classes=["foo"])
-            button.js_on_click(
-                CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})")
-            )
+            button.js_on_click(CustomJS(args=dict(s=source), code="s.patch({'x': [[1, 100]]})"))
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
@@ -133,11 +113,7 @@ class Test_ColumnDataSource(object):
                 min_border=0,
             )
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
 
             button = Button(css_classes=["foo"])
@@ -185,9 +161,7 @@ class Test_ColumnDataSource(object):
         r = plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
         plot.add_tools(TapTool())
 
-        r.data_source.callback = CustomJS(
-            code=RECORD("indices", "cb_obj.selected.indices")
-        )
+        r.data_source.callback = CustomJS(code=RECORD("indices", "cb_obj.selected.indices"))
 
         page = single_plot_page(plot)
 

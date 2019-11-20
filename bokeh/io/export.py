@@ -275,9 +275,7 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
             obj.plot_width = kwargs.get("width", old_width)
 
     try:
-        html = file_html(
-            obj, resources, title="", suppress_callback_warning=True, _always_new=True
-        )
+        html = file_html(obj, resources, title="", suppress_callback_warning=True, _always_new=True)
     finally:
         if resize:
             obj.plot_height = old_height
@@ -305,9 +303,7 @@ def wait_until_render_complete(driver, timeout):
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
-        raise RuntimeError(
-            "Bokeh was not loaded in time. Something may have gone wrong."
-        ) from e
+        raise RuntimeError("Bokeh was not loaded in time. Something may have gone wrong.") from e
 
     driver.execute_script(_WAIT_SCRIPT)
 
@@ -315,9 +311,7 @@ def wait_until_render_complete(driver, timeout):
         return driver.execute_script("return window._bokeh_render_complete;")
 
     try:
-        WebDriverWait(driver, timeout, poll_frequency=0.1).until(
-            is_bokeh_render_complete
-        )
+        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
         log.warning(
             "The webdriver raised a TimeoutException while waiting for "

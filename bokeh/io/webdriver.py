@@ -70,9 +70,7 @@ def create_phantomjs_webdriver():
         )
 
         phantomjs_path = detect_phantomjs()
-        return webdriver.PhantomJS(
-            executable_path=phantomjs_path, service_log_path=devnull
-        )
+        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
 
 def terminate_webdriver(driver):

@@ -125,10 +125,7 @@ def test_convert_datetime_type_non_pandas_types():
         bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452))
         == 1514993879922.452
     )
-    assert (
-        bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59))
-        == 1514993879000.0
-    )
+    assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59)) == 1514993879000.0
     assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(datetime.time(3, 54)) == 14040000.0
@@ -138,9 +135,9 @@ def test_convert_datetime_type_non_pandas_types():
 def test_convert_datetime_type_pandas_types(pd):
     assert bus.convert_datetime_type(bus._pd_timestamp(3000000)) == 3.0
     assert bus.convert_datetime_type(pd.Period("1900", "A-DEC")) == -2208988800000.0
-    assert bus.convert_datetime_type(
-        pd.Period("1900", "A-DEC")
-    ) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
+    assert bus.convert_datetime_type(pd.Period("1900", "A-DEC")) == bus.convert_datetime_type(
+        np.datetime64("1900-01-01")
+    )
     assert np.isnan(bus.convert_datetime_type(pd.NaT))
 
 
@@ -157,8 +154,7 @@ def test_convert_datetime_type_array_ignores_non_datetime_array():
 
 def test_convert_datetime_type_array():
     a = np.array(
-        ["2018-01-03T15:37:59", "2018-01-03T15:37:59.922452", "2016-05-11"],
-        dtype="datetime64",
+        ["2018-01-03T15:37:59", "2018-01-03T15:37:59.922452", "2016-05-11"], dtype="datetime64"
     )
     r = bus.convert_datetime_array(a)
     assert r[0] == 1514993879000.0
@@ -172,9 +168,7 @@ def test_convert_datetime_type_with_tz():
     # see https://github.com/bokeh/bokeh/issues/6480
     for tz in pytz.all_timezones:
         assert (
-            bus.convert_datetime_type(
-                datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz))
-            )
+            bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz)))
             == 1462924800000.0
         )
 
@@ -389,9 +383,7 @@ def test_array_encoding_disabled_by_dtype():
     assert len(bus.BINARY_ARRAY_TYPES) > 0
 
     dt_ok = bus.BINARY_ARRAY_TYPES
-    dt_bad = (
-        set(np.dtype(x) for x in set(np.typeDict.values()) - set([np.void])) - dt_ok
-    )
+    dt_bad = set(np.dtype(x) for x in set(np.typeDict.values()) - set([np.void])) - dt_ok
 
     for dt in dt_ok:
         a = np.empty(shape=10, dtype=dt)
@@ -478,9 +470,7 @@ def test_encode_binary_dict(dt, shape):
 @pytest.mark.parametrize("dt2", [np.float32, np.float64, np.int64])
 @pytest.mark.unit
 def test_transform_column_source_data_with_buffers(pd, cols, dt1, dt2):
-    d = dict(
-        a=[1, 2, 3], b=np.array([4, 5, 6], dtype=dt1), c=pd.Series([7, 8, 9], dtype=dt2)
-    )
+    d = dict(a=[1, 2, 3], b=np.array([4, 5, 6], dtype=dt1), c=pd.Series([7, 8, 9], dtype=dt2))
     bufs = []
     out = bus.transform_column_source_data(d, buffers=bufs, cols=cols)
     assert set(out) == (set(d) if cols is None else set(cols))

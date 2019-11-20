@@ -58,9 +58,8 @@ message_carriage = "File contains carriage returns at end of line: %s, line %s"
 message_eof = "File does not end with a newline: %s, line %s"
 message_multi_bof = "File starts with more than 1 empty line: %s, line %s"
 message_multi_eof = "File ends with more than 1 empty line: %s, line %s"
-message_too_long = (
-    "File contains a line with over %(n)s characters: %%s, line %%s"
-    % dict(n=MAX_LINE_LENGTH)
+message_too_long = "File contains a line with over %(n)s characters: %%s, line %%s" % dict(
+    n=MAX_LINE_LENGTH
 )
 
 
@@ -152,9 +151,7 @@ def collect_errors():
         with io.open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
-    return [
-        msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors
-    ]
+    return [msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors]
 
 
 def bad_files():

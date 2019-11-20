@@ -77,9 +77,7 @@ class AuthMixin(object):
 
         """
         if self.application.auth_provider.get_user_async is not None:
-            self.current_user = yield self.application.auth_provider.get_user_async(
-                self
-            )
+            self.current_user = yield self.application.auth_provider.get_user_async(self)
 
 
 # -----------------------------------------------------------------------------

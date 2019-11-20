@@ -100,25 +100,11 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
     try:
         exec("palette = %s" % text, _globals)
     except Exception as e:
-        raise SphinxError(
-            "cannot evaluate palette expression '%r', reason: %s" % (text, e)
-        )
+        raise SphinxError("cannot evaluate palette expression '%r', reason: %s" % (text, e))
     p = _globals.get("palette", None)
     if not isinstance(p, (list, tuple)) or not all(isinstance(x, str) for x in p):
-        raise SphinxError(
-            "palette expression '%r' generated invalid or no output: %s" % (text, p)
-        )
-    w = (
-        20
-        if len(p) < 15
-        else 10
-        if len(p) < 32
-        else 5
-        if len(p) < 64
-        else 2
-        if len(p) < 128
-        else 1
-    )
+        raise SphinxError("palette expression '%r' generated invalid or no output: %s" % (text, p))
+    w = 20 if len(p) < 15 else 10 if len(p) < 32 else 5 if len(p) < 64 else 2 if len(p) < 128 else 1
     html = PALETTE_DETAIL.render(palette=p, width=w)
     node = nodes.raw("", html, format="html")
     return [node], []

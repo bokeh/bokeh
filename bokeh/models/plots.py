@@ -209,11 +209,7 @@ class Plot(LayoutDOM):
         return _list_attr_splat(hovers)
 
     def _grid(self, dimension):
-        grid = [
-            obj
-            for obj in self.center
-            if isinstance(obj, Grid) and obj.dimension == dimension
-        ]
+        grid = [obj for obj in self.center if isinstance(obj, Grid) and obj.dimension == dimension]
         return _list_attr_splat(grid)
 
     @property
@@ -307,9 +303,7 @@ class Plot(LayoutDOM):
             source, glyph = ColumnDataSource(), source_or_glyph
 
         if not isinstance(source, DataSource):
-            raise ValueError(
-                "'source' argument to add_glyph() must be DataSource subclass"
-            )
+            raise ValueError("'source' argument to add_glyph() must be DataSource subclass")
 
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
@@ -428,15 +422,9 @@ class Plot(LayoutDOM):
             prop_names = ref.properties()
             bad = []
             if "x_range_name" in prop_names and "y_range_name" in prop_names:
-                if (
-                    ref.x_range_name not in self.extra_x_ranges
-                    and ref.x_range_name != "default"
-                ):
+                if ref.x_range_name not in self.extra_x_ranges and ref.x_range_name != "default":
                     bad.append(("x_range_name", ref.x_range_name))
-                if (
-                    ref.y_range_name not in self.extra_y_ranges
-                    and ref.y_range_name != "default"
-                ):
+                if ref.y_range_name not in self.extra_y_ranges and ref.y_range_name != "default":
                     bad.append(("y_range_name", ref.y_range_name))
             if bad:
                 if msg:
@@ -972,9 +960,7 @@ def _select_helper(args, kwargs):
         )
 
     if len(args) == 0 and len(kwargs) == 0:
-        raise TypeError(
-            "select requires EITHER a positional argument, OR keyword arguments."
-        )
+        raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
 
     if args:
         arg = args[0]

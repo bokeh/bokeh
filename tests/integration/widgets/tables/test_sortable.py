@@ -30,11 +30,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 @pytest.mark.selenium
 class Test_DataTableSortable(object):
     def test_columns_sortable(self, bokeh_model_page):
-        data = {
-            "x": [1, 2, 3, 4],
-            "y": [4, 3, 2, 1],
-            "d": ["foo", "bar", "baz", "quux"],
-        }
+        data = {"x": [1, 2, 3, 4], "y": [4, 3, 2, 1], "d": ["foo", "bar", "baz", "quux"]}
         source = ColumnDataSource(data)
         table = DataTable(
             columns=[
@@ -63,11 +59,7 @@ class Test_DataTableSortable(object):
         assert page.has_no_console_errors()
 
     def test_click_nonsortable(self, bokeh_model_page):
-        data = {
-            "x": [1, 2, 3, 4],
-            "y": [4, 3, 2, 1],
-            "d": ["foo", "bar", "baz", "quux"],
-        }
+        data = {"x": [1, 2, 3, 4], "y": [4, 3, 2, 1], "d": ["foo", "bar", "baz", "quux"]}
         source = ColumnDataSource(data)
         table = DataTable(
             columns=[
@@ -94,11 +86,7 @@ class Test_DataTableSortable(object):
         assert page.has_no_console_errors()
 
     def test_click_sortable(self, bokeh_model_page):
-        data = {
-            "x": [1, 2, 3, 4],
-            "y": [4, 3, 2, 1],
-            "d": ["foo", "bar", "baz", "quux"],
-        }
+        data = {"x": [1, 2, 3, 4], "y": [4, 3, 2, 1], "d": ["foo", "bar", "baz", "quux"]}
         source = ColumnDataSource(data)
         table = DataTable(
             columns=[
@@ -132,11 +120,7 @@ class Test_DataTableSortable(object):
         assert page.has_no_console_errors()
 
     def test_table_unsortable(self, bokeh_model_page):
-        data = {
-            "x": [1, 2, 3, 4],
-            "y": [4, 3, 2, 1],
-            "d": ["foo", "bar", "baz", "quux"],
-        }
+        data = {"x": [1, 2, 3, 4], "y": [4, 3, 2, 1], "d": ["foo", "bar", "baz", "quux"]}
         source = ColumnDataSource(data)
         table = DataTable(
             columns=[

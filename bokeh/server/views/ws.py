@@ -161,9 +161,7 @@ class WSHandler(WebSocketHandler):
 
         """
         try:
-            await self.application_context.create_session_if_needed(
-                session_id, self.request
-            )
+            await self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
@@ -210,12 +208,7 @@ class WSHandler(WebSocketHandler):
         except Exception as e:
             # If you go look at self._receive, it's catching the
             # expected error types... here we have something weird.
-            log.error(
-                "Unhandled exception receiving a message: %r: %r",
-                e,
-                fragment,
-                exc_info=True,
-            )
+            log.error("Unhandled exception receiving a message: %r: %r", e, fragment, exc_info=True)
             self._internal_error("server failed to parse a message")
 
         try:
@@ -226,12 +219,7 @@ class WSHandler(WebSocketHandler):
                 if work:
                     await self._schedule(work)
         except Exception as e:
-            log.error(
-                "Handler or its work threw an exception: %r: %r",
-                e,
-                message,
-                exc_info=True,
-            )
+            log.error("Handler or its work threw an exception: %r: %r", e, message, exc_info=True)
             self._internal_error("server failed to handle a message")
 
         return None
@@ -278,9 +266,7 @@ class WSHandler(WebSocketHandler):
 
         """
         log.info(
-            "WebSocket connection closed: code=%s, reason=%r",
-            self.close_code,
-            self.close_reason,
+            "WebSocket connection closed: code=%s, reason=%r", self.close_code, self.close_reason
         )
         if self.connection is not None:
             self.application.client_lost(self.connection)
@@ -299,11 +285,7 @@ class WSHandler(WebSocketHandler):
         try:
             work = await self.handler.handle(message, self.connection)
             return work
-        except (
-            MessageError,
-            ProtocolError,
-            ValidationError,
-        ) as e:  # TODO (other exceptions?)
+        except (MessageError, ProtocolError, ValidationError) as e:  # TODO (other exceptions?)
             self._internal_error(str(e))
             return None
 

@@ -149,15 +149,7 @@ class AnnularWedge(XYGlyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = (
-        "x",
-        "y",
-        "inner_radius",
-        "outer_radius",
-        "start_angle",
-        "end_angle",
-        "direction",
-    )
+    _args = ("x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle", "direction")
 
     x = NumberSpec(
         help="""
@@ -664,9 +656,7 @@ class Image(XYGlyph):
 
     def __init__(self, **kwargs):
         if "palette" in kwargs and "color_mapper" in kwargs:
-            raise ValueError(
-                "only one of 'palette' and 'color_mapper' may be specified"
-            )
+            raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
         elif "color_mapper" not in kwargs:
             # Use a palette (given or default)
             palette = kwargs.pop("palette", "Greys9")

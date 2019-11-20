@@ -363,9 +363,7 @@ class UnitsSpec(NumberSpec):
     """
 
     def __init__(self, default, units_type, units_default, help=None):
-        super().__init__(
-            default=default, help=help, key_type=_ExprFieldValueTransformUnits
-        )
+        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
         # this is a hack because we already constructed units_type
         self._units_type.validate(units_default)
@@ -375,10 +373,7 @@ class UnitsSpec(NumberSpec):
         self._units_type._serialized = False
 
     def __str__(self):
-        return "%s(units_default=%r)" % (
-            self.__class__.__name__,
-            self._units_type._default,
-        )
+        return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
 
     def make_descriptors(self, base_name):
         """ Return a list of ``PropertyDescriptor`` instances to install on a
@@ -399,9 +394,7 @@ class UnitsSpec(NumberSpec):
         """
         units_name = base_name + "_units"
         units_props = self._units_type.make_descriptors(units_name)
-        return units_props + [
-            UnitsSpecPropertyDescriptor(base_name, self, units_props[0])
-        ]
+        return units_props + [UnitsSpecPropertyDescriptor(base_name, self, units_props[0])]
 
     def to_serializable(self, obj, name, val):
         d = super().to_serializable(obj, name, val)
@@ -503,9 +496,7 @@ class ScreenDistanceSpec(UnitsSpec):
         return [UnitsSpecPropertyDescriptor(base_name, self, units_props[0])]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(
-            obj, name, val
-        )  # note super special case
+        d = super(UnitsSpec, self).to_serializable(obj, name, val)  # note super special case
         if d is not None and "units" not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
@@ -562,9 +553,7 @@ class DataDistanceSpec(UnitsSpec):
         return [UnitsSpecPropertyDescriptor(base_name, self, units_props[0])]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(
-            obj, name, val
-        )  # note super special case
+        d = super(UnitsSpec, self).to_serializable(obj, name, val)  # note super special case
         if d is not None and "units" not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a

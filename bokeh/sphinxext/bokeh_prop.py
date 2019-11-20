@@ -118,9 +118,7 @@ class BokehPropDirective(BokehDirective):
             name=prop_name,
             module=self.options["module"],
             type_info=descriptor.property._sphinx_type(),
-            doc=""
-            if descriptor.__doc__ is None
-            else textwrap.dedent(descriptor.__doc__),
+            doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 
         return self._parse(rst_text, "<bokeh-prop>")

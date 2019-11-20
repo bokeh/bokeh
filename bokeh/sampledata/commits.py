@@ -50,8 +50,7 @@ def _read_data():
     module = "commits"
     pd = import_required(
         "pandas",
-        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed"
-        % module,
+        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module,
     )
 
     data = package_csv(

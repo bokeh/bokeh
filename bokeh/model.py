@@ -448,9 +448,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         from bokeh.models import CustomJS
 
-        cb = CustomJS(
-            args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr)
-        )
+        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
 
         self.js_on_change(attr, cb)
 
@@ -565,9 +563,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         """
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError(
-                "Found more than one object matching %s: %r" % (selector, result)
-            )
+            raise ValueError("Found more than one object matching %s: %r" % (selector, result))
         if len(result) == 0:
             return None
         return result[0]
@@ -673,8 +669,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         """
         if self._document is not None and self._document is not doc:
             raise RuntimeError(
-                "Models must be owned by only a single document, %r is already in a doc"
-                % (self)
+                "Models must be owned by only a single document, %r is already in a doc" % (self)
             )
         doc.theme.apply_to_model(self)
         self._document = doc
@@ -767,9 +762,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         html += '<div style="display: table;">'
 
         ellipsis_id = make_id()
-        ellipsis = (
-            '<span id="%s" style="cursor: pointer;">&hellip;)</span>' % ellipsis_id
-        )
+        ellipsis = '<span id="%s" style="cursor: pointer;">&hellip;)</span>' % ellipsis_id
 
         prefix = cell('<b title="%s.%s">%s</b>(' % (module, name, name))
         html += row(prefix + cell("id" + "&nbsp;=&nbsp;" + repr(_id) + ", " + ellipsis))
@@ -779,9 +772,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         all_props = sorted_props
         for i, (prop, value) in enumerate(all_props):
             end = ")" if i == len(all_props) - 1 else ","
-            html += hidden_row(
-                cell("") + cell(prop + "&nbsp;=&nbsp;" + repr(value) + end)
-            )
+            html += hidden_row(cell("") + cell(prop + "&nbsp;=&nbsp;" + repr(value) + end))
 
         html += "</div>"
         html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)

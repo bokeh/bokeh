@@ -23,16 +23,7 @@ log = logging.getLogger(__name__)
 import io
 import os
 import re
-from os.path import (
-    abspath,
-    dirname,
-    exists,
-    expanduser,
-    expandvars,
-    join,
-    normpath,
-    pardir,
-)
+from os.path import abspath, dirname, exists, expanduser, expandvars, join, normpath, pardir
 
 # External imports
 import jinja2
@@ -92,37 +83,25 @@ def pytest_generate_tests(metafunc):
             if example.is_skip:
                 result.append(pytest.mark.skip(reason="skipping %s" % example.relpath))
             if example.is_xfail and not example.no_js:
-                result.append(
-                    pytest.mark.xfail(reason="xfail %s" % example.relpath, strict=True)
-                )
+                result.append(pytest.mark.xfail(reason="xfail %s" % example.relpath, strict=True))
             return result
 
         if "js_example" in metafunc.fixturenames:
-            params = [
-                pytest.param(e.path, e, config, marks=marks(e))
-                for e in examples
-                if e.is_js
-            ]
+            params = [pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_js]
             metafunc.parametrize("js_example,example,config", params)
         if "file_example" in metafunc.fixturenames:
             params = [
-                pytest.param(e.path, e, config, marks=marks(e))
-                for e in examples
-                if e.is_file
+                pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_file
             ]
             metafunc.parametrize("file_example,example,config", params)
         if "server_example" in metafunc.fixturenames:
             params = [
-                pytest.param(e.path, e, config, marks=marks(e))
-                for e in examples
-                if e.is_server
+                pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_server
             ]
             metafunc.parametrize("server_example,example,config", params)
         if "notebook_example" in metafunc.fixturenames:
             params = [
-                pytest.param(e.path, e, config, marks=marks(e))
-                for e in examples
-                if e.is_notebook
+                pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_notebook
             ]
             metafunc.parametrize("notebook_example,example,config", params)
 
@@ -138,9 +117,7 @@ def pytest_runtest_call(item):
         global _warned
         if not _warned and item.config.option.no_js:
             _warned = True
-            warn(
-                "All examples will skip js rendering and image diff (under --no-js flag)"
-            )
+            warn("All examples will skip js rendering and image diff (under --no-js flag)")
 
 
 def pytest_unconfigure(config):
@@ -160,9 +137,7 @@ def report(request):
 
         examples = get_all_examples(config)
 
-        config.examples_report = ExamplesTestReport(
-            config, report_path, diff_ref, examples
-        )
+        config.examples_report = ExamplesTestReport(config, report_path, diff_ref, examples)
         config.pluginmanager.register(config.examples_report)
 
 
@@ -199,15 +174,11 @@ class ExamplesTestReport(object):
                 self._write_report()
 
     def _write_report(self):
-        with io.open(
-            join(dirname(__file__), "examples_report.jinja"), encoding="utf-8"
-        ) as f:
+        with io.open(join(dirname(__file__), "examples_report.jinja"), encoding="utf-8") as f:
             template = jinja2.Template(f.read())
 
         diff_ref = self.config.option.diff_ref
-        html = template.render(
-            version=__version__, diff_ref=diff_ref, entries=self.entries
-        )
+        html = template.render(version=__version__, diff_ref=diff_ref, entries=self.entries)
 
         if not exists(dirname(self.report_path)):
             os.makedirs(dirname(self.report_path))
@@ -270,15 +241,11 @@ class ExamplesTestReport(object):
                 "EXAMPLES REPORT SUCCESSFULLY UPLOADED",
             )
             upload_file_to_s3_by_job_id(
-                session.config.option.log_file,
-                "text/text",
-                "EXAMPLES LOG SUCCESSFULLY UPLOADED",
+                session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED"
             )
 
     def pytest_terminal_summary(self, terminalreporter):
-        terminalreporter.write_sep(
-            "-", "generated example report: {0}".format(self.report_path)
-        )
+        terminalreporter.write_sep("-", "generated example report: {0}".format(self.report_path))
 
 
 # -----------------------------------------------------------------------------

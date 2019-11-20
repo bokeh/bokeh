@@ -53,10 +53,6 @@ json = {
             "major_tick_line_alpha": 0,
             "bar_line_alpha": 0,
         },
-        "Title": {
-            "text_color": "#E0E0E0",
-            "text_font": "Helvetica",
-            "text_font_size": "1.15em",
-        },
+        "Title": {"text_color": "#E0E0E0", "text_font": "Helvetica", "text_font_size": "1.15em"},
     }
 }

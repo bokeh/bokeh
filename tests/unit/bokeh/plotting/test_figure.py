@@ -236,17 +236,14 @@ class TestFigure(object):
         source = ColumnDataSource({"x": [1, 2, 3], "y": [2, 3, 4]})
 
         with pytest.raises(
-            RuntimeError,
-            match=r"Expected y to reference fields in the supplied data source.",
+            RuntimeError, match=r"Expected y to reference fields in the supplied data source."
         ):
             p.circle(x="x", y=[1, 2, 3], source=source)
         with pytest.raises(
             RuntimeError,
             match=r"Expected y and line_color to reference fields in the supplied data source.",
         ):
-            p.circle(
-                x="x", y=[1, 2, 3], line_color=["red", "green", "blue"], source=source
-            )
+            p.circle(x="x", y=[1, 2, 3], line_color=["red", "green", "blue"], source=source)
         with pytest.raises(RuntimeError) as e:
             p.circle(x="x", y=[1, 2, 3], color=["red", "green", "blue"], source=source)
         m = re.search(
@@ -286,12 +283,7 @@ class TestMarkers(object):
     @pytest.mark.parametrize("marker", list(MarkerType))
     @pytest.mark.parametrize(
         "color",
-        [
-            (100.0, 100.0, 100.0),
-            (50.0, 100.0, 50.0, 0.5),
-            (100, 100, 100),
-            (50, 100, 50, 0.5),
-        ],
+        [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (100, 100, 100), (50, 100, 50, 0.5)],
     )
     def test_color_input(self, color, marker):
         p = bpf.figure()
@@ -308,12 +300,7 @@ class TestMarkers(object):
     @pytest.mark.parametrize("marker", list(MarkerType))
     @pytest.mark.parametrize(
         "color",
-        [
-            (100.0, 100.0, 100.0),
-            (50.0, 100.0, 50.0, 0.5),
-            (100, 100, 100),
-            (50, 100, 50, 0.5),
-        ],
+        [(100.0, 100.0, 100.0), (50.0, 100.0, 50.0, 0.5), (100, 100, 100), (50, 100, 50, 0.5)],
     )
     def test_line_color_input(self, color, marker):
         p = bpf.figure()
@@ -428,39 +415,27 @@ class Test_vbar_stack(object):
 
 
 def Test_figure_legends_DEPRECATED(obejct):
-    def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(
-        self, p, source
-    ):
+    def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(self, p, source):
         p.circle(x="x", y="y", legend="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].label == {"field": "label"}
 
-    def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(
-        self, p, source
-    ):
+    def test_glyph_label_is_value_if_column_not_in_datasource_is_added_as_legend(self, p, source):
         p.circle(x="x", y="y", legend="milk", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].label == {"value": "milk"}
 
-    def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(
-        self, p, pd
-    ):
-        source = pd.DataFrame(
-            data=dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"])
-        )
+    def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(self, p, pd):
+        source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"]))
         p.circle(x="x", y="y", legend="label", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1
         assert legends[0].items[0].label == {"field": "label"}
 
-    def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(
-        self, p, pd
-    ):
-        source = pd.DataFrame(
-            data=dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"])
-        )
+    def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(self, p, pd):
+        source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=["a", "b", "c"]))
         p.circle(x="x", y="y", legend="milk", source=source)
         legends = p.select(Legend)
         assert len(legends) == 1

@@ -108,8 +108,7 @@ def npmjs_version():
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs(
-        [compilejs_script],
-        dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir),
+        [compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir)
     )
     lines = output.split("\n")
     for i, line in enumerate(lines):
@@ -397,9 +396,7 @@ _style_template = """\
 
 _export_template = """"%(name)s": require("%(module)s").%(name)s"""
 
-_module_template = (
-    """"%(module)s": function(require, module, exports) {\n%(source)s\n}"""
-)
+_module_template = """"%(module)s": function(require, module, exports) {\n%(source)s\n}"""
 
 
 def _detect_nodejs():
@@ -429,8 +426,7 @@ def _detect_nodejs():
     # if we've reached here, no valid version was found
     version = ".".join(map(str, nodejs_min_version))
     raise RuntimeError(
-        "node.js v%s or higher is needed to allow compilation of custom models "
-        % version
+        "node.js v%s or higher is needed to allow compilation of custom models " % version
         + '("conda install nodejs" or follow https://nodejs.org/en/download/)'
     )
 
@@ -461,9 +457,7 @@ def _crlf_cr_2_lf(s):
 
 def _run(app, argv, input=None):
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    (stdout, errout) = proc.communicate(
-        input=None if input is None else json.dumps(input).encode()
-    )
+    (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
     if proc.returncode != 0:
         raise RuntimeError(errout.decode("utf-8"))
@@ -638,13 +632,10 @@ def _bundle_models(custom_models):
         _export_template % dict(name=name, module=module) for (name, module) in exports
     )
     modules = sep.join(
-        _module_template % dict(module=module, source=code)
-        for (module, code) in modules
+        _module_template % dict(module=module, source=code) for (module, code) in modules
     )
 
-    content = _plugin_template % dict(
-        prelude=_plugin_prelude, exports=exports, modules=modules
-    )
+    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)
 
 

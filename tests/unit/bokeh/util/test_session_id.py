@@ -128,23 +128,17 @@ class TestSessionId(object):
         assert not check_session_id_signature(session_id, secret_key="qrs", signed=True)
 
     def test_check_signature_of_unsigned(self):
-        session_id = generate_session_id(
-            signed=False, secret_key="abc"
-        )  # secret shouldn't be used
+        session_id = generate_session_id(signed=False, secret_key="abc")  # secret shouldn't be used
         assert not check_session_id_signature(session_id, secret_key="abc", signed=True)
 
     def test_check_signature_of_empty_string(self):
         assert not check_session_id_signature("", secret_key="abc", signed=True)
 
     def test_check_signature_of_junk_with_hyphen_in_it(self):
-        assert not check_session_id_signature(
-            "foo-bar-baz", secret_key="abc", signed=True
-        )
+        assert not check_session_id_signature("foo-bar-baz", secret_key="abc", signed=True)
 
     def test_check_signature_with_signing_disabled(self):
-        assert check_session_id_signature(
-            "gobbledygook", secret_key="abc", signed=False
-        )
+        assert check_session_id_signature("gobbledygook", secret_key="abc", signed=False)
 
     def test_generate_secret_key(self):
         key = generate_secret_key()

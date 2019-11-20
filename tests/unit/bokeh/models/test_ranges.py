@@ -62,8 +62,7 @@ class Test_Range1d(object):
 
     def test_init_with_datetime(self):
         range1d = Range1d(
-            start=dt.datetime(2016, 4, 28, 2, 20, 50),
-            end=dt.datetime(2017, 4, 28, 2, 20, 50),
+            start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50)
         )
         assert range1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
         assert range1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
@@ -109,9 +108,7 @@ class Test_Range1d(object):
 
     def test_bounds_with_text_rejected_as_the_correct_value_error(self):
         with pytest.raises(ValueError) as e:
-            Range1d(
-                1, 2, bounds="21"
-            )  # The string is indexable, so this may not fail properly
+            Range1d(1, 2, bounds="21")  # The string is indexable, so this may not fail properly
         assert e.value.args[0].startswith("expected an element of either")
 
     def test_bounds_with_three_item_tuple_raises_valueerror(self):
@@ -150,17 +147,14 @@ class Test_DataRange1d(object):
         assert datarange1d.bounds is None
 
     def test_init_with_timedelta(self):
-        datarange1d = DataRange1d(
-            start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3)
-        )
+        datarange1d = DataRange1d(start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3))
         assert datarange1d.start == -dt.timedelta(seconds=5)
         assert datarange1d.end == dt.timedelta(seconds=3)
         assert datarange1d.bounds is None
 
     def test_init_with_datetime(self):
         datarange1d = DataRange1d(
-            start=dt.datetime(2016, 4, 28, 2, 20, 50),
-            end=dt.datetime(2017, 4, 28, 2, 20, 50),
+            start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50)
         )
         assert datarange1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
         assert datarange1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
@@ -254,9 +248,7 @@ class Test_FactorRange(object):
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
-        r = FactorRange(
-            factors=[("foo", "a", "1"), ("foo", "a", "2"), ("foo", "a", "1")]
-        )
+        r = FactorRange(factors=[("foo", "a", "1"), ("foo", "a", "2"), ("foo", "a", "1")])
         with mock.patch("bokeh.core.validation.check.log") as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1

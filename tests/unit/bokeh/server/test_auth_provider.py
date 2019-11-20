@@ -289,10 +289,7 @@ class TestAuthModule_validation(object):
         def func(filename):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert (
-                    str(e)
-                    == "Only one of get_user or get_user_async should be supplied"
-                )
+                assert str(e) == "Only one of get_user or get_user_async should be supplied"
 
         with_file_contents(
             """
@@ -326,10 +323,7 @@ def %s(handler): return 10
         def func(filename):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert (
-                    str(e)
-                    == "At most one of login_url or get_login_url should be supplied"
-                )
+                assert str(e) == "At most one of login_url or get_login_url should be supplied"
 
         with_file_contents(
             """
@@ -345,10 +339,7 @@ login_url = "/foo"
         def func(filename):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert (
-                    str(e)
-                    == "LoginHandler cannot be used with a get_login_url() function"
-                )
+                assert str(e) == "LoginHandler cannot be used with a get_login_url() function"
 
         with_file_contents(
             """
@@ -377,16 +368,12 @@ class LoginHandler(object): pass
             suffix=".py",
         )
 
-    @pytest.mark.parametrize(
-        "login_url", ["http://foo.com", "https://foo.com", "//foo.com"]
-    )
+    @pytest.mark.parametrize("login_url", ["http://foo.com", "https://foo.com", "//foo.com"])
     def test_login_handler_wrong_url(self, login_url):
         def func(filename):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert (
-                    str(e) == "LoginHandler can only be used with a relative login_url"
-                )
+                assert str(e) == "LoginHandler can only be used with a relative login_url"
 
         with_file_contents(
             """
@@ -414,16 +401,12 @@ class LogoutHandler(object): pass
             suffix=".py",
         )
 
-    @pytest.mark.parametrize(
-        "logout_url", ["http://foo.com", "https://foo.com", "//foo.com"]
-    )
+    @pytest.mark.parametrize("logout_url", ["http://foo.com", "https://foo.com", "//foo.com"])
     def test_logout_handler_wrong_url(self, logout_url):
         def func(filename):
             with pytest.raises(ValueError) as e:
                 bsa.AuthModule(filename)
-                assert (
-                    str(e) == "LoginHandler can only be used with a relative login_url"
-                )
+                assert str(e) == "LoginHandler can only be used with a relative login_url"
 
         with_file_contents(
             """

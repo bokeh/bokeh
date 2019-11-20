@@ -21,15 +21,7 @@ from datetime import datetime
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    DatePicker,
-    Plot,
-    Range1d,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, DatePicker, Plot, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -94,11 +86,7 @@ class Test_DatePicker(object):
                 min_border=0,
             )
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             dp = DatePicker(

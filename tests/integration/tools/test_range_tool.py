@@ -17,15 +17,7 @@ import pytest  # noqa isort:skip
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
-from bokeh.models import (
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-    RangeTool,
-    Rect,
-)
+from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, RangeTool, Rect
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -41,11 +33,7 @@ def _make_plot():
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     r = Range1d(start=0.4, end=0.6)
     plot = Plot(
-        plot_height=400,
-        plot_width=1100,
-        x_range=Range1d(0, 1),
-        y_range=Range1d(0, 1),
-        min_border=0,
+        plot_height=400, plot_width=1100, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0
     )
     plot.add_glyph(source, Rect(x="x", y="y", width=0.9, height=0.9))
     tool = RangeTool(x_range=r)

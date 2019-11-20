@@ -140,10 +140,7 @@ def test__show_with_state_with_notebook(
 @patch("bokeh.io.showing._show_file_with_state")
 @patch("bokeh.io.showing.get_browser_controller")
 def test__show_with_state_with_no_notebook(
-    mock_get_browser_controller,
-    mock__show_file_with_state,
-    mock_show_doc,
-    mock_get_comms,
+    mock_get_browser_controller, mock__show_file_with_state, mock_show_doc, mock_get_comms
 ):
     mock_get_browser_controller.return_value = "controller"
     mock_get_comms.return_value = "comms"

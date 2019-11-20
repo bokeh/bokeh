@@ -58,8 +58,7 @@ class Test_output_notebook(object):
         bio.output_notebook()
         assert mock_run_notebook_hook.call_count == 1
         assert (
-            mock_run_notebook_hook.call_args[0]
-            == ("jupyter", "load") + default_load_jupyter_args
+            mock_run_notebook_hook.call_args[0] == ("jupyter", "load") + default_load_jupyter_args
         )
         assert mock_run_notebook_hook.call_args[1] == {}
 
@@ -68,10 +67,7 @@ class Test_output_notebook(object):
         load_jupyter_args = (Resources(), True, True, 1000)
         bio.output_notebook(*load_jupyter_args)
         assert mock_run_notebook_hook.call_count == 1
-        assert (
-            mock_run_notebook_hook.call_args[0]
-            == ("jupyter", "load") + load_jupyter_args
-        )
+        assert mock_run_notebook_hook.call_args[0] == ("jupyter", "load") + load_jupyter_args
         assert mock_run_notebook_hook.call_args[1] == {}
 
 

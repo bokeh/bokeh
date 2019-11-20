@@ -113,12 +113,7 @@ class HSL(Color):
         if self.a == 1.0:
             return "hsl(%d, %s%%, %s%%)" % (self.h, self.s * 100, self.l * 100)
         else:
-            return "hsla(%d, %s%%, %s%%, %s)" % (
-                self.h,
-                self.s * 100,
-                self.l * 100,
-                self.a,
-            )
+            return "hsla(%d, %s%%, %s%%, %s)" % (self.h, self.s * 100, self.l * 100, self.a)
 
     def to_hsl(self):
         """ Return a HSL copy for this HSL color.

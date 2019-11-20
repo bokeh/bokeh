@@ -34,9 +34,7 @@ __all__ = ("pytest_addoption", "pytest_collection_modifyitems")
 
 
 def pytest_addoption(parser):
-    parser.addini(
-        "implicit_marker", "An implicit marker to assign to any test otherwise unmarked"
-    )
+    parser.addini("implicit_marker", "An implicit marker to assign to any test otherwise unmarked")
 
 
 def pytest_collection_modifyitems(items, config):

@@ -52,18 +52,8 @@ def test_autompg_clean(pd):
 
     # check detail for package data
     assert len(bsa.autompg_clean) == 392
-    assert all(
-        x in ["North America", "Europe", "Asia"] for x in bsa.autompg_clean.origin
-    )
-    for x in [
-        "chevy",
-        "chevroelt",
-        "maxda",
-        "mercedes-benz",
-        "toyouta",
-        "vokswagen",
-        "vw",
-    ]:
+    assert all(x in ["North America", "Europe", "Asia"] for x in bsa.autompg_clean.origin)
+    for x in ["chevy", "chevroelt", "maxda", "mercedes-benz", "toyouta", "vokswagen", "vw"]:
         assert x not in bsa.autompg_clean.mfr
 
 

@@ -157,9 +157,7 @@ def factor_hatch(field_name, patterns, factors, start=0, end=None):
     """
     return field(
         field_name,
-        CategoricalPatternMapper(
-            patterns=patterns, factors=factors, start=start, end=end
-        ),
+        CategoricalPatternMapper(patterns=patterns, factors=factors, start=start, end=end),
     )
 
 
@@ -191,8 +189,7 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
 
     """
     return field(
-        field_name,
-        CategoricalMarkerMapper(markers=markers, factors=factors, start=start, end=end),
+        field_name, CategoricalMarkerMapper(markers=markers, factors=factors, start=start, end=end)
     )
 
 
@@ -218,15 +215,10 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
         dict
 
     """
-    return field(
-        field_name,
-        Jitter(mean=mean, width=width, distribution=distribution, range=range),
-    )
+    return field(field_name, Jitter(mean=mean, width=width, distribution=distribution, range=range))
 
 
-def linear_cmap(
-    field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"
-):
+def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
     """ Create a ``DataSpec`` dict that applyies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
@@ -266,9 +258,7 @@ def linear_cmap(
     )
 
 
-def log_cmap(
-    field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"
-):
+def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
     """ Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
 

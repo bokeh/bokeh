@@ -100,9 +100,7 @@ class TestProperty(object):
 
         p.asserts(
             False,
-            lambda obj, name, value: raise_(
-                ValueError("bad %s %s %s" % (hp == obj, name, value))
-            ),
+            lambda obj, name, value: raise_(ValueError("bad %s %s %s" % (hp == obj, name, value))),
         )
 
         with pytest.raises(ValueError) as e:

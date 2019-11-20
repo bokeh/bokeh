@@ -140,9 +140,7 @@ class BokehPlotDirective(Directive):
             source = "\n".join(self.content)
         else:
             log.debug(
-                "[bokeh-plot] handling external example in %r: %s",
-                env.docname,
-                self.arguments[0],
+                "[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0]
             )
             path = self.arguments[0]
             if not path.startswith("/"):
@@ -155,16 +153,9 @@ class BokehPlotDirective(Directive):
             (script, js, js_path, source) = _process_script(source, path, env, js_name)
         except Exception as e:
             raise RuntimeError(
-                "Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s"
-                % (e, source)
+                "Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s" % (e, source)
             )
-        env.bokeh_plot_files[js_name] = (
-            script,
-            js,
-            js_path,
-            source,
-            dirname(env.docname),
-        )
+        env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id
         target_id = "%s.%s" % (env.docname, basename(js_path))
@@ -172,9 +163,7 @@ class BokehPlotDirective(Directive):
         result = [target]
 
         linenos = self.options.get("linenos", False)
-        code = nodes.literal_block(
-            source, source, language="python", linenos=linenos, classes=[]
-        )
+        code = nodes.literal_block(source, source, language="python", linenos=linenos, classes=[])
         set_source_info(self, code)
 
         source_position = self.options.get("source-position", "below")

@@ -204,20 +204,8 @@ class TestSerializeJson(object):
         serialized = self.serialize({"vals": df.vals, "idx": df.index})
         deserialized = self.deserialize(serialized)
         baseline = {
-            "vals": [
-                978307200000,
-                978393600000,
-                978480000000,
-                978566400000,
-                978652800000,
-            ],
-            "idx": [
-                978307200000,
-                978393600000,
-                978480000000,
-                978566400000,
-                978652800000,
-            ],
+            "vals": [978307200000, 978393600000, 978480000000, 978566400000, 978652800000],
+            "idx": [978307200000, 978393600000, 978480000000, 978566400000, 978652800000],
         }
         assert deserialized == baseline
 
@@ -274,10 +262,7 @@ class TestSerializeJson(object):
         assert self.serialize(slice(0, 2)) == '{"start":0,"step":null,"stop":2}'
         assert self.serialize(slice(0, 10, 2)) == '{"start":0,"step":2,"stop":10}'
         assert self.serialize(slice(0, None, 2)) == '{"start":0,"step":2,"stop":null}'
-        assert (
-            self.serialize(slice(None, None, None))
-            == '{"start":null,"step":null,"stop":null}'
-        )
+        assert self.serialize(slice(None, None, None)) == '{"start":null,"step":null,"stop":null}'
 
     def test_bad_kwargs(self):
         with pytest.raises(ValueError):

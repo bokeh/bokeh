@@ -30,9 +30,7 @@ ALL = ("airports", "routes")
 # General API
 # -----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(
-    verify_all("bokeh.sampledata.airport_routes", ALL)
-)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.airport_routes", ALL))
 
 
 @pytest.mark.sampledata

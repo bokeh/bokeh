@@ -150,25 +150,17 @@ class AuthProvider(object):
 
     def _validate(self):
         if self.get_user and self.get_user_async:
-            raise ValueError(
-                "Only one of get_user or get_user_async should be supplied"
-            )
+            raise ValueError("Only one of get_user or get_user_async should be supplied")
 
-        if (self.get_user or self.get_user_async) and not (
-            self.login_url or self.get_login_url
-        ):
+        if (self.get_user or self.get_user_async) and not (self.login_url or self.get_login_url):
             raise ValueError(
                 "When user authentication is enabled, one of login_url or get_login_url must be supplied"
             )
 
         if self.login_url and self.get_login_url:
-            raise ValueError(
-                "At most one of login_url or get_login_url should be supplied"
-            )
+            raise ValueError("At most one of login_url or get_login_url should be supplied")
         if self.login_handler and self.get_login_url:
-            raise ValueError(
-                "LoginHandler cannot be used with a get_login_url() function"
-            )
+            raise ValueError("LoginHandler cannot be used with a get_login_url() function")
         if self.login_handler and not issubclass(self.login_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
         if self.login_url and not probably_relative_url(self.login_url):

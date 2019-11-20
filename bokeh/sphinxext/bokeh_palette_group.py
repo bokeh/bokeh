@@ -97,9 +97,7 @@ def html_visit_bokeh_palette_group(self, node):
         palettes = group[name]
         # arbitrary cuttoff here, idea is to not show large (e.g 256 length) palettes
         numbers = [x for x in sorted(palettes) if x < 30]
-        html = PALETTE_GROUP_DETAIL.render(
-            name=name, numbers=numbers, palettes=palettes
-        )
+        html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
         self.body.append(html)
     self.body.append("</div></div>")
     raise nodes.SkipNode

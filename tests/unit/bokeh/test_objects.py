@@ -392,9 +392,7 @@ class TestModel(object):
 
 
 class TestContainerMutation(object):
-    def _check_mutation(
-        self, obj, attr, mutator, expected_event_old, expected_event_new
-    ):
+    def _check_mutation(self, obj, attr, mutator, expected_event_old, expected_event_new):
         result = dict(calls=[])
 
         def record_trigger(attr, old, new_):
@@ -517,9 +515,7 @@ class TestListMutation(TestContainerMutation):
     def test_list_insert(self):
         obj = HasListProp(foo=["a", "b"])
         assert isinstance(obj.foo, PropertyValueList)
-        self._check_mutation(
-            obj, "foo", lambda x: x.insert(1, "x"), ["a", "b"], ["a", "x", "b"]
-        )
+        self._check_mutation(obj, "foo", lambda x: x.insert(1, "x"), ["a", "b"], ["a", "x", "b"])
 
     def test_list_pop(self):
         obj = HasListProp(foo=["a", "b"])
@@ -600,9 +596,7 @@ class TestDictMutation(TestContainerMutation):
         def mutate(x):
             del x[1]
 
-        self._check_mutation(
-            obj, "foo", mutate, {1: "a", 2: "b", 3: "c"}, {2: "b", 3: "c"}
-        )
+        self._check_mutation(obj, "foo", mutate, {1: "a", 2: "b", 3: "c"}, {2: "b", 3: "c"})
 
     def test_dict_setitem_string(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
@@ -611,9 +605,7 @@ class TestDictMutation(TestContainerMutation):
         def mutate(x):
             x["b"] = 42
 
-        self._check_mutation(
-            obj, "foo", mutate, dict(a=1, b=2, c=3), dict(a=1, b=42, c=3)
-        )
+        self._check_mutation(obj, "foo", mutate, dict(a=1, b=2, c=3), dict(a=1, b=42, c=3))
 
     def test_dict_setitem_int(self):
         obj = HasIntDictProp(foo={1: "a", 2: "b", 3: "c"})
@@ -666,9 +658,7 @@ class TestDictMutation(TestContainerMutation):
             z = x.setdefault("z", 44)
             assert 44 == z
 
-        self._check_mutation(
-            obj, "foo", mutate, dict(a=1, b=2, c=3), dict(a=1, b=2, c=3, z=44)
-        )
+        self._check_mutation(obj, "foo", mutate, dict(a=1, b=2, c=3), dict(a=1, b=2, c=3, z=44))
 
     def test_dict_update(self):
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
@@ -677,9 +667,7 @@ class TestDictMutation(TestContainerMutation):
         def mutate(x):
             x.update(dict(b=7, c=8))
 
-        self._check_mutation(
-            obj, "foo", mutate, dict(a=1, b=2, c=3), dict(a=1, b=7, c=8)
-        )
+        self._check_mutation(obj, "foo", mutate, dict(a=1, b=2, c=3), dict(a=1, b=7, c=8))
 
 
 # -----------------------------------------------------------------------------

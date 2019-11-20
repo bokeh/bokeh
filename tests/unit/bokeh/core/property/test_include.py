@@ -78,9 +78,7 @@ class Test_Include(object):
     def test_include_without_prefix_using_override(self):
         class IncludesDelegateWithoutPrefixUsingOverride(HasProps):
             z = bcpi.Include(IsDelegate, use_prefix=False)
-            y = Override(
-                default="world"
-            )  # override the Include changing just the default
+            y = Override(default="world")  # override the Include changing just the default
 
         o = IncludesDelegateWithoutPrefixUsingOverride()
         assert o.x == 12

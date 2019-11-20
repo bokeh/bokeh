@@ -122,9 +122,7 @@ class TestCodeRunner(object):
         assert m.__dict__["argv"] == ["path", "foo", 10]
 
     def test_run_fixups_path(self):
-        cr = bahc.CodeRunner(
-            "import sys; path = list(sys.path)", "/dir/to/path", ["foo", 10]
-        )
+        cr = bahc.CodeRunner("import sys; path = list(sys.path)", "/dir/to/path", ["foo", 10])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)

@@ -20,13 +20,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import (
-    DateFormat,
-    FontStyle,
-    NumeralLanguage,
-    RoundingFunction,
-    TextAlign,
-)
+from ...core.enums import DateFormat, FontStyle, NumeralLanguage, RoundingFunction, TextAlign
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,

@@ -57,9 +57,7 @@ life_expectancy = external_csv(
 population = external_csv(
     "gapminder", "gapminder_population.csv", index_col="Country", encoding="utf-8"
 )
-regions = external_csv(
-    "gapminder", "gapminder_regions.csv", index_col="Country", encoding="utf-8"
-)
+regions = external_csv("gapminder", "gapminder_regions.csv", index_col="Country", encoding="utf-8")
 
 
 # -----------------------------------------------------------------------------

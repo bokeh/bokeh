@@ -165,9 +165,7 @@ def test_silence_and_check_warn(mock_warn, mock_error):
 @patch("bokeh.core.validation.check.log.warning")
 def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error):
     m = Mod(foo=-10)
-    with pytest.raises(
-        ValueError, match=("Input to silence should be a " "warning object")
-    ):
+    with pytest.raises(ValueError, match=("Input to silence should be a " "warning object")):
         v.silence("EXT:W")
     v.check_integrity([m])
     assert not mock_error.called

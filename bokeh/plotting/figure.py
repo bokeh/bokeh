@@ -18,18 +18,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
-from ..core.properties import (
-    Any,
-    Auto,
-    Either,
-    Enum,
-    Instance,
-    Int,
-    List,
-    Seq,
-    String,
-    Tuple,
-)
+from ..core.properties import Any, Auto, Either, Enum, Instance, Int, List, Seq, String, Tuple
 from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool
 from ..models import glyphs as _glyphs
 from ..models import markers as _markers
@@ -1430,10 +1419,7 @@ def markers():
     """
     print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
     print()
-    print(
-        "Shortcuts: \n\n"
-        + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items())
-    )
+    print("Shortcuts: \n\n" + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items()))
 
 
 # -----------------------------------------------------------------------------

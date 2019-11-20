@@ -274,10 +274,7 @@ class FillProps(HasProps):
 
     fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
     fill_alpha = NumberSpec(
-        default=1.0,
-        accept_datetime=False,
-        accept_timedelta=False,
-        help=_alpha_help % "fill paths",
+        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths"
     )
 
 
@@ -324,23 +321,14 @@ class HatchProps(HasProps):
 
     hatch_color = ColorSpec(default="black", help=_color_help % "hatching")
     hatch_alpha = NumberSpec(
-        default=1.0,
-        accept_datetime=False,
-        accept_timedelta=False,
-        help=_alpha_help % "hatching",
+        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "hatching"
     )
     hatch_scale = NumberSpec(
-        default=12.0,
-        accept_datetime=False,
-        accept_timedelta=False,
-        help=_hatch_scale_help,
+        default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help
     )
     hatch_pattern = HatchPatternSpec(default=None, help=_hatch_pattern_help)
     hatch_weight = NumberSpec(
-        default=1.0,
-        accept_datetime=False,
-        accept_timedelta=False,
-        help=_hatch_weight_help,
+        default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help
     )
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
 
@@ -420,10 +408,7 @@ class TextProps(HasProps):
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
 
     text_alpha = NumberSpec(
-        default=1.0,
-        accept_datetime=False,
-        accept_timedelta=False,
-        help=_alpha_help % "fill text",
+        default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill text"
     )
 
 

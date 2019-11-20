@@ -181,12 +181,8 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
 
 class RenderItem(object):
-    def __init__(
-        self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None
-    ):
-        if (docid is None and sessionid is None) or (
-            docid is not None and sessionid is not None
-        ):
+    def __init__(self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None):
+        if (docid is None and sessionid is None) or (docid is not None and sessionid is not None):
             raise ValueError("either docid or sessionid must be provided")
 
         if roots is None:
@@ -263,9 +259,7 @@ class RenderRoots(object):
         return self.__getitem__(key)
 
     def to_json(self):
-        return OrderedDict(
-            [(root.id, elementid) for root, elementid in self._roots.items()]
-        )
+        return OrderedDict([(root.id, elementid) for root, elementid in self._roots.items()])
 
 
 def standalone_docs_json(models):
@@ -283,13 +277,8 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
     if isinstance(models, (Model, Document)):
         models = [models]
 
-    if not (
-        isinstance(models, Sequence)
-        and all(isinstance(x, (Model, Document)) for x in models)
-    ):
-        raise ValueError(
-            "Expected a Model, Document, or Sequence of Models or Documents"
-        )
+    if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
+        raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
 
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
         log.warning(_CALLBACKS_WARNING)

@@ -89,19 +89,13 @@ class ServerLifecycleHandler(LifecycleHandler):
                     self._on_server_loaded, ("server_context",), what="on_server_loaded"
                 )
                 _check_callback(
-                    self._on_server_unloaded,
-                    ("server_context",),
-                    what="on_server_unloaded",
+                    self._on_server_unloaded, ("server_context",), what="on_server_unloaded"
                 )
                 _check_callback(
-                    self._on_session_created,
-                    ("session_context",),
-                    what="on_session_created",
+                    self._on_session_created, ("session_context",), what="on_session_created"
                 )
                 _check_callback(
-                    self._on_session_destroyed,
-                    ("session_context",),
-                    what="on_session_destroyed",
+                    self._on_session_destroyed, ("session_context",), what="on_session_destroyed"
                 )
 
             self._runner.run(self._module, extract_callbacks)

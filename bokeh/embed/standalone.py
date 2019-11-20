@@ -304,9 +304,7 @@ def file_html(
     else:
         models_seq = models
 
-    with OutputDocumentFor(
-        models_seq, apply_theme=theme, always_new=_always_new
-    ) as doc:
+    with OutputDocumentFor(models_seq, apply_theme=theme, always_new=_always_new) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(
             models_seq, suppress_callback_warning=suppress_callback_warning
         )
@@ -401,9 +399,7 @@ def json_item(
 # -----------------------------------------------------------------------------
 
 
-def _check_models_or_docs(
-    models: Union[ModelLike, ModelLikeCollection]
-) -> ModelLikeCollection:
+def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> ModelLikeCollection:
     """
 
     """
@@ -414,9 +410,7 @@ def _check_models_or_docs(
         models = [models]
 
     # Check for sequence
-    if isinstance(models, Sequence) and all(
-        isinstance(x, (Model, Document)) for x in models
-    ):
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
         input_type_valid = True
 
     if (
@@ -434,9 +428,7 @@ def _check_models_or_docs(
     return models
 
 
-def _title_from_models(
-    models: Sequence[Union[Model, Document]], title: Optional[str]
-) -> str:
+def _title_from_models(models: Sequence[Union[Model, Document]], title: Optional[str]) -> str:
     # use override title
     if title is not None:
         return title

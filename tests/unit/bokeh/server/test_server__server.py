@@ -83,9 +83,7 @@ class HookTestHandler(Handler):
 
         server_context.add_next_tick_callback(self.on_next_tick_server)
         server_context.add_timeout_callback(self.on_timeout_server, 2)
-        periodic_cb_id = server_context.add_periodic_callback(
-            self.on_periodic_server, 3
-        )
+        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_server, 3)
 
         def remover():
             server_context.remove_periodic_callback(periodic_cb_id)
@@ -118,9 +116,7 @@ class HookTestHandler(Handler):
         server_context = session_context.server_context
         server_context.add_next_tick_callback(self.on_next_tick_session)
         server_context.add_timeout_callback(self.on_timeout_session, 2)
-        periodic_cb_id = server_context.add_periodic_callback(
-            self.on_periodic_session, 3
-        )
+        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_session, 3)
 
         def remover():
             server_context.remove_periodic_callback(periodic_cb_id)
@@ -357,16 +353,13 @@ async def test_server_applications_callable_arg(ManagedServerLoop):
 
 
 @pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="Lifecycle hooks order different on Windows (TODO open issue)",
+    sys.platform == "win32", reason="Lifecycle hooks order different on Windows (TODO open issue)"
 )
 def test__lifecycle_hooks(ManagedServerLoop):
     application = Application()
     handler = HookTestHandler()
     application.add(handler)
-    with ManagedServerLoop(
-        application, check_unused_sessions_milliseconds=30
-    ) as server:
+    with ManagedServerLoop(application, check_unused_sessions_milliseconds=30) as server:
         # wait for server callbacks to run before we mix in the
         # session, this keeps the test deterministic
         def check_done():
@@ -587,9 +580,7 @@ async def test__use_provided_session_doc(ManagedServerLoop):
         assert 0 == len(sessions)
 
         expected = "foo"
-        response = await http_get(
-            server.io_loop, url(server) + "?bokeh-session-id=" + expected
-        )
+        response = await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
         html = response.body
         sessionid = extract_sessionid_from_json(html)
         assert expected == sessionid
@@ -660,9 +651,7 @@ async def test__reject_unsigned_session_autoload(ManagedServerLoop):
 
         expected = "foo"
         with (pytest.raises(HTTPError)) as info:
-            await http_get(
-                server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected
-            )
+            await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
         assert "Invalid session ID" in repr(info.value)
 
         sessions = server.get_sessions("/")
@@ -678,9 +667,7 @@ async def test__reject_unsigned_session_doc(ManagedServerLoop):
 
         expected = "foo"
         with (pytest.raises(HTTPError)) as info:
-            await http_get(
-                server.io_loop, url(server) + "?bokeh-session-id=" + expected
-            )
+            await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
         assert "Invalid session ID" in repr(info.value)
 
         sessions = server.get_sessions("/")
@@ -732,9 +719,7 @@ async def test__no_generate_session_doc(ManagedServerLoop):
         assert 0 == len(sessions)
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="multiple processes not supported on Windows"
-)
+@pytest.mark.skipif(sys.platform == "win32", reason="multiple processes not supported on Windows")
 def test__server_multiple_processes():
 
     # Can't use an ioloop in this test
@@ -746,9 +731,7 @@ def test__server_multiple_processes():
         tornado_fp.assert_called_with(3, mock.ANY)
 
 
-def test__existing_ioloop_with_multiple_processes_exception(
-    ManagedServerLoop, event_loop
-):
+def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop):
     application = Application()
     loop = IOLoop.current()
     with pytest.raises(RuntimeError):

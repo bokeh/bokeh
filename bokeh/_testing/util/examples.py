@@ -23,17 +23,7 @@ log = logging.getLogger(__name__)
 import io
 import os
 from base64 import b64decode
-from os.path import (
-    basename,
-    dirname,
-    exists,
-    isdir,
-    isfile,
-    join,
-    normpath,
-    relpath,
-    splitext,
-)
+from os.path import basename, dirname, exists, isdir, isfile, join, normpath, relpath, splitext
 from subprocess import PIPE, Popen
 
 # External imports
@@ -226,8 +216,7 @@ class Example(object):
     @property
     def diff_path(self):
         return join(
-            self.imgs_dir,
-            "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID),
+            self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID)
         )
 
     @property
@@ -248,9 +237,7 @@ class Example(object):
 
     @property
     def ref_url_path(self):
-        return (
-            join("travis", "image_refs", self._diff_ref, self.relpath_no_ext) + ".png"
-        )
+        return join("travis", "image_refs", self._diff_ref, self.relpath_no_ext) + ".png"
 
     @property
     def diff_url_path(self):

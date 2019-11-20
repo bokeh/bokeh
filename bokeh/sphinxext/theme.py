@@ -122,9 +122,7 @@ def update_page_context(self, pagename, templatename, ctx, event_arg):
     from sphinx.environment.adapters.toctree import TocTree
 
     def get_nav_object(**kwds):
-        toctree = TocTree(self.env).get_toctree_for(
-            pagename, self, collapse=True, **kwds
-        )
+        toctree = TocTree(self.env).get_toctree_for(pagename, self, collapse=True, **kwds)
 
         nav = []
         for child in toctree.children[0].children:

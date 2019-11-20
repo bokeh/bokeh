@@ -63,9 +63,7 @@ class Either(ParameterizedProperty):
     """
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
-        self._type_params = list(
-            map(self._validate_type_param, (tp1, tp2) + type_params)
-        )
+        self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         help = kwargs.get("help")
 
         def choose_default():
@@ -79,15 +77,10 @@ class Either(ParameterizedProperty):
 
     # TODO (bev) get rid of this?
     def __or__(self, other):
-        return self.__class__(
-            *(self.type_params + [other]), default=self._default, help=self.help
-        )
+        return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
 
     def __str__(self):
-        return "%s(%s)" % (
-            self.__class__.__name__,
-            ", ".join(map(str, self.type_params)),
-        )
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
     @property
     def type_params(self):
@@ -114,9 +107,7 @@ class Either(ParameterizedProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (
-            value is None or any(param.is_valid(value) for param in self.type_params)
-        ):
+        if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             msg = (
                 ""
                 if not detail

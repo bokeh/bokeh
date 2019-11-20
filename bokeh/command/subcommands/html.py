@@ -100,10 +100,7 @@ class HTML(FileOutputSubcommand):
 
     args = (
         FileOutputSubcommand.files_arg("HTML"),
-        (
-            "--show",
-            dict(action="store_true", help="Open generated file(s) in a browser"),
-        ),
+        ("--show", dict(action="store_true", help="Open generated file(s) in a browser")),
     ) + FileOutputSubcommand.other_args()
 
     def after_write_file(self, args, filename, doc):

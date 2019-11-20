@@ -79,13 +79,9 @@ class ConsumerHelper(AsyncConsumer):
     def resources(self, absolute_url: Optional[str] = None) -> Resources:
         mode = settings.resources(default="server")
         if mode == "server":
-            root_url = (
-                urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-            )
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
             return Resources(
-                mode="server",
-                root_url=root_url,
-                path_versioner=StaticHandler.append_version,
+                mode="server", root_url=root_url, path_versioner=StaticHandler.append_version
             )
         return Resources(mode=mode)
 
@@ -106,9 +102,7 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
     async def _get_session(self) -> ServerSession:
         session_id = generate_session_id(secret_key=None, signed=False)
-        session = await self.application_context.create_session_if_needed(
-            session_id, self.request
-        )
+        session = await self.application_context.create_session_if_needed(session_id, self.request)
         return session
 
 
@@ -125,9 +119,7 @@ class AutoloadJsConsumer(SessionConsumer):
 
         server_url: Optional[str]
         if absolute_url:
-            server_url = "{uri.scheme}://{uri.netloc}/".format(
-                uri=urlparse(absolute_url)
-            )
+            server_url = "{uri.scheme}://{uri.netloc}/".format(uri=urlparse(absolute_url))
         else:
             server_url = None
 
@@ -135,9 +127,7 @@ class AutoloadJsConsumer(SessionConsumer):
         resources = self.resources(server_url) if resources_param != "none" else None
         bundle = bundle_for_objs_and_resources(None, resources)
 
-        render_items = [
-            RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)
-        ]
+        render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
         bundle.add(
             Script(
                 script_for_render_items(
@@ -162,9 +152,7 @@ class DocConsumer(SessionConsumer):
             template=session.document.template,
             template_variables=session.document.template_variables,
         )
-        await self.send_response(
-            200, page.encode(), headers=[(b"Content-Type", b"text/html")]
-        )
+        await self.send_response(200, page.encode(), headers=[(b"Content-Type", b"text/html")])
 
 
 class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
@@ -227,9 +215,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
     async def _async_open(self, session_id: str) -> None:
         try:
-            await self.application_context.create_session_if_needed(
-                session_id, self.request
-            )
+            await self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
@@ -281,9 +267,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
         application_context: ApplicationContext,
         session: ServerSession,
     ) -> ServerConnection:
-        connection = AsyncServerConnection(
-            protocol, socket, application_context, session
-        )
+        connection = AsyncServerConnection(protocol, socket, application_context, session)
         self._clients.add(connection)
         return connection
 

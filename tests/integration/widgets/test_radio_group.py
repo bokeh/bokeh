@@ -18,15 +18,7 @@ import pytest  # noqa isort:skip
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    RadioGroup,
-    Range1d,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Plot, RadioGroup, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -41,9 +33,7 @@ LABELS = ["Option 1", "Option 2", "Option 3"]
 @pytest.mark.selenium
 class Test_RadioGroup(object):
     @pytest.mark.parametrize("inline", [True, False])
-    def test_displays_options_list_of_string_labels_setting_inline(
-        self, inline, bokeh_model_page
-    ):
+    def test_displays_options_list_of_string_labels_setting_inline(self, inline, bokeh_model_page):
         group = RadioGroup(labels=LABELS, css_classes=["foo"], inline=inline)
 
         page = bokeh_model_page(group)
@@ -70,11 +60,7 @@ class Test_RadioGroup(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             group = RadioGroup(labels=LABELS, css_classes=["foo"])
 

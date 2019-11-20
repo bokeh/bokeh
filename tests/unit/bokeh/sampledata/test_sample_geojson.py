@@ -30,9 +30,7 @@ ALL = ("geojson",)
 # General API
 # -----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(
-    verify_all("bokeh.sampledata.sample_geojson", ALL)
-)
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.sample_geojson", ALL))
 
 
 @pytest.mark.sampledata

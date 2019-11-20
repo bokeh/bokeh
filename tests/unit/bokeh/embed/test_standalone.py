@@ -188,11 +188,7 @@ class Test_file_html(object):
         assert isinstance(r, str)
 
         r = bes.file_html(
-            test_plot,
-            CDN,
-            "title",
-            fake_template(self, {"test_var"}),
-            {"test_var": "test"},
+            test_plot, CDN, "title", fake_template(self, {"test_var"}), {"test_var": "test"}
         )
         assert isinstance(r, str)
 
@@ -200,9 +196,7 @@ class Test_file_html(object):
     def test_file_html_handles_js_only_resources(self, mock_warn, test_plot):
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
-        output = bes.file_html(
-            test_plot, (js_resources, None), "title", template=template
-        )
+        output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
         html = "<head>%s</head><body></body>" % js_resources.render_js()
         assert output == html
 
@@ -218,9 +212,7 @@ class Test_file_html(object):
     def test_file_html_handles_css_only_resources(self, mock_warn, test_plot):
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
-        output = bes.file_html(
-            test_plot, (None, css_resources), "title", template=template
-        )
+        output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
         html = "<head>%s</head><body></body>" % css_resources.render_css()
         assert output == html
 

@@ -92,8 +92,7 @@ def external_csv(module: str, name: str, **kw: Any) -> DataFrame:
 
     pd = import_required(
         "pandas",
-        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed"
-        % module,
+        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module,
     )
     return cast(Any, pd).read_csv(external_path(name), **kw)
 
@@ -105,9 +104,7 @@ def external_data_dir(create: bool = False) -> str:
     try:
         import yaml
     except ImportError:
-        raise RuntimeError(
-            "'yaml' and 'pyyaml' are required to use bokeh.sampledata functions"
-        )
+        raise RuntimeError("'yaml' and 'pyyaml' are required to use bokeh.sampledata functions")
 
     bokeh_dir = _bokeh_dir(create=create)
     data_dir = join(bokeh_dir, "data")
@@ -154,8 +151,7 @@ def package_csv(module: str, name: str, **kw: Any) -> DataFrame:
 
     pd = import_required(
         "pandas",
-        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed"
-        % module,
+        "%s sample data requires Pandas (http://pandas.pydata.org) to be installed" % module,
     )
     return cast(Any, pd).read_csv(package_path(name), **kw)
 
@@ -198,18 +194,14 @@ def _bokeh_dir(create: bool = False) -> str:
         try:
             mkdir(bokeh_dir)
         except OSError:
-            raise RuntimeError(
-                "could not create bokeh config directory at %s" % bokeh_dir
-            )
+            raise RuntimeError("could not create bokeh config directory at %s" % bokeh_dir)
     else:
         if not isdir(bokeh_dir):
             raise RuntimeError("%s exists but is not a directory" % bokeh_dir)
     return bokeh_dir
 
 
-def _download_file(
-    base_url: str, filename: str, data_dir: str, progress: bool = True
-) -> None:
+def _download_file(base_url: str, filename: str, data_dir: str, progress: bool = True) -> None:
     """
 
     """
@@ -239,10 +231,7 @@ def _download_file(
             file.write(data)
 
             if progress:
-                status = "\r%10d [%6.2f%%]" % (
-                    fetch_size,
-                    fetch_size * 100.0 / file_size,
-                )
+                status = "\r%10d [%6.2f%%]" % (fetch_size, fetch_size * 100.0 / file_size)
                 stdout.write(status)
                 stdout.flush()
 

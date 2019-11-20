@@ -42,9 +42,7 @@ __all__ = ("server_document", "server_session", "server_html_page_for_session")
 # -----------------------------------------------------------------------------
 
 
-def server_document(
-    url="default", relative_urls=False, resources="default", arguments=None
-):
+def server_document(url="default", relative_urls=False, resources="default", arguments=None):
     """ Return a script tag that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
@@ -191,9 +189,7 @@ def server_session(
 # -----------------------------------------------------------------------------
 
 
-def server_html_page_for_session(
-    session, resources, title, template=FILE, template_variables=None
-):
+def server_html_page_for_session(session, resources, title, template=FILE, template_variables=None):
     """
 
     Args:
@@ -211,21 +207,14 @@ def server_html_page_for_session(
         str
 
     """
-    render_item = RenderItem(
-        sessionid=session.id, roots=session.document.roots, use_for_title=True
-    )
+    render_item = RenderItem(sessionid=session.id, roots=session.document.roots, use_for_title=True)
 
     if template_variables is None:
         template_variables = {}
 
     bundle = bundle_for_objs_and_resources(None, resources)
     html = html_page_for_render_items(
-        bundle,
-        {},
-        [render_item],
-        title,
-        template=template,
-        template_variables=template_variables,
+        bundle, {}, [render_item], title, template=template, template_variables=template_variables
     )
     return html
 

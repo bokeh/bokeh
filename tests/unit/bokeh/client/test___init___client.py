@@ -24,13 +24,7 @@ import bokeh.client as bc  # isort:skip
 # Setup
 # -----------------------------------------------------------------------------
 
-ALL = (
-    "ClientSession",
-    "DEFAULT_SESSION_ID",
-    "pull_session",
-    "push_session",
-    "show_session",
-)
+ALL = ("ClientSession", "DEFAULT_SESSION_ID", "pull_session", "push_session", "show_session")
 
 # -----------------------------------------------------------------------------
 # General API

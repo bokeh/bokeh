@@ -150,8 +150,7 @@ def serialize_json(obj, pretty=None, indent=None, **kwargs):
     for name in ["allow_nan", "separators", "sort_keys"]:
         if name in kwargs:
             raise ValueError(
-                "The value of %r is computed internally, overriding is not permissible."
-                % name
+                "The value of %r is computed internally, overriding is not permissible." % name
             )
 
     pretty = settings.pretty(pretty)

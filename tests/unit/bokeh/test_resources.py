@@ -179,9 +179,7 @@ class TestResources(object):
         def versioner(path):
             return path + "?v=VERSIONED"
 
-        r = resources.Resources(
-            mode="server", root_url="http://foo/", path_versioner=versioner
-        )
+        r = resources.Resources(mode="server", root_url="http://foo/", path_versioner=versioner)
 
         assert r.js_files == [
             "http://foo/static/js/bokeh.min.js?v=VERSIONED",
@@ -245,14 +243,7 @@ class TestResources(object):
         with pytest.raises(ValueError):
             resources.Resources("foo")
 
-        for mode in (
-            "inline",
-            "cdn",
-            "server",
-            "server-dev",
-            "absolute",
-            "absolute-dev",
-        ):
+        for mode in ("inline", "cdn", "server", "server-dev", "absolute", "absolute-dev"):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_dir="foo")
 
@@ -268,14 +259,7 @@ class TestResources(object):
             with pytest.raises(ValueError):
                 resources.Resources(mode, version="foo")
 
-        for mode in (
-            "inline",
-            "cdn",
-            "relative",
-            "relative-dev",
-            "absolute",
-            "absolute-dev",
-        ):
+        for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_url="foo")
 

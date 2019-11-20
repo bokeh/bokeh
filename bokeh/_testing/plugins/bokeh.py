@@ -234,9 +234,7 @@ class _CanvasMixin(object):
         self.double_click_element_at_position(self.canvas, x, y)
 
     def click_custom_action(self):
-        button = self._driver.find_element_by_class_name(
-            "bk-toolbar-button-custom-action"
-        )
+        button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
         button.click()
 
     def drag_canvas_at_position(self, x, y, dx, dy, mod=None):
@@ -290,9 +288,7 @@ class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 @pytest.fixture()
 def bokeh_server_page(driver, bokeh_app_info, has_no_console_errors):
     def func(modify_doc):
-        return _BokehServerPage(
-            modify_doc, driver, bokeh_app_info, has_no_console_errors
-        )
+        return _BokehServerPage(modify_doc, driver, bokeh_app_info, has_no_console_errors)
 
     return func
 

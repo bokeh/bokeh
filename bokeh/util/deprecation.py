@@ -62,9 +62,7 @@ def deprecated(
         if old is None or new is None:
             raise ValueError("deprecated entity and a replacement are required")
 
-        if len(since_or_msg) != 3 or not all(
-            isinstance(x, int) and x >= 0 for x in since_or_msg
-        ):
+        if len(since_or_msg) != 3 or not all(isinstance(x, int) and x >= 0 for x in since_or_msg):
             raise ValueError(f"invalid version tuple: {since_or_msg!r}")
 
         major, minor, patch = since_or_msg
@@ -74,9 +72,7 @@ def deprecated(
             message += " " + extra.strip()
     elif isinstance(since_or_msg, str):
         if not (old is None and new is None and extra is None):
-            raise ValueError(
-                "deprecated(message) signature doesn't allow extra arguments"
-            )
+            raise ValueError("deprecated(message) signature doesn't allow extra arguments")
 
         message = since_or_msg
     else:

@@ -172,12 +172,7 @@ def push_session(document, session_id=None, url="default", io_loop=None):
 
 
 def show_session(
-    session_id=None,
-    url="default",
-    session=None,
-    browser=None,
-    new="tab",
-    controller=None,
+    session_id=None, url="default", session=None, browser=None, new="tab", controller=None
 ):
     """ Open a browser displaying a session document.
 
@@ -221,9 +216,7 @@ def show_session(
 
         controller = get_browser_controller(browser=browser)
 
-    controller.open(
-        server_url + "?bokeh-session-id=" + quote_plus(session_id), new=NEW_PARAM[new]
-    )
+    controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id), new=NEW_PARAM[new])
 
 
 class ClientSession(object):
@@ -292,10 +285,7 @@ class ClientSession(object):
         from .connection import ClientConnection
 
         self._connection = ClientConnection(
-            session=self,
-            io_loop=io_loop,
-            websocket_url=websocket_url,
-            arguments=arguments,
+            session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments
         )
 
         from ..server.callbacks import _DocumentCallbackGroup
@@ -463,9 +453,7 @@ class ClientSession(object):
 
     def _document_patched(self, event):
         if event.setter is self:
-            log.debug(
-                "Not sending notification back to server for a change it requested"
-            )
+            log.debug("Not sending notification back to server for a change it requested")
             return
 
         # TODO (havocp): our "change sync" protocol is flawed

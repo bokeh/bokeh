@@ -46,9 +46,7 @@ def _read_data():
 
     """
     df = package_csv(
-        "daylight",
-        "daylight_warsaw_2013.csv",
-        parse_dates=["Date", "Sunrise", "Sunset"],
+        "daylight", "daylight_warsaw_2013.csv", parse_dates=["Date", "Sunrise", "Sunset"]
     )
 
     df["Date"] = df.Date.map(lambda x: x.date())

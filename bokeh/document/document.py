@@ -62,11 +62,7 @@ from .events import (
     TitleChangedEvent,
 )
 from .locking import UnlockedDocumentProxy
-from .util import (
-    initialize_references_json,
-    instantiate_references_json,
-    references_json,
-)
+from .util import initialize_references_json, instantiate_references_json, references_json
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -418,8 +414,7 @@ class Document(object):
                 source_id = event_json["column_source"]["id"]
                 if source_id not in self._all_models:
                     raise RuntimeError(
-                        "Cannot apply patch to %s which is not in the document"
-                        % (str(source_id))
+                        "Cannot apply patch to %s which is not in the document" % (str(source_id))
                     )
                 source = self._all_models[source_id]
                 value = event_json["new"]
@@ -429,8 +424,7 @@ class Document(object):
                 source_id = event_json["column_source"]["id"]
                 if source_id not in self._all_models:
                     raise RuntimeError(
-                        "Cannot stream to %s which is not in the document"
-                        % (str(source_id))
+                        "Cannot stream to %s which is not in the document" % (str(source_id))
                     )
                 source = self._all_models[source_id]
                 data = event_json["data"]
@@ -441,8 +435,7 @@ class Document(object):
                 source_id = event_json["column_source"]["id"]
                 if source_id not in self._all_models:
                     raise RuntimeError(
-                        "Cannot apply patch to %s which is not in the document"
-                        % (str(source_id))
+                        "Cannot apply patch to %s which is not in the document" % (str(source_id))
                     )
                 source = self._all_models[source_id]
                 patches = event_json["patches"]
@@ -620,9 +613,7 @@ class Document(object):
             Model or None
 
         """
-        return self._all_models_by_name.get_one(
-            name, "Found more than one model named '%s'" % name
-        )
+        return self._all_models_by_name.get_one(name, "Found more than one model named '%s'" % name)
 
     def hold(self, policy="combine"):
         """ Activate a document hold.
@@ -664,9 +655,7 @@ class Document(object):
 
         """
         if self._hold is not None and self._hold != policy:
-            log.warning(
-                "hold already active with '%s', ignoring '%s'" % (self._hold, policy)
-            )
+            log.warning("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
             return
         if policy not in HoldPolicy:
             raise ValueError("Unknown hold policy %r" % policy)
@@ -850,9 +839,7 @@ class Document(object):
         """
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError(
-                "Found more than one model matching %s: %r" % (selector, result)
-            )
+            raise ValueError("Found more than one model matching %s: %r" % (selector, result))
         if len(result) == 0:
             return None
         return result[0]
@@ -906,10 +893,7 @@ class Document(object):
 
         json = {
             "title": self.title,
-            "roots": {
-                "root_ids": root_ids,
-                "references": references_json(root_references),
-            },
+            "roots": {"root_ids": root_ids, "references": references_json(root_references)},
             "version": __version__,
         }
 
@@ -1003,9 +987,7 @@ class Document(object):
             if r.document is not None:
                 raise RuntimeError("Somehow we didn't detach %r" % (r))
         if len(self._all_models) != 0:
-            raise RuntimeError(
-                "_all_models still had stuff in it: %r" % (self._all_models)
-            )
+            raise RuntimeError("_all_models still had stuff in it: %r" % (self._all_models))
         for r in roots:
             dest_doc.add_root(r)
 
@@ -1031,9 +1013,7 @@ class Document(object):
             return False
         return isinstance(selector[field], str)
 
-    def _notify_change(
-        self, model, attr, old, new, hint=None, setter=None, callback_invoker=None
-    ):
+    def _notify_change(self, model, attr, old, new, hint=None, setter=None, callback_invoker=None):
         """ Called by Model when it changes
 
         """
@@ -1050,15 +1030,7 @@ class Document(object):
             serializable_new = None
 
         event = ModelChangedEvent(
-            self,
-            model,
-            attr,
-            old,
-            new,
-            serializable_new,
-            hint,
-            setter,
-            callback_invoker,
+            self, model, attr, old, new, serializable_new, hint, setter, callback_invoker
         )
         self._trigger_on_change(event)
 
@@ -1115,9 +1087,7 @@ class Document(object):
         try:
             callback_objs = [callback_obj]
             self._session_callbacks.remove(callback_obj)
-            for cb, cb_objs in list(
-                self._callback_objs_by_callable[originator].items()
-            ):
+            for cb, cb_objs in list(self._callback_objs_by_callable[originator].items()):
                 try:
                     cb_objs.remove(callback_obj)
                     if not cb_objs:
@@ -1125,9 +1095,7 @@ class Document(object):
                 except KeyError:
                     pass
         except KeyError:
-            raise ValueError(
-                "callback already ran or was already removed, cannot be removed again"
-            )
+            raise ValueError("callback already ran or was already removed, cannot be removed again")
         # emit event so the session is notified and can remove the callback
         for callback_obj in callback_objs:
             self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))

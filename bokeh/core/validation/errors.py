@@ -108,10 +108,7 @@ codes = {
     1002: ("MISSING_GLYPH", "Glyph renderer has no glyph set"),
     1003: ("NO_SOURCE_FOR_GLYPH", "Glyph renderer has no data source"),
     1004: ("REQUIRED_RANGE", "A required Range object is missing"),
-    1005: (
-        "MISSING_GOOGLE_API_KEY",
-        "Google now requires API keys for all Google Maps usage",
-    ),
+    1005: ("MISSING_GOOGLE_API_KEY", "Google now requires API keys for all Google Maps usage"),
     1006: (
         "NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS",
         "LegendItem.label is a field, but renderer data sources don't match",

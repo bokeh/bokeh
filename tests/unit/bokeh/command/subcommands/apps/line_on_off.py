@@ -19,9 +19,7 @@ l0 = p.line(x, np.sin(x), color=Viridis3[0], legend_label="Line 0", **props)
 l1 = p.line(x, 4 * np.cos(x), color=Viridis3[1], legend_label="Line 1", **props)
 l2 = p.line(x, np.tan(x), color=Viridis3[2], legend_label="Line 2", **props)
 
-checkbox = CheckboxGroup(
-    labels=["Line 0", "Line 1", "Line 2"], active=[0, 1, 2], width=100
-)
+checkbox = CheckboxGroup(labels=["Line 0", "Line 1", "Line 2"], active=[0, 1, 2], width=100)
 
 
 def update(attr, old, new):

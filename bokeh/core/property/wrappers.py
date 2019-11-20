@@ -379,9 +379,7 @@ class PropertyValueColumnData(PropertyValueDict):
     def update(self, *args, **kwargs):
         old = self._saved_copy()
 
-        result = super(PropertyValueDict, self).update(
-            *args, **kwargs
-        )  # note super special case
+        result = super(PropertyValueDict, self).update(*args, **kwargs)  # note super special case
 
         from ...document.events import ColumnDataChangedEvent
 
@@ -443,9 +441,7 @@ class PropertyValueColumnData(PropertyValueDict):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
                     data = data[-rollover:]
-                super(PropertyValueDict, self).__setitem__(
-                    k, data
-                )  # note super special case
+                super(PropertyValueDict, self).__setitem__(k, data)  # note super special case
             else:
                 L = self[k]
                 L.extend(new_data[k])
@@ -454,9 +450,7 @@ class PropertyValueColumnData(PropertyValueDict):
 
         from ...document.events import ColumnsStreamedEvent
 
-        self._notify_owners(
-            old, hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter)
-        )
+        self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc, source, patches, setter=None):
@@ -492,9 +486,7 @@ class PropertyValueColumnData(PropertyValueDict):
                     self[name][ind] = value
                 else:
                     shape = self[name][ind[0]][tuple(ind[1:])].shape
-                    self[name][ind[0]][tuple(ind[1:])] = np.array(
-                        value, copy=False
-                    ).reshape(shape)
+                    self[name][ind[0]][tuple(ind[1:])] = np.array(value, copy=False).reshape(shape)
 
         from ...document.events import ColumnsPatchedEvent
 

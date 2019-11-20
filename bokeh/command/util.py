@@ -127,9 +127,7 @@ def build_single_handler_application(path, argv=None):
                 warnings.warn(DIRSTYLE_MAIN_WARNING)
             handler = ScriptHandler(filename=path, argv=argv)
         else:
-            raise ValueError(
-                "Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path
-            )
+            raise ValueError("Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path)
     else:
         raise ValueError("Path for Bokeh server application does not exist: %s" % path)
 
@@ -210,9 +208,7 @@ def report_server_init_errors(address=None, port=None, **kwargs):
         if e.errno == errno.EADDRINUSE:
             log.critical("Cannot start Bokeh server, port %s is already in use", port)
         elif e.errno == errno.EADDRNOTAVAIL:
-            log.critical(
-                "Cannot start Bokeh server, address '%s' not available", address
-            )
+            log.critical("Cannot start Bokeh server, address '%s' not available", address)
         else:
             codename = errno.errorcode[e.errno]
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)

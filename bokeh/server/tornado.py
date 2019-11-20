@@ -218,8 +218,7 @@ class BokehTornado(TornadoApplication):
                 log.info("Keep-alive ping disabled")
             elif keep_alive_milliseconds != DEFAULT_KEEP_ALIVE_MS:
                 log.info(
-                    "Keep-alive ping configured every %d milliseconds",
-                    keep_alive_milliseconds,
+                    "Keep-alive ping configured every %d milliseconds", keep_alive_milliseconds
                 )
         self._keep_alive_milliseconds = keep_alive_milliseconds
 
@@ -236,19 +235,14 @@ class BokehTornado(TornadoApplication):
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
         elif unused_session_lifetime_milliseconds != DEFAULT_UNUSED_LIFETIME_MS:
             log.info(
-                "Unused sessions last for %d milliseconds",
-                unused_session_lifetime_milliseconds,
+                "Unused sessions last for %d milliseconds", unused_session_lifetime_milliseconds
             )
-        self._unused_session_lifetime_milliseconds = (
-            unused_session_lifetime_milliseconds
-        )
+        self._unused_session_lifetime_milliseconds = unused_session_lifetime_milliseconds
 
         if stats_log_frequency_milliseconds <= 0:
             raise ValueError("stats_log_frequency_milliseconds must be > 0")
         elif stats_log_frequency_milliseconds != DEFAULT_STATS_LOG_FREQ_MS:
-            log.info(
-                "Log statistics every %d milliseconds", stats_log_frequency_milliseconds
-            )
+            log.info("Log statistics every %d milliseconds", stats_log_frequency_milliseconds)
         self._stats_log_frequency_milliseconds = stats_log_frequency_milliseconds
 
         if mem_log_frequency_milliseconds < 0:
@@ -262,17 +256,12 @@ class BokehTornado(TornadoApplication):
                 )
                 mem_log_frequency_milliseconds = 0
             elif mem_log_frequency_milliseconds != DEFAULT_MEM_LOG_FREQ_MS:
-                log.info(
-                    "Log memory usage every %d milliseconds",
-                    mem_log_frequency_milliseconds,
-                )
+                log.info("Log memory usage every %d milliseconds", mem_log_frequency_milliseconds)
         self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
 
         if websocket_max_message_size_bytes <= 0:
             raise ValueError("websocket_max_message_size_bytes must be positive")
-        elif (
-            websocket_max_message_size_bytes != DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
-        ):
+        elif websocket_max_message_size_bytes != DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES:
             log.info(
                 "Torndado websocket_max_message_size set to %d bytes (%0.2f MB)",
                 websocket_max_message_size_bytes,
@@ -298,8 +287,7 @@ class BokehTornado(TornadoApplication):
         self._sign_sessions = sign_sessions
         self._generate_session_ids = generate_session_ids
         log.debug(
-            "These host origins can connect to the websocket: %r",
-            list(self._websocket_origins),
+            "These host origins can connect to the websocket: %r", list(self._websocket_origins)
         )
 
         # Wrap applications in ApplicationContext
@@ -321,9 +309,7 @@ class BokehTornado(TornadoApplication):
                 else:
                     route = key + p[0]
                 route = self._prefix + route
-                app_patterns.append(
-                    (route, p[1], {"application_context": self._applications[key]})
-                )
+                app_patterns.append((route, p[1], {"application_context": self._applications[key]}))
 
             websocket_path = None
             for r in app_patterns:
@@ -343,9 +329,7 @@ class BokehTornado(TornadoApplication):
                 else:
                     route = key + "/static/(.*)"
                 route = self._prefix + route
-                all_patterns.append(
-                    (route, StaticFileHandler, {"path": app.static_path})
-                )
+                all_patterns.append((route, StaticFileHandler, {"path": app.static_path}))
 
         for p in extra_patterns + toplevel_patterns:
             if p[1] == RootHandler:
@@ -367,9 +351,7 @@ class BokehTornado(TornadoApplication):
             log.debug("  " + line)
 
         super().__init__(
-            all_patterns,
-            websocket_max_message_size=websocket_max_message_size_bytes,
-            **kwargs,
+            all_patterns, websocket_max_message_size=websocket_max_message_size_bytes, **kwargs
         )
 
     def initialize(self, io_loop):
@@ -383,14 +365,10 @@ class BokehTornado(TornadoApplication):
 
         self._clients = set()
 
-        self._stats_job = PeriodicCallback(
-            self._log_stats, self._stats_log_frequency_milliseconds
-        )
+        self._stats_job = PeriodicCallback(self._log_stats, self._stats_log_frequency_milliseconds)
 
         if self._mem_log_frequency_milliseconds > 0:
-            self._mem_job = PeriodicCallback(
-                self._log_mem, self._mem_log_frequency_milliseconds
-            )
+            self._mem_job = PeriodicCallback(self._log_mem, self._mem_log_frequency_milliseconds)
         else:
             self._mem_job = None
 
@@ -399,9 +377,7 @@ class BokehTornado(TornadoApplication):
         )
 
         if self._keep_alive_milliseconds > 0:
-            self._ping_job = PeriodicCallback(
-                self._keep_alive, self._keep_alive_milliseconds
-            )
+            self._ping_job = PeriodicCallback(self._keep_alive, self._keep_alive_milliseconds)
         else:
             self._ping_job = None
 
@@ -480,13 +456,9 @@ class BokehTornado(TornadoApplication):
         """
         mode = settings.resources(default="server")
         if mode == "server":
-            root_url = (
-                urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-            )
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
             return Resources(
-                mode="server",
-                root_url=root_url,
-                path_versioner=StaticHandler.append_version,
+                mode="server", root_url=root_url, path_versioner=StaticHandler.append_version
             )
         return Resources(mode=mode)
 
@@ -626,11 +598,7 @@ class BokehTornado(TornadoApplication):
         from ..model import Model
         from .session import ServerSession
 
-        for name, typ in [
-            ("Documents", Document),
-            ("Sessions", ServerSession),
-            ("Models", Model),
-        ]:
+        for name, typ in [("Documents", Document), ("Sessions", ServerSession), ("Models", Model)]:
             objs = [x for x in gc.get_objects() if isinstance(x, typ)]
             log.debug("  uncollected %s: %d", name, len(objs))
 

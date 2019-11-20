@@ -244,9 +244,7 @@ class ClientConnection(object):
         formatted_url = "%s?bokeh-session-id=%s" % (self._url, self._session.id)
         if self._arguments is not None:
             for key, value in self._arguments.items():
-                formatted_url += "&{}={}".format(
-                    quote_plus(str(key)), quote_plus(str(value))
-                )
+                formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
         return formatted_url
 
     async def _connect_async(self):
@@ -368,9 +366,7 @@ class ClientConnection(object):
         msg = self._protocol.create("SERVER-INFO-REQ")
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
-            raise RuntimeError(
-                "Did not get a reply to server info request before disconnect"
-            )
+            raise RuntimeError("Did not get a reply to server info request before disconnect")
         return reply.content
 
     def _tell_session_about_disconnect(self):

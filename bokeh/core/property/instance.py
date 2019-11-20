@@ -49,9 +49,7 @@ class Instance(Property):
 
     """
 
-    def __init__(
-        self, instance_type, default=None, help=None, readonly=False, serialized=True
-    ):
+    def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
         if not isinstance(instance_type, (type, str)):
             raise ValueError("expected a type or string, got %s" % instance_type)
 
@@ -87,9 +85,7 @@ class Instance(Property):
 
             if issubclass(self.instance_type, Model):
                 if models is None:
-                    raise DeserializationError(
-                        "%s can't deserialize without models" % self
-                    )
+                    raise DeserializationError("%s can't deserialize without models" % self)
                 else:
                     model = models.get(json["id"])
 
@@ -110,9 +106,7 @@ class Instance(Property):
                 # Serialization dict must carry type information to resolve this.
                 return self.instance_type(**attrs)
         else:
-            raise DeserializationError(
-                "%s expected a dict or None, got %s" % (self, json)
-            )
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -132,10 +126,7 @@ class Instance(Property):
         return True
 
     def _sphinx_type(self):
-        fullname = "%s.%s" % (
-            self.instance_type.__module__,
-            self.instance_type.__name__,
-        )
+        fullname = "%s.%s" % (self.instance_type.__module__, self.instance_type.__name__)
         return self._sphinx_prop_link() + "( %s )" % self._sphinx_model_link(fullname)
 
 

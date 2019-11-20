@@ -117,19 +117,13 @@ class BaseResources(object):
             )
 
         if self.root_dir and not self.mode.startswith("relative"):
-            raise ValueError(
-                "setting 'root_dir' makes sense only when 'mode' is set to 'relative'"
-            )
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
 
         if self.version and not self.mode.startswith("cdn"):
-            raise ValueError(
-                "setting 'version' makes sense only when 'mode' is set to 'cdn'"
-            )
+            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
 
         if root_url and not self.mode.startswith("server"):
-            raise ValueError(
-                "setting 'root_url' makes sense only when 'mode' is set to 'server'"
-            )
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
 
         self.dev = self.mode.endswith("-dev")
         if self.dev:
@@ -157,9 +151,7 @@ class BaseResources(object):
         valid_levels = ["trace", "debug", "info", "warn", "error", "fatal"]
         if not (level is None or level in valid_levels):
             raise ValueError(
-                "Unknown log level '{}', valid levels are: {}".format(
-                    level, str(valid_levels)
-                )
+                "Unknown log level '{}', valid levels are: {}".format(level, str(valid_levels))
             )
         self._log_level = level
 
@@ -180,10 +172,7 @@ class BaseResources(object):
 
     def _file_paths(self, kind):
         minified = ".min" if not self.dev and self.minified else ""
-        files = [
-            "%s%s.%s" % (component, minified, kind)
-            for component in self.components(kind)
-        ]
+        files = ["%s%s.%s" % (component, minified, kind) for component in self.components(kind)]
         paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
@@ -192,9 +181,7 @@ class BaseResources(object):
 
         external_resources = []
 
-        for _, cls in sorted(
-            Model.model_class_reverse_map.items(), key=lambda arg: arg[0]
-        ):
+        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external = getattr(cls, resource_attr, None)
 
             if isinstance(external, str):
@@ -527,9 +514,7 @@ def _get_cdn_urls(version=None, minified=True):
         return "%s/%s/%s-%s%s.%s" % (base_url, container, comp, version, _min, kind)
 
     result = {
-        "urls": lambda components, kind: [
-            mk_url(component, kind) for component in components
-        ],
+        "urls": lambda components, kind: [mk_url(component, kind) for component in components],
         "messages": [],
     }
 
@@ -539,8 +524,7 @@ def _get_cdn_urls(version=None, minified=True):
                 "type": "warn",
                 "text": (
                     "Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. "
-                    "This configuration is unsupported and may not work!"
-                    % (version, __version__)
+                    "This configuration is unsupported and may not work!" % (version, __version__)
                 ),
             }
         )
@@ -558,9 +542,7 @@ def _get_server_urls(root_url, minified=True, path_versioner=None):
         return "%sstatic/%s" % (root_url, path)
 
     return {
-        "urls": lambda components, kind: [
-            mk_url(component, kind) for component in components
-        ],
+        "urls": lambda components, kind: [mk_url(component, kind) for component in components],
         "messages": [],
     }
 

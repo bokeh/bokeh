@@ -91,6 +91,4 @@ class Test_DocumentLifecycleHandler(object):
         handler = bahd.DocumentLifecycleHandler()
         session_context = MockSessionContext(doc)
         await handler.on_session_destroyed(session_context)
-        assert (
-            session_context.counter == 3
-        ), "DocumentLifecycleHandler did not call all callbacks"
+        assert session_context.counter == 3, "DocumentLifecycleHandler did not call all callbacks"

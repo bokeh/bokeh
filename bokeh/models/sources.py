@@ -223,9 +223,7 @@ class ColumnDataSource(ColumnarDataSource):
             elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             else:
-                raise ValueError(
-                    "expected a dict or pandas.DataFrame, got %s" % raw_data
-                )
+                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         super().__init__(**kw)
         self.data.update(raw_data)
 
@@ -365,9 +363,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         """
         if not pd:
-            raise RuntimeError(
-                "Pandas must be installed to convert to a Pandas Dataframe"
-            )
+            raise RuntimeError("Pandas must be installed to convert to a Pandas Dataframe")
         return pd.DataFrame(self.data)
 
     def add(self, data, name=None):
@@ -694,8 +690,7 @@ class ColumnDataSource(ColumnarDataSource):
                 if isinstance(ind, int):
                     if ind > col_len or ind < 0:
                         raise ValueError(
-                            "Out-of bounds index (%d) in patch for column: %s"
-                            % (ind, name)
+                            "Out-of bounds index (%d) in patch for column: %s" % (ind, name)
                         )
 
                 # slice index, patch multiple values of 1d column
@@ -713,14 +708,11 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError("Empty (length zero) patch multi-index")
 
                     if len(ind) == 1:
-                        raise ValueError(
-                            "Patch multi-index must contain more than one subindex"
-                        )
+                        raise ValueError("Patch multi-index must contain more than one subindex")
 
                     if not isinstance(ind[0], int):
                         raise ValueError(
-                            "Initial patch sub-index may only be integer, got: %s"
-                            % ind[0]
+                            "Initial patch sub-index may only be integer, got: %s" % ind[0]
                         )
 
                     if ind[0] > col_len or ind[0] < 0:
@@ -730,14 +722,10 @@ class ColumnDataSource(ColumnarDataSource):
                         )
 
                     if not isinstance(self.data[name][ind[0]], np.ndarray):
-                        raise ValueError(
-                            "Can only sub-patch into columns with NumPy array items"
-                        )
+                        raise ValueError("Can only sub-patch into columns with NumPy array items")
 
                     if len(self.data[name][ind[0]].shape) != (len(ind) - 1):
-                        raise ValueError(
-                            "Shape mismatch between patch slice and sliced data"
-                        )
+                        raise ValueError("Shape mismatch between patch slice and sliced data")
 
                     elif isinstance(ind[0], slice):
                         _check_slice(ind[0])

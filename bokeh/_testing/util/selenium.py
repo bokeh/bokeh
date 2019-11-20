@@ -229,9 +229,7 @@ def get_table_column_cells(driver, col):
 
 
 def get_table_row(driver, row):
-    return driver.find_element_by_css_selector(
-        ".grid-canvas .slick-row:nth-child(%d)" % row
-    )
+    return driver.find_element_by_css_selector(".grid-canvas .slick-row:nth-child(%d)" % row)
 
 
 def get_table_selected_rows(driver):

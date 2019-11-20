@@ -86,14 +86,7 @@ from .theme import Theme
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "CALIBER",
-    "DARK_MINIMAL",
-    "LIGHT_MINIMAL",
-    "Theme",
-    "built_in_themes",
-    "default",
-)
+__all__ = ("CALIBER", "DARK_MINIMAL", "LIGHT_MINIMAL", "Theme", "built_in_themes", "default")
 
 # -----------------------------------------------------------------------------
 # General API

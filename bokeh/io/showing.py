@@ -37,14 +37,7 @@ __all__ = ("show",)
 # -----------------------------------------------------------------------------
 
 
-def show(
-    obj,
-    browser=None,
-    new="tab",
-    notebook_handle=False,
-    notebook_url="localhost:8888",
-    **kw,
-):
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
     """ Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -141,9 +134,7 @@ def show(
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if is_application or callable(obj):
-        return run_notebook_hook(
-            state.notebook_type, "app", obj, state, notebook_url, **kw
-        )
+        return run_notebook_hook(state.notebook_type, "app", obj, state, notebook_url, **kw)
 
     return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
@@ -182,9 +173,7 @@ def _show_with_state(obj, state, browser, new, notebook_handle=False):
     shown = False
 
     if state.notebook:
-        comms_handle = run_notebook_hook(
-            state.notebook_type, "doc", obj, state, notebook_handle
-        )
+        comms_handle = run_notebook_hook(state.notebook_type, "doc", obj, state, notebook_handle)
         shown = True
 
     if state.file or not shown:

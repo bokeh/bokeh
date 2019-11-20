@@ -163,10 +163,7 @@ class State(object):
         }
 
         if os.path.isfile(filename):
-            log.info(
-                "Session output file '%s' already exists, will be overwritten."
-                % filename
-            )
+            log.info("Session output file '%s' already exists, will be overwritten." % filename)
 
     def output_notebook(self, notebook_type="jupyter"):
         """ Generate output in notebook cells.

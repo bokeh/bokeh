@@ -56,32 +56,22 @@ class AutoloadJsHandler(SessionHandler):
 
         element_id = self.get_argument("bokeh-autoload-element", default=None)
         if not element_id:
-            self.send_error(
-                status_code=400, reason="No bokeh-autoload-element query parameter"
-            )
+            self.send_error(status_code=400, reason="No bokeh-autoload-element query parameter")
             return
 
         app_path = self.get_argument("bokeh-app-path", default="/")
         absolute_url = self.get_argument("bokeh-absolute-url", default=None)
 
         if absolute_url:
-            server_url = "{uri.scheme}://{uri.netloc}".format(
-                uri=urlparse(absolute_url)
-            )
+            server_url = "{uri.scheme}://{uri.netloc}".format(uri=urlparse(absolute_url))
         else:
             server_url = None
 
         resources_param = self.get_argument("resources", "default")
-        resources = (
-            self.application.resources(server_url)
-            if resources_param != "none"
-            else None
-        )
+        resources = self.application.resources(server_url) if resources_param != "none" else None
         bundle = bundle_for_objs_and_resources(None, resources)
 
-        render_items = [
-            RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)
-        ]
+        render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
         bundle.add(
             Script(
                 script_for_render_items(

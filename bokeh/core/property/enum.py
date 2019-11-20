@@ -57,10 +57,7 @@ class Enum(String):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s)" % (
-            self.__class__.__name__,
-            ", ".join(map(repr, self.allowed_values)),
-        )
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
 
     @property
     def allowed_values(self):
@@ -83,9 +80,7 @@ class Enum(String):
         if self._enum in enums.__dict__.values():
             for name, obj in enums.__dict__.items():
                 if self._enum is obj:
-                    val = self._sphinx_model_link(
-                        "%s.%s" % (self._enum.__module__, name)
-                    )
+                    val = self._sphinx_model_link("%s.%s" % (self._enum.__module__, name))
         else:
             val = str(self._enum)
         return self._sphinx_prop_link() + "( %s )" % val

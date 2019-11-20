@@ -252,9 +252,7 @@ class PropertyDescriptor(object):
 
         name = self.name
         if name in new_class_attrs:
-            raise RuntimeError(
-                "Two property generators both created %s.%s" % (class_name, name)
-            )
+            raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
         new_class_attrs[name] = self
 
         if self.has_ref:
@@ -544,9 +542,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             )
 
         if self.property._readonly:
-            raise RuntimeError(
-                "%s.%s is a readonly property" % (obj.__class__.__name__, self.name)
-            )
+            raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
         self._internal_set(obj, value, setter=setter)
 
@@ -590,9 +586,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             object
 
         """
-        return self.property.themed_default(
-            obj.__class__, self.name, obj.themed_values()
-        )
+        return self.property.themed_default(obj.__class__, self.name, obj.themed_values())
 
     def set_from_json(self, obj, json, models=None, setter=None):
         """ Sets the value of this property from a JSON value.
@@ -621,9 +615,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         """
-        return super().set_from_json(
-            obj, self.property.from_json(json, models), models, setter
-        )
+        return super().set_from_json(obj, self.property.from_json(json, models), models, setter)
 
     def trigger_if_changed(self, obj, old):
         """ Send a change event notification if the property is set to a
@@ -984,9 +976,7 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
             )
 
         if self.property._readonly:
-            raise RuntimeError(
-                "%s.%s is a readonly property" % (obj.__class__.__name__, self.name)
-            )
+            raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
         if isinstance(value, PropertyValueColumnData):
             raise ValueError(_CDS_SET_FROM_CDS_ERROR)

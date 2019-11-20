@@ -110,9 +110,7 @@ class Test_js_link(object):
         m2 = SomeModel()
         with pytest.raises(ValueError) as e:
             m1.js_link("a", m2, "junk")
-        assert str(e.value).endswith(
-            "%r is not a property of other (%r)" % ("junk", m2)
-        )
+        assert str(e.value).endswith("%r is not a property of other (%r)" % ("junk", m2))
 
     def test_creates_customjs(self):
         m1 = SomeModel()

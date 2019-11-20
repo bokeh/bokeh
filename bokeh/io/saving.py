@@ -42,9 +42,7 @@ __all__ = ("save",)
 # -----------------------------------------------------------------------------
 
 
-def save(
-    obj, filename=None, resources=None, title=None, template=None, state=None, **kwargs
-):
+def save(obj, filename=None, resources=None, title=None, template=None, state=None, **kwargs):
     """ Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided

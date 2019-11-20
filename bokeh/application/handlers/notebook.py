@@ -56,9 +56,7 @@ class NotebookHandler(CodeHandler):
 
     """
 
-    _logger_text = (
-        "%s: call to %s() ignored when running notebooks with the 'bokeh' command."
-    )
+    _logger_text = "%s: call to %s() ignored when running notebooks with the 'bokeh' command."
 
     _origin = "Notebook"
 
@@ -100,9 +98,7 @@ class NotebookHandler(CodeHandler):
                         filtered.append(line)
                     else:
                         msg = "Stripping out IPython magic {magic} in code cell {cell}"
-                        message = msg.format(
-                            cell=self._cell_counter, magic=match.group("magic")
-                        )
+                        message = msg.format(cell=self._cell_counter, magic=match.group("magic"))
                         log.warning(message)
                 return "\n".join(filtered)
 

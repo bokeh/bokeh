@@ -173,11 +173,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present():
     layout = Plot(
-        x_range=Range1d(),
-        y_range=Range1d(),
-        plot_height=20,
-        plot_width=20,
-        toolbar_location=None,
+        x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None
     )
 
     svgs = bie.get_svgs(layout)
@@ -229,10 +225,7 @@ def test_get_layout_html_resets_plot_dims():
     initial_height, initial_width = 200, 250
 
     layout = Plot(
-        x_range=Range1d(),
-        y_range=Range1d(),
-        plot_height=initial_height,
-        plot_width=initial_width,
+        x_range=Range1d(), y_range=Range1d(), plot_height=initial_height, plot_width=initial_width
     )
 
     bie.get_layout_html(layout, height=100, width=100)
@@ -267,9 +260,7 @@ def test_layout_html_on_parent_first():
 @patch("PIL.Image.Image")
 def test__crop_image_args(mock_Image):
     image = mock_Image()
-    bie._crop_image(
-        image, left="left", right="right", top="top", bottom="bottom", extra=10
-    )
+    bie._crop_image(image, left="left", right="right", top="top", bottom="bottom", extra=10)
     assert image.crop.call_count == 1
     assert image.crop.call_args[0] == (("left", "top", "right", "bottom"),)
     assert image.crop.call_args[1] == {}

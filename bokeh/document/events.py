@@ -211,9 +211,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
 
         """
-        if setter is None and isinstance(
-            hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)
-        ):
+        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
             setter = hint.setter
         super().__init__(document, setter, callback_invoker)
         self.model = model
@@ -305,12 +303,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
         references.update(value_refs)
 
-        return {
-            "kind": "ModelChanged",
-            "model": self.model.ref,
-            "attr": self.attr,
-            "new": value,
-        }
+        return {"kind": "ModelChanged", "model": self.model.ref, "attr": self.attr, "new": value}
 
 
 class ColumnDataChangedEvent(DocumentPatchedEvent):
@@ -319,9 +312,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     """
 
-    def __init__(
-        self, document, column_source, cols=None, setter=None, callback_invoker=None
-    ):
+    def __init__(self, document, column_source, cols=None, setter=None, callback_invoker=None):
         """
 
         Args:
@@ -412,15 +403,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     """
 
-    def __init__(
-        self,
-        document,
-        column_source,
-        data,
-        rollover,
-        setter=None,
-        callback_invoker=None,
-    ):
+    def __init__(self, document, column_source, data, rollover, setter=None, callback_invoker=None):
         """
 
         Args:
@@ -515,9 +498,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
     """
 
-    def __init__(
-        self, document, column_source, patches, setter=None, callback_invoker=None
-    ):
+    def __init__(self, document, column_source, patches, setter=None, callback_invoker=None):
         """
 
         Args:

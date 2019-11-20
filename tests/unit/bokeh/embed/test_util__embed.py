@@ -161,9 +161,7 @@ class Test_OutputDocumentFor_general(object):
         assert check_integrity.called
 
     @patch("bokeh.document.document.check_integrity")
-    def test_doesnt_validate_doc_due_to_env_var(
-        self, check_integrity, monkeypatch, test_plot
-    ):
+    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot):
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         with beu.OutputDocumentFor([test_plot]):
             pass
@@ -341,9 +339,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         orig_theme = d.theme
         d.add_root(p1)
         d.add_root(p2)
-        with beu.OutputDocumentFor(
-            [p1, p2], always_new=True, apply_theme=Theme(json={})
-        ):
+        with beu.OutputDocumentFor([p1, p2], always_new=True, apply_theme=Theme(json={})):
             assert p1.document is not d
             assert p2.document is not d
             assert p1.document is p2.document
@@ -462,9 +458,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         orig_theme = d.theme
         d.add_root(p1)
         d.add_root(p2)
-        with beu.OutputDocumentFor(
-            [p1, p2], always_new=True, apply_theme=beu.FromCurdoc
-        ):
+        with beu.OutputDocumentFor([p1, p2], always_new=True, apply_theme=beu.FromCurdoc):
             assert p1.document is not d
             assert p2.document is not d
             assert p1.document is p2.document
@@ -593,9 +587,7 @@ class Test_standalone_docs_json_and_render_items(object):
         assert len(m1._event_callbacks) != 0
 
         with caplog.at_level(logging.WARN):
-            beu.standalone_docs_json_and_render_items(
-                m1, suppress_callback_warning=True
-            )
+            beu.standalone_docs_json_and_render_items(m1, suppress_callback_warning=True)
             assert len(caplog.records) == 0
             assert caplog.text == ""
 

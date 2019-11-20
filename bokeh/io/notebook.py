@@ -304,13 +304,9 @@ def run_notebook_hook(notebook_type, action, *args, **kw):
 
     """
     if notebook_type not in _HOOKS:
-        raise RuntimeError(
-            "no display hook installed for notebook type %r" % notebook_type
-        )
+        raise RuntimeError("no display hook installed for notebook type %r" % notebook_type)
     if _HOOKS[notebook_type][action] is None:
-        raise RuntimeError(
-            "notebook hook for %r did not install %r action" % notebook_type, action
-        )
+        raise RuntimeError("notebook hook for %r did not install %r action" % notebook_type, action)
     return _HOOKS[notebook_type][action](*args, **kw)
 
 
@@ -405,21 +401,13 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
             js_info = "inline"
             css_info = "inline"
         else:
-            js_info = (
-                resources.js_files[0]
-                if len(resources.js_files) == 1
-                else resources.js_files
-            )
+            js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
             css_info = (
-                resources.css_files[0]
-                if len(resources.css_files) == 1
-                else resources.css_files
+                resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
             )
 
         warnings = [
-            "Warning: " + msg["text"]
-            for msg in resources.messages
-            if msg["type"] == "warn"
+            "Warning: " + msg["text"] for msg in resources.messages if msg["type"] == "warn"
         ]
         if _NOTEBOOK_LOADED and verbose:
             warnings.append("Warning: BokehJS previously loaded")
@@ -505,9 +493,7 @@ def show_app(app, state, notebook_url, port=0, **kw):
     else:
         origin = _origin_url(notebook_url)
 
-    server = Server(
-        {"/": app}, io_loop=loop, port=port, allow_websocket_origin=[origin], **kw
-    )
+    server = Server({"/": app}, io_loop=loop, port=port, allow_websocket_origin=[origin], **kw)
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
@@ -546,8 +532,7 @@ def show_doc(obj, state, notebook_handle):
 
     publish_display_data({HTML_MIME_TYPE: div})
     publish_display_data(
-        {JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""},
-        metadata={EXEC_MIME_TYPE: {"id": obj.id}},
+        {JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}}
     )
 
     # Comms handling relies on the fact that the cell_doc returned by

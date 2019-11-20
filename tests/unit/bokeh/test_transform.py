@@ -212,13 +212,7 @@ class Test_jitter(object):
 class Test_linear_cmap(object):
     def test_basic(self):
         t = bt.linear_cmap(
-            "foo",
-            ["red", "green"],
-            0,
-            10,
-            low_color="orange",
-            high_color="blue",
-            nan_color="pink",
+            "foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink"
         )
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -248,13 +242,7 @@ class Test_linear_cmap(object):
 class Test_log_cmap(object):
     def test_basic(self):
         t = bt.log_cmap(
-            "foo",
-            ["red", "green"],
-            0,
-            10,
-            low_color="orange",
-            high_color="blue",
-            nan_color="pink",
+            "foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink"
         )
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}

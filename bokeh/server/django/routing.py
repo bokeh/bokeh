@@ -30,10 +30,7 @@ from django.urls.resolvers import URLPattern
 from bokeh.application import Application
 from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
 from bokeh.application.handlers.function import FunctionHandler
-from bokeh.command.util import (
-    build_single_handler_application,
-    build_single_handler_applications,
-)
+from bokeh.command.util import build_single_handler_application, build_single_handler_applications
 from bokeh.server.contexts import ApplicationContext
 
 # Bokeh imports
@@ -60,12 +57,7 @@ class Routing:
     autoload: bool
 
     def __init__(
-        self,
-        url: str,
-        app: ApplicationLike,
-        *,
-        document: bool = False,
-        autoload: bool = False,
+        self, url: str, app: ApplicationLike, *, document: bool = False, autoload: bool = False
     ) -> None:
         self.url = url
         self.app = self._fixup(self._normalize(app))
@@ -82,9 +74,7 @@ class Routing:
             return obj
 
     def _fixup(self, app: Application) -> Application:
-        if not any(
-            isinstance(handler, DocumentLifecycleHandler) for handler in app.handlers
-        ):
+        if not any(isinstance(handler, DocumentLifecycleHandler) for handler in app.handlers):
             app.add(DocumentLifecycleHandler())
         return app
 
@@ -104,14 +94,9 @@ def directory(*apps_paths: Path) -> List[Routing]:
         if apps_path.exists():
             paths += [entry for entry in apps_path.glob("*") if is_bokeh_app(entry)]
         else:
-            log.warn(
-                "bokeh applications directory '{}' doesn't exist".format(apps_path)
-            )
+            log.warn("bokeh applications directory '{}' doesn't exist".format(apps_path))
 
-    return [
-        document(url, app)
-        for url, app in build_single_handler_applications(paths).items()
-    ]
+    return [document(url, app) for url, app in build_single_handler_applications(paths).items()]
 
 
 class RoutingConfiguration(object):
@@ -133,9 +118,7 @@ class RoutingConfiguration(object):
         kwargs = dict(app_context=routing.app_context)
 
         def join(*components):
-            return "/".join(
-                [component.strip("/") for component in components if component]
-            )
+            return "/".join([component.strip("/") for component in components if component])
 
         def urlpattern(suffix=""):
             return r"^{}$".format(join(re.escape(routing.url)) + suffix)
@@ -147,9 +130,7 @@ class RoutingConfiguration(object):
                 url(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs)
             )
 
-        self._websocket_urlpatterns.append(
-            url(urlpattern("/ws"), WSConsumer, kwargs=kwargs)
-        )
+        self._websocket_urlpatterns.append(url(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
 
 
 # -----------------------------------------------------------------------------
@@ -162,9 +143,9 @@ class RoutingConfiguration(object):
 
 
 def is_bokeh_app(entry: Path) -> bool:
-    return (
-        entry.is_dir() or entry.name.endswith((".py", ".ipynb"))
-    ) and not entry.name.startswith((".", "_"))
+    return (entry.is_dir() or entry.name.endswith((".py", ".ipynb"))) and not entry.name.startswith(
+        (".", "_")
+    )
 
 
 # -----------------------------------------------------------------------------

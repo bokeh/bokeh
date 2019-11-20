@@ -134,9 +134,7 @@ class TestPatchDocument(object):
         sample.on_change(sample_document_callback_assert)
 
         # Model property changed
-        event = ModelChangedEvent(
-            sample, root, "child", root.child, new_child, new_child
-        )
+        event = ModelChangedEvent(sample, root, "child", root.child, new_child, new_child)
         msg = proto.create("PATCH-DOC", [event])
         msg.apply_to_document(sample, mock_session)
         assert msg.buffers == []

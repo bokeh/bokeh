@@ -19,12 +19,7 @@ import pytest  # noqa isort:skip
 from time import sleep
 
 # Bokeh imports
-from bokeh._testing.util.selenium import (
-    RECORD,
-    ActionChains,
-    Keys,
-    select_element_and_press_key,
-)
+from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, select_element_and_press_key
 from bokeh.layouts import column
 from bokeh.models import (
     Circle,
@@ -56,16 +51,12 @@ def drag_slider(driver, css_class, location, distance):
 
 def get_title_text(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector(
-        "div.bk-input-group > div.bk-slider-title"
-    ).text
+    return el.find_element_by_css_selector("div.bk-input-group > div.bk-slider-title").text
 
 
 def get_title_value(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector(
-        "div.bk-input-group > div > span.bk-slider-value"
-    ).text
+    return el.find_element_by_css_selector("div.bk-input-group > div > span.bk-slider-value").text
 
 
 def get_bar_color(driver, css_class):
@@ -78,9 +69,7 @@ def get_bar_color(driver, css_class):
 @pytest.mark.selenium
 class Test_Slider(object):
     def test_display(self, bokeh_model_page):
-        slider = RangeSlider(
-            start=0, end=10, value=(1, 5), css_classes=["foo"], width=300
-        )
+        slider = RangeSlider(start=0, end=10, value=(1, 5), css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
 
@@ -138,29 +127,17 @@ class Test_Slider(object):
         el = page.driver.find_element_by_css_selector(".foo")
         handle_lower = el.find_element_by_css_selector(".bk-noUi-handle-lower")
         handle_upper = el.find_element_by_css_selector(".bk-noUi-handle-upper")
-        select_element_and_press_key(
-            page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=1
-        )
+        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=1)
         assert get_title_value(page.driver, ".foo") == "2 .. 5"
-        select_element_and_press_key(
-            page.driver, handle_lower, Keys.ARROW_LEFT, press_number=3
-        )
+        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_LEFT, press_number=3)
         assert get_title_value(page.driver, ".foo") == "0 .. 5"
-        select_element_and_press_key(
-            page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=11
-        )
+        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=11)
         assert get_title_value(page.driver, ".foo") == "5 .. 5"
-        select_element_and_press_key(
-            page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=1
-        )
+        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=1)
         assert get_title_value(page.driver, ".foo") == "5 .. 6"
-        select_element_and_press_key(
-            page.driver, handle_upper, Keys.ARROW_LEFT, press_number=2
-        )
+        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_LEFT, press_number=2)
         assert get_title_value(page.driver, ".foo") == "5 .. 5"
-        select_element_and_press_key(
-            page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=6
-        )
+        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=6)
         assert get_title_value(page.driver, ".foo") == "5 .. 10"
 
         assert page.has_no_console_errors()
@@ -219,19 +196,10 @@ class Test_Slider(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             slider = RangeSlider(
-                start=0,
-                end=10,
-                value=(1, 5),
-                title="bar",
-                css_classes=["foo"],
-                width=300,
+                start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
             )
 
             def cb(attr, old, new):
@@ -286,12 +254,7 @@ class Test_Slider(object):
                 min_border=0,
             )
             slider = RangeSlider(
-                start=0,
-                end=10,
-                value=(1, 5),
-                title="bar",
-                css_classes=["foo"],
-                width=300,
+                start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300
             )
 
             def cb(attr, old, new):

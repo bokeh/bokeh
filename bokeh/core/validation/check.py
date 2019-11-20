@@ -62,8 +62,7 @@ def silence(warning, silence=True):
     """
     if not isinstance(warning, int):
         raise ValueError(
-            "Input to silence should be a warning object "
-            "- not of type {}".format(type(warning))
+            "Input to silence should be a warning object " "- not of type {}".format(type(warning))
         )
     if silence:
         __silencers__.add(warning)

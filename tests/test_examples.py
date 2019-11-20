@@ -25,10 +25,7 @@ from bokeh.util.terminal import fail, info, ok, red, warn, white
 
 is_windows = platform.system() == "Windows"
 
-pytest_plugins = (
-    "bokeh._testing.plugins.bokeh_server",
-    "bokeh._testing.plugins.examples_report",
-)
+pytest_plugins = ("bokeh._testing.plugins.bokeh_server", "bokeh._testing.plugins.examples_report")
 
 
 @pytest.mark.examples
@@ -62,9 +59,7 @@ def test_file_examples(file_example, example, config, report):
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(
-            example, "file://%s.html" % example.path_no_ext, config.option.verbose
-        )
+        _run_in_browser(example, "file://%s.html" % example.path_no_ext, config.option.verbose)
 
 
 @pytest.mark.examples
@@ -198,9 +193,7 @@ def _run_in_browser(example, url, verbose=False):
 
             if result is not None:
                 baseline_ok = False
-                fail(
-                    "BASELINE DOESN'T MATCH (make sure to update baselines before running tests):"
-                )
+                fail("BASELINE DOESN'T MATCH (make sure to update baselines before running tests):")
 
                 for line in result.split("\n"):
                     fail(line)

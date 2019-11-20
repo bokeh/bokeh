@@ -127,9 +127,7 @@ class Receiver(object):
 
         header_json, metadata_json, content_json = self._fragments[:3]
 
-        self._partial = self._protocol.assemble(
-            header_json, metadata_json, content_json
-        )
+        self._partial = self._protocol.assemble(header_json, metadata_json, content_json)
 
         self._check_complete()
 

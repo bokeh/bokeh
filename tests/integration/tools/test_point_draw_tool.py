@@ -43,16 +43,10 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 def _make_plot(num_objects=0, add=True, drag=True):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
     plot = Plot(
-        plot_height=400,
-        plot_width=400,
-        x_range=Range1d(0, 3),
-        y_range=Range1d(0, 3),
-        min_border=0,
+        plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0
     )
     renderer = plot.add_glyph(source, Circle(x="x", y="y"))
-    tool = PointDrawTool(
-        num_objects=num_objects, add=add, drag=drag, renderers=[renderer]
-    )
+    tool = PointDrawTool(num_objects=num_objects, add=add, drag=drag, renderers=[renderer])
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
     code = RECORD("x", "source.data.x") + RECORD("y", "source.data.y")

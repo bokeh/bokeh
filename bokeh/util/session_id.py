@@ -185,9 +185,7 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     decoded_as_bytes = _ensure_bytes(decoded)
     # TODO: urlsafe_b64encode only accepts bytes input, not Optional[bytes].
     # Perhaps we can change _ensure_bytes change return type from Optional[bytes] to bytes
-    encoded = codecs.decode(
-        base64.urlsafe_b64encode(decoded_as_bytes), "ascii"
-    )  # type: ignore
+    encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), "ascii")  # type: ignore
     # remove padding '=' chars that cause trouble
     return str(encoded.rstrip("="))
 
@@ -201,8 +199,7 @@ def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
 
 def _get_random_string(
     length: int = 44,
-    allowed_chars: str = "abcdefghijklmnopqrstuvwxyz"
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    allowed_chars: str = "abcdefghijklmnopqrstuvwxyz" "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
     secret_key: Optional[bytes] = settings.secret_key_bytes(),
 ) -> str:
     """

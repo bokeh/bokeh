@@ -161,16 +161,10 @@ def test_in():
     res = list(q.find(plot.references(), dict(name={q.IN: ["a", "mycircle"]})))
     assert len(res) == 1
 
-    res = list(
-        q.find(plot.references(), dict(name={q.IN: ["a", "mycircle", "myline"]}))
-    )
+    res = list(q.find(plot.references(), dict(name={q.IN: ["a", "mycircle", "myline"]})))
     assert len(res) == 2
 
-    res = list(
-        q.find(
-            plot.references(), dict(name={q.IN: ["a", "mycircle", "myline", "myrect"]})
-        )
-    )
+    res = list(q.find(plot.references(), dict(name={q.IN: ["a", "mycircle", "myline", "myrect"]})))
     assert len(res) == 3
 
     for typ, count in typcases.items():
@@ -194,15 +188,12 @@ def test_disjuction():
     res = list(q.find(plot.references(), {q.OR: [dict(type=Axis), dict(type=Grid)]}))
     assert len(res) == 5
 
-    res = list(
-        q.find(plot.references(), {q.OR: [dict(type=Axis), dict(name="mycircle")]})
-    )
+    res = list(q.find(plot.references(), {q.OR: [dict(type=Axis), dict(name="mycircle")]}))
     assert len(res) == 4
 
     res = list(
         q.find(
-            plot.references(),
-            {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]},
+            plot.references(), {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]}
         )
     )
     assert len(res) == 6
@@ -210,14 +201,7 @@ def test_disjuction():
     res = list(
         q.find(
             plot.references(),
-            {
-                q.OR: [
-                    dict(type=Axis),
-                    dict(tags="foo"),
-                    dict(name="mycircle"),
-                    dict(name="bad"),
-                ]
-            },
+            {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]},
         )
     )
     assert len(res) == 6

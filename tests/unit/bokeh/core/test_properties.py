@@ -238,19 +238,14 @@ class Basictest(object):
         assert set(["mixin_child"]) == m.properties_with_refs()
         assert set(["mixin_container"]) == m.properties_containers()
         assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties()
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(
-            with_bases=True
-        )
+        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=True)
         assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(
             with_bases=False
         )
 
         s = Sub()
         assert set(["child", "sub_child", "mixin_child"]) == s.properties_with_refs()
-        assert (
-            set(["container", "sub_container", "mixin_container"])
-            == s.properties_containers()
-        )
+        assert set(["container", "sub_container", "mixin_container"]) == s.properties_containers()
         assert (
             set(
                 [
@@ -280,9 +275,7 @@ class Basictest(object):
                 "sub_child",
             ]
         ) == s.properties(with_bases=True)
-        assert set(["sub_num", "sub_container", "sub_child"]) == s.properties(
-            with_bases=False
-        )
+        assert set(["sub_num", "sub_container", "sub_child"]) == s.properties(with_bases=False)
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()

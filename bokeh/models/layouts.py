@@ -395,8 +395,7 @@ class GridBox(LayoutDOM):
 
     children = List(
         Either(
-            Tuple(Instance(LayoutDOM), Int, Int),
-            Tuple(Instance(LayoutDOM), Int, Int, Int, Int),
+            Tuple(Instance(LayoutDOM), Int, Int), Tuple(Instance(LayoutDOM), Int, Int, Int, Int)
         ),
         default=[],
         help="""
@@ -455,9 +454,7 @@ class Box(LayoutDOM):
     def __init__(self, *args, **kwargs):
 
         if len(args) > 0 and "children" in kwargs:
-            raise ValueError(
-                "'children' keyword cannot be used with positional arguments"
-            )
+            raise ValueError("'children' keyword cannot be used with positional arguments")
         elif len(args) > 0:
             kwargs["children"] = list(args)
 

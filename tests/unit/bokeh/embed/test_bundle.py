@@ -81,12 +81,8 @@ class Test__any(object):
     def test_with_models(self, test_plot, test_table):
         from bokeh.models import Button
 
-        assert (
-            beb._any([test_plot, test_table], lambda x: isinstance(x, object)) is True
-        )
-        assert (
-            beb._any([test_plot, test_table], lambda x: isinstance(x, Button)) is False
-        )
+        assert beb._any([test_plot, test_table], lambda x: isinstance(x, object)) is True
+        assert beb._any([test_plot, test_table], lambda x: isinstance(x, Button)) is False
 
     def test_with_doc(self, test_plot, test_table):
         from bokeh.models import Button
@@ -137,9 +133,7 @@ class Test__use_tables(object):
         assert beb._use_tables([test_table]) is True
         assert beb._use_tables([test_table, test_plot]) is True
         assert beb._use_tables([test_table, test_plot, test_glplot]) is True
-        assert (
-            beb._use_tables([test_table, test_widget, test_table, test_glplot]) is True
-        )
+        assert beb._use_tables([test_table, test_widget, test_table, test_glplot]) is True
         d = Document()
         d.add_root(test_plot)
         d.add_root(test_table)
@@ -161,9 +155,7 @@ class Test__use_widgets(object):
         assert beb._use_widgets([test_widget]) is True
         assert beb._use_widgets([test_widget, test_plot]) is True
         assert beb._use_widgets([test_widget, test_plot, test_glplot]) is True
-        assert (
-            beb._use_widgets([test_widget, test_plot, test_glplot, test_table]) is True
-        )
+        assert beb._use_widgets([test_widget, test_plot, test_glplot, test_table]) is True
         assert beb._use_widgets([test_table, test_table, test_glplot]) is True
         d = Document()
         d.add_root(test_plot)

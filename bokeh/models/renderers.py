@@ -25,16 +25,7 @@ from difflib import get_close_matches
 # Bokeh imports
 from ..core.enums import RenderLevel
 from ..core.has_props import abstract
-from ..core.properties import (
-    Auto,
-    Bool,
-    Either,
-    Enum,
-    Float,
-    Instance,
-    Override,
-    String,
-)
+from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
 from ..core.validation import error
 from ..core.validation.errors import (
     BAD_COLUMN_NAME,
@@ -182,9 +173,7 @@ class GlyphRenderer(DataRenderer):
             return
         missing_values = set()
         specs = self.glyph.dataspecs()
-        for name, item in self.glyph.properties_with_values(
-            include_defaults=False
-        ).items():
+        for name, item in self.glyph.properties_with_values(include_defaults=False).items():
             if name not in specs:
                 continue
             if not isinstance(item, dict):
@@ -301,17 +290,11 @@ class GraphRenderer(DataRenderer):
     def _check_malformed_graph_source(self):
         missing = []
         if "index" not in self.node_renderer.data_source.column_names:
-            missing.append(
-                "Column 'index' is missing in GraphSource.node_renderer.data_source"
-            )
+            missing.append("Column 'index' is missing in GraphSource.node_renderer.data_source")
         if "start" not in self.edge_renderer.data_source.column_names:
-            missing.append(
-                "Column 'start' is missing in GraphSource.edge_renderer.data_source"
-            )
+            missing.append("Column 'start' is missing in GraphSource.edge_renderer.data_source")
         if "end" not in self.edge_renderer.data_source.column_names:
-            missing.append(
-                "Column 'end' is missing in GraphSource.edge_renderer.data_source"
-            )
+            missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
         if missing:
             return " ,".join(missing) + " [%s]" % self
 

@@ -135,9 +135,7 @@ class ColorHex(Color):
         if isinstance(value, str):
             value = value.lower()
             if value.startswith("rgb"):
-                value = colors.RGB(
-                    *[int(val) for val in re.findall(r"\d+", value)[:3]]
-                ).to_hex()
+                value = colors.RGB(*[int(val) for val in re.findall(r"\d+", value)[:3]]).to_hex()
             elif value in enums.NamedColor:
                 value = getattr(colors.named, value).to_hex()
         elif isinstance(value, tuple):

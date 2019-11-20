@@ -62,8 +62,7 @@ class BokehGalleryDirective(BokehDirective):
         gallery_dir = join(dirname(dirname(gallery_file)), "gallery")
         if not exists(gallery_dir) and isdir(gallery_dir):
             raise SphinxError(
-                "gallery dir %r missing for gallery file %r"
-                % (gallery_dir, gallery_file)
+                "gallery dir %r missing for gallery file %r" % (gallery_dir, gallery_file)
             )
 
         spec = json.load(open(gallery_file))
@@ -122,11 +121,7 @@ def config_inited_handler(app, config):
 
         with open(detail_file_path, "w") as f:
             source_path = abspath(join(app.srcdir, "..", "..", detail["path"]))
-            f.write(
-                GALLERY_DETAIL.render(
-                    filename=detail["name"] + ".py", source_path=source_path
-                )
-            )
+            f.write(GALLERY_DETAIL.render(filename=detail["name"] + ".py", source_path=source_path))
 
     for extra_file in extras:
         os.remove(join(gallery_dir, extra_file))

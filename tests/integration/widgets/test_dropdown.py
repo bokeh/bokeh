@@ -19,15 +19,7 @@ import pytest  # noqa isort:skip
 from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
 from bokeh.layouts import column
-from bokeh.models import (
-    Circle,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Dropdown,
-    Plot,
-    Range1d,
-)
+from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Dropdown, Plot, Range1d
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -37,11 +29,7 @@ pytest_plugins = ("bokeh._testing.plugins.bokeh",)
 
 # XXX (bev) split dropdown (i.e. with default value) has serious problems
 
-items = [
-    ("Item 1", "item_1_value"),
-    ("Item 2", "item_2_value"),
-    ("Item 3", "item_3_value"),
-]
+items = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
 
 
 @pytest.mark.integration
@@ -61,9 +49,7 @@ class Test_Dropdown(object):
 
     @pytest.mark.parametrize("typ", list(ButtonType))
     def test_displays_button_type(self, typ, bokeh_model_page):
-        button = Dropdown(
-            label="Dropdown button", menu=items, button_type=typ, css_classes=["foo"]
-        )
+        button = Dropdown(label="Dropdown button", menu=items, button_type=typ, css_classes=["foo"])
 
         page = bokeh_model_page(button)
 
@@ -82,11 +68,7 @@ class Test_Dropdown(object):
             )
             plot.add_glyph(source, Circle(x="x", y="y", size=20))
             plot.add_tools(
-                CustomAction(
-                    callback=CustomJS(
-                        args=dict(s=source), code=RECORD("data", "s.data")
-                    )
-                )
+                CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data")))
             )
             button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
 
@@ -106,9 +88,7 @@ class Test_Dropdown(object):
 
         button = page.driver.find_element_by_css_selector(".foo button")
         button.click()
-        item = page.driver.find_element_by_css_selector(
-            ".foo .bk-menu > *:nth-child(1)"
-        )
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(1)")
         item.click()
 
         page.click_custom_action()
@@ -118,9 +98,7 @@ class Test_Dropdown(object):
 
         button = page.driver.find_element_by_css_selector(".foo button")
         button.click()
-        item = page.driver.find_element_by_css_selector(
-            ".foo .bk-menu > *:nth-child(3)"
-        )
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(3)")
         item.click()
 
         page.click_custom_action()
@@ -130,9 +108,7 @@ class Test_Dropdown(object):
 
         button = page.driver.find_element_by_css_selector(".foo button")
         button.click()
-        item = page.driver.find_element_by_css_selector(
-            ".foo .bk-menu > *:nth-child(2)"
-        )
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(2)")
         item.click()
 
         page.click_custom_action()
@@ -177,17 +153,13 @@ class Test_Dropdown(object):
 
     def test_js_on_change_executes(self, bokeh_model_page):
         button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
-        button.js_on_event(
-            "menu_item_click", CustomJS(code=RECORD("value", "this.item"))
-        )
+        button.js_on_event("menu_item_click", CustomJS(code=RECORD("value", "this.item")))
 
         page = bokeh_model_page(button)
 
         button = page.driver.find_element_by_css_selector(".foo button")
         button.click()
-        item = page.driver.find_element_by_css_selector(
-            ".foo .bk-menu > *:nth-child(1)"
-        )
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(1)")
         item.click()
 
         results = page.results
@@ -195,9 +167,7 @@ class Test_Dropdown(object):
 
         button = page.driver.find_element_by_css_selector(".foo button")
         button.click()
-        item = page.driver.find_element_by_css_selector(
-            ".foo .bk-menu > *:nth-child(3)"
-        )
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(3)")
         item.click()
 
         results = page.results
@@ -205,9 +175,7 @@ class Test_Dropdown(object):
 
         button = page.driver.find_element_by_css_selector(".foo button")
         button.click()
-        item = page.driver.find_element_by_css_selector(
-            ".foo .bk-menu > *:nth-child(2)"
-        )
+        item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(2)")
         item.click()
 
         results = page.results

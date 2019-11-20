@@ -100,15 +100,11 @@ class BokehSettingsDirective(BokehDirective):
                 "type": x.convert_type,
                 "help": textwrap.dedent(x.help),
                 "default": "(Unset)" if x.default is _Unset else repr(x.default),
-                "dev_default": "(Unset)"
-                if x.dev_default is _Unset
-                else repr(x.dev_default),
+                "dev_default": "(Unset)" if x.dev_default is _Unset else repr(x.dev_default),
             }
             settings.append(setting)
 
-        rst_text = SETTINGS_DETAIL.render(
-            name=obj_name, module_name=module_name, settings=settings
-        )
+        rst_text = SETTINGS_DETAIL.render(name=obj_name, module_name=module_name, settings=settings)
         return self._parse(rst_text, "<bokeh-settings>")
 
 

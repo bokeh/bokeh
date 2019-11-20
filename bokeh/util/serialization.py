@@ -79,8 +79,7 @@ NP_MS_DELTA = np.timedelta64(1, "ms")
 DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
 __doc__ = format_docstring(
-    __doc__,
-    binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES),
+    __doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES)
 )
 
 __all__ = (
@@ -195,9 +194,7 @@ def convert_datetime_type(obj):
 
     # Time
     elif isinstance(obj, dt.time):
-        return (
-            obj.hour * 3600 + obj.minute * 60 + obj.second
-        ) * 1000 + obj.microsecond / 1000.0
+        return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.0
 
 
 def convert_datetime_array(array):
@@ -283,9 +280,7 @@ def array_encoding_disabled(array):
 
 array_encoding_disabled.__doc__ = format_docstring(
     array_encoding_disabled.__doc__,
-    binary_array_types="\n    ".join(
-        "* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES
-    ),
+    binary_array_types="\n    ".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES),
 )
 
 

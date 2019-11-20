@@ -77,10 +77,7 @@ class FileOutputSubcommand(Subcommand):
             dict(
                 metavar="DIRECTORY-OR-SCRIPT",
                 nargs="+",
-                help=(
-                    "The app directories or scripts to generate %s for"
-                    % (output_type_name)
-                ),
+                help=("The app directories or scripts to generate %s for" % (output_type_name)),
                 default=None,
             ),
         )

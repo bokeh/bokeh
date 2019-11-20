@@ -95,10 +95,7 @@ class DirectoryHandler(Handler):
         main_py = join(src_path, "main.py")
         main_ipy = join(src_path, "main.ipynb")
         if exists(main_py) and exists(main_ipy):
-            log.warning(
-                "Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'"
-                % (src_path)
-            )
+            log.warning("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
             main = main_py
         elif exists(main_py):
             main = main_py
@@ -115,9 +112,7 @@ class DirectoryHandler(Handler):
         lifecycle = join(src_path, "server_lifecycle.py")
         if exists(lifecycle):
             self._lifecycle = lifecycle
-            self._lifecycle_handler = ServerLifecycleHandler(
-                filename=self._lifecycle, argv=argv
-            )
+            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv)
         else:
             self._lifecycle = None
             self._lifecycle_handler = Handler()  # no-op handler

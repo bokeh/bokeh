@@ -37,9 +37,7 @@ import bokeh.io.util as biu  # isort:skip
 
 
 def test_detect_current_filename():
-    assert biu.detect_current_filename().endswith(
-        ("py.test", "pytest", "py.test-script.py")
-    )
+    assert biu.detect_current_filename().endswith(("py.test", "pytest", "py.test-script.py"))
 
 
 @patch("bokeh.io.util.NamedTemporaryFile")

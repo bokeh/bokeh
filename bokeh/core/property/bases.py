@@ -469,8 +469,7 @@ class PrimitiveProperty(Property):
         else:
             expected = nice_join([cls.__name__ for cls in self._underlying_type])
             raise DeserializationError(
-                "%s expected %s, got %s of type %s"
-                % (self, expected, json, type(json).__name__)
+                "%s expected %s, got %s of type %s" % (self, expected, json, type(json).__name__)
             )
 
     def _sphinx_type(self):

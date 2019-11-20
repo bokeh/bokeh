@@ -121,9 +121,7 @@ class TestSettings(object):
 
 
 class TestConverters(object):
-    @pytest.mark.parametrize(
-        "value", ["Yes", "YES", "yes", "1", "ON", "on", "true", "True", True]
-    )
+    @pytest.mark.parametrize("value", ["Yes", "YES", "yes", "1", "ON", "on", "true", "True", True])
     def test_convert_bool(self, value):
         assert bs.convert_bool(value)
 
@@ -204,9 +202,7 @@ class TestPrioritizedSetting(object):
         assert ps(default=20) == 20
 
     def test_dev_default(self):
-        ps = bs.PrioritizedSetting(
-            "foo", env_var="BOKEH_FOO", default=10, dev_default=25
-        )
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10, dev_default=25)
         assert ps.dev_default == 25
         os.environ["BOKEH_DEV"] = "yes"
         assert ps() == 25

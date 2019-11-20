@@ -246,9 +246,7 @@ def convert_logging(value):
         return _log_levels[value]
 
     raise ValueError(
-        "Cannot convert {} to log level, valid values are: {}".format(
-            value, ", ".join(_log_levels)
-        )
+        "Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels))
     )
 
 
@@ -290,13 +288,7 @@ class PrioritizedSetting(object):
     """
 
     def __init__(
-        self,
-        name,
-        env_var=None,
-        default=_Unset,
-        dev_default=_Unset,
-        convert=None,
-        help="",
+        self, name, env_var=None, default=_Unset, dev_default=_Unset, convert=None, help=""
     ):
         self._convert = convert if convert else convert_str
         self._default = default
@@ -818,9 +810,7 @@ class Settings(object):
 
         """
         try:
-            self._config_override = yaml.load(
-                open(abspath(location)), Loader=yaml.SafeLoader
-            )
+            self._config_override = yaml.load(open(abspath(location)), Loader=yaml.SafeLoader)
         except Exception:
             raise RuntimeError("Could not load Bokeh config file: {}".format(location))
 

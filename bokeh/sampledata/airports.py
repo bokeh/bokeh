@@ -57,8 +57,7 @@ def _read_data():
 
     """
     pd = import_required(
-        "pandas",
-        "airports sample data requires Pandas (http://pandas.pydata.org) to be installed",
+        "pandas", "airports sample data requires Pandas (http://pandas.pydata.org) to be installed"
     )
     with open(external_path("airports.json"), "r") as f:
         content = f.read()
@@ -70,10 +69,7 @@ def _read_data():
             ["geometry", "y"],
         ]
         data = pd.io.json.json_normalize(airports["features"], meta=schema)
-        data.rename(
-            columns={"attributes.nam": "name", "attributes.zv3": "elevation"},
-            inplace=True,
-        )
+        data.rename(columns={"attributes.nam": "name", "attributes.zv3": "elevation"}, inplace=True)
         data.rename(columns={"geometry.x": "x", "geometry.y": "y"}, inplace=True)
     return data
 

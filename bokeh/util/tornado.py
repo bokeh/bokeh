@@ -147,9 +147,7 @@ class _CallbackGroup(object):
             if callback_id is None:
                 callback_id = make_id()
             elif callback_id in removers:
-                raise ValueError(
-                    "A callback of the same type has already been added with this ID"
-                )
+                raise ValueError("A callback of the same type has already been added with this ID")
             removers[callback_id] = remover
             return callback_id
 
@@ -157,9 +155,7 @@ class _CallbackGroup(object):
         try:
             with self._removers_lock:
                 remover = removers.pop(callback_id)
-                for cb, cb_ids in list(
-                    self._get_removers_ids_by_callable(removers).items()
-                ):
+                for cb, cb_ids in list(self._get_removers_ids_by_callable(removers).items()):
                     try:
                         cb_ids.remove(callback_id)
                         if not cb_ids:
@@ -167,9 +163,7 @@ class _CallbackGroup(object):
                     except KeyError:
                         pass
         except KeyError:
-            raise ValueError(
-                "Removing a callback twice (or after it's already been run)"
-            )
+            raise ValueError("Removing a callback twice (or after it's already been run)")
         remover()
 
     def add_next_tick_callback(self, callback, callback_id=None):

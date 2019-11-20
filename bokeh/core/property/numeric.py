@@ -27,15 +27,7 @@ from .primitive import Float, Int
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-__all__ = (
-    "Angle",
-    "Byte",
-    "Interval",
-    "NonNegativeInt",
-    "Percent",
-    "PositiveInt",
-    "Size",
-)
+__all__ = ("Angle", "Byte", "Interval", "NonNegativeInt", "Percent", "PositiveInt", "Size")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -264,9 +256,7 @@ class Percent(Float):
         super().validate(value, detail)
 
         if not (value is None or 0.0 <= value <= 1.0):
-            msg = (
-                "" if not detail else "expected a value in range [0, 1], got %r" % value
-            )
+            msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
             raise ValueError(msg)
 
 

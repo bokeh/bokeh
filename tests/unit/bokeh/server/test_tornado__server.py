@@ -146,9 +146,7 @@ def test_websocket_max_message_size_bytes():
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port):
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
-        assert server._tornado.websocket_origins == set(
-            ["localhost:%s" % unused_tcp_port]
-        )
+        assert server._tornado.websocket_origins == set(["localhost:%s" % unused_tcp_port])
 
     # OK this is a bit of a confusing mess. The user-facing arg for server is
     # "allow_websocket_origin" which gets converted to "extra_websocket_origins"
@@ -159,9 +157,7 @@ def test_websocket_origins(ManagedServerLoop, unused_tcp_port):
     with ManagedServerLoop(application, allow_websocket_origin=["foo:8080"]) as server:
         assert server._tornado.websocket_origins == set(["foo:8080"])
 
-    with ManagedServerLoop(
-        application, allow_websocket_origin=["foo:8080", "bar"]
-    ) as server:
+    with ManagedServerLoop(application, allow_websocket_origin=["foo:8080", "bar"]) as server:
         assert server._tornado.websocket_origins == set(["foo:8080", "bar:80"])
 
 
@@ -184,12 +180,8 @@ def test_log_stats(ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
         server._tornado._log_stats()
-        session1 = pull_session(
-            session_id="session1", url=url(server), io_loop=server.io_loop
-        )
-        session2 = pull_session(
-            session_id="session2", url=url(server), io_loop=server.io_loop
-        )
+        session1 = pull_session(session_id="session1", url=url(server), io_loop=server.io_loop)
+        session2 = pull_session(session_id="session2", url=url(server), io_loop=server.io_loop)
         server._tornado._log_stats()
         session1.close()
         session2.close()
@@ -214,10 +206,7 @@ async def test_metadata(ManagedServerLoop):
         meta_url = url(server) + "metadata"
         meta_resp = await http_get(server.io_loop, meta_url)
         meta_json = json.loads(meta_resp.buffer.read().decode())
-        assert meta_json == {
-            "data": {"name": "myname", "value": "no value"},
-            "url": "/",
-        }
+        assert meta_json == {"data": {"name": "myname", "value": "no value"}, "url": "/"}
 
 
 # -----------------------------------------------------------------------------

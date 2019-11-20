@@ -176,16 +176,10 @@ class BokehJSContent(CodeBlock):
         js_file = self.options.get("js_file", False)
         # js_file *or* js code content, but not both
         if js_file and self.content:
-            raise SphinxError(
-                "bokehjs-content:: directive can't have both js_file and content"
-            )
+            raise SphinxError("bokehjs-content:: directive can't have both js_file and content")
 
         if js_file:
-            log.debug(
-                "[bokehjs-content] handling external example in %r: %s",
-                env.docname,
-                js_file,
-            )
+            log.debug("[bokehjs-content] handling external example in %r: %s", env.docname, js_file)
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
@@ -205,9 +199,7 @@ class BokehJSContent(CodeBlock):
         if self.options.get("include_html", False):
             resources = get_sphinx_resources(include_bokehjs_api=True)
             html_source = BJS_HTML.render(
-                css_files=resources.css_files,
-                js_files=resources.js_files,
-                bjs_script=js_source,
+                css_files=resources.css_files, js_files=resources.js_files, bjs_script=js_source
             )
             return [html_source, "html"]
         else:
@@ -253,9 +245,7 @@ def html_visit_bokehjs_content(self, node):
         # bokehjs-content block per page
         resources = get_sphinx_resources(include_bokehjs_api=True)
         self.body.append(
-            BJS_CODEPEN_INIT.render(
-                css_files=resources.css_files, js_files=resources.js_files
-            )
+            BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files)
         )
 
     self.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"]))
@@ -273,9 +263,7 @@ def html_depart_bokehjs_content(self, node):
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(
-        bokehjs_content, html=(html_visit_bokehjs_content, html_depart_bokehjs_content)
-    )
+    app.add_node(bokehjs_content, html=(html_visit_bokehjs_content, html_depart_bokehjs_content))
     app.add_directive("bokehjs-content", BokehJSContent)
 
 

@@ -70,9 +70,7 @@ class Style(object):
 class Bundle(object):
     @classmethod
     def of(cls, js_files, js_raw, css_files, css_raw):
-        return cls(
-            js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw
-        )
+        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw)
 
     def __init__(self, **kwargs):
         self.js_files = kwargs.get("js_files", [])
@@ -147,9 +145,7 @@ def bundle_for_objs_and_resources(objs, resources):
                 "No Bokeh JS Resources provided to template. If required you will need to provide them manually."
             )
     else:
-        raise ValueError(
-            "expected Resources or a pair of optional Resources, got %r" % resources
-        )
+        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
 
     from copy import deepcopy
 
@@ -220,9 +216,7 @@ def _bundle_extensions(objs, resources):
     names = set()
     extensions = []
 
-    for obj in (
-        _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values()
-    ):
+    for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
         if hasattr(obj, "__implementation__"):
             continue
         name = obj.__view_module__.split(".")[0]
@@ -289,9 +283,7 @@ def _use_gl(objs):
     """
     from ..models.plots import Plot
 
-    return _any(
-        objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl"
-    )
+    return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
 
 def _use_tables(objs):

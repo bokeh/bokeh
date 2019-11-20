@@ -135,9 +135,7 @@ class Test_DirectoryHandler(object):
 
         doc = Document()
         source = nbformat.v4.new_notebook()
-        code = script_adds_two_roots(
-            "SomeModelInNbTestDirectory", "AnotherModelInNbTestDirectory"
-        )
+        code = script_adds_two_roots("SomeModelInNbTestDirectory", "AnotherModelInNbTestDirectory")
         source.cells.append(nbformat.v4.new_code_cell(code))
         result = {}
 
@@ -187,14 +185,10 @@ some.foo = 57
 
         assert len(doc.roots) == 2
         some_model = next(
-            m
-            for m in doc.roots
-            if m.__class__.__name__ == "SomeModelInTestDirectoryTheme"
+            m for m in doc.roots if m.__class__.__name__ == "SomeModelInTestDirectoryTheme"
         )
         another_model = next(
-            m
-            for m in doc.roots
-            if m.__class__.__name__ == "AnotherModelInTestDirectoryTheme"
+            m for m in doc.roots if m.__class__.__name__ == "AnotherModelInTestDirectoryTheme"
         )
         assert another_model.bar == 42
         assert some_model.foo == 57
@@ -250,8 +244,7 @@ some.foo = 57
                 raise RuntimeError(handler.error)
 
         with_directory_contents(
-            {"main.py": "# This script does nothing", "static/js/foo.js": "# some JS"},
-            load,
+            {"main.py": "# This script does nothing", "static/js/foo.js": "# some JS"}, load
         )
 
         assert not doc.roots

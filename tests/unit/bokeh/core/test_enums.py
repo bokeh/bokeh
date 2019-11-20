@@ -154,22 +154,10 @@ class Test_bce(object):
         assert tuple(bce.AngleUnits) == ("deg", "rad")
 
     def test_ButtonType(self):
-        assert tuple(bce.ButtonType) == (
-            "default",
-            "primary",
-            "success",
-            "warning",
-            "danger",
-        )
+        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger")
 
     def test_DashPattern(self):
-        assert tuple(bce.DashPattern) == (
-            "solid",
-            "dashed",
-            "dotted",
-            "dotdash",
-            "dashdot",
-        )
+        assert tuple(bce.DashPattern) == ("solid", "dashed", "dotted", "dotdash", "dashdot")
 
     def test_DateFormat(self):
         assert tuple(bce.DateFormat) == (
@@ -287,13 +275,7 @@ class Test_bce(object):
         assert tuple(bce.LineCap) == ("butt", "round", "square")
 
     def test_LineDash(self):
-        assert tuple(bce.LineDash) == (
-            "solid",
-            "dashed",
-            "dotted",
-            "dotdash",
-            "dashdot",
-        )
+        assert tuple(bce.LineDash) == ("solid", "dashed", "dotted", "dotdash", "dashdot")
 
     def test_LineJoin(self):
         assert tuple(bce.LineJoin) == ("miter", "round", "bevel")
@@ -372,13 +354,7 @@ class Test_bce(object):
         assert tuple(bce.Palette) == tuple(__palettes__)
 
     def test_RenderLevel(self):
-        assert tuple(bce.RenderLevel) == (
-            "image",
-            "underlay",
-            "glyph",
-            "annotation",
-            "overlay",
-        )
+        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "annotation", "overlay")
 
     def test_RenderMode(self):
         assert tuple(bce.RenderMode) == ("canvas", "css")
@@ -433,20 +409,10 @@ class Test_bce(object):
         )
 
     def test_TextureRepetition(self):
-        assert tuple(bce.TextureRepetition) == (
-            "repeat",
-            "repeat_x",
-            "repeat_y",
-            "no_repeat",
-        )
+        assert tuple(bce.TextureRepetition) == ("repeat", "repeat_x", "repeat_y", "no_repeat")
 
     def test_TickLabelOrientation(self):
-        assert tuple(bce.TickLabelOrientation) == (
-            "horizontal",
-            "vertical",
-            "parallel",
-            "normal",
-        )
+        assert tuple(bce.TickLabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
 
     def test_TooltipAttachment(self):
         assert tuple(bce.TooltipAttachment) == (

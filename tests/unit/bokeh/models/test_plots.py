@@ -107,9 +107,8 @@ class TestPlotSelect(object):
     def test_selector_kwarg_and_extra_kwargs(self):
         with pytest.raises(TypeError) as exc:
             self._plot.select(selector=dict(foo="foo"), bar="bar")
-        assert (
-            "when passing 'selector' keyword arg, not other keyword args may be present"
-            == str(exc.value)
+        assert "when passing 'selector' keyword arg, not other keyword args may be present" == str(
+            exc.value
         )
 
     def test_bad_arg_type(self):
@@ -125,9 +124,8 @@ class TestPlotSelect(object):
     def test_no_input(self):
         with pytest.raises(TypeError) as exc:
             self._plot.select()
-        assert (
-            "select requires EITHER a positional argument, OR keyword arguments."
-            == str(exc.value)
+        assert "select requires EITHER a positional argument, OR keyword arguments." == str(
+            exc.value
         )
 
     def test_arg_and_kwarg(self):

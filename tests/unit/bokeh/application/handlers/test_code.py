@@ -66,9 +66,7 @@ class TestCodeHandler(object):
 
     def test_script_adds_roots(self):
         doc = Document()
-        handler = bahc.CodeHandler(
-            source=script_adds_two_roots, filename="path/to/test_filename"
-        )
+        handler = bahc.CodeHandler(source=script_adds_two_roots, filename="path/to/test_filename")
         handler.modify_document(doc)
         if handler.failed:
             raise RuntimeError(handler.error)

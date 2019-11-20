@@ -69,12 +69,7 @@ def test_args():
         ),
         (
             "--indent",
-            dict(
-                metavar="LEVEL",
-                type=int,
-                help="indentation to use when printing",
-                default=None,
-            ),
+            dict(metavar="LEVEL", type=int, help="indentation to use when printing", default=None),
         ),
         (
             ("-o", "--output"),
