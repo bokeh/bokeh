@@ -14,12 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import numpy as np
-
-# Bokeh imports
 
 # Module under test
 import bokeh.util.hex as buh # isort:skip

@@ -15,12 +15,11 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 import tempfile
 
-from mock import patch
-import os
-
 # External imports
+from mock import patch
 
 # Bokeh imports
 from bokeh.document import Document

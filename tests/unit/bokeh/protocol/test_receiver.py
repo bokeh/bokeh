@@ -14,10 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.protocol import Protocol
 from bokeh.protocol.exceptions import ValidationError

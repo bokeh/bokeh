@@ -14,11 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from _util_models import check_properties_existence
 from bokeh.palettes import Spectral6
 
 # Module under test
@@ -28,7 +25,6 @@ import bokeh.models.mappers as bmm # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_models import check_properties_existence
 
 #-----------------------------------------------------------------------------
 # General API

@@ -15,13 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.models import ColumnDataSource, DataTable, TableColumn
 from bokeh._testing.util.selenium import get_table_cell, get_table_header
+from bokeh.models import ColumnDataSource, DataTable, TableColumn
 
 #-----------------------------------------------------------------------------
 # Tests

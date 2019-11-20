@@ -18,11 +18,11 @@ import pytest ; pytest
 import argparse
 import contextlib
 import os
-from os.path import join, split
 import re
 import socket
 import subprocess
 import sys
+from os.path import join, split
 from time import sleep
 
 # External imports
@@ -30,7 +30,6 @@ import requests
 
 # Bokeh imports
 import bokeh.command.subcommands.serve as scserve
-
 from bokeh.resources import DEFAULT_SERVER_PORT
 
 #-----------------------------------------------------------------------------

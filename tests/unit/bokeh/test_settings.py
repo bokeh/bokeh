@@ -18,8 +18,6 @@ import pytest ; pytest
 import logging
 import os
 
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 

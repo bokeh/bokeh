@@ -25,9 +25,9 @@ import PIL.Image
 
 # Bokeh imports
 from _util_property import _TestHasProps, _TestModel
+from bokeh._testing.util.api import verify_all
 from bokeh.core.enums import MarkerType
 from bokeh.core.has_props import HasProps
-from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.visual as bcpv # isort:skip

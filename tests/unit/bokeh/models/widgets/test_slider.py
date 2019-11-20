@@ -15,15 +15,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from datetime import datetime, date
 import logging
-
-# External imports
+from datetime import date, datetime
 
 # Bokeh imports
-from bokeh.util.serialization import convert_datetime_type
-from bokeh.util.logconfig import basicConfig
 from bokeh.core.validation.check import check_integrity
+from bokeh.util.logconfig import basicConfig
+from bokeh.util.serialization import convert_datetime_type
 
 # Module under test
 import bokeh.models.widgets.sliders as mws # isort:skip

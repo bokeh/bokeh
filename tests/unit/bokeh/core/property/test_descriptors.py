@@ -14,15 +14,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from mock import patch
 
 # Bokeh imports
-from bokeh.model import Model
-from bokeh.core.properties import Int, List
 from bokeh._testing.util.api import verify_all
+from bokeh.core.properties import Int, List
+from bokeh.model import Model
 
 # Module under test
 import bokeh.core.property.descriptors as bcpd # isort:skip

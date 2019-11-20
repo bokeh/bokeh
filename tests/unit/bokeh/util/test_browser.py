@@ -19,11 +19,8 @@ import os
 import sys
 import webbrowser
 
-from mock import patch
-
 # External imports
-
-# Bokeh imports
+from mock import patch
 
 # Module under test
 import bokeh.util.browser as bub # isort:skip

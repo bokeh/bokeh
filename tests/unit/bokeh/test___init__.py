@@ -17,8 +17,6 @@ import pytest ; pytest
 # Standard library imports
 import warnings
 
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning

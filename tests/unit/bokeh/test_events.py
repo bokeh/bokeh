@@ -14,12 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.models import Plot, Button, Div
+from bokeh.models import Button, Div, Plot
 
 # Module under test
 from bokeh import events # isort:skip

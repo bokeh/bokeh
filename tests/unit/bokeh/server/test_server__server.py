@@ -16,24 +16,25 @@ import pytest ; pytest
 
 # Standard library imports
 import asyncio
-from datetime import timedelta
 import logging
 import re
 import ssl
 import sys
+from datetime import timedelta
 
 # External imports
 import mock
-from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop, PeriodicCallback
 
 # Bokeh imports
+from _util_server import http_get, url, websocket_open, ws_url
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
-from bokeh.model import Model
-from bokeh.core.properties import List, String
 from bokeh.client import pull_session
+from bokeh.core.properties import List, String
+from bokeh.model import Model
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
@@ -45,7 +46,6 @@ import bokeh.server.server as server # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_server import url, ws_url, http_get, websocket_open
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -14,8 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado.ioloop import IOLoop
 

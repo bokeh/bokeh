@@ -1,6 +1,10 @@
+# Standard library imports
 import os
-import pytest
 import subprocess
+
+# External imports
+import pytest
+
 
 @pytest.mark.js
 class TestBokehJS(object):

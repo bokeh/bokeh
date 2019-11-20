@@ -17,10 +17,6 @@ import pytest ; pytest
 # Standard library imports
 import os
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
 import bokeh.ext as ext # isort:skip
 
@@ -32,7 +28,6 @@ import bokeh.ext as ext # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.mark.skip
 def test_ext_commands(tmpdir):
     tmp = str(tmpdir.mkdir("bk_ext_01"))
 

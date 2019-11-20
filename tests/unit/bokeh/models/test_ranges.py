@@ -17,11 +17,11 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 
+# External imports
 import mock
 
-# External imports
-
 # Bokeh imports
+from _util_models import check_properties_existence
 from bokeh.core.validation import check_integrity
 
 # Module under test
@@ -31,7 +31,6 @@ from bokeh.models import Range1d, DataRange1d, FactorRange # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_models import check_properties_existence
 
 #-----------------------------------------------------------------------------
 # General API

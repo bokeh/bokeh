@@ -23,8 +23,6 @@ import os
 import numpy as np
 import pytz
 
-# Bokeh imports
-
 # Module under test
 import bokeh.util.serialization as bus # isort:skip
 

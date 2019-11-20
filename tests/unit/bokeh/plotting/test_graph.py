@@ -14,14 +14,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import networkx as nx
 import numpy as np
 from numpy.testing import assert_allclose
-
-# Bokeh imports
 
 # Module under test
 import bokeh.plotting.graph as bpg # isort:skip

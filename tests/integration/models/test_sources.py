@@ -15,17 +15,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.layouts import column
-from bokeh.models import (
-    Button, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, TapTool
-)
-from bokeh.plotting import figure
 from bokeh._testing.util.selenium import RECORD
+from bokeh.layouts import column
+from bokeh.models import Button, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, TapTool
+from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
 # Tests

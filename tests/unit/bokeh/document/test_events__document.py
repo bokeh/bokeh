@@ -15,11 +15,7 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-
-# Bokeh imports
 from mock import patch
 
 # Module under test

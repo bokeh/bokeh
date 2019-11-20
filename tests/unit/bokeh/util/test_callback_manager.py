@@ -17,8 +17,6 @@ import pytest ; pytest
 # Standard library imports
 from functools import partial
 
-# External imports
-
 # Bokeh imports
 from bokeh.document import Document
 

@@ -14,11 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
 
 # Module under test
 import bokeh.util.dependencies as dep # isort:skip

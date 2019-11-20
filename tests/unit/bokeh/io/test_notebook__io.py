@@ -16,9 +16,9 @@ import pytest ; pytest
 
 # Standard library imports
 import json
-from mock import MagicMock, patch, PropertyMock
 
 # External imports
+from mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports
 from bokeh.document.document import Document

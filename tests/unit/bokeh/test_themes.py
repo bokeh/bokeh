@@ -18,13 +18,11 @@ import pytest ; pytest
 import os
 import tempfile
 
-# External imports
-
 # Bokeh imports
+from bokeh.core.properties import Int, String
+from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.document import Document
 from bokeh.model import Model
-from bokeh.core.property_mixins import FillProps, LineProps, TextProps
-from bokeh.core.properties import Int, String
 
 # Module under test
 from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL # isort:skip

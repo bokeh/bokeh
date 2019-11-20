@@ -14,11 +14,7 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 
-# External imports
-
-# Bokeh imports
 #from bokeh.core.json_encoder import serialize_json
 #from bokeh.core.templates import DOC_NB_JS, PLOT_DIV
 #from bokeh.embed.util import RenderItem

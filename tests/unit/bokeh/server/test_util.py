@@ -17,10 +17,6 @@ import pytest ; pytest
 # Standard library imports
 import socket
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
 import bokeh.server.util as util # isort:skip
 

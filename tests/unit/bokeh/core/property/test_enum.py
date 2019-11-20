@@ -14,14 +14,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from _util_property import _TestHasProps, _TestModel
-from bokeh.core.enums import LineJoin, NamedColor
 from bokeh._testing.util.api import verify_all
+from bokeh.core.enums import LineJoin, NamedColor
 
 # Module under test
 import bokeh.core.property.enum as bcpe # isort:skip

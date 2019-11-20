@@ -14,16 +14,14 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import numpy as np
 
 # Bokeh imports
-from bokeh.core.has_props import HasProps
-from bokeh.core.properties import Int, Float, String, List, Dict, Instance, Enum, NumberSpec, Override
-from bokeh.models import Plot
 from bokeh._testing.util.api import verify_all
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Dict, Enum, Float, Instance, Int, List, NumberSpec, Override, String
+from bokeh.models import Plot
 
 # Module under test
 import bokeh.core.properties as bcp # isort:skip

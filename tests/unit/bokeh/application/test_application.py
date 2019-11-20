@@ -22,7 +22,7 @@ import mock
 
 # Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler
-from bokeh.core.properties import Int, Instance
+from bokeh.core.properties import Instance, Int
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.plotting import figure

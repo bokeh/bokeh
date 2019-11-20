@@ -16,14 +16,15 @@ import pytest ; pytest
 
 # Standard library imports
 import argparse
-from mock import patch
 import os
 
 # External imports
+from mock import patch
 
 # Bokeh imports
-from bokeh.command.bootstrap import main
+from _util_subcommands import basic_scatter_script
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
+from bokeh.command.bootstrap import main
 
 # Module under test
 import bokeh.command.subcommands.html as schtml # isort:skip
@@ -32,7 +33,6 @@ import bokeh.command.subcommands.html as schtml # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_subcommands import basic_scatter_script
 
 #-----------------------------------------------------------------------------
 # General API

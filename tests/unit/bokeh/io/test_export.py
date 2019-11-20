@@ -15,16 +15,16 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from mock import patch
 import re
 
 # External imports
+from mock import patch
 from PIL import Image
 
 # Bokeh imports
+from bokeh.io.webdriver import terminate_webdriver, webdriver_control
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
-from bokeh.io.webdriver import webdriver_control, terminate_webdriver
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 

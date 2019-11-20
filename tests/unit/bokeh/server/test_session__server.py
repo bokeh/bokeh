@@ -14,10 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import mock
-
 # External imports
+import mock
 
 # Bokeh imports
 from bokeh.document import Document

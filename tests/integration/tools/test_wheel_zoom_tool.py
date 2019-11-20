@@ -15,13 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, WheelZoomTool
 from bokeh._testing.util.selenium import RECORD, SCROLL
+from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, WheelZoomTool
 
 #-----------------------------------------------------------------------------
 # Tests

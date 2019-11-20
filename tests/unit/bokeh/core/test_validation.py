@@ -14,20 +14,18 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# External imports
 from mock import patch
 
-# External imports
-
 # Bokeh imports
-from bokeh.model import Model
 from bokeh.core.properties import Int
+from bokeh.core.validation.errors import codes as ec
+from bokeh.core.validation.warnings import codes as wc
+from bokeh.model import Model
 
 # Module under test
 import bokeh.core.validation as v # isort:skip
 
-from bokeh.core.validation.errors import codes as ec
-from bokeh.core.validation.warnings import codes as wc
 
 #-----------------------------------------------------------------------------
 # Setup

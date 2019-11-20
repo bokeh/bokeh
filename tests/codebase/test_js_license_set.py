@@ -19,10 +19,6 @@ import pytest ; pytest
 import os
 from subprocess import PIPE, Popen
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------

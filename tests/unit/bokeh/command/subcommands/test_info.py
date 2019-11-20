@@ -17,8 +17,6 @@ import pytest ; pytest
 # Standard library imports
 from os.path import join
 
-# External imports
-
 # Bokeh imports
 from bokeh.command.bootstrap import main
 

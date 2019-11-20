@@ -15,16 +15,14 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD, enter_text_in_element, hover_element
 from bokeh.layouts import column
 from bokeh.models import AutocompleteInput, Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d
-from bokeh._testing.util.selenium import enter_text_in_element, hover_element, RECORD
 
 #-----------------------------------------------------------------------------
 # Tests

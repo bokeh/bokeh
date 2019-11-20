@@ -14,12 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from mock import patch
-
 # External imports
-
-# Bokeh imports
+from mock import patch
 
 # Module under test
 import bokeh.util.deprecation as dep # isort:skip
