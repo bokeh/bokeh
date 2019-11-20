@@ -39,7 +39,7 @@ updating all of the files in the :bokeh-tree:`examples` subdirectory.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------

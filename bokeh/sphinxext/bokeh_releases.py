@@ -29,7 +29,7 @@ To avoid warnings about orphaned files, add the following to the Sphinx
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------

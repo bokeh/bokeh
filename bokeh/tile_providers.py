@@ -119,7 +119,7 @@ Additional information available at:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 
 log = logging.getLogger(__name__)
 

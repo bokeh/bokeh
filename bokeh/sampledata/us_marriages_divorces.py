@@ -16,7 +16,7 @@ Data organized by Randal S. Olson (http://www.randalolson.com)
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------

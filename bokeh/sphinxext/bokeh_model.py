@@ -44,7 +44,7 @@ in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------

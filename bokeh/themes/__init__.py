@@ -66,7 +66,11 @@ as well as the ``Theme`` class that can be used to create new Themes.
 .. autoclass:: Theme
 
 '''
-import logging
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------

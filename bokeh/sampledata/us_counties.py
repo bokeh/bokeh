@@ -28,7 +28,7 @@ The combination of ``'detailed name'`` and ``'state'`` will always be unique.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
