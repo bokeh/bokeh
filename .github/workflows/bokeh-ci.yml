@@ -7,17 +7,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node_version: [10, 12]
         python_version: [3.7]
         os: [windows-latest,macos-latest]
 
     steps:
       - uses: actions/checkout@master
-
-      - name: Set Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@master
-        with:
-          node-version: ${{ matrix.node_version }}
 
       - name: Setup python ${{ matrix.python_version }}
         uses: actions/setup-python@master
