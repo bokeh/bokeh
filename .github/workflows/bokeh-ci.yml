@@ -9,7 +9,7 @@ jobs:
       matrix:
         node_version: [10, 12]
         python_version: [3.7]
-        os: [macos-latest]
+        os: [windows-latest,macos-latest]
 
     steps:
       - uses: actions/checkout@master
@@ -26,7 +26,7 @@ jobs:
 
       - name: Install conda stuff
         run: |
-          bash scripts/ci/azure/install_conda.sh
+          bash scripts/ci/github/install_conda.sh
 
       - name: Install npm dependencies
         run: |
@@ -36,7 +36,7 @@ jobs:
 
       - name: Install bokeh-python package
         run: |
-          bash scripts/ci/azure/install_bokeh.sh
+          bash scripts/ci/github/install_bokeh.sh
 
       - name: Setup tests
         run: |
