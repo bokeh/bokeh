@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-source scripts/ci/azure/setup_env.sh
+source scripts/ci/github/setup_env.sh
 
-bokeh sampledata
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
 echo "create test_environment ===================="
 $MINICONDA_SUB_PATH/conda create --name test_environment

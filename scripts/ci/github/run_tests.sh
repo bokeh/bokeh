@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source scripts/ci/azure/setup_env.sh
+source scripts/ci/github/setup_env.sh
 
 echo "activate test_environment =================="
 source $MINICONDA_SUB_PATH/activate test_environment

@@ -1,4 +1,4 @@
-name: Bokeh-CI
+name: GitHub-CI
 
 on: [push]
 
@@ -40,8 +40,8 @@ jobs:
 
       - name: Setup tests
         run: |
-          bash scripts/ci/azure/setup_tests.sh
+          bash scripts/ci/github/setup_tests.sh
 
       - name: Run tests
         run: |
-          bash scripts/ci/azure/run_tests.sh
+          bash scripts/ci/github/run_tests.sh
