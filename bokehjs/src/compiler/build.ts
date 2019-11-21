@@ -309,6 +309,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     cache: join(dist_dir, `${artifact}.json`),
     excluded: (dep) => dep.startsWith("@bokehjs/"),
     plugin: true,
+    transpile: "ES2017",
   })
 
   print("Linking modules")

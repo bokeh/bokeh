@@ -30,6 +30,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
+    transpile: "ES2017",
   })
 
   if (!argv.rebuild) linker.load_cache()
@@ -56,7 +57,7 @@ task("scripts:bundle-es5", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.es5, "bokeh.json") : undefined,
-    transpile: true,
+    transpile: "ES5",
   })
 
   if (!argv.rebuild) linker.load_cache()

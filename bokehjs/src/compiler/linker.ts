@@ -177,7 +177,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  transpile?: boolean
+  transpile?: "ES2017" | "ES5"
   minify?: boolean
   plugin?: boolean
   export_all?: boolean
@@ -192,7 +192,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly transpile: boolean
+  readonly transpile: "ES2017" | "ES5" | null
   readonly minify: boolean
   readonly plugin: boolean
   readonly export_all: boolean
@@ -227,7 +227,7 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.transpile = opts.transpile != null ? opts.transpile : false
+    this.transpile = opts.transpile != null ? opts.transpile : null
     this.minify = opts.minify != null ? opts.minify : true
     this.plugin = opts.plugin != null ? opts.plugin : false
   }
@@ -417,7 +417,7 @@ export class Linker {
       const pkg_path = join(dir, "package.json")
       if (file_exists(pkg_path)) {
         const pkg = JSON.parse(read(pkg_path)!)
-        if (pkg.module != null)
+        if (this.transpile != null && pkg.module != null)
           return pkg.module
         if (pkg.main != null)
           return pkg.main
@@ -573,14 +573,16 @@ export class Linker {
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       if (type == "js") {
-        const {ES2017, ES5} = ts.ScriptTarget
-        const target = !this.transpile ? ES2017 : ES5
-        const transform = {before: [transforms.rename_exports()], after: []}
-        const {output, error} = transpile(file, source, target, transform)
-        if (error)
-          throw new Error(error)
-        else
-          source = output
+        if (this.transpile != null) {
+          const {ES2017, ES5} = ts.ScriptTarget
+          const target = this.transpile == "ES2017" ? ES2017 : ES5
+          const transform = {before: [transforms.rename_exports()], after: []}
+          const {output, error} = transpile(file, source, target, transform)
+          if (error)
+            throw new Error(error)
+          else
+            source = output
+        }
       }
 
       ast = this.parse_module({file, source, type})
