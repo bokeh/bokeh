@@ -49,14 +49,14 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:bundle-es5", ["scripts:compile"], async () => {
-  const {bokehjs, gl, api, widgets, tables} = paths.lib_es5
+task("scripts:bundle-legacy", ["scripts:compile"], async () => {
+  const {bokehjs, gl, api, widgets, tables} = paths.lib_legacy
   const packages = [bokehjs, gl, api, widgets, tables]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.es5, "bokeh.json") : undefined,
+    cache: argv.cache !== false ? join(paths.build_dir.legacy, "bokeh.json") : undefined,
     transpile: "ES5",
   })
 
@@ -76,7 +76,7 @@ task("scripts:bundle-es5", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:build", ["scripts:bundle", "scripts:bundle-es5"])
+task("scripts:build", ["scripts:bundle", "scripts:bundle-legacy"])
 
 task("scripts:minify", ["scripts:build"])
 

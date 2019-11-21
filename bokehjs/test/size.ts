@@ -12,12 +12,12 @@ const LIMITS: {[key: string]: number} = {
   "js/bokeh-tables.min.js":  270,
   "js/bokeh-api.min.js":      90,
   "js/bokeh-gl.min.js":       70,
-  // es5/legacy
-  "js/es5/bokeh.min.js":         770,
-  "js/es5/bokeh-widgets.min.js": 100,
-  "js/es5/bokeh-tables.min.js":  270,
-  "js/es5/bokeh-api.min.js":      90,
-  "js/es5/bokeh-gl.min.js":       70,
+  // legacy (es5)
+  "js/legacy/bokeh.min.js":         770,
+  "js/legacy/bokeh-widgets.min.js": 100,
+  "js/legacy/bokeh-tables.min.js":  270,
+  "js/legacy/bokeh-api.min.js":      90,
+  "js/legacy/bokeh-gl.min.js":       70,
 }
 
 describe(`bokehjs/build/*/*.min.js file sizes`, () => {

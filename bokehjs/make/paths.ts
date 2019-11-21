@@ -12,7 +12,7 @@ const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 export const build_dir = {
   all: BUILD_DIR,
   js: JS_BUILD_DIR,
-  es5: join(JS_BUILD_DIR, "es5"),
+  legacy: join(JS_BUILD_DIR, "legacy"),
   css: CSS_BUILD_DIR,
   test: join(BUILD_DIR, "test"),
   types: join(JS_BUILD_DIR, "types"),
@@ -51,25 +51,25 @@ export const lib = {
   },
 }
 
-export const lib_es5 = {
+export const lib_legacy = {
   bokehjs: {
     main: join(build_dir.lib, "legacy.js"),
-    output: join(build_dir.es5, "bokeh.js"),
+    output: join(build_dir.legacy, "bokeh.js"),
   },
   gl: {
     main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
-    output: join(build_dir.es5, "bokeh-gl.js"),
+    output: join(build_dir.legacy, "bokeh-gl.js"),
   },
   api: {
     main: join(build_dir.lib, "api/main.js"),
-    output: join(build_dir.es5, "bokeh-api.js"),
+    output: join(build_dir.legacy, "bokeh-api.js"),
   },
   widgets: {
     main: join(build_dir.lib, "models/widgets/main.js"),
-    output: join(build_dir.es5, "bokeh-widgets.js"),
+    output: join(build_dir.legacy, "bokeh-widgets.js"),
   },
   tables: {
     main: join(build_dir.lib, "models/widgets/tables/main.js"),
-    output: join(build_dir.es5, "bokeh-tables.js"),
+    output: join(build_dir.legacy, "bokeh-tables.js"),
   },
 }
