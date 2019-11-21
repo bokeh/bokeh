@@ -514,6 +514,10 @@ class Settings(object):
     Whether Bokeh should use minified BokehJS resources.
     """)
 
+    legacy = PrioritizedSetting("legacy", "BOKEH_LEGACY", convert=convert_bool, default=False, dev_default=False, help="""
+    Whether Bokeh should use legacy (IE and phantomjs compatible) BokehJS resources.
+    """)
+
     nodejs_path = PrioritizedSetting("nodejs_path", "BOKEH_NODEJS_PATH", default=None, help="""
     Path to the Node executable.
 

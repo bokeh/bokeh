@@ -62,7 +62,7 @@ class BaseResources(object):
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
     def __init__(self, mode=None, version=None, root_dir=None,
-                 minified=None, log_level=None, root_url=None,
+                 minified=None, legacy=None, log_level=None, root_url=None,
                  path_versioner=None, components=None, base_dir=None):
 
         self._components = components
@@ -76,6 +76,7 @@ class BaseResources(object):
         self.root_dir = settings.rootdir(root_dir);     del root_dir
         self.version = settings.version(version);       del version
         self.minified = settings.minified(minified);    del minified
+        self.legacy = settings.legacy(legacy);          del legacy
         self.log_level = settings.log_level(log_level); del log_level
         self.path_versioner = path_versioner;           del path_versioner
 
@@ -143,8 +144,9 @@ class BaseResources(object):
 
     def _file_paths(self, kind):
         minified = ".min" if not self.dev and self.minified else ""
+        legacy = "legacy" if self.legacy else ""
         files = [ "%s%s.%s" % (component, minified, kind) for component in self.components(kind) ]
-        paths = [ join(self.base_dir, kind, file) for file in files ]
+        paths = [ join(self.base_dir, kind, legacy, file) for file in files ]
         return paths
 
     def _collect_external_resources(self, resource_attr):
@@ -166,10 +168,10 @@ class BaseResources(object):
         return external_resources
 
     def _cdn_urls(self):
-        return _get_cdn_urls(self.version, self.minified)
+        return _get_cdn_urls(self.version, self.minified, self.legacy)
 
     def _server_urls(self):
-        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
+        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.legacy, self.path_versioner)
 
     def _resolve(self, kind):
         paths = self._file_paths(kind)
@@ -449,7 +451,7 @@ def _cdn_base_url():
     return "https://cdn.bokeh.org"
 
 
-def _get_cdn_urls(version=None, minified=True):
+def _get_cdn_urls(version=None, minified=True, legacy=False):
     if version is None:
         if settings.docs_cdn():
             version = settings.docs_cdn()
@@ -457,7 +459,8 @@ def _get_cdn_urls(version=None, minified=True):
             version = __version__.split('-')[0]
 
     # check if we want minified js and css
-    _min = ".min" if minified else ""
+    _minified = ".min" if minified else ""
+    _legacy = "legacy/" if legacy else ""
 
     base_url = _cdn_base_url()
     dev_container = 'bokeh/dev'
@@ -470,7 +473,7 @@ def _get_cdn_urls(version=None, minified=True):
         log.debug("Getting CDN URL for local dev version will not produce usable URL")
 
     def mk_url(comp, kind):
-        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
+        return f"{base_url}/{container}/{_legacy}{comp}-{version}{_minified}.{kind}"
 
     result = {
         'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
@@ -487,14 +490,15 @@ def _get_cdn_urls(version=None, minified=True):
     return result
 
 
-def _get_server_urls(root_url, minified=True, path_versioner=None):
-    _min = ".min" if minified else ""
+def _get_server_urls(root_url, minified=True, legacy=False, path_versioner=None):
+    _minified = ".min" if minified else ""
+    _legacy = "legacy/" if legacy else ""
 
     def mk_url(comp, kind):
-        path = "%s/%s%s.%s" % (kind, comp, _min, kind)
+        path = f"{kind}/{_legacy}{comp}{_minified}.{kind}"
         if path_versioner is not None:
             path = path_versioner(path)
-        return '%sstatic/%s' % (root_url, path)
+        return f"{root_url}static/{path}"
 
     return {
         'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
@@ -509,9 +513,12 @@ CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
 
+INLINE_LEGACY = Resources(mode="inline", legacy=True)
+
 __all__ = (
     'CDN',
     'INLINE',
+    'INLINE_LEGACY',
     'Resources',
     'JSResources',
     'CSSResources',

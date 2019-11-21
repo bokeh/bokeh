@@ -30,7 +30,7 @@ from PIL import Image
 
 # Bokeh imports
 from ..embed import file_html
-from ..resources import INLINE
+from ..resources import INLINE_LEGACY
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
 
     return svgs
 
-def get_layout_html(obj, resources=INLINE, **kwargs):
+def get_layout_html(obj, resources=INLINE_LEGACY, **kwargs):
     '''
 
     '''
