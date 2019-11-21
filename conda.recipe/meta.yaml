@@ -65,7 +65,7 @@ test:
     - mypy
     - nbconvert >=5.4
     - networkx
-    - nodejs >=10.13
+    - nodejs >=10.13,<13
     - numba
     - pandas
     - psutil
