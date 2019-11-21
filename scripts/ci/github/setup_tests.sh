@@ -4,11 +4,11 @@ source scripts/ci/github/setup_env.sh
 
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
-echo "create test_environment ===================="
-$MINICONDA_SUB_PATH/conda create --name test_environment
+echo "create test environment ===================="
+$MINICONDA_SUB_PATH/conda create --name testenv
 
-echo "activate test_environment =================="
-source $MINICONDA_SUB_PATH/activate test_environment
+echo "activate test environment =================="
+source $MINICONDA_SUB_PATH/activate testenv
 
 echo "conda install jinja2 pyyaml ================"
 $MINICONDA_SUB_PATH/conda install phantomjs jinja2 pyyaml
