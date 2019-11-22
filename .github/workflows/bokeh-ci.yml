@@ -1,4 +1,4 @@
-name: Bokeh-CI
+name: GitHub-CI
 
 on: [push]
 
@@ -7,17 +7,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node_version: [10, 12]
         python_version: [3.7]
-        os: [macos-latest]
+        os: [windows-latest,macos-latest]
 
     steps:
       - uses: actions/checkout@master
-
-      - name: Set Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@master
-        with:
-          node-version: ${{ matrix.node_version }}
 
       - name: Setup python ${{ matrix.python_version }}
         uses: actions/setup-python@master
@@ -26,7 +20,7 @@ jobs:
 
       - name: Install conda stuff
         run: |
-          bash scripts/ci/azure/install_conda.sh
+          bash scripts/ci/github/install_conda.sh
 
       - name: Install npm dependencies
         run: |
@@ -36,12 +30,12 @@ jobs:
 
       - name: Install bokeh-python package
         run: |
-          bash scripts/ci/azure/install_bokeh.sh
+          bash scripts/ci/github/install_bokeh.sh
 
       - name: Setup tests
         run: |
-          bash scripts/ci/azure/setup_tests.sh
+          bash scripts/ci/github/setup_tests.sh
 
       - name: Run tests
         run: |
-          bash scripts/ci/azure/run_tests.sh
+          bash scripts/ci/github/run_tests.sh
