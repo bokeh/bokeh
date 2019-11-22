@@ -75,9 +75,17 @@ function load_baseline(baseline_path: string): string | null {
   return proc.status == 0 ? proc.stdout : null
 }
 
+function git(...args: string[]): cp.SpawnSyncReturns<string> {
+  return cp.spawnSync("git", [...args], {encoding: "utf8"})
+}
+
 function diff_baseline(baseline_path: string): string | null {
-  const proc = cp.spawnSync("git", ["diff", "--color", "--exit-code", baseline_path], {encoding: "utf8"})
-  return proc.status == 0 ? null : diff_highlight(proc.stdout)
+  const proc = git("diff", "--color", "--exit-code", baseline_path)
+  if (proc.status == 0) {
+    const proc = git("diff", "--color", "/dev/null", baseline_path)
+    return proc.stdout
+  } else
+    return diff_highlight(proc.stdout)
 }
 
 function diff_highlight(diff: string): string {
@@ -237,15 +245,12 @@ async function run_tests(): Promise<void> {
             fs.writeFileSync(baseline_path, baseline)
 
             const existing = load_baseline(baseline_path)
-            if (existing == null) {
-              console.log(`${prefix}no baseline`)
-              failure = true
-            } else if (existing != baseline) {
+            if (existing != baseline) {
+              if (existing == null)
+                console.log(`${prefix}no baseline`)
               const diff = diff_baseline(baseline_path)
               console.log(diff)
               failure = true
-            } else {
-
             }
           }
 
