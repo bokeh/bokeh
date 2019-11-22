@@ -46,7 +46,7 @@ class AuthProvider(object):
     Optionally, if ``login_url`` provides a relative URL, then ``login_handler``
     may also be supplied.
 
-    The properties ``logout_url`` and ``get_logout_hander`` are analogous to
+    The properties ``logout_url`` and ``get_logout_handler`` are analogous to
     the corresponding login properties, and are optional.
 
     '''
@@ -107,7 +107,7 @@ class AuthProvider(object):
         pass
 
     @property
-    def login_hander(self):
+    def login_handler(self):
         ''' A request handler class for a login page.
 
         This property may return None, if ``login_url`` is supplied
@@ -130,7 +130,7 @@ class AuthProvider(object):
         pass
 
     @property
-    def logout_hander(self):
+    def logout_handler(self):
         ''' A request handler class for a logout page.
 
         This property may return None.
