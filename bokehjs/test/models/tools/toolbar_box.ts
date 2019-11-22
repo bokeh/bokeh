@@ -17,7 +17,6 @@ import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 class MultiToolView extends SelectToolView {}
 
 class MultiTool extends SelectTool {
-  type = "MultiTool"
   default_view = MultiToolView
   icon = "Multi Tool"
   tool_name = "Multi Tool"
