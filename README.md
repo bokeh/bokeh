@@ -67,7 +67,7 @@
          alt="Current TravisCI build status" />
     </a>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://github.com/bokeh/bokeh/workflows/.github/workflows/bokeh-ci.yml/badge.svg"
+    <img src="https://github.com/bokeh/bokeh/workflows/GitHub-CI/badge.svg"
          alt="Current github actions build status" />
     </a>
   </td>
