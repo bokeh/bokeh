@@ -31,6 +31,12 @@ interface Msg {
   trace: CallFrame[]
 }
 
+function log(entries: (Msg | Err)[], options: {prefix?: string} = {}): void {
+  for (const {text, line, col, url} of entries) {
+    console.log(`${options.prefix ?? ""}[${line}:${col}] ${text} (${url})`)
+  }
+}
+
 class TimeoutError extends Error {
   constructor() {
     super("timeout")
@@ -93,6 +99,10 @@ function diff_highlight(diff: string): string {
   const proc = cp.spawnSync("perl", [hl_path], {input: diff, encoding: "utf8"})
   return proc.status == 0 ? proc.stdout : diff
 }
+
+type Suite = {description: string, suites: Suite[], tests: Test[]}
+type Test = {description: string}
+type Result = {state: State, bbox: DOMRect, time: number}
 
 async function run_tests(): Promise<void> {
   let client
@@ -175,100 +185,104 @@ async function run_tests(): Promise<void> {
     await Page.loadEventFired()
     await is_ready()
 
-    const ret = await evaluate<string>("JSON.stringify(exports.top_level)")
-    if (ret != null) {
-      const top_level = JSON.parse(ret.value) as Suite
-      type Suite = {description: string, suites: Suite[], tests: Test[]}
-      type Test = {description: string}
-      type Result = {state: State, bbox: DOMRect, time: number}
-      const baseline_names = new Set<string>()
-      let failures = 0
-      async function run({suites, tests}: Suite, parents: Suite[], seq: number[]) {
-        for (let i = 0; i < suites.length; i++) {
-          console.log(`${"  ".repeat(seq.length)}${suites[i].description}`)
-          await run(suites[i], parents.concat(suites[i]), seq.concat(i))
-        }
+    if (errors.length != 0) {
+      log(messages)
+      log(errors)
+    }
 
-        for (let i = 0; i < tests.length; i++) {
-          messages = []
-          errors = []
+    const ret = await evaluate<string>("JSON.stringify(Tests.top_level)")
+    if (ret == null) {
+      console.log("internal error: failed to collect tests")
+      process.exit(1)
+    }
 
-          const prefix = "  ".repeat(seq.length)
+    const top_level = JSON.parse(ret.value) as Suite
+    if (top_level.suites.length == 0) {
+      console.log("empty test suite")
+      process.exit(1)
+    }
 
-          console.log(`${prefix}${tests[i].description}`)
-          //const start = Date.now()
-          const x0 = evaluate<string>(`exports.run_test(${JSON.stringify(seq.concat(i))})`)
-          const x1 = timeout(5000)
-          let output
-          try {
-            output = await Promise.race([x0, x1])
-          } catch(err) {
-            if (err instanceof TimeoutError) {
-              console.log("timeout")
-              continue
-            }
-          }
-
-          const result = JSON.parse((output as {value: string}).value) as Result
-
-          //console.log(result)
-          //const image = await Page.captureScreenshot({format: "png", clip: {...result.bbox, scale: 1.0}})
-          //console.log(image.data.length)
-          function encode(s: string): string {
-            return s.replace(/[ \/]/g, "_")
-          }
-
-          let failure = false
-
-          if (errors.length != 0) {
-            failure = true
-
-            for (const {text} of messages) {
-              console.log(`${prefix}${text}`)
-            }
-
-            for (const {text} of errors) {
-              console.log(`${prefix}${text}`)
-            }
-          }
-
-          const baseline_name = parents.map((suite) => suite.description).concat(tests[i].description).map(encode).join("__")
-
-          if (baseline_names.has(baseline_name)) {
-            console.log(`${prefix}duplicated description`)
-            failure = true
-          } else {
-            baseline_names.add(baseline_name)
-
-            const baseline_path = path.join("test", "baselines", baseline_name)
-            const baseline = create_baseline([result.state])
-            fs.writeFileSync(baseline_path, baseline)
-
-            const existing = load_baseline(baseline_path)
-            if (existing != baseline) {
-              if (existing == null)
-                console.log(`${prefix}no baseline`)
-              const diff = diff_baseline(baseline_path)
-              console.log(diff)
-              failure = true
-            }
-          }
-
-          if (failure)
-            failures++
-
-          /*
-          console.log(`${prefix}test run in ${result.time} ms`)
-          console.log(`${prefix}total run in ${Date.now() - start} ms`)
-          */
-        }
+    const baseline_names = new Set<string>()
+    let failures = 0
+    async function run({suites, tests}: Suite, parents: Suite[], seq: number[]) {
+      for (let i = 0; i < suites.length; i++) {
+        console.log(`${"  ".repeat(seq.length)}${suites[i].description}`)
+        await run(suites[i], parents.concat(suites[i]), seq.concat(i))
       }
 
-      await run(top_level, [], [])
+      for (let i = 0; i < tests.length; i++) {
+        messages = []
+        errors = []
 
-      if (failures != 0)
-        process.exit(1)
+        const prefix = "  ".repeat(seq.length)
+
+        console.log(`${prefix}${tests[i].description}`)
+        //const start = Date.now()
+        const x0 = evaluate<string>(`Tests.run_test(${JSON.stringify(seq.concat(i))})`)
+        const x1 = timeout(5000)
+        let output
+        try {
+          output = await Promise.race([x0, x1])
+        } catch(err) {
+          if (err instanceof TimeoutError) {
+            console.log("timeout")
+            continue
+          }
+        }
+
+        const result = JSON.parse((output as {value: string}).value) as Result
+
+        //const image = await Page.captureScreenshot({format: "png", clip: {...result.bbox, scale: 1.0}})
+        //console.log(image.data.length)
+        function encode(s: string): string {
+          return s.replace(/[ \/]/g, "_")
+        }
+
+        let failure = false
+
+        if (errors.length != 0) {
+          failure = true
+          log(messages, {prefix})
+          log(errors, {prefix})
+        }
+
+        const baseline_name = parents.map((suite) => suite.description).concat(tests[i].description).map(encode).join("__")
+
+        if (baseline_names.has(baseline_name)) {
+          console.log(`${prefix}duplicated description`)
+          failure = true
+        } else {
+          baseline_names.add(baseline_name)
+
+          const baseline_path = path.join("test", "baselines", baseline_name)
+          const baseline = create_baseline([result.state])
+          fs.writeFileSync(baseline_path, baseline)
+
+          const existing = load_baseline(baseline_path)
+          if (existing != baseline) {
+            if (existing == null)
+              console.log(`${prefix}no baseline`)
+            const diff = diff_baseline(baseline_path)
+            console.log(diff)
+            failure = true
+          }
+        }
+
+        if (failure) {
+          failures++
+        }
+
+        /*
+        console.log(`${prefix}test run in ${result.time} ms`)
+        console.log(`${prefix}total run in ${Date.now() - start} ms`)
+        */
+      }
     }
+
+    await run(top_level, [], [])
+
+    if (failures != 0)
+      process.exit(1)
   } catch (err) {
     console.error(err.message)
     process.exit(1)
