@@ -32,8 +32,8 @@ interface Msg {
 }
 
 function log(entries: (Msg | Err)[], options: {prefix?: string} = {}): void {
-  for (const {text, line, col, url} of entries) {
-    console.log(`${options.prefix ?? ""}[${line}:${col}] ${text} (${url})`)
+  for (const {text} of entries) {
+    console.log(`${options.prefix ?? ""}${text}`)
   }
 }
 
@@ -144,8 +144,6 @@ async function run_tests(): Promise<void> {
       messages.push(msg)
     })
 
-    //Runtime.exceptionThrown(({exceptionDetails}) => errors.push(handle_exception(exceptionDetails))
-
     Log.entryAdded(({entry}) => {
       const {source, level, text, url, lineNumber, stackTrace} = entry
       if (source === "network" && level === "error") {
@@ -159,9 +157,22 @@ async function run_tests(): Promise<void> {
       }
     })
 
+    let handle_exceptions = true
+    Runtime.exceptionThrown(({exceptionDetails}) => {
+      if (handle_exceptions) {
+        errors.push(handle_exception(exceptionDetails))
+      }
+    })
+
+    function fail(msg: string, code: number = 1): never {
+      console.log(msg)
+      log(messages)
+      log(errors)
+      process.exit(code)
+    }
+
     async function evaluate<T>(expression: string): Promise<{value: T} | null> {
       const {result, exceptionDetails} = await Runtime.evaluate({expression, awaitPromise: true}) //, returnByValue: true})
-
       if (exceptionDetails == null)
         return result.value !== undefined ? {value: result.value} : null
       else {
@@ -182,24 +193,22 @@ async function run_tests(): Promise<void> {
     await Log.enable()
 
     await Page.navigate({url})
+
+    if (errors.length != 0) {
+      fail(`failed to load ${url}`)
+    }
+
     await Page.loadEventFired()
     await is_ready()
 
-    if (errors.length != 0) {
-      log(messages)
-      log(errors)
-    }
-
     const ret = await evaluate<string>("JSON.stringify(Tests.top_level)")
     if (ret == null) {
-      console.log("internal error: failed to collect tests")
-      process.exit(1)
+      fail("internal error: failed to collect tests")
     }
 
     const top_level = JSON.parse(ret.value) as Suite
     if (top_level.suites.length == 0) {
-      console.log("empty test suite")
-      process.exit(1)
+      fail("empty test suite")
     }
 
     const baseline_names = new Set<string>()
