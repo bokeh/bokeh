@@ -1,6 +1,6 @@
 name: GitHub-CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         python_version: [3.7]
-        os: [windows-latest,macos-latest]
+        os: [windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@master
