@@ -25,6 +25,7 @@ from urllib.parse import quote_plus, urlparse
 from ..core.templates import AUTOLOAD_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
+from ..util.string import format_docstring
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items
 from .util import RenderItem
@@ -44,7 +45,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def server_document(url="default", relative_urls=False, resources="default", arguments=None):
-    f''' Return a script tag that embeds content from a Bokeh server.
+    ''' Return a script tag that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
@@ -105,7 +106,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
     return tag
 
 def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default"):
-    f''' Return a script tag that embeds content from a specific existing session on
+    ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
     This function is typically only useful for serving from a a specific session
@@ -360,3 +361,6 @@ def _src_path(url, elementid):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+server_document.__doc__ = format_docstring(server_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
+server_session.__doc__ = format_docstring(server_session.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
