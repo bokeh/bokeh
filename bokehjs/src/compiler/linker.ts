@@ -181,6 +181,7 @@ export interface LinkerOpts {
   minify?: boolean
   plugin?: boolean
   export_all?: boolean
+  prelude?: string
 }
 
 export class Linker {
@@ -197,6 +198,7 @@ export class Linker {
   readonly minify: boolean
   readonly plugin: boolean
   readonly export_all: boolean
+  readonly prelude: string | null
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -208,6 +210,7 @@ export class Linker {
     this.excluded = opts.excluded || (() => false)
     this.builtins = opts.builtins || false
     this.export_all = opts.export_all || false
+    this.prelude = opts.prelude ?? null
 
     if (this.builtins) {
       this.external_modules.add("module")
@@ -331,7 +334,7 @@ export class Linker {
       })
     }
 
-    const main_prelude = !this.plugin ? preludes.prelude : preludes.plugin_prelude
+    const main_prelude = this.prelude != null ? this.prelude : (!this.plugin ? preludes.prelude : preludes.plugin_prelude)
     const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
 
     const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, main_prelude, main_assembly)

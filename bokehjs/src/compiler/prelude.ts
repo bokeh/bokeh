@@ -147,3 +147,57 @@ ${comment(license)}
     }
   })
 `
+
+export function default_prelude(options: {global?: string} = {}): string {
+  return `\
+(function(root, factory) {
+  ${options.global != null ? `root["${options.global}"] = factory()` : "Object.assign(root, factory())"};
+})(this, function() {
+  var parent_require = typeof require === "function" && require
+  return (function(modules, entry, aliases, externals) {
+    if (aliases === undefined) aliases = {};
+    if (externals === undefined) externals = {};
+
+    var cache = {};
+
+    var normalize = function(name) {
+      var alias = aliases[name];
+      return alias != null ? alias : name;
+    }
+
+    var require = function(name) {
+      var mod = cache[name];
+      if (!mod) {
+        var id = normalize(name);
+
+        mod = cache[id];
+        if (!mod) {
+          if (!modules[id]) {
+            if (parent_require && externals[id]) {
+              try {
+                mod = {exports: parent_require(id)};
+                cache[id] = cache[name] = mod;
+                return mod.exports;
+              } catch (e) {}
+            }
+
+            var err = new Error("Cannot find module '" + name + "'");
+            err.code = 'MODULE_NOT_FOUND';
+            throw err;
+          }
+
+          mod = {exports: {}};
+          cache[id] = cache[name] = mod;
+          modules[id].call(mod.exports, require, mod, mod.exports);
+        } else
+          cache[name] = mod;
+      }
+
+      return mod.exports;
+    }
+
+    var main = require(entry);
+    return main;
+  })
+`
+}
