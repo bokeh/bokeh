@@ -33,6 +33,7 @@ from ..application import Application
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
+from ..util.string import format_docstring
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
@@ -60,7 +61,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class BokehTornado(TornadoApplication):
-    f''' A Tornado Application used to implement the Bokeh Server.
+    ''' A Tornado Application used to implement the Bokeh Server.
 
     Args:
         applications (dict[str,Application] or Application) :
@@ -587,3 +588,13 @@ class BokehTornado(TornadoApplication):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+BokehTornado.__doc__ = format_docstring(
+    BokehTornado.__doc__,
+    DEFAULT_CHECK_UNUSED_MS=DEFAULT_CHECK_UNUSED_MS,
+    DEFAULT_KEEP_ALIVE_MS=DEFAULT_KEEP_ALIVE_MS,
+    DEFAULT_MEM_LOG_FREQ_MS=DEFAULT_MEM_LOG_FREQ_MS,
+    DEFAULT_STATS_LOG_FREQ_MS=DEFAULT_STATS_LOG_FREQ_MS,
+    DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+)
