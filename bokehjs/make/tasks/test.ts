@@ -36,7 +36,6 @@ function mocha(files: string[]): Promise<void> {
     ["--reporter", (argv.reporter as string | undefined) || "spec"],
     ["--slow", "5s"],
     ["--exit"],
-    ["./build/test/index.js"],
     files,
   )
 

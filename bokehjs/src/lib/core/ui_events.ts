@@ -422,11 +422,7 @@ export class UIEvents implements EventListenerObject {
   }
 
   private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
-    // XXX: jsdom doesn't support TouchEvent constructor
-    function is_touch(event: TouchEvent | MouseEvent | PointerEvent): event is TouchEvent {
-      return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
-    }
-    const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
+    const {pageX, pageY} = event instanceof TouchEvent ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset(this.hit_area)
     return {
       sx: pageX - left,

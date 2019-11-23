@@ -1,6 +1,3 @@
-// XXX node.js compat shim for WebSocket
-(global as any).WebSocket = require("websocket").w3cwebsocket
-
 import * as chai from "chai"
 import * as chai_as_promised from "chai-as-promised"
 chai.use(chai_as_promised)
