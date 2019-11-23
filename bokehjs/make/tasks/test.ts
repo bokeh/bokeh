@@ -1,5 +1,6 @@
 import {spawn} from "child_process"
 import {argv} from "yargs"
+import {join} from "path"
 
 import {task, log, BuildError} from "../task"
 import {compile_typescript} from "@compiler/compiler"
@@ -75,8 +76,28 @@ task("test:unit", ["test:compile"], async () => {
   await mocha(["./build/test/unit.js"])
 })
 
-task("test:integration", ["test:compile"], async () => {
-  const proc = spawn(process.execPath, ["build/test/devtools.js", "test/integration.html"], {stdio: 'inherit'})
+import {Linker} from "@compiler/linker"
+import {default_prelude} from "@compiler/prelude"
+
+task("test:integration:bundle", ["test:compile"], async () => {
+  const linker = new Linker({
+    entries: [join(paths.build_dir.test, "integration", "index.js")],
+    bases: [paths.build_dir.test, "./node_modules"],
+    cache: join(paths.build_dir.test, "integration.json"),
+    transpile: "ES2017",
+    externals: [/^@bokehjs\//],
+    prelude: default_prelude({global: "Tests"}),
+  })
+
+  if (!argv.rebuild) linker.load_cache()
+  const [bundle] = linker.link()
+  linker.store_cache()
+
+  bundle.assemble().write(join(paths.build_dir.test, "integration.js"))
+})
+
+task("test:integration", ["test:integration:bundle"], async () => {
+  const proc = spawn(process.execPath, ["build/test/devtools.js", "test/integration/index.html"], {stdio: 'inherit'})
 
   process.once('exit',    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))

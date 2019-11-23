@@ -1,4 +1,5 @@
-import {describe, it, display} from "./framework"
+import {describe, it, display} from "../framework"
+export * from "../framework"
 
 import {LayoutDOM, Row, Column, GridBox, Spacer, Tabs, Panel} from "@bokehjs/models/layouts/index"
 import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
