@@ -173,7 +173,7 @@ export interface LinkerOpts {
   entries: Path[]
   bases?: Path[]
   excludes?: Path[]    // paths: process, but don't include in a bundle
-  externals?: string[] // modules: delegate to an external require()
+  externals?: (string | RegExp)[] // modules: delegate to an external require()
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
@@ -187,7 +187,8 @@ export class Linker {
   readonly entries: Path[]
   readonly bases: Path[]
   readonly excludes: Set<Path>
-  readonly externals: Set<string>
+  readonly external_modules: Set<string>
+  readonly external_regex: RegExp[]
   readonly excluded: (dep: string) => boolean
   readonly builtins: boolean
   readonly cache_path?: Path
@@ -199,19 +200,21 @@ export class Linker {
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
-    this.bases = (opts.bases || []).map((path) => resolve(path))
-    this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
-    this.externals = new Set(opts.externals || [])
+    this.bases = (opts.bases ?? []).map((path) => resolve(path))
+    this.excludes = new Set((opts.excludes ?? []).map((path) => resolve(path)))
+    this.external_modules = new Set((opts.externals ?? []).filter((s): s is string => typeof s === "string"))
+    this.external_regex = (opts.externals ?? []).filter((s): s is RegExp => s instanceof RegExp)
+
     this.excluded = opts.excluded || (() => false)
     this.builtins = opts.builtins || false
     this.export_all = opts.export_all || false
 
     if (this.builtins) {
-      this.externals.add("module")
-      this.externals.add("constants")
+      this.external_modules.add("module")
+      this.external_modules.add("constants")
 
       for (const lib of _builtinLibs)
-        this.externals.add(lib)
+        this.external_modules.add(lib)
     }
 
     for (const entry of this.entries) {
@@ -230,6 +233,10 @@ export class Linker {
     this.transpile = opts.transpile != null ? opts.transpile : null
     this.minify = opts.minify != null ? opts.minify : true
     this.plugin = opts.plugin != null ? opts.plugin : false
+  }
+
+  is_external(dep: string): boolean {
+    return this.external_modules.has(dep) || this.external_regex.some((re) => re.test(dep))
   }
 
   link(): Bundle[] {
@@ -588,10 +595,10 @@ export class Linker {
       ast = this.parse_module({file, source, type})
 
       const collected = transforms.collect_deps(ast)
-      const filtered = collected.filter((dep) => !this.externals.has(dep) && !this.excluded(dep))
+      const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep))
 
       dependency_paths = new Map(filtered.map((dep) => [dep, this.resolve_file(dep, {file})]))
-      externals = new Set(collected.filter((dep) => this.externals.has(dep)))
+      externals = new Set(collected.filter((dep) => this.is_external(dep)))
     } else {
       dependency_paths = cached!.module.dependency_paths
       externals = cached!.module.externals
