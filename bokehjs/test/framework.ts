@@ -24,6 +24,27 @@ export function it(description: string, fn: () => Promise<void>): void {
   stack[0].tests.push({description, fn})
 }
 
+export function before(_fn: () => void): void {
+}
+
+export function after(_fn: () => void): void {
+}
+
+export function beforeEach(_fn: () => void): void {
+}
+
+export function afterEach(_fn: () => void): void {
+}
+
+const _globalThis: any = globalThis
+
+_globalThis.describe = describe
+_globalThis.it = it
+_globalThis.before = before
+_globalThis.after = after
+_globalThis.beforeEach = beforeEach
+_globalThis.afterEach = afterEach
+
 export async function run_suite(suite: Suite, grep?: string | RegExp) {
 
   async function _run_suite(suite: Suite, seq: Suite[]) {
