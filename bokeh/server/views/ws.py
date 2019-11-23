@@ -138,7 +138,7 @@ class WSHandler(WebSocketHandler):
         Specifically, this method coordinates:
 
         * Getting a session for a session ID (creating a new one if needed)
-        * Creating a protocol receiver and hander
+        * Creating a protocol receiver and handler
         * Opening a new ServerConnection and sending it an ACK
 
         Args:
