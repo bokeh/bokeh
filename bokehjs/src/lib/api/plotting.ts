@@ -633,10 +633,9 @@ export class Figure extends Plot {
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
                         defaults: Attrs = {}, trait_defaults: Attrs = {}): Attrs {
 
-    const _split_feature_trait = function(ft: string): Array<string> {
-      const fta: Array<string> = ft.split('_', 2)
-      if (fta.length==2) { return fta }
-      else { return fta.concat(['']) }
+    const _split_feature_trait = function(ft: string): string[] {
+      const fta: string[] = ft.split('_', 2)
+      if (fta.length==2) { return fta } else { return fta.concat(['']) }
     }
     const _is_visual = function(ft: string): boolean {
       let feature, trait
@@ -645,36 +644,41 @@ export class Figure extends Plot {
     }
 
     defaults = {...defaults}
-    if ( !defaults.hasOwnProperty('text_color') ) {
-      defaults['text_color'] = 'black' }
+    if (!defaults.hasOwnProperty('text_color')) {
+      defaults.text_color = 'black'
+    }
     trait_defaults = {...trait_defaults}
-    if ( !trait_defaults.hasOwnProperty('color') ) {
-      trait_defaults['color'] = _default_color }
-    if ( !trait_defaults.hasOwnProperty('alpha') ){
-      trait_defaults['alpha'] = _default_alpha }
+    if (!trait_defaults.hasOwnProperty('color')) {
+      trait_defaults.color = _default_color
+    }
+    if (!trait_defaults.hasOwnProperty('alpha')){
+      trait_defaults.alpha = _default_alpha
+    }
 
     const result: Attrs = {}
     const traits = new Set()
     for (const pname in cls.prototype.props) {
       if (_is_visual(pname)) {
-        let trait = _split_feature_trait(pname)[1]
+        const trait = _split_feature_trait(pname)[1]
         if (props.hasOwnProperty(prefix+pname)) {
-            result[pname] = props[prefix+pname]
-            delete props[prefix+pname] }
-        else if (!cls.prototype.props.hasOwnProperty(trait)
+          result[pname] = props[prefix+pname]
+          delete props[prefix+pname]
+        } else if (!cls.prototype.props.hasOwnProperty(trait)
                  && props.hasOwnProperty(prefix+trait)) {
-            result[pname] = props[prefix+trait] }
-        else if (defaults.hasOwnProperty(pname)) {
-            result[pname] = defaults[pname] }
-        else if (trait_defaults.hasOwnProperty(trait)) {
-            result[pname] = trait_defaults[trait] }
+          result[pname] = props[prefix+trait]
+        } else if (defaults.hasOwnProperty(pname)) {
+          result[pname] = defaults[pname]
+        } else if (trait_defaults.hasOwnProperty(trait)) {
+          result[pname] = trait_defaults[trait]
+        }
         if (!cls.prototype.props.hasOwnProperty(trait)) {
           traits.add(trait)
         }
       }
     }
     for (const trait of traits) {
-      delete props[prefix+trait] }
+      delete props[prefix+trait]
+    }
 
     return result
   }
@@ -751,7 +755,7 @@ export class Figure extends Plot {
     const has_hglyph = some(Object.keys(attrs), key => startsWith(key, "hover_"))
 
     const glyph_ca   = this._pop_visuals(cls, attrs)
-    const nsglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {'alpha': 0.1})
+    const nsglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {alpha: 0.1})
     const sglyph_ca  = has_sglyph ? this._pop_visuals(cls, attrs, "selection_", glyph_ca) : {}
     const hglyph_ca  = has_hglyph ? this._pop_visuals(cls, attrs, "hover_", glyph_ca) : {}
 
