@@ -1,11 +1,12 @@
 import {expect} from "chai"
-const {stderrTrap} = require('logtrap')
 
 import {Set} from "@bokehjs/core/util/data_structures"
 import {set_log_level} from "@bokehjs/core/logging"
 
 import {keys} from "@bokehjs/core/util/object"
 import {ColumnDataSource, stream_to_column, slice, patch_to_column} from "@bokehjs/models/sources/column_data_source"
+
+import {trap} from "../../../util"
 
 describe("column_data_source module", () => {
 
@@ -515,36 +516,44 @@ describe("column_data_source module", () => {
 
     it("should not alert for consistent column lengths (including zero)", () => {
       set_log_level("info")
-      const r0 = new ColumnDataSource({data: {foo: []}})
-      const out0 = stderrTrap(() => r0.get_length())
-      expect(out0).to.be.equal("")
+      try {
+        const r0 = new ColumnDataSource({data: {foo: []}})
+        const out0 = trap(() => r0.get_length())
+        expect(out0).to.be.equal("")
 
-      const r1 = new ColumnDataSource({data: {foo: [], bar:[]}})
-      const out1 = stderrTrap(() => r1.get_length())
-      expect(out1).to.be.equal("")
+        const r1 = new ColumnDataSource({data: {foo: [], bar:[]}})
+        const out1 = trap(() => r1.get_length())
+        expect(out1).to.be.equal("")
 
-      const r2 = new ColumnDataSource({data: {foo: [10]}})
-      const out2 = stderrTrap(() => r2.get_length())
-      expect(out2).to.be.equal("")
+        const r2 = new ColumnDataSource({data: {foo: [10]}})
+        const out2 = trap(() => r2.get_length())
+        expect(out2).to.be.equal("")
 
-      const r3 = new ColumnDataSource({data: {foo: [10], bar:[10]}})
-      const out3 = stderrTrap(() => r3.get_length())
-      expect(out3).to.be.equal("")
+        const r3 = new ColumnDataSource({data: {foo: [10], bar:[10]}})
+        const out3 = trap(() => r3.get_length())
+        expect(out3).to.be.equal("")
 
-      const r4 = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
-      const out4 = stderrTrap(() => r4.get_length())
-      expect(out4).to.be.equal("")
+        const r4 = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+        const out4 = trap(() => r4.get_length())
+        expect(out4).to.be.equal("")
+      } finally {
+        // TODO: reset
+      }
     })
 
     it("should alert if column lengths are inconsistent", () => {
       set_log_level("info")
-      const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
-      const out0 = stderrTrap(() => r0.get_length())
-      expect(out0).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+      try {
+        const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
+        const out0 = trap(() => r0.get_length())
+        expect(out0).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
 
-      const r1 = new ColumnDataSource({data: {foo: [1], bar: [1, 2], baz: [1]}})
-      const out1 = stderrTrap(() => r1.get_length())
-      expect(out1).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+        const r1 = new ColumnDataSource({data: {foo: [1], bar: [1, 2], baz: [1]}})
+        const out1 = trap(() => r1.get_length())
+        expect(out1).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+      } finally {
+        // TODO: reset
+      }
     })
   })
 

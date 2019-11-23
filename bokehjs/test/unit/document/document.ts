@@ -1,6 +1,5 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
-const {stderrTrap} = require('logtrap')
 
 import {values, size} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
@@ -10,6 +9,8 @@ import {Models} from "@bokehjs/base"
 import {Model} from "@bokehjs/model"
 import * as logging from "@bokehjs/core/logging"
 import * as p from "@bokehjs/core/properties"
+
+import {trap} from "../../util"
 
 namespace AnotherModel {
   export type Attrs = p.AttrsOf<Props>
@@ -616,38 +617,40 @@ describe("Document", () => {
 
     const old_log_level = logging.logger.level.name
     logging.set_log_level("warn")
-    const json = d.to_json_string()
-    const parsed = JSON.parse(json)
-    parsed.version = `${js_version}`
-    const out0 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out0).to.be.equal("")
+    try {
+      const json = d.to_json_string()
+      const parsed = JSON.parse(json)
+      parsed.version = `${js_version}`
+      const out0 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out0).to.be.equal("")
 
-    parsed.version = "0.0.1"
-    const out1 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out1).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
+      parsed.version = "0.0.1"
+      const out1 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out1).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
-    parsed.version = `${js_version}rc123`
-    const out2 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out2).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
+      parsed.version = `${js_version}rc123`
+      const out2 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out2).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
-    parsed.version = `${js_version}dev123`
-    const out3 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out3).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
+      parsed.version = `${js_version}dev123`
+      const out3 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out3).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
-    parsed.version = `${js_version}-foo`
-    const out4 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out4).to.be.equal("")
+      parsed.version = `${js_version}-foo`
+      const out4 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out4).to.be.equal("")
 
-    parsed.version = `${js_version}rc123-foo`
-    const out5 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out5).to.be.equal("")
+      parsed.version = `${js_version}rc123-foo`
+      const out5 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out5).to.be.equal("")
 
-    parsed.version = `${js_version}dev123-bar`
-    const out6 = stderrTrap(() => Document.from_json_string(JSON.stringify(parsed)))
-    expect(out6).to.be.equal("")
-
-    // need to reset old log level
-    logging.set_log_level(old_log_level)
+      parsed.version = `${js_version}dev123-bar`
+      const out6 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
+      expect(out6).to.be.equal("")
+    } finally {
+      // need to reset old log level
+      logging.set_log_level(old_log_level)
+    }
   })
 
   it("can serialize with one model in it", () => {

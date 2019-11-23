@@ -232,14 +232,6 @@ describe("range_tool module", () => {
       const x_range = new Range1d(source)
       const y_range = new Range1d(source)
 
-      // it "should warn if no ranges are set", ->
-      //   old_log_level = logging.logger.level.name
-      //   logging.set_log_level("warn")
-      //   logging.set_log_level(old_log_level)
-      //   rt = new RangeTool()
-      //   out = stdoutTrap(() -> rt.update_overlay_from_ranges())
-      //   expect(out).to.be.equal 'RangeTool not configured with any Ranges.'
-
       it("should set overlay coords to null if no ranges are set", () => {
         const rt = new RangeTool()
         rt.update_overlay_from_ranges()
