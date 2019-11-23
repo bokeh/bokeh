@@ -11,7 +11,7 @@ describe("ajax_data_source module", () => {
 
   describe("AjaxDataSource", () => {
     let requests: sinon.SinonFakeXMLHttpRequest[]
-    let xhr: sinon.SinonFakeXMLHttpRequest
+    let xhr: sinon.SinonFakeXMLHttpRequestStatic
 
     beforeEach(() => {
       requests = []

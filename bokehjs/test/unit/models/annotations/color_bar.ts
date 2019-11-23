@@ -36,7 +36,7 @@ describe("ColorBar module", () => {
   let _set_canvas_image_stub: sinon.SinonStub
 
   beforeEach(() => {
-    _measure_font_stub = sinon.stub(text, "measure_font", () => {
+    _measure_font_stub = sinon.stub(text, "measure_font").callsFake(() => {
       return {height: 15, ascent: 10, descent: 5}
     })
     _set_canvas_image_stub = sinon.stub(ColorBarView.prototype as any, '_set_canvas_image') // XXX: protected
@@ -342,7 +342,10 @@ describe("ColorBar module", () => {
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
       }, "right")
 
-      const stub = sinon.stub(view, "tick_info").returns({labels: {major: []}})
+      const stub = sinon.stub(view, "tick_info").returns({
+        labels: {major: []},
+        coords: {major: [[], []], minor: [[], []]},
+      })
       expect(view._get_label_extent()).to.be.equal(0)
       stub.restore()
     })

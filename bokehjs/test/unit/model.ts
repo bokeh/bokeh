@@ -63,13 +63,13 @@ describe("Model objects", () => {
       expect(spy.callCount).to.be.equal(0)
 
       // check the correct number of calls for m.bar change
-      spy.reset()
+      spy.restore()
       expect(spy.called).to.be.false
       m.bar = "test"
       expect(spy.callCount).to.be.equal(1)
 
       // check the correct number of calls for m.baz change
-      spy.reset()
+      spy.restore()
       expect(spy.called).to.be.false
       m.baz = 10
       expect(spy.callCount).to.be.equal(0)

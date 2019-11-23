@@ -14,7 +14,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
     let glyph: Rect
 
     beforeEach(() => {
-      stub = sinon.stub((RectView.prototype as any), '_bounds', (bounds: unknown) => bounds) // XXX: protected
+      stub = sinon.stub((RectView.prototype as any), '_bounds').callsFake((bounds) => bounds) // XXX: protected
 
       glyph = new Rect({
         x: {field: "x"},
