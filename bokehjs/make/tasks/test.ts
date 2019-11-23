@@ -3,15 +3,10 @@ import {argv} from "yargs"
 import {join} from "path"
 
 import {task, log, BuildError} from "../task"
+import {Linker} from "@compiler/linker"
+import {default_prelude} from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
-
-task("test:compile", ["defaults:generate"], async () => {
-  const success = compile_typescript("./test/tsconfig.json", {log})
-
-  if (argv.emitError && !success)
-    process.exit(1)
-})
 
 function mocha(files: string[]): Promise<void> {
   const _mocha = "node_modules/mocha/bin/_mocha"
@@ -63,12 +58,16 @@ function mocha(files: string[]): Promise<void> {
   })
 }
 
-task("test:size", ["test:compile"], async () => {
-  await mocha(["./build/test/size.js"])
+task("test:codebase:compile", async () => {
+  const success = compile_typescript("./test/codebase/tsconfig.json", {log})
+
+  if (argv.emitError && !success)
+    process.exit(1)
 })
 
-import {Linker} from "@compiler/linker"
-import {default_prelude} from "@compiler/prelude"
+task("test:size", ["test:codebase:compile"], async () => {
+  await mocha(["./build/test/codebase/size.js"])
+})
 
 function bundle(name: string): void {
   const linker = new Linker({
@@ -106,6 +105,13 @@ function devtools(name: string): Promise<void> {
     })
   })
 }
+
+task("test:compile", ["defaults:generate"], async () => {
+  const success = compile_typescript("./test/tsconfig.json", {log})
+
+  if (argv.emitError && !success)
+    process.exit(1)
+})
 
 task("test:unit:bundle", ["test:compile"], async () => bundle("unit"))
 task("test:unit", ["test:unit:bundle"], async () => devtools("unit"))
