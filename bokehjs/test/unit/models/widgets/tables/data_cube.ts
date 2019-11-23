@@ -1,23 +1,30 @@
-import { expect } from "chai"
+import {expect } from "chai"
 
-import { ColumnDataSource } from "@bokehjs/models/sources/column_data_source"
-import { CDSView } from "@bokehjs/models/sources/cds_view"
-import { TableColumn } from "@bokehjs/models/widgets/tables/table_column"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 
-import { GroupingInfo, DataCubeProvider, DataCube } from "@bokehjs/models/widgets/tables/data_cube"
-import { SumAggregator } from "@bokehjs/models/widgets/tables/row_aggregators"
+import {GroupingInfo, DataCubeProvider, DataCube} from "@bokehjs/models/widgets/tables/data_cube"
+import {SumAggregator} from "@bokehjs/models/widgets/tables/row_aggregators"
 
 describe("data_cube module", function() {
 
   describe("DataCube class", function() {
     it("DataCube constructs", function() {
-      const dataCube = new DataCube(this.attrs)
+      const dataCube = new DataCube({})
       expect(dataCube).is.not.null
     })
   })
 
   describe("DataCubeProvider class", function() {
-    before("setup a new datacube", function() {
+    type This = {
+      source: ColumnDataSource
+      view: CDSView
+      columns: any[] // XXX TableColumn[]
+      grouping: GroupingInfo[]
+    }
+
+    before("setup a new datacube", function(this: This) {
       this.source = new ColumnDataSource({
         data: {
           color: ['red', 'red', 'red', 'green', 'green', 'blue'],
@@ -39,14 +46,14 @@ describe("data_cube module", function() {
       ]
     })
 
-    it("DataCube groups as expected", function() {
+    it("DataCube groups as expected", function(this: This) {
       const target = new ColumnDataSource({ data: { row_indices: [], labels: [] } })
       const provider = new DataCubeProvider(this.source, this.view, this.columns, target)
       provider.setGrouping(this.grouping)
       expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2]])
     })
 
-    it("Expanding modifies groups", function() {
+    it("Expanding modifies groups", function(this: This) {
       const target = new ColumnDataSource({ data: { row_indices: [], labels: [] } })
       const provider = new DataCubeProvider(this.source, this.view, this.columns, target)
       provider.setGrouping(this.grouping)
@@ -58,7 +65,7 @@ describe("data_cube module", function() {
       expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1], 0, 1])
     })
 
-    it("Collapsing inverts expanding", function() {
+    it("Collapsing inverts expanding", function(this: This) {
       const target = new ColumnDataSource({ data: { row_indices: [], labels: [] } })
       const provider = new DataCubeProvider(this.source, this.view, this.columns, target)
       provider.setGrouping(this.grouping)
