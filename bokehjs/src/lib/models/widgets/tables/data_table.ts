@@ -1,6 +1,6 @@
-const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
-const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
-const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
+import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel"
+import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn"
+import {CellExternalCopyManager} from "slickgrid/plugins/slick.cellexternalcopymanager"
 
 import {Grid as SlickGrid, DataProvider} from "slickgrid"
 import * as p from "core/properties"
