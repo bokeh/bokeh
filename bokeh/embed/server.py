@@ -364,9 +364,5 @@ def _src_path(url, elementid):
 # Code
 # -----------------------------------------------------------------------------
 
-server_document.__doc__ = format_docstring(
-    server_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL
-)
-server_session.__doc__ = format_docstring(
-    server_session.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL
-)
+server_document.__doc__ = format_docstring(server_document.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
+server_session.__doc__ = format_docstring(server_session.__doc__, DEFAULT_SERVER_HTTP_URL=DEFAULT_SERVER_HTTP_URL)
