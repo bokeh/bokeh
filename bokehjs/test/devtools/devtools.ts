@@ -189,6 +189,8 @@ async function run_tests(): Promise<void> {
     }
 
     await Network.enable()
+    await Network.setCacheDisabled({cacheDisabled: true})
+
     await Runtime.enable()
     await Page.enable()
     await Log.enable()
