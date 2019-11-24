@@ -12,7 +12,7 @@ pink_line = p.line([1, 2, 3], [2, 1, 2], line_color="pink")
 green_box = BoxAnnotation(left=1.5, right=2.5, fill_color='green', fill_alpha=0.1)
 p.add_layout(green_box)
 
-# Use js_link to connect button active property to glyph visble property
+# Use js_link to connect button active property to glyph visible property
 
 toggle1 = Toggle(label="Green Box", button_type="success", active=True)
 toggle1.js_link('active', green_box, 'visible')
