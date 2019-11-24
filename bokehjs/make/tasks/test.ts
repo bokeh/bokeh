@@ -87,7 +87,7 @@ function bundle(name: string): void {
 }
 
 function devtools(name: string): Promise<void> {
-  const proc = spawn(process.execPath, ["build/test/devtools.js", `test/${name}/index.html`], {stdio: 'inherit'})
+  const proc = spawn(process.execPath, ["./test/devtools", `test/${name}/index.html`], {stdio: 'inherit'})
 
   process.once('exit',    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))

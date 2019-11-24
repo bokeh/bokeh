@@ -100,9 +100,10 @@ function diff_highlight(diff: string): string {
   return proc.status == 0 ? proc.stdout : diff
 }
 
+type Rect = {x: number, y: number, width: number, height: number}
 type Suite = {description: string, suites: Suite[], tests: Test[]}
 type Test = {description: string}
-type Result = {state: State, bbox: DOMRect, time: number}
+type Result = {state: State, bbox: Rect, time: number}
 
 async function run_tests(): Promise<void> {
   let client

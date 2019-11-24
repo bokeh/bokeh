@@ -14,24 +14,15 @@
     "noEmitOnError": false,
     "declaration": false,
     "sourceMap": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "experimentalDecorators": true,
-    "module": "ES2015",
+    "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ES2017",
-    "lib": ["es2017", "dom", "dom.iterable"],
-    "types": [],
-    "baseUrl": ".",
-    "paths": {
-      "@bokehjs/*": ["../build/js/lib/*", "../build/js/types/*"]
-    },
-    "outDir": "../build/test"
+    "lib": ["es2017"],
+    "baseUrl": "."
   },
-  "include": [
-    "./*.ts",
-    "./unit/**/*.ts",
-    "./integration/**/*.ts"
-  ]
+  "include": ["./**/*.ts"]
 }
