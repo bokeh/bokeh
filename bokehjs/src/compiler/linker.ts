@@ -582,22 +582,27 @@ export class Linker {
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
+      let collected: string[] | null = null
       if (type == "js") {
         if (this.transpile != null) {
           const {ES2017, ES5} = ts.ScriptTarget
           const target = this.transpile == "ES2017" ? ES2017 : ES5
-          const transform = {before: [transforms.rename_exports()], after: []}
+          const imports = new Set<string>(["tslib"])
+          const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
           const {output, error} = transpile(file, source, target, transform)
           if (error)
             throw new Error(error)
-          else
+          else {
             source = output
+            collected = [...imports]
+          }
         }
       }
 
       ast = this.parse_module({file, source, type})
 
-      const collected = transforms.collect_deps(ast)
+      if (collected == null)
+        collected = transforms.collect_deps(ast)
       const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep))
 
       dependency_paths = new Map(filtered.map((dep) => [dep, this.resolve_file(dep, {file})]))

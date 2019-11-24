@@ -211,6 +211,20 @@ export function remove_esmodule() {
   }
 }
 
+export function collect_imports(imports: Set<string>) {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    for (const node of root.statements) {
+      if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+        if (node.moduleSpecifier != null && ts.isStringLiteral(node.moduleSpecifier)) {
+          imports.add(node.moduleSpecifier.text)
+        }
+      }
+    }
+
+    return root
+  }
+}
+
 export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {
