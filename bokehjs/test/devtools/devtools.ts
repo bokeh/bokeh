@@ -38,6 +38,12 @@ function log(entries: (Msg | Err)[], options: {prefix?: string} = {}): void {
   }
 }
 
+class Exit extends Error {
+  constructor(public code: number) {
+    super(`exit: ${code}`)
+  }
+}
+
 class TimeoutError extends Error {
   constructor() {
     super("timeout")
@@ -58,6 +64,7 @@ type Result = {state: State, bbox: Rect, time: number}
 
 async function run_tests(): Promise<void> {
   let client
+  let failure = false
   try {
     client = await CDP()
     const {Network, Page, Runtime, Log} = client
@@ -120,11 +127,11 @@ async function run_tests(): Promise<void> {
       console.log(msg)
       log(messages)
       log(errors)
-      process.exit(code)
+      throw new Exit(code)
     }
 
     async function evaluate<T>(expression: string): Promise<{value: T} | null> {
-      const {result, exceptionDetails} = await Runtime.evaluate({expression, awaitPromise: true}) //, returnByValue: true})
+      const {result, exceptionDetails} = await Runtime.evaluate({expression, awaitPromise: true}) // returnByValue: true
       if (exceptionDetails == null)
         return result.value !== undefined ? {value: result.value} : null
       else {
@@ -245,15 +252,20 @@ async function run_tests(): Promise<void> {
     await run(top_level, [], [])
 
     if (failures != 0)
-      process.exit(1)
+      throw new Exit(1)
   } catch (err) {
-    console.error(err.message)
-    process.exit(1)
+    failure = true
+    if (!(err instanceof Exit))
+      console.error("INTERNAL ERROR:", err)
   } finally {
     if (client) {
+      console.log("XXX")
       await client.close()
     }
   }
+
+  if (failure)
+    process.exit(1)
 }
 
 run_tests()
