@@ -1,46 +1,90 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import pytest ; pytest
+# -----------------------------------------------------------------------------
+import pytest  # noqa isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import os
+import re
+
+# External imports
+from packaging.version import Version as V
 
 # Bokeh imports
+from bokeh import __version__
 from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
 
 # Module under test
-import bokeh.resources as resources # isort:skip
+import bokeh.resources as resources  # isort:skip
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Setup
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # if BOKEH_RESOURCES is set many tests in this file fail
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
+LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
+
+
+class TestSRIHashes(object):
+    def test_get_all_hashes_valid_format(self):
+        all_hashes = resources.get_all_sri_hashes()
+        for key, value in all_hashes.items():
+            assert VERSION_PAT.match(key), f"{key} is not a valid version for the SRI hashes dict"
+            assert isinstance(value, dict)
+            assert len(value)
+            assert f"bokeh-{key}.js" in value
+            assert f"bokeh-{key}.min.js" in value
+            for h in value.values():
+                assert len(h) == 64
+
+    def test_get_all_hashes_copies(self):
+        ah1 = resources.get_all_sri_hashes()
+        ah2 = resources.get_all_sri_hashes()
+        assert ah1 == ah2 == resources._SRI_HASHES
+        assert ah1 is not ah2
+        assert ah1 is not resources._SRI_HASHES
+        assert ah2 is not resources._SRI_HASHES
+
+    def test_get_all_hashes_no_future_keys(self):
+        current = V(__version__.split("-", 1)[0])  # remove git hash, "-dirty", etc
+        all_hashes = resources.get_all_sri_hashes()
+        for key in all_hashes:
+            assert (
+                V(key) < current
+            ), f"SRI hash dict contains vesion {key} which is newer than current version {__version__}"
+
+    def test_get_sri_hashes_for_version(self):
+        all_hashes = resources.get_all_sri_hashes()
+        for key, value in all_hashes.items():
+            h = resources.get_sri_hashes_for_version(key)
+            assert h == all_hashes[key]
+
 
 ## Test JSResources
+
 
 def test_js_resources_default_mode_is_cdn():
     r = resources.JSResources()
@@ -54,11 +98,12 @@ def test_js_resources_inline_has_no_css_resources():
 
     assert len(r.js_raw) == 5
     assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
-    assert hasattr(r, 'css_raw') is False
+    assert hasattr(r, "css_raw") is False
     assert r.messages == []
 
 
 ## Test CSSResources
+
 
 def test_css_resources_default_mode_is_cdn():
     r = resources.CSSResources()
@@ -71,12 +116,11 @@ def test_inline_css_resources():
     assert r.dev is False
 
     assert len(r.css_raw) == 0
-    assert hasattr(r, 'js_raw') is False
+    assert hasattr(r, "js_raw") is False
     assert r.messages == []
 
 
 class TestResources(object):
-
     def test_basic(self):
         r = resources.Resources()
         assert r.mode == "cdn"
@@ -108,8 +152,8 @@ class TestResources(object):
     def test_get_cdn_urls(self):
         dev_version = "0.0.1dev2"
         result = _get_cdn_urls(version=dev_version)
-        url = result['urls'](["bokeh"], 'js')[0]
-        assert 'bokeh/dev' in url
+        url = result["urls"](["bokeh"], "js")[0]
+        assert "bokeh/dev" in url
 
     def test_cdn(self):
         resources.__version__ = "1.0"
@@ -123,9 +167,11 @@ class TestResources(object):
 
         resources.__version__ = "1.0-1-abc"
         r = resources.Resources(mode="cdn", version="1.0")
-        assert r.messages == [{
-            'text': "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
-            'type': 'warn'}
+        assert r.messages == [
+            {
+                "text": "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
+                "type": "warn",
+            }
         ]
 
     def test_server_default(self):
@@ -137,10 +183,12 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        assert r.js_files == ['http://localhost:5006/static/js/bokeh.min.js',
-                              'http://localhost:5006/static/js/bokeh-widgets.min.js',
-                              'http://localhost:5006/static/js/bokeh-tables.min.js',
-                              'http://localhost:5006/static/js/bokeh-gl.min.js']
+        assert r.js_files == [
+            "http://localhost:5006/static/js/bokeh.min.js",
+            "http://localhost:5006/static/js/bokeh-widgets.min.js",
+            "http://localhost:5006/static/js/bokeh-tables.min.js",
+            "http://localhost:5006/static/js/bokeh-gl.min.js",
+        ]
 
     def test_server_root_url(self):
         r = resources.Resources(mode="server", root_url="http://foo/")
@@ -149,10 +197,12 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        assert r.js_files == ['http://foo/static/js/bokeh.min.js',
-                              'http://foo/static/js/bokeh-widgets.min.js',
-                              'http://foo/static/js/bokeh-tables.min.js',
-                              'http://foo/static/js/bokeh-gl.min.js']
+        assert r.js_files == [
+            "http://foo/static/js/bokeh.min.js",
+            "http://foo/static/js/bokeh-widgets.min.js",
+            "http://foo/static/js/bokeh-tables.min.js",
+            "http://foo/static/js/bokeh-gl.min.js",
+        ]
 
     def test_server_root_url_empty(self):
         r = resources.Resources(mode="server", root_url="")
@@ -161,23 +211,25 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        assert r.js_files == ['static/js/bokeh.min.js',
-                              'static/js/bokeh-widgets.min.js',
-                              'static/js/bokeh-tables.min.js',
-                              'static/js/bokeh-gl.min.js']
-
+        assert r.js_files == [
+            "static/js/bokeh.min.js",
+            "static/js/bokeh-widgets.min.js",
+            "static/js/bokeh-tables.min.js",
+            "static/js/bokeh-gl.min.js",
+        ]
 
     def test_server_with_versioner(self):
         def versioner(path):
             return path + "?v=VERSIONED"
 
-        r = resources.Resources(mode="server", root_url="http://foo/",
-                                path_versioner=versioner)
+        r = resources.Resources(mode="server", root_url="http://foo/", path_versioner=versioner)
 
-        assert r.js_files == ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
-                              'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
-                              'http://foo/static/js/bokeh-tables.min.js?v=VERSIONED',
-                              'http://foo/static/js/bokeh-gl.min.js?v=VERSIONED']
+        assert r.js_files == [
+            "http://foo/static/js/bokeh.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
+            "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
+        ]
 
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")
@@ -249,6 +301,7 @@ class TestResources(object):
 
 ## Test external resources
 
+
 def test_external_js_and_css_resource_embedding():
     """ This test method has to be at the end of the test modules because
     subclassing a Model causes the CustomModel to be added as a Model and
@@ -301,14 +354,15 @@ def test_external_js_and_css_resource_ordering():
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
