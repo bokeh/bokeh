@@ -1,9 +1,10 @@
 import {Protocol} from "devtools-protocol"
 import CDP = require("chrome-remote-interface")
 
-import cp = require("child_process")
 import fs = require("fs")
 import path = require("path")
+
+import {State, create_baseline, load_baseline, diff_baseline} from "./baselines"
 
 const url = `file://${path.resolve(process.argv[2])}`
 
@@ -48,56 +49,6 @@ function timeout(ms: number): Promise<void> {
     const timer = setTimeout(() => reject(new TimeoutError()), ms)
     timer.unref()
   })
-}
-
-type Box = {x: number, y: number, width: number, height: number}
-type State = {type: string, bbox?: Box, children?: State[]}
-
-function create_baseline(items: State[]): string {
-  let baseline = ""
-
-  function descend(items: State[], level: number): void {
-    for (const {type, bbox, children} of items) {
-      baseline += `${"  ".repeat(level)}${type}`
-
-      if (bbox != null) {
-        const {x, y, width, height} = bbox
-        baseline += ` bbox=[${x}, ${y}, ${width}, ${height}]`
-      }
-
-      baseline += "\n"
-
-      if (children != null)
-        descend(children, level+1)
-    }
-  }
-
-  descend(items, 0)
-  return baseline
-}
-
-function load_baseline(baseline_path: string): string | null {
-  const proc = cp.spawnSync("git", ["show", `:./${baseline_path}`])
-  return proc.status == 0 ? proc.stdout : null
-}
-
-function git(...args: string[]): cp.SpawnSyncReturns<string> {
-  return cp.spawnSync("git", [...args], {encoding: "utf8"})
-}
-
-function diff_baseline(baseline_path: string): string | null {
-  const proc = git("diff", "--color", "--exit-code", baseline_path)
-  if (proc.status == 0) {
-    const proc = git("diff", "--color", "/dev/null", baseline_path)
-    return proc.stdout
-  } else
-    return diff_highlight(proc.stdout)
-}
-
-function diff_highlight(diff: string): string {
-  const hl_path = "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"
-  const proc = cp.spawnSync("perl", [hl_path], {input: diff, encoding: "utf8"})
-  return proc.status == 0 ? proc.stdout : diff
 }
 
 type Rect = {x: number, y: number, width: number, height: number}
