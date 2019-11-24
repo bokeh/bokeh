@@ -92,8 +92,11 @@ export async function run_test(seq: number[]) {
   const {fn} = test
   const start = Date.now()
   current_test = test
-  await fn()
-  current_test = null
+  try {
+    await fn()
+  } finally {
+    current_test = null
+  }
   const end = Date.now()
   const state = test.view!.serializable_state()
   const {x, y, width, height} = test.el!.getBoundingClientRect()
