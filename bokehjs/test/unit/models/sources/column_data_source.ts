@@ -519,23 +519,23 @@ describe("column_data_source module", () => {
       try {
         const r0 = new ColumnDataSource({data: {foo: []}})
         const out0 = trap(() => r0.get_length())
-        expect(out0).to.be.equal("")
+        expect(out0.warn).to.be.equal("")
 
         const r1 = new ColumnDataSource({data: {foo: [], bar:[]}})
         const out1 = trap(() => r1.get_length())
-        expect(out1).to.be.equal("")
+        expect(out1.warn).to.be.equal("")
 
         const r2 = new ColumnDataSource({data: {foo: [10]}})
         const out2 = trap(() => r2.get_length())
-        expect(out2).to.be.equal("")
+        expect(out2.warn).to.be.equal("")
 
         const r3 = new ColumnDataSource({data: {foo: [10], bar:[10]}})
         const out3 = trap(() => r3.get_length())
-        expect(out3).to.be.equal("")
+        expect(out3.warn).to.be.equal("")
 
         const r4 = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
         const out4 = trap(() => r4.get_length())
-        expect(out4).to.be.equal("")
+        expect(out4.warn).to.be.equal("")
       } finally {
         // TODO: reset
       }
@@ -546,11 +546,11 @@ describe("column_data_source module", () => {
       try {
         const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
         const out0 = trap(() => r0.get_length())
-        expect(out0).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+        expect(out0.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
 
         const r1 = new ColumnDataSource({data: {foo: [1], bar: [1, 2], baz: [1]}})
         const out1 = trap(() => r1.get_length())
-        expect(out1).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
+        expect(out1.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
       } finally {
         // TODO: reset
       }
