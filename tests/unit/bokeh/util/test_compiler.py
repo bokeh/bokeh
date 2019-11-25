@@ -45,12 +45,12 @@ function f(a, b) { return a + b; }
 var some = require('some/module');
 """, deps=["some/module"])
 
-    assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
+    assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
         dict(error=
             '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - '
             "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
             '\n'
-            '\x1b[7m1\x1b[0m function f(a, b) { return a + b; };\n'
+            '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
             '\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n')
 
 def test_nodejs_compile_less():
