@@ -42,7 +42,7 @@ describe("func_tick_formatter module", () => {
 
     it("should support imports using require", () => {
       const formatter = new FuncTickFormatter({
-        code: "let {max} = require('../../core/util/array'); return max([1, 2, 3])",
+        code: "let {max} = require('@bokehjs/core/util/array'); return max([1, 2, 3])",
       })
       const labels = formatter.doFormat([0, 0, 0], {loc: 0})
       expect(labels).to.be.deep.equal([3, 3, 3])

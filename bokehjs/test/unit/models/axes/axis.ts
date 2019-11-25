@@ -154,8 +154,7 @@ describe("AxisView", () => {
 
   it("_axis_label_extent should be greater than the font_size", () => {
     const {axis_view} = build({axis_label: 'Left axis label'})
-    expect(axis_view._axis_label_extent()).to.be.above(0)
-    expect(axis_view._axis_label_extent()).to.be.below(10)
+    expect(axis_view._axis_label_extent()).to.be.above(13.3333)
   })
 
   it("_axis_label_extent should be 0 if axis_label is null", () => {

@@ -33,18 +33,18 @@ function color_bar_view(attrs: Partial<ColorBar.Attrs>, place: Place = "center")
 describe("ColorBar module", () => {
 
   let _measure_font_stub: sinon.SinonStub
-  let _set_canvas_image_stub: sinon.SinonStub
+  let _set_canvas_image_spy: sinon.SinonSpy
 
   beforeEach(() => {
     _measure_font_stub = sinon.stub(text, "measure_font").callsFake(() => {
       return {height: 15, ascent: 10, descent: 5}
     })
-    _set_canvas_image_stub = sinon.stub(ColorBarView.prototype as any, '_set_canvas_image') // XXX: protected
+    _set_canvas_image_spy = sinon.spy(ColorBarView.prototype as any, '_set_canvas_image') // XXX: protected
   })
 
   afterEach(() => {
     _measure_font_stub.restore()
-    _set_canvas_image_stub.restore()
+    _set_canvas_image_spy.restore()
   })
 
   describe("ColorBar", () => {
@@ -309,13 +309,13 @@ describe("ColorBar module", () => {
 
     it("Should reset scale image if color_mapper changes", () => {
       // Reset spy count to zero (method was called during view initialization)
-      _set_canvas_image_stub.reset()
+      _set_canvas_image_spy.resetHistory()
 
       color_bar_view({
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis3}),
       }, "right")
 
-      expect(_set_canvas_image_stub.called).to.be.true
+      expect(_set_canvas_image_spy.called).to.be.true
     })
 
     it("ColorBarView._get_image_offset method", () => {
@@ -328,12 +328,11 @@ describe("ColorBar module", () => {
     })
 
     it("ColorBarView._get_label_extent method (orientation='vertical')", () => {
-      // NOTE: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1}
       const view = color_bar_view({
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
       }, "right")
 
-      expect(view._get_label_extent()).to.be.equal(6)
+      expect(view._get_label_extent()).to.be.closeTo(16.852996826171875, 10**-10)
     })
 
     it("ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", () => {
@@ -360,14 +359,15 @@ describe("ColorBar module", () => {
     })
 
     it("ColorBarView.compute_legend_dimensions method (orientation='vertical')", () => {
-      // Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1}
       const view = color_bar_view({
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
         height: 100,
         width: 25,
       }, "right")
 
-      expect(view.compute_legend_dimensions()).to.be.deep.equal({height: 120, width: 51})
+      const {width, height} = view.compute_legend_dimensions()
+      expect(width).to.be.closeTo(61.85299682617187, 10**-10)
+      expect(height).to.be.equal(120)
     })
 
     it("ColorBarView.compute_legend_dimensions method (orientation='horizontal')", () => {
@@ -378,7 +378,9 @@ describe("ColorBar module", () => {
         width: 100,
       }, "right")
 
-      expect(view.compute_legend_dimensions()).to.be.deep.equal({height: 65, width: 120})
+      const {width, height} = view.compute_legend_dimensions()
+      expect(width).to.be.deep.equal(120)
+      expect(height).to.be.deep.equal(65)
     })
 
     it("ColorBarView._get_size method", () => {
@@ -386,7 +388,7 @@ describe("ColorBar module", () => {
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
       }, "right")
 
-      expect(view.get_size()).to.be.deep.equal({width: 51, height: 500})
+      expect(view.get_size()).to.be.deep.equal({width: 62, height: 500})
     })
   })
 })
