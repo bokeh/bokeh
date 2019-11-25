@@ -176,6 +176,11 @@ async function run_tests(): Promise<void> {
           const test = tests[i]
           const prefix = "  ".repeat(seq.length)
 
+          const grep = argv.grep as string | undefined
+          const descs = parents.map((p) => p.description).concat(test.description)
+          if (grep != null && !descs.some((desc) => desc.includes(grep)))
+            continue
+
           console.log(`${prefix}\u2713 ${test.description}`)
           if (test.skip) {
             console.log(chalk.yellow("skipping"))
