@@ -183,7 +183,7 @@ async function run_tests(): Promise<void> {
           }
 
           //const start = Date.now()
-          const x0 = evaluate<string>(`Tests.run_test(${JSON.stringify(seq.concat(i))})`)
+          const x0 = evaluate<string>(`Tests.run_test(${JSON.stringify(seq)}, ${JSON.stringify(i)})`)
           const x1 = timeout(5000)
           let output: {value: string} | null
           try {

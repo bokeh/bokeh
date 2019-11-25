@@ -65,7 +65,7 @@ _globalThis.it = it
 _globalThis.beforeEach = before_each
 _globalThis.afterEach = after_each
 
-export async function run_suite(suite: Suite, grep?: string | RegExp) {
+export async function run_tests(grep?: string | RegExp): Promise<void> {
 
   async function _run_suite(suite: Suite, seq: Suite[]) {
     for (const sub_suite of suite.suites) {
@@ -73,54 +73,45 @@ export async function run_suite(suite: Suite, grep?: string | RegExp) {
     }
 
     for (const test of suite.tests) {
-      const {fn, description} = test
+      const {description} = test
 
       if (grep != null) {
         const descriptions = seq.map((s) => s.description).concat(description ?? "")
 
-        if (isString(grep)) {
-          if (!descriptions.some((d) => d.includes(grep)))
-            continue
-        } else {
-          if (!descriptions.some((d) => d.search(grep) != -1))
-            continue
-        }
+        const macher: (d: string) => boolean =
+          isString(grep) ? (d) => d.includes(grep) : (d) => d.search(grep) != -1
+        if (!descriptions.some(macher))
+          continue
       }
 
-      current_test = test
-      try {
-        await fn()
-      } finally {
-        current_test = null
-      }
+      await _run_test(seq, test)
     }
   }
 
-  await _run_suite(suite, [suite])
+  await _run_suite(top_level, [top_level])
 }
 
-export async function run_all(grep?: string | RegExp) {
-  await run_suite(top_level, grep)
-}
-
-//export type TestResult = {state: any, bbox:
 let current_test: Test | null = null
 
-export async function run_test(seq: number[]) {
+export async function run_test(si: number[], ti: number): Promise<{}> {
   let current = top_level
-  const before_each = []
-  const after_each = []
-  for (let j = 0; j < seq.length - 1; j++) {
-    current = current.suites[seq[j]]
-    before_each.push(...current.before_each)
-    after_each.push(...current.after_each)
+  const suites = [current]
+  for (const i of si) {
+    current = current.suites[i]
+    suites.push(current)
   }
+  const test = current.tests[ti]
+  return await _run_test(suites, test)
+}
 
-  const test = current.tests[seq[seq.length-1]]
+async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   const {fn} = test
   const start = Date.now()
   let error: string | null = null
-  for (const {fn} of before_each) fn()
+  for (const suite of suites) {
+    for (const {fn} of suite.before_each)
+      fn()
+  }
   current_test = test
   try {
     await fn()
@@ -128,7 +119,10 @@ export async function run_test(seq: number[]) {
     error = err.toString()
   }
   current_test = null
-  for (const {fn} of after_each) fn()
+  for (const suite of suites) {
+    for (const {fn} of suite.after_each)
+      fn()
+  }
   const end = Date.now()
   const time = end - start
   const result = (() => {
