@@ -14,12 +14,12 @@ export function trap(fn: () => void): string {
   try {
     fn()
   } finally {
-    log.reset()
-    trace.reset()
-    debug.reset()
-    info.reset()
-    warn.reset()
-    error.reset()
+    log.restore()
+    trace.restore()
+    debug.restore()
+    info.restore()
+    warn.restore()
+    error.restore()
   }
   return text
 }
