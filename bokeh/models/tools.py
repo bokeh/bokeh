@@ -931,7 +931,7 @@ class CustomJSHover(Model):
     """)
 
 class HoverTool(Inspection):
-    ''' *toolbar icon*: |crosshair_icon|
+    ''' *toolbar icon*: |hover_icon|
 
     The hover tool is a passive inspector tool. It is generally on at all
     times, but can be configured in the inspector's menu associated with the
