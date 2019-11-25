@@ -39,22 +39,23 @@ export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
   }
 }
 
-type _It = {(description: string, fn: AsyncFunc): void} & {skip: Fn}
+type _It = {(description: string, fn: AsyncFunc): void} & {skip: Fn, with_server: Fn}
 
-export function skip(description: string, fn: AsyncFunc): void {
+export function skip(description: string, fn: Func | AsyncFunc): void {
   stack[0].tests.push({description, fn, skip: true})
 }
 
-export const it: _It = ((description: string, fn: AsyncFunc): void => {
+export const it: _It = ((description: string, fn: Func | AsyncFunc): void => {
   stack[0].tests.push({description, fn, skip: false})
 }) as _It
 it.skip = skip as any
+it.with_server = skip as any
 
-export function before_each(fn: Func): void {
+export function before_each(fn: Func | AsyncFunc): void {
   stack[0].before_each.push({fn})
 }
 
-export function after_each(fn: Func): void {
+export function after_each(fn: Func | AsyncFunc): void {
   stack[0].after_each.push({fn})
 }
 
@@ -110,7 +111,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   let error: string | null = null
   for (const suite of suites) {
     for (const {fn} of suite.before_each)
-      fn()
+      await fn()
   }
   current_test = test
   try {
@@ -121,7 +122,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   current_test = null
   for (const suite of suites) {
     for (const {fn} of suite.after_each)
-      fn()
+      await fn()
   }
   const end = Date.now()
   const time = end - start

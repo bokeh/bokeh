@@ -1,18 +1,15 @@
 declare type Func = () => void
 declare type AsyncFunc = () => Promise<void>
 
-declare type Fn = {
-  (fn: Async): void
-  (fn: AsyncFunc): void
-  (description: string, fn: Func): void
-  (description: string, fn: AsyncFunc): void
+declare type Fn = (fn: Func | AsyncFunc) => void
+declare type Decl = (description: string, fn: Func | AsyncFunc) => void
+
+declare type It = Decl & {
+  skip: Decl
+  with_server: (description: string, fn: (url: string) => Promise<void>) => void
 }
 
-declare type It = Fn & {
-  skip: Fn
-}
-
-declare const describe: Fn
+declare const describe: Decl
 declare const it: It
 declare const beforeEach: Fn
 declare const afterEach: Fn
