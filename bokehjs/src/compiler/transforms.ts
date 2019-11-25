@@ -211,17 +211,30 @@ export function remove_esmodule() {
   }
 }
 
-export function collect_imports(imports: Set<string>) {
-  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
-    for (const node of root.statements) {
-      if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
-        if (node.moduleSpecifier != null && ts.isStringLiteral(node.moduleSpecifier)) {
-          imports.add(node.moduleSpecifier.text)
-        }
-      }
-    }
+function isImportCall(node: ts.Node): node is ts.ImportCall {
+  return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
+}
 
-    return root
+export function collect_imports(imports: Set<string>, requires: Set<string>) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.Node {
+      if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+        const name = node.moduleSpecifier
+        if (name != null && ts.isStringLiteral(name) && name.text.length != 0)
+          imports.add(name.text)
+      } else if (isImportCall(node)) {
+        const [name] = node.arguments
+        if (ts.isStringLiteral(name) && name.text.length != 0)
+          imports.add(name.text)
+      } else if (is_require(node)) {
+        const [name] = node.arguments
+        if (ts.isStringLiteral(name) && name.text.length != 0)
+          requires.add(name.text)
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+    return ts.visitNode(root, visit)
   }
 }
 
