@@ -20,14 +20,14 @@ describe("Jitter transform module", () => {
   let random_stub: sinon.SinonStub
   let rnorm_stub: sinon.SinonStub
 
-  before(() => {
+  beforeEach(() => {
     random_stub = sinon.stub(bokeh_math, "random").callsFake(() => 0.5)
     // This menas that rnorm isn't getting tested, which we probably
     // do want to do, but could be a separate test.
     rnorm_stub = sinon.stub(bokeh_math, "rnorm").callsFake(() => 0)
   })
 
-  after(() => {
+  afterEach(() => {
     random_stub.restore()
     rnorm_stub.restore()
   })

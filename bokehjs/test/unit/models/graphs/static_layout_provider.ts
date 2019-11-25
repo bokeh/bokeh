@@ -16,7 +16,7 @@ describe("StaticLayoutProvider", () => {
   describe("graph component layout methods", () => {
     let layout_provider: StaticLayoutProvider
 
-    before(() => {
+    beforeEach(() => {
       layout_provider = new StaticLayoutProvider({
         graph_layout: {0: [-1, 0], 1: [0, 1], 2: [1, 0], 3: [0, -1]},
       })

@@ -14,7 +14,5 @@ declare type It = Fn & {
 
 declare const describe: Fn
 declare const it: It
-declare const before: Fn
-declare const after: Fn
 declare const beforeEach: Fn
 declare const afterEach: Fn

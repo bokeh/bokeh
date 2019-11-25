@@ -21,17 +21,15 @@ export type Suite = {
   description: string
   suites: Suite[]
   tests: Test[]
-  before: Decl[]
-  after: Decl[]
-  beforeEach: Decl[]
-  afterEach: Decl[]
+  before_each: Decl[]
+  after_each: Decl[]
 }
 
-export const top_level: Suite = {description: "top-level", suites: [], tests: [], before: [], after: [], beforeEach: [], afterEach: []}
+export const top_level: Suite = {description: "top-level", suites: [], tests: [], before_each: [], after_each: []}
 const stack: Suite[] = [top_level]
 
 export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
-  const suite = {description, suites: [], tests: [], before: [], after: [], beforeEach: [], afterEach: []}
+  const suite = {description, suites: [], tests: [], before_each: [], after_each: []}
   stack[0].suites.push(suite)
   stack.unshift(suite)
   try {
@@ -52,30 +50,20 @@ export const it: _It = ((description: string, fn: AsyncFunc): void => {
 }) as _It
 it.skip = skip as any
 
-export function before(fn: Func): void {
-  stack[0].before.push({fn})
+export function before_each(fn: Func): void {
+  stack[0].before_each.push({fn})
 }
 
-export function after(fn: Func): void {
-  stack[0].after.push({fn})
-}
-
-export function beforeEach(fn: Func): void {
-  stack[0].beforeEach.push({fn})
-}
-
-export function afterEach(fn: Func): void {
-  stack[0].afterEach.push({fn})
+export function after_each(fn: Func): void {
+  stack[0].after_each.push({fn})
 }
 
 const _globalThis: any = globalThis
 
 _globalThis.describe = describe
 _globalThis.it = it
-_globalThis.before = before
-_globalThis.after = after
-_globalThis.beforeEach = beforeEach
-_globalThis.afterEach = afterEach
+_globalThis.beforeEach = before_each
+_globalThis.afterEach = after_each
 
 export async function run_suite(suite: Suite, grep?: string | RegExp) {
 
@@ -120,21 +108,27 @@ let current_test: Test | null = null
 
 export async function run_test(seq: number[]) {
   let current = top_level
+  const before_each = []
+  const after_each = []
   for (let j = 0; j < seq.length - 1; j++) {
     current = current.suites[seq[j]]
+    before_each.push(...current.before_each)
+    after_each.push(...current.after_each)
   }
+
   const test = current.tests[seq[seq.length-1]]
   const {fn} = test
   const start = Date.now()
   let error: string | null = null
+  for (const {fn} of before_each) fn()
   current_test = test
   try {
     await fn()
   } catch (err) {
     error = err.toString()
-  } finally {
-    current_test = null
   }
+  current_test = null
+  for (const {fn} of after_each) fn()
   const end = Date.now()
   const time = end - start
   const result = (() => {
