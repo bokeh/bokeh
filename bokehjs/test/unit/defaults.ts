@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import models_defaults = require("./.generated_defaults/models_defaults.json")
-import widget_defaults = require("./.generated_defaults/widgets_defaults.json")
+import * as models_defaults from "./.generated_defaults/models_defaults.json"
+import * as widget_defaults from "./.generated_defaults/widgets_defaults.json"
 
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference, concat} from "@bokehjs/core/util/array"
