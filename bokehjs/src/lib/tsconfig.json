@@ -16,7 +16,7 @@
     "sourceMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "module": "ES2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": false,
