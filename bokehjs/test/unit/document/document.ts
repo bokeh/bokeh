@@ -615,8 +615,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(1)
     d.set_title("Foo")
 
-    const old_log_level = logging.logger.level.name
-    logging.set_log_level("warn")
+    const original = logging.set_log_level("warn")
     try {
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
@@ -648,8 +647,7 @@ describe("Document", () => {
       const out6 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out6.warn).to.be.equal("")
     } finally {
-      // need to reset old log level
-      logging.set_log_level(old_log_level)
+      logging.set_log_level(original)
     }
   })
 

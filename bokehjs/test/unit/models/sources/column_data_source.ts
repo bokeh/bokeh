@@ -515,7 +515,7 @@ describe("column_data_source module", () => {
     })
 
     it("should not alert for consistent column lengths (including zero)", () => {
-      set_log_level("info")
+      const original = set_log_level("info")
       try {
         const r0 = new ColumnDataSource({data: {foo: []}})
         const out0 = trap(() => r0.get_length())
@@ -537,12 +537,12 @@ describe("column_data_source module", () => {
         const out4 = trap(() => r4.get_length())
         expect(out4.warn).to.be.equal("")
       } finally {
-        // TODO: reset
+        set_log_level(original)
       }
     })
 
     it("should alert if column lengths are inconsistent", () => {
-      set_log_level("info")
+      const original = set_log_level("info")
       try {
         const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
         const out0 = trap(() => r0.get_length())
@@ -552,7 +552,7 @@ describe("column_data_source module", () => {
         const out1 = trap(() => r1.get_length())
         expect(out1.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
       } finally {
-        // TODO: reset
+        set_log_level(original)
       }
     })
   })
