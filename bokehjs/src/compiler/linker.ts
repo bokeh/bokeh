@@ -587,21 +587,14 @@ export class Linker {
         if (this.transpile != null) {
           const {ES2017, ES5} = ts.ScriptTarget
           const target = this.transpile == "ES2017" ? ES2017 : ES5
-          const imports = new Set<string>()
-          const requires = new Set<string>()
-          const transform = {before: [transforms.collect_imports(imports, requires), transforms.rename_exports()], after: []}
+          const imports = new Set<string>(["tslib"])
+          const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
           const {output, error} = transpile(file, source, target, transform)
           if (error)
             throw new Error(error)
           else {
             source = output
-            if (imports.size != 0) {
-              imports.add("tslib")
-              collected = [...imports]
-            } else {
-              requires.add("tslib")
-              collected = [...requires]
-            }
+            collected = [...imports]
           }
         }
       }
