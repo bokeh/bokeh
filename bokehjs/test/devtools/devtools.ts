@@ -3,10 +3,13 @@ import CDP = require("chrome-remote-interface")
 
 import fs = require("fs")
 import path = require("path")
+import {argv} from "yargs"
+import chalk from "chalk"
 
 import {State, create_baseline, load_baseline, diff_baseline} from "./baselines"
 
-const url = `file://${path.resolve(process.argv[2])}`
+const url = `file://${path.resolve(argv._[0])}`
+const verbose = argv.verbose ?? false
 
 interface CallFrame {
   name: string
@@ -21,21 +24,6 @@ interface Err {
   line: number
   col: number
   trace: CallFrame[]
-}
-
-interface Msg {
-  level: string
-  text: string
-  url: string
-  line: number
-  col: number
-  trace: CallFrame[]
-}
-
-function log(entries: (Msg | Err)[], options: {prefix?: string} = {}): void {
-  for (const {text} of entries) {
-    console.log(`${options.prefix ?? ""}${text}`)
-  }
 }
 
 class Exit extends Error {
@@ -57,21 +45,33 @@ function timeout(ms: number): Promise<void> {
   })
 }
 
-type Rect = {x: number, y: number, width: number, height: number}
+/*
+function defer(ms: number = 0): Promise<void> {
+  return new Promise((resolve, _reject) => {
+    const timer = setTimeout(() => resolve(), ms)
+    timer.unref()
+  })
+}
+*/
+
+function encode(s: string): string {
+  return s.replace(/[ \/]/g, "_")
+}
+
+//type Rect = {x: number, y: number, width: number, height: number}
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string}
-type Result = {state: State, bbox: Rect, time: number}
+type Test = {description: string, skip: boolean}
+type Result = {error: string | null, time: number, state?: State}
 
 async function run_tests(): Promise<void> {
   let client
   let failure = false
+  let exception = false
+  let handle_exceptions = true
   try {
     client = await CDP()
     const {Network, Page, Runtime, Log} = client
     try {
-      let messages: Msg[] = []
-      let errors: Err[] = []
-
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
           return {name: functionName || "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
@@ -89,48 +89,26 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      Runtime.consoleAPICalled((arg) => {
-        console.log("CONSOLE", arg)
-        const {type, args, stackTrace} = arg
-        const text = args.map(({value}) => value ? value.toString() : "").join(" ")
-
-        let msg: Msg
-        if (stackTrace != null) {
-          const trace = collect_trace(stackTrace)
-          const {url, line, col} = trace[0]
-          msg = {level: type, text, url, line, col, trace}
-        } else
-          msg = {level: type, text, url: "(inline)", line: 1, col: 1, trace: []}
-
-        messages.push(msg)
+      Runtime.consoleAPICalled(({args}) => {
+        if (verbose) {
+          const text = args.map(({value}) => value ? value.toString() : "").join(" ")
+          console.log(text)
+        }
       })
 
       Log.entryAdded(({entry}) => {
-        console.log("LOG")
-        const {source, level, text, url, lineNumber, stackTrace} = entry
-        if (source === "network" && level === "error") {
-          errors.push({
-            text,
-            url: url || "(inline)",
-            line: lineNumber != null ? lineNumber+1 : 1,
-            col: 1,
-            trace: stackTrace != null ? collect_trace(stackTrace) : [],
-          })
-        }
+        if (verbose)
+          console.log(entry.text)
       })
 
-      let handle_exceptions = true
       Runtime.exceptionThrown(({exceptionDetails}) => {
-        console.log("EXC", exceptionDetails)
-        if (handle_exceptions) {
-          errors.push(handle_exception(exceptionDetails))
-        }
+        exception = true
+        if (handle_exceptions)
+          console.log(handle_exception(exceptionDetails).text)
       })
 
       function fail(msg: string, code: number = 1): never {
         console.log(msg)
-        log(messages)
-        log(errors)
         throw new Exit(code)
       }
 
@@ -139,7 +117,7 @@ async function run_tests(): Promise<void> {
         if (exceptionDetails == null)
           return result.value !== undefined ? {value: result.value} : null
         else {
-          errors.push(handle_exception(exceptionDetails))
+          console.log(handle_exception(exceptionDetails).text)
           return null
         }
       }
@@ -157,19 +135,24 @@ async function run_tests(): Promise<void> {
       await Page.enable()
       await Log.enable()
 
-      const {frameId, errorText} = await Page.navigate({url})
-      console.log(frameId)
+      const {errorText} = await Page.navigate({url})
 
       if (errorText != null) {
         fail(errorText)
       }
 
-      if (errors.length != 0) {
+      if (exception) {
         fail(`failed to load ${url}`)
       }
 
       await Page.loadEventFired()
-      await is_ready()
+      const ready = await is_ready()
+
+      if (!ready) {
+        fail(`failed to render ${url}`)
+      }
+
+      handle_exceptions = false
 
       const ret = await evaluate<string>("JSON.stringify(Tests.top_level)")
       if (ret == null) {
@@ -190,66 +173,66 @@ async function run_tests(): Promise<void> {
         }
 
         for (let i = 0; i < tests.length; i++) {
-          messages = []
-          errors = []
-
+          const test = tests[i]
           const prefix = "  ".repeat(seq.length)
 
-          console.log(`${prefix}${tests[i].description}`)
+          console.log(`${prefix}\u2713 ${test.description}`)
+          if (test.skip) {
+            console.log(chalk.yellow("skipping"))
+            continue
+          }
+
           //const start = Date.now()
           const x0 = evaluate<string>(`Tests.run_test(${JSON.stringify(seq.concat(i))})`)
           const x1 = timeout(5000)
-          let output
+          let output: {value: string} | null
           try {
-            output = await Promise.race([x0, x1])
+            output = await Promise.race([x0, x1]) as any
           } catch(err) {
             if (err instanceof TimeoutError) {
-              console.log("timeout")
+              console.log(chalk.blueBright("timeout"))
               continue
+            } else {
+              console.log("AAA")
+              throw err
             }
           }
 
-          console.log(output)
-          const result = JSON.parse((output as {value: string}).value) as Result
-
-          //const image = await Page.captureScreenshot({format: "png", clip: {...result.bbox, scale: 1.0}})
-          //console.log(image.data.length)
-          function encode(s: string): string {
-            return s.replace(/[ \/]/g, "_")
-          }
-
-          let failure = false
-
-          if (errors.length != 0) {
-            failure = true
-            log(messages, {prefix})
-            log(errors, {prefix})
-          }
-
-          const baseline_name = parents.map((suite) => suite.description).concat(tests[i].description).map(encode).join("__")
-
-          if (baseline_names.has(baseline_name)) {
-            console.log(`${prefix}duplicated description`)
-            failure = true
-          } else {
-            baseline_names.add(baseline_name)
-
-            const baseline_path = path.join("test", "baselines", baseline_name)
-            const baseline = create_baseline([result.state])
-            await fs.promises.writeFile(baseline_path, baseline)
-
-            const existing = load_baseline(baseline_path)
-            if (existing != baseline) {
-              if (existing == null)
-                console.log(`${prefix}no baseline`)
-              const diff = diff_baseline(baseline_path)
-              console.log(diff)
-              failure = true
-            }
-          }
-
-          if (failure) {
+          if (output == null) {
+            console.log(chalk.red("test failed to run"))
             failures++
+            continue
+          }
+
+          const result = JSON.parse((output).value) as Result
+          if (result.error != null) {
+            console.log(`${chalk.red("test failed")}: ${result.error}`)
+            failures++
+            continue
+          }
+
+          if (result.state != null) {
+            const baseline_name = parents.map((suite) => suite.description).concat(test.description).map(encode).join("__")
+
+            if (baseline_names.has(baseline_name)) {
+              console.log(`${prefix}duplicated description`)
+              failures++
+            } else {
+              baseline_names.add(baseline_name)
+
+              const baseline_path = path.join("test", "baselines", baseline_name)
+              const baseline = create_baseline([result.state])
+              await fs.promises.writeFile(baseline_path, baseline)
+
+              const existing = load_baseline(baseline_path)
+              if (existing != baseline) {
+                if (existing == null)
+                  console.log(`${prefix}no baseline`)
+                const diff = diff_baseline(baseline_path)
+                console.log(diff)
+                failures++
+              }
+            }
           }
 
           /*
@@ -272,7 +255,6 @@ async function run_tests(): Promise<void> {
       console.error("INTERNAL ERROR:", err)
   } finally {
     if (client) {
-      console.log("XXX")
       await client.close()
     }
   }

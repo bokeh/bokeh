@@ -3,14 +3,35 @@ import * as plotting from "@bokehjs/api/plotting"
 import {div} from "@bokehjs/core/dom"
 import {isString} from "@bokehjs/core/util/types"
 
-export type Suite = {description: string, suites: Suite[], tests: Test[]}
-export type Test = {description: string, fn: () => Promise<void>, view?: LayoutDOMView, el?: HTMLElement}
+export type Func = () => void
+export type AsyncFunc = () => Promise<void>
 
-export const top_level: Suite = {description: "top-level", suites: [], tests: []}
+export type Decl = {
+  fn: Func | AsyncFunc
+  description?: string
+}
+
+export type Test = Decl & {
+  skip: boolean
+  view?: LayoutDOMView
+  el?: HTMLElement
+}
+
+export type Suite = {
+  description: string
+  suites: Suite[]
+  tests: Test[]
+  before: Decl[]
+  after: Decl[]
+  beforeEach: Decl[]
+  afterEach: Decl[]
+}
+
+export const top_level: Suite = {description: "top-level", suites: [], tests: [], before: [], after: [], beforeEach: [], afterEach: []}
 const stack: Suite[] = [top_level]
 
-export function describe(description: string, fn: () => void): void {
-  const suite = {description, suites: [], tests: []}
+export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
+  const suite = {description, suites: [], tests: [], before: [], after: [], beforeEach: [], afterEach: []}
   stack[0].suites.push(suite)
   stack.unshift(suite)
   try {
@@ -20,20 +41,31 @@ export function describe(description: string, fn: () => void): void {
   }
 }
 
-export function it(description: string, fn: () => Promise<void>): void {
-  stack[0].tests.push({description, fn})
+type _It = {(description: string, fn: AsyncFunc): void} & {skip: Fn}
+
+export function skip(description: string, fn: AsyncFunc): void {
+  stack[0].tests.push({description, fn, skip: true})
 }
 
-export function before(_fn: () => void): void {
+export const it: _It = ((description: string, fn: AsyncFunc): void => {
+  stack[0].tests.push({description, fn, skip: false})
+}) as _It
+it.skip = skip as any
+
+export function before(fn: Func): void {
+  stack[0].before.push({fn})
 }
 
-export function after(_fn: () => void): void {
+export function after(fn: Func): void {
+  stack[0].after.push({fn})
 }
 
-export function beforeEach(_fn: () => void): void {
+export function beforeEach(fn: Func): void {
+  stack[0].beforeEach.push({fn})
 }
 
-export function afterEach(_fn: () => void): void {
+export function afterEach(fn: Func): void {
+  stack[0].afterEach.push({fn})
 }
 
 const _globalThis: any = globalThis
@@ -56,7 +88,7 @@ export async function run_suite(suite: Suite, grep?: string | RegExp) {
       const {fn, description} = test
 
       if (grep != null) {
-        const descriptions = seq.map((s) => s.description).concat(description)
+        const descriptions = seq.map((s) => s.description).concat(description ?? "")
 
         if (isString(grep)) {
           if (!descriptions.some((d) => d.includes(grep)))
@@ -68,8 +100,11 @@ export async function run_suite(suite: Suite, grep?: string | RegExp) {
       }
 
       current_test = test
-      await fn()
-      current_test = null
+      try {
+        await fn()
+      } finally {
+        current_test = null
+      }
     }
   }
 
@@ -91,16 +126,31 @@ export async function run_test(seq: number[]) {
   const test = current.tests[seq[seq.length-1]]
   const {fn} = test
   const start = Date.now()
+  let error: string | null = null
   current_test = test
   try {
     await fn()
+  } catch (err) {
+    error = err.toString()
   } finally {
     current_test = null
   }
   const end = Date.now()
-  const state = test.view!.serializable_state()
-  const {x, y, width, height} = test.el!.getBoundingClientRect()
-  return JSON.stringify({state, bbox: {x, y, width, height}, time: end - start})
+  const time = end - start
+  const result = (() => {
+    if (error == null && test.view != null) {
+      try {
+        const {x, y, width, height} = test.view.el.getBoundingClientRect()
+        const bbox = {x, y, width, height}
+        const state = test.view.serializable_state()
+        return {error, time, state, bbox}
+      } catch (err) {
+        error = err
+      }
+    }
+    return {error, time}
+  })()
+  return JSON.stringify(result)
 }
 
 export function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000]): Promise<LayoutDOMView> {
