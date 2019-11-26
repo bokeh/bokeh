@@ -1,5 +1,5 @@
 import {argv} from "yargs"
-import {join} from "path"
+import {join, normalize} from "path"
 
 import * as ts from "tslint"
 import * as es from "eslint"
@@ -7,14 +7,19 @@ import * as es from "eslint"
 import {task, log} from "../task"
 import * as paths from "../paths"
 
-function eslint(dir: string): void {
+import {glob} from "@compiler/sys"
+
+async function eslint(dir: string): Promise<void> {
   const engine = new es.CLIEngine({
     configFile: "./eslint.json",
     extensions: [".ts"],
     fix: argv.fix === true,
   })
 
-  const report = engine.executeOnFiles([dir])
+  const {include} = await import(join(dir, "tsconfig.json")) as {include: string[]}
+  const files = glob(...include.map((pat) => normalize(join(dir, pat))))
+
+  const report = engine.executeOnFiles(files)
   es.CLIEngine.outputFixes(report)
 
   if (report.errorCount != 0) {
@@ -57,11 +62,15 @@ function tslint(dir: string): void {
   }
 }
 
-task("eslint:make", async () => eslint(paths.make_dir))
-task("eslint:lib", async () => eslint(paths.src_dir.lib))
-task("eslint:compiler", async () => eslint(paths.src_dir.compiler))
-task("eslint:test", async () => eslint(paths.src_dir.test))
-task("eslint:examples", async () => eslint(paths.src_dir.examples))
+task("eslint:make", async () => await eslint(paths.make_dir))
+task("eslint:lib", async () => await eslint(paths.src_dir.lib))
+task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
+task("eslint:test", ["eslint:test:tests", "eslint:test:codebase", "eslint:test:devtools"])
+task("eslint:examples", async () => await eslint(paths.src_dir.examples))
+
+task("eslint:test:tests", async () => await eslint(paths.src_dir.test))
+task("eslint:test:codebase", async () => await eslint(join(paths.src_dir.test, "codebase")))
+task("eslint:test:devtools", async () => await eslint(join(paths.src_dir.test, "devtools")))
 
 task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:test", "eslint:examples"])
 

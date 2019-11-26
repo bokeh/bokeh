@@ -26,5 +26,5 @@
     "baseUrl": ".",
     "outDir": "../../build/test/codebase"
   },
-  "include": ["./size.ts"]
+  "include": ["./**/*.ts"]
 }

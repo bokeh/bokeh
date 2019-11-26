@@ -62,10 +62,10 @@
     "@types/proj4": "^2.5.0",
     "@types/sprintf-js": "^1.1.2",
     "@types/eslint": "^4.16.8",
-    "eslint": "^5.16.0",
-    "acorn": "^6.2.1",
-    "@typescript-eslint/eslint-plugin": "^2.3.1",
-    "@typescript-eslint/parser": "^2.3.1"
+    "eslint": "^6.7.1",
+    "acorn": "^7.1.0",
+    "@typescript-eslint/eslint-plugin": "^2.9.0",
+    "@typescript-eslint/parser": "^2.9.0"
   },
   "dependencies": {
     "tslib": "^1.10.0",

@@ -28,5 +28,5 @@
       "*": ["../build/js/lib/*", "../build/js/types/*"]
     }
   },
-  "include": ["./*/*.ts", "./bokehjs.d.ts"]
+  "include": ["./**/*.ts", "./bokehjs.d.ts"]
 }

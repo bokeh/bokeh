@@ -27,5 +27,6 @@
     "paths": {
       "@compiler/*": ["../src/compiler/*"]
     }
-  }
+  },
+  "include": ["./**/*.ts"]
 }
