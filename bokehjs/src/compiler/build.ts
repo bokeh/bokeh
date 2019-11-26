@@ -307,7 +307,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     entries: [join(lib_dir, "index.js")],
     bases,
     cache: join(dist_dir, `${artifact}.json`),
-    excluded: (dep) => dep.startsWith("@bokehjs/"),
+    excluded: (dep) => dep == "tslib" || dep.startsWith("@bokehjs/"),
     plugin: true,
     transpile: "ES2017",
   })
