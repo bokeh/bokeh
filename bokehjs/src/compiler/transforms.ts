@@ -215,36 +215,22 @@ function isImportCall(node: ts.Node): node is ts.ImportCall {
   return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
 }
 
-export function collect_imports(collected: Set<string>) {
-  const imports = new Set<string>()
-  const requires = new Set<string>()
-  let esm = false
-
+export function collect_imports(imports: Set<string>) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     function visit(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
-        esm = true
         const name = node.moduleSpecifier
         if (name != null && ts.isStringLiteral(name) && name.text.length != 0)
           imports.add(name.text)
       } else if (isImportCall(node)) {
-        esm = true
         const [name] = node.arguments
         if (ts.isStringLiteral(name) && name.text.length != 0)
           imports.add(name.text)
-      } else if (is_require(node)) {
-        const [name] = node.arguments
-        if (ts.isStringLiteral(name) && name.text.length != 0)
-          requires.add(name.text)
       }
 
       return ts.visitEachChild(node, visit, context)
     }
-    const result = ts.visitNode(root, visit)
-    for (const name of esm ? imports : requires) {
-      collected.add(name)
-    }
-    return result
+    return ts.visitNode(root, visit)
   }
 }
 

@@ -1,4 +1,4 @@
-import {resolve, relative, join, dirname, basename, extname} from "path"
+import {resolve, relative, join, dirname, basename, extname, normalize} from "path"
 const {_builtinLibs} = require("repl")
 import * as crypto from "crypto"
 
@@ -28,6 +28,8 @@ export type Parent = {
   file: Path
 }
 
+export type ResoType = "ESM" | "CJS"
+
 export type ModuleType = "js" | "json" | "css"
 
 export type ModuleInfo = {
@@ -35,6 +37,7 @@ export type ModuleInfo = {
   base: Path
   base_path: Path
   canonical?: string
+  resolution: ResoType
   id: number | string
   hash: string
   changed: boolean
@@ -552,22 +555,42 @@ export class Linker {
           throw new Error(`unsupported extension of ${file}`)
       }
     })()
-    const [base, base_path, canonical] = ((): [string, string, string | undefined] => {
+    const [base, base_path, canonical, resolution] = ((): [string, string, string | undefined, ResoType] => {
       const [primary, ...secondary] = this.bases
 
       function canonicalize(path: Path): string {
         return path.replace(/\.js$/, "").replace(/\\/g, "/")
       }
 
+      function resolution(base: Path, path: Path): "ESM" | "CJS" {
+        base = normalize(base)
+        path = normalize(join(base, path))
+        while (path != base) {
+          if (directory_exists(path)) {
+            const pkg_path = join(path, "package.json")
+            if (file_exists(pkg_path)) {
+              const pkg = JSON.parse(read(pkg_path)!)
+              if (pkg.module != null)
+                return "ESM"
+              else
+                return "CJS"
+            }
+          }
+          path = dirname(path)
+        }
+
+        return "CJS"
+      }
+
       const path = relative(primary, file)
       if (!path.startsWith("..")) {
-        return [primary, path, canonicalize(path)]
+        return [primary, path, canonicalize(path), "ESM"]
       }
 
       for (const base of secondary) {
         const path = relative(base, file)
         if (!path.startsWith("..")) {
-          return [base, path, this.export_all ? canonicalize(path) : undefined]
+          return [base, path, this.export_all ? canonicalize(path) : undefined, resolution(base, path)]
         }
       }
 
@@ -584,7 +607,7 @@ export class Linker {
     if (changed) {
       let collected: string[] | null = null
       if (type == "js") {
-        if (this.transpile != null) {
+        if (this.transpile != null && resolution == "ESM") {
           const {ES2017, ES5} = ts.ScriptTarget
           const target = this.transpile == "ES2017" ? ES2017 : ES5
           const imports = new Set<string>(["tslib"])
@@ -618,6 +641,7 @@ export class Linker {
       base,
       base_path,
       canonical,
+      resolution,
       id: NaN,
       hash,
       changed,
