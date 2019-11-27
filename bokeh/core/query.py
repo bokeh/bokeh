@@ -44,9 +44,7 @@ __all__ = (
 
 ContextType = Optional[Dict[str, Any]]
 
-OperatorType = Type[_Operator]
-
-SelectorType = Dict[Union[str, OperatorType], Any]
+SelectorType = Dict[Union[str, Type["_Operator"]], Any]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -339,7 +337,7 @@ class NEQ(_Operator):
 #-----------------------------------------------------------------------------
 
 # realizations of the abstract predicate operators
-_operators: Dict[OperatorType, Callable[[Any, Any], Any]] = {
+_operators: Dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
    IN:  lambda x, y: x in y,
    GT:  lambda x, y: x > y,
    LT:  lambda x, y: x < y,

@@ -26,7 +26,6 @@ from operator import itemgetter
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
-from .core.query import find
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -523,6 +522,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             seq[Model]
 
         '''
+        from .core.query import find
         return find(self.references(), selector)
 
     def select_one(self, selector):
