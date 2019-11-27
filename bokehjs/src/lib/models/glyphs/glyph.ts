@@ -56,9 +56,9 @@ export abstract class GlyphView extends View {
     const {webgl} = this.renderer.plot_view.canvas_view
 
     if (webgl != null) {
-      let webgl_module: Promise<typeof import("./webgl/index")> | null = null
+      let webgl_module: typeof import("./webgl/index") | null = null
       try {
-        webgl_module = import("./webgl/index")
+        webgl_module = require("@bokehjs/models/glyphs/webgl/index") // TODO: use dynamic import
       } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
           logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
@@ -67,11 +67,9 @@ export abstract class GlyphView extends View {
       }
 
       if (webgl_module != null) {
-        webgl_module.then((module: {[key: string]: any}) => {
-          const Cls = module[this.model.type + 'GLGlyph']
-          if (Cls != null)
-            this.glglyph = new Cls(webgl.gl, this)
-        })
+        const Cls = (webgl_module as any)[this.model.type + 'GLGlyph']
+        if (Cls != null)
+          this.glglyph = new Cls(webgl.gl, this)
       }
     }
   }
