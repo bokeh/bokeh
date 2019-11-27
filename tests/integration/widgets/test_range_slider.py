@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 from time import sleep
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import (
     RECORD,
@@ -118,6 +121,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_keypress_event(self, bokeh_model_page):
         slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
