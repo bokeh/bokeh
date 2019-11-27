@@ -273,7 +273,7 @@ If you would like to contribute to Bokeh, please review the [Developer Guide](ht
 
 Follow us
 ---------
-Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots)
+Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 Sponsors
 --------
