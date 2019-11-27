@@ -36,7 +36,7 @@ describe("GraphHitTestPolicy", () => {
   let node_stub: sinon.SinonStub
   let edge_stub: sinon.SinonStub
 
-  beforeEach(() => {
+  before_each(() => {
     const doc = new Document()
 
     const plot = new Plot({
@@ -72,7 +72,7 @@ describe("GraphHitTestPolicy", () => {
     edge_stub = sinon.stub(gv.edge_view.glyph, "hit_test")
   })
 
-  afterEach(() => {
+  after_each(() => {
     node_stub.restore()
     edge_stub.restore()
   })

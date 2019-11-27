@@ -38,7 +38,7 @@ describe("ProxyToolbar", () => {
     let pan: PanTool
     let tap: TapTool
 
-    beforeEach(() => {
+    before_each(() => {
       multi = new MultiTool()
       pan = new PanTool()
       tap = new TapTool()

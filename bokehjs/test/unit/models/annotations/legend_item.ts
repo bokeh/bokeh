@@ -11,11 +11,11 @@ describe("LegendItem", () => {
   describe("initialize", () => {
     let logger_stub: sinon.SinonStub
 
-    beforeEach(() => {
+    before_each(() => {
       logger_stub = sinon.stub(logger, "error")
     })
 
-    afterEach(() => {
+    after_each(() => {
       logger_stub.restore()
     })
 

@@ -17,7 +17,7 @@ describe("logging module", () => {
     describe("sets accepted levels", () => {
 
       let original: LogLevel | null = null
-      afterEach(() => {
+      after_each(() => {
         if (original != null)
           set_log_level(original)
       })

@@ -11,5 +11,5 @@ declare type It = Decl & {
 
 declare const describe: Decl
 declare const it: It
-declare const beforeEach: Fn
-declare const afterEach: Fn
+declare const before_each: Fn
+declare const after_each: Fn

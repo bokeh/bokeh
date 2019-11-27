@@ -10,7 +10,7 @@ describe("ToolbarBase", () => {
     let pan_2: PanTool
     let toolbar_base: ToolbarBase
 
-    beforeEach(() => {
+    before_each(() => {
       // by default these tools are inactive
       pan_1 = new PanTool()
       pan_2 = new PanTool()
@@ -57,7 +57,7 @@ describe("ToolbarViewModel", () => {
   describe("visible getter", () => {
     let toolbar_view_model: ToolbarViewModel
 
-    beforeEach(() => {
+    before_each(() => {
       // autohide is false by default and visible is null
       toolbar_view_model = new ToolbarViewModel()
     })

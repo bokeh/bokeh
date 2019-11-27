@@ -169,7 +169,7 @@ describe("Document", () => {
 
   let date_stub: sinon.SinonStub
 
-  beforeEach(() => {
+  before_each(() => {
     date_stub = sinon.stub(Date, 'now')
     date_stub.onCall(0).returns(5)
     date_stub.onCall(1).returns(10)
@@ -178,7 +178,7 @@ describe("Document", () => {
     date_stub.onCall(4).returns(18)
   })
 
-  afterEach(() => {
+  after_each(() => {
     date_stub.restore()
   })
 

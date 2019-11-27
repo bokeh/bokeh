@@ -9,11 +9,11 @@ describe("ImageRGBA module", () => {
   describe("ImageRGBAView", () => {
 
     let stub: any
-    beforeEach(() => {
+    before_each(() => {
       stub = sinon.stub(ImageRGBAView.prototype as any, '_set_data') // XXX: protected
     })
 
-    afterEach(() => {
+    after_each(() => {
       stub.restore()
     })
 

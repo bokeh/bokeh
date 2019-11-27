@@ -31,7 +31,7 @@ describe("ui_events module", () => {
   let ui_events: UIEvents
   let ANY_ui_events: any
 
-  beforeEach(() => {
+  before_each(() => {
     hammer_stub = sinon.stub(UIEvents.prototype as any, "_configure_hammerjs") // XXX: protected
 
     plot_view = new_plot()
@@ -39,7 +39,7 @@ describe("ui_events module", () => {
     ANY_ui_events = ui_events // XXX: protected
   })
 
-  afterEach(() => {
+  after_each(() => {
     hammer_stub.restore()
   })
 
@@ -47,11 +47,11 @@ describe("ui_events module", () => {
 
     let spy_trigger: sinon.SinonSpy
 
-    beforeEach(() => {
+    before_each(() => {
       spy_trigger = sinon.spy(ui_events, "trigger")
     })
 
-    afterEach(() => {
+    after_each(() => {
       spy_trigger.restore()
     })
 
@@ -59,12 +59,12 @@ describe("ui_events module", () => {
 
       let e: UIEvent
       let spy_cursor: sinon.SinonSpy
-      beforeEach(() => {
+      before_each(() => {
         e = {type: "mousemove", sx: 0, sy: 0}
         spy_cursor = sinon.spy(plot_view, "set_cursor")
       })
 
-      afterEach(() => {
+      after_each(() => {
         spy_cursor.restore()
       })
 
@@ -156,7 +156,7 @@ describe("ui_events module", () => {
     describe("base_type=tap", () => {
 
       let e: UIEvent
-      beforeEach(() => {
+      before_each(() => {
         e = {type: "tap", sx: 10, sy: 15, shiftKey: false}
       })
 
@@ -198,7 +198,7 @@ describe("ui_events module", () => {
       let preventDefault: sinon.SinonSpy
       let stopPropagation: sinon.SinonSpy
 
-      beforeEach(() => {
+      before_each(() => {
         e = {type: "wheel", sx: 0, sy: 0, delta: 1}
         srcEvent = new Event("scroll")
 
@@ -206,7 +206,7 @@ describe("ui_events module", () => {
         stopPropagation = sinon.spy(srcEvent, "stopPropagation")
       })
 
-      afterEach(() => {
+      after_each(() => {
         preventDefault.restore()
         stopPropagation.restore()
       })
@@ -240,7 +240,7 @@ describe("ui_events module", () => {
 
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
-      beforeEach(() => {
+      before_each(() => {
         e = {type: "pan", sx: 0, sy: 0, deltaX: 0, deltaY: 0, shiftKey: false}
       })
 
@@ -266,12 +266,12 @@ describe("ui_events module", () => {
     let dom_stub: sinon.SinonStub
     let spy: sinon.SinonSpy
 
-    beforeEach(() => {
+    before_each(() => {
       dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
       spy = sinon.spy(plot_view.model, "trigger_event")
     })
 
-    afterEach(() => {
+    after_each(() => {
       dom_stub.restore()
       spy.restore()
     })
@@ -318,7 +318,7 @@ describe("ui_events module", () => {
     let spy_plot: sinon.SinonSpy
     let spy_uievent: sinon.SinonSpy
 
-    beforeEach(() => {
+    before_each(() => {
       dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
       // The BokehEvent that is triggered by the plot
       spy_plot = sinon.spy(plot_view.model, "trigger_event")
@@ -326,7 +326,7 @@ describe("ui_events module", () => {
       spy_uievent = sinon.spy(ui_events, "trigger")
     })
 
-    afterEach(() => {
+    after_each(() => {
       dom_stub.restore()
       spy_plot.restore()
       spy_uievent.restore()

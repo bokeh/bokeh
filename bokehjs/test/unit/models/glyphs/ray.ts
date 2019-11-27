@@ -8,7 +8,7 @@ describe("Ray", () => {
   describe("RayView", () => {
     let glyph: Ray
 
-    beforeEach(() => {
+    before_each(() => {
       glyph = new Ray({
         x: {field: "x"},
         y: {field: "y"},

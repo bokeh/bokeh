@@ -63,8 +63,8 @@ const _globalThis: any = globalThis
 
 _globalThis.describe = describe
 _globalThis.it = it
-_globalThis.beforeEach = before_each
-_globalThis.afterEach = after_each
+_globalThis.before_each = before_each
+_globalThis.after_each = after_each
 
 export async function run_tests(grep?: string | RegExp): Promise<void> {
 

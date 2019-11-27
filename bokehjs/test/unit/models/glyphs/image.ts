@@ -9,11 +9,11 @@ describe("Image module", () => {
   describe("ImageView", () => {
 
     let stub: any
-    beforeEach(() => {
+    before_each(() => {
       stub = sinon.stub(ImageView.prototype as any, '_set_data') // XXX: protected
     })
 
-    afterEach(() => {
+    after_each(() => {
       stub.restore()
     })
 

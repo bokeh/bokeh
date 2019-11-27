@@ -13,13 +13,13 @@ describe("ajax_data_source module", () => {
     let requests: sinon.SinonFakeXMLHttpRequest[]
     let xhr: sinon.SinonFakeXMLHttpRequestStatic
 
-    beforeEach(() => {
+    before_each(() => {
       requests = []
       xhr = sinon.useFakeXMLHttpRequest()
       xhr.onCreate = (xhr) => requests.push(xhr)
     })
 
-    afterEach(() => {
+    after_each(() => {
       xhr.restore()
     })
 

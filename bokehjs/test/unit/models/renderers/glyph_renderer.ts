@@ -57,7 +57,7 @@ describe("GlyphRenderer", () => {
     class DummyGlyphRendererView
       @glyph = null
 
-    beforeEach () => {
+    before_each () => {
       @glyph_renderer = new DummyGlyphRendererView()
     }
 

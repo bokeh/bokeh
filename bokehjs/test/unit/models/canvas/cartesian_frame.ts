@@ -23,7 +23,7 @@ describe("CartesianFrame", () => {
     let frame: CartesianFrame
     let frame_range: Range1d
 
-    beforeEach(() => {
+    before_each(() => {
       frame = new CartesianFrame(
         new LinearScale(),
         new LinearScale(),

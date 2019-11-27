@@ -37,12 +37,12 @@ describe("LegendView", () => {
 
   let stub: sinon.SinonStub
 
-  beforeEach(() => {
+  before_each(() => {
     stub = sinon.stub(LegendView.prototype, 'compute_legend_bbox')
     stub.returns({x: 0, y: 0, width: WIDTH, height: HEIGHT})
   })
 
-  afterEach(() => {
+  after_each(() => {
     stub.reset()
   })
 

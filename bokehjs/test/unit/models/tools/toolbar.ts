@@ -13,7 +13,7 @@ describe("Toolbar", () => {
     let hover_2: HoverTool
     let hover_3: HoverTool
 
-    beforeEach(() => {
+    before_each(() => {
       hover_1 = new HoverTool()
       hover_2 = new HoverTool()
       hover_3 = new HoverTool()
@@ -69,7 +69,7 @@ describe("Toolbar Multi Gesture Tool", () => {
     let pan: PanTool
     let tap: TapTool
 
-    beforeEach(() => {
+    before_each(() => {
       multi = new MultiTool()
       pan = new PanTool()
       tap = new TapTool()

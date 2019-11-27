@@ -35,14 +35,14 @@ describe("ColorBar module", () => {
   let _measure_font_stub: sinon.SinonStub
   let _set_canvas_image_spy: sinon.SinonSpy
 
-  beforeEach(() => {
+  before_each(() => {
     _measure_font_stub = sinon.stub(text, "measure_font").callsFake(() => {
       return {height: 15, ascent: 10, descent: 5}
     })
     _set_canvas_image_spy = sinon.spy(ColorBarView.prototype as any, '_set_canvas_image') // XXX: protected
   })
 
-  afterEach(() => {
+  after_each(() => {
     _measure_font_stub.restore()
     _set_canvas_image_spy.restore()
   })

@@ -22,7 +22,7 @@ describe("data_cube module", () => {
     let columns: any[] // XXX TableColumn[]
     let grouping: GroupingInfo[]
 
-    beforeEach(() => {
+    before_each(() => {
       source = new ColumnDataSource({
         data: {
           color: ['red', 'red', 'red', 'green', 'green', 'blue'],
