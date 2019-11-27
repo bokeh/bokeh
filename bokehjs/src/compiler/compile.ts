@@ -10,6 +10,7 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 
 export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir: string): {outputs?: Outputs} & TSOutput {
   const preconfigure: ts.CompilerOptions = {
+    module: ts.ModuleKind.CommonJS,
     paths: {
       "*": [
         path.join(bokehjs_dir, "js/lib/*"),

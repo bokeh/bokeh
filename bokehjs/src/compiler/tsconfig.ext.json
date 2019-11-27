@@ -17,7 +17,7 @@
     "sourceMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "target": "ES2017",
