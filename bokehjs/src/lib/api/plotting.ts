@@ -676,9 +676,9 @@ export class Figure extends Plot {
         }
       }
     }
-    for (const trait of traits) {
-      delete props[prefix+trait]
-    }
+    traits.forEach(function(key, val, obj) {
+      delete props[prefix+val]
+    })
 
     return result
   }
