@@ -92,9 +92,9 @@
 
   <td>Twitter</td>
   <td>
-    <a href="https://twitter.com/BokehPlots">
-    <img src="https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow"
-         alt="Follow BokehPlots on Twitter" />
+    <a href="https://twitter.com/bokeh">
+    <img src="https://img.shields.io/twitter/follow/bokeh.svg?style=social&label=Follow"
+         alt="Follow Bokeh on Twitter" />
     </a>
   </td>
 </tr>
