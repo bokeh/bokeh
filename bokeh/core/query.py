@@ -19,6 +19,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Callable, Dict, Iterator, Optional, Type, Union
+
+# Bokeh imports
+from ..model import Model
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -36,11 +42,15 @@ __all__ = (
     'OR',
 )
 
+ContextType = Optional[Dict[str, Any]]
+
+SelectorType = Dict[Union[str, Type["_Operator"]], Any]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def find(objs, selector, context=None):
+def find(objs: Iterator[Model], selector: SelectorType, context: ContextType = None) -> Iterator[Model]:
     ''' Query a collection of Bokeh models and yield any that match the
     a selector.
 
@@ -77,7 +87,7 @@ def find(objs, selector, context=None):
     '''
     return (obj for obj in objs if match(obj, selector, context))
 
-def match(obj, selector, context=None):
+def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bool:
     ''' Test whether a given Bokeh model matches a given selector.
 
     Args:
@@ -205,7 +215,10 @@ def match(obj, selector, context=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class OR(object):
+class _Operator(object):
+    pass
+
+class OR(_Operator):
     ''' Form disjunctions from other query predicates.
 
     Construct an ``OR`` expression by making a dict with ``OR`` as the key,
@@ -219,7 +232,7 @@ class OR(object):
     '''
     pass
 
-class IN(object):
+class IN(_Operator):
     ''' Predicate to test if property values are in some collection.
 
     Construct and ``IN`` predicate as a dict with ``IN`` as the key,
@@ -233,7 +246,7 @@ class IN(object):
     '''
     pass
 
-class GT(object):
+class GT(_Operator):
     ''' Predicate to test if property values are greater than some value.
 
     Construct and ``GT`` predicate as a dict with ``GT`` as the key,
@@ -247,7 +260,7 @@ class GT(object):
     '''
     pass
 
-class LT(object):
+class LT(_Operator):
     ''' Predicate to test if property values are less than some value.
 
     Construct and ``LT`` predicate as a dict with ``LT`` as the key,
@@ -261,7 +274,7 @@ class LT(object):
     '''
     pass
 
-class EQ(object):
+class EQ(_Operator):
     ''' Predicate to test if property values are equal to some value.
 
     Construct and ``EQ`` predicate as a dict with ``EQ`` as the key,
@@ -275,7 +288,7 @@ class EQ(object):
     '''
     pass
 
-class GEQ(object):
+class GEQ(_Operator):
     ''' Predicate to test if property values are greater than or equal to
     some value.
 
@@ -290,7 +303,7 @@ class GEQ(object):
     '''
     pass
 
-class LEQ(object):
+class LEQ(_Operator):
     ''' Predicate to test if property values are less than or equal to
     some value.
 
@@ -305,7 +318,7 @@ class LEQ(object):
     '''
     pass
 
-class NEQ(object):
+class NEQ(_Operator):
     ''' Predicate to test if property values are unequal to some value.
 
     Construct and ``NEQ`` predicate as a dict with ``NEQ`` as the key,
@@ -324,7 +337,7 @@ class NEQ(object):
 #-----------------------------------------------------------------------------
 
 # realizations of the abstract predicate operators
-_operators = {
+_operators: Dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
    IN:  lambda x, y: x in y,
    GT:  lambda x, y: x > y,
    LT:  lambda x, y: x < y,
@@ -335,7 +348,7 @@ _operators = {
 }
 
 # realization of the OR operator
-def _or(obj, selectors):
+def _or(obj: Model, selectors: Iterator[SelectorType]) -> bool:
     return any(match(obj, selector) for selector in selectors)
 
 #-----------------------------------------------------------------------------
