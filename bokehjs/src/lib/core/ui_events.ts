@@ -17,6 +17,10 @@ import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import * as events from "./bokeh_events"
 
+function is_touch(event: unknown): event is TouchEvent {
+  return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
+}
+
 export type PanEvent = {
   type: "pan" | "panstart" | "panend"
   sx: number
@@ -422,7 +426,7 @@ export class UIEvents implements EventListenerObject {
   }
 
   private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
-    const {pageX, pageY} = event instanceof TouchEvent ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
+    const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset(this.hit_area)
     return {
       sx: pageX - left,
