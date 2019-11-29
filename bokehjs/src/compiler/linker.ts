@@ -747,5 +747,5 @@ export function minify(module: ModuleInfo, source: string): {min_source: string,
     throw new Error(`${module.file}:${line-1}:${col}: ${message}`)
   }
 
-  return {min_source: code || "", min_map: map}
+  return {min_source: code || "", min_map: typeof map === "string" ? map : undefined}
 }
