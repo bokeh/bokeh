@@ -1,4 +1,4 @@
-import * as lesscss from "less"
+import lesscss from "less"
 
 import chalk from "chalk"
 import {argv} from "yargs"

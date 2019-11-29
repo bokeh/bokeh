@@ -20,6 +20,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "target": "ES2017",
     "lib": ["es2017", "dom", "dom.iterable"],
     "baseUrl": ".",

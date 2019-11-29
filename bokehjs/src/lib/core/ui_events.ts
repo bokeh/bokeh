@@ -1,6 +1,4 @@
-import * as Hammer from "hammerjs"
-
-import {Input} from "hammerjs"
+import Hammer, {Input} from "hammerjs"
 type HammerEvent = typeof Input
 
 import {Signal} from "./signaling"

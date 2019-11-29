@@ -18,6 +18,7 @@
     "experimentalDecorators": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ES2017",

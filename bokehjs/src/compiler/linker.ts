@@ -1,6 +1,6 @@
 import {resolve, relative, join, dirname, basename, extname, normalize} from "path"
 const {_builtinLibs} = require("repl")
-import * as crypto from "crypto"
+import crypto from "crypto"
 
 import * as ts from "typescript"
 import * as terser from "terser"
@@ -278,8 +278,9 @@ export class Linker {
           const remove_use_strict = transforms.remove_use_strict()
           transformers.push(remove_use_strict)
 
-          const remove_esmodule = transforms.remove_esmodule()
-          transformers.push(remove_esmodule)
+          // TODO: don't remove __esModule, just make it more space efficient
+          // const remove_esmodule = transforms.remove_esmodule()
+          // transformers.push(remove_esmodule)
 
           const rewrite_deps = transforms.rewrite_deps((dep) => {
             const module_dep = module.dependencies.get(dep)
@@ -710,6 +711,7 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
     compilerOptions: {
       target,
       module: ts.ModuleKind.CommonJS,
+      esModuleInterop: true,
       importHelpers: true,
     },
     transformers,

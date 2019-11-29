@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as ts from "typescript"
-import * as lesscss from "less"
+import lesscss from "less"
 
 import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs} from "./compiler"
 import {rename, Path} from "./sys"

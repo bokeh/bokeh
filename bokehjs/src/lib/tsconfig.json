@@ -19,7 +19,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "ES2017",
     "lib": ["es2017", "dom", "dom.iterable"],

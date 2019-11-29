@@ -1,3 +1,4 @@
+import tz from "timezone"
 import * as Numbro from "numbro"
 import {_} from "underscore.template"
 
@@ -6,7 +7,6 @@ import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {isString} from "core/util/types"
-import tz from "core/util/timezone"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {

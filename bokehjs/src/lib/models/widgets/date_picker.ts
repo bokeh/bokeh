@@ -1,10 +1,8 @@
-import {InputWidget, InputWidgetView} from "./input_widget"
+import Pikaday from "pikaday"
 
+import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
-
-import * as Pikaday from "pikaday"
-
 import {bk_input} from "styles/widgets/inputs"
 import "styles/widgets/pikaday"
 
