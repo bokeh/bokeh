@@ -60,6 +60,5 @@ examples.log
 *.tar
 *.tgz
 *.zip
-.nyc_output/
 
 /.mypy_cache/

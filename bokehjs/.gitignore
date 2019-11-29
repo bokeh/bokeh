@@ -1,7 +1,5 @@
 /build
 /node_modules
-/coverage
-.coverrun
 *~
 *.sw[opn]
 *.bak

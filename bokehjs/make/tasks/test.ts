@@ -9,13 +9,7 @@ import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
 
 function mocha(files: string[]): Promise<void> {
-  const _mocha = "node_modules/mocha/bin/_mocha"
-
-  let args: string[]
-  if (!argv.coverage)
-    args = [_mocha]
-  else
-    args = ['node_modules/.bin/nyc', _mocha]
+  let args = ["node_modules/mocha/bin/_mocha"]
 
   if (argv.debug) {
     if (argv.debug === true)
