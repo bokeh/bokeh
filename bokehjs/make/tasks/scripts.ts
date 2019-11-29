@@ -31,6 +31,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
     transpile: "ES2017",
+    exports: ["tslib"],
   })
 
   if (!argv.rebuild) linker.load_cache()

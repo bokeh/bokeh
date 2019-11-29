@@ -183,7 +183,7 @@ export interface LinkerOpts {
   transpile?: "ES2017" | "ES5"
   minify?: boolean
   plugin?: boolean
-  export_all?: boolean
+  exports?: string[]
   prelude?: string
 }
 
@@ -200,7 +200,7 @@ export class Linker {
   readonly transpile: "ES2017" | "ES5" | null
   readonly minify: boolean
   readonly plugin: boolean
-  readonly export_all: boolean
+  readonly exports: Set<string>
   readonly prelude: string | null
 
   constructor(opts: LinkerOpts) {
@@ -210,9 +210,9 @@ export class Linker {
     this.external_modules = new Set((opts.externals ?? []).filter((s): s is string => typeof s === "string"))
     this.external_regex = (opts.externals ?? []).filter((s): s is RegExp => s instanceof RegExp)
 
-    this.excluded = opts.excluded || (() => false)
-    this.builtins = opts.builtins || false
-    this.export_all = opts.export_all || false
+    this.excluded = opts.excluded ?? (() => false)
+    this.builtins = opts.builtins ?? false
+    this.exports = new Set(opts.exports ?? [])
     this.prelude = opts.prelude ?? null
 
     if (this.builtins) {
@@ -563,24 +563,20 @@ export class Linker {
         return path.replace(/\.js$/, "").replace(/\\/g, "/")
       }
 
-      function resolution(base: Path, path: Path): "ESM" | "CJS" {
+      function get_package(base: Path, path: Path): {dir: Path, pkg: {[key: string]: any}} {
+        const root = join(base, path)
         base = normalize(base)
-        path = normalize(join(base, path))
+        path = normalize(root)
         while (path != base) {
           if (directory_exists(path)) {
             const pkg_path = join(path, "package.json")
-            if (file_exists(pkg_path)) {
-              const pkg = JSON.parse(read(pkg_path)!)
-              if (pkg.module != null)
-                return "ESM"
-              else
-                return "CJS"
-            }
+            if (file_exists(pkg_path))
+              return {dir: path, pkg: JSON.parse(read(pkg_path)!)}
           }
           path = dirname(path)
         }
 
-        return "CJS"
+        throw new Error(`can't resolve package.json for ${root}`)
       }
 
       const path = relative(primary, file)
@@ -591,7 +587,13 @@ export class Linker {
       for (const base of secondary) {
         const path = relative(base, file)
         if (!path.startsWith("..")) {
-          return [base, path, this.export_all ? canonicalize(path) : undefined, resolution(base, path)]
+          const {dir, pkg} = get_package(base, path)
+          const reso =  pkg.module != null ? "ESM" : "CJS"
+          const entry = pkg.module ?? pkg.name
+          const primary = join(dir, entry) == join(base, path)
+          const name = canonicalize(primary ? basename(dir) : path)
+          const exported = this.exports.has(name)
+          return [base, path, exported ? name : undefined, reso]
         }
       }
 
