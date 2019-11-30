@@ -78,4 +78,6 @@ def bk_worker():
     server.start()
     server.io_loop.start()
 
-Thread(target=bk_worker).start()
+t = Thread(target=bk_worker)
+t.daemon = True
+t.start()
