@@ -1,6 +1,6 @@
-import {resolve, relative, join, dirname, basename, extname} from "path"
+import {resolve, relative, join, dirname, basename, extname, normalize} from "path"
 const {_builtinLibs} = require("repl")
-import * as crypto from "crypto"
+import crypto from "crypto"
 
 import * as ts from "typescript"
 import * as terser from "terser"
@@ -28,6 +28,8 @@ export type Parent = {
   file: Path
 }
 
+export type ResoType = "ESM" | "CJS"
+
 export type ModuleType = "js" | "json" | "css"
 
 export type ModuleInfo = {
@@ -35,6 +37,7 @@ export type ModuleInfo = {
   base: Path
   base_path: Path
   canonical?: string
+  resolution: ResoType
   id: number | string
   hash: string
   changed: boolean
@@ -173,45 +176,51 @@ export interface LinkerOpts {
   entries: Path[]
   bases?: Path[]
   excludes?: Path[]    // paths: process, but don't include in a bundle
-  externals?: string[] // modules: delegate to an external require()
+  externals?: (string | RegExp)[] // modules: delegate to an external require()
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  transpile?: boolean
+  transpile?: "ES2017" | "ES5"
   minify?: boolean
   plugin?: boolean
-  export_all?: boolean
+  exports?: string[]
+  prelude?: string
 }
 
 export class Linker {
   readonly entries: Path[]
   readonly bases: Path[]
   readonly excludes: Set<Path>
-  readonly externals: Set<string>
+  readonly external_modules: Set<string>
+  readonly external_regex: RegExp[]
   readonly excluded: (dep: string) => boolean
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly transpile: boolean
+  readonly transpile: "ES2017" | "ES5" | null
   readonly minify: boolean
   readonly plugin: boolean
-  readonly export_all: boolean
+  readonly exports: Set<string>
+  readonly prelude: string | null
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
-    this.bases = (opts.bases || []).map((path) => resolve(path))
-    this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
-    this.externals = new Set(opts.externals || [])
-    this.excluded = opts.excluded || (() => false)
-    this.builtins = opts.builtins || false
-    this.export_all = opts.export_all || false
+    this.bases = (opts.bases ?? []).map((path) => resolve(path))
+    this.excludes = new Set((opts.excludes ?? []).map((path) => resolve(path)))
+    this.external_modules = new Set((opts.externals ?? []).filter((s): s is string => typeof s === "string"))
+    this.external_regex = (opts.externals ?? []).filter((s): s is RegExp => s instanceof RegExp)
+
+    this.excluded = opts.excluded ?? (() => false)
+    this.builtins = opts.builtins ?? false
+    this.exports = new Set(opts.exports ?? [])
+    this.prelude = opts.prelude ?? null
 
     if (this.builtins) {
-      this.externals.add("module")
-      this.externals.add("constants")
+      this.external_modules.add("module")
+      this.external_modules.add("constants")
 
       for (const lib of _builtinLibs)
-        this.externals.add(lib)
+        this.external_modules.add(lib)
     }
 
     for (const entry of this.entries) {
@@ -227,9 +236,13 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.transpile = opts.transpile != null ? opts.transpile : false
+    this.transpile = opts.transpile != null ? opts.transpile : null
     this.minify = opts.minify != null ? opts.minify : true
     this.plugin = opts.plugin != null ? opts.plugin : false
+  }
+
+  is_external(dep: string): boolean {
+    return this.external_modules.has(dep) || this.external_regex.some((re) => re.test(dep))
   }
 
   link(): Bundle[] {
@@ -265,8 +278,9 @@ export class Linker {
           const remove_use_strict = transforms.remove_use_strict()
           transformers.push(remove_use_strict)
 
-          const remove_esmodule = transforms.remove_esmodule()
-          transformers.push(remove_esmodule)
+          // TODO: don't remove __esModule, just make it more space efficient
+          // const remove_esmodule = transforms.remove_esmodule()
+          // transformers.push(remove_esmodule)
 
           const rewrite_deps = transforms.rewrite_deps((dep) => {
             const module_dep = module.dependencies.get(dep)
@@ -324,7 +338,7 @@ export class Linker {
       })
     }
 
-    const main_prelude = !this.plugin ? preludes.prelude : preludes.plugin_prelude
+    const main_prelude = this.prelude != null ? this.prelude : (!this.plugin ? preludes.prelude : preludes.plugin_prelude)
     const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
 
     const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, main_prelude, main_assembly)
@@ -417,6 +431,8 @@ export class Linker {
       const pkg_path = join(dir, "package.json")
       if (file_exists(pkg_path)) {
         const pkg = JSON.parse(read(pkg_path)!)
+        if (this.transpile != null && pkg.module != null)
+          return pkg.module
         if (pkg.main != null)
           return pkg.main
       }
@@ -523,8 +539,8 @@ export class Linker {
   }
 
   private parse_module({file, source, type}: {file: Path, source: string, type: ModuleType}): ts.SourceFile {
-    const {ES2015, JSON} = ts.ScriptTarget
-    return transforms.parse_es(file, source, type == "json" ? JSON : ES2015)
+    const {ES2017, JSON} = ts.ScriptTarget
+    return transforms.parse_es(file, source, type == "json" ? JSON : ES2017)
   }
 
   new_module(file: Path): ModuleInfo {
@@ -534,27 +550,50 @@ export class Linker {
       switch (extname(file)) {
         case ".json": return "json"
         case ".css": return "css"
+        case ".mjs": return "js"
         case ".js": return "js"
         default:
           throw new Error(`unsupported extension of ${file}`)
       }
     })()
-    const [base, base_path, canonical] = ((): [string, string, string | undefined] => {
+    const [base, base_path, canonical, resolution] = ((): [string, string, string | undefined, ResoType] => {
       const [primary, ...secondary] = this.bases
 
       function canonicalize(path: Path): string {
         return path.replace(/\.js$/, "").replace(/\\/g, "/")
       }
 
+      function get_package(base: Path, path: Path): {dir: Path, pkg: {[key: string]: any}} {
+        const root = join(base, path)
+        base = normalize(base)
+        path = normalize(root)
+        while (path != base) {
+          if (directory_exists(path)) {
+            const pkg_path = join(path, "package.json")
+            if (file_exists(pkg_path))
+              return {dir: path, pkg: JSON.parse(read(pkg_path)!)}
+          }
+          path = dirname(path)
+        }
+
+        throw new Error(`can't resolve package.json for ${root}`)
+      }
+
       const path = relative(primary, file)
       if (!path.startsWith("..")) {
-        return [primary, path, canonicalize(path)]
+        return [primary, path, canonicalize(path), "ESM"]
       }
 
       for (const base of secondary) {
         const path = relative(base, file)
         if (!path.startsWith("..")) {
-          return [base, path, this.export_all ? canonicalize(path) : undefined]
+          const {dir, pkg} = get_package(base, path)
+          const reso =  pkg.module != null ? "ESM" : "CJS"
+          const entry = pkg.module ?? pkg.name
+          const primary = join(dir, entry) == join(base, path)
+          const name = canonicalize(primary ? basename(dir) : path)
+          const exported = this.exports.has(name)
+          return [base, path, exported ? name : undefined, reso]
         }
       }
 
@@ -569,21 +608,31 @@ export class Linker {
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
-      if (type == "js" && this.transpile) {
-        const {output, error} = transpile(source, ts.ScriptTarget.ES5)
-        if (error)
-          throw new Error(error)
-        else
-          source = output
+      let collected: string[] | null = null
+      if (type == "js") {
+        if (this.transpile != null && resolution == "ESM") {
+          const {ES2017, ES5} = ts.ScriptTarget
+          const target = this.transpile == "ES2017" ? ES2017 : ES5
+          const imports = new Set<string>(["tslib"])
+          const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
+          const {output, error} = transpile(file, source, target, transform)
+          if (error)
+            throw new Error(error)
+          else {
+            source = output
+            collected = [...imports]
+          }
+        }
       }
 
       ast = this.parse_module({file, source, type})
 
-      const collected = transforms.collect_deps(ast)
-      const filtered = collected.filter((dep) => !this.externals.has(dep) && !this.excluded(dep))
+      if (collected == null)
+        collected = transforms.collect_deps(ast)
+      const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep))
 
       dependency_paths = new Map(filtered.map((dep) => [dep, this.resolve_file(dep, {file})]))
-      externals = new Set(collected.filter((dep) => this.externals.has(dep)))
+      externals = new Set(collected.filter((dep) => this.is_external(dep)))
     } else {
       dependency_paths = cached!.module.dependency_paths
       externals = cached!.module.externals
@@ -595,6 +644,7 @@ export class Linker {
       base,
       base_path,
       canonical,
+      resolution,
       id: NaN,
       hash,
       changed,
@@ -655,15 +705,18 @@ export class Linker {
   }
 }
 
-export function transpile(source: string, target: ts.ScriptTarget, transformers?: Transformers): {output: string, error?: string} {
+export function transpile(file: Path, source: string, target: ts.ScriptTarget,
+    transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
   const {outputText: output, diagnostics} = ts.transpileModule(source, {
+    fileName: file,
     reportDiagnostics: true,
     compilerOptions: {
       target,
       module: ts.ModuleKind.CommonJS,
+      esModuleInterop: true,
       importHelpers: true,
     },
-    transformers: {after: transformers},
+    transformers,
   })
 
   if (diagnostics == null || diagnostics.length == 0)
@@ -696,5 +749,5 @@ export function minify(module: ModuleInfo, source: string): {min_source: string,
     throw new Error(`${module.file}:${line-1}:${col}: ${message}`)
   }
 
-  return {min_source: code || "", min_map: map}
+  return {min_source: code || "", min_map: typeof map === "string" ? map : undefined}
 }

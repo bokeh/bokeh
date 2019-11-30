@@ -19,9 +19,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2015",
-    "lib": ["es2015", "dom"],
+    "target": "ES2017",
+    "lib": ["es2017", "dom", "dom.iterable"],
     "types": ["node"],
     "baseUrl": "."
   },

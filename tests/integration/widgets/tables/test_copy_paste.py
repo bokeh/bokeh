@@ -83,6 +83,7 @@ class Test_DataTableCopyPaste(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_single_row_copy_with_zero(self, bokeh_model_page):
         data = {'x': [1,2,3,4], 'y': [0, 0, 0, 0], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)

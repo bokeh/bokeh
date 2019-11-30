@@ -22,43 +22,16 @@ function min_js(js: string): string {
   return rename(js, {ext: '.min.js'})
 }
 
-task("scripts:bundle-es6", ["scripts:compile"], async () => {
+task("scripts:bundle", ["scripts:compile"], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh-es6.json") : undefined,
-  })
-
-  if (!argv.rebuild) linker.load_cache()
-  const bundles = linker.link()
-  linker.store_cache()
-
-  const outputs = packages.map((pkg) => {
-    return rename(pkg.output, {name: (name) => name + "-es6"})
-  })
-
-  function bundle(minified: boolean, outputs: string[]) {
-    bundles
-      .map((bundle) => bundle.assemble(minified))
-      .map((artifact, i) => artifact.write(outputs[i]))
-  }
-
-  bundle(false, outputs)
-  bundle(true, outputs.map(min_js))
-})
-
-task("scripts:bundle", ["scripts:compile"], async () => {
-  const {bokehjs, gl, api, widgets, tables} = paths.lib
-  const packages = [bokehjs, gl, api, widgets, tables]
-
-  const linker = new Linker({
-    entries: packages.map((pkg) => pkg.legacy || pkg.main),
-    bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    transpile: true,
+    transpile: "ES2017",
+    exports: ["tslib"],
   })
 
   if (!argv.rebuild) linker.load_cache()
@@ -77,7 +50,34 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:build", ["scripts:bundle-es6", "scripts:bundle"])
+task("scripts:bundle-legacy", ["scripts:compile"], async () => {
+  const {bokehjs, gl, api, widgets, tables} = paths.lib_legacy
+  const packages = [bokehjs, gl, api, widgets, tables]
+
+  const linker = new Linker({
+    entries: packages.map((pkg) => pkg.main),
+    bases: [paths.build_dir.lib, "./node_modules"],
+    cache: argv.cache !== false ? join(paths.build_dir.legacy, "bokeh.json") : undefined,
+    transpile: "ES5",
+  })
+
+  if (!argv.rebuild) linker.load_cache()
+  const bundles = linker.link()
+  linker.store_cache()
+
+  const outputs = packages.map((pkg) => pkg.output)
+
+  function bundle(minified: boolean, outputs: string[]) {
+    bundles
+      .map((bundle) => bundle.assemble(minified))
+      .map((artifact, i) => artifact.write(outputs[i]))
+  }
+
+  bundle(false, outputs)
+  bundle(true, outputs.map(min_js))
+})
+
+task("scripts:build", ["scripts:bundle", "scripts:bundle-legacy"])
 
 task("scripts:minify", ["scripts:build"])
 

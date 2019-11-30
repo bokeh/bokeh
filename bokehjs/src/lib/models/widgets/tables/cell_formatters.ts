@@ -1,6 +1,6 @@
+import tz from "timezone"
 import * as Numbro from "numbro"
-import compile_template = require("underscore.template")
-import tz = require("timezone")
+import {_} from "underscore.template"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"
@@ -294,7 +294,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     if (value == null)
       return ""
     else {
-      const compiled_template = compile_template(template)
+      const compiled_template = _.template(template)
       const context = {...dataContext, value}
       return compiled_template(context)
     }

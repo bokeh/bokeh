@@ -119,7 +119,7 @@ def test_get_screenshot_as_png_large_plot(webdriver):
 def test_get_screenshot_as_png_with_unicode_minified(webdriver):
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True, legacy=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
@@ -127,7 +127,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver):
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False, legacy=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit

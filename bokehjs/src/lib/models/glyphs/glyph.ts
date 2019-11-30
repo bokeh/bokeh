@@ -21,6 +21,8 @@ import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
+//import /*type*/ {BaseGLGlyph} from "./webgl/base"
+
 export interface GlyphData {}
 
 export interface GlyphView extends GlyphData {}
@@ -35,7 +37,7 @@ export abstract class GlyphView extends View {
     return this.parent
   }
 
-  glglyph?: any
+  glglyph?: any // BaseGLGlyph
 
   index: SpatialIndex
 
@@ -54,9 +56,9 @@ export abstract class GlyphView extends View {
     const {webgl} = this.renderer.plot_view.canvas_view
 
     if (webgl != null) {
-      let webgl_module = null
+      let webgl_module: typeof import("./webgl/index") | null = null
       try {
-        webgl_module = require("./webgl/index")
+        webgl_module = require("@bokehjs/models/glyphs/webgl/index") // TODO: use dynamic import
       } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
           logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
@@ -65,7 +67,7 @@ export abstract class GlyphView extends View {
       }
 
       if (webgl_module != null) {
-        const Cls = webgl_module[this.model.type + 'GLGlyph']
+        const Cls = (webgl_module as any)[this.model.type + 'GLGlyph']
         if (Cls != null)
           this.glglyph = new Cls(webgl.gl, this)
       }

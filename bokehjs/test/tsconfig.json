@@ -14,20 +14,25 @@
     "noEmitOnError": false,
     "declaration": false,
     "sourceMap": true,
-    "importHelpers": false,
+    "importHelpers": true,
     "experimentalDecorators": true,
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2015",
-    "lib": ["es2015", "dom"],
-    "types": ["node", "mocha"],
+    "target": "ES2017",
+    "lib": ["es2017", "dom", "dom.iterable"],
+    "types": [],
     "baseUrl": ".",
     "paths": {
       "@bokehjs/*": ["../build/js/lib/*", "../build/js/types/*"]
     },
     "outDir": "../build/test"
   },
-  "include": ["./**/*.ts"]
+  "include": [
+    "./*.ts",
+    "./unit/**/*.ts",
+    "./integration/**/*.ts"
+  ]
 }

@@ -1,6 +1,4 @@
-import * as Hammer from "hammerjs"
-
-import {Input} from "hammerjs"
+import Hammer, {Input} from "hammerjs"
 type HammerEvent = typeof Input
 
 import {Signal} from "./signaling"
@@ -16,6 +14,10 @@ import {PlotView} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import * as events from "./bokeh_events"
+
+function is_touch(event: unknown): event is TouchEvent {
+  return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
+}
 
 export type PanEvent = {
   type: "pan" | "panstart" | "panend"
@@ -422,10 +424,6 @@ export class UIEvents implements EventListenerObject {
   }
 
   private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
-    // XXX: jsdom doesn't support TouchEvent constructor
-    function is_touch(event: TouchEvent | MouseEvent | PointerEvent): event is TouchEvent {
-      return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
-    }
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset(this.hit_area)
     return {

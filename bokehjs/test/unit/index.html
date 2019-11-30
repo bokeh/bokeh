@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Unit Tests</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+      }
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      *, *:before, *:after {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        background-image: none;
+      }
+    </style>
+    <script type="text/javascript" src="../../build/js/bokeh.js"></script>
+    <script type="text/javascript" src="../../build/js/bokeh-api.js"></script>
+    <script type="text/javascript" src="../../build/js/bokeh-widgets.js"></script>
+    <script type="text/javascript" src="../../build/js/bokeh-tables.js"></script>
+    <script type="text/javascript">
+      Bokeh.settings.dev = true
+    </script>
+    <script type="text/javascript">
+      const {require} = Bokeh
+    </script>
+  </head>
+  <body>
+    <script type="text/javascript" src="../../build/test/unit.js"></script>
+  </body>
+</html>

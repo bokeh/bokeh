@@ -1,6 +1,6 @@
-import {sprintf as sprintf_js} from "sprintf-js"
 import * as Numbro from "numbro"
-import tz = require("timezone")
+import {sprintf as sprintf_js} from "sprintf-js"
+import tz from "timezone"
 
 import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
@@ -8,10 +8,6 @@ import {isNumber, isString, isArray, isTypedArray} from "./types"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
 import {ImageIndex} from "models/selections/selection"
-
-export function sprintf(format: string, ...args: unknown[]): string {
-  return sprintf_js(format, ...args)
-}
 
 export type FormatterType = "numeral" | "printf" | "datetime"
 export type FormatterSpec = CustomJSHover | FormatterType
@@ -24,6 +20,10 @@ export const DEFAULT_FORMATTERS = {
   numeral:  (value: string | number, format: string, _special_vars: Vars) => Numbro.format(value, format),
   datetime: (value: unknown, format: string, _special_vars: Vars) => tz(value, format),
   printf:   (value: unknown, format: string, _special_vars: Vars) => sprintf(format, value),
+}
+
+export function sprintf(format: string, ...args: unknown[]): string {
+  return sprintf_js(format, ...args)
 }
 
 export function basic_formatter(value: unknown, _format: string, _special_vars: Vars): string {
