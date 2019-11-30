@@ -116,7 +116,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True, legacy=True))
+        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
 
     assert len(png.tobytes()) > 0
 
@@ -126,7 +126,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False, legacy=True))
+        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
 
     assert len(png.tobytes()) > 0
 
