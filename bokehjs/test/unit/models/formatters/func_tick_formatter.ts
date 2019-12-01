@@ -13,14 +13,14 @@ describe("func_tick_formatter module", () => {
     })
 
     it("should have code property as function body", () => {
-      const func = new Function("tick", "index", "ticks", "require", "exports", "'use strict';\nreturn 10")
+      const func = new Function("tick", "index", "ticks", "'use strict';\nreturn 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
     })
 
     it("should have values as function args", () => {
       const rng = new Range1d()
       formatter.args = {foo: rng.ref()}
-      const func = new Function("tick", "index", "ticks", "foo", "require", "exports", "'use strict';\nreturn 10")
+      const func = new Function("tick", "index", "ticks", "foo", "'use strict';\nreturn 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
     })
   })
@@ -39,14 +39,6 @@ describe("func_tick_formatter module", () => {
       expect(labels).to.deep.equal(["a_lat", "b_lat", "c_lat", "d_lat", "e_lat"])
     })
     */
-
-    it("should support imports using require", () => {
-      const formatter = new FuncTickFormatter({
-        code: "let {max} = require('@bokehjs/core/util/array'); return max([1, 2, 3])",
-      })
-      const labels = formatter.doFormat([0, 0, 0], {loc: 0})
-      expect(labels).to.be.deep.equal([3, 3, 3])
-    })
 
     it("should handle args appropriately", () => {
       const rng = new Range1d({start: 5, end: 10})

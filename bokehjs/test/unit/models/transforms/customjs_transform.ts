@@ -45,7 +45,7 @@ describe("customjs_transform module", () => {
 
     it("should have func property as function body", () => {
       const r = new CustomJSTransform({func: "return x"})
-      const f = new Function("x", "require", "exports", "'use strict';\nreturn x")
+      const f = new Function("x", "'use strict';\nreturn x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
     })
 
@@ -53,7 +53,7 @@ describe("customjs_transform module", () => {
       const rng1 = new Range1d()
       const rng2 = new Range1d()
       const r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, func: "return x"})
-      const f = new Function("foo", "bar", "x", "require", "exports", "'use strict';\nreturn x")
+      const f = new Function("foo", "bar", "x", "'use strict';\nreturn x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
     })
   })
@@ -67,7 +67,7 @@ describe("customjs_transform module", () => {
 
     it("should have v_func property as function body", () => {
       const r = new CustomJSTransform({v_func: "return xs"})
-      const f = new Function("xs", "require", "exports", "'use strict';\nreturn xs")
+      const f = new Function("xs", "'use strict';\nreturn xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
     })
 
@@ -75,7 +75,7 @@ describe("customjs_transform module", () => {
       const rng1 = new Range1d()
       const rng2 = new Range1d()
       const r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, v_func: "return xs"})
-      const f = new Function("foo", "bar", "xs", "require", "exports", "'use strict';\nreturn xs")
+      const f = new Function("foo", "bar", "xs", "'use strict';\nreturn xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
     })
   })

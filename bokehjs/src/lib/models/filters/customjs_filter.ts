@@ -39,11 +39,11 @@ export class CustomJSFilter extends Filter {
 
   get func(): Function {
     const code = use_strict(this.code)
-    return new Function(...this.names, "source", "require", "exports", code)
+    return new Function(...this.names, "source", code)
   }
 
   compute_indices(source: DataSource): number[] | null {
-    this.filter = this.func(...this.values, source, require, {})
+    this.filter = this.func(...this.values, source)
     return super.compute_indices(source)
   }
 }
