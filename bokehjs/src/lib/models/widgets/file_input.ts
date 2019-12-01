@@ -13,17 +13,17 @@ export class FileInputView extends WidgetView {
   }
 
   render(): void {
-    if (this.dialogEl) {
-      return
+    if (this.dialogEl == null) {
+      this.dialogEl = document.createElement('input')
+      this.dialogEl.type = "file"
+      this.dialogEl.multiple = false
+      this.dialogEl.onchange = (e) => this.load_file(e)
+      this.el.appendChild(this.dialogEl)
     }
-    this.dialogEl = document.createElement('input')
-    this.dialogEl.type = "file"
-    this.dialogEl.multiple = false
     if (this.model.accept != null && this.model.accept != '')
       this.dialogEl.accept = this.model.accept
     this.dialogEl.style.width = `{this.model.width}px`
-    this.dialogEl.onchange = (e) => this.load_file(e)
-    this.el.appendChild(this.dialogEl)
+    this.dialogEl.disabled = this.model.disabled
   }
 
   load_file(e: any): void {
