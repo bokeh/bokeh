@@ -313,7 +313,7 @@ def _pop_renderer_args(kwargs):
     return result
 
 
-def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
+def _pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={}):
     """
     Applies basic cascading logic to deduce properties for a glyph.
 
@@ -337,13 +337,15 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
         prefix (str) :
             Prefix used when accessing `props`. Ex: 'selection_'
 
-        defaults (dict) :
-            Property fallback, in case prefixed property not in `props`.
-            Ex. 'line_width' here may be used for 'selection_line_width'.
-
-        trait_defaults (dict) :
-            Fallback based on '{trait}', in case property not in `defaults`.
+        override_defaults (dict) :
+            Explicitly provided fallback based on '{trait}', in case property
+            not set in `props`.
             Ex. 'width' here may be used for 'selection_line_width'.
+
+        defaults (dict) :
+            Property fallback, in case prefixed property not in `props` or
+            `override_defaults`.
+            Ex. 'line_width' here may be used for 'selection_line_width'.
 
     Returns:
         result (dict) :
@@ -365,7 +367,8 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
 
     defaults = defaults.copy()
     defaults.setdefault('text_color', 'black')
-    trait_defaults = trait_defaults.copy()
+
+    trait_defaults = {}
     trait_defaults.setdefault('color', get_default_color())
     trait_defaults.setdefault('alpha', 1.0)
 
@@ -373,14 +376,27 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
     glyphprops = glyphclass.properties()
     for pname in filter(is_visual, glyphprops):
         _, trait = split_feature_trait(pname)
+
+        # e.g. "line_color", "selection_fill_alpha"
         if prefix+pname in props:
             result[pname] = props.pop(prefix+pname)
+
+        # e.g. "nonselection_alpha"
         elif trait not in glyphprops and prefix+trait in props:
             result[pname] = props[prefix+trait]
+
+        # e.g. an alpha to use for nonselection if none is provided
+        elif trait in override_defaults:
+            result[pname] = override_defaults[trait]
+
+        # e.g use values off the main glyph
         elif pname in defaults:
             result[pname] = defaults[pname]
+
+        # e.g. not specificed anywhere else
         elif trait in trait_defaults:
             result[pname] = trait_defaults[trait]
+
         if trait not in glyphprops:
             traits.add(trait)
     for trait in traits:
@@ -964,7 +980,7 @@ def _glyph_function(glyphclass, extra_docs=None):
             raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
         # handle the nonselection glyph, we always set one
-        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, trait_defaults={'alpha':0.1})
+        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, override_defaults={'alpha':0.1})
 
         # handle the selection glyph, if any properties were given
         if any(x.startswith('selection_') for x in kwargs):

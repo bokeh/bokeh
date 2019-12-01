@@ -27,6 +27,7 @@ from bokeh.models import (
     CategoricalAxis,
     CategoricalScale,
     CDSView,
+    Circle,
     ColumnDataSource,
     DataRange1d,
     DatetimeAxis,
@@ -69,6 +70,51 @@ LEGEND_KWS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+class Test__pop_visuals(object):
+
+    def test_basic_prop(self):
+        kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
+        ca = bph._pop_visuals(Circle, kwargs)
+        assert ca['fill_alpha'] == 0.7
+        assert ca['line_alpha'] == 0.8
+        assert ca["line_color"] == "red"
+        assert ca["fill_color"] == "#1f77b4"
+        assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
+
+    def test_basic_trait(self):
+        kwargs = dict(fill_alpha=0.7, alpha=0.8, color="red")
+        ca = bph._pop_visuals(Circle, kwargs)
+        assert ca['fill_alpha'] == 0.7
+        assert ca['line_alpha'] == 0.8
+        assert ca["line_color"] == "red"
+        assert ca["fill_color"] == "red"
+        assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
+
+    def test_override_defaults_with_prefix(self):
+        glyph_kwargs = dict(fill_alpha=1, line_alpha=1)
+        kwargs=dict(alpha=0.6)
+        ca = bph._pop_visuals(Circle, kwargs, prefix='nonselection_', defaults=glyph_kwargs, override_defaults={'alpha':0.1})
+        assert ca['fill_alpha'] == 0.1
+        assert ca['line_alpha'] == 0.1
+
+    def test_defaults(self):
+        kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
+        ca = bph._pop_visuals(Circle, kwargs, defaults=dict(line_color="blue", fill_color="green"))
+        assert ca['fill_alpha'] == 0.7
+        assert ca['line_alpha'] == 0.8
+        assert ca["line_color"] == "red"
+        assert ca["fill_color"] == "green"
+        assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
+
+    def test_override_defaults(self):
+        kwargs = dict(fill_alpha=0.7, line_alpha=0.8)
+        ca = bph._pop_visuals(Circle, kwargs, defaults=dict(line_color="blue", fill_color="green"), override_defaults=dict(color="white"))
+        assert ca['fill_alpha'] == 0.7
+        assert ca['line_alpha'] == 0.8
+        assert ca["line_color"] == "white"
+        assert ca["fill_color"] == "white"
+        assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
 
 @pytest.mark.parametrize('key', LEGEND_KWS)
 def test__pop_legend_kwarg(key):
