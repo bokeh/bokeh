@@ -1,5 +1,5 @@
 import {resolve, relative, join, dirname, basename, extname, normalize} from "path"
-const {_builtinLibs} = require("repl")
+import module from "module"
 import crypto from "crypto"
 
 import * as ts from "typescript"
@@ -219,7 +219,7 @@ export class Linker {
       this.external_modules.add("module")
       this.external_modules.add("constants")
 
-      for (const lib of _builtinLibs)
+      for (const lib of module.builtinModules)
         this.external_modules.add(lib)
     }
 
