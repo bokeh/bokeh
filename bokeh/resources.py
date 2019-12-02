@@ -44,6 +44,7 @@ from .model import Model
 from .settings import settings
 from .util.paths import ROOT_DIR, bokehjsdir
 from .util.session_id import generate_session_id
+from .util.version import is_full_release
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -151,6 +152,51 @@ def get_sri_hashes_for_version(version):
     hashes = get_all_sri_hashes()
     return hashes[version]
 
+
+def verify_sri_hashes():
+    """ Verify the SRI hashes in a full release package.
+
+    This function compares the computed SRI hashes for the BokehJS files in a
+    full release package to the values in the SRI manifest file. Returns None
+    if all hashes match, otherwise an exception will be raised.
+
+    .. note::
+        This function can only be called on full release (e.g "1.2.3") packages.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError
+            If called outside a full release package
+        RuntimeError
+            If there are missing, extra, or mismatched files
+
+    """
+    if not is_full_release():
+        raise ValueError("verify_sri_hashes() can only be used with full releases")
+
+    from glob import glob
+    paths = glob(join(bokehjsdir(), "js/bokeh*.js"))
+
+    hashes = get_sri_hashes_for_version(__version__)
+
+    if len(hashes) < len(paths):
+        raise RuntimeError("There are unexpected 'bokeh*.js' files in the package")
+
+    if len(hashes) > len(paths):
+        raise RuntimeError("There are 'bokeh*.js' files missing in the package")
+
+    bad = []
+    for path in paths:
+        name, suffix = basename(path).split(".", 1)
+        filename = f"{name}-{__version__}.{suffix}"
+        sri_hash = _compute_single_hash(path)
+        if hashes[filename] != sri_hash:
+            bad.append(path)
+
+    if bad:
+        raise RuntimeError(f"SRI Hash mismatches in the package: {bad!r}")
 
 class BaseResources(object):
     _default_root_dir = "."
@@ -633,6 +679,20 @@ def _get_server_urls(root_url, minified=True, legacy=False, path_versioner=None)
     return {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
 
 
+def _compute_single_hash(path):
+    assert path.endswith(".js")
+
+    from subprocess import PIPE, Popen
+
+    digest = f"openssl dgst -sha384 -binary {path}".split()
+    p1 = Popen(digest, stdout=PIPE)
+
+    b64 = "openssl base64 -A".split()
+    p2 = Popen(b64, stdin=p1.stdout, stdout=PIPE)
+
+    out, _ = p2.communicate()
+    return out.decode("utf-8").strip()
+
 # -----------------------------------------------------------------------------
 # Code
 # -----------------------------------------------------------------------------
@@ -652,4 +712,5 @@ __all__ = (
     "CSSResources",
     "get_all_sri_hashes",
     "get_sri_hashes_for_version",
+    "verify_sri_hashes",
 )
