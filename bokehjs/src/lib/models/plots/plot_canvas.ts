@@ -434,9 +434,10 @@ export class PlotView extends LayoutDOMView {
     const {webgl} = this.canvas_view
     if (webgl != null) {
       // Sync canvas size
-      const {width, height} = this.layout.bbox
-      webgl.canvas.width = width
-      webgl.canvas.height = height
+      const {width, height} = this.canvas_view.bbox
+      const {pixel_ratio} = this.canvas_view.model
+      webgl.canvas.width = pixel_ratio*width
+      webgl.canvas.height = pixel_ratio*height
       const {gl} = webgl
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
