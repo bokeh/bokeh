@@ -70,7 +70,7 @@ bokeh_plot_pyfile_include_dirs = ['docs']
 
 intersphinx_mapping = {
     'python' : ('https://docs.python.org/3/', None),
-    'pandas' : ('http://pandas.pydata.org/pandas-docs/stable/', None),
+    'pandas' : ('https://pandas.pydata.org/pandas-docs/stable/', None),
     'numpy'  : ('https://docs.scipy.org/doc/numpy/', None)
 }
 
