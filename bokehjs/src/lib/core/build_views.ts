@@ -4,9 +4,24 @@ import {Class} from "./class"
 import {difference} from "./util/array"
 
 export type ViewStorage = {[key: string]: View}
+export type Options = {parent: View | null}
 
-export function build_views<T extends HasProps>(view_storage: ViewStorage, models: T[],
-    options: object, cls: (model: T) => Class<View> = (model) => model.default_view): View[] {
+async function _build_view<T extends HasProps>(view_cls: typeof View, model: T, options: Options): Promise<View> {
+  const view = new view_cls({...options, model})
+  view.initialize()
+  await view.lazy_initialize()
+  return view
+}
+
+export async function build_view<T extends HasProps>(model: T, options: Options,
+    cls: (model: T) => Class<View> = (model) => model.default_view): Promise<View> {
+  const view = await _build_view(cls(model), model, options)
+  view.connect_signals()
+  return view
+}
+
+export async function build_views<T extends HasProps>(view_storage: ViewStorage, models: T[],
+    options: Options, cls: (model: T) => Class<View> = (model) => model.default_view): Promise<View[]> {
 
   const to_remove = difference(Object.keys(view_storage), models.map((model) => model.id))
 
@@ -19,9 +34,7 @@ export function build_views<T extends HasProps>(view_storage: ViewStorage, model
   const new_models = models.filter((model) => view_storage[model.id] == null)
 
   for (const model of new_models) {
-    const view_cls = cls(model)
-    const view_options = {...options, model, connect_signals: false}
-    const view = new view_cls(view_options)
+    const view = await _build_view(cls(model), model, options)
     view_storage[model.id] = view
     created_views.push(view)
   }

@@ -956,9 +956,10 @@ export function figure(attributes?: Partial<FigureAttrs>): Figure {
 
 declare var $: any
 
-export function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<LayoutDOMView>
-export function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView[]>
-export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView | LayoutDOMView[]> {
+export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<LayoutDOMView>
+export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView[]>
+
+export async function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView | LayoutDOMView[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
@@ -981,7 +982,7 @@ export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = values(embed.add_document_standalone(doc, element)) as LayoutDOMView[] // XXX
+  const views = values(await embed.add_document_standalone(doc, element)) as LayoutDOMView[] // XXX
 
   return new Promise((resolve, _reject) => {
     const result = isArray(obj) ? views : views[0]

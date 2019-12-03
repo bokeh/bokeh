@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
-import * as plotting from "@bokehjs/api/plotting"
+import {show} from "@bokehjs/api/plotting"
 import {div} from "@bokehjs/core/dom"
 import {isString} from "@bokehjs/core/util/types"
 
@@ -142,42 +142,12 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   return JSON.stringify(result)
 }
 
-export function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000]): Promise<LayoutDOMView> {
+export async function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000]): Promise<LayoutDOMView> {
   const [width, height] = viewport
   const el = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}})
   document.body.appendChild(el)
-  return plotting.show(obj, el).then((view) => {
-    current_test!.view = view
-    current_test!.el = el
-    return view
-  })
-}
-
-/*
-const {empty} = require("@bokehjs/core/dom")
-let view = null
-
-function show(model) {
-  const root = document.getElementById("root")
-
-  if (view != null) {
-    try {
-      view.remove()
-    } finally {
-      delete Bokeh.index[view.model.id]
-      empty(root)
-      view = null
-    }
-  }
-
-  view = new model.default_view({model, parent: null})
-  Bokeh.index[view.model.id] = view
-  view.renderTo(root)
+  const view = await show(obj, el)
+  current_test!.view = view
+  current_test!.el = el
   return view
 }
-
-function run(test) {
-  const [,fn] = test
-  fn(show)
-}
-*/

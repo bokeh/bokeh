@@ -2,25 +2,20 @@ import {Document} from "../document"
 import {DocumentChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "../document"
 import {HasProps} from "../core/has_props"
 import {DOMView} from "../core/dom_view"
+import {build_view} from "../core/build_views"
 import {div} from "../core/dom"
 import {BOKEH_ROOT} from "./dom"
 
 // A map from the root model IDs to their views.
 export const index: {[key: string]: DOMView} = {}
 
-function _create_view(model: HasProps): DOMView {
-  const view = new model.default_view({model, parent: null}) as DOMView
-  index[model.id] = view
-  return view
-}
-
-export function add_document_standalone(document: Document, element: HTMLElement,
-    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): {[key: string]: DOMView} {
+export async function add_document_standalone(document: Document, element: HTMLElement,
+    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): Promise<{[key: string]: DOMView}> {
   // this is a LOCAL index of views used only by this particular rendering
   // call, so we can remove the views we create.
   const views: {[key: string]: DOMView} = {}
 
-  function render_model(model: HasProps): void {
+  async function render_model(model: HasProps): Promise<void> {
     let root_el: HTMLElement
     if (model.id in roots)
       root_el = roots[model.id]
@@ -31,9 +26,10 @@ export function add_document_standalone(document: Document, element: HTMLElement
       element.appendChild(root_el)
     }
 
-    const view = _create_view(model)
+    const view = await build_view(model, {parent: null}) as DOMView
     view.renderTo(root_el)
     views[model.id] = view
+    index[model.id] = view
   }
 
   function unrender_model(model: HasProps): void {
@@ -47,7 +43,7 @@ export function add_document_standalone(document: Document, element: HTMLElement
   }
 
   for (const model of document.roots())
-    render_model(model)
+    await render_model(model)
 
   if (use_for_title)
     window.document.title = document.title()

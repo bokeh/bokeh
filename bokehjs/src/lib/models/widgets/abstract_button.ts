@@ -47,17 +47,20 @@ export abstract class AbstractButtonView extends ControlView {
 
     const icon = this.model.icon
     if (icon != null) {
-      build_views(this.icon_views, [icon], {parent: this})
-      const icon_view = this.icon_views[icon.id]
-      icon_view.render()
-      prepend(this.button_el, icon_view.el, nbsp())
+      const _render_icon = async () => {
+        await build_views(this.icon_views, [icon], {parent: this})
+        const icon_view = this.icon_views[icon.id]
+        icon_view.render()
+        prepend(this.button_el, icon_view.el, nbsp())
+      }
+      _render_icon()
     }
 
     this.group_el = div({class: bk_btn_group}, this.button_el)
     this.el.appendChild(this.group_el)
   }
 
-  click(): void { }
+  click(): void {}
 }
 
 export namespace AbstractButton {

@@ -9,7 +9,6 @@ export namespace View {
     id?: string
     model: HasProps
     parent: View | null
-    connect_signals?: boolean
   }
 }
 
@@ -32,15 +31,12 @@ export class View extends Signalable() {
       throw new Error("model of a view wasn't configured")
 
     this._parent = options.parent
-
     this.id = options.id || uniqueId()
-    this.initialize()
-
-    if (options.connect_signals !== false)
-      this.connect_signals()
   }
 
   initialize(): void {}
+
+  async lazy_initialize(): Promise<void> {}
 
   remove(): void {
     this._parent = undefined

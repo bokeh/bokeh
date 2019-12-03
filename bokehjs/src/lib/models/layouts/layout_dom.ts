@@ -40,7 +40,10 @@ export abstract class LayoutDOMView extends DOMView {
     super.initialize()
     this.el.style.position = this.is_root ? "relative" : "absolute"
     this._child_views = {}
-    this.build_child_views()
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await this.build_child_views()
   }
 
   remove(): void {
@@ -106,8 +109,8 @@ export abstract class LayoutDOMView extends DOMView {
     return this.child_models.map((child) => this._child_views[child.id])
   }
 
-  build_child_views(): void {
-    build_views(this._child_views, this.child_models, {parent: this})
+  async build_child_views(): Promise<void> {
+    await build_views(this._child_views, this.child_models, {parent: this})
   }
 
   render(): void {
@@ -170,8 +173,8 @@ export abstract class LayoutDOMView extends DOMView {
     return this
   }
 
-  rebuild(): void {
-    this.build_child_views()
+  async rebuild(): Promise<void> {
+    await this.build_child_views()
     this.invalidate_render()
   }
 

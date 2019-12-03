@@ -25,8 +25,10 @@ export class GraphRendererView extends DataRendererView {
     this.yscale = this.plot_view.frame.yscales.default
 
     this._renderer_views = {}
+  }
 
-    ;[this.node_view, this.edge_view] = build_views(this._renderer_views, [
+  async lazy_initialize(): Promise<void> {
+    [this.node_view, this.edge_view] = await build_views(this._renderer_views, [
       this.model.node_renderer,
       this.model.edge_renderer,
     ], {parent: this.parent}) as [GlyphRendererView, GlyphRendererView]
