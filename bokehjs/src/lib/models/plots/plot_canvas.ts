@@ -268,7 +268,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   async lazy_initialize(): Promise<void> {
-    this.canvas_view = await build_view(this.canvas, {parent: this}) as CanvasView
+    this.canvas_view = await build_view(this.canvas, {parent: this})
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
 
     await this.build_renderer_views()

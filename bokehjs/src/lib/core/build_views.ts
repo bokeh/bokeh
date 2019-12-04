@@ -1,27 +1,28 @@
 import {HasProps} from "./has_props"
 import {View} from "./view"
-import {Class} from "./class"
 import {difference} from "./util/array"
 
 export type ViewStorage = {[key: string]: View}
 export type Options = {parent: View | null}
 
-async function _build_view<T extends HasProps>(view_cls: typeof View, model: T, options: Options): Promise<View> {
-  const view = new view_cls({...options, model})
+export type ViewOf<T extends HasProps> = InstanceType<T["default_view"]>
+
+async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options): Promise<ViewOf<T>> {
+  const view = new view_cls({...options, model}) as ViewOf<T>
   view.initialize()
   await view.lazy_initialize()
   return view
 }
 
-export async function build_view<T extends HasProps>(model: T, options: Options,
-    cls: (model: T) => Class<View> = (model) => model.default_view): Promise<View> {
+export async function build_view<T extends HasProps>(model: T, options: Options = {parent: null},
+    cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>> {
   const view = await _build_view(cls(model), model, options)
   view.connect_signals()
   return view
 }
 
 export async function build_views<T extends HasProps>(view_storage: ViewStorage, models: T[],
-    options: Options, cls: (model: T) => Class<View> = (model) => model.default_view): Promise<View[]> {
+    options: Options = {parent: null}, cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>[]> {
 
   const to_remove = difference(Object.keys(view_storage), models.map((model) => model.id))
 
