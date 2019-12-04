@@ -14,9 +14,9 @@ describe("SelectionManager", () => {
   let renderer_view: GlyphRendererView
   let glyph_stub: sinon.SinonStub
 
-  before_each(() => {
+  before_each(async () => {
     glyph = new Rect()
-    renderer_view = create_glyph_renderer_view(glyph, {x: [1, 2, 3]})
+    renderer_view = await create_glyph_renderer_view(glyph, {x: [1, 2, 3]})
     glyph_stub = sinon.stub(renderer_view.glyph, "hit_test")
   })
 

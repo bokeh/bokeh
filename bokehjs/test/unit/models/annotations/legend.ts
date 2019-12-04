@@ -6,6 +6,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Legend} from "@bokehjs/models/annotations/legend"
 import {LegendView} from "@bokehjs/models/annotations/legend"
 import {LegendItem} from "@bokehjs/models/annotations/legend_item"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("Legend", () => {
 
@@ -46,9 +47,9 @@ describe("LegendView", () => {
     stub.reset()
   })
 
-  it("get_size should return legend dimensions", () => {
+  it("get_size should return legend dimensions", async () => {
     const legend = new Legend()
-    const legend_view = new legend.default_view({model: legend, parent: null})
+    const legend_view = await build_view(legend)
     expect(legend_view.get_size()).to.be.deep.equal({width: WIDTH+20, height: HEIGHT+20})
   })
 })

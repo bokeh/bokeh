@@ -5,6 +5,7 @@ import {Tool} from "@bokehjs/models/tools/tool"
 import {ZoomInTool, ZoomInToolView} from "@bokehjs/models/tools/actions/zoom_in_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("ZoomInTool", () => {
 
@@ -24,7 +25,7 @@ describe("ZoomInTool", () => {
 
   describe("View", () => {
 
-    function mkplot(tool: Tool): PlotView {
+    async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
         y_range: new Range1d({start: -1, end: 1}),
@@ -32,12 +33,12 @@ describe("ZoomInTool", () => {
       plot.add_tools(tool)
       const document = new Document()
       document.add_root(plot)
-      return new plot.default_view({model: plot, parent: null}).build()
+      return (await build_view(plot)).build()
     }
 
-    it("should zoom into both ranges", () => {
+    it("should zoom into both ranges", async () => {
       const zoom_in_tool = new ZoomInTool()
-      const plot_view = mkplot(zoom_in_tool)
+      const plot_view = await mkplot(zoom_in_tool)
 
       const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
 
@@ -51,9 +52,9 @@ describe("ZoomInTool", () => {
       expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
     })
 
-    it("should zoom the x-axis only", () => {
+    it("should zoom the x-axis only", async () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'width'})
-      const plot_view = mkplot(zoom_in_tool)
+      const plot_view = await mkplot(zoom_in_tool)
 
       const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
 
@@ -67,9 +68,9 @@ describe("ZoomInTool", () => {
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
     })
 
-    it("should zoom the y-axis only", () => {
+    it("should zoom the y-axis only", async () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'height'})
-      const plot_view = mkplot(zoom_in_tool)
+      const plot_view = await mkplot(zoom_in_tool)
 
       const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
 

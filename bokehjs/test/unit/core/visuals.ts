@@ -185,11 +185,11 @@ describe("Visuals", () => {
 
   describe("interacting with GlyphViews", () => {
 
-    it("set_all_indices should be called by the glyph view", () => {
+    it("set_all_indices should be called by the glyph view", async () => {
       const attrs = {fill_alpha: {field: "fill_alpha"}}
 
       const circle = new Circle(attrs)
-      const renderer_view = create_glyph_renderer_view(circle, {fill_alpha: [0, 0.5, 1]})
+      const renderer_view = await create_glyph_renderer_view(circle, {fill_alpha: [0, 0.5, 1]})
 
       const filter = new IndexFilter({indices: [1, 2]})
       renderer_view.model.view = new CDSView({source: renderer_view.model.data_source, filters: [filter]})
@@ -200,6 +200,5 @@ describe("Visuals", () => {
       (renderer_view.glyph as CircleView).visuals.fill.set_vectorize(ctx, 1)
       expect(ctx.globalAlpha).to.be.equal(1)
     })
-
   })
 })

@@ -5,6 +5,7 @@ import {Tool} from "@bokehjs/models/tools/tool"
 import {BoxZoomTool, BoxZoomToolView} from "@bokehjs/models/tools/gestures/box_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("BoxZoomTool", () => {
 
@@ -24,7 +25,7 @@ describe("BoxZoomTool", () => {
 
   describe("View", () => {
 
-    function mkplot(tool: Tool): PlotView {
+    async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
         y_range: new Range1d({start: -1, end: 1}),
@@ -32,12 +33,12 @@ describe("BoxZoomTool", () => {
       plot.add_tools(tool)
       const document = new Document()
       document.add_root(plot)
-      return new plot.default_view({model: plot, parent: null}).build()
+      return (await build_view(plot)).build()
     }
 
-    it("should zoom in both ranges", () => {
+    it("should zoom in both ranges", async () => {
       const box_zoom = new BoxZoomTool()
-      const plot_view = mkplot(box_zoom)
+      const plot_view = await mkplot(box_zoom)
 
       const box_zoom_view = plot_view.tool_views[box_zoom.id] as BoxZoomToolView
 
@@ -57,9 +58,9 @@ describe("BoxZoomTool", () => {
       expect(vr.end).to.be.closeTo(0.678, 0.01)
     })
 
-    it("should zoom in with match_aspect", () => {
+    it("should zoom in with match_aspect", async () => {
       const box_zoom = new BoxZoomTool({match_aspect: true})
-      const plot_view = mkplot(box_zoom)
+      const plot_view = await mkplot(box_zoom)
 
       const box_zoom_view = plot_view.tool_views[box_zoom.id] as BoxZoomToolView
 

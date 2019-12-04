@@ -15,15 +15,16 @@ import {Legend} from "@bokehjs/models/annotations/legend"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {UIEvents, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("ui_events module", () => {
 
-  function new_plot(): PlotView {
+  async function new_plot(): Promise<PlotView> {
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
-    return new plot.default_view({model: plot, parent: null}).build()
+    return (await build_view(plot)).build()
   }
 
   let hammer_stub: sinon.SinonStub
@@ -31,10 +32,10 @@ describe("ui_events module", () => {
   let ui_events: UIEvents
   let ANY_ui_events: any
 
-  before_each(() => {
+  before_each(async () => {
     hammer_stub = sinon.stub(UIEvents.prototype as any, "_configure_hammerjs") // XXX: protected
 
-    plot_view = new_plot()
+    plot_view = await new_plot()
     ui_events = (plot_view as any).ui_event_bus // XXX: protected
     ANY_ui_events = ui_events // XXX: protected
   })
@@ -120,9 +121,9 @@ describe("ui_events module", () => {
         ss.restore()
       })
 
-      it("should change cursor on view_renderer with cursor method", () => {
+      it("should change cursor on view_renderer with cursor method", async () => {
         const legend = new Legend({click_policy: "mute"})
-        const legend_view = new legend.default_view({model: legend, parent: plot_view})
+        const legend_view = await build_view(legend, {parent: plot_view})
 
         const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
 
@@ -133,12 +134,12 @@ describe("ui_events module", () => {
         ss.restore()
       })
 
-      it("should override event_type if active inspector clashes with view renderer", () => {
+      it("should override event_type if active inspector clashes with view renderer", async () => {
         const inspector = new CrosshairTool()
         plot_view.model.add_tools(inspector)
 
         const legend = new Legend({click_policy: "mute"})
-        const legend_view = new legend.default_view({model: legend, parent: plot_view})
+        const legend_view = await build_view(legend, {parent: plot_view})
 
         const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
 
@@ -175,9 +176,9 @@ describe("ui_events module", () => {
         expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.tap, e, gesture.id])
       })
 
-      it("should call on_hit method on view renderer if exists", () => {
+      it("should call on_hit method on view renderer if exists", async () => {
         const legend = new Legend({click_policy: "mute"})
-        const legend_view = new legend.default_view({model: legend, parent: plot_view})
+        const legend_view = await build_view(legend, {parent: plot_view})
 
         const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
         const on_hit = sinon.stub(legend_view, "on_hit")

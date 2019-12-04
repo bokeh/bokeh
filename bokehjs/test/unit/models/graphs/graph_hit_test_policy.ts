@@ -16,6 +16,7 @@ import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_
 import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Document} from "@bokehjs/document"
+import {build_view} from "@bokehjs/core/build_views"
 
 class TrivialLayoutProvider extends LayoutProvider {
 
@@ -36,7 +37,7 @@ describe("GraphHitTestPolicy", () => {
   let node_stub: sinon.SinonStub
   let edge_stub: sinon.SinonStub
 
-  before_each(() => {
+  before_each(async () => {
     const doc = new Document()
 
     const plot = new Plot({
@@ -44,7 +45,7 @@ describe("GraphHitTestPolicy", () => {
       y_range: new Range1d({start: 0, end: 1}),
     })
     doc.add_root(plot)
-    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const plot_view = (await build_view(plot)).build()
 
     node_source = new ColumnDataSource({
       data: {
@@ -66,7 +67,7 @@ describe("GraphHitTestPolicy", () => {
       layout_provider: new TrivialLayoutProvider(),
     })
 
-    gv = new gr.default_view({model: gr, parent: plot_view}) as GraphRendererView
+    gv = await build_view(gr, {parent: plot_view})
 
     node_stub = sinon.stub(gv.node_view.glyph, "hit_test")
     edge_stub = sinon.stub(gv.edge_view.glyph, "hit_test")

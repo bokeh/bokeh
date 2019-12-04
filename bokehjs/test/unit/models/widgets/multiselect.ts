@@ -1,15 +1,16 @@
 import {expect} from "chai"
 
 import {MultiSelect} from "@bokehjs/models/widgets/multiselect"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("MultiSelect", () => {
 
-  it("view should reflect the initial options", () => {
+  it("view should reflect the initial options", async () => {
     const s = new MultiSelect({
       value: ["foo", "quux"],
       options: [["foo", "Foo"], ["bar", "BAR"],  ["baz", "bAz"], ["quux", "quux"]],
     })
-    const sv = new s.default_view({model: s, parent: null}).build()
+    const sv = (await build_view(s)).build()
 
     const option0 = sv.el.querySelectorAll<HTMLOptionElement>('option[value="foo"]')
     expect(option0.length).to.be.equal(1)
