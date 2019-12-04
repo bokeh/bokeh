@@ -2,7 +2,7 @@
   <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" alt="Bokeh logotype" />
 </a>
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](https://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
+*If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
 
 <table>
 <tr>
@@ -328,3 +328,7 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
 </table>
 
 If your company uses Bokeh and is able to sponsor the project, please contact <a href="info@bokeh.org">info@bokeh.org</a>
+
+*Bokeh is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit charity in the United States. NumFOCUS provides Bokeh with fiscal, legal, and administrative support to help ensure the health and sustainability of the project. Visit [numfocus.org](https://numfocus.org) for more information.*
+
+*Donations to Bokeh are managed by NumFOCUS. For donors in the United States, your gift is tax-deductible to the extent provided by law. As with any donation, you should consult with your tax adviser about your particular tax situation.*
