@@ -1,5 +1,5 @@
 <a href="https://bokeh.org">
-  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" alt="Bokeh logotype" />
+  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" alt="Bokeh logotype" />
 </a>
 
 *If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
