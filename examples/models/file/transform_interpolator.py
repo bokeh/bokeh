@@ -2,6 +2,8 @@ from bokeh.models import (Column, ColumnDataSource, CustomJS,
                           LinearInterpolator, Select, StepInterpolator,)
 from bokeh.plotting import figure, output_file, show
 
+output_file("transform_interpolator.html", title="Example Transforms")
+
 N = 600
 
 controls = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[2, 8, 7, 3, 5]))
@@ -55,8 +57,8 @@ mode = Select(
     title='Interpolation Mode',
     value='None',
     options=['None', 'Linear', 'Step (before)', 'Step (center)', 'Step (after)'],
-    callback=callback,
     width=300)
-output_file("transform_interpolator.html", title="Example Transforms")
+
+mode.js_on_change('value', callback)
 
 show(Column(mode, p))

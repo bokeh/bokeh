@@ -1,5 +1,4 @@
 import {Control, ControlView} from "./control"
-import {CallbackLike0} from "../callbacks/callback"
 
 import {ButtonType} from "core/enums"
 import {div} from "core/dom"
@@ -50,7 +49,6 @@ export namespace ButtonGroup {
   export type Props = Control.Props & {
     labels: p.Property<string[]>
     button_type: p.Property<ButtonType>
-    callback: p.Property<CallbackLike0<ButtonGroup> | null>
   }
 }
 
@@ -69,7 +67,6 @@ export abstract class ButtonGroup extends Control {
     this.define<ButtonGroup.Props>({
       labels:      [ p.Array,      []        ],
       button_type: [ p.ButtonType, "default" ],
-      callback:    [ p.Any                   ],
     })
   }
 }

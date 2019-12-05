@@ -26,14 +26,12 @@ from ...core.properties import (
     Dict,
     Either,
     Float,
-    Instance,
     Int,
     List,
     PositiveInt,
     String,
     Tuple,
 )
-from ..callbacks import Callback
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -101,7 +99,10 @@ class FileInput(Widget):
 
     filename = String(default="", readonly=True, help="""
     The filename of the selected file.
-    The file path is not included as browsers do not allow access to it.
+
+    .. note::
+        The full file path is not included since browsers will not provide
+        access to that information for security reasons.
     """)
 
     accept = String(default="", help="""
@@ -134,18 +135,15 @@ class TextInput(InputWidget):
 
     value = String(default="", help="""
     Initial or entered text value.
+
+    Change events are triggered whenever <enter> is pressed.
     """)
 
     value_input = String(default="", help="""
-    Initial or entered text value that triggers a callback whenever the value changes.
-    """)
+    Initial or current value.
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the user unfocuses the
-    ``TextInput`` widget by hitting Enter or clicking outside of the text box
-    area.
-
-    DEPRECATED: use .js_on_change or .on_change with "value" or "value_input"
+    Change events are triggered whenever any update happens, i.e. on every
+    keypress.
     """)
 
     placeholder = String(default="", help="""
@@ -173,11 +171,12 @@ class TextAreaInput(TextInput):
 
 class PasswordInput(TextInput):
     ''' Single-line password input widget.
-        Note: Despite ``PasswordInput`` inheriting from ``TextInput`` the
-        password cannot be inspected on the field ``value``. Also, note that
-        this field functionally just hides the input on the browser,
-        transmitting safely a password as a callback, e.g., to a bokeh
-        server would require some secure connection.
+
+    This widget hides the input value so that it is not visible in the browser.
+
+    .. warning::
+        Secure transmission of the password to Bokeh server application code
+        requires configuring the server for SSL (i.e. HTTPS) termination.
 
     '''
 
@@ -215,12 +214,6 @@ class Select(InputWidget):
     Initial or selected value.
     """)
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Select dropdown
-    value changes.
-    """)
-
-
 class MultiSelect(InputWidget):
     ''' Multi-select widget.
 
@@ -235,11 +228,6 @@ class MultiSelect(InputWidget):
 
     value = List(String, help="""
     Initial or selected values.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current selection value
-    changes.
     """)
 
     size = Int(default=4, help="""
@@ -266,11 +254,6 @@ class DatePicker(InputWidget):
     Optional latest allowable date.
     """)
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current date value changes.
-    """)
-
-
 class ColorPicker(InputWidget):
     ''' Color picker widget
 
@@ -283,11 +266,6 @@ class ColorPicker(InputWidget):
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
     """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current date value changes.
-    """)
-
 
 class Spinner(InputWidget):
     ''' Spinner widget for numerical inputs
@@ -308,12 +286,6 @@ class Spinner(InputWidget):
 
     high = Float(help="""
     Optional highest allowable value.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the user unfocuses the
-    ``SpinBox`` widget by hitting Enter or clicking outside of the box
-    area.
     """)
 
 #-----------------------------------------------------------------------------

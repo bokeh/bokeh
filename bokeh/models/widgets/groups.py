@@ -20,8 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Instance, Int, List, String
-from ..callbacks import Callback
+from ...core.properties import Bool, Int, List, String
 from .buttons import ButtonLike
 from .widget import Widget
 
@@ -69,10 +68,6 @@ class AbstractGroup(Widget):
     def js_on_click(self, handler):
         ''' Set up a handler for button check/radio box clicks including the selected indices. '''
         self.js_on_change('active', handler)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever a button group is manipulated.
-    """)
 
 @abstract
 class ButtonGroup(AbstractGroup, ButtonLike):

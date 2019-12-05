@@ -5,7 +5,6 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {CallbackLike0} from "../callbacks/callback"
 import {Model} from "../../model"
 
 import {bk_left, bk_right, bk_active, bk_side} from "styles/mixins"
@@ -201,9 +200,6 @@ export class TabsView extends LayoutDOMView {
   change_active(i: number): void {
     if (i != this.model.active) {
       this.model.active = i
-
-      if (this.model.callback != null)
-        this.model.callback.execute(this.model)
     }
   }
 
@@ -231,7 +227,6 @@ export namespace Tabs {
     tabs: p.Property<Panel[]>
     tabs_location: p.Property<Location>
     active: p.Property<number>
-    callback: p.Property<CallbackLike0<Tabs> | null>
   }
 }
 
@@ -251,7 +246,6 @@ export class Tabs extends LayoutDOM {
       tabs:          [ p.Array,    []      ],
       tabs_location: [ p.Location, "above" ],
       active:        [ p.Number,   0       ],
-      callback:      [ p.Any               ],
     })
   }
 }
