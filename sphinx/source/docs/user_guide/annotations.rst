@@ -92,7 +92,7 @@ passing the ``legend_group`` keyword argument to a glyph method:
 
     p.circle('x', 'y', legend_group="colname", source=source)
 
-With this method is used, ther grouping is performed immediately in Python, and
+When this method is used, the grouping is performed immediately in Python, and
 subsequent Python code will be able to see the individual legend items in
 ``Legend.items`` property. If desired, these ite can be re-arranged or modified.
 
