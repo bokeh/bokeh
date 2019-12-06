@@ -5,7 +5,7 @@ import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Attrs} from "core/types"
 import {Signal0} from "core/signaling"
-import {Struct, is_ptr} from "core/util/refs"
+import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data} from "core/util/serialization"
 import {MultiDict, Set} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
@@ -309,7 +309,7 @@ export class Document {
   static _references_json(references: HasProps[], include_defaults: boolean = true): Struct[] {
     const references_json: Struct[] = []
     for (const r of references) {
-      const struct = r.to_struct()
+      const struct = r.struct()
       struct.attributes = r.attributes_as_json(include_defaults)
       // server doesn't want id in here since it's already in ref above
       delete struct.attributes.id
@@ -351,7 +351,7 @@ export class Document {
   // recurse into collections but not into HasProps
   static _resolve_refs(value: any, old_references: References, new_references: References): any {
     function resolve_ref(v: any): any {
-      if (is_ptr(v)) {
+      if (is_ref(v)) {
         if (v.id in old_references)
           return old_references[v.id]
         else if (v.id in new_references)

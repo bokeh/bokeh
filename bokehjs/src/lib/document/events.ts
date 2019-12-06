@@ -1,12 +1,12 @@
 import {Document, References} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
-import {Ptr} from "core/util/refs"
+import {Ref} from "core/util/refs"
 import {PatchSet} from "models/sources/column_data_source"
 
 export interface ModelChanged {
   kind: "ModelChanged"
-  model: Ptr
+  model: Ref
   attr: string
   new: any
   hint?: any
@@ -19,31 +19,31 @@ export interface TitleChanged {
 
 export interface RootAdded {
   kind: "RootAdded"
-  model: Ptr
+  model: Ref
 }
 
 export interface RootRemoved {
   kind: "RootRemoved"
-  model: Ptr
+  model: Ref
 }
 
 export interface ColumnDataChanged {
   kind: "ColumnDataChanged"
-  column_source: Ptr
+  column_source: Ref
   cols?: any
   new: any
 }
 
 export interface ColumnsStreamed {
   kind: "ColumnsStreamed"
-  column_source: Ptr
+  column_source: Ref
   data: Data
   rollover?: number
 }
 
 export interface ColumnsPatched {
   kind: "ColumnsPatched"
-  column_source: Ptr
+  column_source: Ref
   patches: PatchSet
 }
 
@@ -90,7 +90,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     }
     return {
       kind: "ModelChanged",
-      model: this.model.ptr(),
+      model: this.model.ref(),
       attr: this.attr,
       new: value_json,
     }
@@ -100,7 +100,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 export class ColumnsPatchedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
-      readonly column_source: Ptr,
+      readonly column_source: Ref,
       readonly patches: PatchSet) {
     super(document)
   }
@@ -117,7 +117,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 export class ColumnsStreamedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
-      readonly column_source: Ptr,
+      readonly column_source: Ref,
       readonly data: Data,
       readonly rollover?: number) {
     super(document)
@@ -157,7 +157,7 @@ export class RootAddedEvent extends DocumentChangedEvent {
     HasProps._value_record_references(this.model, references, true)
     return {
       kind: "RootAdded",
-      model: this.model.ptr(),
+      model: this.model.ref(),
     }
   }
 }
@@ -171,7 +171,7 @@ export class RootRemovedEvent extends DocumentChangedEvent {
   json(_references: References): RootRemoved {
     return {
       kind: "RootRemoved",
-      model: this.model.ptr(),
+      model: this.model.ref(),
     }
   }
 }

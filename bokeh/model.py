@@ -330,7 +330,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         return self._document
 
     @property
-    def ptr(self):
+    def ref(self):
         return dict(id=self._id)
 
     @property

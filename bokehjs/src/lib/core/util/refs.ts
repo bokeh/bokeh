@@ -9,7 +9,7 @@ export interface Struct {
   attributes: Attrs
 }
 
-export interface Ptr {
+export interface Ref {
   id: string
 }
 
@@ -21,7 +21,7 @@ export interface Ptr {
 // @note this function does not check that the id and types are valid,
 //   only that the format is correct (all required keys are present)
 //
-export function is_ptr(arg: unknown): arg is Ptr {
+export function is_ref(arg: unknown): arg is Ref {
   if (isPlainObject(arg)) {
     const attrs = keys(arg)
     return attrs.length == 1 && attrs[0] == "id"
