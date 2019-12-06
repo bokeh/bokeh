@@ -334,9 +334,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         return dict(id=self._id)
 
     @property
-    def ref(self):
-        ''' A Bokeh protocol "reference" to this model, i.e. a dict of the
-        form:
+    def struct(self):
+        ''' A Bokeh protocol "structure" of this model, i.e. a dict of the form:
 
         .. code-block:: python
 

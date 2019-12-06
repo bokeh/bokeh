@@ -159,9 +159,9 @@ class TestModel(object):
             testObject.properties_with_values(include_defaults=True)
         assert dict() == testObject.properties_with_values(include_defaults=False)
 
-    def test_ref(self):
+    def test_struct(self):
         testObject = self.pObjectClass(id='test_id')
-        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.ref
+        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.struct
 
     def test_references_by_ref_by_value(self):
         from bokeh.core.has_props import HasProps

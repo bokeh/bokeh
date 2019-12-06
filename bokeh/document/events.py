@@ -286,7 +286,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
         references.update(value_refs)
 
         return { 'kind'  : 'ModelChanged',
-                 'model' : self.model.ref,
+                 'model' : self.model.struct,
                  'attr'  : self.attr,
                  'new'   : value }
 
@@ -372,7 +372,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         data_dict = transform_column_source_data(self.column_source.data, buffers=buffers, cols=self.cols)
 
         return { 'kind'          : 'ColumnDataChanged',
-                 'column_source' : self.column_source.ref,
+                 'column_source' : self.column_source.struct,
                  'new'           : data_dict,
                  'cols'          : self.cols}
 
@@ -464,7 +464,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         '''
         return { 'kind'          : 'ColumnsStreamed',
-                 'column_source' : self.column_source.ref,
+                 'column_source' : self.column_source.struct,
                  'data'          : self.data,
                  'rollover'      : self.rollover }
 
@@ -542,7 +542,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
         '''
         return { 'kind'          : 'ColumnsPatched',
-                 'column_source' : self.column_source.ref,
+                 'column_source' : self.column_source.struct,
                  'patches'       : self.patches }
 
 class TitleChangedEvent(DocumentPatchedEvent):
@@ -684,7 +684,7 @@ class RootAddedEvent(DocumentPatchedEvent):
         '''
         references.update(self.model.references())
         return { 'kind'  : 'RootAdded',
-                 'model' : self.model.ref }
+                 'model' : self.model.struct }
 
 class RootRemovedEvent(DocumentPatchedEvent):
     ''' A concrete event representing a change to remove an existing Model
@@ -747,7 +747,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
         '''
         return { 'kind'  : 'RootRemoved',
-                 'model' : self.model.ref }
+                 'model' : self.model.struct }
 
 class SessionCallbackAdded(DocumentChangedEvent):
     ''' A concrete event representing a change to add a new callback (e.g.

@@ -5,7 +5,7 @@ import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Attrs} from "core/types"
 import {Signal0} from "core/signaling"
-import {Ref, is_ptr, create_ref} from "core/util/refs"
+import {Struct, is_ptr} from "core/util/refs"
 import {decode_column_data} from "core/util/serialization"
 import {MultiDict, Set} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
@@ -47,12 +47,12 @@ export interface DocJson {
   title?: string
   roots: {
     root_ids: string[]
-    references: Ref[]
+    references: Struct[]
   }
 }
 
 export interface Patch {
-  references: Ref[]
+  references: Struct[]
   events: DocumentChanged[]
 }
 
@@ -306,14 +306,14 @@ export class Document {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id, hint))
   }
 
-  static _references_json(references: HasProps[], include_defaults: boolean = true): Ref[] {
-    const references_json: Ref[] = []
+  static _references_json(references: HasProps[], include_defaults: boolean = true): Struct[] {
+    const references_json: Struct[] = []
     for (const r of references) {
-      const ref = create_ref(r)
-      ref.attributes = r.attributes_as_json(include_defaults)
+      const struct = r.to_struct()
+      struct.attributes = r.attributes_as_json(include_defaults)
       // server doesn't want id in here since it's already in ref above
-      delete ref.attributes.id
-      references_json.push(ref)
+      delete struct.attributes.id
+      references_json.push(struct)
     }
     return references_json
   }
@@ -326,7 +326,7 @@ export class Document {
 
   // given a JSON representation of all models in a graph, return a
   // dict of new model objects
-  static _instantiate_references_json(references_json: Ref[], existing_models: {[key: string]: HasProps}): References {
+  static _instantiate_references_json(references_json: Struct[], existing_models: {[key: string]: HasProps}): References {
     // Create all instances, but without setting their props
     const references: References = {}
     for (const obj of references_json) {
@@ -389,7 +389,7 @@ export class Document {
   // given a JSON representation of all models in a graph and new
   // model instances, set the properties on the models from the
   // JSON
-  static _initialize_references_json(references_json: Ref[], old_references: References, new_references: References): void {
+  static _initialize_references_json(references_json: Struct[], old_references: References, new_references: References): void {
     const to_update: {[key: string]: [HasProps, Attrs, boolean]} = {}
     for (const obj of references_json) {
       const obj_id = obj.id
@@ -449,7 +449,7 @@ export class Document {
     })
   }
 
-  static _event_for_attribute_change(changed_obj: Ref, key: string, new_value: any, doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged | null {
+  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged | null {
     const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
     if (!changed_model.attribute_is_serializable(key))
       return null
@@ -465,7 +465,7 @@ export class Document {
     }
   }
 
-  static _events_to_sync_objects(from_obj: Ref, to_obj: Ref, to_doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged[] {
+  static _events_to_sync_objects(from_obj: Struct, to_obj: Struct, to_doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged[] {
     const from_keys = Object.keys(from_obj.attributes!) //XXX!
     const to_keys = Object.keys(to_obj.attributes!) //XXX!
     const removed = difference(from_keys, to_keys)
@@ -508,15 +508,15 @@ export class Document {
   static _compute_patch_since_json(from_json: DocJson, to_doc: Document): Patch {
     const to_json = to_doc.to_json(false) // include_defaults=false
 
-    function refs(json: DocJson): {[key: string]: Ref} {
-      const result: {[key: string]: Ref} = {}
+    function refs(json: DocJson): {[key: string]: Struct} {
+      const result: {[key: string]: Struct} = {}
       for (const obj of json.roots.references)
         result[obj.id] = obj
       return result
     }
 
     const from_references = refs(from_json)
-    const from_roots: {[key: string]: Ref} = {}
+    const from_roots: {[key: string]: Struct} = {}
     const from_root_ids: string[] = []
     for (const r of from_json.roots.root_ids) {
       from_roots[r] = from_references[r]
@@ -524,7 +524,7 @@ export class Document {
     }
 
     const to_references = refs(to_json)
-    const to_roots: {[key: string]: Ref} = {}
+    const to_roots: {[key: string]: Struct} = {}
     const to_root_ids: string[] = []
     for (const r of to_json.roots.root_ids) {
       to_roots[r] = to_references[r]

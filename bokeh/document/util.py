@@ -125,9 +125,9 @@ def references_json(references):
 
     references_json = []
     for r in references:
-        ref = r.ref
-        ref['attributes'] = r._to_json_like(include_defaults=False)
-        references_json.append(ref)
+        struct = r.struct
+        struct['attributes'] = r._to_json_like(include_defaults=False)
+        references_json.append(struct)
 
     return references_json
 

@@ -4,7 +4,7 @@ import {Class} from "./class"
 import {Attrs} from "./types"
 import {Signal0, Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
-import {Ptr, is_ptr} from "./util/refs"
+import {Struct, Ptr, is_ptr} from "./util/refs"
 import * as p from "./properties"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
@@ -253,6 +253,18 @@ export abstract class HasProps extends Signalable() {
   // Create a new model with identical attributes to this one.
   clone(): this {
     return new (this.constructor as any)(this.attributes)
+  }
+
+  to_struct(): Struct {
+    const struct: Struct = {
+      type: this.type,
+      id: this.id,
+      attributes: {},
+    }
+    if (this._subtype != null) {
+      struct.subtype = this._subtype
+    }
+    return struct
   }
 
   private _pending: boolean = false
