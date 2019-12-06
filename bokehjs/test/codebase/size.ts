@@ -7,14 +7,14 @@ const build_dir = path.normalize(`${__dirname}/../..`) // build/test/codebase ->
 
 const LIMITS: {[key: string]: number} = {
   // es2017
-  "js/bokeh.min.js":         670,
-  "js/bokeh-widgets.min.js":  90,
-  "js/bokeh-tables.min.js":  270,
+  "js/bokeh.min.js":          670,
+  "js/bokeh-widgets.min.js":  155,
+  "js/bokeh-tables.min.js":   270,
   "js/bokeh-api.min.js":      90,
   "js/bokeh-gl.min.js":       70,
   // legacy (es5)
   "js/legacy/bokeh.min.js":         800,
-  "js/legacy/bokeh-widgets.min.js": 100,
+  "js/legacy/bokeh-widgets.min.js": 165,
   "js/legacy/bokeh-tables.min.js":  270,
   "js/legacy/bokeh-api.min.js":      90,
   "js/legacy/bokeh-gl.min.js":       70,

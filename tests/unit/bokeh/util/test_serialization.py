@@ -78,9 +78,9 @@ def test_binary_array_types():
 
 def test_datetime_types(pd):
     if pd is None:
-        assert len(bus.DATETIME_TYPES) == 4
+        assert len(bus.DATETIME_TYPES) == 3
     else:
-        assert len(bus.DATETIME_TYPES) == 8
+        assert len(bus.DATETIME_TYPES) == 7
 
 def test_is_timedelta_type_non_pandas_types():
     assert bus.is_timedelta_type(datetime.timedelta(3000))
@@ -98,7 +98,6 @@ def test_convert_timedelta_type_pandas_types(pd):
 
 def test_is_datetime_type_non_pandas_types():
     assert bus.is_datetime_type(datetime.datetime(2016, 5, 11))
-    assert bus.is_datetime_type(datetime.date(2016, 5, 11))
     assert bus.is_datetime_type(datetime.time(3, 54))
     assert bus.is_datetime_type(np.datetime64("2011-05-11"))
 
@@ -111,7 +110,6 @@ def test_convert_datetime_type_non_pandas_types():
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452)) == 1514993879922.452
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59)) == 1514993879000.0
     assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
-    assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(datetime.time(3, 54)) == 14040000.0
     assert bus.convert_datetime_type(np.datetime64("2016-05-11")) == 1462924800000.0
 

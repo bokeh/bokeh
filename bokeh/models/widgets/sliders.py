@@ -27,7 +27,7 @@ from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     Color,
-    Date,
+    Datetime,
     Enum,
     Float,
     Int,
@@ -148,19 +148,19 @@ class RangeSlider(AbstractSlider):
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
 
-    value = Date(help="""
+    value = Datetime(help="""
     Initial or selected value.
     """)
 
-    value_throttled = Date(help="""
-    Initial or selected value, throttled according to callback_policy.
+    value_throttled = Datetime(help="""
+    Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = Date(help="""
+    start = Datetime(help="""
     The minimum allowable value.
     """)
 
-    end = Date(help="""
+    end = Datetime(help="""
     The maximum allowable value.
     """)
 
@@ -214,19 +214,19 @@ class DateRangeSlider(AbstractSlider):
             d2 = v2
         return d1, d2
 
-    value = Tuple(Date, Date, help="""
+    value = Tuple(Datetime, Datetime, help="""
     Initial or selected range.
     """)
 
-    value_throttled = Tuple(Date, Date, help="""
-    Initial or selected value, throttled according to callback_policy.
+    value_throttled = Tuple(Datetime, Datetime, help="""
+    Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = Date(help="""
+    start = Datetime(help="""
     The minimum allowable value.
     """)
 
-    end = Date(help="""
+    end = Datetime(help="""
     The maximum allowable value.
     """)
 

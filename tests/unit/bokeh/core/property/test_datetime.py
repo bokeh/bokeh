@@ -69,12 +69,12 @@ class Test_Date(object):
     def test_transform_seconds(self):
         t = time.time()
         prop = bcpd.Date()
-        assert prop.transform(t) == datetime.date.today()
+        assert prop.transform(t) == datetime.date.today().isoformat()
 
     def test_transform_milliseconds(self):
         t = time.time() * 1000
         prop = bcpd.Date()
-        assert prop.transform(t) == datetime.date.today()
+        assert prop.transform(t) == datetime.date.today().isoformat()
 
     def test_has_ref(self):
         prop = bcpd.Date()

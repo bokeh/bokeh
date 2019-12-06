@@ -222,14 +222,14 @@ class TestSerializeJson(object):
                                      'b' : [b]})
         deserialized = self.deserialize(serialized)
 
-        baseline = {u'a': [(dt.datetime(*a.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000],
-                    u'b': [(b - DT_EPOCH).total_seconds() * 1000. + b.microsecond / 1000.],
+        baseline = {'a': ['2016-04-28'],
+                    'b': [(b - DT_EPOCH).total_seconds() * 1000. + b.microsecond / 1000.],
         }
         assert deserialized == baseline
 
         # test pre-computed values too
         assert deserialized == {
-            u'a': [1461801600000.0], u'b': [1461810050000.0]
+            'a': ['2016-04-28'], 'b': [1461810050000.0]
         }
 
     def test_builtin_timedelta_types(self):

@@ -52,6 +52,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import collections
+import datetime as dt
 import decimal
 import json
 
@@ -192,6 +193,10 @@ class BokehJSONEncoder(json.JSONEncoder):
 
         if is_timedelta_type(obj):
             return convert_timedelta_type(obj)
+
+        # Date
+        if isinstance(obj, dt.date):
+            return obj.isoformat()
 
         # slice objects
         elif isinstance(obj, slice):

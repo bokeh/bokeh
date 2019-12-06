@@ -16,6 +16,7 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime
+import warnings
 from copy import copy
 
 # External imports
@@ -454,19 +455,25 @@ class Test_NumberSpec(object):
 
         f = Foo()
 
-        f.dt = datetime.timedelta(3, 54)
-        assert f.dt == 259254000.0
+        # FYI Numpy erroneously raises an annoying warning about elementwise
+        # comparison below because a timedelta is compared to a float.
+        # https://github.com/numpy/numpy/issues/10095
+        with warnings.catch_warnings():
+            warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
-        # counts as number.Real out of the box
-        f.dt = np.timedelta64(3000, "ms")
-        assert f.dt == np.timedelta64(3000, "ms")
+            f.dt = datetime.timedelta(3, 54)
+            assert f.dt == 259254000.0
 
-        f.ndt = datetime.timedelta(3, 54)
-        assert f.ndt == 259254000.0
+            # counts as number.Real out of the box
+            f.dt = np.timedelta64(3000, "ms")
+            assert f.dt == np.timedelta64(3000, "ms")
 
-        # counts as number.Real out of the box
-        f.ndt = np.timedelta64(3000, "ms")
-        assert f.ndt == np.timedelta64(3000, "ms")
+            f.ndt = datetime.timedelta(3, 54)
+            assert f.ndt == 259254000.0
+
+            # counts as number.Real out of the box
+            f.ndt = np.timedelta64(3000, "ms")
+            assert f.ndt == np.timedelta64(3000, "ms")
 
     def tests_accepts_timedelta_with_pandas(self, pd):
         class Foo(HasProps):
@@ -492,12 +499,11 @@ class Test_NumberSpec(object):
         f.dt = datetime.datetime(2016, 5, 11)
         assert f.dt == 1462924800000.0
 
-        f.dt = datetime.date(2016, 5, 11)
-        assert f.dt == 1462924800000.0
-
         f.dt = np.datetime64("2016-05-11")
         assert f.dt == 1462924800000.0
 
+        f.dt = datetime.date(2016, 5, 11)
+        assert f.dt == 1462924800000.0
 
         with pytest.raises(ValueError):
             f.ndt = datetime.datetime(2016, 5, 11)

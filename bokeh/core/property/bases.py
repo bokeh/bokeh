@@ -234,6 +234,9 @@ class Property(PropertyDescriptorFactory):
                     return False
                 return all(self.matches(new[k], old[k]) for k in new)
 
+            # FYI Numpy can erroneously raise a warning about elementwise
+            # comparison here when a timedelta is compared to another scalar.
+            # https://github.com/numpy/numpy/issues/10095
             return new == old
 
         # if the comparison fails for some reason, just punt and return no-match

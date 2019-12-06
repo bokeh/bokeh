@@ -25,7 +25,11 @@ import datetime
 import dateutil.parser
 
 # Bokeh imports
-from ...util.dependencies import import_optional
+from ...util.serialization import (
+    convert_date_to_datetime,
+    is_datetime_type,
+    is_timedelta_type,
+)
 from .bases import Property
 from .primitive import bokeh_integer_types
 
@@ -38,8 +42,6 @@ __all__ = (
     'Datetime',
     'TimeDelta',
 )
-
-pd = import_optional('pandas')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -56,12 +58,15 @@ class Date(Property):
         value = super().transform(value)
 
         if isinstance(value, (float,) + bokeh_integer_types):
+            # XXX (bev) hacky: try to convert as ms first, if out of bounds, re-try as seconds
             try:
-                value = datetime.date.fromtimestamp(value)
+                value = datetime.date.fromtimestamp(value).isoformat()
             except (ValueError, OSError):
-                value = datetime.date.fromtimestamp(value/1000)
+                value = datetime.date.fromtimestamp(value/1000).isoformat()
         elif isinstance(value, str):
-            value = dateutil.parser.parse(value).date()
+            value = dateutil.parser.parse(value).date().isoformat()
+        elif isinstance(value, datetime.date):
+            value = value.isoformat()
 
         return value
 
@@ -82,33 +87,23 @@ class Datetime(Property):
 
     def transform(self, value):
         value = super().transform(value)
+
+        # Handled by serialization in protocol.py for now, except for Date
+        if isinstance(value, datetime.date):
+            value = convert_date_to_datetime(value)
+
         return value
-        # Handled by serialization in protocol.py for now
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        datetime_types = (datetime.datetime, datetime.date)
-        try:
-            import numpy as np
-            datetime_types += (np.datetime64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'datetime64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, datetime_types)):
+        if is_datetime_type(value):
             return
 
-        if pd and isinstance(value, (pd.Timestamp)):
+        if isinstance(value, datetime.date):
             return
 
-        msg = "" if not detail else "Expected a datetime instance, got %r" % value
+        msg = "" if not detail else "Expected a datetime value, got %r" % value
         raise ValueError(msg)
 
 class TimeDelta(Property):
@@ -127,24 +122,7 @@ class TimeDelta(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        timedelta_types = (datetime.timedelta,)
-        try:
-            import numpy as np
-            timedelta_types += (np.timedelta64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'timedelta64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, timedelta_types)):
-            return
-
-        if pd and isinstance(value, (pd.Timedelta)):
+        if is_timedelta_type(value):
             return
 
         msg = "" if not detail else "Expected a timedelta instance, got %r" % value

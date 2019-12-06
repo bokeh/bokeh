@@ -59,9 +59,8 @@ BINARY_ARRAY_TYPES = set([
 ])
 
 DATETIME_TYPES = set([
-    dt.datetime,
-    dt.date,
     dt.time,
+    dt.datetime,
     np.datetime64,
 ])
 
@@ -84,6 +83,7 @@ __doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str
 
 __all__ = (
     'array_encoding_disabled',
+    'convert_date_to_datetime',
     'convert_datetime_array',
     'convert_datetime_type',
     'convert_timedelta_type',
@@ -131,6 +131,18 @@ def is_timedelta_type(obj):
     '''
     return isinstance(obj, (dt.timedelta, np.timedelta64))
 
+def convert_date_to_datetime(obj):
+    ''' Convert a date object to a datetime
+
+    Args:
+        obj (date) : the object to convert
+
+    Returns:
+        datetime
+
+    '''
+    return (dt.datetime(*obj.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000
+
 def convert_timedelta_type(obj):
     ''' Convert any recognized timedelta value to floating point absolute
     milliseconds.
@@ -175,11 +187,12 @@ def convert_datetime_type(obj):
     # Datetime (datetime is a subclass of date)
     elif isinstance(obj, dt.datetime):
         diff = obj.replace(tzinfo=None) - DT_EPOCH
-        return diff.total_seconds() * 1000.
+        return diff.total_seconds() * 1000
 
+    # XXX (bev) ideally this would not be here "dates are not datetimes"
     # Date
     elif isinstance(obj, dt.date):
-        return (dt.datetime(*obj.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000
+        return convert_date_to_datetime(obj)
 
     # NumPy datetime64
     elif isinstance(obj, np.datetime64):

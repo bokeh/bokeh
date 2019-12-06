@@ -62,14 +62,14 @@ class Test_DatePicker(object):
         el = page.driver.find_element_by_css_selector('.foo input')
         el.click()
 
-        el = page.driver.find_element_by_css_selector('button[data-pika-day="16"]')
+        el = page.driver.find_element_by_css_selector('span[aria-label="September 16, 2019"]')
         el.click()
 
         results = page.results
-        assert results['value'] == 'Mon Sep 16 2019'
+        assert results['value'] == '2019-09-16'
 
         el = page.driver.find_element_by_css_selector('.bk-input')
-        assert el.get_attribute('value') == 'Mon Sep 16 2019'
+        assert el.get_attribute('value') == '2019-09-16'
 
         assert page.has_no_console_errors()
 
@@ -90,13 +90,10 @@ class Test_DatePicker(object):
         el = page.driver.find_element_by_css_selector('.foo input')
         el.click()
 
-        el = page.driver.find_element_by_css_selector('button[data-pika-day="16"]')
+        el = page.driver.find_element_by_css_selector('span[aria-label="September 16, 2019"]')
         el.click()
 
         page.click_custom_action()
 
         results = page.results
-        d0 = datetime.utcfromtimestamp(results['data']['val'][0]/1000)
-        assert d0.timetuple()[:3] == (2019, 9, 20)
-        d1 = datetime.utcfromtimestamp(results['data']['val'][1]/1000)
-        assert d1.timetuple()[:3] == (2019, 9, 16)
+        assert results['data']['val'] == ['2019-09-20T00:00:00', '2019-09-16']
