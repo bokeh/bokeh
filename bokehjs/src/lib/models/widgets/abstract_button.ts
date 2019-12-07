@@ -1,7 +1,7 @@
 import * as p from "core/properties"
 import {ButtonType} from "core/enums"
 import {prepend, nbsp, button, div} from "core/dom"
-import {build_views, remove_views} from "core/build_views"
+import {build_view} from "core/build_views"
 
 import {Control, ControlView} from "./control"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
@@ -11,14 +11,17 @@ import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
 export abstract class AbstractButtonView extends ControlView {
   model: AbstractButton
 
-  protected icon_views: {[key: string]: AbstractIconView}
+  protected icon_view?: AbstractIconView
 
   protected button_el: HTMLButtonElement
   protected group_el: HTMLElement
 
-  initialize(): void {
-    super.initialize()
-    this.icon_views = {}
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {icon} = this.model
+    if (icon != null) {
+      this.icon_view = await build_view(icon, {parent: this}) as AbstractIconView
+    }
   }
 
   connect_signals(): void {
@@ -27,7 +30,8 @@ export abstract class AbstractButtonView extends ControlView {
   }
 
   remove(): void {
-    remove_views(this.icon_views)
+    if (this.icon_view != null)
+      this.icon_view.remove()
     super.remove()
   }
 
@@ -45,15 +49,9 @@ export abstract class AbstractButtonView extends ControlView {
     this.button_el = this._render_button(this.model.label)
     this.button_el.addEventListener("click", () => this.click())
 
-    const icon = this.model.icon
-    if (icon != null) {
-      const _render_icon = async () => {
-        await build_views(this.icon_views, [icon], {parent: this})
-        const icon_view = this.icon_views[icon.id]
-        icon_view.render()
-        prepend(this.button_el, icon_view.el, nbsp())
-      }
-      _render_icon()
+    if (this.icon_view != null) {
+      prepend(this.button_el, this.icon_view.el, nbsp())
+      this.icon_view.render()
     }
 
     this.group_el = div({class: bk_btn_group}, this.button_el)
