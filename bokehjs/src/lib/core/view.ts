@@ -1,6 +1,6 @@
 import {HasProps} from "./has_props"
 import {Property} from "./properties"
-import {Signal0, Signal, Signalable} from "./signaling"
+import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {isArray} from "./util/types"
 import {uniqueId} from "./util/string"
 
@@ -12,7 +12,7 @@ export namespace View {
   }
 }
 
-export class View extends Signalable() {
+export class View implements ISignalable {
 
   readonly removed = new Signal0<this>(this, "removed")
 
@@ -22,9 +22,25 @@ export class View extends Signalable() {
 
   private _parent: View | null | undefined
 
-  constructor(options: View.Options) {
-    super()
+  protected _ready: Promise<void> = Promise.resolve(undefined)
+  get ready(): Promise<void> {
+    return this._ready
+  }
 
+  connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+    const new_slot = (args: Args, sender: Sender): void => {
+      const promise = Promise.resolve(slot(args, sender))
+      this._ready = this._ready.then(() => promise)
+    }
+
+    return signal.connect(new_slot, this)
+  }
+
+  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+    return signal.disconnect(slot, this)
+  }
+
+  constructor(options: View.Options) {
     if (options.model != null)
       this.model = options.model
     else

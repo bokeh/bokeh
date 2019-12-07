@@ -51,6 +51,8 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
     renderers: [glyph_renderer as any],
   })
   plot.add_tools(draw_tool)
+  await plot_view.ready
+
   const draw_tool_view = plot_view.tool_views[draw_tool.id] as PolyDrawToolView
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
   sinon.stub(glyph_renderer_view, "set_data")

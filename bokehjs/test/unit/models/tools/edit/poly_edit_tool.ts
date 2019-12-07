@@ -67,6 +67,8 @@ async function make_testcase(): Promise<PolyEditTestCase> {
     vertex_renderer: vertex_renderer as GlyphRenderer & HasXYGlyph,
   })
   plot.add_tools(draw_tool)
+  await plot_view.ready
+
   const draw_tool_view = plot_view.tool_views[draw_tool.id] as PolyEditToolView
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
   plot_view.renderer_views[vertex_renderer.id] = vertex_renderer_view
