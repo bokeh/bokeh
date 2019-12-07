@@ -41,7 +41,7 @@ class FakeFullDispatcher(object):
     def _session_callback_removed(self, event): self.called.append('_session_callback_removed')
 
 class FakeModel(object):
-    struct = "struct"
+    ref = "ref"
     data = "data"
     def references(self): return dict(ref1=1, ref2=2)
 
