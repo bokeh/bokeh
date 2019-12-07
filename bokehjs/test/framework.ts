@@ -74,7 +74,10 @@ export async function run_tests(grep?: string | RegExp): Promise<void> {
     }
 
     for (const test of suite.tests) {
-      const {description} = test
+      const {description, skip} = test
+
+      if (skip)
+        continue
 
       if (grep != null) {
         const descriptions = seq.map((s) => s.description).concat(description ?? "")
