@@ -82,7 +82,7 @@ function bundle(name: string): void {
 
 function devtools(name: string): Promise<void> {
   const grep = argv.k ?? argv.grep
-  const args = ["./test/devtools", `test/${name}/index.html`, grep != null ? `--grep=${grep}` : ""]
+  const args = ["--no-warnings", "./test/devtools", `test/${name}/index.html`, grep != null ? `--grep=${grep}` : ""]
   const proc = spawn(process.execPath, args, {stdio: 'inherit'})
 
   process.once('exit',    () => proc.kill())
