@@ -109,6 +109,8 @@ task("test:compile", ["defaults:generate"], async () => {
     process.exit(1)
 })
 
+task("test:bundle", ["test:unit:bundle", "test:integration:bundle"])
+
 task("test:unit:bundle", ["test:compile"], async () => bundle("unit"))
 task("test:unit", ["test:unit:bundle"], async () => devtools("unit"))
 

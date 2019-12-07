@@ -61,7 +61,7 @@ function encode(s: string): string {
 //type Rect = {x: number, y: number, width: number, height: number}
 type Suite = {description: string, suites: Suite[], tests: Test[]}
 type Test = {description: string, skip: boolean}
-type Result = {error: string | null, time: number, state?: State}
+type Result = {error: {str: string, stack?: string} | null, time: number, state?: State}
 
 async function run_tests(): Promise<void> {
   let client
@@ -198,7 +198,6 @@ async function run_tests(): Promise<void> {
               console.log(chalk.blueBright("timeout"))
               continue
             } else {
-              console.log("AAA")
               throw err
             }
           }
@@ -211,7 +210,10 @@ async function run_tests(): Promise<void> {
 
           const result = JSON.parse((output).value) as Result
           if (result.error != null) {
-            console.log(`${chalk.red("test failed")}: ${result.error}`)
+            console.log(`${chalk.red("test failed")}: ${result.error.str}`)
+            if (result.error.stack != null) {
+              console.log(result.error.stack)
+            }
             failures++
             continue
           }

@@ -111,7 +111,15 @@ export async function run_test(si: number[], ti: number): Promise<{}> {
 async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   const {fn} = test
   const start = Date.now()
-  let error: string | null = null
+  let error: {str: string, stack?: string} | null = null
+  function _handle(err: unknown): void {
+    if (err instanceof Error) {
+      error = {str: err.toString(), stack: err.stack}
+    } else {
+      error = {str: `${err}`}
+    }
+  }
+
   for (const suite of suites) {
     for (const {fn} of suite.before_each)
       await fn()
@@ -120,12 +128,14 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   try {
     await fn()
   } catch (err) {
-    error = err.toString()
-  }
-  current_test = null
-  for (const suite of suites) {
-    for (const {fn} of suite.after_each)
-      await fn()
+    //throw err
+    _handle(err)
+  } finally {
+    current_test = null
+    for (const suite of suites) {
+      for (const {fn} of suite.after_each)
+        await fn()
+    }
   }
   const end = Date.now()
   const time = end - start
@@ -137,7 +147,8 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
         const state = test.view.serializable_state()
         return {error, time, state, bbox}
       } catch (err) {
-        error = err
+        //throw err
+        _handle(err)
       }
     }
     return {error, time}
