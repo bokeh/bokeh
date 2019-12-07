@@ -555,7 +555,6 @@ describe("ui_events module", () => {
 
       class MultiTool extends SelectTool {
         default_view = MultiToolView
-        type = "MultiTool"
         tool_name = "Multi Tool"
         event_type = ["tap" as "tap", "pan" as "pan"]
       }
