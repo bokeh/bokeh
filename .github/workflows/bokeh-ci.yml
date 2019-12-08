@@ -4,38 +4,188 @@ on: [pull_request]
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        python_version: [3.7]
-        os: [windows-latest, macos-latest]
+    runs-on: ubuntu-latest
+    env:
+      PYTHON: 3.7
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2-beta
 
-      - name: Setup python ${{ matrix.python_version }}
-        uses: actions/setup-python@master
+      - name: Install Miniconda
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" = "Linux" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
+          elif [[ "${{ runner.os }}" = "macOS" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+          elif [[ "${{ runner.os }}" = "Windows" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+          fi
+          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+
+      - name: Setup paths
+        shell: bash
+        run: |
+          echo "::add-path::$HOME/miniconda/bin"
+          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+
+      - name: Configure conda
+        shell: bash
+        env:
+          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+        run: |
+          echo `which conda`
+          conda config --set auto_update_conda off
+          conda config --append channels bokeh
+          conda config --get channels
+          conda install --yes --quiet $CONDA_REQS
+
+      - name: Install conda packages
+        run: |
+          echo `which python`
+          BUILD_DEPS=`python scripts/deps.py build`
+          conda install --yes --quiet $BUILD_DEPS
+
+      - name: Cache node modules
+        uses: actions/cache@v1
         with:
-          python-version: ${{ matrix.python_version }}
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
-      - name: Install conda stuff
+      - name: Install node modules
         run: |
-          bash scripts/ci/github/install_conda.sh
-
-      - name: Install npm dependencies
-        run: |
+          pushd bokehjs
           npm install -g npm
-          cd bokehjs
           npm ci --no-progress
+          popd
 
-      - name: Install bokeh-python package
+      - name: Build BokehJS
         run: |
-          bash scripts/ci/github/install_bokeh.sh
+          pushd bokehjs
+          node make build
+          popd
+          tar czf bokehjs-build.tgz "bokehjs/build"
 
-      - name: Setup tests
+      - name: Upload BokehJS
+        uses: actions/upload-artifact@v1
+        with:
+          name: bokehjs-build
+          path: bokehjs-build.tgz
+
+      - name: Build conda package
         run: |
-          bash scripts/ci/github/setup_tests.sh
+          conda build conda.recipe --quiet --no-test --no-anaconda-upload --no-verify
+          pushd $HOME
+          tar czf conda-bld-noarch.tgz "miniconda/conda-bld/noarch"
+          popd
+          mv $HOME/conda-bld-noarch.tgz .
+
+      - name: Upload conda package
+        uses: actions/upload-artifact@v1
+        with:
+          name: conda-bld-noarch
+          path: conda-bld-noarch.tgz
+
+  unit-test:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      max-parallel: 6
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.6, 3.7]
+
+    steps:
+      - uses: actions/checkout@v2-beta
+
+      - name: Install Miniconda
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" = "Linux" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
+          elif [[ "${{ runner.os }}" = "macOS" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+          elif [[ "${{ runner.os }}" = "Windows" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+          fi
+          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+
+      - name: Setup paths
+        shell: bash
+        run: |
+          echo "::add-path::$HOME/miniconda/bin"
+          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+
+      - name: Configure conda
+        shell: bash
+        env:
+          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+        run: |
+          echo `which conda`
+          conda config --set auto_update_conda off
+          conda config --append channels bokeh
+          conda config --get channels
+          conda install --yes --quiet $CONDA_REQS
+
+      - name: Download Bokehjs
+        uses: actions/download-artifact@v1
+        with:
+          name: bokehjs-build
+
+      - name: Download conda package
+        uses: actions/download-artifact@v1
+        with:
+          name: conda-bld-noarch
+
+      - name: Unpack artifacts
+        shell: bash
+        run: |
+          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
+          pushd $HOME
+          tar xzf conda-bld-noarch.tgz
+          popd
+          tar xvzf bokehjs-build/bokehjs-build.tgz
+
+      - name: Install conda packages
+        shell: bash
+        run: |
+          conda create -n testenv --yes --quiet python=$PYTHON jinja2 pyyaml
+          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install node modules
+        run: |
+          pushd bokehjs
+          npm install -g npm
+          npm install -g phantomjs-prebuilt
+          npm ci --no-progress
+          popd
+          python setup.py --install-js
+
+      - name: Install sampledata
+        shell: bash
+        run: |
+          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Run tests
+        shell: bash
         run: |
-          bash scripts/ci/github/run_tests.sh
+          pushd tests
+          py.test -m unit --cov=bokeh --cov-config=.coveragerc
+          popd
