@@ -233,8 +233,8 @@ describe("Defaults", () => {
     for (const name of all_view_model_names) {
       const model = Models(name)
       const attrs: {[key: string]: unknown} = {}
-      for (const [attr, prop] of Object.entries(model.prototype.props)) {
-        if (!prop.internal) {
+      for (const [attr, prop] of Object.entries(model.prototype._props)) {
+        if (prop.options?.internal !== true) {
           const value = prop.default_value != null ? prop.default_value() : null // XXX: non-nullable properties
           attrs[attr] = deep_value_to_serializable(attr, value, undefined)
         }

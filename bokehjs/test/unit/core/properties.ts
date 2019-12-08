@@ -291,24 +291,17 @@ describe("properties module", () => {
         expect(arr[4]).to.be.equal(6)
       })
 
-      describe("init", () => {
-        it("should return nothing by default", () => {
-          const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
-          expect(prop.init()).to.be.undefined
-        })
-      })
-
-      describe("transform", () => {
+      describe("normalize", () => {
         it("should be the identity", () => {
-          expect(p.Property.prototype.transform(10)).to.be.equal(10)
-          expect(p.Property.prototype.transform("foo")).to.be.equal("foo")
-          expect(p.Property.prototype.transform(null)).to.be.null
+          expect(p.Property.prototype.normalize(10)).to.be.equal(10)
+          expect(p.Property.prototype.normalize("foo")).to.be.equal("foo")
+          expect(p.Property.prototype.normalize(null)).to.be.null
         })
 
         it("should return the same type as passed", () => {
-          const r1 = p.Number.prototype.transform([10, 20, 30])
+          const r1 = p.Number.prototype.normalize([10, 20, 30])
           expect(r1).to.be.deep.equal([10, 20, 30])
-          const r2 = p.Number.prototype.transform(new Float64Array([10, 20, 30]))
+          const r2 = p.Number.prototype.normalize(new Float64Array([10, 20, 30]))
           expect(r2).to.be.deep.equal(new Float64Array([10, 20, 30]))
         })
       })
@@ -361,9 +354,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -382,33 +375,33 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
 
   describe("Angle", () => {
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
         const prop = new p.Angle(new SomeHasProps({a: {value: 10}}), 'a')
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
 
   describe("AngleSpec", () => {
-    describe("transform", () => {
+    describe("normalize", () => {
       it("should multiply radians by -1", () => {
         const prop = new p.AngleSpec(new SomeHasProps({a: {value: 10, units: "rad"}}), 'a')
-        expect(prop.transform([-10, 0, 10, 20])).to.be.deep.equal([10, -0, -10, -20])
+        expect(prop.normalize([-10, 0, 10, 20])).to.be.deep.equal([10, -0, -10, -20])
       })
 
       it("should convert degrees to -1 * radians", () => {
         const prop = new p.AngleSpec(new SomeHasProps({a: {value: 10, units: "deg"}}), 'a')
-        expect(prop.transform([-180, 0, 180])).to.be.deep.equal([Math.PI, -0, -Math.PI])
+        expect(prop.normalize([-180, 0, 180])).to.be.deep.equal([Math.PI, -0, -Math.PI])
       })
     })
   })
@@ -438,9 +431,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -470,9 +463,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -564,9 +557,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -589,19 +582,19 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
+    describe("normalize", () => {
       it("should convert 'clock' to false", () => {
-        const result = prop.transform(["clock"])
+        const result = prop.normalize(["clock"])
         expect(result).to.be.deep.equal(new Uint8Array([0]))
       })
 
       it("should convert 'anticlock' to true", () => {
-        const result = prop.transform(["anticlock"])
+        const result = prop.normalize(["anticlock"])
         expect(result).to.be.deep.equal(new Uint8Array([1]))
       })
 
       it("should return a Uint8Array", () => {
-        const result = prop.transform(["clock", "anticlock"])
+        const result = prop.normalize(["clock", "anticlock"])
         expect(result).to.be.deep.equal(new Uint8Array([0, 1]))
       })
     })
@@ -627,17 +620,17 @@ describe("properties module", () => {
 
       it("should throw an Error on bad units", () => {
         function fn(): void {
-          const x = new SomeHasProps({a: {value: 10, units:"bad"}})
+          const x = new SomeHasProps({a: {value: 10, units: "bad"}})
           new p.DistanceSpec(x, 'a')
         }
         expect(fn).to.throw(Error, "units must be one of screen, data; got: bad")
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
         const prop = new p.DistanceSpec(new SomeHasProps({a: {value: 10}}), 'a')
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -666,9 +659,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -691,9 +684,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -720,9 +713,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -745,9 +738,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -770,9 +763,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -795,9 +788,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -826,9 +819,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -851,9 +844,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -876,9 +869,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -901,9 +894,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -933,9 +926,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -958,9 +951,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })
@@ -983,9 +976,9 @@ describe("properties module", () => {
       })
     })
 
-    describe("transform", () => {
-      it("should be Property.transform", () => {
-        expect(prop.transform).to.be.equal(p.Property.prototype.transform)
+    describe("normalize", () => {
+      it("should be Property.normalize", () => {
+        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
       })
     })
   })

@@ -36,9 +36,8 @@ export class CircleView extends XYGlyphView {
     // XXX: Order is important here: size is always present (at least
     // a default), but radius is only present if a user specifies it.
     if (this._radius != null) {
-      if (this.model.properties.radius.spec.units == "data") {
-        const rd = this.model.properties.radius_dimension.spec.value
-        switch (rd) {
+      if (this.model.properties.radius.units == "data") {
+        switch (this.model.radius_dimension) {
           case "x": {
             this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
             break
@@ -286,13 +285,8 @@ export class Circle extends XYGlyph {
     this.define<Circle.Props>({
       angle:            [ p.AngleSpec,       0                             ],
       size:             [ p.DistanceSpec,    { units: "screen", value: 4 } ],
-      radius:           [ p.DistanceSpec                                   ], // XXX: null
+      radius:           [ p.DistanceSpec,    undefined, {optional: true}   ], // XXX: null
       radius_dimension: [ p.RadiusDimension, 'x'                           ],
     })
-  }
-
-  initialize(): void {
-    super.initialize()
-    this.properties.radius.optional = true
   }
 }

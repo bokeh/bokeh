@@ -90,7 +90,7 @@ export async function run_tests(grep?: string | RegExp): Promise<void> {
           continue
       }
 
-      await _run_test(seq, test)
+      await _run_test(seq, test, true)
     }
   }
 
@@ -110,7 +110,7 @@ export async function run_test(si: number[], ti: number): Promise<{}> {
   return await _run_test(suites, test)
 }
 
-async function _run_test(suites: Suite[], test: Test): Promise<{}> {
+async function _run_test(suites: Suite[], test: Test, raise: boolean = false): Promise<{}> {
   const {fn} = test
   const start = Date.now()
   let error: {str: string, stack?: string} | null = null
@@ -130,8 +130,10 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
   try {
     await fn()
   } catch (err) {
-    //throw err
-    _handle(err)
+    if (raise)
+      throw err
+    else
+      _handle(err)
   } finally {
     current_test = null
     for (const suite of suites) {
@@ -149,8 +151,10 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
         const state = test.view.serializable_state()
         return {error, time, state, bbox}
       } catch (err) {
-        //throw err
-        _handle(err)
+        if (raise)
+          throw err
+        else
+          _handle(err)
       }
     }
     return {error, time}
