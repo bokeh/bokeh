@@ -29,7 +29,7 @@ export class View implements ISignalable {
 
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
     const new_slot = (args: Args, sender: Sender): void => {
-      const promise = Promise.resolve(slot(args, sender))
+      const promise = Promise.resolve(slot.call(this, args, sender))
       this._ready = this._ready.then(() => promise)
     }
 
