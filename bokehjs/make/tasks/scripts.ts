@@ -77,8 +77,8 @@ task("scripts:bundle-legacy", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
+task("scripts:dev-build", ["scripts:bundle"])
+
 task("scripts:build", ["scripts:bundle", "scripts:bundle-legacy"])
 
-task("scripts:minify", ["scripts:build"])
-
-task("scripts", ["scripts:build", "scripts:minify"])
+task("scripts", ["scripts:build"])
