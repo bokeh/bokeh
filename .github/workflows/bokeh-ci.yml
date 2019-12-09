@@ -3,10 +3,9 @@ name: GitHub-CI
 on: [pull_request]
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
-    env:
-      PYTHON: 3.7
 
     steps:
       - uses: actions/checkout@v2-beta
@@ -35,7 +34,6 @@ jobs:
         env:
           CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
-          echo `which conda`
           conda config --set auto_update_conda off
           conda config --append channels bokeh
           conda config --get channels
@@ -43,7 +41,6 @@ jobs:
 
       - name: Install conda packages
         run: |
-          echo `which python`
           BUILD_DEPS=`python scripts/deps.py build`
           conda install --yes --quiet $BUILD_DEPS
 
@@ -91,6 +88,100 @@ jobs:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
 
+
+
+
+
+  codebase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2-beta
+
+      - name: Install Miniconda
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" = "Linux" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
+          elif [[ "${{ runner.os }}" = "macOS" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+          elif [[ "${{ runner.os }}" = "Windows" ]]; then
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+          fi
+          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+
+      - name: Setup paths
+        shell: bash
+        run: |
+          echo "::add-path::$HOME/miniconda/bin"
+          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+
+      - name: Configure conda
+        shell: bash
+        env:
+          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+        run: |
+          conda config --set auto_update_conda off
+          conda config --append channels bokeh
+          conda config --get channels
+          conda install --yes --quiet $CONDA_REQS
+
+      - name: Install conda packages
+        shell: bash
+        run: |
+          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+
+      # XXX: until channels is available on conda-forge
+      - name: Install conda packages
+        shell: bash
+        run: |
+          pip install channels
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install node modules
+        run: |
+          pushd bokehjs
+          npm install -g npm
+          npm ci --no-progress
+          popd
+
+      - name: Install sampledata
+        shell: bash
+        run: |
+          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+
+      - name: Run codebase checks
+        shell: bash
+        run: |
+          pushd bokehjs
+          node make scripts:compile --emit-error
+          node make test:compile --emit-error
+          PARSER_NO_WATCH=true node make lint --emit-error
+          popd
+
+          pushd tests
+          py.test -m codebase
+          popd
+
+      - name: MyPy
+        shell: bash
+        run: |
+          mypy bokeh
+
+
+
+
   unit-test:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -128,7 +219,6 @@ jobs:
         env:
           CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
-          echo `which conda`
           conda config --set auto_update_conda off
           conda config --append channels bokeh
           conda config --get channels
@@ -156,7 +246,7 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda create -n testenv --yes --quiet python=$PYTHON jinja2 pyyaml
+          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
           conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
       - name: Cache node modules
