@@ -170,9 +170,7 @@ jobs:
           PARSER_NO_WATCH=true node make lint --emit-error
           popd
 
-          pushd tests
-          py.test -m codebase
-          popd
+          py.test -m codebase --color=yes tests
 
       - name: MyPy
         shell: bash
@@ -279,7 +277,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -s -m js tests
+          py.test -s -m js --color=yes tests
 
 
 
@@ -378,7 +376,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -v --tb=short -m integration --driver chrome tests
+          py.test -v --tb=short -m integration --driver chrome --color=yes tests
 
 
 
@@ -478,5 +476,5 @@ jobs:
         shell: bash
         run: |
           pushd tests
-          py.test -m unit --cov=bokeh --cov-config=.coveragerc
+          py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes
           popd
