@@ -179,5 +179,4 @@ describe("events module", () => {
       })
     })
   })
-
 })

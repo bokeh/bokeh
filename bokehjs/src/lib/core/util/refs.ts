@@ -1,29 +1,16 @@
-import {HasProps} from "../has_props"
 import {Attrs} from "../types"
-import {isObject} from "./types"
+import {isPlainObject} from "./types"
+import {keys} from "./object"
 
-export interface Ref {
+export interface Struct {
   id: string
   type: string
   subtype?: string
-  attributes?: Attrs
+  attributes: Attrs
 }
 
-// Create a Bokeh reference from a HasProps subclass
-//
-// @param obj [HasProps] the object to create a reference for
-// @return [Object] a Bokeh reference for `obj`
-// @throw Error if `obj` is not a HasProps
-//
-export function create_ref(obj: HasProps): Ref {
-  const ref: Ref = {
-    type: obj.type,
-    id: obj.id,
-  }
-  if (obj._subtype != null) {
-    ref.subtype = obj._subtype
-  }
-  return ref
+export interface Ref {
+  id: string
 }
 
 // Determine whether an object has the proper format of a Bokeh reference
@@ -35,12 +22,9 @@ export function create_ref(obj: HasProps): Ref {
 //   only that the format is correct (all required keys are present)
 //
 export function is_ref(arg: unknown): arg is Ref {
-  if (isObject(arg)) {
-    const keys = Object.keys(arg).sort()
-    if (keys.length == 2)
-      return keys[0] == 'id' && keys[1] == 'type'
-    if (keys.length == 3)
-      return keys[0] == 'id' && keys[1] == 'subtype' && keys[2] == 'type'
+  if (isPlainObject(arg)) {
+    const attrs = keys(arg)
+    return attrs.length == 1 && attrs[0] == "id"
   }
   return false
 }

@@ -58,12 +58,12 @@ for leaf in leaves(all_tree, model_class):
     props_with_values = instance.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
     for name, default in props_with_values.items():
         if isinstance(default, Model):
-            ref = default.ref
+            struct = default.struct
             raw_attrs = default._to_json_like(include_defaults=True)
             attrs = loads(serialize_json(raw_attrs))
-            ref['attributes'] = attrs
-            del ref['id'] # there's no way the ID will match bokehjs
-            default = ref
+            struct['attributes'] = attrs
+            del struct['id'] # there's no way the ID will match bokehjs
+            default = struct
         elif isinstance(default, float) and default == float('inf'):
             default = None
         defaults[name] = default
