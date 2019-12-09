@@ -262,17 +262,19 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chromedriver
+      - name: Install chrome
         shell: bash
         run: |
-          sudo apt-get -y update
-          sudo apt-get -y install unzip xvfb libxi6 libgconf-2-4
-          sudo apt-get -y install google-chrome-stable
-          wget https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/bin/chromedriver
-          sudo chown root:root /usr/bin/chromedriver
-          sudo chmod +x /usr/bin/chromedriver
+          sudo apt-get update
+          sudo apt-get install software-properties-common
+          sudo add-apt-repository ppa:canonical-chromium-builds/stage
+          sudo apt-get update
+          sudo apt-get install chromium-browser
+
+      - name: Start chrome headless
+        shell: bash
+        run: |
+          chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
 
       - name: Run tests
         shell: bash
