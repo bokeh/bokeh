@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
-import {build_views, remove_views} from "core/build_views"
+import {build_view} from "core/build_views"
 import {empty, position, display, undisplay} from "core/dom"
 import {Size} from "core/layout"
 import * as p from "core/properties"
@@ -11,19 +11,20 @@ export class ToolbarPanelView extends AnnotationView {
 
   readonly rotate: boolean = true
 
-  protected _toolbar_views: {[key: string]: ToolbarBaseView}
+  protected _toolbar_view: ToolbarBaseView
 
   initialize(): void {
     super.initialize()
     this.plot_view.canvas_view.add_event(this.el)
-    this._toolbar_views = {}
-    build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
-    const toolbar_view = this._toolbar_views[this.model.toolbar.id]
-    this.plot_view.visibility_callbacks.push((visible) => toolbar_view.set_visibility(visible))
+  }
+
+  async lazy_initialize(): Promise<void> {
+    this._toolbar_view = await build_view(this.model.toolbar, {parent: this}) as ToolbarBaseView
+    this.plot_view.visibility_callbacks.push((visible) => this._toolbar_view.set_visibility(visible))
   }
 
   remove(): void {
-    remove_views(this._toolbar_views)
+    this._toolbar_view.remove()
     super.remove()
   }
 
@@ -38,12 +39,9 @@ export class ToolbarPanelView extends AnnotationView {
     this.el.style.overflow = "hidden"
 
     position(this.el, this.panel!.bbox)
-
-    const toolbar_view = this._toolbar_views[this.model.toolbar.id]
-    toolbar_view.render()
-
+    this._toolbar_view.render()
     empty(this.el)
-    this.el.appendChild(toolbar_view.el)
+    this.el.appendChild(this._toolbar_view.el)
     display(this.el)
   }
 

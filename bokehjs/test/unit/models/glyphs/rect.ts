@@ -26,32 +26,31 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       stub.restore()
     })
 
-    it("should calculate bounds based on data", () => {
+    it("should calculate bounds based on data", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 10, 0, 30]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
       expect(bounds).to.be.deep.equal({ x0: 1, y0: -20, x1: 4, y1: 30 })
     })
 
-    it("should calculate log bounds based on data values > 0", () => {
+    it("should calculate log bounds based on data values > 0", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 0, 10, 30]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
       expect(log_bounds).to.be.deep.equal({ x0: 1, y0: 10, x1: 4, y1: 30 })
     })
 
-    it("should calculate log bounds when NaNs are present", () => {
+    it("should calculate log bounds when NaNs are present", async () => {
       const data = {x: [1, 2, 3, 4], y: [-20, 0, 10, NaN]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
       expect(log_bounds).to.be.deep.equal({ x0: 1, y0: 10, x1: 3, y1: 10 })
     })
 
-    it("should hit test rects against an index", () => {
-
+    it("should hit test rects against an index", async () => {
       const data = {x: [20, 40, 60], y: [10, 10, 50]}
       const glyph = new Rect({
         x: {field: "x"},
@@ -60,7 +59,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
         height: {value: 20},
       })
 
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
 
@@ -94,25 +93,25 @@ describe("Rect", () => {
       })
     })
 
-    it("should calculate bounds based on data including width and height", () => {
+    it("should calculate bounds based on data including width and height", async () => {
       const data = {x: [0, 1, 2, 3], y: [0, 1, 2, 3]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
       expect(bounds).to.be.deep.equal({ x0: -5, y0: -10, x1: 8, y1: 13 })
     })
 
-    it("should calculate log bounds based on data including width and height", () => {
+    it("should calculate log bounds based on data including width and height", async () => {
       const data = {x: [0, 1, 2, 3], y: [0, 1, 2, 3]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
       expect(log_bounds).to.be.deep.equal({ x0: -4, y0: -9, x1: 8, y1: 13 })
     })
 
-    it("`_map_data` should correctly map data if width and height units are 'data'", () => {
+    it("`_map_data` should correctly map data if width and height units are 'data'", async () => {
       const data = {x: [1], y: [2]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
@@ -120,9 +119,9 @@ describe("Rect", () => {
       expect(glyph_view.sh).to.be.deep.equal(Float64Array.of(40))
     })
 
-    it("`_map_data` should correctly map data if width and height units are 'screen'", () => {
+    it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
       const data = {x: [1], y: [2]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
 
       glyph_view.model.properties.width.units = "screen"
       glyph_view.model.properties.height.units = "screen"
@@ -134,9 +133,9 @@ describe("Rect", () => {
     })
 
     // XXX: needs update
-    it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'data'", () => {
+    it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'data'", async () => {
       const data = {x: [1], y: [2]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
 
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of(0))
@@ -144,9 +143,9 @@ describe("Rect", () => {
     })
 
     // XXX: needs update
-    it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'screen'", () => {
+    it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'screen'", async () => {
       const data = {x: [1], y: [2]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
 
       glyph_view.model.properties.width.units = "screen"
       glyph_view.model.properties.height.units = "screen"
@@ -156,9 +155,9 @@ describe("Rect", () => {
       expect(glyph_view.sy1).to.be.deep.equal(Float64Array.of(-10))
     })
 
-    it("`_map_data` should map values for x0 and y1 with reversed ranges", () => {
+    it("`_map_data` should map values for x0 and y1 with reversed ranges", async () => {
       const data = {x: [1], y: [2]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
 
       set_scales(glyph_view, "linear", true)
       glyph_view.map_data()
@@ -167,7 +166,7 @@ describe("Rect", () => {
     })
 
     /* XXX
-    it("`_map_data` should map values for x0 and y1 with FactorRanges", () => {
+    it("`_map_data` should map values for x0 and y1 with FactorRanges", async () => {
       const glyph = new Rect({
         x: {field: "x"},
         y: {field: "y"},
@@ -175,14 +174,14 @@ describe("Rect", () => {
         height: {value: 0.5},
       })
       const data = {x: ['a'], y: ['b']}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
       expect(glyph_view.sy1).to.be.deep.equal({'0': 25})
     })
     */
 
-    it("`_map_data` should map values for sw and sh when a height is 0", () => {
+    it("`_map_data` should map values for sw and sh when a height is 0", async () => {
       const glyph = new Rect({
         x: {field: "x"},
         y: {field: "y"},
@@ -190,7 +189,7 @@ describe("Rect", () => {
         height: {field: "h"},
       })
       const data = {x: [5], y: [5], h: [0]}
-      const glyph_view = create_glyph_view(glyph, data)
+      const glyph_view = await create_glyph_view(glyph, data)
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
@@ -206,9 +205,9 @@ describe("Rect", () => {
         const geometry2: Geometry = { type: "point", sx: 195, sy: -10 }
         const geometry3: Geometry = { type: "point", sx: 186, sy:  14 }
 
-        it("should retu indices of the rect that was hit", () => {
+        it("should retu indices of the rect that was hit", async () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = create_glyph_view(glyph, data)
+          const glyph_view = await create_glyph_view(glyph, data)
 
           set_scales(glyph_view, "linear")
           glyph_view.map_data()
@@ -222,9 +221,9 @@ describe("Rect", () => {
           expect(result3.indices).to.be.deep.equal([])
         })
 
-        it("should work when width and height units are 'screen'", () => {
+        it("should work when width and height units are 'screen'", async () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = create_glyph_view(glyph, data)
+          const glyph_view = await create_glyph_view(glyph, data)
 
           glyph_view.model.properties.width.units = "screen"
           glyph_view.model.properties.height.units = "screen"
@@ -241,7 +240,7 @@ describe("Rect", () => {
           expect(result3.indices).to.be.deep.equal([])
         })
 
-        it("should work when rects are rotated", () => {
+        it("should work when rects are rotated", async () => {
           const glyph = new Rect({
             x: {field: "x"},
             y: {field: "y"},
@@ -251,7 +250,7 @@ describe("Rect", () => {
           })
 
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = create_glyph_view(glyph, data)
+          const glyph_view = await create_glyph_view(glyph, data)
 
           set_scales(glyph_view, "linear")
           glyph_view.map_data()
@@ -265,7 +264,7 @@ describe("Rect", () => {
           expect(result3.indices).to.be.deep.equal([1])
         })
 
-        it("should work when rects are rotated and axes ranges are very different", () => {
+        it("should work when rects are rotated and axes ranges are very different", async () => {
           const glyph = new Rect({
             x: {field: "x"},
             y: {field: "y"},
@@ -275,7 +274,7 @@ describe("Rect", () => {
           })
 
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = create_glyph_view(glyph, data)
+          const glyph_view = await create_glyph_view(glyph, data)
 
           const xscale = new LinearScale({
             source_range: new Range1d({start: 0, end: 100}),
@@ -302,9 +301,9 @@ describe("Rect", () => {
           expect(result3.indices).to.be.deep.equal([1])
         })
 
-        it("should work when axis is log", () => {
+        it("should work when axis is log", async () => {
           const data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
-          const glyph_view = create_glyph_view(glyph, data)
+          const glyph_view = await create_glyph_view(glyph, data)
 
           set_scales(glyph_view, "log")
           glyph_view.map_data()

@@ -3,6 +3,7 @@ import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
 import {create_hit_test_result_from_hits} from "@bokehjs/core/hittest"
+import {build_view} from "@bokehjs/core/build_views"
 
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -20,14 +21,14 @@ export interface PolyDrawTestCase {
   glyph_view: PatchesView
 }
 
-const make_testcase = function(): PolyDrawTestCase {
+async function make_testcase(): Promise<PolyDrawTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
     y_range: new Range1d({start: -1, end: 1}),
   })
 
-  const plot_view: any = new plot.default_view({model: plot, parent: null}).build()
+  const plot_view = (await build_view(plot)).build()
 
   const data = {
     xs: [[0, 0.5, 1], [0, 0.5, 1]],
@@ -41,20 +42,18 @@ const make_testcase = function(): PolyDrawTestCase {
     ys: {field: "ys"},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
-
-  const glyph_renderer_view: any = new glyph_renderer.default_view({
-    model: glyph_renderer,
-    parent: plot_view,
-  })
+  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
   const draw_tool = new PolyDrawTool({
     active: true,
     empty_value: "Test",
-    renderers: [glyph_renderer],
+    renderers: [glyph_renderer as any],
   })
   plot.add_tools(draw_tool)
-  const draw_tool_view = plot_view.tool_views[draw_tool.id]
+  await plot_view.ready
+
+  const draw_tool_view = plot_view.tool_views[draw_tool.id] as PolyDrawToolView
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
   sinon.stub(glyph_renderer_view, "set_data")
 
@@ -62,15 +61,15 @@ const make_testcase = function(): PolyDrawTestCase {
     data,
     data_source,
     draw_tool_view,
-    glyph_view: glyph_renderer_view.glyph,
+    glyph_view: glyph_renderer_view.glyph as PatchesView,
   }
 }
 
 describe("PolyDrawTool", (): void => {
 
-  describe("Model", function(): void {
+  describe("Model", () => {
 
-    it("should create proper tooltip", function(): void {
+    it("should create proper tooltip", () => {
       const tool = new PolyDrawTool()
       expect(tool.tooltip).to.be.equal('Polygon Draw Tool')
 
@@ -79,10 +78,10 @@ describe("PolyDrawTool", (): void => {
     })
   })
 
-  describe("View", function(): void {
+  describe("View", () => {
 
-    it("should select patches on tap", function(): void {
-      const testcase = make_testcase()
+    it("should select patches on tap", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
 
@@ -92,8 +91,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.selected.indices).to.be.deep.equal([1])
     })
 
-    it("should select multiple patches on shift-tap", function() {
-      const testcase = make_testcase()
+    it("should select multiple patches on shift-tap", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
 
@@ -106,8 +105,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.selected.indices).to.be.deep.equal([0, 1])
     })
 
-    it("should delete selected on delete key", function(): void {
-      const testcase = make_testcase()
+    it("should delete selected on delete key", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
 
@@ -125,8 +124,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null])
     })
 
-    it("should clear selection on escape key", function(): void {
-      const testcase = make_testcase()
+    it("should clear selection on escape key", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
 
@@ -142,8 +141,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.deep.equal(testcase.data)
     })
 
-    it("should drag selected patch on pan", function(): void {
-      const testcase = make_testcase()
+    it("should drag selected patch on pan", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -159,8 +158,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
-    it("should drag previously selected patch on pan", function(): void {
-      const testcase = make_testcase()
+    it("should drag previously selected patch on pan", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       const start_event1 = make_tap_event(300, 300)
@@ -181,8 +180,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
-    it("should draw patch on doubletap", function(): void {
-      const testcase = make_testcase()
+    it("should draw patch on doubletap", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
@@ -198,8 +197,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
-    it("should draw and pop patch on doubletap", function(): void {
-      const testcase = make_testcase()
+    it("should draw and pop patch on doubletap", async () => {
+      const testcase = await make_testcase()
       testcase.draw_tool_view.model.num_objects = 2
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
@@ -216,8 +215,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
-    it("should draw patch despite typed array data", function(): void {
-      const testcase = make_testcase()
+    it("should draw patch despite typed array data", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
@@ -235,8 +234,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
-    it("should end draw patch on escape", function(): void {
-      const testcase = make_testcase()
+    it("should end draw patch on escape", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
@@ -253,8 +252,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
-    it("should insert empty_value on other columns", function(): void {
-      const testcase = make_testcase()
+    it("should insert empty_value on other columns", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
@@ -263,8 +262,8 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null, "Test"])
     })
 
-    it("should not draw poly on doubletap when tool inactive", function(): void {
-      const testcase = make_testcase()
+    it("should not draw poly on doubletap when tool inactive", async () => {
+      const testcase = await make_testcase()
       testcase.draw_tool_view.model.active = false
 
       const tap_event = make_tap_event(300, 300, true)

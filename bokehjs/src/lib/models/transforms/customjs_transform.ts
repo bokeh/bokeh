@@ -40,7 +40,7 @@ export class CustomJSTransform extends Transform {
   }
 
   protected _make_transform(name: string, func: string): Function {
-    return new Function(...this.names, name, "require", "exports", use_strict(func))
+    return new Function(...this.names, name, use_strict(func))
   }
 
   get scalar_transform(): Function {
@@ -52,10 +52,10 @@ export class CustomJSTransform extends Transform {
   }
 
   compute(x: number): number {
-    return this.scalar_transform(...this.values, x, require, {})
+    return this.scalar_transform(...this.values, x)
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
-    return this.vector_transform(...this.values, xs, require, {})
+    return this.vector_transform(...this.values, xs)
   }
 }

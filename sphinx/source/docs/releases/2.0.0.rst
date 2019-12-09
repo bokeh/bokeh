@@ -56,6 +56,14 @@ The ``use_strict`` property has been removed from all models that it had been
 on previously. All JavaScript code, e.g. for ``CustomJS`` will always be rendered
 with ``"use_strict"`` added.
 
+``require()`` in CustomJS
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``require()`` isn't directly available from ``CustomJS`` anymore, as it exposed
+the underlying module system, which is prohibited since bokehjs's departure from
+CJS module system. Use APIs exposed on ``Bokeh`` object or ``Bokeh.require()``.
+Consider the later option as the last resort measure.
+
 Bokeh Prototcol Versioning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

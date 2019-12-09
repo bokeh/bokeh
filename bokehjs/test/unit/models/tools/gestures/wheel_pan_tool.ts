@@ -5,6 +5,7 @@ import {Tool} from "@bokehjs/models/tools/tool"
 import {WheelPanTool, WheelPanToolView} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("WheelPanTool", () => {
 
@@ -21,7 +22,7 @@ describe("WheelPanTool", () => {
 
   describe("View", () => {
 
-    function mkplot(tool: Tool): PlotView {
+    async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: 0, end: 1}),
         y_range: new Range1d({start: 0, end: 1}),
@@ -29,12 +30,12 @@ describe("WheelPanTool", () => {
       plot.add_tools(tool)
       const document = new Document()
       document.add_root(plot)
-      return new plot.default_view({model: plot, parent: null}).build()
+      return (await build_view(plot)).build()
     }
 
-    it("should translate x-range in positive direction", () => {
+    it("should translate x-range in positive direction", async () => {
       const x_wheel_pan_tool = new WheelPanTool()
-      const plot_view = mkplot(x_wheel_pan_tool)
+      const plot_view = await mkplot(x_wheel_pan_tool)
 
       const wheel_pan_tool_view = plot_view.tool_views[x_wheel_pan_tool.id] as WheelPanToolView
 
@@ -50,9 +51,9 @@ describe("WheelPanTool", () => {
       expect([vr.start, vr.end]).to.be.deep.equal([0, 1])
     })
 
-    it("should translate y-range in negative direction", () => {
+    it("should translate y-range in negative direction", async () => {
       const x_wheel_pan_tool = new WheelPanTool({dimension: 'height'})
-      const plot_view = mkplot(x_wheel_pan_tool)
+      const plot_view = await mkplot(x_wheel_pan_tool)
 
       const wheel_pan_tool_view = plot_view.tool_views[x_wheel_pan_tool.id] as WheelPanToolView
 

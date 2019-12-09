@@ -42,14 +42,14 @@ describe("CustomJSFilter", () => {
 
     it("should have code property as function body", () => {
       const filter = new CustomJSFilter({code: "return 10"})
-      const f = new Function("source", "require", "exports", "'use strict';\nreturn 10")
+      const f = new Function("source", "'use strict';\nreturn 10")
       expect(filter.func.toString()).to.be.equal(f.toString())
     })
 
     it("should have values as function args", () => {
       const rng = new Range1d()
       const filter = new CustomJSFilter({args: {foo: rng.ref()}, code: "return 10"})
-      const f = new Function("foo", "source", "require", "exports", "'use strict';\nreturn 10")
+      const f = new Function("foo", "source", "'use strict';\nreturn 10")
       expect(filter.func.toString()).to.be.equal(f.toString())
     })
   })

@@ -1,6 +1,6 @@
 import {HasProps} from "./has_props"
 import {Property} from "./properties"
-import {Signal0, Signal, Signalable} from "./signaling"
+import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {isArray} from "./util/types"
 import {uniqueId} from "./util/string"
 
@@ -9,11 +9,10 @@ export namespace View {
     id?: string
     model: HasProps
     parent: View | null
-    connect_signals?: boolean
   }
 }
 
-export class View extends Signalable() {
+export class View implements ISignalable {
 
   readonly removed = new Signal0<this>(this, "removed")
 
@@ -23,24 +22,37 @@ export class View extends Signalable() {
 
   private _parent: View | null | undefined
 
-  constructor(options: View.Options) {
-    super()
+  protected _ready: Promise<void> = Promise.resolve(undefined)
+  get ready(): Promise<void> {
+    return this._ready
+  }
 
+  connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+    const new_slot = (args: Args, sender: Sender): void => {
+      const promise = Promise.resolve(slot.call(this, args, sender))
+      this._ready = this._ready.then(() => promise)
+    }
+
+    return signal.connect(new_slot, this)
+  }
+
+  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+    return signal.disconnect(slot, this)
+  }
+
+  constructor(options: View.Options) {
     if (options.model != null)
       this.model = options.model
     else
       throw new Error("model of a view wasn't configured")
 
     this._parent = options.parent
-
     this.id = options.id || uniqueId()
-    this.initialize()
-
-    if (options.connect_signals !== false)
-      this.connect_signals()
   }
 
   initialize(): void {}
+
+  async lazy_initialize(): Promise<void> {}
 
   remove(): void {
     this._parent = undefined

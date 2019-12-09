@@ -16,7 +16,7 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {Reset} from "core/bokeh_events"
 import {Arrayable, Rect, Interval} from "core/types"
 import {Signal0} from "core/signaling"
-import {build_views, remove_views} from "core/build_views"
+import {build_view, build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
@@ -250,11 +250,7 @@ export class PlotView extends LayoutDOMView {
       this.model.extra_y_ranges,
     )
 
-    this.canvas_view = new this.canvas.default_view({model: this.canvas, parent: this}) as CanvasView
-
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
-
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
@@ -269,13 +265,18 @@ export class PlotView extends LayoutDOMView {
 
     this.renderer_views = {}
     this.tool_views = {}
+  }
 
-    this.build_renderer_views()
-    this.build_tool_views()
+  async lazy_initialize(): Promise<void> {
+    this.canvas_view = await build_view(this.canvas, {parent: this})
+    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
+
+    await this.build_renderer_views()
+    await this.build_tool_views()
 
     this.update_dataranges()
-
     this.unpause(true)
+
     logger.debug("PlotView initialized")
   }
 
@@ -814,7 +815,11 @@ export class PlotView extends LayoutDOMView {
       this.root.compute_layout()
   }
 
-  build_renderer_views(): void {
+  get_renderer_views(): RendererView[] {
+    return this.computed_renderers.map((r) => this.renderer_views[r.id])
+  }
+
+  async build_renderer_views(): Promise<void> {
     this.computed_renderers = []
 
     this.computed_renderers.push(...this.model.above)
@@ -837,16 +842,12 @@ export class PlotView extends LayoutDOMView {
       this.computed_renderers.push(...tool.synthetic_renderers)
     }
 
-    build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    await build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
-  get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views[r.id])
-  }
-
-  build_tool_views(): void {
+  async build_tool_views(): Promise<void> {
     const tool_models = this.model.toolbar.tools
-    const new_tool_views = build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
+    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
     new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
   }
 
@@ -866,8 +867,14 @@ export class PlotView extends LayoutDOMView {
       this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
-    this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
-    this.connect(this.model.toolbar.properties.tools.change, () => { this.build_renderer_views(); this.build_tool_views() })
+    this.connect(this.model.properties.renderers.change, async () => {
+      await this.build_renderer_views()
+    })
+    this.connect(this.model.toolbar.properties.tools.change, async () => {
+      await this.build_renderer_views()
+      await this.build_tool_views()
+    })
+
     this.connect(this.model.change, () => this.request_paint())
     this.connect(this.model.reset, () => this.reset())
   }

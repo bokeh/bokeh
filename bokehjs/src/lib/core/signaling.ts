@@ -178,15 +178,6 @@ export function Signalable<C extends Constructor>(Base?: C) {
   }
 }
 
-export namespace _Signalable {
-  export function connect<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    return signal.connect(slot, this)
-  }
-  export function disconnect<Args, Sender extends object>(this: object, signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    return signal.disconnect(slot, this)
-  }
-}
-
 interface Connection {
   signal: Signal<any, object> | null
   readonly slot: Slot<any, object>

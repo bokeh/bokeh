@@ -15,15 +15,16 @@ import {Legend} from "@bokehjs/models/annotations/legend"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {UIEvents, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("ui_events module", () => {
 
-  function new_plot(): PlotView {
+  async function new_plot(): Promise<PlotView> {
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
-    return new plot.default_view({model: plot, parent: null}).build()
+    return (await build_view(plot)).build()
   }
 
   let hammer_stub: sinon.SinonStub
@@ -31,10 +32,10 @@ describe("ui_events module", () => {
   let ui_events: UIEvents
   let ANY_ui_events: any
 
-  before_each(() => {
+  before_each(async () => {
     hammer_stub = sinon.stub(UIEvents.prototype as any, "_configure_hammerjs") // XXX: protected
 
-    plot_view = new_plot()
+    plot_view = await new_plot()
     ui_events = (plot_view as any).ui_event_bus // XXX: protected
     ANY_ui_events = ui_events // XXX: protected
   })
@@ -68,9 +69,10 @@ describe("ui_events module", () => {
         spy_cursor.restore()
       })
 
-      it("should trigger move event for active inspectors", () => {
+      it("should trigger move event for active inspectors", async () => {
         const inspector = new CrosshairTool({active: true})
         plot_view.model.add_tools(inspector)
+        await plot_view.ready
 
         ui_events._trigger(ui_events.move, e, new Event("mousemove"))
 
@@ -78,9 +80,10 @@ describe("ui_events module", () => {
         expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.move, e, inspector.id])
       })
 
-      it("should not trigger move event for inactive inspectors", () => {
+      it("should not trigger move event for inactive inspectors", async () => {
         const inspector = new CrosshairTool({active: false})
         plot_view.model.add_tools(inspector)
+        await plot_view.ready
 
         ui_events._trigger(ui_events.move, e, new Event("mousemove"))
 
@@ -94,9 +97,10 @@ describe("ui_events module", () => {
         assert(spy_cursor.calledWith("default"))
       })
 
-      it("should use default cursor if active inspector but mouse is off-frame", () => {
+      it("should use default cursor if active inspector but mouse is off-frame", async () => {
         const inspector = new CrosshairTool()
         plot_view.model.add_tools(inspector)
+        await plot_view.ready
 
         const ss = sinon.stub(ui_events as any, "_hit_test_frame").returns(false) // XXX: protected
 
@@ -107,9 +111,10 @@ describe("ui_events module", () => {
         ss.restore()
       })
 
-      it("should change cursor if active inspector is present and over frame", () => {
+      it("should change cursor if active inspector is present and over frame", async () => {
         const inspector = new CrosshairTool()
         plot_view.model.add_tools(inspector)
+        await plot_view.ready
 
         const ss = sinon.stub(ui_events as any, "_hit_test_frame").returns(true) // XXX: protected
 
@@ -120,9 +125,9 @@ describe("ui_events module", () => {
         ss.restore()
       })
 
-      it("should change cursor on view_renderer with cursor method", () => {
+      it("should change cursor on view_renderer with cursor method", async () => {
         const legend = new Legend({click_policy: "mute"})
-        const legend_view = new legend.default_view({model: legend, parent: plot_view})
+        const legend_view = await build_view(legend, {parent: plot_view})
 
         const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
 
@@ -133,12 +138,13 @@ describe("ui_events module", () => {
         ss.restore()
       })
 
-      it("should override event_type if active inspector clashes with view renderer", () => {
+      it("should override event_type if active inspector clashes with view renderer", async () => {
         const inspector = new CrosshairTool()
         plot_view.model.add_tools(inspector)
+        await plot_view.ready
 
         const legend = new Legend({click_policy: "mute"})
-        const legend_view = new legend.default_view({model: legend, parent: plot_view})
+        const legend_view = await build_view(legend, {parent: plot_view})
 
         const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
 
@@ -165,9 +171,10 @@ describe("ui_events module", () => {
         assert(spy_trigger.notCalled)
       })
 
-      it("should trigger tap event if exists an active tap tool", () => {
+      it("should trigger tap event if exists an active tap tool", async () => {
         const gesture = new TapTool()
         plot_view.model.add_tools(gesture)
+        await plot_view.ready
 
         ui_events._trigger(ui_events.tap, e, new Event("mousemove"))
 
@@ -175,9 +182,9 @@ describe("ui_events module", () => {
         expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.tap, e, gesture.id])
       })
 
-      it("should call on_hit method on view renderer if exists", () => {
+      it("should call on_hit method on view renderer if exists", async () => {
         const legend = new Legend({click_policy: "mute"})
-        const legend_view = new legend.default_view({model: legend, parent: plot_view})
+        const legend_view = await build_view(legend, {parent: plot_view})
 
         const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
         const on_hit = sinon.stub(legend_view, "on_hit")
@@ -221,9 +228,11 @@ describe("ui_events module", () => {
         assert(stopPropagation.notCalled)
       })
 
-      it("should trigger scroll event if exists an active tap tool", () => {
+      it("should trigger scroll event if exists an active tap tool", async () => {
         const gesture = new WheelZoomTool()
         plot_view.model.add_tools(gesture)
+        await plot_view.ready
+
         // unclear why add_tools doesn't activate the tool, so have to do it manually
         plot_view.model.toolbar.gestures.scroll.active = gesture
 
@@ -249,9 +258,10 @@ describe("ui_events module", () => {
         assert(spy_trigger.notCalled)
       })
 
-      it("should trigger event if exists an active related tool", () => {
+      it("should trigger event if exists an active related tool", async () => {
         const gesture = new PanTool()
         plot_view.model.add_tools(gesture)
+        await plot_view.ready
 
         ui_events._trigger(ui_events.pan, e, new Event("pointerdown"))
 
@@ -332,12 +342,13 @@ describe("ui_events module", () => {
       spy_uievent.restore()
     })
 
-    it("_tap method should handle tap event", () => {
+    it("_tap method should handle tap event", async () => {
       const e: any = new Event("tap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
       plot_view.model.add_tools(new TapTool())
+      await plot_view.ready
 
       ANY_ui_events._tap(e)
 
@@ -345,12 +356,13 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_doubletap method should handle doubletap event", () => {
+    it("_doubletap method should handle doubletap event", async () => {
       const e: any = new Event("doubletap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
       plot_view.model.add_tools(new PolySelectTool())
+      await plot_view.ready
 
       ANY_ui_events._doubletap(e)
 
@@ -380,7 +392,7 @@ describe("ui_events module", () => {
       assert(spy_plot.calledOnce)
     })
 
-    it("_pan_start method should handle panstart event", () => {
+    it("_pan_start method should handle panstart event", async () => {
       const e: any = new Event("panstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
@@ -389,6 +401,7 @@ describe("ui_events module", () => {
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
+      await plot_view.ready
 
       ANY_ui_events._pan_start(e)
 
@@ -396,7 +409,7 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_pan method should handle pan event", () => {
+    it("_pan method should handle pan event", async () => {
       const e: any = new Event("pan") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
@@ -405,6 +418,7 @@ describe("ui_events module", () => {
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
+      await plot_view.ready
 
       ANY_ui_events._pan(e)
 
@@ -412,7 +426,7 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_pan_end method should handle pan end event", () => {
+    it("_pan_end method should handle pan end event", async () => {
       const e: any = new Event("panend") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
@@ -421,6 +435,7 @@ describe("ui_events module", () => {
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
+      await plot_view.ready
 
       ANY_ui_events._pan_end(e)
 
@@ -428,13 +443,14 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_pinch_start method should handle pinchstart event", () => {
+    it("_pinch_start method should handle pinchstart event", async () => {
       const e: any = new Event("pinchstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
+      await plot_view.ready
 
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
@@ -446,13 +462,14 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_pinch method should handle pinch event", () => {
+    it("_pinch method should handle pinch event", async () => {
       const e: any = new Event("pinch") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
+      await plot_view.ready
 
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
@@ -463,13 +480,14 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_pinch_end method should handle pinchend event", () => {
+    it("_pinch_end method should handle pinchend event", async () => {
       const e: any = new Event("pinchend") // XXX: not a hammerjs event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
+      await plot_view.ready
 
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
@@ -481,11 +499,12 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_move_enter method should handle mouseenter event", () => {
+    it("_move_enter method should handle mouseenter event", async () => {
       const e = new Event("mouseenter")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
+      await plot_view.ready
 
       ANY_ui_events._mouse_enter(e)
 
@@ -493,11 +512,12 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_move method should handle mousemove event", () => {
+    it("_move method should handle mousemove event", async () => {
       const e = new Event("mousemove")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
+      await plot_view.ready
 
       ANY_ui_events._mouse_move(e)
 
@@ -505,11 +525,12 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_move_exit method should handle mouseleave event", () => {
+    it("_move_exit method should handle mouseleave event", async () => {
       const e = new Event("mouseleave")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
+      await plot_view.ready
 
       ANY_ui_events._mouse_exit(e)
 
@@ -517,11 +538,12 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_mouse_wheel method should handle wheel event", () => {
+    it("_mouse_wheel method should handle wheel event", async () => {
       const e = new Event("wheel")
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
+      await plot_view.ready
 
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.scroll.active = wheel_zoom_tool
@@ -532,11 +554,12 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("_key_up method should handle keyup event", () => {
+    it("_key_up method should handle keyup event", async () => {
       const e = new Event("keyup")
 
       const poly_select_tool = new PolySelectTool()
       plot_view.model.add_tools(poly_select_tool)
+      await plot_view.ready
 
       ANY_ui_events._key_up(e)
 
@@ -546,7 +569,7 @@ describe("ui_events module", () => {
       assert(spy_uievent.calledOnce)
     })
 
-    it("multi-gesture tool should receive multiple events", () => {
+    it("multi-gesture tool should receive multiple events", async () => {
       class MultiToolView extends SelectToolView {
         _tap(_e: TapEvent): void {}
         _pan(_e: PanEvent): void {}
@@ -554,7 +577,6 @@ describe("ui_events module", () => {
 
       class MultiTool extends SelectTool {
         default_view = MultiToolView
-        type = "MultiTool"
         tool_name = "Multi Tool"
         event_type = ["tap" as "tap", "pan" as "pan"]
       }
@@ -562,6 +584,7 @@ describe("ui_events module", () => {
       const tool = new MultiTool()
       plot_view.model.add_tools(tool)
       tool.active = true
+      await plot_view.ready
 
       const etap: any = new Event("tap") // XXX: not a hammerjs event
       etap.pointerType = "mouse"

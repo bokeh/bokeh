@@ -3,6 +3,7 @@ import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
 import {create_hit_test_result_from_hits} from "@bokehjs/core/hittest"
+import {build_view} from "@bokehjs/core/build_views"
 
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -20,14 +21,14 @@ export interface PointDrawTestCase {
   glyph_view: CircleView
 }
 
-const make_testcase = function(): PointDrawTestCase {
+async function make_testcase(): Promise<PointDrawTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = new Plot({
     x_range: new Range1d({start: -1, end: 1}),
     y_range: new Range1d({start: -1, end: 1}),
   })
 
-  const plot_view: any = new plot.default_view({model: plot, parent: null}).build()
+  const plot_view = (await build_view(plot)).build()
 
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1], z: [null, null, null]}
   const data_source = new ColumnDataSource({data})
@@ -38,36 +39,33 @@ const make_testcase = function(): PointDrawTestCase {
     size: {units: "screen", value: 20},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
-
-  // Untyped to access GlyphView
-  const glyph_renderer_view: any = new glyph_renderer.default_view({
-    model: glyph_renderer,
-    parent: plot_view,
-  })
+  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
   const draw_tool = new PointDrawTool({
-    renderers: [glyph_renderer],
     active: true,
     empty_value: "Test",
+    renderers: [glyph_renderer as any],
   })
   plot.add_tools(draw_tool)
-  const draw_tool_view = plot_view.tool_views[draw_tool.id]
+  await plot_view.ready
+
+  const draw_tool_view = plot_view.tool_views[draw_tool.id] as PointDrawToolView
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
 
   return {
     data,
     data_source,
     draw_tool_view,
-    glyph_view: glyph_renderer_view.glyph,
+    glyph_view: glyph_renderer_view.glyph as CircleView,
   }
 }
 
 describe("PointDrawTool", (): void => {
 
-  describe("Model", function(): void {
+  describe("Model", () => {
 
-    it("should create proper tooltip", function(): void {
+    it("should create proper tooltip", () => {
       const tool = new PointDrawTool()
       expect(tool.tooltip).to.be.equal('Point Draw Tool')
 
@@ -76,10 +74,10 @@ describe("PointDrawTool", (): void => {
     })
   })
 
-  describe("View", function(): void {
+  describe("View", () => {
 
-    it("should select point on tap", function(): void {
-      const testcase = make_testcase()
+    it("should select point on tap", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -89,8 +87,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.selected.indices).to.be.deep.equal([1])
     })
 
-    it("should select multiple point on shift-tap", function() {
-      const testcase = make_testcase()
+    it("should select multiple point on shift-tap", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -103,8 +101,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.selected.indices).to.be.deep.equal([2, 1])
     })
 
-    it("should add point on tap", function() {
-      const testcase = make_testcase()
+    it("should add point on tap", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
@@ -116,8 +114,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.3389830508474576])
     })
 
-    it("should add and pop point on tap", function() {
-      const testcase = make_testcase()
+    it("should add and pop point on tap", async () => {
+      const testcase = await make_testcase()
       testcase.draw_tool_view.model.num_objects = 3
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
@@ -130,8 +128,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.y).to.be.deep.equal([0.5, 1, 0.3389830508474576])
     })
 
-    it("should insert empty_value on other columns", function() {
-      const testcase = make_testcase()
+    it("should insert empty_value on other columns", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
@@ -141,8 +139,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null, 'Test'])
     })
 
-    it("should delete selected on delete key", function(): void {
-      const testcase = make_testcase()
+    it("should delete selected on delete key", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -160,8 +158,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null])
     })
 
-    it("should clear selection on escape key", function(): void {
-      const testcase = make_testcase()
+    it("should clear selection on escape key", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -177,8 +175,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.deep.equal(testcase.data)
     })
 
-    it("should drag point on pan", function(): void {
-      const testcase = make_testcase()
+    it("should drag point on pan", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -199,8 +197,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
     })
 
-    it("should drag previously selected on pan", function(): void {
-      const testcase = make_testcase()
+    it("should drag previously selected on pan", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
@@ -225,8 +223,8 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
     })
 
-    it("should drag all selected points on pan", function(): void {
-      const testcase = make_testcase()
+    it("should drag all selected points on pan", async () => {
+      const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))

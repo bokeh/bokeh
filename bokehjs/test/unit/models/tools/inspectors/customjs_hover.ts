@@ -57,7 +57,7 @@ describe("customjs module", () => {
 
     it("should have formatter property as function body", () => {
       const r = new CustomJSHover({code: "return 10"})
-      const f = new Function("value", "format", "special_vars", "require", "exports", "'use strict';\nreturn 10")
+      const f = new Function("value", "format", "special_vars", "'use strict';\nreturn 10")
       const formatter = r._make_code("value", "format", "special_vars", r.code)
       expect(formatter.toString()).to.be.equal(f.toString())
     })
@@ -65,7 +65,7 @@ describe("customjs module", () => {
     it("should have values as function args", () => {
       const rng = new Range1d()
       const r = new CustomJSHover({args: {foo: rng.ref()}, code: "return 10"})
-      const f = new Function("foo", "value", "format", "special_vars", "require", "exports", "'use strict';\nreturn 10")
+      const f = new Function("foo", "value", "format", "special_vars", "'use strict';\nreturn 10")
       const formatter = r._make_code("value", "format", "special_vars", r.code)
       expect(formatter.toString()).to.be.equal(f.toString())
     })

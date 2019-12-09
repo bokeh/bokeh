@@ -45,24 +45,23 @@ export abstract class GlyphView extends View {
 
   initialize(): void {
     super.initialize()
-
     this._nohit_warned = {}
     this.visuals = new visuals.Visuals(this.model)
+  }
 
-    // Init gl (this should really be done anytime renderer is set,
-    // and not done if it isn't ever set, but for now it only
-    // matters in the unit tests because we build a view without a
-    // renderer there)
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
     const {webgl} = this.renderer.plot_view.canvas_view
-
     if (webgl != null) {
       let webgl_module: typeof import("./webgl/index") | null = null
       try {
-        webgl_module = require("@bokehjs/models/glyphs/webgl/index") // TODO: use dynamic import
+        webgl_module = await import("./webgl/index")
       } catch (e) {
-        if (e.code === 'MODULE_NOT_FOUND') {
+        // TODO: this exposes the underyling module system
+        if (e.code === 'MODULE_NOT_FOUND')
           logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
-        } else
+        else
           throw e
       }
 

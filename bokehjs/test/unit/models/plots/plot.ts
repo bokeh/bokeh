@@ -5,14 +5,15 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {build_view} from "@bokehjs/core/build_views"
 
-function new_plot_view(attrs: Partial<Plot.Attrs> = {}): PlotView {
+async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
   const plot = new Plot({
     x_range: new Range1d({start: 0, end: 10}),
     y_range: new Range1d({start: 0, end: 10}),
     ...attrs,
   })
-  return new plot.default_view({model: plot, parent: null}).build()
+  return (await build_view(plot)).build()
 }
 
 describe("Plot module", () => {
@@ -33,8 +34,8 @@ describe("Plot module", () => {
 
   describe("PlotView", () => {
 
-    it("should perform standard reset actions by default", () => {
-      const view = new_plot_view()
+    it("should perform standard reset actions by default", async () => {
+      const view = await new_plot_view()
       const spy_state = sinon.spy(view, 'clear_state')
       const spy_range = sinon.spy(view, 'reset_range')
       const spy_selection = sinon.spy(view, 'reset_selection')
@@ -46,8 +47,8 @@ describe("Plot module", () => {
       expect(spy_event.called).to.be.true
     })
 
-    it("should skip standard reset actions for event_only policy", () => {
-      const view = new_plot_view({reset_policy: "event_only"})
+    it("should skip standard reset actions for event_only policy", async () => {
+      const view = await new_plot_view({reset_policy: "event_only"})
       const spy_state = sinon.spy(view, 'clear_state')
       const spy_range = sinon.spy(view, 'reset_range')
       const spy_selection = sinon.spy(view, 'reset_selection')
@@ -59,30 +60,30 @@ describe("Plot module", () => {
       expect(spy_event.called).to.be.true
     })
 
-    it("layout should set element style correctly", () => {
-      const view = new_plot_view({width: 425, height: 658})
+    it("layout should set element style correctly", async () => {
+      const view = await new_plot_view({width: 425, height: 658})
       const expected_style = "position: relative; display: block; left: 0px; top: 0px; width: 425px; height: 658px; margin: 0px;"
       expect(view.el.style.cssText).to.be.equal(expected_style)
     })
 
-    it("should set min_border_x to value of min_border if min_border_x is not specified", () => {
-      const view = new_plot_view({min_border: 33.33})
+    it("should set min_border_x to value of min_border if min_border_x is not specified", async () => {
+      const view = await new_plot_view({min_border: 33.33})
       expect(view.layout.min_border.top).to.be.equal(33.33)
       expect(view.layout.min_border.bottom).to.be.equal(33.33)
       expect(view.layout.min_border.left).to.be.equal(33.33)
       expect(view.layout.min_border.right).to.be.equal(33.33)
     })
 
-    it("should set min_border_x to value of specified, and others to value of min_border", () => {
-      const view = new_plot_view({min_border: 33.33, min_border_left: 66.66})
+    it("should set min_border_x to value of specified, and others to value of min_border", async () => {
+      const view = await new_plot_view({min_border: 33.33, min_border_left: 66.66})
       expect(view.layout.min_border.top).to.be.equal(33.33)
       expect(view.layout.min_border.bottom).to.be.equal(33.33)
       expect(view.layout.min_border.left).to.be.equal(66.66)
       expect(view.layout.min_border.right).to.be.equal(33.33)
     })
 
-    it("should set min_border_x to value of specified, and others to default min_border", () => {
-      const view = new_plot_view({min_border_left: 4})
+    it("should set min_border_x to value of specified, and others to default min_border", async () => {
+      const view = await new_plot_view({min_border_left: 4})
       expect(view.layout.min_border.top).to.be.equal(5)
       expect(view.layout.min_border.bottom).to.be.equal(5)
       expect(view.layout.min_border.left).to.be.equal(4)
@@ -91,13 +92,13 @@ describe("Plot module", () => {
 
     describe("PlotView.pause()", () => {
 
-      it("should start unpaused", () => {
-        const view = new_plot_view()
+      it("should start unpaused", async () => {
+        const view = await new_plot_view()
         expect(view.is_paused).to.be.false
       })
 
-      it("should toggle on/off in pairs", () => {
-        const view = new_plot_view()
+      it("should toggle on/off in pairs", async () => {
+        const view = await new_plot_view()
         expect(view.is_paused).to.be.false
         view.pause()
         expect(view.is_paused).to.be.true
@@ -105,8 +106,8 @@ describe("Plot module", () => {
         expect(view.is_paused).to.be.false
       })
 
-      it("should toggle off only on last unpause with nested pairs", () => {
-        const view = new_plot_view()
+      it("should toggle off only on last unpause with nested pairs", async () => {
+        const view = await new_plot_view()
         expect(view.is_paused).to.be.false
         view.pause()
         expect(view.is_paused).to.be.true

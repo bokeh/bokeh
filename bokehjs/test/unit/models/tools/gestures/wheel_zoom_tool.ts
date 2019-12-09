@@ -5,6 +5,7 @@ import {Tool} from "@bokehjs/models/tools/tool"
 import {WheelZoomTool, WheelZoomToolView} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("WheelZoomTool", () => {
 
@@ -26,7 +27,7 @@ describe("WheelZoomTool", () => {
 
     // Note default plot dimensions is 600 x 600 (height x width)
     // This is why zooming at {sx: 300, sy: 300} causes the x/y ranges to zoom equally
-    function mkplot(tool: Tool): PlotView {
+    async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
         y_range: new Range1d({start: -1, end: 1}),
@@ -34,12 +35,12 @@ describe("WheelZoomTool", () => {
       plot.add_tools(tool)
       const document = new Document()
       document.add_root(plot)
-      return new plot.default_view({model: plot, parent: null}).build()
+      return (await build_view(plot)).build()
     }
 
-    it("should zoom in both ranges", () => {
+    it("should zoom in both ranges", async () => {
       const wheel_zoom = new WheelZoomTool()
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 
@@ -58,9 +59,9 @@ describe("WheelZoomTool", () => {
       expect(vr.end).to.be.closeTo(0.833, 0.01)
     })
 
-    it("should zoom out both ranges", () => {
+    it("should zoom out both ranges", async () => {
       const wheel_zoom = new WheelZoomTool()
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 
@@ -79,9 +80,9 @@ describe("WheelZoomTool", () => {
       expect(vr.end).to.be.closeTo(1.166, 0.01)
     })
 
-    it("should zoom the x-axis only because dimensions arg is set", () => {
+    it("should zoom the x-axis only because dimensions arg is set", async () => {
       const wheel_zoom = new WheelZoomTool({dimensions: 'width'})
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 
@@ -99,9 +100,9 @@ describe("WheelZoomTool", () => {
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
     })
 
-    it("should zoom the x-axis only because sy is off frame", () => {
+    it("should zoom the x-axis only because sy is off frame", async () => {
       const wheel_zoom = new WheelZoomTool({dimensions: 'both'})
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 
@@ -119,9 +120,9 @@ describe("WheelZoomTool", () => {
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
     })
 
-    it("should zoom the y-axis only because dimensions arg is set", () => {
+    it("should zoom the y-axis only because dimensions arg is set", async () => {
       const wheel_zoom = new WheelZoomTool({dimensions: 'height'})
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 
@@ -139,9 +140,9 @@ describe("WheelZoomTool", () => {
       expect(vr.end).to.be.closeTo(0.833, 0.01)
     })
 
-    it("should zoom the y-axis only because sx is off frame", () => {
+    it("should zoom the y-axis only because sx is off frame", async () => {
       const wheel_zoom = new WheelZoomTool({dimensions: 'both'})
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 
@@ -159,9 +160,9 @@ describe("WheelZoomTool", () => {
       expect(vr.end).to.be.closeTo(0.833, 0.01)
     })
 
-    it("should zoom centered around the zoom point", () => {
+    it("should zoom centered around the zoom point", async () => {
       const wheel_zoom = new WheelZoomTool({dimensions: 'both'})
-      const plot_view = mkplot(wheel_zoom)
+      const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views[wheel_zoom.id] as WheelZoomToolView
 

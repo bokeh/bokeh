@@ -38,10 +38,10 @@ export class CustomJS extends Callback {
 
   get func(): Function {
     const code = use_strict(this.code)
-    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", code)
+    return new Function(...this.names, "cb_obj", "cb_data", code)
   }
 
   execute(cb_obj: unknown, cb_data: {[key: string]: unknown} = {}): unknown {
-    return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}))
+    return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data))
   }
 }

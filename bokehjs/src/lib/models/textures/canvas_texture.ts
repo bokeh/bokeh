@@ -28,7 +28,7 @@ export abstract class CanvasTexture extends Texture {
 
   get func(): Function {
     const code = use_strict(this.code)
-    return new Function("ctx", "color", "scale", "weight", "require", "exports", code)
+    return new Function("ctx", "color", "scale", "weight", code)
   }
 
   get_pattern(color: any, scale: number, weight: number): (ctx: Context2d) => CanvasPattern | null {
@@ -37,7 +37,7 @@ export abstract class CanvasTexture extends Texture {
       canvas.width = scale
       canvas.height = scale
       const pattern_ctx = canvas.getContext('2d')
-      this.func.call(this, pattern_ctx, color, scale, weight, require, {})
+      this.func.call(this, pattern_ctx, color, scale, weight)
       return ctx.createPattern(canvas, this.repetition)
     }
   }

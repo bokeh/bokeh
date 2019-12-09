@@ -10,23 +10,21 @@ import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {build_view} from "@bokehjs/core/build_views"
 
-export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphRendererView {
+export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): Promise<GlyphRendererView> {
   const doc = new Document()
   const plot = new Plot({
     x_range: new Range1d({start: 0, end: 1}),
     y_range: new Range1d({start: 0, end: 1}),
   })
-  const plot_view = new plot.default_view({model: plot, parent: null}).build()
+  const plot_view = (await build_view(plot)).build()
   doc.add_root(plot)
 
   const data_source = new ColumnDataSource({data})
 
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
-  const glyph_renderer_view = new glyph_renderer.default_view({
-    model: glyph_renderer,
-    parent: plot_view,
-  })
+  const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
   return glyph_renderer_view
 }
@@ -34,8 +32,8 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
 import {HasProps} from "@bokehjs/core/has_props"
 export type ViewType<T extends HasProps> = InstanceType<T["default_view"]>
 
-export function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): ViewType<G> {
-  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as unknown as ViewType<G> // XXX: investigate this
+export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): Promise<ViewType<G>> {
+  return (await create_glyph_renderer_view(glyph, data)).glyph /* glyph_view */ as unknown as ViewType<G> // XXX: investigate this
 }
 
 export type AxisType = "linear" | "log" | "categorical"

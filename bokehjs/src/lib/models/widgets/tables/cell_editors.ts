@@ -26,13 +26,18 @@ export abstract class CellEditorView extends DOMView {
   constructor(options: any) {
     super({model: options.column.model, ...options})
     this.args = options
-    this.render() // XXX: this isn't governed by layout
+    this.initialize() // XXX: no build_views()
+    this.render()     // XXX: this isn't governed by layout
   }
 
   initialize(): void {
     super.initialize()
     this.inputEl = this._createInput()
     this.defaultValue = null
+  }
+
+  async lazy_initialize(): Promise<void> {
+    throw new Error("unsupported")
   }
 
   css_classes(): string[] {

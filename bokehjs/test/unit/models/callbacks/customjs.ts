@@ -56,14 +56,14 @@ describe("customjs module", () => {
 
     it("should have code property as function body", () => {
       const r = new CustomJS({code: "return 10"})
-      const f = new Function("cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
+      const f = new Function("cb_obj", "cb_data", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal(f.toString())
     })
 
     it("should have values as function args", () => {
       const rng = new Range1d()
       const r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
-      const f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
+      const f = new Function("foo", "cb_obj", "cb_data", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal(f.toString())
     })
   })

@@ -65,7 +65,6 @@ export namespace PolyTool {
     renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
     vertex_renderer: p.Property<(GlyphRenderer & HasXYGlyph)>
   }
-
 }
 
 export interface PolyTool extends PolyTool.Attrs {}

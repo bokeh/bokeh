@@ -38,12 +38,12 @@ export class FuncTickFormatter extends TickFormatter {
 
   /*protected*/ _make_func(): Function {
     const code = use_strict(this.code)
-    return new Function("tick", "index", "ticks", ...this.names, "require", "exports", code)
+    return new Function("tick", "index", "ticks", ...this.names, code)
   }
 
   doFormat(ticks: number[], _opts: {loc: number}): string[] {
     const cache = {}
     const func = this._make_func().bind(cache)
-    return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...this.values, require, {}))
+    return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...this.values))
   }
 }
