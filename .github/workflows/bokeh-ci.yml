@@ -18,9 +18,9 @@ jobs:
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
 
       - name: Setup paths
@@ -106,9 +106,9 @@ jobs:
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
 
       - name: Setup paths
@@ -196,9 +196,9 @@ jobs:
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
 
       - name: Setup paths
@@ -297,9 +297,9 @@ jobs:
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
 
       - name: Setup paths
@@ -367,7 +367,7 @@ jobs:
           sudo apt-get -y update
           sudo apt-get -y install unzip xvfb libxi6 libgconf-2-4
           sudo apt-get -y install google-chrome-stable
-          wget https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
+          curl -o  chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/bin/chromedriver
           sudo chown root:root /usr/bin/chromedriver
@@ -388,7 +388,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.6, 3.7]
 
     steps:
@@ -399,13 +399,17 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
+            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
+            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            ./${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
           fi
-          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
 
       - name: Setup paths
         shell: bash
@@ -498,9 +502,9 @@ jobs:
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.sh
+            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          wget -nv "http://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
 
       - name: Setup paths
