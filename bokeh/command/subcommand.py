@@ -94,9 +94,10 @@ class Subcommand(metaclass=ABCMeta):
 
     '''
 
-    # initialize empty placeholder class attributes for static typing purposes
-    name: str = ""
-    help: str = ""
+    # specifying static typing of instance attributes
+    # see https://stackoverflow.com/a/51191130
+    name: str
+    help: str
 
     def __init__(self, parser: ArgumentParser) -> None:
         ''' Initialize the subcommand with its parser
