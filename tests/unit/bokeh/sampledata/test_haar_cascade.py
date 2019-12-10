@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-#import bokeh.sampledata.haar_cascade as bsh
+#import bokeh.sampledata.haar_cascade as bsh # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

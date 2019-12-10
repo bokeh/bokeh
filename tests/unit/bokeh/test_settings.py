@@ -18,13 +18,11 @@ import pytest ; pytest
 import logging
 import os
 
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.settings as bs
+import bokeh.settings as bs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -50,6 +48,7 @@ _expected_settings = (
     'docs_cdn',
     'docs_version',
     'ignore_filename',
+    'legacy',
     'log_level',
     'minified',
     'nodejs_path',
@@ -100,6 +99,7 @@ class TestSettings(object):
 
         default_typed = set(_expected_settings) - set([
             'ignore_filename',
+            'legacy',
             'minified',
             'perform_document_validation',
             'simple_ids',
@@ -184,16 +184,22 @@ class TestPrioritizedSetting(object):
         ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10)
         assert ps.name == "foo"
 
-    def test_default(self):
+    def test_global_default(self):
         ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10)
         assert ps.default == 10
         assert ps() == 10
 
+    def test_local_default(self):
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10)
+        assert ps.default == 10
+        assert ps(default=20) == 20
+
     def test_dev_default(self):
-        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10, dev_default=20)
-        assert ps.dev_default == 20
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10, dev_default=25)
+        assert ps.dev_default == 25
         os.environ['BOKEH_DEV'] = "yes"
-        assert ps() == 20
+        assert ps() == 25
+        assert ps(default=20) == 25
         del os.environ['BOKEH_DEV']
 
     def test_env_var(self):
@@ -201,6 +207,7 @@ class TestPrioritizedSetting(object):
         ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO")
         assert ps.env_var == "BOKEH_FOO"
         assert ps() == "30"
+        assert ps(default=20) == "30"
         del os.environ["BOKEH_FOO"]
 
     def test_env_var_converts(self):
@@ -213,6 +220,7 @@ class TestPrioritizedSetting(object):
         ps = bs.PrioritizedSetting("foo")
         ps.set_value(40)
         assert ps() == 40
+        assert ps(default=20) == 40
 
     def test_user_unset(self):
         ps = bs.PrioritizedSetting("foo", default=2)
@@ -229,6 +237,7 @@ class TestPrioritizedSetting(object):
     def test_immediate(self):
         ps = bs.PrioritizedSetting("foo")
         assert ps(50) == 50
+        assert ps(50, default=20) == 50
 
     def test_immediate_converts(self):
         ps = bs.PrioritizedSetting("foo", convert=int)
@@ -240,39 +249,48 @@ class TestPrioritizedSetting(object):
             config_user = {}
             config_system = {}
 
-        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", convert=int, default=0, dev_default=5)
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", convert=int, default=0, dev_default=15)
         ps._parent = FakeSettings
 
-        # 0. implicit default
+        # 0. global default
         assert ps() == 0
 
-        # 0. implicit default (DEV)
+        # 1. local default
+        assert ps(default=10) == 10
+
+        # 1.5. implicit default (DEV)
         os.environ['BOKEH_DEV'] = "yes"
-        assert ps() == 5
+        assert ps() == 15
         del os.environ['BOKEH_DEV']
 
-        # 1. global config file
-        FakeSettings.config_system['foo'] = 10
-        assert ps() == 10
-
-        # 2. local config file
-        FakeSettings.config_user['foo'] = 20
+        # 2. global config file
+        FakeSettings.config_system['foo'] = 20
         assert ps() == 20
+        assert ps(default=10) == 20
 
-        # 3. environment variable
-        os.environ["BOKEH_FOO"] = "30"
+        # 3. local config file
+        FakeSettings.config_user['foo'] = 30
         assert ps() == 30
+        assert ps(default=10) == 30
 
-        # 4. override config file
-        FakeSettings.config_override['foo'] = 40
+        # 4. environment variable
+        os.environ["BOKEH_FOO"] = "40"
         assert ps() == 40
+        assert ps(default=10) == 40
 
-        # 5. previously user-set value
-        ps.set_value(50)
+        # 5. override config file
+        FakeSettings.config_override['foo'] = 50
         assert ps() == 50
+        assert ps(default=10) == 50
 
-        # 6. immediate values
-        assert ps(60) == 60
+        # 6. previously user-set value
+        ps.set_value(60)
+        assert ps() == 60
+        assert ps(default=10) == 60
+
+        # 7. immediate values
+        assert ps(70) == 70
+        assert ps(70, default=10) == 70
 
         del os.environ["BOKEH_FOO"]
 

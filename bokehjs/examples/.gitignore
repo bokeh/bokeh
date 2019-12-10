@@ -1,1 +1,2 @@
 .tests/
+*.js.map

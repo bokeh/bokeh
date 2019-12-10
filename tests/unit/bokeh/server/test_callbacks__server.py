@@ -21,10 +21,8 @@ from itertools import repeat
 # External imports
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
-
 # Module under test
-from bokeh.util.tornado import _CallbackGroup
+from bokeh.util.tornado import _CallbackGroup # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

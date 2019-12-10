@@ -39,7 +39,7 @@ The inline example code above produces the following output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -52,11 +52,10 @@ from os.path import basename
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-
-# Bokeh imports
 from sphinx.directives.code import CodeBlock
 
-from .templates import CCB_PROLOGUE, CCB_EPILOGUE
+# Bokeh imports
+from .templates import CCB_EPILOGUE, CCB_PROLOGUE
 
 #-----------------------------------------------------------------------------
 # Globals and constants

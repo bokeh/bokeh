@@ -15,13 +15,22 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.models import ColumnDataSource, CustomJS, DataTable, IntEditor, NumberEditor, StringEditor, TableColumn
-from bokeh._testing.util.selenium import enter_text_in_cell, enter_text_in_cell_with_click_enter, get_table_cell, RECORD
+from bokeh._testing.util.selenium import (
+    RECORD,
+    enter_text_in_cell,
+    enter_text_in_cell_with_click_enter,
+    get_table_cell,
+)
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    IntEditor,
+    NumberEditor,
+    StringEditor,
+    TableColumn,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -43,7 +52,7 @@ class Test_CellEditor_Base(object):
         # this is triggered on selection changes
         source.selected.js_on_change('indices', CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")))
 
-# XXX Chekbox editor is currently completely broken
+# XXX Checkbox editor is currently completely broken
 # class Test_CheckboxEditor(Test_CellEditor_Base):
 
 #     values = [True, False]

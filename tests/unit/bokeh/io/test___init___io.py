@@ -14,16 +14,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 import bokeh.io.notebook as binb
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.io as bi
+import bokeh.io as bi # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

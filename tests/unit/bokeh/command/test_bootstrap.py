@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh import __version__
 
 # Module under test
-from bokeh.command.bootstrap import main
+from bokeh.command.bootstrap import main # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -3,7 +3,6 @@ import numpy as np
 from bokeh.driving import count
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource
-
 from surface3d import Surface3d
 
 x = np.arange(0, 300, 20)

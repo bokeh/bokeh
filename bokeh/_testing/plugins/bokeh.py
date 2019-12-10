@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import socket
 import time
+from contextlib import closing
 from threading import Thread
 
 # External imports
@@ -27,15 +29,14 @@ import pytest
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
 # Bokeh imports
-from bokeh.io import save
-from bokeh.server.server import Server
 import bokeh.server.views.ws as ws
 from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
+from bokeh.io import save
+from bokeh.server.server import Server
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -96,13 +97,10 @@ def test_file_path_and_url(request, file_server):
 class _ExitHandler(RequestHandler):
     def initialize(self, io_loop):
         self.io_loop = io_loop
-    @gen.coroutine
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         self.io_loop.stop()
 
 
-import socket
-from contextlib import closing
 
 def find_free_port():
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:

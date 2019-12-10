@@ -1,8 +1,9 @@
 from math import pi
+
 import pandas as pd
 
 from bokeh.io import show
-from bokeh.models import LinearColorMapper, BasicTicker, PrintfTickFormatter, ColorBar
+from bokeh.models import BasicTicker, ColorBar, LinearColorMapper, PrintfTickFormatter
 from bokeh.plotting import figure
 from bokeh.sampledata.unemployment1948 import data
 

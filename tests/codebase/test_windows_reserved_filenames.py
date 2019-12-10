@@ -19,10 +19,6 @@ import pytest ; pytest
 import os
 from os.path import join, splitext
 
-# External imports
-
-# Bokeh imports
-
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------

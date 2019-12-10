@@ -7,7 +7,7 @@ to test WebGL blending.
 
 """
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers
 
 colormap1 = {'setosa': 'rgb(255, 0, 0)',

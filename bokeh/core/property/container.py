@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,8 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Container, Iterable, Mapping, Sequence, Sized
-
-# External imports
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data

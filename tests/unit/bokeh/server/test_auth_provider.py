@@ -25,7 +25,7 @@ from bokeh._testing.util.api import verify_all
 from bokeh._testing.util.filesystem import with_file_contents
 
 # Module under test
-import bokeh.server.auth_provider as bsa
+import bokeh.server.auth_provider as bsa # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

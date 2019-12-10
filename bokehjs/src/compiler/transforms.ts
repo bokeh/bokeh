@@ -211,6 +211,29 @@ export function remove_esmodule() {
   }
 }
 
+function isImportCall(node: ts.Node): node is ts.ImportCall {
+  return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
+}
+
+export function collect_imports(imports: Set<string>) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.Node {
+      if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+        const name = node.moduleSpecifier
+        if (name != null && ts.isStringLiteral(name) && name.text.length != 0)
+          imports.add(name.text)
+      } else if (isImportCall(node)) {
+        const [name] = node.arguments
+        if (ts.isStringLiteral(name) && name.text.length != 0)
+          imports.add(name.text)
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+    return ts.visitNode(root, visit)
+  }
+}
+
 export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {
@@ -252,6 +275,36 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
   }
 }
 
+// XXX: this is pretty naive, but affects very litte code
+export function rename_exports() {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function is_exports(node: ts.Node): boolean {
+      return ts.isIdentifier(node) && node.text == "exports"
+    }
+
+    const has_exports = root.statements.some((stmt) => {
+      return ts.isVariableStatement(stmt) && stmt.declarationList.declarations.some((decl) => is_exports(decl.name))
+    })
+
+    if (has_exports) {
+      function visit(node: ts.Node): ts.Node {
+        if (is_exports(node)) {
+          const updated = ts.createIdentifier("exports$1")
+          const original = node
+          ts.setOriginalNode(updated, original)
+          ts.setTextRange(updated, original)
+          return updated
+        }
+
+        return ts.visitEachChild(node, visit, context)
+      }
+
+      return ts.visitNode(root, visit)
+    } else
+      return root
+  }
+}
+
 export function add_json_export() {
   return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
     if (root.statements.length == 1) {
@@ -280,7 +333,7 @@ export function wrap_in_function(module_name: string) {
   }
 }
 
-export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES2015): ts.SourceFile {
+export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES2017): ts.SourceFile {
   return ts.createSourceFile(file, code != null ? code : ts.sys.readFile(file)!, target, true, ts.ScriptKind.JS)
 }
 

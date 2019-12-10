@@ -2,7 +2,7 @@ import pandas as pd
 
 from bokeh.palettes import Spectral4
 from bokeh.plotting import figure, output_file, show
-from bokeh.sampledata.stocks import AAPL, IBM, MSFT, GOOG
+from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
 
 p = figure(plot_width=800, plot_height=250, x_axis_type="datetime")
 p.title.text = 'Click on legend entries to mute the corresponding lines'

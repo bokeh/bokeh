@@ -1,15 +1,17 @@
 import numpy as np
-np.random.seed(0)
-
-from bokeh.io import curdoc
-from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource, Select, Slider
-from bokeh.plotting import figure
-from bokeh.palettes import Spectral6
-
 from sklearn import cluster, datasets
 from sklearn.neighbors import kneighbors_graph
 from sklearn.preprocessing import StandardScaler
+
+from bokeh.io import curdoc
+from bokeh.layouts import column, row
+from bokeh.models import ColumnDataSource, Select, Slider
+from bokeh.palettes import Spectral6
+from bokeh.plotting import figure
+
+np.random.seed(0)
+
+
 
 # define some helper functions
 def clustering(X, algorithm, n_clusters):

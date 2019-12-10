@@ -1,8 +1,8 @@
+from os.path import join
+
 import h5py
 import numpy as np
 import scipy.stats as ss
-
-from os.path import join
 
 
 def generate_data(path):

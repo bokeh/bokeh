@@ -1,9 +1,10 @@
 import numpy as np
+
 from bokeh.core.enums import SizingMode
 from bokeh.io import show
 from bokeh.layouts import column, grid
-from bokeh.plotting import figure
 from bokeh.models import Paragraph, Select
+from bokeh.plotting import figure
 
 N = 10
 x = np.linspace(0, 4 * np.pi, N)

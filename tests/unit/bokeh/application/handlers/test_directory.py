@@ -14,18 +14,16 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import jinja2
 
 # Bokeh imports
+from bokeh._testing.util.filesystem import with_directory_contents
 from bokeh.core.templates import FILE
 from bokeh.document import Document
-from bokeh._testing.util.filesystem import with_directory_contents
 
 # Module under test
-import bokeh.application.handlers.directory as bahd
+import bokeh.application.handlers.directory as bahd # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -186,7 +184,8 @@ some.foo = 57
         assert some_model.foo == 2
         assert another_model.bar == 1
 
-    def test_directory_with_server_lifecycle(self):
+    @pytest.mark.asyncio
+    async def test_directory_with_server_lifecycle(self):
         doc = Document()
         result = {}
         def load(filename):
@@ -208,8 +207,8 @@ some.foo = 57
 
         assert "on_server_loaded" == handler.on_server_loaded(None)
         assert "on_server_unloaded" == handler.on_server_unloaded(None)
-        assert "on_session_created" == handler.on_session_created(None)
-        assert "on_session_destroyed" == handler.on_session_destroyed(None)
+        assert "on_session_created" == await handler.on_session_created(None)
+        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
     def test_directory_with_static(self):
         doc = Document()

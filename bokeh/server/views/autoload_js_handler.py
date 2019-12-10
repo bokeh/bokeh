@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,15 +21,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from urllib.parse import urlparse
 
-# External imports
-from tornado import gen
-
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
-from bokeh.embed.bundle import bundle_for_objs_and_resources, Script
+from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
 
+# Bokeh imports
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
@@ -52,9 +50,8 @@ class AutoloadJsHandler(SessionHandler):
     ''' Implements a custom Tornado handler for the autoload JS chunk
 
     '''
-    @gen.coroutine
-    def get(self, *args, **kwargs):
-        session = yield self.get_session()
+    async def get(self, *args, **kwargs):
+        session = await self.get_session()
 
         element_id = self.get_argument("bokeh-autoload-element", default=None)
         if not element_id:

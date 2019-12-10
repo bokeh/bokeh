@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,16 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 import atexit
 import signal
+import sys
 import warnings
 from os.path import devnull
 
-# External imports
-
 # Bokeh imports
-from ..util.dependencies import import_required, detect_phantomjs, import_optional
+from ..util.dependencies import detect_phantomjs, import_optional, import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants

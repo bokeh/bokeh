@@ -1,5 +1,5 @@
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, LinearAxis, Circle, Column, ColumnDataSource
+from bokeh.models import Circle, Column, ColumnDataSource, LinearAxis, Plot, Range1d
 
 # Testing title rendering of background and border is covered in the
 # label test. The title added to plot as the primary title

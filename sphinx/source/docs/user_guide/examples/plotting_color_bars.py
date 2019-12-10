@@ -1,7 +1,7 @@
 import numpy as np
 
+from bokeh.models import ColorBar, LogColorMapper, LogTicker
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import LogColorMapper, LogTicker, ColorBar
 
 output_file('color_bar.html')
 

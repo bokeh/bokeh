@@ -13,10 +13,9 @@ fi
 # do the base install
 bash scripts/ci/install
 
-# install build time dependencies
+# install build time dependencies (use main env for build)
 BUILD_DEPS=`python scripts/deps.py build`
-conda install -n testenv --yes --quiet ${BUILD_DEPS}
-
+conda install --yes --quiet ${BUILD_DEPS}
 
 npm install -g npm
 

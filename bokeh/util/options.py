@@ -12,7 +12,7 @@ options.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,9 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Dict, Any
-
-# External imports
+from typing import Any, Dict
 
 # Bokeh imports
 from ..core.has_props import HasProps

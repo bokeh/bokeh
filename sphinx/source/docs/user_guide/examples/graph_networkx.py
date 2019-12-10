@@ -1,8 +1,7 @@
 import networkx as nx
 
-from bokeh.io import show, output_file
-from bokeh.models.graphs import from_networkx
-from bokeh.plotting import figure
+from bokeh.io import output_file, show
+from bokeh.plotting import figure, from_networkx
 
 G = nx.karate_club_graph()
 

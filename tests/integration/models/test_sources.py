@@ -15,17 +15,19 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
 from bokeh.models import (
-    Button, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, TapTool
+    Button,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+    TapTool,
 )
 from bokeh.plotting import figure
-from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -36,13 +38,13 @@ pytest_plugins = (
 )
 
 def is_cds_data_changed(evt):
-    return evt['kind'] == 'ModelChanged' and evt['model']['type'] == 'ColumnDataSource' and evt['attr'] == 'data'
+    return evt['kind'] == 'ModelChanged' and evt['attr'] == 'data'
 
 def is_cds_data_patched(evt):
-    return evt['kind'] == 'ColumnsPatched' and evt['column_source']['type'] == 'ColumnDataSource'
+    return evt['kind'] == 'ColumnsPatched'
 
 def is_cds_data_streamed(evt):
-    return evt['kind'] == 'ColumnsStreamed' and evt['column_source']['type'] == 'ColumnDataSource'
+    return evt['kind'] == 'ColumnsStreamed'
 
 
 @pytest.mark.integration

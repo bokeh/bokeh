@@ -1,7 +1,6 @@
-from bokeh.plotting import show, output_file
-from bokeh.models import FileInput, Div, CustomJS
 from bokeh.layouts import column
-
+from bokeh.models import CustomJS, Div, FileInput
+from bokeh.plotting import output_file, show
 
 # Set up widgets
 file_input = FileInput(accept=".csv,.json")

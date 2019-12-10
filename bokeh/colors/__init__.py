@@ -12,18 +12,18 @@ define common named colors.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from . import groups, named
+from .color import Color
+from .hsl import HSL
+from .rgb import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,12 +41,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .color import Color
-from .hsl import HSL
-from .rgb import RGB
 
-from . import groups
-from . import named
 
 #-----------------------------------------------------------------------------
 # Dev API

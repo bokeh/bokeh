@@ -23,9 +23,21 @@ from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
+from bokeh._testing.util.selenium import (
+    RECORD,
+    enter_text_in_element,
+    get_table_row,
+    shift_click,
+)
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomJS, DataTable, TableColumn, TextAreaInput, TextInput
-from bokeh._testing.util.selenium import enter_text_in_element, get_table_row, RECORD, shift_click
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    TableColumn,
+    TextAreaInput,
+    TextInput,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -71,6 +83,7 @@ class Test_DataTableCopyPaste(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_single_row_copy_with_zero(self, bokeh_model_page):
         data = {'x': [1,2,3,4], 'y': [0, 0, 0, 0], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)

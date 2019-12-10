@@ -15,21 +15,21 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from mock import patch
 import re
 
 # External imports
+from mock import patch
 from PIL import Image
 
 # Bokeh imports
+from bokeh.io.webdriver import terminate_webdriver, webdriver_control
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
-from bokeh.io.webdriver import webdriver_control, terminate_webdriver
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 
 # Module under test
-import bokeh.io.export as bie
+import bokeh.io.export as bie # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -119,7 +119,7 @@ def test_get_screenshot_as_png_large_plot(webdriver):
 def test_get_screenshot_as_png_with_unicode_minified(webdriver):
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True, legacy=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
@@ -127,7 +127,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver):
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False, legacy=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit

@@ -14,14 +14,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
 
 # Module under test
-import bokeh.embed.wrappers as bew
+import bokeh.embed.wrappers as bew # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -1,5 +1,5 @@
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Circle, LinearAxis
+from bokeh.models import Circle, LinearAxis, Plot, Range1d
 
 aliases = dict(a="above", b="below", l="left", r="right")
 

@@ -19,8 +19,6 @@ import pytest ; pytest
 from os import chdir
 from subprocess import PIPE, Popen
 
-# External imports
-
 # Bokeh imports
 from . import TOP_PATH
 

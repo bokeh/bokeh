@@ -40,18 +40,12 @@ will cause the sample data to be stored in ``/tmp/bokeh_data``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Import
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

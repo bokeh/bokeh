@@ -14,8 +14,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import numpy as np
 
@@ -24,7 +22,7 @@ from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.primitive as bcpp
+import bokeh.core.property.primitive as bcpp # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

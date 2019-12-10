@@ -1,4 +1,4 @@
-from bokeh.plotting import figure, output_file, show, ColumnDataSource
+from bokeh.plotting import ColumnDataSource, figure, output_file, show
 
 output_file("toolbar.html")
 

@@ -16,16 +16,16 @@ import pytest ; pytest
 
 # Standard library imports
 import json
-from mock import MagicMock, patch, PropertyMock
 
 # External imports
+from mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports
 from bokeh.document.document import Document
 from bokeh.io.state import State
 
 # Module under test
-import bokeh.io.notebook as binb
+import bokeh.io.notebook as binb # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -21,18 +21,21 @@ server using ``bokeh.client``, this practice is **HIGHLY DISCOURAGED**.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from .session import (
+    DEFAULT_SESSION_ID,
+    ClientSession,
+    pull_session,
+    push_session,
+    show_session,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,12 +52,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-from .session import ClientSession
-from .session import DEFAULT_SESSION_ID
-from .session import pull_session
-from .session import push_session
-from .session import show_session
 
 #-----------------------------------------------------------------------------
 # Dev API

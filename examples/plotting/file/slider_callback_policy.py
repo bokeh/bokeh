@@ -1,6 +1,6 @@
 from bokeh.io import output_file, show
 from bokeh.layouts import column
-from bokeh.models import CustomJS, Slider, Div
+from bokeh.models import CustomJS, Div, Slider
 
 para = Div(text="<h1>Slider Values:</h1><p>Slider 1: 0<p>Slider 2: 0<p>Slider 3: 0")
 

@@ -13,16 +13,12 @@ https://www.mozilla.org/en-US/projects/calendar/holidays/
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ..util.dependencies import import_required

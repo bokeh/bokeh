@@ -43,7 +43,7 @@ In general, functions in this module convert values in the following way:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -61,7 +61,14 @@ import numpy as np
 # Bokeh imports
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.serialization import convert_datetime_type, convert_timedelta_type, is_datetime_type, is_timedelta_type, transform_series, transform_array
+from ..util.serialization import (
+    convert_datetime_type,
+    convert_timedelta_type,
+    is_datetime_type,
+    is_timedelta_type,
+    transform_array,
+    transform_series,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

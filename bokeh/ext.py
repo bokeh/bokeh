@@ -19,8 +19,6 @@ from os.path import join
 from subprocess import Popen
 from typing import List
 
-# External imports
-
 # Bokeh imports
 from . import __version__
 from .settings import settings

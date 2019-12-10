@@ -33,7 +33,7 @@ export class ImageLoader {
           } else {
             if (options.failed != null)
               options.failed()
-            // reject(new Error(message))
+            return // XXX reject(new Error(message))
           }
         }
 

@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-#import bokeh.sampledata.sample_geojson as bss
+#import bokeh.sampledata.sample_geojson as bss # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

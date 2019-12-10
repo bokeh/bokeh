@@ -3,8 +3,9 @@ try:
 except ImportError:
     raise RuntimeError("This example requries Python3 / asyncio")
 
-from flask import Flask, render_template
+from threading import Thread
 
+from flask import Flask, render_template
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -14,6 +15,7 @@ from bokeh.embed import server_document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import BaseServer
 from bokeh.server.tornado import BokehTornado
 from bokeh.server.util import bind_sockets
@@ -28,7 +30,6 @@ if __name__ == '__main__':
     import sys
     sys.exit()
 
-from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 app = Flask(__name__)
 
@@ -45,7 +46,7 @@ def bkapp(doc):
             data = df
         else:
             data = df.rolling('{0}D'.format(new)).mean()
-        source.data = ColumnDataSource(data=data).data
+        source.data = ColumnDataSource.from_df(data)
 
     slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")
     slider.on_change('value', callback)
@@ -77,5 +78,6 @@ def bk_worker():
     server.start()
     server.io_loop.start()
 
-from threading import Thread
-Thread(target=bk_worker).start()
+t = Thread(target=bk_worker)
+t.daemon = True
+t.start()

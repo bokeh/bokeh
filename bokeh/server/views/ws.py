@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,18 +23,19 @@ import codecs
 from urllib.parse import urlparse
 
 # External imports
-from tornado import gen, locks
-from tornado.websocket import WebSocketHandler, WebSocketClosedError
+from tornado import locks
+from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
-from ..protocol_handler import ProtocolHandler
+from bokeh.settings import settings
+from bokeh.util.session_id import check_session_id_signature
+
+# Bokeh imports
 from ...protocol import Protocol
 from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
-
-from bokeh.util.session_id import check_session_id_signature
-from bokeh.settings import settings
+from ..protocol_handler import ProtocolHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -123,25 +124,21 @@ class WSHandler(WebSocketHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
-        def on_fully_opened(future):
-            e = future.exception()
-            if e is not None:
-                # this isn't really an error (unless we have a
-                # bug), it just means a client disconnected
-                # immediately, most likely.
-                log.debug("Failed to fully open connection %r", e)
+        try:
+            self.application.io_loop.spawn_callback(self._async_open, session_id)
+        except Exception as e:
+            # this isn't really an error (unless we have a
+            # bug), it just means a client disconnected
+            # immediately, most likely.
+            log.debug("Failed to fully open connection %r", e)
 
-        future = self._async_open(session_id)
-        self.application.io_loop.add_future(future, on_fully_opened)
-
-    @gen.coroutine
-    def _async_open(self, session_id):
+    async def _async_open(self, session_id):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
 
         * Getting a session for a session ID (creating a new one if needed)
-        * Creating a protocol receiver and hander
+        * Creating a protocol receiver and handler
         * Opening a new ServerConnection and sending it an ACK
 
         Args:
@@ -155,7 +152,7 @@ class WSHandler(WebSocketHandler):
 
         '''
         try:
-            yield self.application_context.create_session_if_needed(session_id, self.request)
+            await self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
@@ -174,12 +171,11 @@ class WSHandler(WebSocketHandler):
             raise e
 
         msg = self.connection.protocol.create('ACK')
-        yield self.send_message(msg)
+        await self.send_message(msg)
 
-        raise gen.Return(None)
+        return None
 
-    @gen.coroutine
-    def on_message(self, fragment):
+    async def on_message(self, fragment):
         ''' Process an individual wire protocol fragment.
 
         The websocket RFC specifies opcodes for distinguishing text frames
@@ -197,7 +193,7 @@ class WSHandler(WebSocketHandler):
         # report them as an unhandled Future
 
         try:
-            message = yield self._receive(fragment)
+            message = await self._receive(fragment)
         except Exception as e:
             # If you go look at self._receive, it's catching the
             # expected error types... here we have something weird.
@@ -208,14 +204,14 @@ class WSHandler(WebSocketHandler):
             if message:
                 if _message_test_port is not None:
                     _message_test_port.received.append(message)
-                work = yield self._handle(message)
+                work = await self._handle(message)
                 if work:
-                    yield self._schedule(work)
+                    await self._schedule(work)
         except Exception as e:
             log.error("Handler or its work threw an exception: %r: %r", e, message, exc_info=True)
             self._internal_error("server failed to handle a message")
 
-        raise gen.Return(None)
+        return None
 
     def on_pong(self, data):
         # if we get an invalid integer or utf-8 back, either we
@@ -227,8 +223,7 @@ class WSHandler(WebSocketHandler):
         except ValueError:
             log.trace("received invalid integer in pong %r", data, exc_info=True)
 
-    @gen.coroutine
-    def send_message(self, message):
+    async def send_message(self, message):
         ''' Send a Bokeh Server protocol message to the connected client.
 
         Args:
@@ -238,23 +233,22 @@ class WSHandler(WebSocketHandler):
         try:
             if _message_test_port is not None:
                 _message_test_port.sent.append(message)
-            yield message.send(self)
+            await message.send(self)
         except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warning("Failed sending message as connection was closed")
-        raise gen.Return(None)
+        return None
 
-    @gen.coroutine
-    def write_message(self, message, binary=False, locked=True):
+    async def write_message(self, message, binary=False, locked=True):
         ''' Override parent write_message with a version that acquires a
         write lock before writing.
 
         '''
         if locked:
-            with (yield self.write_lock.acquire()):
-                yield super().write_message(message, binary)
+            with await self.write_lock.acquire():
+                await super().write_message(message, binary)
         else:
-            yield super().write_message(message, binary)
+            await super().write_message(message, binary)
 
     def on_close(self):
         ''' Clean up when the connection is closed.
@@ -264,34 +258,31 @@ class WSHandler(WebSocketHandler):
         if self.connection is not None:
             self.application.client_lost(self.connection)
 
-    @gen.coroutine
-    def _receive(self, fragment):
+    async def _receive(self, fragment):
         # Receive fragments until a complete message is assembled
         try:
-            message = yield self.receiver.consume(fragment)
-            raise gen.Return(message)
+            message = await self.receiver.consume(fragment)
+            return message
         except (MessageError, ProtocolError, ValidationError) as e:
             self._protocol_error(str(e))
-            raise gen.Return(None)
+            return None
 
-    @gen.coroutine
-    def _handle(self, message):
+    async def _handle(self, message):
         # Handle the message, possibly resulting in work to do
         try:
-            work = yield self.handler.handle(message, self.connection)
-            raise gen.Return(work)
+            work = await self.handler.handle(message, self.connection)
+            return work
         except (MessageError, ProtocolError, ValidationError) as e: # TODO (other exceptions?)
             self._internal_error(str(e))
-            raise gen.Return(None)
+            return None
 
-    @gen.coroutine
-    def _schedule(self, work):
+    async def _schedule(self, work):
         if isinstance(work, Message):
-            yield self.send_message(work)
+            await self.send_message(work)
         else:
             self._internal_error("expected a Message not " + repr(work))
 
-        raise gen.Return(None)
+        return None
 
     def _internal_error(self, message):
         log.error("Bokeh Server internal error: %s, closing connection", message)

@@ -12,7 +12,7 @@ line application.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,10 +23,6 @@ log = logging.getLogger(__name__)
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
 from typing import Union
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

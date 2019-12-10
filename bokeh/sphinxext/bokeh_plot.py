@@ -70,13 +70,11 @@ The inline example code above produces the following output:
     show(p)
 
 '''
-
-
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 # use the wrapped sphinx logger
-from sphinx.util import logging
+from sphinx.util import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -92,7 +90,6 @@ from uuid import uuid4
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import choice, flag
-
 from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
 from sphinx.util.nodes import set_source_info
@@ -101,8 +98,8 @@ from sphinx.util.nodes import set_source_info
 from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
-from .util import get_sphinx_resources
 from .example_handler import ExampleHandler
+from .util import get_sphinx_resources
 
 #-----------------------------------------------------------------------------
 # Globals and constants

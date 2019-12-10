@@ -11,21 +11,28 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, Seq, String, Tuple
+from ..core.properties import (
+    Auto,
+    Either,
+    Float,
+    Include,
+    Instance,
+    Int,
+    Override,
+    Seq,
+    String,
+    Tuple,
+)
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
-
+from .axes import Axis
 from .renderers import GuideRenderer
 from .tickers import FixedTicker, Ticker
 
@@ -63,19 +70,24 @@ class Grid(GuideRenderer):
     # a path, ranges in both dimensions will matter.
 
     x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering a grid on the plot. If unset, use the
-    default x-range.
+    A particular (named) x-range to use for computing screen locations when
+    rendering a grid on the plot. If unset, use the default x-range.
     """)
 
     y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering a grid on the plot. If unset, use the
-    default y-range.
+    A particular (named) y-range to use for computing screen locations when
+    rendering a grid on the plot. If unset, use the default y-range.
+    """)
+
+    axis = Instance(Axis, help="""
+    An Axis to delegate ticking to. If the ticker property is None, then the
+    Grid will use the ticker on the specified axis for computing where to draw
+    grid lines. Otherwise, it ticker is not None, it will take precedence over
+    any Axis.
     """)
 
     ticker = Instance(Ticker, help="""
-    The Ticker to use for computing locations for the Grid lines.
+    A Ticker to use for computing locations for the Grid lines.
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     grid_props = Include(ScalarLineProps, help="""

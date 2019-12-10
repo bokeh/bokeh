@@ -1,4 +1,4 @@
-from bokeh.models import CustomJS, ColumnDataSource, BoxSelectTool, Range1d, Rect
+from bokeh.models import BoxSelectTool, ColumnDataSource, CustomJS, Range1d, Rect
 from bokeh.plotting import figure, output_file, show
 
 output_file("boxselecttool_callback.html")

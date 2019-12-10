@@ -33,7 +33,7 @@ The following are equivalent:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -41,19 +41,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 import argparse
+import sys
 from typing import Any, Optional, Sequence, Tuple
 
 # External imports
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.util.string import nice_join
 from bokeh.settings import settings
+from bokeh.util.string import nice_join
 
-from .util import die
+# Bokeh imports
 from . import subcommands
+from .util import die
 from .subcommand import Subcommand
 
 #-----------------------------------------------------------------------------

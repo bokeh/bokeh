@@ -14,16 +14,14 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.core.properties import Int, String, List
+from bokeh.core.properties import Int, List, String
+from bokeh.models import *  # NOQA
 from bokeh.models import CustomJS
+from bokeh.plotting import *  # NOQA
 
 # Module under test
-from bokeh.model import Model
+from bokeh.model import Model # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -127,8 +125,6 @@ class Test_js_link(object):
         assert cb.args == dict(other=m2)
         assert cb.code == "other.b = this.a"
 
-from bokeh.models import * # NOQA
-from bokeh.plotting import * # NOQA
 def test_all_builtin_models_default_constructible():
     bad = []
     for name, cls in Model.model_class_reverse_map.items():

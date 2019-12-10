@@ -6,6 +6,8 @@
       "./src/lib/tsconfig.json",
       "./src/compiler/tsconfig.json",
       "./test/tsconfig.json",
+      "./test/codebase/tsconfig.json",
+      "./test/devtools/tsconfig.json",
       "./examples/tsconfig.json"
     ],
     "tsconfigRootDir": ".",

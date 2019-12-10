@@ -59,14 +59,17 @@ export class ToolbarBaseView extends DOMView {
   initialize(): void {
     super.initialize()
     this._tool_button_views = {}
-    this._build_tool_button_views()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await this._build_tool_button_views()
   }
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.tools.change, () => {
-      this._build_tool_button_views()
+    this.connect(this.model.properties.tools.change, async () => {
+      await this._build_tool_button_views()
       this.render()
     })
     this.connect(this.model.properties.autohide.change, () => {
@@ -81,9 +84,9 @@ export class ToolbarBaseView extends DOMView {
     super.remove()
   }
 
-  protected _build_tool_button_views(): void {
+  protected async _build_tool_button_views(): Promise<void> {
     const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
-    build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
+    await build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
   }
 
   set_visibility(visible: boolean): void {

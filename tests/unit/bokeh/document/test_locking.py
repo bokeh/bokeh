@@ -13,16 +13,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.document.document import Document
 from bokeh.io import curdoc
 
 # Module under test
-import bokeh.document.locking as locking
+import bokeh.document.locking as locking # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

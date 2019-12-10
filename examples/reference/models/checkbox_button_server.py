@@ -2,7 +2,7 @@
 
 from bokeh.io import curdoc
 from bokeh.layouts import row
-from bokeh.models import CheckboxButtonGroup, ColumnDataSource, CategoricalColorMapper
+from bokeh.models import CategoricalColorMapper, CheckboxButtonGroup, ColumnDataSource
 from bokeh.palettes import RdBu3
 from bokeh.plotting import figure
 

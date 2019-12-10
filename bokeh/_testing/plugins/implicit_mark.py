@@ -11,19 +11,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from _pytest.mark import matchmark # TODO (bev) non-private API?
-
-# Bokeh imports
+from _pytest.mark import matchmark  # TODO (bev) non-private API?
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -1,6 +1,7 @@
 import tornado
 from tornado.web import RequestHandler
 
+
 # could define get_user_async instead
 def get_user(request_handler):
     return request_handler.get_cookie("user")

@@ -1,9 +1,9 @@
-from datetime import datetime as dt
 import time
+from datetime import datetime as dt
 
-from bokeh.sampledata.daylight import daylight_warsaw_2013
-from bokeh.plotting import figure, show, output_file
 from bokeh.models import Span
+from bokeh.plotting import figure, output_file, show
+from bokeh.sampledata.daylight import daylight_warsaw_2013
 
 output_file("span.html", title="span.py example")
 

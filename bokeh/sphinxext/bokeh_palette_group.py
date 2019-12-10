@@ -21,24 +21,26 @@ Generates the output:
 
     .. bokeh-palette-group:: mpl
 
+.. note::
+   This extension assumes both Bootstrap and JQuery are present (which is the
+   case for the Bokeh documentation theme). If using this theme outside the
+   Bokeh documentation, be sure to include those resources by hand.
+
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive
-
 from sphinx.errors import SphinxError
 
 # Bokeh imports
@@ -78,8 +80,9 @@ class BokehPaletteGroupDirective(Directive):
         node['group'] = self.arguments[0]
         return [node]
 
+# NOTE: This extension now *assumes* both Bootstrap and JQuery are present
+# (which is now the case for the Bokeh docs theme).
 def html_visit_bokeh_palette_group(self, node):
-    self.body.append(_BOOTSTRAP_CSS)
     self.body.append('<div class="container-fluid"><div class="row">"')
     group = getattr(bp, node['group'], None)
     if not isinstance(group, dict):
@@ -92,7 +95,6 @@ def html_visit_bokeh_palette_group(self, node):
         html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
         self.body.append(html)
     self.body.append('</div></div>')
-    self.body.append(_BOOTSTRAP_JS)
     raise nodes.SkipNode
 
 def setup(app):
@@ -103,15 +105,6 @@ def setup(app):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-_BOOTSTRAP_CSS = """
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-"""
-
-_BOOTSTRAP_JS = """
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-"""
 
 #-----------------------------------------------------------------------------
 # Code

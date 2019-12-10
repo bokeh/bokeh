@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import os
-from os.path import abspath, dirname, exists, isdir, isfile, getmtime, join
+from os.path import abspath, dirname, exists, getmtime, isdir, isfile, join
 
 # External imports
 from sphinx.errors import SphinxError

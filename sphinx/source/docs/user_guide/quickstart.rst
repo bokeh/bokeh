@@ -557,14 +557,14 @@ For questions and technical assistance, come join the `Bokeh Discourse`_.
 
 Visit the `Bokeh GitHub repository`_ and try the examples.
 
-Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
+Be sure to follow us on Twitter `@bokeh <Twitter_>`_!
 
 .. _Anaconda Python distribution: http://anaconda.com/anaconda
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
 .. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
-.. _Twitter: http://twitter.com/BokehPlots
+.. _Twitter: https://twitter.com/bokeh
 
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`

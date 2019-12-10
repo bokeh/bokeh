@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,8 +21,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-from os.path import normpath, abspath, dirname, exists, expanduser, expandvars, join, pardir
 import re
+from os.path import (
+    abspath,
+    dirname,
+    exists,
+    expanduser,
+    expandvars,
+    join,
+    normpath,
+    pardir,
+)
 
 # External imports
 import jinja2
@@ -30,7 +39,7 @@ import pytest
 from py.xml import html
 
 # Bokeh imports
-from bokeh._testing.util.examples import collect_examples, Flags
+from bokeh._testing.util.examples import Flags, collect_examples
 from bokeh._testing.util.git import __version__
 from bokeh._testing.util.s3 import connect_to_s3, upload_file_to_s3_by_job_id
 from bokeh.util.terminal import warn

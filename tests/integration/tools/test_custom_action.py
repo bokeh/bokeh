@@ -15,14 +15,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD
 from bokeh.models import CustomAction, CustomJS
 from bokeh.plotting import figure
-from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
 # Tests

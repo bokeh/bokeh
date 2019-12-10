@@ -13,7 +13,8 @@ in this directory, and navigate to:
 import atexit
 import subprocess
 
-from flask import render_template_string, Flask
+from flask import Flask, render_template_string
+
 from bokeh.embed import server_document
 
 home_html = """

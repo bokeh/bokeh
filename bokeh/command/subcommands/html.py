@@ -59,7 +59,7 @@ respectively.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -72,8 +72,8 @@ from argparse import Namespace
 # External imports
 
 # Bokeh imports
-from bokeh.resources import Resources
 from bokeh.embed import file_html
+from bokeh.resources import Resources
 
 from .file_output import FileOutputSubcommand
 from ...document import Document

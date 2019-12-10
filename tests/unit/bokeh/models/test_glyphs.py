@@ -14,25 +14,56 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from _util_models import (
+    FILL,
+    GLYPH,
+    HATCH,
+    LINE,
+    MARKER,
+    TEXT,
+    check_fill_properties,
+    check_hatch_properties,
+    check_line_properties,
+    check_marker_properties,
+    check_properties_existence,
+    check_text_properties,
+)
 from bokeh.core.enums import (
-    LineJoin, LineDash, LineCap,
-    FontStyle,
-    TextAlign, TextBaseline,
-    Direction,
+    Anchor,
     AngleUnits,
-    Dimension,
-    Anchor, Location, LegendLocation,
+    ButtonType,
     DashPattern,
-    ButtonType, MapType,
-    NamedColor as Color)
+    Dimension,
+    Direction,
+    FontStyle,
+    LegendLocation,
+    LineCap,
+    LineDash,
+    LineJoin,
+    Location,
+    MapType,
+)
+from bokeh.core.enums import NamedColor as Color
+from bokeh.core.enums import TextAlign, TextBaseline
+from bokeh.models.glyphs import (
+    Asterisk,
+    CircleCross,
+    CircleX,
+    Cross,
+    Dash,
+    Diamond,
+    DiamondCross,
+    InvertedTriangle,
+    Square,
+    SquareCross,
+    SquareX,
+    Triangle,
+    X,
+)
 
 # Module under test
-from bokeh.models.glyphs import (
+from bokeh.models.glyphs import ( # isort:skip
     AnnularWedge, Annulus, Arc,
     Bezier,
     Circle,
@@ -53,24 +84,11 @@ from bokeh.models.glyphs import (
     VBar,
     Wedge)
 
-from bokeh.models.glyphs import (
-    Asterisk,
-    CircleCross, CircleX, Cross,
-    Dash, Diamond, DiamondCross,
-    InvertedTriangle,
-    Square, SquareCross, SquareX,
-    Triangle,
-    X)
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-from _util_models import (
-    FILL, HATCH, LINE, TEXT, GLYPH, MARKER,
-    check_properties_existence, check_fill_properties, check_hatch_properties,
-    check_line_properties, check_text_properties, check_marker_properties
-)
 
 # fool flake8
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,

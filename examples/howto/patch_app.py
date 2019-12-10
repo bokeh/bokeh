@@ -8,8 +8,8 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
 
 # CDS with "typical" scalar elements
 x = np.random.uniform(10, size=500)

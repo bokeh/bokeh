@@ -24,7 +24,7 @@ A client session has two primary uses:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -34,11 +34,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from urllib.parse import quote_plus
 
-# External imports
-
 # Bokeh imports
 from ..document import Document
-from ..resources import _SessionCoordinates, DEFAULT_SERVER_HTTP_URL
+from ..resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from ..util.browser import NEW_PARAM
 from ..util.session_id import generate_session_id
 from .util import server_url_for_websocket_url, websocket_url_for_server_url

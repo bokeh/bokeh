@@ -22,14 +22,14 @@ import mock
 
 # Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler
-from bokeh.core.properties import Int, Instance
+from bokeh.core.properties import Instance, Int
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.plotting import figure
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
-import bokeh.application.application as baa
+import bokeh.application.application as baa # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

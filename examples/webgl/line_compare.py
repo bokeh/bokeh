@@ -3,9 +3,9 @@
 """
 import numpy as np
 
-from bokeh.layouts import row, column
-from bokeh.models import Slider, Dropdown, CustomJS
-from bokeh.plotting import figure, show, output_file
+from bokeh.layouts import column, row
+from bokeh.models import CustomJS, Dropdown, Slider
+from bokeh.plotting import figure, output_file, show
 
 p1 = figure(title="Canvas", plot_width=400, plot_height= 400, output_backend="canvas")
 

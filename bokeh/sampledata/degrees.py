@@ -31,16 +31,12 @@ is a pandas DataFrame with the following fields:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ..util.sampledata import package_csv

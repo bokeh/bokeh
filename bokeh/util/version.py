@@ -20,6 +20,9 @@ Functions:
         Return the base version string, without any "dev", "rc" or local build
         information appended.
 
+    is_full_release:
+        Return whether the current installed version is a full release.
+
 .. _versioneer: https://github.com/warner/python-versioneer
 
 '''
@@ -27,18 +30,15 @@ Functions:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from .._version import get_versions
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,6 +46,7 @@ log = logging.getLogger(__name__)
 
 __all__ = (
     'base_version',
+    'is_full_release',
 )
 
 #-----------------------------------------------------------------------------
@@ -55,12 +56,10 @@ __all__ = (
 def base_version() -> str:
     return _base_version_helper(__version__)
 
-def _base_version_helper(version: str) -> str:
+def is_full_release() -> bool:
     import re
-    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
-    match = VERSION_PAT.search(version)
-    assert match is not None
-    return match.group(1)
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
+    return bool(VERSION_PAT.match(__version__))
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -70,10 +69,16 @@ def _base_version_helper(version: str) -> str:
 # Private API
 #-----------------------------------------------------------------------------
 
+def _base_version_helper(version: str) -> str:
+    import re
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
+    match = VERSION_PAT.search(version)
+    assert match is not None
+    return match.group(1)
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
 
-from .._version import get_versions
 __version__ = get_versions()['version']
 del get_versions

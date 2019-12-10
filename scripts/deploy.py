@@ -1,9 +1,12 @@
+# Standard library imports
 import argparse
 import json
-from os.path import join
 import re
-from subprocess import CalledProcessError, check_output, STDOUT
 import sys
+from os.path import join
+from subprocess import STDOUT, CalledProcessError, check_output
+
+# External imports
 from packaging.version import Version as V
 
 try:

@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,8 +20,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import base64
-from io import BytesIO
 import re
+from io import BytesIO
 
 # External imports
 import PIL.Image
@@ -34,9 +34,9 @@ from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
 from .either import Either
 from .enum import Enum
-from .numeric import Int, Float
-from .regex import Regex
+from .numeric import Float, Int
 from .primitive import String
+from .regex import Regex
 
 #-----------------------------------------------------------------------------
 # Globals and constants

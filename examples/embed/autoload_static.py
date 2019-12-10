@@ -1,5 +1,4 @@
 from jinja2 import Template
-
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 

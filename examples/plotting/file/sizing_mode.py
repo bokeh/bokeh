@@ -1,7 +1,7 @@
 from bokeh.core.enums import SizingMode
 from bokeh.layouts import column
 from bokeh.models import Select
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers as df
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}

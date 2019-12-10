@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "alwaysStrict": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": false,
+    "declaration": false,
+    "sourceMap": true,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2017",
+    "lib": ["es2017"],
+    "baseUrl": "."
+  },
+  "include": ["./**/*.ts"]
+}

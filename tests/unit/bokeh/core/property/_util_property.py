@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.core.has_props import HasProps
 
 # Module under test
-from bokeh.core.properties import Dict, Int, List, String
+from bokeh.core.properties import Dict, Int, List, String # isort:skip
 
 #-----------------------------------------------------------------------------
 # Globals and constants

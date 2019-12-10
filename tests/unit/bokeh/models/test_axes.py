@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.models import FixedTicker
 
 # Module under test
-import bokeh.models.axes as bma
+import bokeh.models.axes as bma # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

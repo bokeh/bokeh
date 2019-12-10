@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,9 +21,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pprint import pformat
+from urllib.parse import urljoin
 
 # External imports
-from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
@@ -33,10 +33,10 @@ from ..application import Application
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
-
+from ..util.string import format_docstring
 from .auth_provider import NullAuth
-from .contexts import ApplicationContext
 from .connection import ServerConnection
+from .contexts import ApplicationContext
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
@@ -61,7 +61,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class BokehTornado(TornadoApplication):
-    f''' A Tornado Application used to implement the Bokeh Server.
+    ''' A Tornado Application used to implement the Bokeh Server.
 
     Args:
         applications (dict[str,Application] or Application) :
@@ -437,8 +437,11 @@ class BokehTornado(TornadoApplication):
                 relative URLs are used (default: None)
 
         '''
-        root_url = absolute_url + self._prefix if absolute_url else self._prefix
-        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        mode = settings.resources(default="server")
+        if mode == "server":
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        return Resources(mode=mode)
 
     def start(self):
         ''' Start the Bokeh Server application.
@@ -456,7 +459,7 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            context.run_load_hook()
+            self._loop.spawn_callback(context.run_load_hook)
 
     def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
@@ -528,12 +531,11 @@ class BokehTornado(TornadoApplication):
 
     # Periodic Callbacks ------------------------------------------------------
 
-    @gen.coroutine
-    def _cleanup_sessions(self):
+    async def _cleanup_sessions(self):
         log.trace("Running session cleanup job")
         for app in self._applications.values():
-            yield app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
-        raise gen.Return(None)
+            await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+        return None
 
     def _log_stats(self):
         log.trace("Running stats log job")
@@ -586,3 +588,13 @@ class BokehTornado(TornadoApplication):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+BokehTornado.__doc__ = format_docstring(
+    BokehTornado.__doc__,
+    DEFAULT_CHECK_UNUSED_MS=DEFAULT_CHECK_UNUSED_MS,
+    DEFAULT_KEEP_ALIVE_MS=DEFAULT_KEEP_ALIVE_MS,
+    DEFAULT_MEM_LOG_FREQ_MS=DEFAULT_MEM_LOG_FREQ_MS,
+    DEFAULT_STATS_LOG_FREQ_MS=DEFAULT_STATS_LOG_FREQ_MS,
+    DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+)

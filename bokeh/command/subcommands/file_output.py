@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,9 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
 import argparse
 import io
+from abc import abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 
 # External imports
@@ -141,7 +141,7 @@ class FileOutputSubcommand(Subcommand):
         '''
 
         '''
-        argvs = {f: args.args for f in args.files}
+        argvs = { f : args.args for f in args.files}
         applications = build_single_handler_applications(args.files, argvs)
 
         if args.output is None:

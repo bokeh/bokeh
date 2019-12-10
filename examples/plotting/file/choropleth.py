@@ -1,8 +1,8 @@
 from bokeh.palettes import Viridis6
 from bokeh.plotting import figure, show
+from bokeh.sampledata.unemployment import data as unemployment
 from bokeh.sampledata.us_counties import data as counties
 from bokeh.sampledata.us_states import data as states
-from bokeh.sampledata.unemployment import data as unemployment
 
 del states["HI"]
 del states["AK"]

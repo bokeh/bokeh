@@ -14,14 +14,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.core.properties import List, String, Instance, Dict, Any, Int
+from bokeh.core.properties import Any, Dict, Instance, Int, List, String
+from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
 from bokeh.model import Model
-from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
 
 # Module under test
 
@@ -163,9 +159,9 @@ class TestModel(object):
             testObject.properties_with_values(include_defaults=True)
         assert dict() == testObject.properties_with_values(include_defaults=False)
 
-    def test_ref(self):
+    def test_struct(self):
         testObject = self.pObjectClass(id='test_id')
-        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.ref
+        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.struct
 
     def test_references_by_ref_by_value(self):
         from bokeh.core.has_props import HasProps
@@ -230,17 +226,19 @@ class TestModel(object):
                               foo=42, bar="world")
         json = obj.to_json(include_defaults=True)
         json_string = obj.to_json_string(include_defaults=True)
-        assert { "child" : { "id" : child_obj.id, "type" : "test_objects.SomeModelToJson" },
-                           "id" : obj.id,
-                           "name" : None,
-                           "tags" : [],
-                           'js_property_callbacks': {},
-                           "js_event_callbacks" : {},
-                           "subscribed_events" : [],
-                           "foo" : 42,
-                           "bar" : "world" } == json
+        assert json == {
+            "child": {"id": child_obj.id},
+            "id": obj.id,
+            "name": None,
+            "tags": [],
+            'js_property_callbacks': {},
+            "js_event_callbacks": {},
+            "subscribed_events": [],
+            "foo": 42,
+            "bar": "world",
+        }
         assert ('{"bar":"world",' +
-                '"child":{"id":"%s","type":"test_objects.SomeModelToJson"},' +
+                '"child":{"id":"%s"},' +
                 '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
                 '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj.id, obj.id) == json_string
 

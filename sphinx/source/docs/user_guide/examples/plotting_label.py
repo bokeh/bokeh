@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, show, output_file
-from bokeh.models import ColumnDataSource, Range1d, LabelSet, Label
+from bokeh.models import ColumnDataSource, Label, LabelSet, Range1d
+from bokeh.plotting import figure, output_file, show
 
 output_file("label.html", title="label.py example")
 

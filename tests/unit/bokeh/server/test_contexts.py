@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.application import Application
 
 # Module under test
-import bokeh.server.contexts as bsc
+import bokeh.server.contexts as bsc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -107,26 +103,29 @@ class TestApplicationContext(object):
             c.get_session("bax")
         assert str(e.value).endswith("No such session bax")
 
-    def test_create_session_if_needed_new(self):
+    @pytest.mark.asyncio
+    async def test_create_session_if_needed_new(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
         class FakeRequest(object):
             arguments = dict(foo=10)
         req = FakeRequest()
-        s = c.create_session_if_needed("foo", request=req)
-        assert c.get_session("foo") == s.result()
+        s = await c.create_session_if_needed("foo", request=req)
+        assert c.get_session("foo") == s
 
-    def test_create_session_if_needed_exists(self):
+    @pytest.mark.asyncio
+    async def test_create_session_if_needed_exists(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
         class FakeRequest(object):
             arguments = dict(foo=10)
         req = FakeRequest()
-        s1 = c.create_session_if_needed("foo", request=req)
-        s2 = c.create_session_if_needed("foo", request=req)
-        assert s1.result() == s2.result()
+        s1 = await c.create_session_if_needed("foo", request=req)
+        s2 = await c.create_session_if_needed("foo", request=req)
+        assert s1 == s2
 
-    def test_create_session_if_needed_bad_sessionid(self):
+    @pytest.mark.asyncio
+    async def test_create_session_if_needed_bad_sessionid(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
         class FakeRequest(object):
@@ -134,18 +133,19 @@ class TestApplicationContext(object):
         req = FakeRequest()
         r = c.create_session_if_needed("", request=req)
         with pytest.raises(bsc.ProtocolError) as e:
-            r.result()
+            await r
         assert str(e.value).endswith("Session ID must not be empty")
 
-    def test_create_session_if_needed_logout_url(self):
+    @pytest.mark.asyncio
+    async def test_create_session_if_needed_logout_url(self):
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop", logout_url="/logout")
         class FakeRequest(object):
             arguments = dict(foo=10)
         req = FakeRequest()
-        s = c.create_session_if_needed("foo", request=req)
+        s = await c.create_session_if_needed("foo", request=req)
         session = c.get_session("foo")
-        assert session == s.result()
+        assert session == s
         assert c._session_contexts[session.id].logout_url == "/logout"
 
 #-----------------------------------------------------------------------------

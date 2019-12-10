@@ -14,16 +14,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.document import Document
 from bokeh._testing.util.filesystem import with_file_contents
+from bokeh.document import Document
 
 # Module under test
-import bokeh.application.handlers.script as bahs
+import bokeh.application.handlers.script as bahs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

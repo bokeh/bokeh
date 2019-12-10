@@ -4,7 +4,7 @@ import {Class} from "./class"
 import {Attrs} from "./types"
 import {Signal0, Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
-import {Ref, is_ref, create_ref} from "./util/refs"
+import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
@@ -340,7 +340,19 @@ export abstract class HasProps extends Signalable() {
   }
 
   ref(): Ref {
-    return create_ref(this)
+    return {id: this.id}
+  }
+
+  struct(): Struct {
+    const struct: Struct = {
+      type: this.type,
+      id: this.id,
+      attributes: {},
+    }
+    if (this._subtype != null) {
+      struct.subtype = this._subtype
+    }
+    return struct
   }
 
   // we only keep the subtype so we match Python;

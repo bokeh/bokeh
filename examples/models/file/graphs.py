@@ -11,10 +11,10 @@ Journal of Anthropological Research, 33, 452-473.
 import networkx as nx
 
 from bokeh.io import curdoc, show
-from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes, HoverTool, MultiLine,
-                          NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
-from bokeh.models.graphs import from_networkx
+from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes, HoverTool,
+                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, Row, TapTool,)
 from bokeh.palettes import Spectral4
+from bokeh.plotting import from_networkx
 
 G = nx.karate_club_graph()
 

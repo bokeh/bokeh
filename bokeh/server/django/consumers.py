@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -16,35 +16,35 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import json
 import asyncio
-from typing import Optional, Set, Dict, Any
-from urllib.parse import urljoin, urlparse, parse_qs
+import json
+from typing import Any, Dict, Optional, Set
+from urllib.parse import parse_qs, urljoin, urlparse
 
 # External imports
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.generic.http import AsyncHttpConsumer
 from channels.consumer import AsyncConsumer
-
+from channels.generic.http import AsyncHttpConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from tornado import locks
 from tornado.ioloop import IOLoop
 
 # Bokeh imports
-from bokeh.embed.bundle import bundle_for_objs_and_resources, Script
-from bokeh.embed.server import server_html_page_for_session
+from bokeh.core.templates import AUTOLOAD_JS
+from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
 from bokeh.embed.elements import script_for_render_items
+from bokeh.embed.server import server_html_page_for_session
 from bokeh.embed.util import RenderItem
+from bokeh.protocol import Protocol
+from bokeh.protocol.message import Message
+from bokeh.protocol.receiver import Receiver
 from bokeh.resources import Resources
-from bokeh.server.contexts import ApplicationContext
 from bokeh.server.connection import ServerConnection
+from bokeh.server.contexts import ApplicationContext
+from bokeh.server.protocol_handler import ProtocolHandler
 from bokeh.server.session import ServerSession
 from bokeh.server.views.static_handler import StaticHandler
-from bokeh.server.protocol_handler import ProtocolHandler
-from bokeh.protocol import Protocol
-from bokeh.protocol.receiver import Receiver
-from bokeh.protocol.message import Message
-from bokeh.core.templates import AUTOLOAD_JS
-from bokeh.util.session_id import generate_session_id, check_session_id_signature
+from bokeh.settings import settings
+from bokeh.util.session_id import check_session_id_signature, generate_session_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -79,8 +79,11 @@ class ConsumerHelper(AsyncConsumer):
         return self.arguments.get(name, default)
 
     def resources(self, absolute_url: Optional[str] = None) -> Resources:
-        root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
-        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        mode = settings.resources(default="server")
+        if mode == "server":
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        return Resources(mode=mode)
 
 class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 

@@ -49,16 +49,12 @@ where element types are:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ..util.sampledata import package_csv

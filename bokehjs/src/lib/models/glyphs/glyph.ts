@@ -21,6 +21,8 @@ import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
+//import /*type*/ {BaseGLGlyph} from "./webgl/base"
+
 export interface GlyphData {}
 
 export interface GlyphView extends GlyphData {}
@@ -35,7 +37,7 @@ export abstract class GlyphView extends View {
     return this.parent
   }
 
-  glglyph?: any
+  glglyph?: any // BaseGLGlyph
 
   index: SpatialIndex
 
@@ -43,29 +45,28 @@ export abstract class GlyphView extends View {
 
   initialize(): void {
     super.initialize()
-
     this._nohit_warned = {}
     this.visuals = new visuals.Visuals(this.model)
+  }
 
-    // Init gl (this should really be done anytime renderer is set,
-    // and not done if it isn't ever set, but for now it only
-    // matters in the unit tests because we build a view without a
-    // renderer there)
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
     const {webgl} = this.renderer.plot_view.canvas_view
-
     if (webgl != null) {
-      let webgl_module = null
+      let webgl_module: typeof import("./webgl/index") | null = null
       try {
-        webgl_module = require("./webgl/index")
+        webgl_module = await import("./webgl/index")
       } catch (e) {
-        if (e.code === 'MODULE_NOT_FOUND') {
+        // TODO: this exposes the underyling module system
+        if (e.code === 'MODULE_NOT_FOUND')
           logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
-        } else
+        else
           throw e
       }
 
       if (webgl_module != null) {
-        const Cls = webgl_module[this.model.type + 'GLGlyph']
+        const Cls = (webgl_module as any)[this.model.type + 'GLGlyph']
         if (Cls != null)
           this.glglyph = new Cls(webgl.gl, this)
       }

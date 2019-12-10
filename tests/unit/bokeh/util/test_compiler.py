@@ -15,17 +15,15 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import io
 import json
-from mock import patch
+import os
 
 # External imports
-
-# Bokeh imports
+from mock import patch
 
 # Module under test
-import bokeh.util.compiler as buc
+import bokeh.util.compiler as buc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -25,7 +25,7 @@ models in various ways.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -34,13 +34,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-from os.path import dirname, join
 import sys
+from os.path import dirname, join
 
 # External imports
-from jinja2 import Environment, Markup, FileSystemLoader
-
-# Bokeh imports
+from jinja2 import Environment, FileSystemLoader, Markup
 
 #-----------------------------------------------------------------------------
 # Globals and constants

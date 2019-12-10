@@ -14,17 +14,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 import bokeh.document as document
+from bokeh.core.properties import Instance, Int
 from bokeh.model import Model
-from bokeh.core.properties import Int, Instance
 
 # Module under test
-from bokeh.protocol import Protocol
+from bokeh.protocol import Protocol # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

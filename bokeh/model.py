@@ -11,8 +11,7 @@ a Bokeh |Document|.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,18 +22,13 @@ log = logging.getLogger(__name__)
 from json import loads
 from operator import itemgetter
 
-# External imports
-
 # Bokeh imports
+from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
-from .core.has_props import HasProps, abstract
-from .core.query import find
-
 from .events import Event
 from .themes import default as default_theme
-
-from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
+from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from .util.serialization import make_id
 
 #-----------------------------------------------------------------------------
@@ -337,8 +331,11 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     @property
     def ref(self):
-        ''' A Bokeh protocol "reference" to this model, i.e. a dict of the
-        form:
+        return dict(id=self._id)
+
+    @property
+    def struct(self):
+        ''' A Bokeh protocol "structure" of this model, i.e. a dict of the form:
 
         .. code-block:: python
 
@@ -528,6 +525,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             seq[Model]
 
         '''
+        from .core.query import find
         return find(self.references(), selector)
 
     def select_one(self, selector):

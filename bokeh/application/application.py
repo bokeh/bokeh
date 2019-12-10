@@ -19,7 +19,7 @@ updated the Document, it is used to service the user session.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -29,13 +29,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 
-# External imports
-from tornado import gen
-
 # Bokeh imports
 from ..document import Document
 from ..settings import settings
-from ..util.tornado import yield_for_all_futures
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -204,8 +200,7 @@ class Application(object):
         for h in self._handlers:
             h.on_server_unloaded(server_context)
 
-    @gen.coroutine
-    def on_session_created(self, session_context):
+    async def on_session_created(self, session_context):
         ''' Invoked to execute code when a new session is created.
 
         This method calls ``on_session_created`` on each handler, in order,
@@ -216,12 +211,10 @@ class Application(object):
 
         '''
         for h in self._handlers:
-            result = h.on_session_created(session_context)
-            yield yield_for_all_futures(result)
-        raise gen.Return(None)
+            await h.on_session_created(session_context)
+        return None
 
-    @gen.coroutine
-    def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context):
         ''' Invoked to execute code when a session is destroyed.
 
         This method calls ``on_session_destroyed`` on each handler, in order,
@@ -231,9 +224,8 @@ class Application(object):
 
         '''
         for h in self._handlers:
-            result = h.on_session_destroyed(session_context)
-            yield yield_for_all_futures(result)
-        raise gen.Return(None)
+            await h.on_session_destroyed(session_context)
+        return None
 
 class ServerContext(metaclass=ABCMeta):
     ''' A harness for server-specific information and tasks related to

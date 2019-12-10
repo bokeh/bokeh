@@ -1,8 +1,8 @@
 import numpy as np
 
+from bokeh.io import curdoc, output_file, show
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure
-from bokeh.io import curdoc, show, output_file
 from bokeh.themes import Theme
 
 N = 9

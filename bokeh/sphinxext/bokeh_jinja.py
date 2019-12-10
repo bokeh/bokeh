@@ -25,7 +25,7 @@ generate the following output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -34,9 +34,9 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib
-from os.path import basename
 import re
 import textwrap
+from os.path import basename
 
 # External imports
 from sphinx.errors import SphinxError

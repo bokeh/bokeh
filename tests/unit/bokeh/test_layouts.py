@@ -14,14 +14,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh.layouts import column, grid, gridplot, layout, row
+from bokeh.models import Column, GridBox, Row, Spacer
 from bokeh.plotting import figure
-from bokeh.layouts import column, row, gridplot, layout, grid
-from bokeh.models import Column, Row, GridBox, Spacer
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -39,7 +35,6 @@ def test_gridplot_merge_tools_flat():
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
 
-
 def test_gridplot_merge_tools_with_None():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
@@ -47,7 +42,6 @@ def test_gridplot_merge_tools_with_None():
 
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
-
 
 def test_gridplot_merge_tools_nested():
     p1, p2, p3, p4, p5, p6, p7 = figure(), figure(), figure(), figure(), figure(), figure(), figure()
@@ -59,7 +53,6 @@ def test_gridplot_merge_tools_nested():
 
     for p in p1, p2, p3, p4, p5, p6, p7:
         assert p.toolbar_location is None
-
 
 def test_gridplot_None():
     def p():
@@ -82,14 +75,12 @@ def test_layout_simple():
     for r in grid.children:
         assert isinstance(r, Row)
 
-
 def test_layout_kwargs():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
     grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed', name='simple')
 
     assert grid.name == 'simple'
-
 
 def test_layout_nested():
     p1, p2, p3, p4, p5, p6 = figure(), figure(), figure(), figure(), figure(), figure()

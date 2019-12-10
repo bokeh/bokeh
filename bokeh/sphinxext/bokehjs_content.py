@@ -44,7 +44,7 @@ The inline example code above produces the following output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -57,23 +57,22 @@ from os.path import basename, join
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from sphinx.directives.code import CodeBlock, dedent_lines, container_wrapper
-from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
-from sphinx.util.nodes import set_source_info
+from sphinx.directives.code import CodeBlock, container_wrapper, dedent_lines
 from sphinx.errors import SphinxError
+from sphinx.locale import __
+from sphinx.util import logging, parselinenos
+from sphinx.util.nodes import set_source_info
+
 # Bokeh imports
+from .templates import BJS_CODEPEN_INIT, BJS_EPILOGUE, BJS_HTML, BJS_PROLOGUE
 from .util import get_sphinx_resources
-from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT, BJS_HTML
 
 if False:
     # For type annotation
-    #From directives.code.CodeBlock.run
+    # from directives.code.CodeBlock.run
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants

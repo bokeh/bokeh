@@ -15,7 +15,7 @@ https://github.com/alrra/browser-logos
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -24,8 +24,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import join
-
-# External imports
 
 # Bokeh imports
 from ..util.sampledata import package_csv, package_path

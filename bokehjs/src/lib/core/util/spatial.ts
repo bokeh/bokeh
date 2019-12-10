@@ -1,4 +1,4 @@
-import FlatBush = require("flatbush")
+import FlatBush from "flatbush"
 
 import {Rect} from "../types"
 import {empty} from "./bbox"

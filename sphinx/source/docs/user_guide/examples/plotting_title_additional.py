@@ -1,5 +1,5 @@
 from bokeh.models import Title
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 p = figure(title="Left Title", title_location="left",
            plot_width=300, plot_height=300)

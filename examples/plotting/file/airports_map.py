@@ -2,7 +2,7 @@ from bokeh.layouts import column, gridplot
 from bokeh.models import Div, Range1d, WMTSTileSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airports import data as airports
-from bokeh.tile_providers import get_provider, CARTODBPOSITRON
+from bokeh.tile_providers import CARTODBPOSITRON, get_provider
 
 title = "US Airports: Field Elevation > 1500m"
 

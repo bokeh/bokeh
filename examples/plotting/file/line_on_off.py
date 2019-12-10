@@ -6,9 +6,9 @@ import numpy as np
 
 from bokeh.io import output_file, show
 from bokeh.layouts import row
+from bokeh.models import CheckboxGroup, CustomJS
 from bokeh.palettes import Viridis3
 from bokeh.plotting import figure
-from bokeh.models import CheckboxGroup, CustomJS
 
 output_file("line_on_off.html", title="line_on_off.py example")
 

@@ -20,21 +20,22 @@ import codecs
 import os
 import random
 
+# External imports
 from mock import patch
 
-# External imports
-
 # Bokeh imports
-from bokeh.util.session_id import ( generate_session_id,
-                                    generate_secret_key,
-                                    check_session_id_signature,
-                                    _get_sysrandom,
-                                    _signature,
-                                    _reseed_if_needed,
-                                    _base64_encode )
+from bokeh.util.session_id import (
+    _base64_encode,
+    _get_sysrandom,
+    _reseed_if_needed,
+    _signature,
+    check_session_id_signature,
+    generate_secret_key,
+    generate_session_id,
+)
 
 # Module under test
-import bokeh.util.session_id
+import bokeh.util.session_id # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

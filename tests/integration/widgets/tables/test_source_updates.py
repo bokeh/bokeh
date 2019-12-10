@@ -15,17 +15,34 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
+from flaky import flaky
 
 # Bokeh imports
+from bokeh._testing.util.selenium import (
+    RECORD,
+    alt_click,
+    enter_text_in_cell,
+    get_table_cell,
+    get_table_column_cells,
+    get_table_row,
+    get_table_selected_rows,
+    shift_click,
+    sort_table_column,
+)
 from bokeh.layouts import column
 from bokeh.models import (
-    Button, ColumnDataSource, CustomAction, CustomJS, DataTable, NumberEditor, Plot, Range1d, Rect, TableColumn, TapTool
-)
-from bokeh._testing.util.selenium import (
-    alt_click, enter_text_in_cell, get_table_cell, get_table_column_cells, get_table_selected_rows, get_table_row, RECORD, shift_click, sort_table_column
+    Button,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    DataTable,
+    NumberEditor,
+    Plot,
+    Range1d,
+    Rect,
+    TableColumn,
+    TapTool,
 )
 
 #-----------------------------------------------------------------------------
@@ -37,7 +54,7 @@ pytest_plugins = (
 )
 
 def _is_cds_data_patch(evt):
-    return evt['kind'] == 'ModelChanged' and evt['model']['type'] == 'ColumnDataSource' and evt['attr'] == 'data'
+    return evt['kind'] == 'ModelChanged' and evt['attr'] == 'data'
 
 def has_cds_data_patches(msgs):
     for msg in msgs:
@@ -92,7 +109,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [42, 2, 3, 4], 'y': [10, 20, 30, 40]}
         #     }],
         #     'references': []
@@ -146,7 +163,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [1, 2, 3, 4, 5], 'y': [10, 20, 30, 40, 50]}
         #     }],
         #     'references': []
@@ -200,7 +217,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [1, 2, 3, 4, 5], 'y': [10, 20, 30, 40, 50]}
         #     }],
         #     'references': []
@@ -249,7 +266,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [1,2,3,4], 'y': [10, 20, 100, 40]}
         #     }],
         #     'references': []
@@ -364,6 +381,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_server_sorted_after_data_update(self, bokeh_server_page):
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)

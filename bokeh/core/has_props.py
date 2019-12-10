@@ -18,7 +18,7 @@ serializable properties.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -29,11 +29,8 @@ log = logging.getLogger(__name__)
 import difflib
 from warnings import warn
 
-# External imports
-
 # Bokeh imports
 from ..util.string import nice_join
-
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
 from .property.wrappers import PropertyValueContainer

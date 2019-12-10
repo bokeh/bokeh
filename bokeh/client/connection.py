@@ -15,7 +15,7 @@ instead for standard usage.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -26,16 +26,21 @@ log = logging.getLogger(__name__)
 from urllib.parse import quote_plus
 
 # External imports
-from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
-from tornado.websocket import websocket_connect, WebSocketError
+from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
-from .states import NOT_YET_CONNECTED, CONNECTED_BEFORE_ACK, CONNECTED_AFTER_ACK, DISCONNECTED, WAITING_FOR_REPLY
+from .states import (
+    CONNECTED_AFTER_ACK,
+    CONNECTED_BEFORE_ACK,
+    DISCONNECTED,
+    NOT_YET_CONNECTED,
+    WAITING_FOR_REPLY,
+)
 from .websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------
@@ -198,13 +203,12 @@ class ClientConnection(object):
             self._server_info = self._send_request_server_info()
         return self._server_info
 
-    @gen.coroutine
-    def send_message(self, message):
+    async def send_message(self, message):
         if self._socket is None:
             log.info("We're disconnected, so not sending message %r", message)
         else:
             try:
-                sent = yield message.send(self._socket)
+                sent = await message.send(self._socket)
                 log.debug("Sent %r [%d bytes]", message, sent)
             except WebSocketError as e:
                 # A thing that happens is that we detect the
@@ -228,7 +232,7 @@ class ClientConnection(object):
                 # don't re-throw the error - there's nothing to
                 # do about it.
 
-        raise gen.Return(None)
+        return None
 
     # Private methods ---------------------------------------------------------
 
@@ -239,26 +243,25 @@ class ClientConnection(object):
                 formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
         return formatted_url
 
-    @gen.coroutine
-    def _connect_async(self):
+
+    async def _connect_async(self):
         formatted_url = self._formatted_url()
         request = HTTPRequest(formatted_url)
         try:
-            socket = yield websocket_connect(request)
+            socket = await websocket_connect(request)
             self._socket = WebSocketClientConnectionWrapper(socket)
         except Exception as e:
             log.info("Failed to connect to server: %r", e)
 
         if self._socket is None:
-            yield self._transition_to_disconnected()
+            await self._transition_to_disconnected()
         else:
-            yield self._transition(CONNECTED_BEFORE_ACK())
+            await self._transition(CONNECTED_BEFORE_ACK())
 
-    @gen.coroutine
-    def _handle_messages(self):
-        message = yield self._pop_message()
+    async def _handle_messages(self):
+        message = await self._pop_message()
         if message is None:
-            yield self._transition_to_disconnected()
+            await self._transition_to_disconnected()
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
@@ -266,7 +269,7 @@ class ClientConnection(object):
             else:
                 log.debug("Ignoring %r", message)
             # we don't know about whatever message we got, ignore it.
-            yield self._next()
+            await self._next()
 
     def _loop_until(self, predicate):
         self._until_predicate = predicate
@@ -274,33 +277,31 @@ class ClientConnection(object):
             # this runs self._next ONE time, but
             # self._next re-runs itself until
             # the predicate says to quit.
-            self._loop.add_callback(self._next)
+            self._loop.spawn_callback(self._next)
             self._loop.start()
         except KeyboardInterrupt:
             self.close("user interruption")
 
-    @gen.coroutine
-    def _next(self):
+    async def _next(self):
         if self._until_predicate is not None and self._until_predicate():
             log.debug("Stopping client loop in state %s due to True from %s",
                       self._state.__class__.__name__, self._until_predicate.__name__)
             self._until_predicate = None
             self._loop.stop()
-            raise gen.Return(None)
+            return None
         else:
             log.debug("Running state " + self._state.__class__.__name__)
-            yield self._state.run(self)
+            await self._state.run(self)
 
-    @gen.coroutine
-    def _pop_message(self):
+    async def _pop_message(self):
         while True:
             if self._socket is None:
-                raise gen.Return(None)
+                return None
 
             # log.debug("Waiting for fragment...")
             fragment = None
             try:
-                fragment = yield self._socket.read_message()
+                fragment = await self._socket.read_message()
             except Exception as e:
                 # this happens on close, so debug level since it's "normal"
                 log.debug("Error reading from socket %r", e)
@@ -308,12 +309,12 @@ class ClientConnection(object):
             if fragment is None:
                 # XXX Tornado doesn't give us the code and reason
                 log.info("Connection closed by server")
-                raise gen.Return(None)
+                return None
             try:
-                message = yield self._receiver.consume(fragment)
+                message = await self._receiver.consume(fragment)
                 if message is not None:
                     log.debug("Received message %r" % message)
-                    raise gen.Return(message)
+                    return message
             except (MessageError, ProtocolError, ValidationError) as e:
                 log.error("%r", e, exc_info=True)
                 self.close(why="error parsing message from server")
@@ -323,9 +324,10 @@ class ClientConnection(object):
         self._state = waiter
 
         send_result = []
-        def message_sent(future):
-            send_result.append(future)
-        self._loop.add_future(self.send_message(message), message_sent)
+        async def handle_message(message, send_result):
+            result = await self.send_message(message)
+            send_result.append(result)
+        self._loop.spawn_callback(handle_message, message, send_result)
 
         def have_send_result_or_disconnected():
             return len(send_result) > 0 or self._state != waiter
@@ -347,7 +349,7 @@ class ClientConnection(object):
         if hasattr(event, 'hint') and isinstance(event.hint, ColumnDataChangedEvent):
             event.hint.cols = None
         msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
-        self.send_message(msg)
+        self._loop.spawn_callback(self.send_message, msg)
 
     def _send_request_server_info(self):
         msg = self._protocol.create('SERVER-INFO-REQ')
@@ -360,25 +362,22 @@ class ClientConnection(object):
         if self._session:
             self._session._notify_disconnected()
 
-    @gen.coroutine
-    def _transition(self, new_state):
+    async def _transition(self, new_state):
         log.debug("transitioning to state " + new_state.__class__.__name__)
         self._state = new_state
-        yield self._next()
+        await self._next()
 
-    @gen.coroutine
-    def _transition_to_disconnected(self):
+    async def _transition_to_disconnected(self):
         self._tell_session_about_disconnect()
-        yield self._transition(DISCONNECTED())
+        await self._transition(DISCONNECTED())
 
-    @gen.coroutine
-    def _wait_for_ack(self):
-        message = yield self._pop_message()
+    async def _wait_for_ack(self):
+        message = await self._pop_message()
         if message and message.msgtype == 'ACK':
             log.debug("Received %r", message)
-            yield self._transition(CONNECTED_AFTER_ACK())
+            await self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
-            yield self._transition_to_disconnected()
+            await self._transition_to_disconnected()
         else:
             raise ProtocolError("Received %r instead of ACK" % message)
 

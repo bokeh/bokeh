@@ -19,11 +19,25 @@ import pytest ; pytest
 from time import sleep
 
 # External imports
+from flaky import flaky
 
 # Bokeh imports
-from bokeh.models import RangeSlider, ColumnDataSource, Plot, Circle, CustomAction, CustomJS, Range1d
+from bokeh._testing.util.selenium import (
+    RECORD,
+    ActionChains,
+    Keys,
+    select_element_and_press_key,
+)
 from bokeh.layouts import column
-from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, select_element_and_press_key
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+    RangeSlider,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -107,6 +121,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_keypress_event(self, bokeh_model_page):
         slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)

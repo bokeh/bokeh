@@ -14,17 +14,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.core.properties import Int, Instance
+from bokeh.core.properties import Instance, Int
 from bokeh.document import Document
 from bokeh.model import Model
 
 # Module under test
-import bokeh.application.handlers.function as bahf
+import bokeh.application.handlers.function as bahf # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

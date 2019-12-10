@@ -1,0 +1,41 @@
+name: GitHub-CI
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python_version: [3.7]
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup python ${{ matrix.python_version }}
+        uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Install conda stuff
+        run: |
+          bash scripts/ci/github/install_conda.sh
+
+      - name: Install npm dependencies
+        run: |
+          npm install -g npm
+          cd bokehjs
+          npm ci --no-progress
+
+      - name: Install bokeh-python package
+        run: |
+          bash scripts/ci/github/install_bokeh.sh
+
+      - name: Setup tests
+        run: |
+          bash scripts/ci/github/setup_tests.sh
+
+      - name: Run tests
+        run: |
+          bash scripts/ci/github/run_tests.sh

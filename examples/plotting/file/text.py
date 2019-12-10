@@ -1,6 +1,6 @@
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Slider
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 aligns    = ["left", "center", "right"]
 baselines = ["bottom", "middle", "top" ]

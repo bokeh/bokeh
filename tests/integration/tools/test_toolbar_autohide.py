@@ -15,8 +15,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from selenium.webdriver.common.action_chains import ActionChains
 

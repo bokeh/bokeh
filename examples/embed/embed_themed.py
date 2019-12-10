@@ -3,12 +3,12 @@ import io
 from jinja2 import Template
 
 from bokeh.embed import components
-from bokeh.resources import INLINE
-from bokeh.util.browser import view
-from bokeh.themes import Theme
 from bokeh.plotting import figure
+from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
+from bokeh.themes import Theme
 from bokeh.transform import factor_cmap, factor_mark
+from bokeh.util.browser import view
 
 SPECIES = ['setosa', 'versicolor', 'virginica']
 MARKERS = ['hex', 'circle_x', 'triangle']

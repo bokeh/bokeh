@@ -1,0 +1,388 @@
+{
+  "1.4.0": {
+    "bokeh-1.4.0.js": "vn/jmieHiN+ST+GOXzRU9AFfxsBp8gaJ/wvrzTQGpIKMsdIcyn6U1TYtvzjYztkN",
+    "bokeh-1.4.0.min.js": "mdMpUZqu5U0cV1pLU9Ap/3jthtPth7yWSJTu1ayRgk95qqjLewIkjntQDQDQA5cZ",
+    "bokeh-api-1.4.0.js": "Y3kNQHt7YjwAfKNIzkiQukIOeEGKzUU3mbSrraUl1KVfrlwQ3ZAMI1Xrw5o3Yg5V",
+    "bokeh-api-1.4.0.min.js": "4oAJrx+zOFjxu9XLFp84gefY8oIEr75nyVh2/SLnyzzg9wR+mXXEi+xyy/HzfBLM",
+    "bokeh-gl-1.4.0.js": "/+5P6xEUbH87YpzmmpvP7veStj9hr1IBz+r/5oBPr9WwMIft5H4rEJCnyRJsgdRz",
+    "bokeh-gl-1.4.0.min.js": "nGZaob7Ort3hHvecwVIYtti+WDUaCkU+19+OuqX4ZWzw4ZsDQC2XRbsLEJ1OhDal",
+    "bokeh-tables-1.4.0.js": "I2iTMWMyfU/rzKXWJ2RHNGYfsXnyKQ3YjqQV2RvoJUJCyaGBrp0rZcWiTAwTc9t6",
+    "bokeh-tables-1.4.0.min.js": "pj14Cq5ZSxsyqBh+pnL2wlBS3UX25Yz1gVxqWkFMCExcnkN3fl4mbOF8ZUKyh7yl",
+    "bokeh-widgets-1.4.0.js": "scpWAebHEUz99AtveN4uJmVTHOKDmKWnzyYKdIhpXjrlvOwhIwEWUrvbIHqA0ke5",
+    "bokeh-widgets-1.4.0.min.js": "xR3dSxvH5hoa9txuPVrD63jB1LpXhzFoo0ho62qWRSYZVdyZHGOchrJX57RwZz8l"
+  },
+  "1.3.4": {
+    "bokeh-1.3.4.js": "hxYaSDo9UOW449HmDfCJM8HEfDssTqfbM2MEj6Y1kX0NWSobeYNMb1yZ+gZEoP99",
+    "bokeh-1.3.4.min.js": "QGUo+MeWXFKCQ/7fjKTybRP8Ppnp0KBnlT47OxaVTz4GgKZ1FHcE1HQ+E+eQCOhp",
+    "bokeh-api-1.3.4.js": "nJUu+sx8zSb41hqOdx43gieIbvKctxvE1p9t+pk/LPfEa/NkdXLzabs0l9Ei6IWt",
+    "bokeh-api-1.3.4.min.js": "uiQK8rYxuWmtxis0SRCPutN+wBC3I2mpeiEcpNBGu0r2I5cZFvxBRp81KQQMd68i",
+    "bokeh-gl-1.3.4.js": "uMcdujhqERVMJTJ61CtRysRPxg/IHxUyG2Lg1Cz0ZADlyb04LKuVo9JOH8n9fAHD",
+    "bokeh-gl-1.3.4.min.js": "ADA0PW/OwoRXwpwdip39O2fv8bODqyQrfG7+93px9tBd95sodfrG08hvl4BmlFZ7",
+    "bokeh-tables-1.3.4.js": "NwpciY1ja7iqnMnmr44ZDhWGkqdEvboTbndFsw+5NxKCZxIMZUYGFvgc4TrPmAW3",
+    "bokeh-tables-1.3.4.min.js": "zWoUJmvc67QcNkwy37hrt8j8hkx+AnkDxddpM2llEzXmq/rEDQCC65Wlwu2rvdqF",
+    "bokeh-widgets-1.3.4.js": "lwaiwsl6zHSRB67alfn0bVx0GlBwUovKXqcXZYTuyf0FQz4izhwFF5+YbU4CJmpO",
+    "bokeh-widgets-1.3.4.min.js": "NuVOeEsS+hhEJQGsO94fKMfY74rRsFLaYpw1VPzGLN2+pwD9m2PkYQ+W56WAYVTi"
+  },
+  "1.3.2": {
+    "bokeh-1.3.2.js": "EohK5rErHRcmdCJbvCpee7KR9k6kXGye6xtuLBvddGY4uPjxQe/L9/vNnvuAiO3C",
+    "bokeh-1.3.2.min.js": "HvAJhQCPIyzZvnEIfRCKWH7Wpnn4WHCkds1x2ZmltiXsv9zSHgpsul+Gn/6HS8H6",
+    "bokeh-api-1.3.2.js": "nJUu+sx8zSb41hqOdx43gieIbvKctxvE1p9t+pk/LPfEa/NkdXLzabs0l9Ei6IWt",
+    "bokeh-api-1.3.2.min.js": "uiQK8rYxuWmtxis0SRCPutN+wBC3I2mpeiEcpNBGu0r2I5cZFvxBRp81KQQMd68i",
+    "bokeh-gl-1.3.2.js": "uMcdujhqERVMJTJ61CtRysRPxg/IHxUyG2Lg1Cz0ZADlyb04LKuVo9JOH8n9fAHD",
+    "bokeh-gl-1.3.2.min.js": "ADA0PW/OwoRXwpwdip39O2fv8bODqyQrfG7+93px9tBd95sodfrG08hvl4BmlFZ7",
+    "bokeh-tables-1.3.2.js": "NwpciY1ja7iqnMnmr44ZDhWGkqdEvboTbndFsw+5NxKCZxIMZUYGFvgc4TrPmAW3",
+    "bokeh-tables-1.3.2.min.js": "zWoUJmvc67QcNkwy37hrt8j8hkx+AnkDxddpM2llEzXmq/rEDQCC65Wlwu2rvdqF",
+    "bokeh-widgets-1.3.2.js": "lwaiwsl6zHSRB67alfn0bVx0GlBwUovKXqcXZYTuyf0FQz4izhwFF5+YbU4CJmpO",
+    "bokeh-widgets-1.3.2.min.js": "NuVOeEsS+hhEJQGsO94fKMfY74rRsFLaYpw1VPzGLN2+pwD9m2PkYQ+W56WAYVTi"
+  },
+  "1.3.1": {
+    "bokeh-1.3.1.js": "gvzEY0xhVHzwW+7ML6zOrcY7QJ5setdu3GtOKu0bLehUNjVND4fZ43wOD4ijVWuZ",
+    "bokeh-1.3.1.min.js": "F53X81jIKZEulkAZ03WqtV0aOIuVMsP4Fc93kfCNwNUU0VXluJDpH+FCGORdH8WK",
+    "bokeh-api-1.3.1.js": "nJUu+sx8zSb41hqOdx43gieIbvKctxvE1p9t+pk/LPfEa/NkdXLzabs0l9Ei6IWt",
+    "bokeh-api-1.3.1.min.js": "uiQK8rYxuWmtxis0SRCPutN+wBC3I2mpeiEcpNBGu0r2I5cZFvxBRp81KQQMd68i",
+    "bokeh-gl-1.3.1.js": "uMcdujhqERVMJTJ61CtRysRPxg/IHxUyG2Lg1Cz0ZADlyb04LKuVo9JOH8n9fAHD",
+    "bokeh-gl-1.3.1.min.js": "ADA0PW/OwoRXwpwdip39O2fv8bODqyQrfG7+93px9tBd95sodfrG08hvl4BmlFZ7",
+    "bokeh-tables-1.3.1.js": "NwpciY1ja7iqnMnmr44ZDhWGkqdEvboTbndFsw+5NxKCZxIMZUYGFvgc4TrPmAW3",
+    "bokeh-tables-1.3.1.min.js": "zWoUJmvc67QcNkwy37hrt8j8hkx+AnkDxddpM2llEzXmq/rEDQCC65Wlwu2rvdqF",
+    "bokeh-widgets-1.3.1.js": "lwaiwsl6zHSRB67alfn0bVx0GlBwUovKXqcXZYTuyf0FQz4izhwFF5+YbU4CJmpO",
+    "bokeh-widgets-1.3.1.min.js": "NuVOeEsS+hhEJQGsO94fKMfY74rRsFLaYpw1VPzGLN2+pwD9m2PkYQ+W56WAYVTi"
+  },
+  "1.3.0": {
+    "bokeh-1.3.0.js": "wy2+PIm3maus9uYDYc0cku7FK/YZhPclomtlXlPmXqcSnlAqyDDfxZXqhw6NOtSu",
+    "bokeh-1.3.0.min.js": "HaIutCwfjRbn7WHpFRm/L2WvVUki6RZfPHZ1DsqhGoy/M4yJ0VdVQiFKpeE6ZrZy",
+    "bokeh-api-1.3.0.js": "pkLtYJrxBkmy8jqWylBV2S97rr/JKTvIXDa3TOFSPZomJtXtwsn3n9WnaA2dKoCz",
+    "bokeh-api-1.3.0.min.js": "qTwyASzNbuiyKzz0j+uKgJMpPUIfBS1wbEr/+fnB3eMUTQ3JibCGzPjX8wTyc5rY",
+    "bokeh-gl-1.3.0.js": "QGFuv/RfrL27Vqyds/p6Gg7NrFf20yXuAH7Tc7/7oufRrGONemXUsJ4G8AmQGGlc",
+    "bokeh-gl-1.3.0.min.js": "2QvOYCx8RvnCTAIxD8SXXzf02XWqHpxMKhsoptQ1hhA7JBoFkz9eHkebwPBLGDqS",
+    "bokeh-tables-1.3.0.js": "1EJ6UROyLiGCAEjiU6gmIaWeIeqpt0AfiXLFwLh+213EzqdUvvjAALiQVuyVPX5/",
+    "bokeh-tables-1.3.0.min.js": "ayyYYAvA8tqfur11kBVP3RLElr83x3u+O3YvY/G22751vRDvtIKxuyKhdhLEXp+Q",
+    "bokeh-widgets-1.3.0.js": "b8x6rSZzuJ3/MBhrIkxffHUaUsboM804zDA40CaI0pMeUaC4zycPFHY59XvACDQx",
+    "bokeh-widgets-1.3.0.min.js": "gMNOGxDAy9M4pV7bHkWKL6bYt9OxAbOJs6rhuX7+ea+8dALJ61bvrmOguix7f9bx"
+  },
+  "1.2.0": {
+    "bokeh-1.2.0.js": "4+KQbypUa/uxpWNeDNyRzufi1YlGqZsInZemZigvHdv32WWjdp1KlPEFmf4wzpta",
+    "bokeh-1.2.0.min.js": "mWbJ8jmrSa+2knhNY9k+1+n76Cpty+egxqOgaFKhsP+OwM8Tbrf7+MEkGEncZ46/",
+    "bokeh-api-1.2.0.js": "0xhTYoa2v15o3EtJEVKsQjrx1ipFUE0cdCzu0RwDx2UF2yj3lABwBdQfHoaNpCbg",
+    "bokeh-api-1.2.0.min.js": "4e4aipXilPqIIIY5JJ+3wAlkb9mzjzn/dd11/jeniYRSPWqWWBzO00rpkTyJ+Sci",
+    "bokeh-gl-1.2.0.js": "mLCxwlced495i8wopmgPu0JvM1onA110FJv5Gqdr9on9Ccy4WCjPZVDOOdHyIWtM",
+    "bokeh-gl-1.2.0.min.js": "rKTYZL5VxTanIFQYMm/2YJ3FBH5fLFzmkAAg+flp320LO+mVle7IEaRYhXlmwp2/",
+    "bokeh-tables-1.2.0.js": "Sj0zYcj0PABOSygJwRGZkssJrqE65FLGez7Ui5DmKraR+AvH6eZvdlIBWZw0/peK",
+    "bokeh-tables-1.2.0.min.js": "MxwNCLd4QwWNk5mNp9+Iuz7DGP6vwxPnYwkA/f4P+uW57uGkApbskjEznL5ZVXRv",
+    "bokeh-widgets-1.2.0.js": "RZh7VtqT7oE5uCqziEQGJRd7kbqHTAPnSkahkfGBHDCbg8bIyjU+pGvq7xYuKYjB",
+    "bokeh-widgets-1.2.0.min.js": "PybI+m+ISoRb/8ragk5JtlK+Wn89GsTwz6NczXKduasD8KvuSHaunx57QX/NhMU5"
+  },
+  "1.1.0": {
+    "bokeh-1.1.0.js": "i6JTfKyFleN5etrHejE0mMxC1ojRunUXzW8AbtoOEmXhDaal+bp5ZTiFHnEmZ6hh",
+    "bokeh-1.1.0.min.js": "oMrsRASUWaEgdoXnhJNE7i+hMUcd9YLfAvsqc+nbNzWDs74md2vw28Y9PyYDnDCd",
+    "bokeh-api-1.1.0.js": "uOA/ree+K+qCkPGbiHMGXcgavCa2kwDQ84d8u0ywZif5V6WMgtvRM1W3RR7vP3Cq",
+    "bokeh-api-1.1.0.min.js": "P+QDPQq5g+PjbZbpmCmmQwBSnwv1ikx7g7WvDI00FoVG1W8NzRGBvNbnWGHz0AZB",
+    "bokeh-gl-1.1.0.js": "i79a9wGnXni9NxaWcgzkl6tR+l4wSs/ttCv2YC3XvRAOIe+A0RUnm0D5V3JOipOw",
+    "bokeh-gl-1.1.0.min.js": "t9vFW5DVCN4euZ9tupeZ1CO/U2lneLe3INQGzYfnBe9nQws+y6dMRIXLIRD2b1dL",
+    "bokeh-tables-1.1.0.js": "hQH/DueMLJWZsj/bckRJs2bcIo1bbBFNbHHQr+z1G9Yh6GQP6zI215ic3hybyrNK",
+    "bokeh-tables-1.1.0.min.js": "5hEoSrEshPM9GHeSmlta945zxAxsCf4qNGrC/jGb3qe+EeM3F7yZ7PYk5ZHadq2h",
+    "bokeh-widgets-1.1.0.js": "44Re6Vy1RtmN/ygLt6X8de76/4Upoo4a5JHuRKFbTT0GgwyVNqon8y9517Dry7cn",
+    "bokeh-widgets-1.1.0.min.js": "KHHmmF1Tt4kLBdZxuSox84wwIszGK9adf6qP2VOTp9KKd0mX69j19g0vHFBsPTX1"
+  },
+  "1.0.4": {
+    "bokeh-1.0.4.js": "+nXmcnsMn5+klFrTae7Qcqynq2XIvuvWTSCs3yTR6lh6ajv6X5XSbeyW9rMaqY5q",
+    "bokeh-1.0.4.min.js": "GQcj6yhUtDYJmIMd9iQvkoORMVh3MfFofWnU8q7XTfSiLGlwMu44ZQkHJLKuXgiR",
+    "bokeh-api-1.0.4.js": "XlktvJYrwyhD+8uwGi4DhDtxFq/xbEpVYNZGC+MNfcV/6CBISW79vIRm8saU9Isl",
+    "bokeh-api-1.0.4.min.js": "NSKzY3Xo3QtIQoJyDdrS4WX32aIHy8AKe9EnylHEixnHAK6tiVv5S3b3m5MDmuYm",
+    "bokeh-gl-1.0.4.js": "EYZpUMzNI2udt3oD7YSGPHthzQ6gt39iMldN1efrrdSrMZqzqxJjoLBHPifzVrxD",
+    "bokeh-gl-1.0.4.min.js": "pvGNV4tMr8cTWJ6zCy6GgMnOb4vHXXCpnowJw8IQM0aa/XKVUlRVgjQu/BlOCH4L",
+    "bokeh-tables-1.0.4.js": "2c8KG1SSTwpJvWGZpe7P7Hd6kXBHltLw8IcdaNvNn8Ec4wsMtSpT/6PtJKI/z+uz",
+    "bokeh-tables-1.0.4.min.js": "1Cp+3MdtkZ0V/9bUsoqxHnvLrb2OoG76DPJNiPzN8Q+fYr1WpVs8IkmtNhJ5HijX",
+    "bokeh-widgets-1.0.4.js": "Y1ITbV66rAm4sLToJ+ae4QbbfWwn/o/sj0V/Zuly8ZeQuEl9sp1Orl6hsSTzUkIH",
+    "bokeh-widgets-1.0.4.min.js": "r5YLyp1NS4FDmCEPUgE3UPsalffFN99+rwnCi7PCw66rqZvPnCET3hOXcRVsvPL2"
+  },
+  "1.0.3": {
+    "bokeh-1.0.3.js": "h9nQ4/EQ+Xi5yICeD0JGFM8cwQBaetCUYuN+Zp3Okx8JD12XmtV2p3WO+oTkE/aC",
+    "bokeh-1.0.3.min.js": "YpEQX836ZOA8FpMp6Enrn9K06USTUkAmdyN07sC73mC/dLl/rWfVipvtFb9Xiv32",
+    "bokeh-api-1.0.3.js": "XlktvJYrwyhD+8uwGi4DhDtxFq/xbEpVYNZGC+MNfcV/6CBISW79vIRm8saU9Isl",
+    "bokeh-api-1.0.3.min.js": "NSKzY3Xo3QtIQoJyDdrS4WX32aIHy8AKe9EnylHEixnHAK6tiVv5S3b3m5MDmuYm",
+    "bokeh-gl-1.0.3.js": "EYZpUMzNI2udt3oD7YSGPHthzQ6gt39iMldN1efrrdSrMZqzqxJjoLBHPifzVrxD",
+    "bokeh-gl-1.0.3.min.js": "pvGNV4tMr8cTWJ6zCy6GgMnOb4vHXXCpnowJw8IQM0aa/XKVUlRVgjQu/BlOCH4L",
+    "bokeh-tables-1.0.3.js": "2c8KG1SSTwpJvWGZpe7P7Hd6kXBHltLw8IcdaNvNn8Ec4wsMtSpT/6PtJKI/z+uz",
+    "bokeh-tables-1.0.3.min.js": "1Cp+3MdtkZ0V/9bUsoqxHnvLrb2OoG76DPJNiPzN8Q+fYr1WpVs8IkmtNhJ5HijX",
+    "bokeh-widgets-1.0.3.js": "Y1ITbV66rAm4sLToJ+ae4QbbfWwn/o/sj0V/Zuly8ZeQuEl9sp1Orl6hsSTzUkIH",
+    "bokeh-widgets-1.0.3.min.js": "r5YLyp1NS4FDmCEPUgE3UPsalffFN99+rwnCi7PCw66rqZvPnCET3hOXcRVsvPL2"
+  },
+  "1.0.2": {
+    "bokeh-1.0.2.js": "0jTK+5+/+q7+O+LFk2/AmIe8rkQ3mrmZdhMESnSiYlZAGWypm7x/Xcnn4ozwRBDM",
+    "bokeh-1.0.2.min.js": "MB1CtyBbhwJtEY/90MXLZO+GwCXQX3KqPa9r+3OEw6pi89PjfnqsNLJe1Hybie9O",
+    "bokeh-api-1.0.2.js": "XlktvJYrwyhD+8uwGi4DhDtxFq/xbEpVYNZGC+MNfcV/6CBISW79vIRm8saU9Isl",
+    "bokeh-api-1.0.2.min.js": "NSKzY3Xo3QtIQoJyDdrS4WX32aIHy8AKe9EnylHEixnHAK6tiVv5S3b3m5MDmuYm",
+    "bokeh-gl-1.0.2.js": "bPAPq2rhiN1b+3/Te8GXQjKw06sQzN8p5k7UUhlwFSeK2+jCpGA9vEprXCOY3Cil",
+    "bokeh-gl-1.0.2.min.js": "O7NaHDfUGE9DqNi2Q1of3g0esDzKChOiHMij3G/BMPp7oy81sV/FTdyZwgmdA/+e",
+    "bokeh-tables-1.0.2.js": "LlkjH+41Fi9A0PPILNheU3AGhZSdq+CDCcHxAl/SYFlwYGIQQSKihy0xNEO9vCNN",
+    "bokeh-tables-1.0.2.min.js": "MyvfExbfucny8HEqeQQ8KplFXOJ8NUh33k9fQfbJY6HFJEt3CjkNBmKmmCbrD91p",
+    "bokeh-widgets-1.0.2.js": "4ZkUEpDR4V6T9fgF19LB4Az2Ih3HW6zz25j0f+5VWeF4LsAJSnB+Dt83O0CNLgYe",
+    "bokeh-widgets-1.0.2.min.js": "1eKqmHJT75Elwy7zfQ4iP2wDDQoZWAnV7aISycekMKnC+qeLsub6ZzMJVQEi25W+"
+  },
+  "1.0.1": {
+    "bokeh-1.0.1.js": "+vfqyEk0+rr8HTfpyCMlOUA9GQrIk+uNRkUDrUk3xGyNqteh8Q7TW1VTdILKFhGL",
+    "bokeh-1.0.1.min.js": "T4kjnvDzji3k2L8iECnfQhBXZGS6jEosAbkFeXhAQw/NozpEjSOKlKuzXXxRptJZ",
+    "bokeh-api-1.0.1.js": "XlktvJYrwyhD+8uwGi4DhDtxFq/xbEpVYNZGC+MNfcV/6CBISW79vIRm8saU9Isl",
+    "bokeh-api-1.0.1.min.js": "NSKzY3Xo3QtIQoJyDdrS4WX32aIHy8AKe9EnylHEixnHAK6tiVv5S3b3m5MDmuYm",
+    "bokeh-gl-1.0.1.js": "bPAPq2rhiN1b+3/Te8GXQjKw06sQzN8p5k7UUhlwFSeK2+jCpGA9vEprXCOY3Cil",
+    "bokeh-gl-1.0.1.min.js": "O7NaHDfUGE9DqNi2Q1of3g0esDzKChOiHMij3G/BMPp7oy81sV/FTdyZwgmdA/+e",
+    "bokeh-tables-1.0.1.js": "wvhUEr7vbUKClQADIxcMySGeg+Xqxtc20dS5vL0VrpA4/Ij7w2APwIQg5Yu86DrS",
+    "bokeh-tables-1.0.1.min.js": "ZtUO0KDmCDVXB2bNokYGTdirKQOlGd38Und4LaIN3rFQjAEU70RGnw8lvlorRwn3",
+    "bokeh-widgets-1.0.1.js": "4ZkUEpDR4V6T9fgF19LB4Az2Ih3HW6zz25j0f+5VWeF4LsAJSnB+Dt83O0CNLgYe",
+    "bokeh-widgets-1.0.1.min.js": "1eKqmHJT75Elwy7zfQ4iP2wDDQoZWAnV7aISycekMKnC+qeLsub6ZzMJVQEi25W+"
+  },
+  "1.0.0": {
+    "bokeh-1.0.0.js": "dgnXExOXGWxH08AryR1aD6AtA47+5PcSJai5zsfP76h/bqwPcEgM/m9X7aa+zKgM",
+    "bokeh-1.0.0.min.js": "9OgUNL9b8g0W/aXZ1jh605glxu3r3i1NISZQTkNTwDg23Yb5eCjEiYyCrGwG+vLp",
+    "bokeh-api-1.0.0.js": "XlktvJYrwyhD+8uwGi4DhDtxFq/xbEpVYNZGC+MNfcV/6CBISW79vIRm8saU9Isl",
+    "bokeh-api-1.0.0.min.js": "NSKzY3Xo3QtIQoJyDdrS4WX32aIHy8AKe9EnylHEixnHAK6tiVv5S3b3m5MDmuYm",
+    "bokeh-gl-1.0.0.js": "bPAPq2rhiN1b+3/Te8GXQjKw06sQzN8p5k7UUhlwFSeK2+jCpGA9vEprXCOY3Cil",
+    "bokeh-gl-1.0.0.min.js": "O7NaHDfUGE9DqNi2Q1of3g0esDzKChOiHMij3G/BMPp7oy81sV/FTdyZwgmdA/+e",
+    "bokeh-tables-1.0.0.js": "wvhUEr7vbUKClQADIxcMySGeg+Xqxtc20dS5vL0VrpA4/Ij7w2APwIQg5Yu86DrS",
+    "bokeh-tables-1.0.0.min.js": "ZtUO0KDmCDVXB2bNokYGTdirKQOlGd38Und4LaIN3rFQjAEU70RGnw8lvlorRwn3",
+    "bokeh-widgets-1.0.0.js": "xFmJzLc/1pRxm0E8+HIT0nF4IZPi7H0Z74/qlhIcoKgkJ20JX6dz13LLHc24E0fq",
+    "bokeh-widgets-1.0.0.min.js": "1eKqmHJT75Elwy7zfQ4iP2wDDQoZWAnV7aISycekMKnC+qeLsub6ZzMJVQEi25W+"
+  },
+  "0.13.0": {
+    "bokeh-0.13.0.js": "d+rVu1K3XCR/ZdOPn7ZHoAA0I3ezdpq6N1YfmEaDMMUaWoJsY10eprZ/FOA92hjx",
+    "bokeh-0.13.0.min.js": "TctwjLNha0jCG96wYS7g73qxB7IQHyg9KYFrWGY1vDkUpucOUasaQhAImJ5HRJ3L",
+    "bokeh-api-0.13.0.js": "yBTGPxaZRNWr3KhgXTR2e6ZYzhC6gjAEoWeEk8LrQbEgDmTNO8M3DGzB9zHCzd9r",
+    "bokeh-api-0.13.0.min.js": "gOGPVkgRN5HbyNQbJuMHtM0yGG3qVVOosjMlw5tr/q7EZPu3+CqJsLXqF6pDns2K",
+    "bokeh-gl-0.13.0.js": "DmLpK8wP+7n6Wd6P5VmYbLuIpop0hovo+Gbf+6ey3sHyqtGNFypDdEB4uWN5gIg2",
+    "bokeh-gl-0.13.0.min.js": "EqrBsPyrwdORn+1tmeiAJt5sIdf7wS3u5hFVxFm/vcw+ynSWlInYsa0b36zPdBQM",
+    "bokeh-tables-0.13.0.js": "dqrzFiNxCBqxwdiZ4WX1Z68GVE/o2/g0JIwkMrAnqHqAn90rVvS6DSwRKWD1dR9z",
+    "bokeh-tables-0.13.0.min.js": "aTnhJtmqMsvvwC6mLPaey29fuGhILoxAVUBTj3S4K2QTGopKqUDYiTeduzNa49Cv",
+    "bokeh-widgets-0.13.0.js": "d28uRolgKdZpW5/N4C1OvPFF1pucs77WNiQc5hW/5oUaLGPHSUvkaNtg++v2iTEM",
+    "bokeh-widgets-0.13.0.min.js": "kG1FeiKKz0KSugJ5HW9ZreL5DpBY2s2U5IIyrgb4gp9IOEmkegiJxvcKm3BecxIQ"
+  },
+  "0.12.16": {
+    "bokeh-0.12.16.js": "dIFtDoU0Gm60Zqy6863ATv2UxMK1Z68uAsQQhP96zPalDuA4G/gtmFtF0i2KAs7R",
+    "bokeh-0.12.16.min.js": "skhu9SjKVjzk+4dGfSQsZBbttYwscaKdqm5zTu/0vKjh1sqEOhyenq82aatBzQG1",
+    "bokeh-api-0.12.16.js": "o44K1BG1zUDRF02p1JW6lYaXJW/+B13omtKKVR6YLbQzsKkzJCztfApKwINtGAtm",
+    "bokeh-api-0.12.16.min.js": "p8L4w1zNjV3sAq9zUWDVPLtcRYj2GOLJeQtLzw4HGS3FKieHTmk/KNxqu7Cq4xJg",
+    "bokeh-gl-0.12.16.js": "R5d3XVPFCkFHeln9JCkOftuazxXC8vgLc4ScfqC0uCykZODwcgtXVCOCfNjzJ3NK",
+    "bokeh-gl-0.12.16.min.js": "3hp390fmwlG8lmAXUZCQJNsv/BcMRHS0E+o5IC3SKGmwNxi+Sf4tJHm0PJVUU2Xl",
+    "bokeh-tables-0.12.16.js": "ofP6yEEGFDN3V6FcfQzTHW9yFTjU+j0JvqIVuL7G8CpxiMBwpJc+ycQHS0T7zWGK",
+    "bokeh-tables-0.12.16.min.js": "+DoUaLfYcM/+8vudGpErcuwIGmgYwEqa26tcn804/lBxeyt2W0mqOZ5a7Sitx35a",
+    "bokeh-widgets-0.12.16.js": "LHtDzyc6GgwWl5FcaC1qNDga4Sq0TxuBRhGvLx08+Yk5+gD1h5GHisYKjiMxbdk3",
+    "bokeh-widgets-0.12.16.min.js": "XkUKi9c932iyQN0/8AjVlGKhlQbCu3HMV9IcU1+nEMnhGAfeQV3TO91NRgI2gie8"
+  },
+  "0.12.15": {
+    "bokeh-0.12.15.js": "/RWwyAMgtd7Z9m1FL/phsJYdlkH9TJgHV7hkN5TqDeksXr6R+iBhcLLw9xL/aMP9",
+    "bokeh-0.12.15.min.js": "xtaZ4F+LfKS8HjWmdwg1a9yDhyLvv6a6SOaljlPiojPMSPrmt6EXni2YiafWwzBP",
+    "bokeh-api-0.12.15.js": "MBN14ShOfqTydJ/0muUkkqJEWM3e4BPVKnQ68CBDyEbwOKi12kw41tq4/6g8fdub",
+    "bokeh-api-0.12.15.min.js": "toEk4yKM9q5NZ8rzgaQatEr+lLhbKtIisLHIW4xKdpbninMQY1z3NS1VKVG+ZwXH",
+    "bokeh-gl-0.12.15.js": "QCDqHfurOIDCtsispU4LI5bM+ur4IExTJ8hSF8xVm8Z0oEZICsya/CjRLNwy1X7l",
+    "bokeh-gl-0.12.15.min.js": "DTIGNryy32pP+YqoT2jyivB4TBYYzVBnY8Ilu3/WIhlFrcbzArLPCMDuNGqNCLpT",
+    "bokeh-tables-0.12.15.js": "e63xpSRoogqktZZ8uocsfOt0QC8zIwKXozxLQk/HOrVmOual2rYfG9l8Fm4/C8XW",
+    "bokeh-tables-0.12.15.min.js": "4D3hp7UNjBh+pFC/ezCVFUvBGokeJBrbL8DaPh8dTnnmHAyZ9RZva2tnBNs6KyGT",
+    "bokeh-widgets-0.12.15.js": "xBsplPUCSGWV4R2lLvLdtyVcUusq/+sEbgVYUD3u9LrzBRkEYBNEIN3Sdxz4nvHv",
+    "bokeh-widgets-0.12.15.min.js": "j2jiGPDYDadudwANUFcoK8e+WPMVtL72ww8uCsOrUimYbzDUR0ovLnl+2m1Egn/4"
+  },
+  "0.12.14": {
+    "bokeh-0.12.14.js": "AdyVAARU6V8NHqeE07dAta6mnteTdD2z6jS9jZHLHsFM1ittJzgpBvmS6QblI21K",
+    "bokeh-0.12.14.min.js": "mg41Bnny+gFV5+1veejJ4HMw/ySqdL5RuMA92GbeXjIUPX7s4twC5iObeVMqwwub",
+    "bokeh-api-0.12.14.js": "fEFoAv/9+ERt1KRIfsMFst21yLlhdSIlGqL6Ou5q8NV7yQXkZyYd60xRIiEpoyMQ",
+    "bokeh-api-0.12.14.min.js": "ke94TPgbPD4VJZxScmszu1C6BQ6fX0NZ6WtG3ks/tMoqooqKWcaMQdWFx5UpxtLF",
+    "bokeh-gl-0.12.14.js": "jBnzkuaH+FMUpQjRr0CUhmVfvmY+enILE+cUyEsDx2FnCVqNaG6mzvZTUOZGoiBK",
+    "bokeh-gl-0.12.14.min.js": "kevbn0vAxbaOnSxLaqREN9ti1gFA7qkFckq3fQkfOxpfrNkl/lduadyMz2W4AGGn",
+    "bokeh-tables-0.12.14.js": "xqIYzAUVqRMGI4NxYES6A0XvBBYeBupSC07EywmaIEZ+fFg/cwHZpsNEnv0daDhD",
+    "bokeh-tables-0.12.14.min.js": "efZSbA9ELN7x3dlbwa2KqGs6i6Sx0evaPWGmYxa16zaWvUVevjulhlm7eJsgYrzq",
+    "bokeh-widgets-0.12.14.js": "OBrYBXTgPlm2FtyKyR1sTgT3FdDwitnzgJigWt3cFdhovT2011F/OPl+6kg311xI",
+    "bokeh-widgets-0.12.14.min.js": "PkcQt2vvCHJbuyOCfJxBoEQcdPk/+MyMyUsCzWXFWE20BNyUANOZERRo+wH1UiNf"
+  },
+  "0.12.13": {
+    "bokeh-0.12.13.js": "WiiDNdFObp+2mosxfMxtLlAKb4mPRILKkme1FsxTEGp/3dNYLiR9PCjm64c306FF",
+    "bokeh-0.12.13.min.js": "sRHzMiYSxnSVtIDNmGrWigYi+CSIZ8sZX8zf79whDzHF0zUvtiACSjdggeh2N7jD",
+    "bokeh-api-0.12.13.js": "uLz7eJguKT/X1Dn2caguvQaL/Moloh3RiGOhPaOAFUr8cFc4Ulv/12UcOknurxAQ",
+    "bokeh-api-0.12.13.min.js": "RPODqsF9evKgTcL8svvXXnt7wgOSGc/6PAhwwJomZPzNSoJo9fnFI9hZ9UK4Nw2U",
+    "bokeh-gl-0.12.13.js": "V/Fvnsm8hR7l4aQb/Jqw1HOV++fYSNyg5S6LRQpYVBetBcKrIQ181LhbI3nJeG27",
+    "bokeh-gl-0.12.13.min.js": "LlPhjRYBT7z3ihubfj4RfyB8qwjZGKuUxKcxxfH6kGm6Lcy1uIni3tLxDX9L8ulB",
+    "bokeh-tables-0.12.13.js": "ZpGmJZBNCazirAsE0bgMKctxCO/61Msd+eGd/4Up7LKZmq1hvubMdJ5W/EgRy4wd",
+    "bokeh-tables-0.12.13.min.js": "q1ovPpOfXy4WQuA3X/Qrr/BOiol1HhdChYGUwHdcFStNaU/8UiX/9Q0HSdyVBzJW",
+    "bokeh-widgets-0.12.13.js": "LyaGfb/ckePVYZsm+U8Q1IVYRlXVgQ3ySiT0eNPqGWj3veUByo9Mr8xWmnIYHZrx",
+    "bokeh-widgets-0.12.13.min.js": "tNHkmh8tKOxLIS37l43VBxjTJaELDb7P7olitqFdEYB27ghsIxi5dIS6S29tXMvy"
+  },
+  "0.12.12": {
+    "bokeh-0.12.12.js": "mvEu44q31Bf1BKq+/SeAa8Ppg99MVsYbEQkqjWbiQdTSMQUL9DOYFE/zZ5SvPWQb",
+    "bokeh-0.12.12.min.js": "0oHloNeHpSb0bdJqIPfw0PaMoTghld15Q7aiPthamtduiPo2b/ikRrARPLNq21dm",
+    "bokeh-api-0.12.12.js": "uLz7eJguKT/X1Dn2caguvQaL/Moloh3RiGOhPaOAFUr8cFc4Ulv/12UcOknurxAQ",
+    "bokeh-api-0.12.12.min.js": "RPODqsF9evKgTcL8svvXXnt7wgOSGc/6PAhwwJomZPzNSoJo9fnFI9hZ9UK4Nw2U",
+    "bokeh-gl-0.12.12.js": "V/Fvnsm8hR7l4aQb/Jqw1HOV++fYSNyg5S6LRQpYVBetBcKrIQ181LhbI3nJeG27",
+    "bokeh-gl-0.12.12.min.js": "LlPhjRYBT7z3ihubfj4RfyB8qwjZGKuUxKcxxfH6kGm6Lcy1uIni3tLxDX9L8ulB",
+    "bokeh-tables-0.12.12.js": "ZpGmJZBNCazirAsE0bgMKctxCO/61Msd+eGd/4Up7LKZmq1hvubMdJ5W/EgRy4wd",
+    "bokeh-tables-0.12.12.min.js": "q1ovPpOfXy4WQuA3X/Qrr/BOiol1HhdChYGUwHdcFStNaU/8UiX/9Q0HSdyVBzJW",
+    "bokeh-widgets-0.12.12.js": "LyaGfb/ckePVYZsm+U8Q1IVYRlXVgQ3ySiT0eNPqGWj3veUByo9Mr8xWmnIYHZrx",
+    "bokeh-widgets-0.12.12.min.js": "tNHkmh8tKOxLIS37l43VBxjTJaELDb7P7olitqFdEYB27ghsIxi5dIS6S29tXMvy"
+  },
+  "0.12.11": {
+    "bokeh-0.12.11.js": "g+//0Yv3lMEbkwayzw3Z44zhbq3SBKEgeTwJxXAwN5rTsjEglILDhTcFM6FBp+As",
+    "bokeh-0.12.11.min.js": "QNG9B1tLDDmAtBzO9wxnUvluDn94GvQSxq28PipAQkA3S7yPE9mmXNX/Abgv6qmV",
+    "bokeh-api-0.12.11.js": "CrzA8KP1hsLa/P+aRghVEUyiCB9cAeYTM82Gg91cD+QuHuSobCrqD1nxS64/N25o",
+    "bokeh-api-0.12.11.min.js": "3R4xfaAzCpSJe+OyLtWgsJN8gjJMI1iQUYCao6WWWrq62R/Yf1r1RTXNAO/LlAdX",
+    "bokeh-gl-0.12.11.js": "UwkrQ3NHCv94BKLQ6yOIvvxaEyN+mJQY7DpoQrdnT5fwzMbs4tQB0+Fbr9MUShYA",
+    "bokeh-gl-0.12.11.min.js": "E1QPTpn28v7Kl7vRZHnjzQ3MsUhXNRAb1E6/g5mfYfBZAJc2Yn34rbz7pXetByfN",
+    "bokeh-tables-0.12.11.js": "ypzPP4AZrbGcJQZAlgfeBiSQxpWhDEDc2uRPdHWXhlwDETLswykpfH0sBHBgOaAb",
+    "bokeh-tables-0.12.11.min.js": "qEdoiWJ9j8yGx5xQEBrGZgKfw2ea/YFM5ccpCogIUgF/pukfFPa7ym31jd3tDEx9",
+    "bokeh-widgets-0.12.11.js": "S9DSeytH1Sq4eFs8qpSU7bPStYuNs+AJVqBFeTXzavGktOQ0EH38+Fc/2r1CDN3/",
+    "bokeh-widgets-0.12.11.min.js": "cV/lFoAZmOyZVKCLM4UpkUkNpF9WBv6hr+zH5JR/kV6WzIEUKhSvpXotyUgJdGES"
+  },
+  "0.12.10": {
+    "bokeh-0.12.10.js": "24wuUvIkgTRYjPpWrlbL2KkpW52OlZt+lX7WmkT0BRnPwVNYEvnnHBXAk2F5dh+7",
+    "bokeh-0.12.10.min.js": "sYWviIk219FMUK8WxRnX+yEc8Wh0RBgHHVgCvARgVcf++ozUcOBgr55ffjlAPTZ+",
+    "bokeh-api-0.12.10.js": "ujNI1r/KZ0el9vh1i9UzIgMnMOH996wNEhPbWySADVHW/AXQSQCp8374VsQfF6Vi",
+    "bokeh-api-0.12.10.min.js": "LYP0vjORYFss0F7QlSV8BYwoJBF0h51bv60HCrx2WnScyabAQuf5RACDAOV89StY",
+    "bokeh-gl-0.12.10.js": "PoU5iMsELEPXVdJXuhg02JIUF4xWx+O4oMF6EJYhAQq5fkUt4eEcr7RWBZi0ymuE",
+    "bokeh-gl-0.12.10.min.js": "AX9eB59qOq2p1GUEEnnk4WR1Ythz8OrJ1ffSoJ7qqhmzasfbXq4apd37oN1NpLik",
+    "bokeh-tables-0.12.10.js": "UvYMTvlSHvcMX+WVeE+DSE74YRbsGh8yjG4gTCK2tKp/mS6kwAgnbNZwW1761vhd",
+    "bokeh-tables-0.12.10.min.js": "Y5luBmCdqiDH/voB/OpykrY2YkFClZ8C/9+1K7HC8jzKIq2gByw3hX8a5UP3cr0v",
+    "bokeh-widgets-0.12.10.js": "J7whk4Paq3Rzbn1JzyrNRd/QoV05IeGE6xcd6/Fb9oCnFySfkt6/HGo5G1RX1nUm",
+    "bokeh-widgets-0.12.10.min.js": "s1mZ52KNDpeyMK7UwHgraqkCwUfcNTSyCKmL3ac3A9tvXTsUiPVqSc68lu8xi8SX"
+  },
+  "0.12.9": {
+    "bokeh-0.12.9.js": "2n1fTKfEG8NK5eOl/uzz5WRMeBY0IcbbAPRSQl4TAmJSm+oozLKy5mytGXt/LqIg",
+    "bokeh-0.12.9.min.js": "I518tTmFoEsiziyEXx6KlEya05UciIqD/pI4x9QMsTtRJFP4/qKRTgIEaqfxdB8u",
+    "bokeh-api-0.12.9.js": "ujNI1r/KZ0el9vh1i9UzIgMnMOH996wNEhPbWySADVHW/AXQSQCp8374VsQfF6Vi",
+    "bokeh-api-0.12.9.min.js": "LYP0vjORYFss0F7QlSV8BYwoJBF0h51bv60HCrx2WnScyabAQuf5RACDAOV89StY",
+    "bokeh-gl-0.12.9.js": "PoU5iMsELEPXVdJXuhg02JIUF4xWx+O4oMF6EJYhAQq5fkUt4eEcr7RWBZi0ymuE",
+    "bokeh-gl-0.12.9.min.js": "AX9eB59qOq2p1GUEEnnk4WR1Ythz8OrJ1ffSoJ7qqhmzasfbXq4apd37oN1NpLik",
+    "bokeh-tables-0.12.9.js": "4at7SGvhXY2VhFe4ZARxFWhIbzSzXfAV68lCat/l7rl0jsqX7VFUAWVCXFxVMMAb",
+    "bokeh-tables-0.12.9.min.js": "pEnsftOgAy6mKfcHRYQzkJGOD2vJUA4FA98bHr3OJB8Kv44I2xBg4Zp2zCGJTFFL",
+    "bokeh-widgets-0.12.9.js": "LqD/CiBCC2xzX8apdwyTu8Ruq5Fdssk/yFBqAwZFEZ9ntLruKbaTpqvMEZZE8pBW",
+    "bokeh-widgets-0.12.9.min.js": "wLFPxWauAhKbpqxsaO0BWG+zw7IVcUDHMQ0NDNOx8rQ6W/3bk1Gztl49IlFsS8GB"
+  },
+  "0.12.8": {
+    "bokeh-0.12.8.js": "xLZxD1mdD1zDA/k7Y8I7dTJhA0j2fpQsLp/ryhKjO1OKuhfQwmNWL5UkB4rj6DCk",
+    "bokeh-0.12.8.min.js": "h7rd+SOSItYyZ9vvTuhZuDId3rqLe9DaNsrO61fVpkme6v2C+7ZhUTBRykcKeBBI",
+    "bokeh-api-0.12.8.js": "ujNI1r/KZ0el9vh1i9UzIgMnMOH996wNEhPbWySADVHW/AXQSQCp8374VsQfF6Vi",
+    "bokeh-api-0.12.8.min.js": "LYP0vjORYFss0F7QlSV8BYwoJBF0h51bv60HCrx2WnScyabAQuf5RACDAOV89StY",
+    "bokeh-gl-0.12.8.js": "PoU5iMsELEPXVdJXuhg02JIUF4xWx+O4oMF6EJYhAQq5fkUt4eEcr7RWBZi0ymuE",
+    "bokeh-gl-0.12.8.min.js": "AX9eB59qOq2p1GUEEnnk4WR1Ythz8OrJ1ffSoJ7qqhmzasfbXq4apd37oN1NpLik",
+    "bokeh-tables-0.12.8.js": "4at7SGvhXY2VhFe4ZARxFWhIbzSzXfAV68lCat/l7rl0jsqX7VFUAWVCXFxVMMAb",
+    "bokeh-tables-0.12.8.min.js": "pEnsftOgAy6mKfcHRYQzkJGOD2vJUA4FA98bHr3OJB8Kv44I2xBg4Zp2zCGJTFFL",
+    "bokeh-widgets-0.12.8.js": "LqD/CiBCC2xzX8apdwyTu8Ruq5Fdssk/yFBqAwZFEZ9ntLruKbaTpqvMEZZE8pBW",
+    "bokeh-widgets-0.12.8.min.js": "wLFPxWauAhKbpqxsaO0BWG+zw7IVcUDHMQ0NDNOx8rQ6W/3bk1Gztl49IlFsS8GB"
+  },
+  "0.12.7": {
+    "bokeh-0.12.7.js": "/ld0KP07pf7lZc55FlwoLl9lk7CNTc1mPZJvU3PwQw7CWthXWVxbrgAVuAY70X8/",
+    "bokeh-0.12.7.min.js": "+RfX0YY5wv1KfGMO5x6HaRfsQ9+ZAATz8fDywqb4aDRQ8FOTAG5a091arhLV8p8M",
+    "bokeh-api-0.12.7.js": "X9t3I5FPdAgoDLwqikoE+y4dTlAu7n33OCZNgEnC9A7DCJu8ujRwLjB0jDl2mG06",
+    "bokeh-api-0.12.7.min.js": "Q+EoDtrOzWkjDIpBmAzOFpHLWHjRW37tEh+UfkYAKA8vmOAjbclEnHlBlqHEMLha",
+    "bokeh-gl-0.12.7.js": "DYAGA4wxOEqV0K7C3dnw4lyV0oJ1vS2JWEysxtgm/kau2nwTagMTbrkVkOOUqH3J",
+    "bokeh-gl-0.12.7.min.js": "et5wq1hRP0ykcvc/kTLKsmlnpNUDXwG+b8LwOU12m07Nhy/1TwC9yaextPY547gt",
+    "bokeh-tables-0.12.7.js": "qpalFNg054WcmQsAPAj0sxH366MxIS8BUgAblVbJpVvc6n0OzLDeJ4qRXJP3VgCJ",
+    "bokeh-tables-0.12.7.min.js": "G2DyioXSr8CoVHnmywGwI6iv+k2ROJXzkTsopt1gPdsOVcn3UefdtN5Q7Bcll651",
+    "bokeh-widgets-0.12.7.js": "OWyvNsHW2p7dw4Me3EV2atyuOhN+hykUg6f6Q9axGNLDMaGYRpcslxIJsaUohGn8",
+    "bokeh-widgets-0.12.7.min.js": "m4K1Q2SPhuMlk1ntlcCvYIowdzUQ9depV0g2eG37C+xqrnPpl7gRhOxNIIHdZrjR"
+  },
+  "0.12.6": {
+    "bokeh-0.12.6.js": "yuTJIeFzKLvXJATEKzHEZJMp6170bM1lhGys3XlRXLDAhi35AVSh3fSYj5zi3Vv/",
+    "bokeh-0.12.6.min.js": "4tDF9sScHf9MXa2fjqscXvya4toDp1qkMjKV5IAHCsKjjNYjwzb4E8nMXnv4FH1h",
+    "bokeh-api-0.12.6.js": "LuyjO3NBTzD1trIgR0YHiJXb6B2tI2LxlshHzyT90uh0LSuXLvhpzifWEqiosUqh",
+    "bokeh-api-0.12.6.min.js": "Y2+wn2SuS6G+zMrQkaxNBE1N681JOlqXDAk3CMdizqH38Fn0pErqUtuj+AnOiUwM",
+    "bokeh-gl-0.12.6.js": "iV2qx/b9hTfsoQPEqVi+VOcGFPD/OmEOneiKV9eo/gvYkosLmpId3rei6QuurgiN",
+    "bokeh-gl-0.12.6.min.js": "HeABFVmmmh1192H07OBKFeiRtSlzgcuABlx/F16Lt7IyLHV6cgDQMr2oQddLBWTv",
+    "bokeh-widgets-0.12.6.js": "GYYzrxfoC3HMVHGhK+0ffUYqzWEAkMX/oAx+TM70McqE8VmY1XmJ2yuyufPmC2QO",
+    "bokeh-widgets-0.12.6.min.js": "4Y6fHl915BdC7Qzb9Jd8giud/Ix+Z1ySGpF8TO977kYCfsCXP89cZt9WpgRfKCr4"
+  },
+  "0.12.5": {
+    "bokeh-0.12.5.js": "4DNzidCdN8aYp81JeCInwqaBLKyQR/JP1kdELZcOh4UYlsx8cre8OP0QyK1C8EA8",
+    "bokeh-0.12.5.min.js": "iiPwCVeZU7az2esGQM/Wo34Wz+YXekOSMmAonk2E57M7v2oSY69PwQKbZjK2OkVN",
+    "bokeh-api-0.12.5.js": "91d8HQiwFYWXm+YPR3KqLLd27+dRfL7kPGkD8Lx8BIAFLBMssvq+zVecLR1Wb6Gz",
+    "bokeh-api-0.12.5.min.js": "fS6mK2OeA4UbjFziCGknV6rsU/PNYisHJUCGagFxWm99naMFFI3AMNRipudPRxSN",
+    "bokeh-gl-0.12.5.js": "bdjSpVgYc2XM0oXsdutNv5rh+OKfctqNs9prb2ivjqMfhP3NqQ6e3oCdUDaW7AGC",
+    "bokeh-gl-0.12.5.min.js": "MknEg23HbnmbWsXPaMWpkBpnpYFyMQWIPlHQ5fNxfGgJEAGuIsAVHoiALGr6N5hJ",
+    "bokeh-widgets-0.12.5.js": "J8ZQo9Ffxqfe40yjv301YypsNM4hjTsq/asV6trp+Pwf/hbVyqya9cKJfYHld+v0",
+    "bokeh-widgets-0.12.5.min.js": "yoMll6tqpQN7Gf5Pkv1n2Ufnd+z1n+376UxE0dQvAjTZSn5dsCg2SCQOHnRpBb5g"
+  },
+  "0.12.4": {
+    "bokeh-0.12.4.js": "Ee/v4s+NP3AElV8g4OUNydSXDwixBe4XLQSDY5s1yhbHYyTMtgJAp+aJ+squhT+k",
+    "bokeh-0.12.4.min.js": "JVZO+DlFPt6cXd5Ern7+yTbwzg5F0Le9BbQxGqJrAwuAa88BwOdta+VvgjLhEaWl",
+    "bokeh-api-0.12.4.js": "odYsMqE2SBcDW57DIV/4dN8vMgKu3rhIZwBOW+1x3/2mnJnIYBIlIEa1Y17iUKVn",
+    "bokeh-api-0.12.4.min.js": "XIXah+HxdIydPqniJK0FJ+tdJ9GCMLNyHEMY0RMPkDGPUaFdh3vUmesAwtTEIouP",
+    "bokeh-widgets-0.12.4.js": "6bfCW3us3jswr6a6YpAx7uqV91hNpbwuLWoJTmWoCrQTd6/SCXKSwN0Yn8MoNRc8",
+    "bokeh-widgets-0.12.4.min.js": "btewSwV/3jQKg4UjwnG/MaohlRGcDbhVsVzpdTeqVa8oXbfhpt9p6SpndTsPZ9FG"
+  },
+  "0.12.3": {
+    "bokeh-0.12.3.js": "xAbgocDwINfLhCjiBBEtLVFGSwjS5k+UVrD3IoXwtNAetz8Bn7J9O8IwXnYMlcJq",
+    "bokeh-0.12.3.min.js": "F8M7vgiiYbSwPDIT/9wmP1cQ7EbEMAXzvRBM4isFC5MenMujuQCAKap8vXmFio2Z",
+    "bokeh-api-0.12.3.js": "qGUGEJePF4+ja/45zdDm47dgSFlcG2MiJBMdjQyhYSEAsDzbuzOnxxLSe5lI6OnG",
+    "bokeh-api-0.12.3.min.js": "vIuherhIybbgv8avTaDzhjlYgLHptGFbX4PC7qLvY3dvfC4DxifeMYlvTJcHky7r",
+    "bokeh-widgets-0.12.3.js": "nlRl8vNyTKHG5lg70Us1gwfihonkG+2lxvH+cd1jg1mZNQg6V9bOvSLqxVOLuAYD",
+    "bokeh-widgets-0.12.3.min.js": "rgdXBhlvbLChj3kMcss1BMzIDZ8MxUjSNmqey0r3t7QMpDF8wezf4OZJGB9WDc7w"
+  },
+  "0.12.2": {
+    "bokeh-0.12.2.js": "bjRS9ikTgnbObZUH7BkbriTJ/74U8xH8QQssOorHxLvC3NwMZ0oG+Kv6T4lL9UzW",
+    "bokeh-0.12.2.min.js": "XKxpX87dVNusxC2TgkLdEGO+MF0jvy42fJHqAUi+C/OvBkYQqOzixClIlc5cTW2I",
+    "bokeh-api-0.12.2.js": "NSZ1y/Uqwy4XnnrjNupcZXiMQgR0yroKbAtk1Sbl0wQHhDIWFfJi7vnoIGD3BnMQ",
+    "bokeh-api-0.12.2.min.js": "OyMtO71UD6gNx/GjmhaI3EzAxPgM4clEC7r7gdNSIOyK8FUjFGFyS8+tKfQBMdEe",
+    "bokeh-compiler-0.12.2.js": "L7wwaXTUucLZgIwqFqAOLxGt02wsqJtzyXWU0Ki9+Go0TsfWc52v3mDl9CF2Qbya",
+    "bokeh-compiler-0.12.2.min.js": "W4yJkHi0OV2t0M3YvksLtBWBBvg7pReyV6joBSkA8DJYaDMaHkxy9x5pg1UBrb99",
+    "bokeh-widgets-0.12.2.js": "CyHwcYQDFGamGNpTga4UaDTXWGzuB7lgqnbMcQe6lorNw8w1wj0Bx6yhvtjShQ4p",
+    "bokeh-widgets-0.12.2.min.js": "AivheJ7QesXl1NERyn9EyrsRxk+uflY/pisdOudop6qusL/kLfkSVjMwckg/MLET"
+  },
+  "0.12.1": {
+    "bokeh-0.12.1.js": "TF38vhvAkQQ6pli7t8PSc/JSC5Tk8QP3G1wR7UwAykhDEEnCw5yC8UdZtpnRIcLn",
+    "bokeh-0.12.1.min.js": "YwgXDPAsNadFWcDjteDXrLJS3nE5K/HSIJuwIyyildk4jlVEKAUhoWnWee+l6BXc",
+    "bokeh-compiler-0.12.1.js": "TvYJmdxO2ECVmLPgGB0GhaqRj+UeKOhm2rm+r3/QGtLR5NqdSik7g63IOlbLTVkL",
+    "bokeh-compiler-0.12.1.min.js": "rlEqeQLvenpWokAiTFbMgy6zgp9GbVvWadPocZYiAw8o6Q2UvvwJfK5TeknV+rqa",
+    "bokeh-widgets-0.12.1.js": "Xdd0OqYYMKwQD5wVIYyhg0zfS/rdU2qAQnQ1PdD7hZ1fI+THorsp2DGzM2eHxzsn",
+    "bokeh-widgets-0.12.1.min.js": "4xF0n6KT2Cv0QClwGCeK4rWLI0z+LOlTPV5+sbpUTWjoNOIoyjDzorV+GNxb8eKV"
+  },
+  "0.12.0": {
+    "bokeh-0.12.0.js": "Vu5E9yfoVB1jJvsvuYJ6uKcQp7LrAOdyBNHVfLhwRz8guQzh1R9nvV/cRQY06PB+",
+    "bokeh-0.12.0.min.js": "TUlxCkX84enRdt9oDgI6t+4oBMmDTPjZzHIbm5DWotRPPUr+nf0juX0EBMVjm9Ue",
+    "bokeh-compiler-0.12.0.js": "cyFoYkKckC5micd9t2k3R1Sok81kNKq6+VacrpE5ywcOHpBUr47tFv+Tm1/TIiPb",
+    "bokeh-compiler-0.12.0.min.js": "wIznusC6qrH52eurUBzSErPX0Pm9451ZZV+O343SQsXhrQWtun+pvp0DTWX2vjoC",
+    "bokeh-widgets-0.12.0.js": "CFNTDWSpwqY9kf+0VYDqNZoF1zRd8A6ojTcTomZfkjJawkXTU/qu4Lupmfr5vMOB",
+    "bokeh-widgets-0.12.0.min.js": "KMfPQEmVHXTaKvVaoZK7RjgBYe5iOG97ayj4RDpWImz441XV2SvU/3uh7q26N11x"
+  },
+  "0.11.1": {
+    "bokeh-0.11.1.js": "Tkufirnq15nJ2AzP9z/K0YRgbgpEHTqW4tWItEGhCAq1VqYqTyK1sS92WsWASJOK",
+    "bokeh-0.11.1.min.js": "Pu3P9+MeUXl4BPyw+/mhQ1ZliMYr96w6+sZ8rr/JmaEdjYrK6y5zEnnBVDD7F2uT",
+    "bokeh-compiler-0.11.1.js": "h/zuZsBTml9IKapUtC2xpBI8nWH6BwhhKdUbS3Esgk3T7OKCiRThTPUl7cvFdkB4",
+    "bokeh-compiler-0.11.1.min.js": "Ee0VICkBk1Kb1UsJEyTiN0v+iTE4Inb+bhbQsc5bxv7w7b+w0BVgpA1EerFAh/ck",
+    "bokeh-widgets-0.11.1.js": "pqJibUOwxvkiQbKV0uFuQ12O8KbZ13DJeSL+zAKA+Mp8L+zxASxfv4P42xm54sUH",
+    "bokeh-widgets-0.11.1.min.js": "JErZpHQP3WM8/wZVkQaCIBuuz+6z0pZNjDCqBj5nTx69k6m6MAgswad+ptzKQ/Bv"
+  },
+  "0.11.0": {
+    "bokeh-0.11.0.js": "BCLKhG2LJGzZrHI5d9wNeSUY3BhBNW3u3Bchu2CYqmqHiNP0SDCbVmko+7fBtqz5",
+    "bokeh-0.11.0.min.js": "7cHWaPO0YU3YviGjB5dqoSXT0jjWVhNESOJUiPmcqNfUxB8f9AWRn/jI8jxv9b9B",
+    "bokeh-compiler-0.11.0.js": "h/zuZsBTml9IKapUtC2xpBI8nWH6BwhhKdUbS3Esgk3T7OKCiRThTPUl7cvFdkB4",
+    "bokeh-compiler-0.11.0.min.js": "wQxa+naxo/5x721n/V9bRhPGRFibSJUpgcA9h4dlxiI1TcwP7E4gkktceM4KBQvY",
+    "bokeh-widgets-0.11.0.js": "HFO2FtQqhuufUVPSzrYUMEvePjR1hxqS2lM7+ADERmtOkvcVUkTW0qaPo6XAZ+HM",
+    "bokeh-widgets-0.11.0.min.js": "OrtF7vAHRNc+bOQtZJTGDFO/L/nbZOqe1VeelDBF+BBVO/0lDK0ZDFwLQdXNOElf"
+  },
+  "0.10.0": {
+    "bokeh-0.10.0.js": "roqWuzxIb+9icxQDCZC9kqQ+UpNXcVUuygQqTqfoWoGd585muxXNqIYPVYQ1YGaj",
+    "bokeh-0.10.0.min.js": "bZmM9B4HEi1+YxYgaV/+kkACMwPYJp6O4j69SbqO5xytxFRyRnBzsrwZ4LURsnyh"
+  },
+  "0.9.3": {
+    "bokeh-0.9.3.js": "XnmmxRn1r5D8I0Jma6Zsv+LFhTgGkN3bvg2qCyTbz/9VFAFYQmLV1w+d+nBKb+Fo",
+    "bokeh-0.9.3.min.js": "MWZj9IcmF3kjXMB3c625YyGg1zi4AstdG1YbBMPcmOCvOAfzCLhiF9wzK97XvHKE"
+  },
+  "0.9.2": {
+    "bokeh-0.9.2.js": "OexLuYVuOvGkuzoCz7W33ojy7pdvttmoMVf0p5qy8gCIZfsYNQKw76DFH3FdR8XF",
+    "bokeh-0.9.2.min.js": "ek9Fq+5oN4hQ3hDiprqdFVJQ6aE/8QEHZ3TzCM5qWRCpv8nEqXUb/kuogFWmDT/U"
+  },
+  "0.9.1": {
+    "bokeh-0.9.1.js": "he0Wjre3gUAW9isOJSLQJ3Tegh7T03wktOnlM9+hbsY4U9RtKMSKTIy/u7OPgOXe",
+    "bokeh-0.9.1.min.js": "KI76vrite4JyequGokgYmKf8VYfmZKQ2X4etUngx1kctDHC3DQjfFDHC8N4xwoUN"
+  },
+  "0.9.0": {
+    "bokeh-0.9.0.js": "lQ3pi4yDh59XrNdnZ39u0rF7F/m9pOX8G6V8pq/s/dxm3DDZMXeewNHUOpMZWK2T",
+    "bokeh-0.9.0.min.js": "Xs5IpvkTupznAMbyk+r7S0UBRGxznpBEP8f6dbauA8GInH6Epfchmwj9HTFWO1Lw"
+  },
+  "0.8.2": {
+    "bokeh-0.8.2.js": "MgfXSfLE3qlEldO9lhHDch1n1t1FR0Gl/Xnzjt4GYpAWXJphE9jwGHJkkGZwbAPU",
+    "bokeh-0.8.2.min.js": "hx0bQYsgEXSQIr/4Bm1VoqrVWv6NUPcXNvCtZClxdrijVYpSA5ejSY9vpSqwoNIv"
+  },
+  "0.8.1": {
+    "bokeh-0.8.1.js": "PoysNTe21L9RYuf9VTcSUu7mUq/PfF+OVNm+dDWyBTZGjAujKy3hA9YzCax5suXg",
+    "bokeh-0.8.1.min.js": "RjPbDoAJBnvxqECnoXk+wTHMrah2wPmq6WIiu1nsaiskZxQTaNXUzM1ii6GuYgSv"
+  },
+  "0.8.0": {
+    "bokeh-0.8.0.js": "sbVBtMnlyuSkyNDLKWwhp2ElmY6IZPsHlWq34GllwteWbzTCBx5PmbLuPByFgEAn",
+    "bokeh-0.8.0.min.js": "ZIjfRVQrX3bqAK3Ye8yjicjVMh16aS+NfmeGNoRUUkXuD1PQZItEuDpEWpAwf4GG"
+  }
+}

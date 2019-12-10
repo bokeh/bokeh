@@ -26,7 +26,7 @@ and the value is a dictionary with the structure:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -35,8 +35,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import csv
-
-# External imports
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv

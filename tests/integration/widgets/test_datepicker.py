@@ -18,12 +18,18 @@ import pytest ; pytest
 # Standard library imports
 from datetime import datetime
 
-# External imports
-
 # Bokeh imports
-from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, DatePicker, Plot, Range1d
 from bokeh._testing.util.selenium import RECORD
+from bokeh.layouts import column
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    DatePicker,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

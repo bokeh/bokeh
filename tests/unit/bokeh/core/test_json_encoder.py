@@ -15,9 +15,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import deque
 import datetime as dt
 import decimal
+from collections import deque
 
 # External imports
 import dateutil.relativedelta as rd

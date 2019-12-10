@@ -1,6 +1,6 @@
 import io
-
 from collections import OrderedDict
+
 from jinja2 import Template
 
 from bokeh.embed import components

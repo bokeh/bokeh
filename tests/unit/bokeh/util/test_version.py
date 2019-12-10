@@ -15,6 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 
 # External imports
 import mock
@@ -23,11 +24,13 @@ import mock
 from bokeh._version import get_versions
 
 # Module under test
-import bokeh.util.version as buv
+import bokeh.util.version as buv # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -40,10 +43,25 @@ class Test___version__(object):
         assert buv.__version__ == get_versions()['version']
 
 class Test_base_version(object):
+
     def test_returns_helper(self):
         with mock.patch('bokeh.util.version._base_version_helper') as helper:
             buv.base_version()
             assert helper.called
+
+class Test_is_full_release(object):
+
+    def test_actual(self):
+        assert buv.is_full_release() == bool(VERSION_PAT.match(buv.__version__))
+
+    def test_mock_full(self, monkeypatch):
+        monkeypatch.setattr(buv, '__version__', "1.5.0")
+        assert buv.is_full_release()
+
+    @pytest.mark.parametrize('v', ("1.2.3dev2", "1.4.5rc3", "junk"))
+    def test_mock_not_full(self, monkeypatch, v):
+        monkeypatch.setattr(buv, '__version__', v)
+        assert not buv.is_full_release()
 
 #-----------------------------------------------------------------------------
 # Dev API

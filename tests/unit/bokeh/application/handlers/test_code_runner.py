@@ -16,16 +16,12 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-from os.path import abspath, dirname
 import sys
+from os.path import abspath, dirname
 from types import ModuleType
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.application.handlers.code_runner as bahc
+import bokeh.application.handlers.code_runner as bahc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

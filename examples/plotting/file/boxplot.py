@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 # generate some synthetic time series for six different categories
 cats = list("abcdef")

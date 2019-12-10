@@ -14,7 +14,7 @@ where one Bokeh model refers to another.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,8 +23,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import wraps
-
-# External imports
 
 # Bokeh imports
 from .bases import Property

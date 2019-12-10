@@ -12,16 +12,12 @@ in a specified Python module.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from .handler import Handler
@@ -93,7 +89,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_server_unloaded(server_context)
 
-    def on_session_created(self, session_context):
+    async def on_session_created(self, session_context):
         ''' Execute ``on_session_created`` from the configured module (if
         it is defined) when a new session is created.
 
@@ -103,7 +99,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_session_created(session_context)
 
-    def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context):
         ''' Execute ``on_session_destroyed`` from the configured module (if
         it is defined) when a new session is destroyed.
 

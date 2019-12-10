@@ -1,6 +1,6 @@
 from bokeh.io import output_file, show
-from bokeh.plotting import figure
 from bokeh.models import Circle
+from bokeh.plotting import figure
 
 output_file("styling_selections.html")
 

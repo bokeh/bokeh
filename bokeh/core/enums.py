@@ -63,16 +63,12 @@ Enumerations can be easily documented in Sphinx documentation with the
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from .. import colors, palettes

@@ -1,6 +1,6 @@
-const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
-const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
-const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
+import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel"
+import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn"
+import {CellExternalCopyManager} from "slickgrid/plugins/slick.cellexternalcopymanager"
 
 import {Grid as SlickGrid, DataProvider} from "slickgrid"
 import * as p from "core/properties"
@@ -25,12 +25,20 @@ declare var $: any
 
 export class TableDataProvider implements DataProvider<Item> {
 
-  readonly index: number[]
+  index: number[]
+  source: ColumnDataSource
+  view: CDSView
 
-  constructor(readonly source: ColumnDataSource, readonly view: CDSView) {
-    if (DTINDEX_NAME in this.source.data)
+  constructor(source: ColumnDataSource, view: CDSView) {
+    this.init(source, view)
+  }
+
+  init(source: ColumnDataSource, view: CDSView): void {
+    if (DTINDEX_NAME in source.data)
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
 
+    this.source = source
+    this.view = view
     this.index = this.view.indices
   }
 
@@ -130,7 +138,7 @@ export class DataTableView extends WidgetView {
     // compute_indices. This "over execution" will be addressed in a more
     // general look at events
     this.model.view.compute_indices()
-    this.data.constructor(this.model.source, this.model.view)
+    this.data.init(this.model.source, this.model.view)
 
     // This is obnoxious but there is no better way to programmatically force
     // a re-sort on the existing sorted columns until/if we start using DataView

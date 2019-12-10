@@ -1,8 +1,8 @@
 import {Document, DocJson} from "../document"
 import {logger} from "../core/logging"
-import {defer} from "../core/util/callback"
 import {unescape, uuid4} from "../core/util/string"
 import {isString} from "../core/util/types"
+import {defer} from "core/util/callback"
 
 import {DocsJson, RenderItem} from "./json"
 import {add_document_standalone} from "./standalone"
@@ -16,9 +16,9 @@ export {embed_items_notebook, kernels} from "./notebook"
 export {BOKEH_ROOT} from "./dom"
 
 export type JsonItem = {doc: DocJson, root_id: string, target_id: string}
-interface Roots {[index: string]: string}
+type Roots = {[index: string]: string}
 
-export function embed_item(item: JsonItem, target_id?: string) {
+export function embed_item(item: JsonItem, target_id?: string): void {
   const docs_json: DocsJson = {}
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc
@@ -44,7 +44,7 @@ export function embed_items(docs_json: string | DocsJson, render_items: RenderIt
   defer(() => _embed_items(docs_json, render_items, app_path, absolute_url))
 }
 
-function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): void {
+async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<void> {
   if (isString(docs_json))
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
 
@@ -64,15 +64,12 @@ function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], 
       const websocket_url = _get_ws_url(app_path, absolute_url)
       logger.debug(`embed: computed ws url: ${websocket_url}`)
 
-      const promise = add_document_from_session(websocket_url, item.sessionid, element, roots, item.use_for_title)
-      promise.then(
-        () => {
-          console.log("Bokeh items were rendered successfully")
-        },
-        (error) => {
-          console.log("Error rendering Bokeh items:", error)
-        },
-      )
+      try {
+        await add_document_from_session(websocket_url, item.sessionid, element, roots, item.use_for_title)
+        console.log("Bokeh items were rendered successfully")
+      } catch (error) {
+        console.log("Error rendering Bokeh items:", error)
+      }
     } else
       throw new Error(`Error rendering Bokeh items: either 'docid' or 'sessionid' was expected.`)
   }

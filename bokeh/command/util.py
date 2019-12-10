@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,15 +22,13 @@ import contextlib
 import errno
 import os
 import sys
-from typing import Any, Dict, Generator, List, Optional, Sequence
 import warnings
-
-# External imports
+from typing import Any, Dict, Generator, List, Optional, Sequence
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.document import Document
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler, Handler
+from bokeh.document import Document
 from bokeh.models import Plot
 
 #-----------------------------------------------------------------------------
@@ -49,7 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def die(message: str, status: int = 1) -> None:
+def die(message: str, status: Optional[int] = 1) -> None:
     ''' Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the

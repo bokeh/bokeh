@@ -1,10 +1,11 @@
 import numpy as np
 
+from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, CustomJSTransform
 from bokeh.plotting import figure
-from bokeh.io import output_file, show
 from bokeh.sampledata.stocks import AAPL, GOOG
 from bokeh.transform import transform
+
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)

@@ -15,8 +15,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import datetime as dt
+import io
 import warnings
 
 # External imports
@@ -24,10 +24,13 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.models import Selection
-from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
+from bokeh.util.serialization import (
+    convert_datetime_array,
+    transform_column_source_data,
+)
 
 # Module under test
-import bokeh.models.sources as bms
+import bokeh.models.sources as bms # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

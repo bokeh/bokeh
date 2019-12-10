@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 from collections import OrderedDict
 from collections.abc import Sequence
 from contextlib import contextmanager
-
-# External imports
 
 # Bokeh imports
 from ..document.document import Document

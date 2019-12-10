@@ -12,18 +12,15 @@ or (if only one) redirects to the route of that applications.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from tornado import gen
-from tornado.web import authenticated, RequestHandler
+from tornado.web import RequestHandler, authenticated
 
 # Bokeh imports
 from .auth_mixin import AuthMixin
@@ -55,9 +52,8 @@ class RootHandler(AuthMixin, RequestHandler):
         self.index = kw["index"]
         self.use_redirect = kw["use_redirect"]
 
-    @gen.coroutine
     @authenticated
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         prefix = "" if self.prefix is None else self.prefix
         if self.use_redirect and len(self.applications) == 1:
             app_names = list(self.applications.keys())

@@ -1,12 +1,16 @@
+# Standard library imports
+import inspect
 import io
 import os
 import sys
-import inspect
+import warnings
 from json import loads
 
-from bokeh.model import Model
+# Bokeh imports
 import bokeh.models as models
 from bokeh.core.json_encoder import serialize_json
+from bokeh.model import Model
+from bokeh.util.warnings import BokehDeprecationWarning
 
 dest_dir = sys.argv[1]
 
@@ -48,16 +52,18 @@ for leaf in leaves(all_tree, model_class):
     if vm_name in all_json:
         continue
     defaults = {}
-    instance = klass()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+        instance = klass()
     props_with_values = instance.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
     for name, default in props_with_values.items():
         if isinstance(default, Model):
-            ref = default.ref
+            struct = default.struct
             raw_attrs = default._to_json_like(include_defaults=True)
             attrs = loads(serialize_json(raw_attrs))
-            ref['attributes'] = attrs
-            del ref['id'] # there's no way the ID will match bokehjs
-            default = ref
+            struct['attributes'] = attrs
+            del struct['id'] # there's no way the ID will match bokehjs
+            default = struct
         elif isinstance(default, float) and default == float('inf'):
             default = None
         defaults[name] = default

@@ -100,12 +100,14 @@ function _method_factory(method_name: string, logger_name: string): (...args: un
 
 export const logger = Logger.get("bokeh")
 
-export function set_log_level(level: string): void {
-  if (Logger.log_levels[level] == null) {
+export function set_log_level(level: string | LogLevel): LogLevel {
+  const previous_level = logger.level
+  if (isString(level) && Logger.log_levels[level] == null) {
     console.log(`[bokeh] unrecognized logging level '${level}' passed to Bokeh.set_log_level(), ignoring`)
     console.log(`[bokeh] valid log levels are: ${Logger.levels.join(', ')}`)
   } else {
-    console.log(`[bokeh] setting log level to: '${level}'`)
+    console.log(`[bokeh] setting log level to: '${isString(level) ? level : level.level}'`)
     logger.set_level(level)
   }
+  return previous_level
 }

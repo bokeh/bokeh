@@ -1,4 +1,4 @@
-import tz = require("timezone")
+import tz from "timezone"
 
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "core/logging"

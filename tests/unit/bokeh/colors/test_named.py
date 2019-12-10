@@ -14,14 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.colors.named as bcn
+import bokeh.colors.named as bcn # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

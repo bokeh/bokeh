@@ -1,8 +1,9 @@
-import param
-import panel as pn
 import numpy as np
+import param
 
+import panel as pn
 from bokeh.plotting import figure
+
 
 class Shape(param.Parameterized):
 

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from bokeh.models import ColumnDataSource, LabelSet
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.periodic_table import elements
 
 elements = elements.copy()

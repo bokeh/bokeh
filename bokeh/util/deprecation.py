@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -17,9 +17,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import Union, Tuple, Optional, overload
-
-# External imports
+from typing import Optional, Tuple, Union, overload
 
 # Bokeh imports
 from .warnings import BokehDeprecationWarning

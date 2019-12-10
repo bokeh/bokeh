@@ -12,26 +12,50 @@ Bokeh plots
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..core.enums import TickLabelOrientation
 from ..core.has_props import abstract
-from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
+from ..core.properties import (
+    Auto,
+    Datetime,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Include,
+    Instance,
+    Int,
+    Override,
+    Seq,
+    String,
+    Tuple,
+)
 from ..core.property_mixins import ScalarLineProps, ScalarTextProps
-
-from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter, MercatorTickFormatter
+from .formatters import (
+    BasicTickFormatter,
+    CategoricalTickFormatter,
+    DatetimeTickFormatter,
+    LogTickFormatter,
+    MercatorTickFormatter,
+    TickFormatter,
+)
 from .renderers import GuideRenderer
-from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker, MercatorTicker
+from .tickers import (
+    BasicTicker,
+    CategoricalTicker,
+    DatetimeTicker,
+    FixedTicker,
+    LogTicker,
+    MercatorTicker,
+    Ticker,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -308,7 +332,7 @@ class MercatorAxis(LinearAxis):
         super().__init__(**kw)
 
         # Just being careful. It would be defeat the purpose for anyone to actually
-        # configure this axis with differnet kinds of tickers or formatters.
+        # configure this axis with different kinds of tickers or formatters.
         if isinstance(self.ticker, MercatorTicker):
             self.ticker.dimension = dimension
         if isinstance(self.formatter, MercatorTickFormatter):

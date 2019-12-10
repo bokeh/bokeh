@@ -20,7 +20,7 @@ extra:
 requirements:
   build:
     - jinja2
-    - nodejs >=8.8
+    - nodejs >=10.13
     - numpy
     - packaging
     - python
@@ -59,21 +59,24 @@ test:
     - coverage
     - flake8
     - flaky
+    - ipython <=7.9.0
+    - isort >=4.3.21
     - lxml
     - mock
     - mypy
     - nbconvert >=5.4
     - networkx
-    - nodejs >=8.8
+    - nodejs >=10.13
     - numba
     - pandas
     - psutil
     - pytest
+    - pytest-asyncio
     - pytest-cov >=1.8.1
     - pytest-html
     - pytest-xdist
     - requests >=1.2.3
-    - selenium=3.8.0
+    - selenium >=3.8
     - scipy
 
     # examples
@@ -84,7 +87,6 @@ test:
     - networkx
     - notebook
     - opencv
-    - pscript
     - pyshp
     - scikit-learn
     - sympy

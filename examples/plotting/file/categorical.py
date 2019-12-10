@@ -1,5 +1,5 @@
 from bokeh.layouts import row
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
 x =  [50, 40, 65, 10, 25, 37, 80, 60]

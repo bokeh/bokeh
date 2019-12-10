@@ -1,5 +1,5 @@
+from bokeh.models import Arrow, Label, NormalHead, OpenHead, Plot, Range1d, VeeHead
 from bokeh.plotting import output_file, show
-from bokeh.models import Arrow, OpenHead, NormalHead, VeeHead, Label, Plot, Range1d
 
 output_file("arrow_styles.html")
 

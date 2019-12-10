@@ -19,18 +19,16 @@ web pages.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from .server import server_document, server_session
+from .standalone import autoload_static, components, file_html, json_item
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,13 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .server import server_document
-from .server import server_session
 
-from .standalone import autoload_static
-from .standalone import components
-from .standalone import file_html
-from .standalone import json_item
 
 #-----------------------------------------------------------------------------
 # Dev API

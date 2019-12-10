@@ -20,32 +20,16 @@ a Bokeh scene graph are called :ref:`Models <bokeh.model>`.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-# __all__ = include all explicit transitive imports below
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-from ..core.property.dataspec import expr, field, value # Legacy API
+from ..core.property.dataspec import expr, field, value  # Legacy API
 from ..model import Model
-
 from .annotations import *
 from .arrow_heads import *
 from .axes import *
@@ -58,20 +42,30 @@ from .graphs import *
 from .grids import *
 from .layouts import *
 from .map_plots import *
-from .markers import *
 from .mappers import *
+from .markers import *
 from .plots import *
 from .ranges import *
 from .renderers import *
 from .scales import *
 from .selections import *
 from .sources import *
+from .textures import *
 from .tickers import *
 from .tiles import *
-from .textures import *
 from .tools import *
 from .transforms import *
 from .widgets import *
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+# __all__ = include all explicit transitive imports above
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Dev API

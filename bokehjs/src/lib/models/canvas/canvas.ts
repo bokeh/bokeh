@@ -40,12 +40,7 @@ const global_webgl: WebGLState | undefined = (() => {
   }
 })()
 
-const canvas2svg = require("canvas2svg")
-
-type SVGRenderingContext2D = {
-  getSvg(): SVGSVGElement
-  getSerializedSvg(fix_named_entities: boolean): string
-}
+import canvas2svg, {SVGRenderingContext2D} from "canvas2svg"
 
 export class CanvasView extends DOMView {
   model: Canvas
@@ -183,6 +178,7 @@ export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
   properties: Canvas.Props
+  default_view: typeof CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)

@@ -1,7 +1,7 @@
 from bokeh.io import output_file, show
-from bokeh.models import HoverTool, CustomJSHover
+from bokeh.models import CustomJSHover, HoverTool
 from bokeh.plotting import figure
-from bokeh.tile_providers import get_provider, CARTODBPOSITRON
+from bokeh.tile_providers import CARTODBPOSITRON, get_provider
 
 output_file("customjs_hover.html")
 
@@ -13,7 +13,7 @@ p.add_tile(get_provider(CARTODBPOSITRON))
 p.circle(x=[0, 2000000, 4000000], y=[4000000, 2000000, 0], size=30)
 
 code = """
-    var projections = require("core/util/projections");
+    var projections = Bokeh.require("core/util/projections");
     var x = special_vars.x
     var y = special_vars.y
     var coords = projections.wgs84_mercator.inverse([x, y])

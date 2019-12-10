@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 import selenium.webdriver.phantomjs.webdriver
 
-# Bokeh imports
-
 # Module under test
-import bokeh.io.webdriver as biw
+import bokeh.io.webdriver as biw # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

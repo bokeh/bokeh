@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,17 +19,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import hashlib
 import io
 import json
 import os
-from os.path import dirname, join, abspath, exists, isabs
 import re
-from subprocess import Popen, PIPE
-from collections import OrderedDict
 import sys
-
-# External imports
-import hashlib
+from collections import OrderedDict
+from os.path import abspath, dirname, exists, isabs, join
+from subprocess import PIPE, Popen
 
 # Bokeh imports
 from ..model import Model
@@ -90,7 +88,7 @@ class CompilationError(RuntimeError):
         return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjsdir()
-nodejs_min_version = (6, 10, 0)
+nodejs_min_version = (10, 13, 0)
 
 def nodejs_version():
     return _version(_run_nodejs)

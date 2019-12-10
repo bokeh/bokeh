@@ -1,15 +1,14 @@
-from os.path import dirname, join
 from math import ceil
+from os.path import dirname, join
 
 import numpy as np
 
-from bokeh.io import curdoc
-from bokeh.layouts import grid, row, column
-from bokeh.models import ColumnDataSource, Slider, Div
-from bokeh.plotting import figure
-
 import audio
-from audio import MAX_FREQ, TIMESLICE, NUM_BINS
+from audio import MAX_FREQ, NUM_BINS, TIMESLICE
+from bokeh.io import curdoc
+from bokeh.layouts import column, grid, row
+from bokeh.models import ColumnDataSource, Div, Slider
+from bokeh.plotting import figure
 from waterfall import WaterfallRenderer
 
 MAX_FREQ_KHZ = MAX_FREQ*0.001

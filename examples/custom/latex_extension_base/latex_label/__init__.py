@@ -1,5 +1,6 @@
 from bokeh.models import Label
 
+
 class LatexLabel(Label):
     """A subclass of `Label` with all of the same class attributes except
     canvas mode isn't supported and DOM manipulation happens in the TypeScript

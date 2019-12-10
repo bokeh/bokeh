@@ -50,7 +50,7 @@ For all cases, it's required to explicitly add a Bokeh layout to
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -61,13 +61,9 @@ log = logging.getLogger(__name__)
 import argparse
 import io
 
-# External imports
-
 # Bokeh imports
-from ...io.export import get_svgs, create_webdriver, terminate_webdriver
-
+from ...io.export import create_webdriver, get_svgs, terminate_webdriver
 from ..util import set_single_plot_width_height
-
 from .file_output import FileOutputSubcommand
 from ...document import Document
 

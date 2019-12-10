@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 import io
 from os.path import abspath
 from warnings import warn
-
-# External imports
 
 # Bokeh imports
 from ..settings import settings

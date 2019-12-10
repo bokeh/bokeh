@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+# External imports
 from mock import patch
 
-# External imports
-
-# Bokeh imports
-
 # Module under test
-import bokeh.client.session as bcs
+import bokeh.client.session as bcs # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

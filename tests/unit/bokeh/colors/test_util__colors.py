@@ -14,15 +14,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.colors import named
 
 # Module under test
-import bokeh.colors.util as bcu
+import bokeh.colors.util as bcu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

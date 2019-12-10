@@ -14,20 +14,18 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from mock import Mock, patch
-
 # External imports
+from mock import Mock, patch
 
 # Bokeh imports
 from bokeh.application.application import Application
 from bokeh.io.doc import curdoc
 from bokeh.io.output import output_notebook
-from bokeh.io.state import curstate, State
+from bokeh.io.state import State, curstate
 from bokeh.models import GlyphRenderer, Plot
 
 # Module under test
-import bokeh.io.showing as bis
+import bokeh.io.showing as bis # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

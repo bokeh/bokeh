@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,11 +20,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from os.path import join, exists, dirname, pardir
 import subprocess
 import sys
 import time
-
+from os.path import dirname, exists, join, pardir
 
 # External imports
 import pytest

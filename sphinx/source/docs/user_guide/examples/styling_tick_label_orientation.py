@@ -1,4 +1,5 @@
 from math import pi
+
 from bokeh.plotting import figure, output_file, show
 
 output_file("gridlines.html")

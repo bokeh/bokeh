@@ -2,10 +2,10 @@ from os.path import dirname, join
 
 import pandas as pd
 
-from bokeh.layouts import row, column
-from bokeh.models import (Button, ColumnDataSource, CustomJS, DataTable,
-                          NumberFormatter, RangeSlider, TableColumn)
 from bokeh.io import curdoc
+from bokeh.layouts import column, row
+from bokeh.models import (Button, ColumnDataSource, CustomJS, DataTable,
+                          NumberFormatter, RangeSlider, TableColumn,)
 
 df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
 

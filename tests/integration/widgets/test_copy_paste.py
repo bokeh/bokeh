@@ -16,16 +16,17 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-
 from time import sleep
 
-# External imports
-
 # Bokeh imports
+from bokeh._testing.util.selenium import (
+    copy_table_rows,
+    enter_text_in_cell_with_click_enter,
+    get_page_element,
+    paste_values,
+)
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, DataTable, Div, TableColumn
-from bokeh._testing.util.selenium import copy_table_rows, paste_values
-from bokeh._testing.util.selenium import get_page_element, enter_text_in_cell_with_click_enter
 
 #-----------------------------------------------------------------------------
 # Tests

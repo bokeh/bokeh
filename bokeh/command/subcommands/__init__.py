@@ -64,8 +64,6 @@ def _collect() -> List[Type[Subcommand]]:
         for name in dir(mod):
             attr = getattr(mod, name)
             if isinstance(attr, type) and issubclass(attr, Subcommand):
-                # typing added empty string "name" attribute to abstract bases
-                # use truthy value of subclass's non-empty name string
                 if not getattr(attr, 'name', None): continue  # instance attribute not defined on abstract base class
                 results.append(attr)
 

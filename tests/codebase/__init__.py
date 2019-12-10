@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+# Standard library imports
 from os.path import abspath, join, pardir, split
 
 TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))

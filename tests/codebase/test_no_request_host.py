@@ -17,10 +17,8 @@ import pytest ; pytest
 
 # Standard library imports
 import io
-from subprocess import check_output
 from os.path import relpath
-
-# External imports
+from subprocess import check_output
 
 # Bokeh imports
 from . import TOP_PATH
