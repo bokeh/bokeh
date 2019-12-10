@@ -76,7 +76,7 @@ export abstract class HasProps extends Signalable() {
   default_view: Class<View, [View.Options]>
   _props: {[key: string]: {
     type: p.PropertyConstructor<unknown, unknown>,
-    default_value: any,          // T
+    default_value: any,
     options: p.PropertyOptions,
   }}
   mixins: string[]
@@ -210,8 +210,12 @@ export abstract class HasProps extends Signalable() {
   finalize(): void {
     for (const name in this.properties) {
       const prop = this.properties[name]
-      if (prop.spec.transform != null)
-        this.connect(prop.spec.transform.change, () => this.transformchange.emit())
+      if (prop instanceof p.SpecProperty) {
+        const {transform} = prop.get_value()
+        if (transform != null) {
+          this.connect(transform.change, () => this.transformchange.emit())
+        }
+      }
     }
 
     this.initialize()

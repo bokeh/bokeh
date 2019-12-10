@@ -1,33 +1,62 @@
 import {Signal0} from "./signaling"
-import {HasProps} from "./has_props"  // XXX: only for type purpose
+import /*type*/ {HasProps} from "./has_props"
 import * as enums from "./enums"
 import {Arrayable, Color as ColorType} from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {is_color} from "./util/color"
-import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {isBoolean, isNumber, isString, isArray, isObject, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vector, Dimensional} from "./vectorization"
+import {Scalar, Vector, Dimensional, is_Value, is_Field, is_Expr} from "./vectorization"
 
-function valueToString(value: unknown): string {
+/**
+ *  Type, Value, N
+ *
+ *  Property<number, number>
+ *   - update(val: number)
+ *   - value(): number
+ *   - scalar(): number
+ *
+ *  ScalarSpec<number, Scalar<number>>
+ *   - update(val: number | Scalar<number>)
+ *   - value(): Scalar<number>
+ *   - scalar(): number
+ *
+ *  VectorSpec<number, Vector<number>>
+ *   - update(val: number | Vector<number>)
+ *   - value(): Vector<number>
+ *   - scalar(): number
+ *   - vector(source): Arrayable<number>
+ *
+ *  Type :: value type    e.g. number
+ *  Value :: value spec    e.g. Value<number>
+ *  Normal :: value normal  e.g. 0 | 1
+ *
+ *  Property<Type, Value = Type, N = Type>
+ *   - update(val: Type | Value)
+ *   - value(): Value
+ *   - scalar(): N
+ *
+ *  ScalarSpec<Type, Value = Scalar<Type>, N = Type>
+ *   - update(val: Type | Value)
+ *   - value(): Value
+ *   - scalar(): N
+ *
+ *  VectorSpec<Type, Value = Vector<Type>, N = Type>
+ *   - update(val: Type | Value)
+ *   - value(): Value
+ *   - scalar(): N
+ *   - vector(source): Arrayable<N>
+ */
+
+function safe_to_string(value: unknown): string {
   try {
     return JSON.stringify(value)
   } catch {
     return `${value}`
   }
 }
-
-export function isSpec(obj: unknown): boolean {
-  return isPlainObject(obj) &&
-          ((obj.value === undefined ? 0 : 1) +
-           (obj.field === undefined ? 0 : 1) +
-           (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
-}
-
-//
-// Property base class
-//
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T, any> ? T : never
@@ -47,28 +76,30 @@ export interface PropertyConstructor<T, N> {
   readonly prototype: Property<T, N>
 }
 
-export abstract class Property<T, N = T> {
-  __value__: T
+export abstract class Property<Type, Value = Type, N = Type> {
+  __type__: Type
+  __value__: Value
   __normal__: N
 
-  /*protected*/ spec: { // XXX: too many failures for now
+  /*
+  spec: {
     readonly value?: any
     readonly field?: string
     readonly expr?: any
     readonly transform?: any // Transform
     units?: any
   }
+  */
 
-  get_value(): T {
-    return this.spec.value
+  protected _value: Value
+  get_value(): Value {
+    return this._value
   }
 
-  set_value(val: T): void {
+  set_value(val: Type | Value): void {
     this._update(val)
     this._dirty = true
   }
-
-  //abstract _intrinsic_default(): T
 
   private _dirty: boolean = false
   get dirty(): boolean {
@@ -82,15 +113,15 @@ export abstract class Property<T, N = T> {
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
-              readonly default_value?: (obj: HasProps) => T,
-              initial_value?: T,
+              readonly default_value?: (obj: HasProps) => Type | Value,
+              initial_value?: Type | Value,
               options: PropertyOptions = {}) {
     this.change = new Signal0(this.obj, "change")
 
     this.internal = options.internal ?? false
     this.optional = options.optional ?? false
 
-    let attr_value: T
+    let attr_value: Type | Value
     if (initial_value !== undefined) {
       attr_value = initial_value
       this._dirty = true
@@ -105,45 +136,23 @@ export abstract class Property<T, N = T> {
     this._update(attr_value)
   }
 
-  protected _update(attr_value: T): void {
-    if (isSpec(attr_value))
-      this.spec = attr_value
-    else
-      this.spec = {value: attr_value}
-
-    //if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
-    //  throw new Error(`field value for property '${attr}' is not a string`)
-
-    if (this.spec.value != null)
-      this.validate(this.spec.value)
-
-    this.init()
-  }
-
   toString(): string {
-    /*${this.name}*/
-    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
+    return `Prop(${this.obj}.${this.attr}, ${safe_to_string(this._value)})`
   }
 
-  // ----- customizable policies
+  protected abstract _update(attr_value: Type | Value): void
 
-  init(): void {}
+  abstract valid(value: unknown): boolean
 
-  protected normalize(value: T): N {
+  abstract scalar(): N
+
+  protected normalize(value: Type): N {
     return value as any // XXX
   }
 
   validate(value: unknown): void {
     if (!this.valid(value))
-      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
-  }
-
-  valid(_value: unknown): boolean {
-    return true
-  }
-
-  scalar(): N {
-    return this.normalize(this.get_value())
+      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${safe_to_string(value)}`)
   }
 }
 
@@ -151,31 +160,48 @@ export abstract class Property<T, N = T> {
 // Primitive Properties
 //
 
-export class Any extends Property<any> {}
+export abstract class Primitive<Type, N = Type> extends Property<Type, Type, N> {
+  _update(value: Type): void {
+    this.validate(value)
+    this._value = value
+  }
 
-export class Array extends Property<any[]> {
+  scalar(): N {
+    return this.normalize(this.get_value())
+  }
+}
+
+export class Any extends Primitive<any> {
+  valid(_value: unknown): boolean {
+    return true
+  }
+}
+
+export class Array extends Primitive<any[]> {
   valid(value: unknown): boolean {
     return isArray(value) || value instanceof Float64Array
   }
 }
 
-export class Boolean extends Property<boolean> {
+export class Boolean extends Primitive<boolean> {
   valid(value: unknown): boolean {
     return isBoolean(value)
   }
 }
 
-export class Color extends Property<ColorType> {
+export class Color extends Primitive<ColorType> {
   valid(value: unknown): boolean {
     return isString(value) && is_color(value)
   }
 }
 
-export class Instance extends Property<any /*HasProps*/> {
-  //valid(value: unknown): boolean { return  value.properties != null }
+export class Instance extends Primitive<any /*HasProps*/> {
+  valid(value: unknown): boolean {
+    return isObject(value) && "properties" in value
+  }
 }
 
-export class Number extends Property<number> {
+export class Number extends Primitive<number> {
   valid(value: unknown): boolean {
     return isNumber(value)
   }
@@ -195,7 +221,7 @@ export class Percent extends Number {
   }
 }
 
-export class String extends Property<string> {
+export class String extends Primitive<string> {
   valid(value: unknown): boolean {
     return isString(value)
   }
@@ -209,17 +235,17 @@ export class Font extends String {} // TODO (bev) don't think this exists python
 // Enum properties
 //
 
-export abstract class EnumProperty<T extends string, N> extends Property<T, N> {
-  readonly enum_values: T[]
+export abstract class EnumProperty<Type extends string, N> extends Primitive<Type, N> {
+  readonly enum_values: Type[]
 
   valid(value: unknown): boolean {
     return isString(value) && includes(this.enum_values, value)
   }
 }
 
-export function Enum<T extends string>(values: T[]): PropertyConstructor<T, T> {
-  return class extends EnumProperty<T, T> {
-    get enum_values(): T[] {
+export function Enum<Type extends string>(values: Type[]): PropertyConstructor<Type, Type> {
+  return class extends EnumProperty<Type, Type> {
+    get enum_values(): Type[] {
       return values
     }
   }
@@ -289,78 +315,108 @@ export const VerticalAlign = Enum(enums.VerticalAlign)
 // DataSpec properties
 //
 
-export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
-  __value__: T
-  __scalar__: S
+export type PrimitiveType = number | bigint | boolean | string | null
+export type SpecType = PrimitiveType | Arrayable<PrimitiveType> | Factor[]
 
-  scalar(): any {
-    let ret = super.scalar()
-    if (this.spec.transform != null)
-      ret = this.spec.transform.compute(ret)
+export abstract class SpecProperty<Type extends SpecType, Value extends Scalar<Type> | Vector<Type>> extends Property<Type, Value> {}
+
+export abstract class ScalarSpec<Type extends SpecType, Value extends Scalar<Type> = Scalar<Type>> extends SpecProperty<Type, Value> {
+
+  protected _update(value: Type | Value): void {
+    if (isPlainObject(value))
+      this._value = value
+    else
+      this._value = {value} as Value
+
+    if (this._value.value != null)
+      this.validate(this._value.value)
+  }
+
+  scalar(): Type {
+    let ret = this.normalize(super._value.value)
+    if (this._value.transform != null)
+      ret = this._value.transform.compute(ret)
     return ret
   }
 }
 
-export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
-  __value__: T
-  __vector__: V
+export abstract class VectorSpec<Type extends SpecType, Value extends Vector<Type> = Vector<Type>> extends SpecProperty<Type, Value> {
 
-  scalar(): any {
-    if (this.spec.value === undefined)
-      throw new Error("attempted to retrieve property value for property without value specification")
-    let ret = super.scalar()
-    if (this.spec.transform != null)
-      ret = this.spec.transform.compute(ret)
-    return ret
+  protected _update(value: Type | Value): void {
+    if (isPlainObject(value))
+      this._value = value
+    else
+      this._value = {value} as Value
+
+    if (is_Value(this._value))
+      this.validate(this._value.value)
   }
 
-  array(source: ColumnarDataSource): any[] {
+  valid(_value: unknown): boolean {
+    return true
+  }
+
+  scalar(): Type {
+    if (is_Value<Type>(this._value) && this._value.value !== undefined) {
+      let ret = this.normalize(this._value.value)
+      if (this._value.transform != null)
+        ret = this._value.transform.compute(ret)
+      return ret
+    } else
+      throw new Error("attempted to retrieve property value for property without value specification")
+  }
+
+  array(source: ColumnarDataSource): Type[] {
     let ret: any
 
-    if (this.spec.field != null) {
-      const column = source.get_column(this.spec.field)
-      if (column == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-      ret = this.v_normalize(column)
-    } else if (this.spec.expr != null) {
-      ret = this.v_normalize(this.spec.expr.v_compute(source))
-    } else {
+    if (is_Field(this._value)) {
+      const column = source.get_column(this._value.field)
+      if (column != null)
+        ret = this.v_normalize(column)
+      else
+        throw new Error(`attempted to retrieve property array for nonexistent field '${this._value.field}'`)
+    } else if (is_Expr<Type>(this._value)) {
+      ret = this.v_normalize(this._value.expr.v_compute(source))
+    } else if (is_Value<Type>(this._value)) {
       const length = source.get_length() ?? 1
-      ret = repeat(super.scalar(), length)
+      const value = this.normalize(this._value.value)
+      ret = repeat(value, length)
     }
 
-    if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
+    if (this._value.transform != null)
+      ret = this._value.transform.v_compute(ret)
 
     return ret
   }
 
-  protected v_normalize(array: Arrayable<T>): Arrayable<any> {
+  protected v_normalize(array: Arrayable<Type>): Arrayable<any> {
     return array
   }
 }
 
-export abstract class DataSpec<T> extends VectorSpec<T> {}
+export abstract class DataSpec<Type extends SpecType> extends VectorSpec<Type, Vector<Type>> {}
 
-export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
+export abstract class UnitsSpec<Type extends SpecType, Units> extends VectorSpec<Type, Dimensional<Vector<Type>, Units>> {
   readonly default_units: Units
   readonly valid_units: Units[]
 
-  init(): void {
-    if (this.spec.units == null)
-      this.spec.units = this.default_units
+  protected _update(value: Type | Dimensional<Vector<Type>, Units>): void {
+    super._update(value)
 
-    const units = this.spec.units
+    if (this._value.units == null)
+      this._value.units = this.default_units
+
+    const units = this._value.units
     if (!includes(this.valid_units, units))
       throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
   }
 
   get units(): Units {
-    return this.spec.units as Units
+    return this._value.units!
   }
 
   set units(units: Units) {
-    this.spec.units = units
+    this._value.units = units
   }
 }
 
@@ -369,7 +425,7 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
   get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
 
   protected v_normalize(values: Arrayable<number>): Arrayable<number> {
-    const c = this.spec.units == "deg" ? Math.PI/180.0 : 1
+    const c = this.units == "deg" ? Math.PI/180.0 : 1
     values = map(values, (x) => -c*x)
     return super.v_normalize(values)
   }
