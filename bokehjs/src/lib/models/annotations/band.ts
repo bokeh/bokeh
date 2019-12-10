@@ -108,7 +108,7 @@ export class BandView extends AnnotationView {
     ctx.closePath()
 
     if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
+      this.visuals.fill.set_scalar(ctx)
       ctx.fill()
     }
 
@@ -120,7 +120,7 @@ export class BandView extends AnnotationView {
     }
 
     if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
+      this.visuals.line.set_scalar(ctx)
       ctx.stroke()
     }
 
@@ -132,7 +132,7 @@ export class BandView extends AnnotationView {
     }
 
     if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
+      this.visuals.line.set_scalar(ctx)
       ctx.stroke()
     }
   }

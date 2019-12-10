@@ -97,9 +97,9 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.ctx)
+      this.visuals.text.set_scalar(this.ctx)
       const {width, ascent} = this.ctx.measureText(text)
-      return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
+      return {width, height: ascent * this.visuals.text.text_line_height.scalar() + 10}
     }
   }
 }

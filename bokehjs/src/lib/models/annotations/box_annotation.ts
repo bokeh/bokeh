@@ -85,7 +85,7 @@ export class BoxAnnotationView extends AnnotationView {
   }
 
   protected _css_box(sleft: number, sright: number, sbottom: number, stop: number): void {
-    const line_width = this.model.properties.line_width.value()
+    const line_width = this.model.properties.line_width.scalar()
     const sw = Math.floor(sright - sleft) - line_width
     const sh = Math.floor(sbottom - stop) - line_width
 
@@ -94,12 +94,12 @@ export class BoxAnnotationView extends AnnotationView {
     this.el.style.top = `${stop}px`
     this.el.style.height = `${sh}px`
     this.el.style.borderWidth = `${line_width}px`
-    this.el.style.borderColor = this.model.properties.line_color.value()
-    this.el.style.backgroundColor = this.model.properties.fill_color.value()
-    this.el.style.opacity = this.model.properties.fill_alpha.value()
+    this.el.style.borderColor = this.model.properties.line_color.scalar()
+    this.el.style.backgroundColor = this.model.properties.fill_color.scalar()
+    this.el.style.opacity = this.model.properties.fill_alpha.scalar()
 
     // try our best to honor line dashing in some way, if we can
-    const ld = this.model.properties.line_dash.value().length < 2 ? "solid" : "dashed"
+    const ld = this.model.properties.line_dash.scalar().length < 2 ? "solid" : "dashed"
     this.el.style.borderStyle = ld
 
     display(this.el)
@@ -112,17 +112,17 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    this.visuals.fill.set_value(ctx)
+    this.visuals.fill.set_scalar(ctx)
     ctx.fill()
 
-    this.visuals.line.set_value(ctx)
+    this.visuals.line.set_scalar(ctx)
     ctx.stroke()
 
     ctx.restore()
   }
 
   interactive_bbox(): BBox {
-    const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
+    const tol = this.model.properties.line_width.scalar() + EDGE_TOLERANCE
     return new BBox({
       x0: this.sleft-tol,
       y0: this.stop-tol,

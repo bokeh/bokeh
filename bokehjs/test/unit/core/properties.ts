@@ -168,25 +168,25 @@ describe("properties module", () => {
     describe("value", () => {
       it("should return a value if there is a value spec", () => {
         const p1 = new MyProperty(new SomeHasProps(fixed), 'a')
-        expect(p1.value()).to.be.equal(1)
+        expect(p1.scalar()).to.be.equal(1)
         const p2 = new MyProperty(new SomeHasProps(spec_value), 'a')
-        expect(p2.value()).to.be.equal(2)
+        expect(p2.scalar()).to.be.equal(2)
       })
 
       it("should return a transformed value if there is a value spec with transform", () => {
         const prop = new MyProperty(new SomeHasProps(spec_value_trans), 'a')
-        expect(prop.value()).to.be.equal(3)
+        expect(prop.scalar()).to.be.equal(3)
       })
 
       it("should allow a fixed null value", () => {
         const prop = new MyProperty(new SomeHasProps(spec_value_null), 'a')
-        expect(prop.value()).to.be.null
+        expect(prop.scalar()).to.be.null
       })
 
       it("should throw an Error otherwise", () => {
         function fn(): void {
           const prop = new MyProperty(new SomeHasProps(spec_field_only), 'a')
-          prop.value()
+          prop.scalar()
         }
         expect(fn).to.throw(Error, "attempted to retrieve property value for property without value specification")
       })

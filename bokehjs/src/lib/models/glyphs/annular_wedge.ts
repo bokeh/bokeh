@@ -50,7 +50,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
-    const direction = this.model.properties.direction.value()
+    const direction = this.model.properties.direction.scalar()
 
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + _start_angle[i] + _angle[i]))
@@ -118,7 +118,7 @@ export class AnnularWedgeView extends XYGlyphView {
         candidates.push([i, dist])
     }
 
-    const direction = this.model.properties.direction.value()
+    const direction = this.model.properties.direction.scalar()
     const hits: [number, number][] = []
     for (const [i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles

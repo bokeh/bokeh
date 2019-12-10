@@ -55,7 +55,7 @@ export class TextView extends XYGlyphView {
 
         const font = this.visuals.text.cache_select("font", i)
         const {height} = measure_font(font)
-        const line_height = this.visuals.text.text_line_height.value()*height
+        const line_height = this.visuals.text.text_line_height.scalar()*height
         if (text.indexOf("\n") == -1){
           ctx.fillText(text, 0, 0)
           const x0 = sx[i] + _x_offset[i]

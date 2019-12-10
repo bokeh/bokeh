@@ -105,7 +105,7 @@ export class AxisView extends GuideRendererView {
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
-    this.visuals.axis_line.set_value(ctx)
+    this.visuals.axis_line.set_scalar(ctx)
 
     ctx.beginPath()
     ctx.moveTo(Math.round(sxs[0] + nx*xoff), Math.round(sys[0] + ny*yoff))
@@ -190,7 +190,7 @@ export class AxisView extends GuideRendererView {
     const [nxin,  nyin]  = [nx * (xoff-tin),  ny * (yoff-tin)]
     const [nxout, nyout] = [nx * (xoff+tout), ny * (yoff+tout)]
 
-    visuals.set_value(ctx)
+    visuals.set_scalar(ctx)
 
     for (let i = 0; i < sxs.length; i++) {
       const sx0 = Math.round(sxs[i] + nxout)
@@ -227,7 +227,7 @@ export class AxisView extends GuideRendererView {
     const nxd = nx * (xoff + standoff)
     const nyd = ny * (yoff + standoff)
 
-    visuals.set_value(ctx)
+    visuals.set_scalar(ctx)
     this.panel.apply_label_text_heuristics(ctx, orient)
 
     let angle: number
@@ -283,7 +283,7 @@ export class AxisView extends GuideRendererView {
       return 0
 
     const ctx = this.plot_view.canvas_view.ctx
-    visuals.set_value(ctx)
+    visuals.set_scalar(ctx)
 
     let hscale: number
     let angle: number

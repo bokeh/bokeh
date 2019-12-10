@@ -1020,7 +1020,7 @@ export class PlotView extends LayoutDOMView {
 
     if (this.visuals.outline_line.doit) {
       ctx.save()
-      this.visuals.outline_line.set_value(ctx)
+      this.visuals.outline_line.set_scalar(ctx)
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
@@ -1079,13 +1079,13 @@ export class PlotView extends LayoutDOMView {
     ctx.clearRect(cx, cy, cw, ch)
 
     if (this.visuals.border_fill.doit) {
-      this.visuals.border_fill.set_value(ctx)
+      this.visuals.border_fill.set_scalar(ctx)
       ctx.fillRect(cx, cy, cw, ch)
       ctx.clearRect(fx, fy, fw, fh)
     }
 
     if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
+      this.visuals.background_fill.set_scalar(ctx)
       ctx.fillRect(fx, fy, fw, fh)
     }
   }

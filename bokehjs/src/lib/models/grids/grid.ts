@@ -33,7 +33,7 @@ export class GridView extends GuideRendererView {
     if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit)
       return
 
-    this.visuals.band_fill.set_value(ctx)
+    this.visuals.band_fill.set_scalar(ctx)
 
     const [xs, ys] = this.grid_coords('major', false)
     for (let i = 0; i < xs.length-1; i++) {
@@ -67,7 +67,7 @@ export class GridView extends GuideRendererView {
   }
 
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
-    visuals.set_value(ctx)
+    visuals.set_scalar(ctx)
     for (let i = 0; i < xs.length; i++) {
       const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this.model.x_range_name, this.model.y_range_name)
       ctx.beginPath()

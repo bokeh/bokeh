@@ -111,7 +111,7 @@ export class LabelSetView extends TextAnnotationView {
 
   protected _get_size(): Size {
     const {ctx} = this.plot_view.canvas_view
-    this.visuals.text.set_value(ctx)
+    this.visuals.text.set_scalar(ctx)
 
     const {width, ascent} = ctx.measureText(this._text[0])
     return {width, height: ascent}
@@ -155,7 +155,7 @@ export class LabelSetView extends TextAnnotationView {
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
 
     // attempt to support vector-style ("8 4 8") line dashing for css mode
-    const ld = this.visuals.border_line.line_dash.value()
+    const ld = this.visuals.border_line.line_dash.scalar()
     const line_dash = ld.length < 2 ? "solid" : "dashed"
 
     this.visuals.border_line.set_vectorize(ctx, i)
@@ -164,8 +164,8 @@ export class LabelSetView extends TextAnnotationView {
     el.style.position = 'absolute'
     el.style.left = `${sx + bbox_dims[0]}px`
     el.style.top = `${sy + bbox_dims[1]}px`
-    el.style.color = `${this.visuals.text.text_color.value()}`
-    el.style.opacity = `${this.visuals.text.text_alpha.value()}`
+    el.style.color = `${this.visuals.text.text_color.scalar()}`
+    el.style.opacity = `${this.visuals.text.text_alpha.scalar()}`
     el.style.font = `${this.visuals.text.font_value()}`
     el.style.lineHeight = "normal"  // needed to prevent ipynb css override
 
@@ -179,7 +179,7 @@ export class LabelSetView extends TextAnnotationView {
 
     if (this.visuals.border_line.doit) {
       el.style.borderStyle = `${line_dash}`
-      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
+      el.style.borderWidth = `${this.visuals.border_line.line_width.scalar()}px`
       el.style.borderColor = `${this.visuals.border_line.color_value()}`
     }
 

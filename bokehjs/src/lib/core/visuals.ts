@@ -221,6 +221,8 @@ export abstract class ContextProperties {
     return value
   }
 
+  abstract set_scalar(ctx: Context2d): void
+
   set_vectorize(ctx: Context2d, i: number): void {
     if (this.all_indices != null) // all_indices is set by a Visuals instance associated with a CDSView
       this._set_vectorize(ctx, this.all_indices[i])
@@ -241,14 +243,14 @@ export class Line extends ContextProperties {
   readonly line_dash:        p.Array
   readonly line_dash_offset: p.Number
 
-  set_value(ctx: Context2d): void {
-    ctx.strokeStyle = this.line_color.value()
-    ctx.globalAlpha = this.line_alpha.value()
-    ctx.lineWidth   = this.line_width.value()
-    ctx.lineJoin    = this.line_join.value()
-    ctx.lineCap     = this.line_cap.value()
-    ctx.setLineDash(this.line_dash.value())
-    ctx.setLineDashOffset(this.line_dash_offset.value())
+  set_scalar(ctx: Context2d): void {
+    ctx.strokeStyle = this.line_color.scalar()
+    ctx.globalAlpha = this.line_alpha.scalar()
+    ctx.lineWidth   = this.line_width.scalar()
+    ctx.lineJoin    = this.line_join.scalar()
+    ctx.lineCap     = this.line_cap.scalar()
+    ctx.setLineDash(this.line_dash.scalar())
+    ctx.setLineDashOffset(this.line_dash_offset.scalar())
   }
 
   get doit(): boolean {
@@ -288,7 +290,7 @@ export class Line extends ContextProperties {
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.line_color.value(), this.line_alpha.value())
+    const [r, g, b, a] = color2rgba(this.line_color.scalar(), this.line_alpha.scalar())
     return `rgba(${r*255},${g*255},${b*255},${a})`
   }
 }
@@ -300,9 +302,9 @@ export class Fill extends ContextProperties {
   readonly fill_color: p.ColorSpec
   readonly fill_alpha: p.NumberSpec
 
-  set_value(ctx: Context2d): void {
-    ctx.fillStyle   = this.fill_color.value()
-    ctx.globalAlpha = this.fill_alpha.value()
+  set_scalar(ctx: Context2d): void {
+    ctx.fillStyle   = this.fill_color.scalar()
+    ctx.globalAlpha = this.fill_alpha.scalar()
   }
 
   get doit(): boolean {
@@ -321,7 +323,7 @@ export class Fill extends ContextProperties {
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.fill_color.value(), this.fill_alpha.value())
+    const [r, g, b, a] = color2rgba(this.fill_color.scalar(), this.fill_alpha.scalar())
     return `rgba(${r*255},${g*255},${b*255},${a})`
   }
 }
@@ -401,7 +403,7 @@ export class Hatch extends ContextProperties {
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.hatch_color.value(), this.hatch_alpha.value())
+    const [r, g, b, a] = color2rgba(this.hatch_color.scalar(), this.hatch_alpha.scalar())
     return `rgba(${r*255},${g*255},${b*255},${a})`
   }
 }
@@ -435,23 +437,23 @@ export class Text extends ContextProperties {
   }
 
   font_value(): string {
-    const font       = this.text_font.value()
-    const font_size  = this.text_font_size.value()
-    const font_style = this.text_font_style.value()
+    const font       = this.text_font.scalar()
+    const font_size  = this.text_font_size.scalar()
+    const font_style = this.text_font_style.scalar()
     return font_style + " " + font_size + " " + font
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.text_color.value(), this.text_alpha.value())
+    const [r, g, b, a] = color2rgba(this.text_color.scalar(), this.text_alpha.scalar())
     return `rgba(${r*255},${g*255},${b*255},${a})`
   }
 
-  set_value(ctx: Context2d): void {
+  set_scalar(ctx: Context2d): void {
     ctx.font         = this.font_value()
-    ctx.fillStyle    = this.text_color.value()
-    ctx.globalAlpha  = this.text_alpha.value()
-    ctx.textAlign    = this.text_align.value()
-    ctx.textBaseline = this.text_baseline.value()
+    ctx.fillStyle    = this.text_color.scalar()
+    ctx.globalAlpha  = this.text_alpha.scalar()
+    ctx.textAlign    = this.text_align.scalar()
+    ctx.textBaseline = this.text_baseline.scalar()
   }
 
   get doit(): boolean {

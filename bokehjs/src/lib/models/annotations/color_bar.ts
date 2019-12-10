@@ -223,11 +223,11 @@ export class ColorBarView extends AnnotationView {
     const bbox = this.compute_legend_dimensions()
     ctx.save()
     if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
+      this.visuals.background_fill.set_scalar(ctx)
       ctx.fillRect(0, 0, bbox.width, bbox.height)
     }
     if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
+      this.visuals.border_line.set_scalar(ctx)
       ctx.strokeRect(0, 0, bbox.width, bbox.height)
     }
     ctx.restore()
@@ -240,7 +240,7 @@ export class ColorBarView extends AnnotationView {
     ctx.globalAlpha = this.model.scale_alpha
     ctx.drawImage(this.image, 0, 0, image.width, image.height)
     if (this.visuals.bar_line.doit) {
-      this.visuals.bar_line.set_value(ctx)
+      this.visuals.bar_line.set_scalar(ctx)
       ctx.strokeRect(0, 0, image.width, image.height)
     }
     ctx.restore()
@@ -260,7 +260,7 @@ export class ColorBarView extends AnnotationView {
 
     ctx.save()
     ctx.translate(x_offset, y_offset)
-    this.visuals.major_tick_line.set_value(ctx)
+    this.visuals.major_tick_line.set_scalar(ctx)
     for (let i = 0, end = sx.length; i < end; i++) {
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[i] + nx*tout), Math.round(sy[i] + ny*tout))
@@ -284,7 +284,7 @@ export class ColorBarView extends AnnotationView {
 
     ctx.save()
     ctx.translate(x_offset, y_offset)
-    this.visuals.minor_tick_line.set_value(ctx)
+    this.visuals.minor_tick_line.set_scalar(ctx)
     for (let i = 0, end = sx.length; i < end; i++) {
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[i] + nx*tout), Math.round(sy[i] + ny*tout))
@@ -308,7 +308,7 @@ export class ColorBarView extends AnnotationView {
 
     const formatted_labels = tick_info.labels.major
 
-    this.visuals.major_label_text.set_value(ctx)
+    this.visuals.major_label_text.set_scalar(ctx)
 
     ctx.save()
     ctx.translate(x_offset + x_standoff, y_offset + y_standoff)
@@ -325,7 +325,7 @@ export class ColorBarView extends AnnotationView {
       return
 
     ctx.save()
-    this.visuals.title_text.set_value(ctx)
+    this.visuals.title_text.set_scalar(ctx)
     ctx.fillText(this.model.title, 0, -this.model.title_standoff)
     ctx.restore()
   }
@@ -337,7 +337,7 @@ export class ColorBarView extends AnnotationView {
     if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !isEmpty(major_labels)) {
       const {ctx} = this.plot_view.canvas_view
       ctx.save()
-      this.visuals.major_label_text.set_value(ctx)
+      this.visuals.major_label_text.set_scalar(ctx)
       switch (this.model.orientation) {
         case "vertical":
           label_extent = max((major_labels.map((label) => ctx.measureText(label.toString()).width)))

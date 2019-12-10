@@ -35,7 +35,7 @@ export class WedgeView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, _start_angle, _end_angle}: WedgeData): void {
-    const direction = this.model.properties.direction.value()
+    const direction = this.model.properties.direction.scalar()
 
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
@@ -95,7 +95,7 @@ export class WedgeView extends XYGlyphView {
       }
     }
 
-    const direction = this.model.properties.direction.value()
+    const direction = this.model.properties.direction.scalar()
     const hits: [number, number][] = []
     for (const [i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles

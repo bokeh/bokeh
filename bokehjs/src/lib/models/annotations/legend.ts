@@ -30,7 +30,7 @@ export class LegendView extends AnnotationView {
   }
 
   get legend_padding(): number {
-    return this.visuals.border_line.line_color.value() != null ? this.model.padding : 0
+    return this.visuals.border_line.line_color.scalar() != null ? this.model.padding : 0
   }
 
   connect_signals(): void {
@@ -52,13 +52,13 @@ export class LegendView extends AnnotationView {
     // this is to measure text properties
     const { ctx } = this.plot_view.canvas_view
     ctx.save()
-    this.visuals.label_text.set_value(ctx)
+    this.visuals.label_text.set_scalar(ctx)
     this.text_widths = {}
     for (const name of legend_names) {
       this.text_widths[name] = max([ctx.measureText(name).width, label_width])
     }
 
-    this.visuals.title_text.set_value(ctx)
+    this.visuals.title_text.set_scalar(ctx)
     this.title_height = this.model.title ? measure_font(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
     this.title_width = this.model.title ? ctx.measureText(this.model.title).width : 0
 
@@ -230,10 +230,10 @@ export class LegendView extends AnnotationView {
   protected _draw_legend_box(ctx: Context2d, bbox: BBox): void {
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-    this.visuals.background_fill.set_value(ctx)
+    this.visuals.background_fill.set_scalar(ctx)
     ctx.fill()
     if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
+      this.visuals.border_line.set_scalar(ctx)
       ctx.stroke()
     }
   }
@@ -273,7 +273,7 @@ export class LegendView extends AnnotationView {
         else
           xoffset += this.text_widths[label] + glyph_width + label_standoff + legend_spacing
 
-        this.visuals.label_text.set_value(ctx)
+        this.visuals.label_text.set_scalar(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
         for (const r of item.renderers) {
           const view = this.plot_view.renderer_views[r.id] as GlyphRendererView
@@ -289,7 +289,7 @@ export class LegendView extends AnnotationView {
 
           ctx.beginPath()
           ctx.rect(x1, y1, w, h)
-          this.visuals.inactive_fill.set_value(ctx)
+          this.visuals.inactive_fill.set_scalar(ctx)
           ctx.fill()
         }
       }
@@ -302,7 +302,7 @@ export class LegendView extends AnnotationView {
 
     ctx.save()
     ctx.translate(bbox.x0, bbox.y0 + this.title_height)
-    this.visuals.title_text.set_value(ctx)
+    this.visuals.title_text.set_scalar(ctx)
     ctx.fillText(this.model.title, this.legend_padding, this.legend_padding-this.model.title_standoff)
     ctx.restore()
   }

@@ -71,11 +71,11 @@ export class SpanView extends AnnotationView {
       stop = _calc_dim(yscale, frame.yview)
       sleft = frame._left.value
       width = frame._width.value
-      height = this.model.properties.line_width.value()
+      height = this.model.properties.line_width.scalar()
     } else {
       stop = frame._top.value
       sleft = _calc_dim(xscale, frame.xview)
-      width = this.model.properties.line_width.value()
+      width = this.model.properties.line_width.scalar()
       height = frame._height.value
     }
 
@@ -84,15 +84,15 @@ export class SpanView extends AnnotationView {
       this.el.style.left = `${sleft}px`
       this.el.style.width = `${width}px`
       this.el.style.height = `${height}px`
-      this.el.style.backgroundColor = this.model.properties.line_color.value()
-      this.el.style.opacity = this.model.properties.line_alpha.value()
+      this.el.style.backgroundColor = this.model.properties.line_color.scalar()
+      this.el.style.opacity = this.model.properties.line_alpha.scalar()
       display(this.el)
     } else if (this.model.render_mode == "canvas") {
       const {ctx} = this.plot_view.canvas_view
       ctx.save()
 
       ctx.beginPath()
-      this.visuals.line.set_value(ctx)
+      this.visuals.line.set_scalar(ctx)
       ctx.moveTo(sleft, stop)
       if (this.model.dimension == "width") {
         ctx.lineTo(sleft + width, stop)

@@ -51,7 +51,7 @@ export class SlopeView extends AnnotationView {
     ctx.save()
 
     ctx.beginPath()
-    this.visuals.line.set_value(ctx)
+    this.visuals.line.set_scalar(ctx)
     ctx.moveTo(sx_start, sy_start)
     ctx.lineTo(sx_end, sy_end)
 

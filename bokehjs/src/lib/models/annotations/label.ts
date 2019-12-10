@@ -16,7 +16,7 @@ export class LabelView extends TextAnnotationView {
 
   protected _get_size(): Size {
     const {ctx} = this.plot_view.canvas_view
-    this.visuals.text.set_value(ctx)
+    this.visuals.text.set_scalar(ctx)
 
     const {width, ascent} = ctx.measureText(this.model.text)
     return {width, height: ascent}

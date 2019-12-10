@@ -56,12 +56,12 @@ export class PolyAnnotationView extends AnnotationView {
     ctx.closePath()
 
     if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
+      this.visuals.line.set_scalar(ctx)
       ctx.stroke()
     }
 
     if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
+      this.visuals.fill.set_scalar(ctx)
       ctx.fill()
     }
   }

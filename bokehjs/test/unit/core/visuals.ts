@@ -21,7 +21,7 @@ describe("Fill", () => {
         attrs[spec] = {value}
         const model = new Circle(attrs)
         const fill = new Fill(model)
-        fill.set_value(ctx)
+        fill.set_scalar(ctx)
         expect(ctx[attr]).to.be.equal(value)
       })
     }
@@ -72,7 +72,7 @@ describe("Line", () => {
         attrs[spec] = {value}
         const model = new Circle(attrs)
         const line = new Line(model)
-        line.set_value(ctx)
+        line.set_scalar(ctx)
         expect(ctx[attr]).to.be.equal(value)
         expect(ctx.lineDash).to.be.deep.equal([1, 2])
       })
@@ -123,7 +123,7 @@ describe("Text", () => {
         attrs[spec] = {value}
         const model = new text_glyph.Text(attrs)
         const text = new Text(model)
-        text.set_value(ctx)
+        text.set_scalar(ctx)
         expect(ctx[attr]).to.be.equal(value)
         expect(ctx.font).to.be.equal("bold 12pt times")
       })

@@ -56,7 +56,7 @@ export class HAreaView extends AreaView {
   protected _render(ctx: Context2d, _indices: number[], {sx1, sx2, sy}: HAreaData): void {
 
     if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
+      this.visuals.fill.set_scalar(ctx)
       this._inner(ctx, sx1, sx2, sy, ctx.fill)
     }
 

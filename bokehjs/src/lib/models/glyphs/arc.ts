@@ -33,7 +33,7 @@ export class ArcView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, sradius, _start_angle, _end_angle}: ArcData): void {
     if (this.visuals.line.doit) {
-      const direction = this.model.properties.direction.value()
+      const direction = this.model.properties.direction.scalar()
 
       for (const i of indices) {
         if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))

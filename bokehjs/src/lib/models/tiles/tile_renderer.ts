@@ -244,7 +244,7 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _set_rect(): void {
-    const outline_width = this.plot_model.properties.outline_line_width.value()
+    const outline_width = this.plot_model.properties.outline_line_width.scalar()
     const l = this.map_frame._left.value + (outline_width/2)
     const t = this.map_frame._top.value + (outline_width/2)
     const w = this.map_frame._width.value - outline_width

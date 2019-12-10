@@ -128,8 +128,8 @@ export abstract class Property<T> {
 
   init(): void {}
 
-  normalize(values: any): any {
-    return values
+  protected normalize(value: T): any { // N
+    return value
   }
 
   validate(value: any): void {
@@ -141,15 +141,8 @@ export abstract class Property<T> {
     return true
   }
 
-  // ----- property accessors
-
-  value(do_spec_transform: boolean = true): any {
-    if (this.spec.value === undefined)
-      throw new Error("attempted to retrieve property value for property without value specification")
-    let ret = this.normalize([this.spec.value])[0]
-    if (this.spec.transform != null && do_spec_transform)
-      ret = this.spec.transform.compute(ret)
-    return ret
+  scalar(): T { // XXX: nope, really N
+    return this.normalize(this.get_value())
   }
 }
 
@@ -236,15 +229,11 @@ export class Direction extends EnumProperty<enums.Direction> {
     return enums.Direction
   }
 
-  normalize(values: any): any {
-    const result = new Uint8Array(values.length)
-    for (let i = 0; i < values.length; i++) {
-      switch (values[i]) {
-        case "clock":     result[i] = 0; break
-        case "anticlock": result[i] = 1; break
-      }
+  protected normalize(value: enums.Direction): number {
+    switch (value) {
+      case "clock":     return 0
+      case "anticlock": return 1
     }
-    return result
   }
 }
 
@@ -302,32 +291,52 @@ export const VerticalAlign = Enum(enums.VerticalAlign)
 export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
   __value__: T
   __scalar__: S
+
+  scalar(): any {
+    let ret = super.scalar()
+    if (this.spec.transform != null)
+      ret = this.spec.transform.compute(ret)
+    return ret
+  }
 }
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
   __value__: T
   __vector__: V
 
+  scalar(): any {
+    if (this.spec.value === undefined)
+      throw new Error("attempted to retrieve property value for property without value specification")
+    let ret = this.normalize(this.spec.value)
+    if (this.spec.transform != null)
+      ret = this.spec.transform.compute(ret)
+    return ret
+  }
+
   array(source: ColumnarDataSource): any[] {
     let ret: any
 
     if (this.spec.field != null) {
-      ret = this.normalize(source.get_column(this.spec.field))
-      if (ret == null)
+      const column = source.get_column(this.spec.field)
+      if (column == null)
         throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+      ret = this.v_normalize(column)
     } else if (this.spec.expr != null) {
-      ret = this.normalize(this.spec.expr.v_compute(source))
+      ret = this.v_normalize(this.spec.expr.v_compute(source))
     } else {
-      let length = source.get_length()
-      if (length == null)
-        length = 1
-      const value = this.value(false) // don't apply any spec transform
+      const length = source.get_length() ?? 1
+      const value = this.normalize(this.spec.value)
       ret = repeat(value, length)
     }
 
     if (this.spec.transform != null)
       ret = this.spec.transform.v_compute(ret)
+
     return ret
+  }
+
+  protected v_normalize(array: ArrayLike<T>): ArrayLike<any> {
+    return array
   }
 }
 

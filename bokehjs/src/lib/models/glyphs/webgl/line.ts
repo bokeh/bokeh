@@ -255,12 +255,12 @@ export class LineGLGlyph extends BaseGLGlyph {
   }
 
   protected _set_visuals(): void {
-    const color = color2rgba(this.glyph.visuals.line.line_color.value(), this.glyph.visuals.line.line_alpha.value())
-    const cap = caps[this.glyph.visuals.line.line_cap.value()]
-    const join = joins[this.glyph.visuals.line.line_join.value()]
+    const color = color2rgba(this.glyph.visuals.line.line_color.scalar(), this.glyph.visuals.line.line_alpha.scalar())
+    const cap = caps[this.glyph.visuals.line.line_cap.scalar()]
+    const join = joins[this.glyph.visuals.line.line_join.scalar()]
 
     this.prog.set_uniform('u_color', 'vec4', color)
-    this.prog.set_uniform('u_linewidth', 'float', [this.glyph.visuals.line.line_width.value()])
+    this.prog.set_uniform('u_linewidth', 'float', [this.glyph.visuals.line.line_width.scalar()])
     this.prog.set_uniform('u_antialias', 'float', [0.9])  // Smaller aa-region to obtain crisper images
 
     this.prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
@@ -268,13 +268,13 @@ export class LineGLGlyph extends BaseGLGlyph {
     this.prog.set_uniform('u_miter_limit', 'float', [10.0])  // 10 should be a good value
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
-    const dash_pattern = this.glyph.visuals.line.line_dash.value()
+    const dash_pattern = this.glyph.visuals.line.line_dash.scalar()
     let dash_index = 0; let dash_period = 1
     if (dash_pattern.length) {
       [dash_index, dash_period] = this.dash_atlas.get_atlas_data(dash_pattern)
     }
     this.prog.set_uniform('u_dash_index', 'float', [dash_index])  // 0 means solid line
-    this.prog.set_uniform('u_dash_phase', 'float', [this.glyph.visuals.line.line_dash_offset.value()])
+    this.prog.set_uniform('u_dash_phase', 'float', [this.glyph.visuals.line.line_dash_offset.scalar()])
     this.prog.set_uniform('u_dash_period', 'float', [dash_period])
     this.prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
     this.prog.set_uniform('u_closed', 'float', [0])  // We dont do closed lines

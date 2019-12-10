@@ -116,7 +116,7 @@ export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}
     prog.set_attribute(att_name, 'float', [0])
   } else if (visual_prop_is_singular(visual, name)) {
     vbo.used = false
-    prog.set_attribute(att_name, 'float', visual[name].value())
+    prog.set_attribute(att_name, 'float', visual[name].scalar())
   } else {
     vbo.used = true
     const a = new Float32Array(visual.cache[name + '_array'])
@@ -142,7 +142,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
   } else if (visual_prop_is_singular(visual, colorname) && visual_prop_is_singular(visual, alphaname)) {
     // Nice and simple; both color and alpha are singular
     vbo.used = false
-    rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
+    rgba = color2rgba(visual[colorname].scalar(), visual[alphaname].scalar())
     prog.set_attribute(att_name, 'vec4', rgba)
   } else {
     // Use vbo; we need an array for both the color and the alpha
@@ -153,7 +153,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
       colors = ((() => {
         const result = []
         for (let i = 0, end = n; i < end; i++) {
-          result.push(visual[colorname].value())
+          result.push(visual[colorname].scalar())
         }
         return result
       })())
@@ -162,7 +162,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
     }
     // Get array of alphas
     if (visual_prop_is_singular(visual, alphaname)) {
-      alphas = fill_array_with_float(n, visual[alphaname].value())
+      alphas = fill_array_with_float(n, visual[alphaname].scalar())
     } else {
       alphas = visual.cache[alphaname+'_array']
     }

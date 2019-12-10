@@ -21,7 +21,7 @@ export class LineView extends XYGlyphView {
     let drawing = false
     let last_index: number | null = null
 
-    this.visuals.line.set_value(ctx)
+    this.visuals.line.set_scalar(ctx)
     for (const i of indices) {
       if (drawing) {
         if (!isFinite(sx[i] + sy[i])) {
@@ -65,7 +65,7 @@ export class LineView extends XYGlyphView {
     const result = hittest.create_empty_hit_test_result()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
-    const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
+    const threshold = Math.max(2, this.visuals.line.line_width.scalar() / 2)
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
       const p0 = {x: this.sx[i],     y: this.sy[i]    }
