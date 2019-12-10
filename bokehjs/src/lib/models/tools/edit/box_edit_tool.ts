@@ -42,8 +42,7 @@ export class BoxEditToolView extends EditToolView {
               append: boolean, emit: boolean = false): void {
     const renderer = this.model.renderers[0]
     const frame = this.plot_view.frame
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const cds = renderer.data_source
     const xscale = frame.xscales[renderer.x_range_name]
     const yscale = frame.yscales[renderer.y_range_name]

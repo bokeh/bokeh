@@ -19,7 +19,7 @@ export class FreehandDrawToolView extends EditToolView {
 
     const [x, y] = point
     const cds = renderer.data_source
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (mode == 'new') {
       this._pop_glyphs(cds, this.model.num_objects)

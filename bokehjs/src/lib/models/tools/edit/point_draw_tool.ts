@@ -20,8 +20,7 @@ export class PointDrawToolView extends EditToolView {
     if (point == null)
       return
 
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const cds = renderer.data_source
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
     const [x, y] = point

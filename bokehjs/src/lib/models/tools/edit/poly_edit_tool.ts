@@ -30,8 +30,7 @@ export class PolyEditToolView extends PolyToolView {
     // Perform hit testing
     const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer])
     const point_cds = this.model.vertex_renderer.data_source
-    // Type once dataspecs are typed
-    const point_glyph: any = this.model.vertex_renderer.glyph
+    const point_glyph = this.model.vertex_renderer.glyph
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (vertex_selected.length && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
@@ -65,7 +64,7 @@ export class PolyEditToolView extends PolyToolView {
     }
 
     const renderer = renderers[0]
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const cds = renderer.data_source
     const index = cds.selected.indices[0]
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
@@ -94,7 +93,7 @@ export class PolyEditToolView extends PolyToolView {
     if (this._drawing && this._selected_renderer != null) {
       const renderer = this.model.vertex_renderer
       const cds = renderer.data_source
-      const glyph: any = renderer.glyph
+      const glyph = renderer.glyph
       const point = this._map_drag(ev.sx, ev.sy, renderer)
       if (point == null)
         return
@@ -119,8 +118,7 @@ export class PolyEditToolView extends PolyToolView {
     else if (this._drawing && this._selected_renderer) {
       let [x, y] = point
       const cds = renderer.data_source
-      // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
+      const glyph = renderer.glyph
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       const indices = cds.selected.indices
       ;[x, y] = this._snap_to_vertex(ev, x, y)
@@ -152,8 +150,7 @@ export class PolyEditToolView extends PolyToolView {
       return
     const renderer = this.model.vertex_renderer
     const cds = renderer.data_source
-    // Type once dataspecs are typed
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const index = cds.selected.indices[0]
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
     if (xkey) cds.get_array(xkey).splice(index, 1)

@@ -94,8 +94,7 @@ export abstract class EditToolView extends GestureToolView {
       const [x, y] = point
       const [px, py] = basepoint
       const [dx, dy] = [x-px, y-py]
-      // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
+      const glyph = renderer.glyph
       const cds = renderer.data_source
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       for (const index of cds.selected.indices) {

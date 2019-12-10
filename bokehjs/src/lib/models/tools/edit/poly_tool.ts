@@ -15,7 +15,7 @@ export class PolyToolView extends EditToolView {
   model: PolyTool
 
   _set_vertices(xs: number[] | number, ys: number[] | number): void {
-    const point_glyph: any = this.model.vertex_renderer.glyph
+    const point_glyph = this.model.vertex_renderer.glyph
     const point_cds = this.model.vertex_renderer.data_source
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey) {
@@ -42,8 +42,7 @@ export class PolyToolView extends EditToolView {
       // If an existing vertex is hit snap to it
       const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer])
       const point_ds = this.model.vertex_renderer.data_source
-      // Type once dataspecs are typed
-      const point_glyph: any = this.model.vertex_renderer.glyph
+      const point_glyph = this.model.vertex_renderer.glyph
       const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
       if (vertex_selected.length) {
         const index = point_ds.selected.indices[0]

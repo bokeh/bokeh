@@ -36,7 +36,7 @@ export class PolyDrawToolView extends PolyToolView {
     const [x, y] = this._snap_to_vertex(ev, ...point)
 
     const cds = renderer.data_source
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (mode == 'new') {
       this._pop_glyphs(cds, this.model.num_objects)
@@ -86,7 +86,7 @@ export class PolyDrawToolView extends PolyToolView {
     for (let i=0; i<this.model.renderers.length; i++) {
       const renderer = this.model.renderers[i]
       const cds = renderer.data_source
-      const glyph: any = renderer.glyph
+      const glyph = renderer.glyph
       const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
       if (xkey) {
         for (const array of cds.get_array(xkey))
@@ -126,7 +126,7 @@ export class PolyDrawToolView extends PolyToolView {
   _remove(): void {
     const renderer = this.model.renderers[0]
     const cds = renderer.data_source
-    const glyph: any = renderer.glyph
+    const glyph = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (xkey) {
       const xidx = cds.data[xkey].length-1
@@ -176,8 +176,7 @@ export class PolyDrawToolView extends PolyToolView {
         continue
 
       const cds = renderer.data_source
-      // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
+      const glyph = renderer.glyph
       const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
       if (!xkey && !ykey)
         continue
