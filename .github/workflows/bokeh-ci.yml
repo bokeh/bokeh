@@ -21,13 +21,13 @@ jobs:
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
           curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda/bin"
-          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+          echo "::add-path::$HOME/miniconda3/bin"
+          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -78,7 +78,7 @@ jobs:
         run: |
           conda build conda.recipe --quiet --no-test --no-anaconda-upload --no-verify
           pushd $HOME
-          tar czf conda-bld-noarch.tgz "miniconda/conda-bld/noarch"
+          tar czf conda-bld-noarch.tgz "miniconda3/conda-bld/noarch"
           popd
           mv $HOME/conda-bld-noarch.tgz .
 
@@ -109,13 +109,13 @@ jobs:
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
           curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda/bin"
-          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+          echo "::add-path::$HOME/miniconda3/bin"
+          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -199,13 +199,13 @@ jobs:
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
           curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda/bin"
-          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+          echo "::add-path::$HOME/miniconda3/bin"
+          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -300,13 +300,13 @@ jobs:
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
           curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda/bin"
-          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+          echo "::add-path::$HOME/miniconda3/bin"
+          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -400,27 +400,33 @@ jobs:
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
             curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
             curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
             curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-            ./${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+            ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda/bin"
-          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+          if [[ "${{ runner.os }}" = "Windows" ]]; then
+            echo "::add-path::$HOME/miniconda3"
+            echo "::add-path::$HOME/miniconda3/Scripts"
+            echo "::add-path::$HOME/miniconda3/envs/testenv/Scripts"
+          else
+            echo "::add-path::$HOME/miniconda3/bin"
+            echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
+          fi
 
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -479,9 +485,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          pushd tests
-          py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes
-          popd
+          py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
 
 
 
@@ -505,13 +509,13 @@ jobs:
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
           curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda
+          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda/bin"
-          echo "::add-path::$HOME/miniconda/envs/testenv/bin"
+          echo "::add-path::$HOME/miniconda3/bin"
+          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
