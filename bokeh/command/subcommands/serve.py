@@ -412,7 +412,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import List, Optional
+from typing import List
 
 # External imports
 from tornado.autoreload import watch

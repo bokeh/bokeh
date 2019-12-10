@@ -43,7 +43,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import argparse
 import sys
-from typing import Any, Optional, Sequence, Tuple
 
 # External imports
 
@@ -55,7 +54,6 @@ from bokeh.util.string import nice_join
 # Bokeh imports
 from . import subcommands
 from .util import die
-from .subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants

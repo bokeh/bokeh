@@ -146,7 +146,7 @@ def build_single_handler_applications(paths: List[str], argvs: Optional[Dict[str
     to generate the mapping.
 
     Args:
-        path (seq[str]) : paths to files or directories for creating Bokeh
+        paths (seq[str]) : paths to files or directories for creating Bokeh
             applications.
 
         argvs (dict[str, list[str]], optional) : mapping of paths to command

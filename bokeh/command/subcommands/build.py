@@ -18,13 +18,13 @@
 
 # Standard library imports
 from argparse import Namespace
-from typing import Sequence
-
-# External imports
 
 # Bokeh imports
-from ..subcommand import Subcommand
 from bokeh.ext import build
+# Bokeh imports
+from ..subcommand import Subcommand
+
+# External imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants
