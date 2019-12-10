@@ -40,7 +40,7 @@ export class ArcView extends XYGlyphView {
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
+        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], !!direction)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -57,7 +57,7 @@ export namespace Arc {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & LineVector & {
-    direction: p.Property<Direction>
+    direction: p.Property<Direction, 0 | 1>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
@@ -80,7 +80,7 @@ export class Arc extends XYGlyph {
 
     this.mixins(['line'])
     this.define<Arc.Props>({
-      direction:   [ p.Direction,   'anticlock' ],
+      direction:   [ p.Direction as any,   'anticlock' ],
       radius:      [ p.DistanceSpec             ],
       start_angle: [ p.AngleSpec                ],
       end_angle:   [ p.AngleSpec                ],

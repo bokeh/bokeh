@@ -75,7 +75,7 @@ export abstract class HasProps extends Signalable() {
   // {{{ prototype
   default_view: Class<View, [View.Options]>
   _props: {[key: string]: {
-    type: p.PropertyConstructor<unknown>,
+    type: p.PropertyConstructor<unknown, unknown>,
     default_value: any,          // T
     options: p.PropertyOptions,
   }}

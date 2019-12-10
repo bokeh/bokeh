@@ -42,7 +42,7 @@ export class WedgeView extends XYGlyphView {
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
+      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], !!direction)
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
@@ -131,7 +131,7 @@ export namespace Wedge {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & LineVector & FillVector & {
-    direction: p.Property<Direction>
+    direction: p.Property<Direction, 0 | 1>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
@@ -154,7 +154,7 @@ export class Wedge extends XYGlyph {
 
     this.mixins(['line', 'fill'])
     this.define<Wedge.Props>({
-      direction:    [ p.Direction,   'anticlock' ],
+      direction:    [ p.Direction as any,   'anticlock' ],
       radius:       [ p.DistanceSpec             ],
       start_angle:  [ p.AngleSpec                ],
       end_angle:    [ p.AngleSpec                ],

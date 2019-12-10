@@ -10,15 +10,15 @@ import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
 
-function valueToString(value: any): string {
+function valueToString(value: unknown): string {
   try {
     return JSON.stringify(value)
   } catch {
-    return value.toString()
+    return `${value}`
   }
 }
 
-export function isSpec(obj: any): boolean {
+export function isSpec(obj: unknown): boolean {
   return isPlainObject(obj) &&
           ((obj.value === undefined ? 0 : 1) +
            (obj.field === undefined ? 0 : 1) +
@@ -30,11 +30,11 @@ export function isSpec(obj: any): boolean {
 //
 
 export type AttrsOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? T : never
+  [K in keyof P]: P[K] extends Property<infer T, any> ? T : never
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T>, (T | (() => T))?, PropertyOptions?] : never
+  [K in keyof P]: P[K] extends Property<infer T, infer N> ? [PropertyConstructor<T, N>, (T | (() => T))?, PropertyOptions?]: never
 }
 
 export type PropertyOptions = {
@@ -42,13 +42,14 @@ export type PropertyOptions = {
   optional?: boolean
 }
 
-export interface PropertyConstructor<T> {
+export interface PropertyConstructor<T, N> {
   new (obj: HasProps, attr: string, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions): Property<T>
-  readonly prototype: Property<T>
+  readonly prototype: Property<T, N>
 }
 
-export abstract class Property<T> {
+export abstract class Property<T, N = T> {
   __value__: T
+  __normal__: N
 
   /*protected*/ spec: { // XXX: too many failures for now
     readonly value?: any
@@ -128,11 +129,11 @@ export abstract class Property<T> {
 
   init(): void {}
 
-  protected normalize(value: T): any { // N
-    return value
+  protected normalize(value: T): N {
+    return value as any // XXX
   }
 
-  validate(value: any): void {
+  validate(value: unknown): void {
     if (!this.valid(value))
       throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
   }
@@ -141,7 +142,7 @@ export abstract class Property<T> {
     return true
   }
 
-  scalar(): T { // XXX: nope, really N
+  scalar(): N {
     return this.normalize(this.get_value())
   }
 }
@@ -208,7 +209,7 @@ export class Font extends String {} // TODO (bev) don't think this exists python
 // Enum properties
 //
 
-export abstract class EnumProperty<T extends string> extends Property<T> {
+export abstract class EnumProperty<T extends string, N> extends Property<T, N> {
   readonly enum_values: T[]
 
   valid(value: unknown): boolean {
@@ -216,20 +217,20 @@ export abstract class EnumProperty<T extends string> extends Property<T> {
   }
 }
 
-export function Enum<T extends string>(values: T[]): PropertyConstructor<T> {
-  return class extends EnumProperty<T> {
+export function Enum<T extends string>(values: T[]): PropertyConstructor<T, T> {
+  return class extends EnumProperty<T, T> {
     get enum_values(): T[] {
       return values
     }
   }
 }
 
-export class Direction extends EnumProperty<enums.Direction> {
+export class Direction extends EnumProperty<enums.Direction, 0 | 1> {
   get enum_values(): enums.Direction[] {
     return enums.Direction
   }
 
-  protected normalize(value: enums.Direction): number {
+  protected normalize(value: enums.Direction): 0 | 1 {
     switch (value) {
       case "clock":     return 0
       case "anticlock": return 1
@@ -307,7 +308,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   scalar(): any {
     if (this.spec.value === undefined)
       throw new Error("attempted to retrieve property value for property without value specification")
-    let ret = this.normalize(this.spec.value)
+    let ret = super.scalar()
     if (this.spec.transform != null)
       ret = this.spec.transform.compute(ret)
     return ret
@@ -325,8 +326,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       ret = this.v_normalize(this.spec.expr.v_compute(source))
     } else {
       const length = source.get_length() ?? 1
-      const value = this.normalize(this.spec.value)
-      ret = repeat(value, length)
+      ret = repeat(super.scalar(), length)
     }
 
     if (this.spec.transform != null)
@@ -335,7 +335,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     return ret
   }
 
-  protected v_normalize(array: ArrayLike<T>): ArrayLike<any> {
+  protected v_normalize(array: Arrayable<T>): Arrayable<any> {
     return array
   }
 }
@@ -368,11 +368,10 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
   get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
 
-  normalize(values: Arrayable): Arrayable {
-    if (this.spec.units == "deg")
-      values = map(values, (x: number) => x * Math.PI/180.0)
-    values = map(values, (x: number) => -x)
-    return super.normalize(values)
+  protected v_normalize(values: Arrayable<number>): Arrayable<number> {
+    const c = this.spec.units == "deg" ? Math.PI/180.0 : 1
+    values = map(values, (x) => -c*x)
+    return super.v_normalize(values)
   }
 }
 

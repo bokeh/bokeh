@@ -6,6 +6,7 @@ import {Arrayable, Rect} from "core/types"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {Direction} from "core/enums"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -61,7 +62,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
       ctx.moveTo(souter_radius[i], 0)
       ctx.beginPath()
-      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], direction)
+      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], !!direction)
       ctx.rotate(_angle[i])
       ctx.lineTo(sinner_radius[i], 0)
       ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !direction)
@@ -154,7 +155,7 @@ export namespace AnnularWedge {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & LineVector & FillVector & {
-    direction: p.Direction
+    direction: p.Property<Direction, 0 | 1>
     inner_radius: p.DistanceSpec
     outer_radius: p.DistanceSpec
     start_angle: p.AngleSpec
@@ -178,7 +179,7 @@ export class AnnularWedge extends XYGlyph {
 
     this.mixins(['line', 'fill'])
     this.define<AnnularWedge.Props>({
-      direction:    [ p.Direction,   'anticlock' ],
+      direction:    [ p.Direction as any,   'anticlock' ],
       inner_radius: [ p.DistanceSpec             ],
       outer_radius: [ p.DistanceSpec             ],
       start_angle:  [ p.AngleSpec                ],

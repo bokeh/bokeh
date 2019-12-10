@@ -406,6 +406,10 @@ export class Hatch extends ContextProperties {
     const [r, g, b, a] = color2rgba(this.hatch_color.scalar(), this.hatch_alpha.scalar())
     return `rgba(${r*255},${g*255},${b*255},${a})`
   }
+
+  set_scalar(_ctx: Context2d): void {
+    throw new Error("not implemented")
+  }
 }
 
 Hatch.prototype.attrs = Object.keys(mixins.hatch())
