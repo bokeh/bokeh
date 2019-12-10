@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 from abc import abstractmethod
 import argparse
 import io
-from typing import Union, List, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 # External imports
 
@@ -53,10 +53,11 @@ class FileOutputSubcommand(Subcommand):
 
     '''
 
-    extension: str = ""  # subtype must set this to file extension
+    # subtype must set this instance attribute to file extension
+    extension: str
 
     @classmethod
-    def files_arg(cls, output_type_name: str) -> Tuple[str, dict]:
+    def files_arg(cls, output_type_name: str) -> Tuple[str, Dict[str, Optional[str]]]:
         ''' Returns a positional arg for ``files`` to specify file inputs to
         the command.
 
@@ -183,11 +184,14 @@ class FileOutputSubcommand(Subcommand):
 
     @abstractmethod
     def file_contents(self, args: argparse.Namespace, doc: Document) -> Union[str, bytes, None]:
-        ''' Subtypes must override this to return the contents of the output file for the given doc.
+        ''' Subclasses must override this method to return the contents of the output file for the given doc.
         subclassed methods return different types:
-            str:
-            bytes: SVG, png
-            None:
+        str: html, json
+        bytes: SVG, png
+
+        Raises:
+            NotImplementedError
+
         '''
         raise NotImplementedError("file_contents")
 
