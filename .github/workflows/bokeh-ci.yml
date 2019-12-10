@@ -417,6 +417,7 @@ jobs:
           if [[ "${{ runner.os }}" = "Windows" ]]; then
             echo "::add-path::$HOME/miniconda3"
             echo "::add-path::$HOME/miniconda3/Scripts"
+            echo "::add-path::$HOME/miniconda3/envs/testenv"
             echo "::add-path::$HOME/miniconda3/envs/testenv/Scripts"
           else
             echo "::add-path::$HOME/miniconda3/bin"
@@ -487,6 +488,7 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" = "Windows" ]]; then
             activate testenv
+            echo "ACTIVATE"
           fi
           py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
 
