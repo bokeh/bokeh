@@ -1,6 +1,5 @@
-from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
-from bokeh.models.glyphs import MultiPolygons
 from bokeh.io import curdoc, show
+from bokeh.models import ColumnDataSource, Grid, LinearAxis, MultiPolygons, Plot
 
 xs_dict = [
     [ {'exterior': [1, 1, 2, 2],  'holes': [                              ]} ],

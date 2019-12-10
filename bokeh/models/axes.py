@@ -93,7 +93,7 @@ class Axis(GuideRenderer):
     .. code-block:: python
 
         from bokeh.plotting import figure
-        from bokeh.models.tickers import FixedTicker
+        from bokeh.models import FixedTicker
 
         p = figure()
         p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])

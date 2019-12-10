@@ -23,7 +23,7 @@ class SomeModel extends Model {
 describe("Model objects", () => {
 
   describe("default creation", () => {
-    const m = new Model()
+    const m = new SomeModel()
 
     it("should have null name", () => {
       expect(m.name).to.be.null

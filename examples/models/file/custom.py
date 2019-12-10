@@ -1,12 +1,12 @@
-from bokeh.core.properties import String, Float, Color, List, Override
+from bokeh.core.properties import Color, Float, List, Override, String
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.callbacks import Callback
-from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
+from bokeh.models import (Callback, Circle, ColumnDataSource, LinearAxis, PanTool, Plot, TapTool,
+                          WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from bokeh.util.compiler import TypeScript
+
 
 class Popup(Callback):
 

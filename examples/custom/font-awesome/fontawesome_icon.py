@@ -1,5 +1,6 @@
-from bokeh.core.properties import Enum, Float, Bool
-from bokeh.models.widgets.icons import AbstractIcon
+from bokeh.core.properties import Bool, Enum, Float
+from bokeh.models import AbstractIcon
+
 from named_icon import NamedIcon
 
 class FontAwesomeIcon(AbstractIcon):

@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import PreText
+from bokeh.models import PreText
 
 output_file("div.html")
 

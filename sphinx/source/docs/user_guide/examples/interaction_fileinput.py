@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import FileInput
+from bokeh.models import FileInput
 
 output_file("file_input.html")
 

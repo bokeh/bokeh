@@ -51,8 +51,6 @@ def yield_for_all_futures(result):
     """
     while True:
 
-        # This is needed for Tornado >= 4.5 where convert_yielded will no
-        # longer raise BadYieldError on None
         if result is None:
             break
 

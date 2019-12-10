@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models.widgets import Toggle
+from bokeh.models import Toggle
 
 output_file("toggle.html")
 

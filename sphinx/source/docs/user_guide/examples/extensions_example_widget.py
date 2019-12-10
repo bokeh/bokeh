@@ -1,13 +1,9 @@
 """Example implementation of two double ended sliders as extension widgets"""
 from bokeh.core.properties import Float, Instance, Tuple, Bool
-from bokeh.models import InputWidget
-from bokeh.models.callbacks import Callback
-
-from bokeh.layouts import column
-from bokeh.models import Slider, CustomJS, ColumnDataSource
 from bokeh.io import show
+from bokeh.layouts import column
+from bokeh.models import Callback, ColumnDataSource, CustomJS, InputWidget, Slider
 from bokeh.plotting import Figure
-
 
 class IonRangeSlider(InputWidget):
     # The special class attribute ``__implementation__`` should contain a string

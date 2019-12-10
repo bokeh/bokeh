@@ -349,14 +349,6 @@ def upload_cdn(buckets):
             for bucket in buckets:
                 cdn_upload(local_path, cdn_path, content_type, bucket)
 
-    content_type = "text/css"
-    for name in ('bokeh', 'bokeh-widgets', 'bokeh-tables'):
-        for suffix in ('css', 'min.css'):
-            local_path = 'bokehjs/build/css/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            for bucket in buckets:
-                cdn_upload(local_path, cdn_path, content_type, bucket)
-
 @upload_wrapper('anaconda')
 def upload_anaconda(token, dev):
     if dev:

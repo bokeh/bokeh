@@ -1,10 +1,10 @@
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool, Title
+from bokeh.models import (Circle, ColumnDataSource, Grid, LinearAxis, PanTool, Plot, Title,
+                          WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
+from bokeh.util.browser import view
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 

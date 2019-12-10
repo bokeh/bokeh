@@ -24,10 +24,9 @@ from mock import patch
 from bokeh.core.validation import check_integrity
 from bokeh.plotting import figure
 
-from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis, CustomJS
-from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
-from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
-from bokeh.models.tools import PanTool
+from bokeh.models import (PanTool, GlyphRenderer, Label, Plot, LinearAxis,
+                          CustomJS, CategoricalScale, LinearScale, LogScale,
+                          FactorRange, DataRange1d, Range1d)
 
 # Module under test
 import bokeh.models.plots as bmp

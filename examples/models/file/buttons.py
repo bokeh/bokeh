@@ -1,12 +1,9 @@
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
+from bokeh.models import (Button, CheckboxButtonGroup, CheckboxGroup, Column, CustomJS, Dropdown,
+                          RadioButtonGroup, RadioGroup, Toggle)
 from bokeh.resources import INLINE
-
-from bokeh.models import CustomJS, Column
-from bokeh.models.widgets import (
-    Button, Toggle, Dropdown, CheckboxGroup, RadioGroup, CheckboxButtonGroup, RadioButtonGroup,
-)
+from bokeh.util.browser import view
 
 button = Button(label="Button (enabled) - has click event", button_type="primary")
 button.js_on_click(CustomJS(code="console.log('button: click ', this.toString())"))

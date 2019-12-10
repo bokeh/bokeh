@@ -23,7 +23,7 @@ import warnings
 import numpy as np
 
 # Bokeh imports
-from bokeh.models.sources import Selection
+from bokeh.models import Selection
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
 
 # Module under test
