@@ -44,8 +44,6 @@ log = logging.getLogger(__name__)
 import argparse
 import sys
 
-# External imports
-
 # Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings

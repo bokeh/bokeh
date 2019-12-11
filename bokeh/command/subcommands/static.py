@@ -19,8 +19,6 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 from typing import Dict
 
-# External imports
-
 # Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig

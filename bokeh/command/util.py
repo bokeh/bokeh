@@ -27,7 +27,12 @@ from typing import Any, Dict, Generator, List, Optional, Sequence
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler, Handler
+from bokeh.application.handlers import (
+    DirectoryHandler,
+    Handler,
+    NotebookHandler,
+    ScriptHandler,
+)
 from bokeh.document import Document
 from bokeh.models import Plot
 

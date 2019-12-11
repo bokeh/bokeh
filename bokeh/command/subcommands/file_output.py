@@ -24,13 +24,10 @@ import io
 from abc import abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 
-# External imports
-
 # Bokeh imports
+from ...document import Document
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
-from ...document import Document
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants

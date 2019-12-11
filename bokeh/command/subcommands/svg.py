@@ -62,10 +62,10 @@ import argparse
 import io
 
 # Bokeh imports
+from ...document import Document
 from ...io.export import create_webdriver, get_svgs, terminate_webdriver
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
-from ...document import Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants

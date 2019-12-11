@@ -37,10 +37,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from argparse import Namespace
 
-# External imports
-
 # Bokeh imports
 from bokeh import sampledata
+
+# Bokeh imports
 from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------

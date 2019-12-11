@@ -50,8 +50,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from argparse import Namespace
 import sys
+from argparse import Namespace
 from typing import Any, Optional
 
 # Bokeh imports

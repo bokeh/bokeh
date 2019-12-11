@@ -24,8 +24,6 @@ from bokeh.ext import build
 # Bokeh imports
 from ..subcommand import Subcommand
 
-# External imports
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------

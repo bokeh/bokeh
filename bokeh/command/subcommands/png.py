@@ -60,10 +60,10 @@ import sys
 from argparse import Namespace
 
 # Bokeh imports
+from ...document import Document
 from ...io.export import create_webdriver, get_screenshot_as_png, terminate_webdriver
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
-from ...document import Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants

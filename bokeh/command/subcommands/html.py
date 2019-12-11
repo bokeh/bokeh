@@ -69,14 +69,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from argparse import Namespace
 
-# External imports
-
 # Bokeh imports
 from bokeh.embed import file_html
 from bokeh.resources import Resources
 
-from .file_output import FileOutputSubcommand
+# Bokeh imports
 from ...document import Document
+from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants

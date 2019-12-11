@@ -19,10 +19,8 @@
 # Standard library imports
 from argparse import Namespace
 
-# External imports
 # Bokeh imports
 from bokeh.ext import init
-
 # Bokeh imports
 from ..subcommand import Subcommand
 
