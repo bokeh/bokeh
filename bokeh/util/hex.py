@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Tuple, Any
+from typing import Any, Tuple
 
 # External imports
 import numpy as np
