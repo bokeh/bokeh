@@ -24,7 +24,7 @@ BokehJS
     Typically, users will not have to think about this aspect of Bokeh
     much *("We write the JavaScript, so you don't have to!")* but it is
     good to have basic knowledge of this dichotomy. For full details, see
-    the :ref:`devguide_bokehjs` chapter of the :ref:`devguide`.
+    the :ref:`devguide_bokehjs` chapter of the :ref:`devguide` Guide.
 
 Documents
     An organizing data structure for Bokeh applications. Documents
@@ -217,7 +217,7 @@ with the resulting plot:
 .. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
     :source-position: above
 
-The main observation is that the typical usage involves creating plots objects
+The main observation is that the typical usage involves creating plot objects
 with the |figure| function, then using the glyph methods like |Figure.circle|
 to add renderers for our data. We do not have to worry about configuring any
 axes or grids (although we can configure them if we need to), and specifying
