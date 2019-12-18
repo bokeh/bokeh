@@ -21,6 +21,7 @@ from argparse import Namespace
 
 # Bokeh imports
 from bokeh.ext import build
+
 # Bokeh imports
 from ..subcommand import Subcommand
 
