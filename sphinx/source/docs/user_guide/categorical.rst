@@ -28,7 +28,7 @@ below, we have the following sequence of simple 1-level factors:
     fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 
 To inform Bokeh that the x-axis is categorical, we pass this list of factors
-as the ``x_range`` argument to :fund:``~bokeh.plotting.figure.figure``:
+as the ``x_range`` argument to :func:`~bokeh.plotting.figure.figure`:
 
 .. code-block:: python
 
@@ -42,7 +42,7 @@ notation is:
 
     p = figure(x_range=FactorRange(factors=fruits), ... )
 
-This more explicit for is useful when you want to customize the
+This more explicit form is useful when you want to customize the
 ``FactorRange``, e.g. by changing the range or category padding.
 
 Next we can call ``vbar`` with the list of fruit name factors as the ``x``
