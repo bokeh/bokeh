@@ -479,6 +479,9 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
+          if [[ "${{ runner.os }}" = "Windows" ]]; then
+            source activate base
+          fi
           py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
 
 
