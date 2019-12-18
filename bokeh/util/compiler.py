@@ -403,7 +403,7 @@ def _detect_nodejs():
 _nodejs = None
 _npmjs = None
 
-def _nodejs_path():
+def _nodejs_path() -> str:
     global _nodejs
     if _nodejs is None:
         _nodejs = _detect_nodejs()

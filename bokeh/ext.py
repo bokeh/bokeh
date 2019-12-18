@@ -17,7 +17,7 @@
 from os import PathLike
 from os.path import join
 from subprocess import Popen
-from typing import List
+from typing import AnyStr, List, Optional
 
 # Bokeh imports
 from . import __version__
@@ -34,8 +34,8 @@ __all__ = ["init", "build"]
 # General API
 #-----------------------------------------------------------------------------
 
-def init(base_dir: PathLike, *, interactive: bool = False,
-         bokehjs_version: str = None, debug: bool = False) -> bool:
+def init(base_dir: "PathLike[AnyStr]", *, interactive: bool = False,
+         bokehjs_version: Optional[str] = None, debug: bool = False) -> bool:
     """
     Initialize a directory as a new bokeh extension.
 
@@ -61,7 +61,7 @@ def init(base_dir: PathLike, *, interactive: bool = False,
     return proc.returncode == 0
 
 
-def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> bool:
+def build(base_dir: "PathLike[AnyStr]", *, rebuild: bool = False, debug: bool = False) -> bool:
     """
     Build a bokeh extension in the given directory.
 
@@ -90,7 +90,7 @@ def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> 
 # Private API
 #-----------------------------------------------------------------------------
 
-def _run_command(command: str, base_dir: PathLike, args: List[str], debug: bool = False) -> Popen:
+def _run_command(command: str, base_dir: "PathLike[AnyStr]", args: List[str], debug: bool = False) -> "Popen[bytes]":
     bokehjs_dir = settings.bokehjsdir()
 
     if debug:

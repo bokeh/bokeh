@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import argparse
 import sys
+from typing import List
 
 # Bokeh imports
 from bokeh import __version__
@@ -65,7 +66,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 # TODO - struggling to resolve argv mypy typing. is nested tuple of ((arg_name, arg_dict), ...) not Sequence[str]
-def main(argv) -> None:
+def main(argv: List[str]) -> None:
     ''' Execute the Bokeh command.
 
     Args:

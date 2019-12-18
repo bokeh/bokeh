@@ -851,9 +851,8 @@ class Serve(Subcommand):
 # Code
 #-----------------------------------------------------------------------------
 
-# TODO - fails mypy typechecking with "error: Incompatible types in assignment (expression has type "Optional[str]", variable has type "str")"
-# __doc__ is str and format_docstring() expects Optional[str]
-__doc__ = format_docstring(__doc__,
+# XXX fails mypy typechecking with "error: Incompatible types in assignment (expression has type "Optional[str]", variable has type "str")"
+__doc__ = format_docstring(__doc__, # type: ignore
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),

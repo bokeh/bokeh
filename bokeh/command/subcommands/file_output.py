@@ -86,7 +86,7 @@ class FileOutputSubcommand(Subcommand):
     # Tuple[Tuple[Tuple[str, str], Dict[Any, Union[str, Type[str]]]], Tuple[str, Dict[Any, str]]]
     # Sequence[str, dict] does not work because then added to another Tuple in subclasses
     @classmethod
-    def other_args(cls):
+    def other_args(cls) -> Tuple[Tuple[Tuple[str, str], Dict[str, object]], Tuple[str, Dict[str, str]]]:
         ''' Return args for ``-o`` / ``--output`` to specify where output
         should be written, and for a ``--args`` to pass on any additional
         command line args to the subcommand.

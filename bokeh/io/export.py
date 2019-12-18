@@ -225,7 +225,7 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
 
     return cropped_image
 
-def get_svgs(obj, driver=None, timeout=5, **kwargs):
+def get_svgs(obj, driver=None, timeout=5, **kwargs) -> bytes:
     '''
 
     '''
