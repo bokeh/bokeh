@@ -27,7 +27,6 @@ jobs:
         shell: bash
         run: |
           echo "::add-path::$HOME/miniconda3/bin"
-          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -115,7 +114,6 @@ jobs:
         shell: bash
         run: |
           echo "::add-path::$HOME/miniconda3/bin"
-          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -130,8 +128,8 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
       # XXX: until channels is available on conda-forge
       - name: Install pip packages
@@ -205,7 +203,6 @@ jobs:
         shell: bash
         run: |
           echo "::add-path::$HOME/miniconda3/bin"
-          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -239,8 +236,8 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -306,7 +303,6 @@ jobs:
         shell: bash
         run: |
           echo "::add-path::$HOME/miniconda3/bin"
-          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -340,8 +336,8 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -417,11 +413,8 @@ jobs:
           if [[ "${{ runner.os }}" = "Windows" ]]; then
             echo "::add-path::$HOME/miniconda3"
             echo "::add-path::$HOME/miniconda3/Scripts"
-            echo "::add-path::$HOME/miniconda3/envs/testenv"
-            echo "::add-path::$HOME/miniconda3/envs/testenv/Scripts"
           else
             echo "::add-path::$HOME/miniconda3/bin"
-            echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
           fi
 
       - name: Configure conda
@@ -456,8 +449,8 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -486,10 +479,6 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          if [[ "${{ runner.os }}" = "Windows" ]]; then
-            activate testenv
-            echo "ACTIVATE"
-          fi
           py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
 
 
@@ -520,7 +509,6 @@ jobs:
         shell: bash
         run: |
           echo "::add-path::$HOME/miniconda3/bin"
-          echo "::add-path::$HOME/miniconda3/envs/testenv/bin"
 
       - name: Configure conda
         shell: bash
@@ -554,8 +542,8 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda create -n testenv --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install -n testenv --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
       - name: Cache node modules
         uses: actions/cache@v1
