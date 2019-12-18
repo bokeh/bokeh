@@ -284,18 +284,7 @@ The optional components are
 
 * A ``theme.yaml`` file that declaratively defines default attributes to be applied to Bokeh model types.
 
-* A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template.
-
-Custom variables can be passed to the template via the
-``curdoc().template_variables`` dictionary in place:
-
-.. code-block:: python
-
-    # set a new single key/value
-    curdoc().template_variables["user_id"] = user_id
-
-    # or update multiple at once
-    curdoc().template_variables.update(first_name="Mary", last_name="Jones")
+* A ``templates`` subdirectory with ``index.html`` Jinja template file. The directory may contain additional Jinja templates for ``index.html`` to refer to. The template should have the same parameters as the :class:`~bokeh.core.templates.FILE` template. See :ref:`userguide_server_template` for more details.
 
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
@@ -346,6 +335,82 @@ In this case you might have code similar to:
 
 And similar code to load the JavaScript implementation for a custom model
 from ``models/custom.js``
+
+.. _userguide_server_template:
+
+Customising the Application's Jinja Template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As described above in :ref:`userguide_server_applications_directory`, you can override
+the default Jinja template used by the Bokeh server to generate the HTML code served to
+the user's browser.
+
+This opens up the possibility of managing the layout of the application in the client's
+browser using CSS, as well as making use of other Javascript libraries alongside BokehJS.
+
+See the `Jinja Project Documentation`_ for more details on how Jinja templating works.
+
+Embedding Figures in the Template
+'''''''''''''''''''''''''''''''''
+
+In the main thread of the Bokeh application, i.e. ``main.py``, any Bokeh figures
+that are going to be referenced in the templated code need to have their ``name``
+attribute set, and be added to the current document root.
+
+.. code-block:: python
+
+    from bokeh.plotting import curdoc
+
+    # Assuming a Bokeh Figure called bokeh_figure exists
+    bokeh_figure.name = "bokeh_jinja_figure"
+    curdoc().add_root(bokeh_figure)
+
+Then, in the corresponding Jinja template code, the figure may be referenced via the
+``roots`` template parameter, using the figure's ``name``, i.e.
+
+.. code-block:: html
+
+    {% extends base %}
+
+    {% block contents %}
+    <div>
+        {{ embed(roots.bokeh_jinja_figure) }}
+    </div>
+    {% endblock %}
+
+Defining Custom Variables
+'''''''''''''''''''''''''
+
+Custom variables can be passed to the template via the ``curdoc().template_variables``
+dictionary in place:
+
+.. code-block:: python
+
+    # set a new single key/value
+    curdoc().template_variables["user_id"] = user_id
+
+    # or update multiple at once
+    curdoc().template_variables.update(first_name="Mary", last_name="Jones")
+
+Custom Jinja templates and Threading
+''''''''''''''''''''''''''''''''''''
+It is possible for a connection between a client and server Document instance to
+timeout. Due to the nature of Bokeh's server-client communication, it is then possible
+that the client will reconnect to a server thread that doesn't know how to properly
+identify the Document's figure(s) to the client.
+
+In this scenario, the client will receive the Bokeh figures defined in the template anew,
+and will just append the figures to the end of the HTML body, in the order they are
+defined. This will likely break any HTML/CSS/Javascript code that expects the figure to
+be contained within specific HTML tags.
+
+If a Bokeh application that makes use of custom Jinja templates needs to scale beyond a
+single thread, then it is recommended to use multiple, single-threaded server instances
+with a load balancer to maintain consistency between the client and server. This is
+typically done using mechanisms such as session cookies.
+
+See :ref:`userguide_server_deployment_nginx_load_balance` for more details on running
+multiple server instances behind a load balancer.
 
 .. _userguide_server_session_request:
 
@@ -1368,6 +1433,7 @@ in :ref:`devguide_server`
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
 .. _set_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.set_secure_cookie
 .. _XSRF Cookies:  https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+.. _Jinja Project Documentation: https://jinja.palletsprojects.com/en/2.10.x/
 
 .. |server_document|  replace:: :func:`~bokeh.embed.server_document`
 .. |server_session|  replace:: :func:`~bokeh.embed.server_session`
