@@ -361,9 +361,10 @@ attribute set, and be added to the current document root.
 
     from bokeh.plotting import curdoc
 
-    # Assuming a Bokeh Figure called bokeh_figure exists
-    bokeh_figure.name = "bokeh_jinja_figure"
-    curdoc().add_root(bokeh_figure)
+    # templates can refer to a configured name value
+    plot = figure(name="bokeh_jinja_figure")
+
+    curdoc().add_root(plot)
 
 Then, in the corresponding Jinja template code, the figure may be referenced via the
 ``roots`` template parameter, using the figure's ``name``, i.e.
@@ -392,22 +393,25 @@ dictionary in place:
     # or update multiple at once
     curdoc().template_variables.update(first_name="Mary", last_name="Jones")
 
-Custom Jinja templates and Threading
-''''''''''''''''''''''''''''''''''''
-It is possible for a connection between a client and server Document instance to
-timeout. Due to the nature of Bokeh's server-client communication, it is then possible
-that the client will reconnect to a server thread that doesn't know how to properly
-identify the Document's figure(s) to the client.
+Custom Jinja templates and Multiple Server Threads
+''''''''''''''''''''''''''''''''''''''''''''''''''
+Due to the nature of Bokeh's server-client communication, it is possible that a client
+will connect to a server thread that doesn't properly identify the Document's figure(s)
+to the client. This can only occur when there are multiple server threads (i.e.
+``--num-procs`` > 1), or there are multiple server instances behind a load balancer
+without a session persistence or stickiness mechanism.
 
-In this scenario, the client will receive the Bokeh figures defined in the template anew,
-and will just append the figures to the end of the HTML body, in the order they are
+In this scenario, the client will receive the Bokeh figures defined in the template, and
+will just append the figures to the end of the HTML body, in the order they are
 defined. This will likely break any HTML/CSS/Javascript code that expects the figure to
 be contained within specific HTML tags.
 
 If a Bokeh application that makes use of custom Jinja templates needs to scale beyond a
-single thread, then it is recommended to use multiple, single-threaded server instances
-with a load balancer to maintain consistency between the client and server. This is
-typically done using mechanisms such as session cookies.
+single thread, then it is recommended to use multiple, server instances with a single
+thread (i.e. ``--num-procs 1``) behind a load balancer. This load balancer will also
+require a session persistence mechanism to maintain consistency between the client and
+a particular server instance. This is typically done using mechanisms such as session
+cookies.
 
 See :ref:`userguide_server_deployment_nginx_load_balance` for more details on running
 multiple server instances behind a load balancer.
