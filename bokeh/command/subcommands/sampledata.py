@@ -34,6 +34,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from argparse import Namespace
+
 # Bokeh imports
 from bokeh import sampledata
 
@@ -65,7 +68,7 @@ class Sampledata(Subcommand):
     args = (
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''

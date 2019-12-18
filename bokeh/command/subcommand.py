@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABCMeta, abstractmethod
+from argparse import ArgumentParser, Namespace
+from typing import Union
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -88,7 +90,12 @@ class Subcommand(metaclass=ABCMeta):
 
     '''
 
-    def __init__(self, parser):
+    # specifying static typing of instance attributes
+    # see https://stackoverflow.com/a/51191130
+    name: str
+    help: str
+
+    def __init__(self, parser: ArgumentParser) -> None:
         ''' Initialize the subcommand with its parser
 
         Args:
@@ -109,13 +116,18 @@ class Subcommand(metaclass=ABCMeta):
             self.parser.add_argument(*flags, **arg[1])
 
     @abstractmethod
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> Union[bool, None]:
         ''' Takes over main program flow to perform the subcommand.
 
         *This method must be implemented by subclasses.*
+        subclassed overwritten methods return different types:
+        bool: Build
+        None: FileOutput (subclassed by HTML, SVG and JSON. PNG overwrites FileOutput.invoke method), Info, Init, \
+                Sampledata, Secret, Serve, Static
+
 
         Args:
-            args (seq) : command line arguments for the subcommand to parse
+            args (argparse.Namespace) : command line arguments for the subcommand to parse
 
         Raises:
             NotImplementedError

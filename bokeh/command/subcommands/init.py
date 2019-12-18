@@ -16,6 +16,9 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from argparse import Namespace
+
 # Bokeh imports
 from bokeh.ext import init
 
@@ -66,9 +69,9 @@ class Init(Subcommand):
         )),
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> bool:
         return init(args.base_dir, interactive=args.interactive,
-            bokehjs_version=args.bokehjs_version, debug=args.debug)
+                    bokehjs_version=args.bokehjs_version, debug=args.debug)
 
 #-----------------------------------------------------------------------------
 # Dev API

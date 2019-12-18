@@ -82,7 +82,7 @@ def test_args():
             metavar = 'LOG-LEVEL',
             action  = 'store',
             default = None,
-            choices = scserve.LOGLEVELS + (None,),
+            choices = scserve.LOGLEVELS + ("None", ),
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 

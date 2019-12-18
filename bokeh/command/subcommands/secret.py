@@ -33,6 +33,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from argparse import Namespace
+
 # Bokeh imports
 from bokeh.util.session_id import generate_secret_key
 
@@ -64,7 +67,7 @@ class Secret(Subcommand):
     args = (
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''

@@ -852,7 +852,7 @@ class Document(object):
         doc_json = self.to_json_string()
         return loads(doc_json)
 
-    def to_json_string(self, indent=None):
+    def to_json_string(self, indent=None) -> str:
         ''' Convert the document to a JSON string.
 
         Args:

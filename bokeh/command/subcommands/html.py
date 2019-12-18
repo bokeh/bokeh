@@ -66,11 +66,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from argparse import Namespace
+
 # Bokeh imports
 from bokeh.embed import file_html
 from bokeh.resources import Resources
 
 # Bokeh imports
+from ...document import Document
 from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------
@@ -110,7 +114,7 @@ class HTML(FileOutputSubcommand):
 
     ) + FileOutputSubcommand.other_args()
 
-    def after_write_file(self, args, filename, doc):
+    def after_write_file(self, args: Namespace, filename: str, doc: Document) -> None:
         '''
 
         '''
@@ -118,7 +122,7 @@ class HTML(FileOutputSubcommand):
             from bokeh.util.browser import view
             view(filename)
 
-    def file_contents(self, args, doc):
+    def file_contents(self, args: Namespace, doc: Document) -> str:
         '''
 
         '''

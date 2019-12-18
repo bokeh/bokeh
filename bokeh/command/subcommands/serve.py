@@ -412,6 +412,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
+from typing import List
 
 # External imports
 from tornado.autoreload import watch
@@ -456,7 +457,7 @@ base_serve_args = (
         metavar = 'LOG-LEVEL',
         action  = 'store',
         default = None,
-        choices = LOGLEVELS + (None,),
+        choices = LOGLEVELS + ("None", ),
         help    = "One of: %s" % nice_join(LOGLEVELS),
     )),
 
@@ -680,7 +681,7 @@ class Serve(Subcommand):
         )),
     )
 
-    def invoke(self, args):
+    def invoke(self, args: argparse.Namespace) -> None:
         '''
 
         '''
@@ -784,7 +785,7 @@ class Serve(Subcommand):
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev is not None
 
-        def find_autoreload_targets(app_path):
+        def find_autoreload_targets(app_path: str) -> None:
             path = os.path.abspath(app_path)
             if not os.path.isdir(path):
                 return
@@ -797,7 +798,7 @@ class Serve(Subcommand):
                         log.info("Watching: " + os.path.join(path, name))
                         watch(os.path.join(path, name))
 
-        def add_optional_autoreload_files(file_list):
+        def add_optional_autoreload_files(file_list: List[str]) -> None:
             for filen in file_list:
                 if os.path.isdir(filen):
                     log.warning("Cannot watch directory " + filen)
@@ -821,7 +822,7 @@ class Serve(Subcommand):
             if args.show:
 
                 # we have to defer opening in browser until we start up the server
-                def show_callback():
+                def show_callback() -> None:
                     for route in applications.keys():
                         server.show(route)
 
@@ -850,7 +851,8 @@ class Serve(Subcommand):
 # Code
 #-----------------------------------------------------------------------------
 
-__doc__ = format_docstring(__doc__,
+# XXX fails mypy typechecking with "error: Incompatible types in assignment (expression has type "Optional[str]", variable has type "str")"
+__doc__ = format_docstring(__doc__, # type: ignore
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
     LOGLEVELS=nice_join(LOGLEVELS),
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),

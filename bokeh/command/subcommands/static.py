@@ -15,11 +15,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from argparse import Namespace
+from typing import Dict
+
 # Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 
 # Bokeh imports
+from ...application import Application
 from ..subcommand import Subcommand
 from ..util import report_server_init_errors
 from .serve import base_serve_args
@@ -46,7 +51,7 @@ class Static(Subcommand):
 
     args = base_serve_args
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''
@@ -68,7 +73,7 @@ class Static(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        applications = {}
+        applications: Dict[str, Application] = {}
 
         _allowed_keys = ['port', 'address']
         server_kwargs = { key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None }

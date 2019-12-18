@@ -22,6 +22,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Tuple
+
 # External imports
 import numpy as np
 
@@ -42,7 +45,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
+def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> Tuple[Any, Any]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
@@ -93,7 +96,7 @@ def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
 
     return (x, y)
 
-def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
+def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_scale: float = 1) -> Tuple[Any, Any]:
     ''' Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
 
@@ -145,7 +148,7 @@ def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
 
     return _round_hex(q, r)
 
-def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
+def hexbin(x: Any, y: Any, size: float, orientation: str = "pointytop", aspect_scale: float = 1) -> Any:
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 
     For more sophisticated use cases, e.g. weighted binning or scaling
@@ -192,11 +195,12 @@ def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
         Hex binning only functions on linear scales, i.e. not on log plots.
 
     '''
-    pd = import_required('pandas','hexbin requires pandas to be installed')
+    pd: Any = import_required('pandas','hexbin requires pandas to be installed')
 
     q, r = cartesian_to_axial(x, y, size, orientation, aspect_scale=aspect_scale)
 
     df = pd.DataFrame(dict(r=r, q=q))
+
     return df.groupby(['q', 'r']).size().reset_index(name='counts')
 
 #-----------------------------------------------------------------------------
@@ -207,7 +211,7 @@ def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _round_hex(q, r):
+def _round_hex(q: Any, r: Any) -> Tuple[Any, Any]:
     ''' Round floating point axial hex coordinates to integer *(q,r)*
     coordinates.
 

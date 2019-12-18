@@ -45,7 +45,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from argparse import Namespace
+
 # Bokeh imports
+from ...document import Document
 from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------
@@ -86,7 +90,7 @@ class JSON(FileOutputSubcommand):
 
     ) + FileOutputSubcommand.other_args()
 
-    def file_contents(self, args, doc):
+    def file_contents(self, args: Namespace, doc: Document) -> str:
         '''
 
         '''

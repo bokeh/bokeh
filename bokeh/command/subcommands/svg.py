@@ -58,9 +58,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import argparse
 import io
 
 # Bokeh imports
+from ...document import Document
 from ...io.export import create_webdriver, get_svgs, terminate_webdriver
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
@@ -110,7 +112,7 @@ class SVG(FileOutputSubcommand):
 
     ) + FileOutputSubcommand.other_args()
 
-    def invoke(self, args):
+    def invoke(self, args: argparse.Namespace) -> None:
         '''
 
         '''
@@ -120,7 +122,7 @@ class SVG(FileOutputSubcommand):
         finally:
             terminate_webdriver(self.driver)
 
-    def write_file(self, args, filename, doc):
+    def write_file(self, args: argparse.Namespace, filename: str, doc: Document) -> None:
         '''
 
         '''
@@ -138,7 +140,7 @@ class SVG(FileOutputSubcommand):
                     f.write(svg)
             self.after_write_file(args, filename, doc)
 
-    def file_contents(self, args, doc):
+    def file_contents(self, args: argparse.Namespace, doc: Document) -> bytes:
         '''
 
         '''

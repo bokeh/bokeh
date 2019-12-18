@@ -51,6 +51,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
+from argparse import Namespace
+from typing import Any, Optional
 
 # Bokeh imports
 from bokeh import __version__
@@ -73,10 +75,20 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _version(modname, attr):
+def if_installed(version_or_none: Optional[str]) -> str:
+    ''' helper method to optionally return module version number or not installed
+
+    :param version_or_none:
+    :return:
+    '''
+    return version_or_none or "(not installed)"
+
+def _version(modname: str, attr: str) -> Optional[Any]:
     mod = import_optional(modname)
     if mod:
         return getattr(mod, attr)
+    else:  # explicit None return for mypy typing
+        return None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -101,14 +113,13 @@ class Info(Subcommand):
 
     )
 
-    def invoke(self, args):
+    def invoke(self, args: Namespace) -> None:
         '''
 
         '''
         if args.static:
             print(settings.bokehjsdir())
         else:
-            if_installed = lambda version_or_none: version_or_none or "(not installed)"
 
             print("Python version      :  %s" % sys.version.split('\n')[0])
             print("IPython version     :  %s" % if_installed(_version('IPython', '__version__')))
