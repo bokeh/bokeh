@@ -12,6 +12,11 @@ export interface ModelChanged {
   hint?: any
 }
 
+export interface MessageSent {
+  kind: "MessageSent"
+  data: unknown
+}
+
 export interface TitleChanged {
   kind: "TitleChanged"
   title: string
@@ -48,12 +53,25 @@ export interface ColumnsPatched {
 }
 
 export type DocumentChanged =
-  ModelChanged | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+  ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
 
 export abstract class DocumentChangedEvent {
   constructor(readonly document: Document) {}
 
   abstract json(references: References): DocumentChanged
+}
+
+export class MessageSentEvent extends DocumentChangedEvent {
+  constructor(document: Document, readonly data: unknown) {
+    super(document)
+  }
+
+  json(_references: References): DocumentChanged {
+    return {
+      kind: "MessageSent",
+      data: this.data,
+    }
+  }
 }
 
 export class ModelChangedEvent extends DocumentChangedEvent {

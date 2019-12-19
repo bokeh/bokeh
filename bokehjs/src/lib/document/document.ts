@@ -76,6 +76,7 @@ export class Document {
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: ((event: DocumentChangedEvent) => void)[]
+  protected _message_callbacks: ((data: unknown) => void)[]
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
@@ -89,6 +90,7 @@ export class Document {
     this._all_models_by_name = new MultiDict()
     this._all_models_freeze_count = 0
     this._callbacks = []
+    this._message_callbacks = []
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
@@ -275,6 +277,23 @@ export class Document {
 
   get_model_by_name(name: string): HasProps | null {
     return this._all_models_by_name.get_one(name, `Multiple models are named '${name}'`)
+  }
+
+  on_message(callback: (data: unknown) => void): void {
+    if (!includes(this._message_callbacks, callback))
+      this._message_callbacks.push(callback)
+  }
+
+  remove_on_message(callback: (event: unknown) => void): void {
+    const i = this._message_callbacks.indexOf(callback)
+    if (i >= 0)
+      this._message_callbacks.splice(i, 1)
+  }
+
+  _trigger_on_message(data: unknown): void {
+    for (const cb of this._message_callbacks) {
+      cb(data)
+    }
   }
 
   on_change(callback: (event: DocumentChangedEvent) => void): void {
@@ -669,6 +688,10 @@ export class Document {
 
     for (const event_json of events_json) {
       switch (event_json.kind) {
+        case 'MessageSent': {
+          this._trigger_on_message(event_json.data)
+          break
+        }
         case 'ModelChanged': {
           const patched_id = event_json.model.id
           if (!(patched_id in this._all_models)) {

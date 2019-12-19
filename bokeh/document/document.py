@@ -53,6 +53,7 @@ from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.version import __version__
 from .events import (
+    MessageSentEvent,
     ModelChangedEvent,
     RootAddedEvent,
     RootRemovedEvent,
@@ -386,8 +387,11 @@ class Document(object):
         initialize_references_json(references_json, references, setter)
 
         for event_json in events_json:
+            if event_json['kind'] == 'MessageSent':
+                from ipywidgets_bokeh import receive_message
+                receive_message(event_json["data"])
 
-            if event_json['kind'] == 'ModelChanged':
+            elif event_json['kind'] == 'ModelChanged':
                 patched_id = event_json['model']['id']
                 if patched_id not in self._all_models:
                     if patched_id not in self._all_former_model_ids:
