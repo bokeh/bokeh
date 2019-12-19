@@ -548,6 +548,24 @@ jobs:
           conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
           conda remove --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
 
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install node modules
+        run: |
+          pushd bokehjs
+          npm install -g npm
+          npm ci --no-progress
+          popd
+          python setup.py --install-js
+
       - name: Run tests
         shell: bash
         run: |
