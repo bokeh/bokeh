@@ -651,6 +651,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
+          set +e
           pushd `python -c "import site; print(site.getsitepackages()[0])"`
           py.test distributed/dashboard
           nosetests holoviews/tests/plotting/bokeh
@@ -658,3 +659,4 @@ jobs:
           pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
           pytest Pandas-Bokeh/Tests/test_GeoPandasBokeh.py
           popd
+          exit 0
