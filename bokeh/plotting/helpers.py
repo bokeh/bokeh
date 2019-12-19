@@ -877,7 +877,7 @@ def _get_sigfunc(func_name, func, argspecs):
     args_text = ", ".join(func_args_with_defaults)
     kwargs_assign_text = "\n".join("    kwargs[%r] = %s" % (x, x) for x in argspecs)
     func_text = _sigfunc_template % (func_name, args_text, kwargs_assign_text)
-    func_code = compile(func_text, "fakesource", "exec")
+    func_code = compile(func_text, "<fakesource>", "exec")
     func_globals = {}
     eval(func_code, {"func": func}, func_globals)
     return func_globals[func_name]
