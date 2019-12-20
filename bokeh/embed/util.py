@@ -165,8 +165,8 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
 class RenderItem(object):
 
-    def __init__(self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None):
-        if (docid is None and sessionid is None) or (docid is not None and sessionid is not None):
+    def __init__(self, docid=None, token=None, elementid=None, roots=None, use_for_title=None):
+        if (docid is None and token is None) or (docid is not None and token is not None):
             raise ValueError("either docid or sessionid must be provided")
 
         if roots is None:
@@ -175,7 +175,7 @@ class RenderItem(object):
             roots = OrderedDict([ (root, make_globally_unique_id()) for root in roots ])
 
         self.docid = docid
-        self.sessionid = sessionid
+        self.token = token
         self.elementid = elementid
         self.roots = RenderRoots(roots)
         self.use_for_title = use_for_title
@@ -186,7 +186,7 @@ class RenderItem(object):
         if self.docid is not None:
             json["docid"] = self.docid
         else:
-            json["sessionid"] = self.sessionid
+            json["token"] = self.token
 
         if self.elementid is not None:
             json["elementid"] = self.elementid

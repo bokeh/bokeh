@@ -15,8 +15,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import base64
 import codecs
+import json
 import os
 import random
 
@@ -24,15 +24,16 @@ import random
 from mock import patch
 
 # Bokeh imports
-from bokeh.util.session_id import (
-    _base64_encode,
-    _get_sysrandom,
-    _reseed_if_needed,
-    _signature,
-    check_session_id_signature,
-    generate_secret_key,
-    generate_session_id,
-)
+from bokeh.util.session_id import (generate_session_id,
+                                   generate_jwt_token,
+                                   generate_secret_key,
+                                   get_session_id,
+                                   check_session_id_signature,
+                                   _get_sysrandom,
+                                   _signature,
+                                   _reseed_if_needed,
+                                   _base64_decode,
+                                   _base64_encode)
 
 # Module under test
 import bokeh.util.session_id # isort:skip
@@ -40,21 +41,6 @@ import bokeh.util.session_id # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-# decoder for our flavor of base64 that converts to ascii
-# and drops '=' padding
-def _base64_decode(encoded):
-    # put the padding back
-    mod = len(encoded) % 4
-    if mod != 0:
-        encoded = encoded + ("=" * (4 - mod))
-    assert (len(encoded) % 4) == 0
-    # base64 lib both takes and returns bytes, we want to work with strings
-    encoded_as_bytes = codecs.encode(encoded, 'ascii')
-    return base64.urlsafe_b64decode(encoded_as_bytes)
-
-def _base64_decode_utf8(encoded):
-    return codecs.decode(_base64_decode(encoded), 'utf-8')
 
 def _nie():
     def func():
@@ -72,7 +58,7 @@ class TestSessionId(object):
         for s in [ "", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
                    "abcdefgh", "abcdefghi",
                    "abcdefghijklmnopqrstuvwxyz" ]:
-            assert s == _base64_decode_utf8(_base64_encode(s))
+            assert s == _base64_decode(_base64_encode(s), encoding='utf-8')
 
     def test_reseed_if_needed(self) -> None:
         # we have to set a seed in order to be able to get state
@@ -99,18 +85,51 @@ class TestSessionId(object):
         assert sig != with_different_key
 
     def test_generate_unsigned(self) -> None:
-        session_id = generate_session_id(signed=False)
-        assert 44 == len(session_id)
-        another_session_id = generate_session_id(signed=False)
-        assert 44 == len(another_session_id)
+        token = generate_jwt_token(generate_session_id(signed=False))
+        assert '.' not in token
+        assert 83 == len(token)
+        assert "session_id" in json.loads(_base64_decode(token, encoding='utf-8'))
 
-        assert session_id != another_session_id
+        another_token = generate_jwt_token(generate_session_id(signed=False))
+        assert '.' not in another_token
+        assert 83 == len(another_token)
+        assert "session_id" in json.loads(_base64_decode(another_token, encoding='utf-8'))
+        assert token != another_token
+
+    def test_payload_unsigned(self):
+        token = generate_jwt_token(generate_session_id(signed=False), extra_payload=dict(foo=10))
+        assert '.' not in token
+        payload = json.loads(_base64_decode(token, encoding='utf-8'))
+        assert payload['foo'] == 10
+
+    def test_payload_error_unsigned(self):
+        session_id = generate_session_id(signed=False, secret_key="abc")
+        with pytest.raises(RuntimeError):
+            generate_jwt_token(session_id, extra_payload=dict(session_id=10))
 
     def test_generate_signed(self) -> None:
-        session_id = generate_session_id(signed=True, secret_key="abc")
-        assert '-' in session_id
+        token = generate_jwt_token(generate_session_id(signed=True, secret_key="abc"))
+        assert '.' in _base64_decode(token, encoding='utf-8')
+        assert "session_id" in json.loads(_base64_decode(token, encoding='utf-8'))
+        session_id = get_session_id(token)
         assert check_session_id_signature(session_id, secret_key="abc", signed=True)
         assert not check_session_id_signature(session_id, secret_key="qrs", signed=True)
+
+    def test_payload_signed(self):
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        assert '.' in session_id
+        token = generate_jwt_token(session_id, extra_payload=dict(foo=10))
+        decoded = json.loads(_base64_decode(token, encoding='utf-8'))
+        assert 'session_id' in decoded
+        session_id = get_session_id(token)
+        assert check_session_id_signature(session_id, secret_key="abc", signed=True)
+        assert not check_session_id_signature(session_id, secret_key="qrs", signed=True)
+        assert decoded['foo'] == 10
+
+    def test_payload_error_signed(self):
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        with pytest.raises(RuntimeError):
+            generate_jwt_token(session_id, extra_payload=dict(session_id=10))
 
     def test_check_signature_of_unsigned(self) -> None:
         session_id = generate_session_id(signed=False, secret_key="abc") # secret shouldn't be used
@@ -121,6 +140,9 @@ class TestSessionId(object):
 
     def test_check_signature_of_junk_with_hyphen_in_it(self) -> None:
         assert not check_session_id_signature("foo-bar-baz", secret_key="abc", signed=True)
+
+    def test_check_signature_of_junk_with_dots_in_it(self):
+        assert not check_session_id_signature("foo.bar.baz", secret_key="abc", signed=True)
 
     def test_check_signature_with_signing_disabled(self) -> None:
         assert check_session_id_signature("gobbledygook", secret_key="abc", signed=False)

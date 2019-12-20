@@ -27,6 +27,7 @@ import base64
 import codecs
 import hashlib
 import hmac
+import json
 import time
 from typing import Any, Optional, Tuple, Union
 
@@ -40,6 +41,7 @@ from bokeh.settings import settings
 __all__ = (
     'check_session_id_signature',
     'generate_secret_key',
+    'generate_jwt_token',
     'generate_session_id',
 )
 
@@ -48,62 +50,106 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def generate_secret_key() -> str:
-    """
-    Generate a new securely-generated secret key appropriate
-    for SHA-256 HMAC signatures. This key could be used to
-    sign Bokeh server session IDs for example.
-    """
+    ''' Generate a new securely-generated secret key appropriate for SHA-256
+    HMAC signatures.
+
+    This key could be used to sign Bokeh server session IDs, for example.
+    '''
     return _get_random_string()
 
 def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                        signed: bool = settings.sign_sessions()) -> str:
-    """Generate a random session ID.
-    Typically, each browser tab connected to a Bokeh application
-    has its own session ID.  In production deployments of a Bokeh
-    app, session IDs should be random and unguessable - otherwise
-    users of the app could interfere with one another.
+                       signed: bool = settings.sign_sessions()) -> str:
+    ''' Generate a random session ID.
 
-    If session IDs are signed with a secret key, the server can
-    verify that the generator of the session ID was "authorized"
-    (the generator had to know the secret key). This can be used
-    to have a separate process, such as another web application,
-    which generates new sessions on a Bokeh server. This other
-    process may require users to log in before redirecting them to
-    the Bokeh server with a valid session ID, for example.
+    Typically, each browser tab connected to a Bokeh application has its own
+    session ID.  In production deployments of a Bokeh app, session IDs should be
+    random and unguessable - otherwise users of the app could interfere with one
+    another.
+
+    If session IDs are signed with a secret key, the server can verify that the
+    generator of the session ID was "authorized" (the generator had to know the
+    secret key). This can be used to have a separate process, such as another
+    web application which generates new sessions on a Bokeh server. This other
+    process may require users to log in before redirecting them to the Bokeh
+    server with a valid session ID, for example.
 
     Args:
-        secret_key (str, optional) : Secret key (default: value of 'BOKEH_SECRET_KEY' env var)
-        signed (bool, optional) : Whether to sign the session ID (default: value of
-                                  'BOKEH_SIGN_SESSIONS' env var)
+        secret_key (str, optional) :
+            Secret key (default: value of BOKEH_SECRET_KEY environment varariable)
 
-    """
+        signed (bool, optional) :
+            Whether to sign the session ID (default: value of BOKEH_SIGN_SESSIONS
+            envronment varariable)
+
+    Returns:
+        str
+    '''
     secret_key = _ensure_bytes(secret_key)
-    if signed:
-        # note: '-' can also be in the base64 encoded signature
-        base_id = _get_random_string(secret_key=secret_key)
-        return base_id + '-' + _signature(base_id, secret_key)
-    else:
-        return _get_random_string(secret_key=secret_key)
+    base_id = _get_random_string(secret_key=secret_key)
+    if not signed:
+        return base_id
+    return base_id + '.' + _signature(base_id, secret_key)
+
+def generate_jwt_token(session_id: str, extra_payload=None) -> str:
+    """Generates a JWT token given a session_id and additional payload.
+
+    Args:
+        session_id (str):
+            The session id to add to the token
+
+        extra_payload (dict, optional) :
+            Extra key/value pairs to include in the Bokeh session token
+
+    Returns:
+        str
+    """
+    payload = {'session_id': session_id}
+    if extra_payload:
+        if "session_id" in extra_payload:
+            raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
+        payload.update(extra_payload)
+    return _base64_encode(json.dumps(payload))
+
+def get_session_id(token):
+    """Extracts the session id from a JWT token.
+
+    Args:
+        token (str):
+            A JWT token containing the session_id and other data.
+
+    Returns:
+       str
+    """
+    decoded = json.loads(_base64_decode(token))
+    return decoded['session_id']
 
 def check_session_id_signature(session_id: str,
                                secret_key: Optional[bytes] = settings.secret_key_bytes(),
                                signed: Optional[bool] = settings.sign_sessions()) -> bool:
     """Check the signature of a session ID, returning True if it's valid.
 
-    The server uses this function to check whether a session ID
-    was generated with the correct secret key. If signed sessions are disabled,
-    this function always returns True.
+    The server uses this function to check whether a session ID was generated
+    with the correct secret key. If signed sessions are disabled, this function
+    always returns True.
 
     Args:
-        session_id (str) : The session ID to check
-        secret_key (str, optional) : Secret key (default: value of 'BOKEH_SECRET_KEY' env var)
-        signed (bool, optional) : Whether to check anything (default: value of
-                                  'BOKEH_SIGN_SESSIONS' env var)
+        session_id (str) :
+            The session_id to check
+
+        secret_key (str, optional) :
+            Secret key (default: value of BOKEH_SECRET_KEY environment variable)
+
+        signed (bool, optional) :
+            Whether to check anything (default: value of BOKEH_SIGN_SESSIONS
+            environment variable)
+
+    Returns:
+        bool
 
     """
     secret_key = _ensure_bytes(secret_key)
     if signed:
-        pieces = session_id.split('-', 1)
+        pieces = session_id.split('.', 1)
         if len(pieces) != 2:
             return False
         base_id = pieces[0]
@@ -138,8 +184,8 @@ def _get_sysrandom() -> Tuple[Any, bool]:
                       'on your system. Falling back to Mersenne Twister.')
         if settings.secret_key() is None:
             warnings.warn('A secure pseudo-random number generator is not available '
-                          'and no BOKEH_SECRET_KEY has been set. '
-                          'Setting a secret key will mitigate the lack of a secure generator.')
+                          'and no BOKEH_SECRET_KEY has been set. Setting a secret '
+                          'key will mitigate the lack of a secure generator.')
         using_sysrandom = False
         return random, using_sysrandom
 
@@ -164,6 +210,7 @@ def _reseed_if_needed(using_sysrandom: bool, secret_key: Optional[bytes]) -> Non
         data = f"{random.getstate()}{time.time()}{secret_key!s}".encode('utf-8')
         random.seed(hashlib.sha256(data).digest())
 
+
 def _base64_encode(decoded: Union[bytes, str]) -> str:
     # base64 encode both takes and returns bytes, we want to work with strings.
     # If 'decoded' isn't bytes already, assume it's utf-8
@@ -173,6 +220,20 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), 'ascii')  # type: ignore
     # remove padding '=' chars that cause trouble
     return str(encoded.rstrip('='))
+
+
+def _base64_decode(encoded: Union[bytes, str], encoding=None) -> bytes:
+    # put the padding back
+    mod = len(encoded) % 4
+    if mod != 0:
+        encoded = encoded + ("=" * (4 - mod))
+    assert (len(encoded) % 4) == 0
+    # base64 lib both takes and returns bytes, we want to work with strings
+    encoded_as_bytes = codecs.encode(encoded, 'ascii')
+    result = base64.urlsafe_b64decode(encoded_as_bytes)
+    if encoding:
+        result = codecs.decode(result, 'utf-8')
+    return result
 
 def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
     secret_key = _ensure_bytes(secret_key)

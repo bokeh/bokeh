@@ -28,7 +28,7 @@ from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.session_id import check_session_id_signature
+from bokeh.util.session_id import check_session_id_signature, get_session_id
 
 # Bokeh imports
 from ...protocol import Protocol
@@ -66,6 +66,8 @@ class WSHandler(WebSocketHandler):
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
         self.write_lock = locks.Lock()
+
+        self._authorized = False
 
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
@@ -113,16 +115,42 @@ class WSHandler(WebSocketHandler):
         '''
         log.info('WebSocket connection opened')
 
+        if self._authorized:
+            return
+
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             self.close()
             raise ProtocolError("No bokeh-session-id specified")
+        self._open_connection(session_id)
 
+    def select_subprotocol(self, subprotocols):
+        log.info('Subprotocol header received')
+
+        if not len(subprotocols) == 2:
+            self.close()
+            raise ProtocolError("Subprotocol header not of expected length")
+        elif subprotocols[0] != "bokeh":
+            self.close()
+            raise ProtocolError("Subprotocol header is not 'bokeh'")
+
+        token = subprotocols[1]
+
+        if token is None:
+            self.close()
+            raise ProtocolError("No token received in subprotocol header")
+
+        self._open_connection(get_session_id(token))
+        return "bokeh"
+
+    def _open_connection(self, session_id):
         if not check_session_id_signature(session_id,
                                           signed=self.application.sign_sessions,
                                           secret_key=self.application.secret_key):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
+
+        self._authorized = True
 
         try:
             self.application.io_loop.spawn_callback(self._async_open, session_id)

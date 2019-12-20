@@ -41,14 +41,15 @@ function _get_session(websocket_url: string, session_id: string, args_string: st
   return subsessions[session_id]
 }
 
-// Fill element with the roots from session_id
-export async function add_document_from_session(websocket_url: string, session_id: string, element: HTMLElement,
+// Fill element with the roots from token
+export async function add_document_from_session(websocket_url: string, token: string, element: HTMLElement,
     roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): Promise<View[]> {
   const args_string = window.location.search.substr(1)
   let session: ClientSession
   try {
-    session = await _get_session(websocket_url, session_id, args_string)
+    session = await _get_session(websocket_url, token, args_string)
   } catch (error) {
+    const session_id = JSON.parse(atob(token))['session_id']
     logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
     throw error
   }
