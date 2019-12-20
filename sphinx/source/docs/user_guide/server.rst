@@ -393,6 +393,18 @@ dictionary in place:
     # or update multiple at once
     curdoc().template_variables.update(first_name="Mary", last_name="Jones")
 
+Then, in the corresponding Jinja template code, the variables may be referenced directly:
+
+.. code-block:: html
+
+    {% extends base %}
+
+    {% block contents %}
+    <div>
+        <p> Hello {{ user_id }}, AKA '{{ last_name }}, {{ first_name }}'! </p>
+    </div>
+    {% endblock %}
+
 .. _userguide_server_session_request:
 
 Accessing the HTTP Request
