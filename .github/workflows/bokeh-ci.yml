@@ -256,8 +256,23 @@ jobs:
           pushd bokehjs
           npm install -g npm
           npm ci --no-progress
+          node make examples --no-build
           popd
           python setup.py --install-js
+
+      - name: Install chrome
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install software-properties-common
+          sudo add-apt-repository ppa:canonical-chromium-builds/stage
+          sudo apt-get update
+          sudo apt-get install chromium-browser
+
+      - name: Start chrome headless
+        shell: bash
+        run: |
+          chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
 
       - name: Install sampledata
         shell: bash
