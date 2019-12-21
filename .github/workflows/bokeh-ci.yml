@@ -259,6 +259,11 @@ jobs:
           popd
           python setup.py --install-js
 
+      - name: Install sampledata
+        shell: bash
+        run: |
+          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+
       - name: Run tests
         shell: bash
         run: |
