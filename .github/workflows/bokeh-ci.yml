@@ -286,7 +286,8 @@ jobs:
             --tb line                   \
             --diff-ref FETCH_HEAD       \
             --self-contained-html       \
-            --report-path=examples.html
+            --report-path=examples.html \
+            --upload
 
 
 
