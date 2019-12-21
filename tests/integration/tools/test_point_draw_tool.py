@@ -201,7 +201,7 @@ class Test_PointDrawTool(object):
         assert page.results == {"matches": "True"}
 
     # TODO (bev) Fix up after GH CI switch
-    @pytest.mark.ski
+    @pytest.mark.skip
     def test_point_drag_syncs_to_server(self, bokeh_server_page):
         expected = {"x": [1, 2, 2.1891891891891895],
                     "y": [1, 1, 1.1024999999999998]}
