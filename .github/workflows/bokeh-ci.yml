@@ -279,6 +279,9 @@ jobs:
           python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Run tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         shell: bash
         run: |
           py.test -s -v -m examples     \
