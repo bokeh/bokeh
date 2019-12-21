@@ -28,12 +28,13 @@ from boto.s3.key import Key as S3Key
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
-from bokeh._testing.util.travis import JOB_ID
 from bokeh.util.terminal import fail, ok, trace
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 
 S3_BUCKET = "ci.bokeh.org"
 
@@ -64,10 +65,10 @@ def connect_to_s3():
         return None
 
 def upload_file_to_s3_by_job_id(file_path, content_type="text/html", extra_message=None):
-    ''' Upload a file to the ci.bokeh.org s3 bucket under a travis/JOB_ID
+    ''' Upload a file to the ci.bokeh.org s3 bucket under a github-ci/JOB_ID
 
     '''
-    s3_filename = join("travis", JOB_ID, file_path)
+    s3_filename = join("github-ci", JOB_ID, file_path)
     return upload_file_to_s3(file_path, s3_filename, content_type, extra_message)
 
 

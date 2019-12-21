@@ -43,7 +43,6 @@ import yaml
 from bokeh._testing.util.git import __version__
 from bokeh._testing.util.images import image_diff
 from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
-from bokeh._testing.util.travis import JOB_ID
 from bokeh.util.terminal import green, trace
 
 #-----------------------------------------------------------------------------
@@ -56,6 +55,8 @@ __all__ = (
     'Example',
     'Flags',
 )
+
+JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -244,15 +245,15 @@ class Example(object):
 
     @property
     def img_url_path(self):
-        return join("travis", "image_refs", __version__, self.relpath_no_ext) + '.png'
+        return join("github-ci", "image_refs", __version__, self.relpath_no_ext) + '.png'
 
     @property
     def ref_url_path(self):
-        return join("travis", "image_refs", self._diff_ref, self.relpath_no_ext) + '.png'
+        return join("github-ci", "image_refs", self._diff_ref, self.relpath_no_ext) + '.png'
 
     @property
     def diff_url_path(self):
-        return join("travis", "image_refs", __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
+        return join("github-ci", "image_refs", __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
 
     @property
     def has_ref(self):

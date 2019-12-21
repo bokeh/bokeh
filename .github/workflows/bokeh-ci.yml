@@ -239,7 +239,6 @@ jobs:
         run: |
           conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
           conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
-          conda remove --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -283,6 +282,7 @@ jobs:
         shell: bash
         run: |
           py.test -s -v -m examples     \
+            --color=yes                 \
             --tb line                   \
             --diff-ref FETCH_HEAD       \
             --self-contained-html       \
