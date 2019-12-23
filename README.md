@@ -84,9 +84,11 @@
 <tr>
   <td>Static Analysis</td>
   <td>
-    <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
-    <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
-         alt="BetterCodeHub static analysis" >
+    <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:python">
+    <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?logo=lgtm&logoWidth=18"/>
+    </a>
+    <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:javascript">
+    <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg?logo=lgtm&logoWidth=18"/>
     </a>
   </td>
 
