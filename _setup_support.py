@@ -257,10 +257,10 @@ def jsbuild_prompt():
     '''
     print(BOKEHJS_BUILD_PROMPT)
     mapping = {"1": True, "2": False}
-    value = input("Choice? ")
+    value = input("Choice? ")  # lgtm [py/use-of-input]
     while value not in mapping:
         print("Input '%s' not understood. Valid choices: 1, 2\n" % value)
-        value = input("Choice? ")
+        value = input("Choice? ")  # lgtm [py/use-of-input]
     return mapping[value]
 
 # -----------------------------------------------------------------------------

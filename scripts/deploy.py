@@ -134,7 +134,7 @@ def abort(checkout_master=True):
 def confirm(msg):
     resp = "foo"
     while resp not in "yn" or resp=='':
-        resp = input(bright(yellow(msg)) + bright(" (y/n): "))
+        resp = input(bright(yellow(msg)) + bright(" (y/n): "))  # lgtm [py/use-of-input]
     if resp == "n":
         run("git checkout master")
         abort()
