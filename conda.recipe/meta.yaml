@@ -59,7 +59,7 @@ test:
     - coverage
     - flake8
     - flaky
-    - ipython <=7.9.0
+    - ipython
     - isort >=4.3.21
     - lxml
     - mock
