@@ -33,7 +33,7 @@ from bokeh.models import (
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 LABELS = ["Option 1", "Option 2", "Option 3"]

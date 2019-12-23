@@ -31,7 +31,7 @@ from bokeh.resources import INLINE
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
     "bokeh._testing.plugins.selenium",
 )
 

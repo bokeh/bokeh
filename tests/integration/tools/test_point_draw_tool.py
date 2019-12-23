@@ -38,7 +38,7 @@ from bokeh.models import (
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 def _make_plot(num_objects=0, add=True, drag=True):

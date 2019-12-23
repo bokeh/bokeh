@@ -35,7 +35,7 @@ from bokeh.models import (
 # TODO (bev) Add tests with both x_range and y_range
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 def _make_plot():

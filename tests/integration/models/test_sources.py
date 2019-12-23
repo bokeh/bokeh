@@ -34,7 +34,7 @@ from bokeh.plotting import figure
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 def is_cds_data_changed(evt):

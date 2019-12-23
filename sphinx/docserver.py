@@ -57,7 +57,7 @@ def shutdown_server():
 def ui():
     try:
         time.sleep(0.5)
-        input("Press <ENTER> to exit...\n")
+        input("Press <ENTER> to exit...\n")  # lgtm [py/use-of-input]
     except:
         pass
 

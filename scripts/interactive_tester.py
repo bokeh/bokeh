@@ -153,7 +153,7 @@ def main(testing_ground=None, notebook_options=""):
                 if results.nolog:
                     # Don't display 'next file' message after opening final file in a dir
                     if index != len(TestFiles)-1:
-                        input("\nPress enter to open next file ")
+                        input("\nPress enter to open next file ")  # lgtm [py/use-of-input]
                 else:
                     ErrorReport = test_status()
                     if ErrorReport:
@@ -213,9 +213,9 @@ def test_status():
     status = input("Did the plot(s) display correctly? (y/n) ")
     while not status.startswith(('y', 'n')):
         print("")
-        status = input("Unexpected answer. Please type y or n. ")
+        status = input("Unexpected answer. Please type y or n. ")  # lgtm [py/use-of-input]
     if status.startswith('n'):
-        ErrorReport = input("Please describe the problem: ")
+        ErrorReport = input("Please describe the problem: ")  # lgtm [py/use-of-input]
         return ErrorReport
 
 
