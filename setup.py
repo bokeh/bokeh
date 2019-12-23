@@ -111,7 +111,7 @@ package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sphinxext', '_templates'))
 package_path(join(ROOT, 'bokeh', 'server', 'views'), ('.html'))
 package_path(join(ROOT, 'bokeh', 'sampledata', '_data'))
-package_files('_sri.json', 'LICENSE.txt', 'themes/*.yaml', 'themes/*.json')
+package_files('_sri.json', 'LICENSE.txt', 'themes/*.yaml', 'themes/*.json', 'util/sampledata.json')
 
 setup(
     # basic package metadata

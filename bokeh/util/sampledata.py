@@ -22,6 +22,8 @@ log = logging.getLogger(__name__)
 # imports are generally deferrered in this module
 
 # Standard library imports
+import hashlib
+import json
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
@@ -52,31 +54,26 @@ def download(progress: bool = True) -> None:
 
     # HTTP requests are cheaper for us, and there is nothing private to protect
     s3 = 'http://sampledata.bokeh.org'
-    files = [
-        (s3, 'CGM.csv'),
-        (s3, 'US_Counties.zip'),
-        (s3, 'us_cities.json'),
-        (s3, 'unemployment09.csv'),
-        (s3, 'AAPL.csv'),
-        (s3, 'FB.csv'),
-        (s3, 'GOOG.csv'),
-        (s3, 'IBM.csv'),
-        (s3, 'MSFT.csv'),
-        (s3, 'WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.zip'),
-        (s3, 'gapminder_fertility.csv'),
-        (s3, 'gapminder_population.csv'),
-        (s3, 'gapminder_life_expectancy.csv'),
-        (s3, 'gapminder_regions.csv'),
-        (s3, 'world_cities.zip'),
-        (s3, 'airports.json'),
-        (s3, 'movies.db.zip'),
-        (s3, 'airports.csv'),
-        (s3, 'routes.csv'),
-        (s3, 'haarcascade_frontalface_default.xml'),
-    ]
+    files = json.load(open(join(dirname(__file__), "sampledata.json")))
 
-    for base_url, filename in files:
-        _download_file(base_url, filename, data_dir, progress=progress)
+    for filename, md5 in files:
+        real_name, ext = splitext(filename)
+        if ext == '.zip':
+            if not splitext(real_name)[1]:
+                real_name += ".csv"
+        else:
+            real_name += ext
+        real_path = join(data_dir, real_name)
+
+        if exists(real_path):
+            local_md5 = hashlib.md5(open(real_path,'rb').read()).hexdigest()
+            if local_md5 == md5:
+                print(f"Skipping {filename!r} (checksum match)")
+                continue
+            else:
+                print(f"Re-fetching {filename!r} (checksum mismatch)")
+
+        _download_file(s3, filename, data_dir, progress=progress)
 
 #-----------------------------------------------------------------------------
 # Dev API
