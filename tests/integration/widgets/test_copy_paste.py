@@ -33,7 +33,7 @@ from bokeh.models import ColumnDataSource, DataTable, Div, TableColumn
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 @pytest.mark.integration

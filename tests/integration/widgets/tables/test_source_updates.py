@@ -50,7 +50,7 @@ from bokeh.models import (
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 def _is_cds_data_patch(evt):

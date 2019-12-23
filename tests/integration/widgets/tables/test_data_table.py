@@ -25,7 +25,7 @@ from bokeh.models import ColumnDataSource, CustomJS, DataTable, TableColumn
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 @pytest.mark.integration

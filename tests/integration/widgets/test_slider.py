@@ -44,7 +44,7 @@ from bokeh.models import (
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
 )
 
 def drag_slider(driver, css_class, distance, release=True):

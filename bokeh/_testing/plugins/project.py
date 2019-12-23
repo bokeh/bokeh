@@ -43,7 +43,7 @@ from bokeh.server.server import Server
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh",
+    "bokeh._testing.plugins.project",
     "bokeh._testing.plugins.file_server",
     "bokeh._testing.plugins.selenium",
 )
