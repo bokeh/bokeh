@@ -32,7 +32,7 @@ def test_isort():
 
     '''
     chdir(TOP_PATH)
-    proc = Popen(["isort", "-rc", "-c", "."], stdout=PIPE, stderr=PIPE)
+    proc = Popen(["isort", "-df", "-rc", "-c", "."], stdout=PIPE, stderr=PIPE)
     out, _ = proc.communicate()
     assert proc.returncode == 0, "isort issues:\n%s" % out.decode("utf-8")
 
