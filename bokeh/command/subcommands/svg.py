@@ -131,9 +131,7 @@ class SVG(FileOutputSubcommand):
             if filename == '-':
                 print(svg)
             else:
-                if i == 0:
-                    filename = filename
-                else:
+                if i > 0:
                     idx = filename.find(".svg")
                     filename = filename[:idx] + "_{}".format(i) + filename[idx:]
                 with io.open(filename, "w", encoding="utf-8") as f:
