@@ -48,7 +48,6 @@ def polar_to_cartesian(r, alpha):
 
 def add_gauge(radius, max_value, length, direction, color, major_step, minor_step):
     major_angles, minor_angles = [], []
-    major_labels, minor_labels = [], []
 
     total_angle = start_angle - end_angle
 
@@ -68,11 +67,9 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
         minor_angle += minor_angle_step
 
     major_labels = [ major_step*i for i, _ in enumerate(major_angles) ]
-    minor_labels = [ minor_step*i for i, _ in enumerate(minor_angles) ]
 
     n = major_step/minor_step
     minor_angles = [ x for i, x in enumerate(minor_angles) if i % n != 0 ]
-    minor_labels = [ x for i, x in enumerate(minor_labels) if i % n != 0 ]
 
     glyph = Arc(x=0, y=0, radius=radius, start_angle=start_angle, end_angle=end_angle, direction="clock", line_color=color, line_width=2)
     plot.add_glyph(glyph)
