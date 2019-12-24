@@ -64,7 +64,7 @@ class ExampleHandler(Handler):
         sys.modules[module.__name__] = module
         doc._modules.append(module)
 
-        old_doc = curdoc()
+        orig_curdoc = curdoc()
         set_curdoc(doc)
 
         old_io, old_doc = self._monkeypatch()
@@ -73,7 +73,7 @@ class ExampleHandler(Handler):
             self._runner.run(module, lambda: None)
         finally:
             self._unmonkeypatch(old_io, old_doc)
-            set_curdoc(old_doc)
+            set_curdoc(orig_curdoc)
 
     def _monkeypatch(self):
 
