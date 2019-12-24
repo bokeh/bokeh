@@ -10,3 +10,6 @@ extraction:
   python:
     python_setup:
       version: 3
+    index:
+      exclude:
+        - versioneer.py
