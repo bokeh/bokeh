@@ -255,8 +255,7 @@ def _any(objs, query):
         else:
             if any(query(ref) for ref in obj.references()):
                 return True
-    else:
-        return False
+    return False
 
 def _use_gl(objs):
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
