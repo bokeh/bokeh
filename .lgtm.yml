@@ -1,11 +1,3 @@
-path_classifiers:
-  docs:
-    - sphinx
-  examples:
-    - examples
-  tools:
-    - scripts
-
 extraction:
   python:
     python_setup:
