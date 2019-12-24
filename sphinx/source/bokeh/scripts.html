@@ -22,7 +22,7 @@
             else {
               msg = "PREVIOUS RELEASE"
             }
-            content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
+            const content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
             $('#banner').append(content);
           }
           for (var i = 0; i < data.menu.length; i++) {
@@ -37,7 +37,7 @@
     $(document).ready(function () {
        $.get('/alert.html', function (data) {
           if (data.length > 0) {
-            content = $('<div class="news-alert">' + data + '</div>')
+            const content = $('<div class="news-alert">' + data + '</div>')
             $('#banner').prepend(content);
           }
        })
