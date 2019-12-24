@@ -35,7 +35,6 @@ theme = Theme(json={
             'axis_label_text_color': "white",
             'major_label_text_color': "white",
             'major_tick_line_color': "white",
-            'minor_tick_line_color': "white",
             'minor_tick_line_color': "white"
             },
         'Legend': {
