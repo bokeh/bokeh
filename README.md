@@ -2,6 +2,8 @@
   <img src="https://static.bokeh.org/logos/logotype.svg" height="60" alt="Bokeh logotype" />
 </a>
 
+----
+
 [Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
 
 <table>
@@ -100,8 +102,6 @@
 </table>
 
 *If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
-
-&nbsp;
 
 <p>
 <table>
@@ -259,8 +259,6 @@ pip install bokeh
 
 For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
 
-
-
 Resources
 ---------
 
@@ -274,6 +272,7 @@ If you would like to contribute to Bokeh, please review the [Developer Guide](ht
 
 Follow us
 ---------
+
 Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 Sponsors
