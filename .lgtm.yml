@@ -13,3 +13,4 @@ extraction:
     index:
       exclude:
         - versioneer.py
+        - bokeh/_version.py
