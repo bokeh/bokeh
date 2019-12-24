@@ -90,8 +90,7 @@ class Either(ParameterizedProperty):
                 return tp.from_json(json, models)
             except DeserializationError:
                 pass
-        else:
-            raise DeserializationError("%s couldn't deserialize %s" % (self, json))
+        raise DeserializationError("%s couldn't deserialize %s" % (self, json))
 
     def transform(self, value):
         for param in self.type_params:

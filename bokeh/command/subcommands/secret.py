@@ -72,7 +72,9 @@ class Secret(Subcommand):
 
         '''
         key = generate_secret_key()
-        print(key)
+
+        # suppress LGTM, since the intent is precisesly to output a secret
+        print(key)  # lgtm [py/clear-text-logging-sensitive-data]
 
 #-----------------------------------------------------------------------------
 # Dev API

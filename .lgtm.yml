@@ -1,12 +1,8 @@
-path_classifiers:
-  docs:
-    - sphinx
-  examples:
-    - examples
-  tools:
-    - scripts
-
 extraction:
   python:
     python_setup:
       version: 3
+    index:
+      exclude:
+        - versioneer.py
+        - bokeh/_version.py

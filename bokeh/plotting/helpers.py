@@ -720,7 +720,6 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         if isinstance(axis.ticker, ContinuousTicker):
             axis.ticker.num_minor_ticks = _get_num_minor_ticks(axiscls, minor_ticks)
 
-        axis_label = axis_label
         if axis_label:
             axis.axis_label = axis_label
 

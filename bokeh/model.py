@@ -484,7 +484,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         '''
         try:
             return self in getattr(plot, side)
-        except:
+        except Exception:
             return []
 
     def on_change(self, attr, *callbacks):

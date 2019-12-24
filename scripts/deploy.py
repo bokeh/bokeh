@@ -272,7 +272,7 @@ def check_release_branch():
 
 def check_issues():
     try:
-        out = run("python issues.py -c -p %s" % CONFIG.last_full_version)
+        run("python issues.py -c -p %s" % CONFIG.last_full_version)
         passed("Issue labels are BEP-1 compliant")
     except CalledProcessError as e:
         out = e.output.decode('utf-8')
@@ -351,7 +351,7 @@ def update_bokehjs_versions():
 
 def update_changelog():
     try:
-        out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
+        run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
         passed("Updated CHANGELOG with new closed issues")
         filename = join(CONFIG.top_dir, "CHANGELOG")
         commit(filename, CONFIG.new_version)

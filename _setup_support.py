@@ -312,7 +312,6 @@ def build_js():
         if not m: continue # skip generate.py output lines
         stamp, txt = m.groups()
         indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
-    msg = "\n".join("    " + x for x in msg.split("\n"))
     print(BUILD_SUCCESS_MSG % indented_msg)
     print("Build time: %s" % bright(yellow("%0.1f seconds" % (t1-t0))))
     print()

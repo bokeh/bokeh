@@ -196,7 +196,7 @@ def convert_str_seq(value):
 
     try:
         return value.split(",")
-    except:
+    except Exception:
         raise ValueError("Cannot convert {} to list value".format(value))
 
 _log_levels = {
@@ -363,7 +363,11 @@ class PrioritizedSetting(object):
         Returns:
             None
         '''
-        self._user_value = value
+        # This triggers LGTMs "mutable descriptor" warning. Since descriptors
+        # are shared among all instances, it is usually not avised to store any
+        # data directly on them. But in our case we only ever have one single
+        # instance of a Settings object.
+        self._user_value = value  # lgtm [py/mutable-descriptor]
 
     def unset_value(self):
         ''' Unset the previous user value such that the priority is reset.

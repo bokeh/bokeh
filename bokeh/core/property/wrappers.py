@@ -205,13 +205,6 @@ class PropertyValueList(PropertyValueContainer, list):
     def __delitem__(self, y):
         return super().__delitem__(y)
 
-    # delete x[i:j]
-    @notify_owner
-    def __delslice__(self, i, j):
-        # Note: this is different py2 vs py3, py3 calls __delitem__ with a
-        # slice index, and does not have this method at all
-        return super().__delslice__(i, j)
-
     # x += y
     @notify_owner
     def __iadd__(self, y):
@@ -226,13 +219,6 @@ class PropertyValueList(PropertyValueContainer, list):
     @notify_owner
     def __setitem__(self, i, y):
         return super().__setitem__(i, y)
-
-    # x[i:j] = y
-    @notify_owner
-    def __setslice__(self, i, j, y):
-        # Note: this is different py2 vs py3, py3 calls __setitem__ with a
-        # slice index, and does not have this method at all
-        return super().__setslice__(i, j, y)
 
     @notify_owner
     def append(self, obj):

@@ -183,7 +183,6 @@ class BokehJSContent(CodeBlock):
             js_source = open(path).read()
         else:
             log.debug("[bokehjs-content] handling inline example in %r", env.docname)
-            path = env.bokeh_plot_auxdir  # code runner just needs any real path
             js_source = '\n'.join(self.content)
 
         return js_source
