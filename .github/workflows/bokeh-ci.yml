@@ -48,10 +48,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -142,10 +138,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -153,6 +145,8 @@ jobs:
           npm install -g npm
           npm ci --no-progress
           popd
+
+      # Don't cache sampledata - want to test at least one real download
 
       - name: Install sampledata
         shell: bash
@@ -245,10 +239,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -272,6 +262,12 @@ jobs:
         shell: bash
         run: |
           chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
+
+      - name: Cache sampledata
+        uses: actions/cache@v1
+        with:
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
         shell: bash
@@ -362,10 +358,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -462,10 +454,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -575,10 +563,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -588,6 +572,12 @@ jobs:
           npm ci --no-progress
           popd
           python setup.py --install-js
+
+      - name: Cache sampledata
+        uses: actions/cache@v1
+        with:
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
         shell: bash
@@ -671,10 +661,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -762,10 +748,6 @@ jobs:
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install node modules
         run: |
@@ -774,6 +756,12 @@ jobs:
           npm ci --no-progress
           popd
           python setup.py --install-js
+
+      - name: Cache sampledata
+        uses: actions/cache@v1
+        with:
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
         shell: bash

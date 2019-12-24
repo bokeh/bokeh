@@ -62,10 +62,6 @@
 <tr>
   <td>Build Status</td>
   <td>
-    <a href="https://travis-ci.org/bokeh/bokeh">
-    <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master"
-         alt="Current TravisCI build status" />
-    </a>
     <a href="https://github.com/bokeh/bokeh/actions">
     <img src="https://github.com/bokeh/bokeh/workflows/GitHub-CI/badge.svg"
          alt="Current github actions build status" />
@@ -84,9 +80,11 @@
 <tr>
   <td>Static Analysis</td>
   <td>
-    <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
-    <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
-         alt="BetterCodeHub static analysis" >
+    <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:python">
+    <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?logo=lgtm&logoWidth=18"/>
+    </a>
+    <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:javascript">
+    <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg?logo=lgtm&logoWidth=18"/>
     </a>
   </td>
 
@@ -102,7 +100,6 @@
 </table>
 
 [Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
-
 
 <p>
 <table cellspacing="10">

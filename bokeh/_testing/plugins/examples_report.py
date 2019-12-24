@@ -68,7 +68,7 @@ def get_all_examples(config):
     if _examples is None:
         base_dir = abspath(join(dirname(__file__), pardir, pardir, pardir))
 
-        _examples = collect_examples(join(base_dir, "examples.yaml"))
+        _examples = collect_examples(join(base_dir, "tests", "examples.yaml"))
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref

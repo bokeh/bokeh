@@ -30,6 +30,7 @@ from os.path import (
     isfile,
     join,
     normpath,
+    pardir,
     relpath,
     splitext,
 )
@@ -345,7 +346,7 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
 
 
 def collect_examples(config_path):
-    examples_dir = dirname(config_path)
+    examples_dir = join(dirname(config_path), pardir)
     list_of_examples = []
 
     with open(config_path, "r") as f:
