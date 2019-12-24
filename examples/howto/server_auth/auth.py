@@ -15,7 +15,7 @@ class LoginHandler(RequestHandler):
     def get(self):
         try:
             errormessage = self.get_argument("error")
-        except:
+        except Exception:
             errormessage = ""
         self.render("login.html", errormessage=errormessage)
 
