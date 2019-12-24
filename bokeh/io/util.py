@@ -19,7 +19,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os import getcwd
+import os
+import sys
 from os.path import basename, dirname, join, splitext
 from tempfile import NamedTemporaryFile
 
@@ -67,7 +68,7 @@ def default_filename(ext):
     if filename is None:
         return temp_filename(ext)
 
-    basedir = dirname(filename) or getcwd()
+    basedir = dirname(filename) or os.getcwd()
 
     if _no_access(basedir) or _shares_exec_prefix(basedir):
         return temp_filename(ext)
@@ -108,14 +109,12 @@ def _no_access(basedir):
     ''' Return True if the given base dir is not accessible or writeable
 
     '''
-    import os
     return not os.access(basedir, os.W_OK | os.X_OK)
 
 def _shares_exec_prefix(basedir):
     ''' Whether a give base directory is on the system exex prefix
 
     '''
-    import sys
     prefix = sys.exec_prefix
     return (prefix is not None and basedir.startswith(prefix))
 
