@@ -79,7 +79,7 @@ def issue_section_order(issue):
     """Returns the section order for the given issue."""
     try:
         return LOG_SECTION.values().index(issue_section(issue))
-    except:
+    except Exception:
         return -1
 
 
