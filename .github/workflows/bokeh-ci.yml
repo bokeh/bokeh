@@ -146,11 +146,7 @@ jobs:
           npm ci --no-progress
           popd
 
-      - name: Cache sampledata
-        uses: actions/cache@v1
-        with:
-          path: ~/.bokeh/data
-          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
+      # Don't cache sampledata - want to test at least one real download
 
       - name: Install sampledata
         shell: bash
