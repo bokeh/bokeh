@@ -25,10 +25,8 @@ for p in (p1, p2, p3):
                 line_width=6, line_cap='butt',
                 line_join='round', line_dash=(10, 6, 3, 6, 3, 6))
 
-    t = np.arange(10)
     t = np.linspace(0, 4 * np.pi, 150)
     x = t - 5
-    y = (t + 1) * ((t % 2) * 2 - 1)
     y = np.sin(t) + 5
     l2 = p.line(x, y * ys, color="#22aa22",
                 line_width=6, line_cap='butt', line_join='round')
