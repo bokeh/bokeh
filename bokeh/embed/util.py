@@ -144,7 +144,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
                 doc = _create_temp_doc(objs)
 
             # we are using all the roots of a single doc, just use doc as-is
-            pass
+            pass  # lgtm [py/unnecessary-pass]
 
         # models have mixed docs, just make a quick clone
         else:
