@@ -2,9 +2,7 @@
   <img src="https://static.bokeh.org/logos/logotype.svg" height="60" alt="Bokeh logotype" />
 </a>
 
-&nbsp;
-
-*If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
+[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
 
 <table>
 <tr>
@@ -101,7 +99,9 @@
 
 </table>
 
-[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
+*If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
+
+&nbsp;
 
 <p>
 <table>
