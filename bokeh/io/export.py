@@ -148,9 +148,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
     filenames = []
 
     for i, svg in enumerate(svgs):
-        if i == 0:
-            filename = filename
-        else:
+        if i > 0:
             idx = filename.find(".svg")
             filename = filename[:idx] + "_{}".format(i) + filename[idx:]
 
