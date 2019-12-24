@@ -38,7 +38,7 @@ try:
             except:
                 continue
 
-except:
+except ImportError:
     print()
     print(" *** Pyaudio package not installed, using synthesized audio data ***")
     print()
