@@ -2,6 +2,8 @@
   <img src="https://static.bokeh.org/logos/logotype.svg" height="60" alt="Bokeh logotype" />
 </a>
 
+&nbsp;
+
 *If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
 
 <table>
@@ -81,10 +83,10 @@
   <td>Static Analysis</td>
   <td>
     <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:python">
-    <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?logo=lgtm&logoWidth=18"/>
+    <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?"/>
     </a>
     <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:javascript">
-    <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg?logo=lgtm&logoWidth=18"/>
+    <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg"/>
     </a>
   </td>
 
@@ -102,7 +104,7 @@
 [Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
 
 <p>
-<table cellspacing="10">
+<table>
 <tr>
 
   <td>
@@ -243,6 +245,7 @@
 
 Installation
 ------------
+
 The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
 
 ```
@@ -253,6 +256,7 @@ To install using pip, enter the following command at a Bash or Windows command p
 ```
 pip install bokeh
 ```
+
 For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
 
 
@@ -282,25 +286,25 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
   <td>
     <a href="https://www.numfocus.org/">
     <img src="https://static.bokeh.org/sponsor/numfocus.svg"
-       alt="NumFocus Logo" width="200"/>
+         alt="NumFocus Logo" width="200"/>
     </a>
   </td>
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
-       alt="Anaconda Logo" width="200"/>
+         alt="Anaconda Logo" width="200"/>
     </a>
   </td>
   <td>
     <a href="https://www.nvidia.com">
     <img src="https://static.bokeh.org/sponsor/nvidia.png"
-       alt="NVidia Logo" width="200"/>
+         alt="NVidia Logo" width="200"/>
     </a>
   </td>
   <td>
     <a href="https://developer.nvidia.com/rapids">
     <img src="https://static.bokeh.org/sponsor/rapids.png"
-       alt="Rapids Logo" width="200"/>
+         alt="Rapids Logo" width="200"/>
     </a>
   </td>
 </tr>
@@ -312,13 +316,13 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
   <td>
     <a href="https://www.quansight.com">
     <img src="https://static.bokeh.org/sponsor/quansight.png"
-       alt="Quansight Logo" width="100"/>
+         alt="Quansight Logo" width="100"/>
     </a>
   </td>
   <td>
     <a href="https://www.rexhomes.com/">
     <img src="https://static.bokeh.org/sponsor/rex.jpg"
-       alt="Rex Logo" width="100"/>
+         alt="Rex Logo" width="100"/>
     </a>
   </td>
 </tr>
