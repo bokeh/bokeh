@@ -36,10 +36,10 @@ export class MercatorTicker extends BasicTicker {
     let proj_low: number, proj_high: number, proj_cross_loc: any
 
     if (this.dimension === "lon") {
-      [proj_low,  proj_cross_loc] = wgs84_mercator.inverse([data_low,  cross_loc]);
+      [proj_low,  proj_cross_loc] = wgs84_mercator.inverse([data_low,  cross_loc]); // lgtm [js/useless-assignment-to-local]
       [proj_high, proj_cross_loc] = wgs84_mercator.inverse([data_high, cross_loc])
     } else {
-      [proj_cross_loc, proj_low ] = wgs84_mercator.inverse([cross_loc, data_low ]);
+      [proj_cross_loc, proj_low ] = wgs84_mercator.inverse([cross_loc, data_low ]); // lgtm [js/useless-assignment-to-local]
       [proj_cross_loc, proj_high] = wgs84_mercator.inverse([cross_loc, data_high])
     }
 
