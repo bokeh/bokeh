@@ -135,12 +135,12 @@ export class MercatorTileSource extends TileSource {
   }
 
   tms_to_wmts(x: number, y: number, z: number): [number, number, number] {
-    'Note this works both ways'
+    // Note this works both ways
     return [x, Math.pow(2, z) - 1 - y, z]
   }
 
   wmts_to_tms(x: number, y: number, z: number): [number, number, number] {
-    'Note this works both ways'
+    // Note this works both ways
     return [x, Math.pow(2, z) - 1 - y, z]
   }
 
