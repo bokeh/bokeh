@@ -14,7 +14,7 @@ export function point_in_poly(x: number, y: number, px: Arrayable<number>, py: A
     const x2 = px[i]
     const y2 = py[i]
     if ((y1 < y) != (y2 < y)) {
-      if (x1 + (y - y1) / (y2 - y1)*(x2 - x1) < x)
+      if (x1 + (y - y1)/(y2 - y1) * (x2 - x1) < x)
         inside = !inside
     }
     x1 = x2
