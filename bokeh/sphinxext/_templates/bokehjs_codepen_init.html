@@ -38,11 +38,9 @@
         }
         $(".codepen-wrap ").each(function(iterEl) {
                 var el = $(this),
-                        type = "js",
                         codeInside = el.find('.codepen-content')[0].innerText,
-                        isCodeInside = codeInside.length,
                         CSS = "",
-                        JS = JS = codeInside;
+                        JS = codeInside;
 
                 var data = {
                   title              : el.attr('data-codepen-title'),
