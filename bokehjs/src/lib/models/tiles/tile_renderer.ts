@@ -317,7 +317,6 @@ export class TileRendererView extends DataRendererView {
     if (snap_back) {
       this.x_range.setv({x_range: {start: extent[0], end: extent[2]}})
       this.y_range.setv({start: extent[1], end: extent[3]})
-      this.extent = extent
     }
 
     this.extent = extent
