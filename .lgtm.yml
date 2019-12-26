@@ -1,6 +1,8 @@
 extraction:
   python:
     python_setup:
+      requirements_files: false
+      setup_py: false
       version: 3
     index:
       exclude:
