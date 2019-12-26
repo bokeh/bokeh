@@ -7,3 +7,4 @@ extraction:
         - versioneer.py
         - bokeh/_version.py
         - bokeh/core/_templates
+        - bokeh/sphinxext/_templates
