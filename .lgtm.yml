@@ -6,3 +6,4 @@ extraction:
       exclude:
         - versioneer.py
         - bokeh/_version.py
+        - bokeh/core/_templates
