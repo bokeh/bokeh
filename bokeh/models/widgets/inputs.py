@@ -49,6 +49,7 @@ __all__ = (
     'InputWidget',
     'MultiSelect',
     'PasswordInput',
+    'Pillbox',
     'Select',
     'Spinner',
     'TextInput',
@@ -237,6 +238,23 @@ class MultiSelect(InputWidget):
     The number of visible options in the dropdown list. (This uses the
     ``select`` HTML element's ``size`` attribute. Some browsers might not
     show less than 3 options.)
+    """)
+
+
+class Pillbox(InputWidget):
+    ''' Pillbox widget.
+
+    '''
+
+    options = List(Either(String, Tuple(String, String)), help="""
+    Available selection options. Options may be provided either as a list of
+    possible string values, or as a list of tuples, each of the form
+    ``(value, label)``. In the latter case, the visible widget text for each
+    value will be corresponding given label.
+    """)
+
+    value = List(String, help="""
+    Initial or selected values.
     """)
 
 
