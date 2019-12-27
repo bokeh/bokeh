@@ -46,7 +46,7 @@ def test_other_attrs_raise():
     d = locking.UnlockedDocumentProxy(Document())
     assert curdoc() is not d
     for attr in (set(dir(d._doc)) - set(dir(d))) | {'foo'}:
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(AttributeError) as e:
             getattr(d, attr)
         assert e.value.args[0] == locking.UNSAFE_DOC_ATTR_USAGE_MSG
 
