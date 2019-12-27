@@ -469,7 +469,7 @@ jobs:
           sudo apt-get -y update
           sudo apt-get -y install unzip xvfb libxi6 libgconf-2-4
           sudo apt-get -y install google-chrome-stable
-          curl -o  chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip
+          curl -o  chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/bin/chromedriver
           sudo chown root:root /usr/bin/chromedriver

@@ -48,7 +48,7 @@ def _make_plot(num_objects=0):
     tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
-    code = RECORD("xs", "source.data.xs") + RECORD("ys", "source.data.ys")
+    code = RECORD("xs", "source.data.xs", final=False) + RECORD("ys", "source.data.ys")
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
     plot.toolbar_sticky = False
     return plot

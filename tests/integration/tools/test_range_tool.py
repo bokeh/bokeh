@@ -46,7 +46,7 @@ def _make_plot():
     tool = RangeTool(x_range=r)
     plot.add_tools(tool)
     plot.min_border_right = 100
-    code = RECORD("start", "t.x_range.start") + RECORD("end", "t.x_range.end")
+    code = RECORD("start", "t.x_range.start", final=False) + RECORD("end", "t.x_range.end")
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(t=tool), code=code)))
     plot.toolbar_sticky = False
     return plot

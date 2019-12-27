@@ -42,7 +42,7 @@ def _make_plot(**kw):
     plot.add_glyph(source, Circle(x='x', y='y1'))
     glyph = plot.add_glyph(source, Circle(x='x', y='y2'))
     glyph.visible = False
-    code = RECORD("yrstart", "p.y_range.start") + RECORD("yrend", "p.y_range.end")
+    code = RECORD("yrstart", "p.y_range.start", final=False) + RECORD("yrend", "p.y_range.end")
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
     plot.toolbar_sticky = False
     return plot, glyph
@@ -96,7 +96,7 @@ class Test_DataRange1d(object):
         plot = Plot(plot_height=400, plot_width=400, x_range=DataRange1d(), y_range=DataRange1d(only_visible=True), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y1'))
         glyph = plot.add_glyph(source, Circle(x='x', y='y2'))
-        code = RECORD("yrstart", "p.y_range.start") + RECORD("yrend", "p.y_range.end")
+        code = RECORD("yrstart", "p.y_range.start", final=False) + RECORD("yrend", "p.y_range.end")
         plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
         plot.toolbar_sticky = False
         button = Button(css_classes=['foo'])

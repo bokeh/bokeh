@@ -69,8 +69,11 @@ def COUNT(key):
 
 INIT = 'Bokeh._testing.init();'
 
-def RECORD(key, value):
-    return 'Bokeh._testing.record(%r, %s);' % (key, value)
+def RECORD(key, value, *, final=True):
+    if final:
+        return 'Bokeh._testing.record(%r, %s);' % (key, value)
+    else:
+        return 'Bokeh._testing.record0(%r, %s);' % (key, value)
 
 RESULTS = 'return Bokeh._testing.results'
 
@@ -134,8 +137,12 @@ class element_to_finish_resizing(object):
 
 def select_element_and_press_key(driver, element, key, press_number=1):
     actions = ActionChains(driver)
-    actions.send_keys_to_element(element, key * press_number)
-    actions.perform()
+    actions.move_to_element(element)
+    actions.click()
+    for i in range(press_number):
+        actions = ActionChains(driver)
+        actions.send_keys_to_element(element, key)
+        actions.perform()
 
 def hover_element(driver, element):
     hover = ActionChains(driver).move_to_element(element)

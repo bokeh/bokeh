@@ -5,7 +5,7 @@ export const results: Record<string, any> = {}
 // results structure. This function deletes/creates a div that can act as
 // a semaphore. Tests should wait for the previous div to be stale, then
 // find the new div. At that point the results should be available
-function _update_test_div(): void {
+function update_test_div(): void {
   const body = document.getElementsByTagName("body")[0]
   const col = document.getElementsByClassName("bokeh-test-div")
 
@@ -21,23 +21,21 @@ function _update_test_div(): void {
 }
 
 export function init(): void {
-  _update_test_div()
+  update_test_div()
+}
+
+export function record0(key: string, value: any): void {
+  results[key] = value
 }
 
 export function record(key: string, value: any): void {
   results[key] = value
-  _update_test_div()
+  update_test_div()
 }
 
 export function count(key: string): void {
   if (results[key] == undefined)
     results[key] = 0
   results[key] += 1
-  _update_test_div()
-}
-
-export function clear(): void {
-  for (const prop of Object.keys(results))
-    delete results[prop]
-  _update_test_div()
+  update_test_div()
 }
