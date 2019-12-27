@@ -684,7 +684,7 @@ class Settings(object):
         for location in locations:
             try:
                 return yaml.load(open(location), Loader=yaml.SafeLoader)
-            except:
+            except Exception:
                 pass
         return {}
 
