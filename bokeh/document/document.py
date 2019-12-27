@@ -513,8 +513,8 @@ class Document(object):
             # leaked. Here we perform a detailed check that the only referrers are expected
             # ones. Otherwise issue an error log message with details.
             referrers = get_referrers(module)
-            referrers = [x for x in referrers if x is not sys.modules]
-            referrers = [x for x in referrers if x is not self._modules]
+            referrers = [x for x in referrers if x is not sys.modules]  # lgtm [py/comparison-using-is]
+            referrers = [x for x in referrers if x is not self._modules]  # lgtm [py/comparison-using-is]
             referrers = [x for x in referrers if not isinstance(x, FrameType)]
             if len(referrers) != 0:
                 log.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
