@@ -114,7 +114,7 @@ def with_temporary_file(func, dir=None, suffix=''):
     '''
     if dir is None:
         dir = _LOCAL_TMP
-    import tempfile
+
     # Windows throws a permission denied if we use delete=True for
     # auto-delete, and then try to open the file again ourselves
     # with f.name. So we manually delete in the finally block
