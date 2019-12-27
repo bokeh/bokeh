@@ -78,18 +78,11 @@ def row(*args, **kwargs):
     sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    children = _handle_children(*args, children=children)
+    children = _parse_children_arg(*args, children=children)
 
-    row_children = []
-    for item in children:
-        if isinstance(item, LayoutDOM):
-            if sizing_mode is not None and _has_auto_sizing(item):
-                item.sizing_mode = sizing_mode
-            row_children.append(item)
-        else:
-            raise ValueError("""Only LayoutDOM items can be inserted into a row. Tried to insert: %s of type %s""" % (item, type(item)))
+    _handle_child_sizing(children, sizing_mode, widget="row")
 
-    return Row(children=row_children, sizing_mode=sizing_mode, **kwargs)
+    return Row(children=children, sizing_mode=sizing_mode, **kwargs)
 
 
 def column(*args, **kwargs):
@@ -123,18 +116,11 @@ def column(*args, **kwargs):
     sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    children = _handle_children(*args, children=children)
+    children = _parse_children_arg(*args, children=children)
 
-    col_children = []
-    for item in children:
-        if isinstance(item, LayoutDOM):
-            if sizing_mode is not None and _has_auto_sizing(item):
-                item.sizing_mode = sizing_mode
-            col_children.append(item)
-        else:
-            raise ValueError("""Only LayoutDOM items can be inserted into a column. Tried to insert: %s of type %s""" % (item, type(item)))
+    _handle_child_sizing(children, sizing_mode, widget="column")
 
-    return Column(children=col_children, sizing_mode=sizing_mode, **kwargs)
+    return Column(children=children, sizing_mode=sizing_mode, **kwargs)
 
 
 def widgetbox(*args, **kwargs):
@@ -161,17 +147,11 @@ def widgetbox(*args, **kwargs):
     sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    children = _handle_children(*args, children=children)
+    children = _parse_children_arg(*args, children=children)
 
-    col_children = []
-    for item in children:
-        if isinstance(item, LayoutDOM):
-            if sizing_mode is not None and _has_auto_sizing(item):
-                item.sizing_mode = sizing_mode
-            col_children.append(item)
-        else:
-            raise ValueError("""Only LayoutDOM items can be inserted into a widget box. Tried to insert: %s of type %s""" % (item, type(item)))
-    return WidgetBox(children=col_children, sizing_mode=sizing_mode, **kwargs)
+    _handle_child_sizing(children, sizing_mode, widget="widget box")
+
+    return WidgetBox(children=children, sizing_mode=sizing_mode, **kwargs)
 
 
 def layout(*args, **kwargs):
@@ -211,7 +191,7 @@ def layout(*args, **kwargs):
     sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    children = _handle_children(*args, children=children)
+    children = _parse_children_arg(*args, children=children)
 
     # Make the grid
     return _create_grid(children, sizing_mode, **kwargs)
@@ -281,7 +261,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
 
-    children = _handle_children(children=children)
+    children = _parse_children_arg(children=children)
     if ncols:
         if any(isinstance(child, list) for child in children):
             raise ValueError("Cannot provide a nested list when using ncols")
@@ -567,7 +547,7 @@ class GridSpec(object):
 def _has_auto_sizing(item):
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
-def _handle_children(*args, **kwargs):
+def _parse_children_arg(*args, **kwargs):
     children = kwargs.get('children')
 
     # Set-up Children from args or kwargs
@@ -583,6 +563,13 @@ def _handle_children(*args, **kwargs):
             children = list(args)
 
     return children
+
+def _handle_child_sizing(children, sizing_mode, *, widget):
+    for item in children:
+        if not isinstance(item, LayoutDOM):
+            raise ValueError(f"Only LayoutDOM items can be inserted into a {widget}. Tried to insert: {item} of type {type(item)}")
+        if sizing_mode is not None and _has_auto_sizing(item):
+            item.sizing_mode = sizing_mode
 
 
 def _create_grid(iterable, sizing_mode, layer=0, **kwargs):
