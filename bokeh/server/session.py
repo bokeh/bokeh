@@ -84,12 +84,7 @@ def current_time():
     '''Return the time in milliseconds since the epoch as a floating
        point number.
     '''
-    try:
-        # python >=3.3 only
-        return time.monotonic() * 1000
-    except:
-        # if your python is old, don't set your clock backward!
-        return time.time() * 1000
+    return time.monotonic() * 1000
 
 class ServerSession(object):
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
