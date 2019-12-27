@@ -95,9 +95,11 @@ from sphinx.util import copyfile, ensuredir, status_iterator
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
-from ..document import Document
-from ..embed import autoload_static
-from ..model import Model
+from bokeh.document import Document
+from bokeh.embed import autoload_static
+from bokeh.model import Model
+
+# Bokeh imports
 from .example_handler import ExampleHandler
 from .util import get_sphinx_resources
 

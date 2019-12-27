@@ -44,7 +44,9 @@ from docutils.parsers.rst import Directive
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from .. import palettes as bp
+import bokeh.palettes as bp
+
+# Bokeh imports
 from .templates import PALETTE_GROUP_DETAIL
 
 #-----------------------------------------------------------------------------

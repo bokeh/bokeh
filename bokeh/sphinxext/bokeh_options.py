@@ -56,7 +56,9 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from ..util.options import Options
+from bokeh.util.options import Options
+
+# Bokeh imports
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import OPTIONS_DETAIL
 
