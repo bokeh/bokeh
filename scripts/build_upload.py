@@ -304,7 +304,7 @@ def check_cdn_buckets():
                                              aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
                                              calling_format=boto.s3.connection.OrdinaryCallingFormat())
             buckets.append(conn.get_bucket(bucket_name))
-        except:
+        except Exception:
             failed("Could NOT connect to CDN bucket %r" % bucket_name)
             abort_checks()
     return buckets

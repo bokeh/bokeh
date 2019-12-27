@@ -189,7 +189,7 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
                 if callable(attr):
                     try:
                         if not attr(val, **context): return False
-                    except:
+                    except Exception:
                         return False
 
                 elif isinstance(val, dict):
