@@ -21,4 +21,4 @@ extraction:
     index:
       filters:
         - exclude: versioneer.py
-        - exclude: bokeh/_version.py
+        - exclude: "**/_version.py"
