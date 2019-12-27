@@ -1,8 +1,12 @@
 extraction:
   python:
     python_setup:
+      requirements_files: false
+      setup_py: false
       version: 3
     index:
       exclude:
         - versioneer.py
         - bokeh/_version.py
+        - bokeh/core/_templates
+        - bokeh/sphinxext/_templates

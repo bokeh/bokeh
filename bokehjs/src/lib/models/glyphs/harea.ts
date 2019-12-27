@@ -46,7 +46,7 @@ export class HAreaView extends AreaView {
       ctx.lineTo(sx1[i], sy[i])
     }
     // iterate backwards so that the upper end is below the lower start
-    for (let start = sx2.length-1, i = start; i >= 0; i--) {
+    for (let i = sx2.length-1; i >= 0; i--) {
       ctx.lineTo(sx2[i], sy[i])
     }
     ctx.closePath()

@@ -101,7 +101,7 @@ export class BandView extends AnnotationView {
       ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
     }
     // iterate backwards so that the upper end is below the lower start
-    for (let start = this._upper_sx.length-1, i = start; i >= 0; i--) {
+    for (let i = this._upper_sx.length-1; i >= 0; i--) {
       ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
     }
 

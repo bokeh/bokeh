@@ -1,6 +1,5 @@
 import {TickFormatter} from "./tick_formatter"
 import * as p from "core/properties"
-import {isNumber} from "core/util/types"
 
 export namespace BasicTickFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -41,77 +40,79 @@ export class BasicTickFormatter extends TickFormatter {
     return Math.pow(10.0, this.power_limit_high)
   }
 
-  doFormat(ticks: number[], _opts: {loc: number}): string[] {
-    if (ticks.length == 0)
-      return []
+  _need_sci(ticks: number[]): boolean {
+    if (!this.use_scientific)
+      return false
 
-    let zero_eps = 0
-    if (ticks.length >= 2)
-      zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000
+    const {scientific_limit_high} = this
+    const {scientific_limit_low} = this
+    const zeroish = ticks.length < 2 ? 0 : Math.abs(ticks[1] - ticks[0]) / 10000
 
-    let need_sci = false
-    if (this.use_scientific) {
-      for (const tick of ticks) {
-        const tick_abs = Math.abs(tick)
-        if (tick_abs > zero_eps && (tick_abs >= this.scientific_limit_high || tick_abs <= this.scientific_limit_low)) {
-          need_sci = true
-          break
-        }
+    for (const tick of ticks) {
+      const tick_abs = Math.abs(tick)
+      if (tick_abs <= zeroish)
+        continue
+      if (tick_abs >= scientific_limit_high || tick_abs <= scientific_limit_low) {
+        return true
       }
     }
 
-    const labels: string[] = new Array(ticks.length)
-    const {precision} = this
+    return false
+  }
 
-    if (precision == null || isNumber(precision)) {
-      if (need_sci) {
-        for (let i = 0, end = ticks.length; i < end; i++) {
-          labels[i] = ticks[i].toExponential(precision || undefined)
-        }
-      } else {
-        for (let i = 0, end = ticks.length; i < end; i++) {
-          labels[i] = ticks[i].toFixed(precision || undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-        }
+  _format_with_precision(ticks: number[], need_sci: boolean, precision: number|undefined): string[] {
+    const labels: string[] = new Array(ticks.length)
+
+    if (need_sci) {
+      for (let i = 0, end = ticks.length; i < end; i++) {
+        labels[i] = ticks[i].toExponential(precision)
       }
     } else {
-      for (let x = this.last_precision, asc = this.last_precision <= 15; asc ? x <= 15 : x >= 15; asc ? x++ : x--) {
-        let is_ok = true
-
-        if (need_sci) {
-          for (let i = 0, end = ticks.length; i < end; i++) {
-            labels[i] = ticks[i].toExponential(x)
-            if (i > 0) {
-              if (labels[i] === labels[i-1]) {
-                is_ok = false
-                break
-              }
-            }
-          }
-          if (is_ok) {
-            break
-          }
-        } else {
-          for (let i = 0, end = ticks.length; i < end; i++) {
-            labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-            if (i > 0) {
-              if (labels[i] == labels[i-1]) {
-                is_ok = false
-                break
-              }
-            }
-          }
-          if (is_ok) {
-            break
-          }
-        }
-
-        if (is_ok) {
-          this.last_precision = x
-          break
-        }
+      for (let i = 0, end = ticks.length; i < end; i++) {
+        // strip trailing zeros
+        labels[i] = ticks[i].toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
       }
     }
 
     return labels
   }
+
+  _auto_precision(ticks: number[], need_sci: boolean): number|undefined {
+    const labels: string[] = new Array(ticks.length)
+    const asc = this.last_precision <= 15
+
+    outer:
+    for (let x = this.last_precision; asc ? x <= 15 : x >= 1; asc ? x++ : x--) {
+      if (need_sci) {
+        labels[0] = ticks[0].toExponential(x)
+        for (let i = 1; i < ticks.length; i++) {
+          if (labels[i] == labels[i-1]) {
+            continue outer
+          }
+        }
+        this.last_precision = x
+        break
+      } else {
+        labels[0] = ticks[0].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+        for (let i = 1; i < ticks.length; i++) {
+          labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+          if (labels[i] == labels[i-1]) {
+            continue outer
+          }
+        }
+        this.last_precision = x
+        break
+      }
+    }
+    return this.last_precision
+  }
+
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
+    if (ticks.length == 0)
+      return []
+    const need_sci = this._need_sci(ticks)
+    const precision = this.precision == "auto" ? this._auto_precision(ticks, need_sci) : this.precision
+    return this._format_with_precision(ticks, need_sci, precision)
+  }
+
 }

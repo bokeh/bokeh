@@ -137,7 +137,7 @@ def update_page_context(self, pagename, templatename, ctx, event_arg):
         try:
             nav = convert_docutils_node(self_toc.children[0])
             return nav
-        except:
+        except Exception:
             return {}
 
     ctx["get_nav_object"] = get_nav_object

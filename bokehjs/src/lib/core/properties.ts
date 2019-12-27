@@ -10,7 +10,8 @@ import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
 
-Signal // XXX: silence TS, because `Signal` appears in declarations due to Signalable
+// XXX: silence TS, because `Signal` appears in declarations due to Signalable
+Signal // lgtm [js/useless-expression]
 
 function valueToString(value: any): string {
   try {
