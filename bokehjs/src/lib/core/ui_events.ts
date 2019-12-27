@@ -305,7 +305,6 @@ export class UIEvents implements EventListenerObject {
           if (!isEmpty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
             signal = this.move_exit as any // XXX
-            event_type = signal.name
           }
 
         // the event happened on the plot frame but off a renderer
