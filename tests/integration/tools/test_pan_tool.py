@@ -40,7 +40,10 @@ def _make_plot(dimensions="both"):
     plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
     plot.add_tools(PanTool(dimensions=dimensions))
-    code = RECORD("xrstart", "p.x_range.start") + RECORD("xrend", "p.x_range.end") + RECORD("yrstart", "p.y_range.start") + RECORD("yrend", "p.y_range.end")
+    code = RECORD("xrstart", "p.x_range.start", final=False) + \
+           RECORD("xrend", "p.x_range.end", final=False) + \
+           RECORD("yrstart", "p.y_range.start", final=False) + \
+           RECORD("yrend", "p.y_range.end")
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(p=plot), code=code)))
     plot.toolbar_sticky = False
     return plot

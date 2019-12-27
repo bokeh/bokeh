@@ -48,7 +48,7 @@ def _make_plot(num_objects=0, add=True, drag=True):
     tool = PointDrawTool(num_objects=num_objects, add=add, drag=drag, renderers=[renderer])
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
-    code = RECORD("x", "source.data.x") + RECORD("y", "source.data.y")
+    code = RECORD("x", "source.data.x", final=False) + RECORD("y", "source.data.y")
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
     plot.toolbar_sticky = False
     return plot
@@ -200,8 +200,6 @@ class Test_PointDrawTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
-    # TODO (bev) Fix up after GH CI switch
-    @pytest.mark.skip
     def test_point_drag_syncs_to_server(self, bokeh_server_page):
         expected = {"x": [1, 2, 2.1891891891891895],
                     "y": [1, 1, 1.1024999999999998]}

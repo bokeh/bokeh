@@ -48,7 +48,10 @@ def _make_plot(dimensions="both", num_objects=0):
     tool = BoxEditTool(dimensions=dimensions, num_objects=num_objects, renderers=[renderer])
     plot.add_tools(tool)
     plot.toolbar.active_multi = tool
-    code = RECORD("x", "source.data.x") + RECORD("y", "source.data.y") + RECORD("width", "source.data.width") + RECORD("height", "source.data.height")
+    code = RECORD("x", "source.data.x", final=False) + \
+           RECORD("y", "source.data.y", final=False) + \
+           RECORD("width", "source.data.width", final=False) + \
+           RECORD("height", "source.data.height")
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
     plot.toolbar_sticky = False
     return plot
