@@ -22,9 +22,9 @@ log = logging.getLogger(__name__)
 import sys
 
 # Bokeh imports
-from ..application.handlers.code_runner import CodeRunner
-from ..application.handlers.handler import Handler
-from ..io.doc import curdoc, set_curdoc
+from bokeh.application.handlers.code_runner import CodeRunner
+from bokeh.application.handlers.handler import Handler
+from bokeh.io.doc import curdoc, set_curdoc
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -79,7 +79,6 @@ class ExampleHandler(Handler):
 
         def _pass(*args, **kw): pass
         def _add_root(obj, *args, **kw):
-            from bokeh.io import curdoc
             curdoc().add_root(obj)
         def _curdoc(*args, **kw):
             return curdoc()
@@ -88,7 +87,7 @@ class ExampleHandler(Handler):
         # so we have to patch them all. Assumption is that no other patching
         # has occurred, i.e. we can just save the funcs being patched once,
         # from io, and use those as the originals to replace everywhere
-        import bokeh.io as io
+        import bokeh.io as io  # lgtm [py/import-and-import-from]
         import bokeh.plotting as p
         mods = [io, p]
 
@@ -109,7 +108,7 @@ class ExampleHandler(Handler):
         return old_io, old_doc
 
     def _unmonkeypatch(self, old_io, old_doc):
-        import bokeh.io as io
+        import bokeh.io as io   # lgtm [py/import-and-import-from]
         import bokeh.plotting as p
         mods = [io, p]
 

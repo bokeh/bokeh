@@ -89,7 +89,7 @@ class UnlockedDocumentProxy(object):
         '''
 
         '''
-        raise RuntimeError(UNSAFE_DOC_ATTR_USAGE_MSG)
+        raise AttributeError(UNSAFE_DOC_ATTR_USAGE_MSG)
 
     def add_next_tick_callback(self, callback):
         ''' Add a "next tick" callback.

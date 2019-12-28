@@ -72,7 +72,6 @@ class CodeRunner(object):
             nodes = ast.parse(source, path)
             self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
         except SyntaxError as e:
-            import traceback
             self._code = None
             self._permanent_error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
             self._permanent_error_detail = traceback.format_exc()

@@ -20,8 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..resources import Resources
-from ..settings import settings
+from bokeh.resources import Resources
+from bokeh.settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -376,7 +376,6 @@ class ColumnDataSource(ColumnarDataSource):
         try:
             del self.data[name]
         except (ValueError, KeyError):
-            import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
     def stream(self, new_data, rollover=None):

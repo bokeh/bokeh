@@ -1,12 +1,24 @@
 extraction:
+  javascript:
+    index:
+      exclude:
+        - bokeh/core/_templates
+        - bokeh/sphinxext/_templates
   python:
     python_setup:
       requirements_files: false
+      requirements:
+        - PyYAML
+        - python-dateutil
+        - Jinja2
+        - numpy
+        - pillow
+        - packaging
+        - tornado
+        - typing_extensions
       setup_py: false
       version: 3
     index:
-      exclude:
-        - versioneer.py
-        - bokeh/_version.py
-        - bokeh/core/_templates
-        - bokeh/sphinxext/_templates
+      filters:
+        - exclude: versioneer.py
+        - exclude: "**/_version.py"

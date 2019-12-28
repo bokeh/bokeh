@@ -284,7 +284,7 @@ export class UIEvents implements EventListenerObject {
     const gestures = this.toolbar.gestures
     type BaseType = keyof typeof gestures
 
-    let event_type = signal.name
+    const event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
     const view = this._hit_test_renderers(e.sx, e.sy)
     const on_canvas = this._hit_test_canvas(e.sx, e.sy)
@@ -305,7 +305,6 @@ export class UIEvents implements EventListenerObject {
           if (!isEmpty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
             signal = this.move_exit as any // XXX
-            event_type = signal.name
           }
 
         // the event happened on the plot frame but off a renderer

@@ -292,7 +292,7 @@ def check_cdn_buckets():
     try:
         AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
         AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
-    except:
+    except Exception:
         failed("Could NOT retrieve CDN credentials")
         abort_checks()
 
@@ -304,7 +304,7 @@ def check_cdn_buckets():
                                              aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
                                              calling_format=boto.s3.connection.OrdinaryCallingFormat())
             buckets.append(conn.get_bucket(bucket_name))
-        except:
+        except Exception:
             failed("Could NOT connect to CDN bucket %r" % bucket_name)
             abort_checks()
     return buckets
