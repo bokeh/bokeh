@@ -47,9 +47,9 @@ __all__ = (
     'DatePicker',
     'FileInput',
     'InputWidget',
+    'MultiChoice',
     'MultiSelect',
     'PasswordInput',
-    'Pillbox',
     'Select',
     'Spinner',
     'TextInput',
@@ -241,8 +241,8 @@ class MultiSelect(InputWidget):
     """)
 
 
-class Pillbox(InputWidget):
-    ''' Pillbox widget.
+class MultiChoice(InputWidget):
+    ''' MultiChoice widget.
 
     '''
 
@@ -256,6 +256,21 @@ class Pillbox(InputWidget):
     value = List(String, help="""
     Initial or selected values.
     """)
+
+    delete_button = Bool(default=True, help="""
+    Whether to add a button to remove a selected option.""")
+
+    max_items = Int(default=None, help="""
+    The maximum number of items that can be selected.
+    """)
+
+    option_limit = Int(default=None, help="""
+    The number of choices that will be rendered in the dropdown.
+    """)
+
+    placeholder = String(default=None, help="""
+    A string that is displayed if not item is added.""")
+
 
 
 class DatePicker(InputWidget):
