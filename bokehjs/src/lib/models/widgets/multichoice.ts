@@ -1,4 +1,5 @@
 import Choices from "choices.js"
+import {Choices as ChoicesNS} from "choices.js"
 
 import {select, option} from "core/dom"
 import {isString} from "core/util/types"
@@ -7,13 +8,6 @@ import {bk_input} from "styles/widgets/inputs"
 import "styles/widgets/choices"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-
-export type ChoicesOpts = {
-  removeItemButton?: boolean
-  placeholderValue?: string
-  maxItemCount?: number
-  renderChoiceLimit?: number
-}
 
 export class MultiChoiceView extends InputWidgetView {
   model: MultiChoice
@@ -57,7 +51,7 @@ export class MultiChoiceView extends InputWidgetView {
     this.group_el.appendChild(this.select_el)
 	this.render_selection()
 
-    let opts: ChoicesOpts = {
+    const opts: Partial<ChoicesNS.Options> = {
       removeItemButton: this.model.delete_button,
     }
     if (this.model.placeholder !== null)
