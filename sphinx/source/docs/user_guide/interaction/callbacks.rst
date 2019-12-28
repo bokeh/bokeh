@@ -162,8 +162,8 @@ a line through that value.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
     :source-position: above
 
-CustomJS for Range Update
-'''''''''''''''''''''''''
+CustomJS for Ranges
+'''''''''''''''''''
 
 The properties of range objects may also be connected to ``CustomJS`` callbacks
 in order to perform specialized work whenever a range changes:
@@ -174,11 +174,10 @@ in order to perform specialized work whenever a range changes:
 CustomJS for Tools
 ''''''''''''''''''
 
-Bokeh allows for some tool events to trigger custom Javascript callbacks that
-have access to the tool's attributes. Below, a callback on the BoxSelectTool
-uses the selection box dimensions (accessed in the geometry field of the
-cb_data object that is injected into the Callback code attribute), in order to
-add a Rect glyph to the plot with identical dimensions.
+Selection tools emit events that can drive useful callbacks. Below, a
+callback for ``SelectionGeometry`` uses the ``BoxSelectTool`` geometry (accessed
+via the geometry field of the ``cb_data`` callback object), in order to update a
+``Rect`` glyph.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_tools.py
     :source-position: above
