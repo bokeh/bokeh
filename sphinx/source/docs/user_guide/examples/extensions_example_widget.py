@@ -2,7 +2,7 @@
 from bokeh.core.properties import Bool, Float, Instance, Tuple
 from bokeh.io import show
 from bokeh.layouts import column
-from bokeh.models import Callback, ColumnDataSource, CustomJS, InputWidget, Slider
+from bokeh.models import ColumnDataSource, CustomJS, InputWidget, Slider
 from bokeh.plotting import Figure
 
 
@@ -49,10 +49,6 @@ class IonRangeSlider(InputWidget):
 
     step = Float(default=0.1, help="""
     The step between consecutive values.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
     """)
 
 x = [x*0.005 for x in range(2, 198)]
