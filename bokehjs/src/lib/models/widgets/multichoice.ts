@@ -45,11 +45,11 @@ export class MultiChoiceView extends InputWidgetView {
       multiple: true,
       class: bk_input,
       name: this.model.name,
-      disabled: this.model.disabled
+      disabled: this.model.disabled,
     }, options)
 
     this.group_el.appendChild(this.select_el)
-	this.render_selection()
+    this.render_selection()
 
     const opts: Partial<ChoicesNS.Options> = {
       removeItemButton: this.model.delete_button,
@@ -128,7 +128,7 @@ export class MultiChoice extends InputWidget {
       max_items:     [ p.Number,  null ],
       delete_button: [ p.Boolean, true ],
       placeholder:   [ p.String,  null ],
-      option_limit:  [ p.Number,  null ]
+      option_limit:  [ p.Number,  null ],
     })
   }
 }
