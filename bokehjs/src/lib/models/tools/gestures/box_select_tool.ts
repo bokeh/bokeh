@@ -1,5 +1,4 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {CallbackLike1} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin} from "core/enums"
@@ -64,22 +63,6 @@ export class BoxSelectToolView extends SelectToolView {
     this._select(geometry, final, append)
   }
 
-  _emit_callback(geometry: RectGeometry): void {
-    const r = this.computed_renderers[0]
-    const frame = this.plot_view.frame
-
-    const xscale = frame.xscales[r.x_range_name]
-    const yscale = frame.yscales[r.y_range_name]
-
-    const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = xscale.r_invert(sx0, sx1)
-    const [y0, y1] = yscale.r_invert(sy0, sy1)
-
-    const g = {x0, y0, x1, y1, ...geometry}
-
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model, {geometry: g})
-  }
 }
 
 const DEFAULT_BOX_OVERLAY = () => {
@@ -105,9 +88,6 @@ export namespace BoxSelectTool {
   export type Props = SelectTool.Props & {
     dimensions: p.Property<Dimensions>
     select_every_mousemove: p.Property<boolean>
-    callback: p.Property<CallbackLike1<BoxSelectTool, {
-      geometry: RectGeometry & {x0: number, y0: number, x1: number, y1: number}
-    }> | null>
     overlay: p.Property<BoxAnnotation>
     origin: p.Property<BoxOrigin>
   }
@@ -130,7 +110,6 @@ export class BoxSelectTool extends SelectTool {
     this.define<BoxSelectTool.Props>({
       dimensions:             [ p.Dimensions, "both"              ],
       select_every_mousemove: [ p.Boolean,    false               ],
-      callback:               [ p.Any                             ],
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
       origin:                 [ p.BoxOrigin,  "corner"            ],
     })

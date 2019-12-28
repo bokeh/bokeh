@@ -41,7 +41,6 @@ class Test_Range1d(object):
     def test_basic(self):
         r = Range1d()
         check_properties_existence(r, [
-            "callback",
             "start",
             "end",
             "reset_start",
@@ -119,7 +118,6 @@ class Test_DataRange1d(object):
     def test_basic(self):
         r = DataRange1d()
         check_properties_existence(r, [
-            "callback",
             "names",
             "renderers",
             "range_padding",
@@ -185,7 +183,6 @@ class Test_FactorRange(object):
     def test_basic(self):
         r = FactorRange()
         check_properties_existence(r, [
-            "callback",
             "factors",
             "factor_padding",
             "group_padding",

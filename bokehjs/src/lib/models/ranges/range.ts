@@ -1,8 +1,6 @@
 import {Model} from "../../model"
 import {Plot} from "../plots/plot"
-import {CustomJS} from "../callbacks/customjs"
 import * as p from "core/properties"
-import {isFunction} from "core/util/types"
 
 export namespace Range {
   export type Attrs = p.AttrsOf<Props>
@@ -11,7 +9,6 @@ export namespace Range {
     bounds: p.Property<[number, number] | "auto" | null>
     min_interval: p.Property<number>
     max_interval: p.Property<number>
-    callback: p.Property<((obj: Range) => void) | CustomJS> // XXX: Callback
     plots: p.Property<Plot[]>
   }
 }
@@ -27,7 +24,6 @@ export abstract class Range extends Model {
 
   static init_Range(): void {
     this.define<Range.Props>({
-      callback:     [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function)
       bounds:       [ p.Any ], // TODO (bev)
       min_interval: [ p.Any ],
       max_interval: [ p.Any ],
@@ -45,21 +41,7 @@ export abstract class Range extends Model {
 
   have_updated_interactively: boolean = false
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.change, () => this._emit_callback())
-  }
-
   abstract reset(): void
-
-  protected _emit_callback(): void {
-    if (this.callback != null) {
-      if (isFunction(this.callback))
-        this.callback(this)
-      else
-        this.callback.execute(this, {})
-    }
-  }
 
   get is_reversed(): boolean {
     return this.start > this.end

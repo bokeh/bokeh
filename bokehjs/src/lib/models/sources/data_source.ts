@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import {Selection} from "../selections/selection"
-import {CallbackLike0} from "../callbacks/callback"
 import * as p from "core/properties"
 
 export namespace DataSource {
@@ -8,7 +7,6 @@ export namespace DataSource {
 
   export type Props = Model.Props & {
     selected: p.Property<Selection>
-    callback: p.Property<CallbackLike0<DataSource> | null>
   }
 }
 
@@ -24,15 +22,6 @@ export abstract class DataSource extends Model {
   static init_DataSource(): void {
     this.define<DataSource.Props>({
       selected: [ p.Instance, () => new Selection() ], // TODO (bev)
-      callback: [ p.Any                             ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-    })
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.selected.change, () => {
-      if (this.callback != null)
-        this.callback.execute(this)
     })
   }
 

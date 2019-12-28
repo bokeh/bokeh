@@ -1,7 +1,5 @@
 import {expect} from "chai"
-import * as sinon from "sinon"
 
-import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("range1d module", () => {
@@ -146,35 +144,9 @@ describe("range1d module", () => {
       expect(r.start).to.be.equal(-2.2)
       expect(r.end).to.be.equal(-1.2)
     })
-
-    it("should execute update callback once", () => {
-      const cb = new CustomJS()
-      const r = new Range1d({callback: cb})
-      const spy = sinon.spy(cb, "execute")
-      r.reset()
-      expect(spy.calledOnce).to.be.true
-    })
-
-    it("should execute update callback once even if resetting start/end", () => {
-      const cb = new CustomJS()
-      const r = new Range1d({callback: cb, start:0, end:1})
-      r.start = 2
-      r.end = 3
-      const spy = sinon.spy(cb, "execute")
-      r.reset()
-      expect(spy.calledOnce).to.be.true
-    })
   })
 
   describe("changing model attribute", () => {
 
-    it("should execute callback once", () => {
-      const cb = new CustomJS()
-      const spy = sinon.spy(cb, "execute")
-      const r = new Range1d({callback: cb})
-      expect(spy.called).to.be.false
-      r.start = 15
-      expect(spy.calledOnce).to.be.true
-    })
   })
 })

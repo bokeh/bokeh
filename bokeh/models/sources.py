@@ -39,7 +39,7 @@ from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
-from .callbacks import Callback, CustomJS
+from .callbacks import CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
@@ -72,14 +72,6 @@ class DataSource(Model):
 
     selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
     A Selection that indicates selected indices on this ``DataSource``.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the selection is changed.
-
-    .. note:
-        This property is left for backwards compatibility, but may be deprecated
-        in the future. Prefer ``source.selected.js_on_change(...)`` for new code.
     """)
 
 @abstract

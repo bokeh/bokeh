@@ -18,9 +18,6 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
     const {active} = this
     active.toggle(i)
     this.model.active = active.values
-
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model)
   }
 
   protected _update_active(): void {

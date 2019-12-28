@@ -48,7 +48,6 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
 )
 from ..model import Model
-from .callbacks import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -463,10 +462,6 @@ class Tabs(LayoutDOM):
 
     active = Int(0, help="""
     The index of the active tab.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the button is activated.
     """)
 
 #-----------------------------------------------------------------------------

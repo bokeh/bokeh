@@ -1,8 +1,6 @@
 import {expect} from "chai"
-import * as sinon from "sinon"
 
 import {Plot} from "@bokehjs/models/plots/plot"
-import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 
@@ -107,14 +105,6 @@ describe("datarange1d module", () => {
       r.reset()
       expect(r.start).to.be.equal(4)
       expect(r.end).to.be.equal(10)
-    })
-
-    it("should execute callback exactly once", () => {
-      const cb = new CustomJS()
-      const r = new DataRange1d({callback: cb})
-      const spy = sinon.spy(cb, "execute")
-      r.reset()
-      expect(spy.calledOnce).to.be.true
     })
   })
 
@@ -361,14 +351,6 @@ describe("datarange1d module", () => {
 
   describe("changing model attribute", () => {
 
-    it("should execute callback once", () => {
-      const cb = new CustomJS()
-      const spy = sinon.spy(cb, "execute")
-      const r = new DataRange1d({callback: cb})
-      expect(spy.called).to.be.false
-      r.start = 15
-      expect(spy.calledOnce).to.be.true
-    })
   })
 
   describe("adjust_bounds_for_aspect", () => {

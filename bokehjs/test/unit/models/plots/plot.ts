@@ -4,7 +4,6 @@ import * as sinon from 'sinon'
 import {Plot} from "@bokehjs/models/plots/plot"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {build_view} from "@bokehjs/core/build_views"
 
 async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
@@ -19,16 +18,6 @@ async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView>
 describe("Plot module", () => {
 
   describe("Plot", () => {
-
-    it("should not execute range callbacks on initialization", () => {
-      const cb = new CustomJS()
-      const spy = sinon.spy(cb, 'execute')
-      new Plot({
-        x_range: new Range1d({callback: cb}),
-        y_range: new Range1d({callback: cb}),
-      })
-      expect(spy.called).to.be.false
-    })
 
   })
 

@@ -1,10 +1,8 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {CallbackLike1} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
-import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 import {bk_tool_icon_polygon_select} from "styles/icons"
@@ -65,21 +63,6 @@ export class PolySelectToolView extends SelectToolView {
     this._select(geometry, final, append)
   }
 
-  _emit_callback(geometry: PolyGeometry): void {
-    const r = this.computed_renderers[0]
-    const frame = this.plot_view.frame
-
-    const xscale = frame.xscales[r.x_range_name]
-    const yscale = frame.yscales[r.y_range_name]
-
-    const x = xscale.v_invert(geometry.sx)
-    const y = yscale.v_invert(geometry.sy)
-
-    const g = {x, y, ...geometry}
-
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model, {geometry: g})
-  }
 }
 
 const DEFAULT_POLY_OVERLAY = () => {
@@ -100,9 +83,6 @@ export namespace PolySelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
-    callback: p.Property<CallbackLike1<PolySelectTool, {
-      geometry: PolyGeometry & {x: Arrayable<number>, y: Arrayable<number>}
-    }> | null>
     overlay: p.Property<PolyAnnotation>
   }
 }
@@ -122,7 +102,6 @@ export class PolySelectTool extends SelectTool {
     this.prototype.default_view = PolySelectToolView
 
     this.define<PolySelectTool.Props>({
-      callback:   [ p.Any                            ],
       overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }

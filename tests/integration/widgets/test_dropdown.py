@@ -119,38 +119,6 @@ class Test_Dropdown(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    #def test_callback_property_executes(self, bokeh_model_page):
-    #    button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
-    #    button.callback = CustomJS(code=RECORD("value", "this.item"))
-
-    #    page = bokeh_model_page(button)
-
-    #    button = page.driver.find_element_by_css_selector('.foo button')
-    #    button.click()
-    #    item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(1)")
-    #    item.click()
-
-    #    results = page.results
-    #    assert results == {'value': "item_1_value"}
-
-    #    button = page.driver.find_element_by_css_selector('.foo button')
-    #    button.click()
-    #    item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(3)")
-    #    item.click()
-
-    #    results = page.results
-    #    assert results == {'value': "item_3_value"}
-
-    #    button = page.driver.find_element_by_css_selector('.foo button')
-    #    button.click()
-    #    item = page.driver.find_element_by_css_selector(".foo .bk-menu > *:nth-child(2)")
-    #    item.click()
-
-    #    results = page.results
-    #    assert results == {'value': "item_2_value"}
-
-    #    assert page.has_no_console_errors()
-
     def test_js_on_change_executes(self, bokeh_model_page):
         button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
         button.js_on_event('menu_item_click', CustomJS(code=RECORD("value", "this.item")))

@@ -12,9 +12,6 @@ export class RadioButtonGroupView extends ButtonGroupView {
   change_active(i: number): void {
     if (this.model.active !== i) {
       this.model.active = i
-
-      if (this.model.callback != null)
-        this.model.callback.execute(this.model)
     }
   }
 

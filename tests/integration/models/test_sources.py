@@ -18,16 +18,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
-from bokeh.models import (
-    Button,
-    ColumnDataSource,
-    CustomAction,
-    CustomJS,
-    Plot,
-    Range1d,
-    TapTool,
-)
-from bokeh.plotting import figure
+from bokeh.models import Button, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -138,21 +129,3 @@ class Test_ColumnDataSource(object):
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
-
-    # XXX callback property to be deprecated for 2.0
-    def test_selection_triggers_callback_property_callback(self, single_plot_page):
-        plot = figure(height=800, width=1000, tools='')
-        r = plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
-        plot.add_tools(TapTool())
-
-        r.data_source.callback = CustomJS(code=RECORD("indices", "cb_obj.selected.indices"))
-
-        page = single_plot_page(plot)
-
-        page.click_canvas_at_position(400, 500)
-        assert page.results["indices"] == [0]
-
-        page.click_canvas_at_position(600, 300)
-        assert page.results["indices"] == [1]
-
-        assert page.has_no_console_errors()

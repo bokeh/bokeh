@@ -141,8 +141,8 @@ and no longer needed:
 * ``bokeh.models.transforms``: methods ``CustomJSTransform.from_py_func`` and
   ``CustomJSTransform.from_coffeescript`` removed
 
-* ``bokeh.models.widgets.buttons``: property ``callback`` removed from all
-   buttons, and ``Dropdown.default_value`` and ``Dropdown.value`` removed
+* ``bokeh.models.widgets.buttons``: properties ``Dropdown.default_value`` and
+  ``Dropdown.value`` removed
 
 * ``bokeh.models.widgets.sliders``: ``callback``, ``callback_throttle`, and
   ``callback_policy`` removed from all sliders. Use ``value`` for continous
@@ -155,8 +155,12 @@ and no longer needed:
 
 * ``bokeh.util.future``: entire module removed
 
-* ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and ``escape``
-  removed
+* ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and
+  ``escape`` removed
+
+Additionally, the ``callback`` property is removed from all Bokeh models except
+``CustomAction``, ``HoverTool`` ``TapTool``, and ``OpenURL``. Instead, the more
+general ``js_on_change`` or ``js_on_event`` methods should be used.
 
 API Deprecations
 ~~~~~~~~~~~~~~~~

@@ -266,23 +266,6 @@ class Test_Select(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_callback_property_executes(self, bokeh_model_page):
-        select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"])
-        select.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
-
-        page = bokeh_model_page(select)
-
-        el = page.driver.find_element_by_css_selector('.foo select')
-        el.click()
-
-        el = page.driver.find_element_by_css_selector('.foo select option[value="Option 3"]')
-        el.click()
-
-        results = page.results
-        assert results['value'] == 'Option 3'
-
-        assert page.has_no_console_errors()
-
     def test_js_on_change_executes(self, bokeh_model_page):
         select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"])
         select.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))

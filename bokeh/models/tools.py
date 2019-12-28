@@ -716,14 +716,6 @@ class BoxSelectTool(Drag):
     plot, and the vertical dimension can be controlled.
     """)
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser on completion of drawing a selection box.
-    The ``cb_data`` parameter that is available to the Callback code will contain
-    one ``BoxSelectTool``-specific field:
-
-    :geometry: object containing the coordinates of the selection box
-    """)
-
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
@@ -782,14 +774,6 @@ class LassoSelectTool(Drag):
     once, when the selection region is completed.
     """)
 
-    callback = Instance(Callback, help="""
-    A callback to run in the browser on every selection of a lasso area. The
-    ``cb_data`` parameter that is available to the Callback code will contain
-    one ``LassoSelectTool``-specific field:
-
-    :geometry: object containing the coordinates of the lasso area
-    """)
-
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
@@ -825,14 +809,6 @@ class PolySelectTool(Tap):
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser on completion of drawing a polygon. The
-    ``cb_data`` parameter that is available to the Callback code will contain
-    one PolySelectTool-specific field:
-
-    :geometry: object containing the coordinates of the polygon
     """)
 
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""

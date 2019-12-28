@@ -1,5 +1,4 @@
 import {InputGroup, InputGroupView} from "./input_group"
-import {CallbackLike0} from "../callbacks/callback"
 
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
@@ -39,9 +38,6 @@ export class CheckboxGroupView extends InputGroupView {
     const active = new Set(this.model.active)
     active.toggle(i)
     this.model.active = active.values
-
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model)
   }
 }
 
@@ -52,7 +48,6 @@ export namespace CheckboxGroup {
     active: p.Property<number[]>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
-    callback: p.Property<CallbackLike0<CheckboxGroup> | null>
   }
 }
 
@@ -72,7 +67,6 @@ export class CheckboxGroup extends InputGroup {
       active:   [ p.Array,   []    ],
       labels:   [ p.Array,   []    ],
       inline:   [ p.Boolean, false ],
-      callback: [ p.Any            ],
     })
   }
 }

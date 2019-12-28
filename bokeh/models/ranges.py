@@ -43,7 +43,6 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
-from .callbacks import Callback
 from .renderers import Renderer
 
 #-----------------------------------------------------------------------------
@@ -67,11 +66,6 @@ class Range(Model):
     ''' A base class for all range types.
 
     '''
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the range is updated.
-    """)
-
 
 class Range1d(Range):
     ''' A fixed, closed range [start, end] in a continuous scalar

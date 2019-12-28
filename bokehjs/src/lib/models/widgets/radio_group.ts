@@ -3,7 +3,6 @@ import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
 import {InputGroup, InputGroupView} from "./input_group"
-import {CallbackLike0} from "../callbacks/callback"
 
 import {bk_inline} from "styles/mixins"
 import {bk_input_group} from "styles/widgets/inputs"
@@ -36,8 +35,6 @@ export class RadioGroupView extends InputGroupView {
 
   change_active(i: number): void {
     this.model.active = i
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model)
   }
 }
 
@@ -48,7 +45,6 @@ export namespace RadioGroup {
     active: p.Property<number>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
-    callback: p.Property<CallbackLike0<RadioGroup> | null>
   }
 }
 
@@ -68,7 +64,6 @@ export class RadioGroup extends InputGroup {
       active:   [ p.Number         ],
       labels:   [ p.Array,   []    ],
       inline:   [ p.Boolean, false ],
-      callback: [ p.Any            ],
     })
   }
 }

@@ -1,7 +1,5 @@
 import {expect} from "chai"
-import * as sinon from "sinon"
 
-import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {
   FactorRange, map_one_level, map_two_levels,
   L1OffsetFactor, L2OffsetFactor, L3OffsetFactor,
@@ -27,30 +25,10 @@ describe("factor_range module", () => {
 
   describe("reset method", () => {
 
-    it("should execute callback once", () => {
-      const cb = new CustomJS()
-      const spy = sinon.spy(cb, 'execute')
-
-      const r = new FactorRange({callback: cb})
-
-      expect(spy.called).to.be.false
-      r.reset()
-      // expect(spy.calledOnce).to.be.true
-    })
   })
 
   describe("changing model attribute", () => {
 
-    it("should execute callback once", () => {
-      const cb = new CustomJS()
-      const spy = sinon.spy(cb, 'execute')
-
-      const r = new FactorRange({callback: cb})
-
-      expect(spy.called).to.be.false
-      r.factors = ["A", "B", "C"]
-      // expect(spy.calledOnce).to.be.true
-    })
   })
 
   describe("map_one_level function", () => {
