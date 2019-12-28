@@ -55,7 +55,7 @@ export class MultiChoiceView extends InputWidgetView {
     }, options)
 
     this.group_el.appendChild(this.select_el)
-    this.render_selection()
+	this.render_selection()
 
     let opts: ChoicesOpts = {
       removeItemButton: this.model.delete_button,
@@ -71,7 +71,9 @@ export class MultiChoiceView extends InputWidgetView {
   }
 
   render_selection(): void {
-    this.choice_el.setValue(this.model.value)
+    const selected = new Set(this.model.value)
+    for (const el of Array.from(this.el.querySelectorAll('option')))
+      el.selected = selected.has(el.value)
   }
 
   set_disabled(): void {
