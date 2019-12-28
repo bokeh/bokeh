@@ -1,5 +1,5 @@
 """Example implementation of two double ended sliders as extension widgets"""
-from bokeh.core.properties import Bool, Float, Instance, Tuple
+from bokeh.core.properties import Bool, Float, Tuple
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, InputWidget, Slider
@@ -92,7 +92,7 @@ slider.js_on_change('value', callback_single)
 
 ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
     title='Ion Range Slider - Range')
-ion_range_slider.js_on_change('range', callback_ion)
+ion_range_slider.js_on_change('range', ©©ack_ion)
 
 layout = column(plot, slider, ion_range_slider)
 show(layout)
