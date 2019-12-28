@@ -130,53 +130,23 @@ event on the right:
 .. bokeh-plot:: docs/user_guide/examples/js_events.py
     :source-position: above
 
-CustomJS for Specialized Events
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In addition to the generic mechanisms described above for adding ``CustomJS``
-callbacks to Bokeh models, there are also a some Bokeh models that have a
-``.callback`` property specifically for executing ``CustomJS`` in response
-to specific events or situations.
-
-.. warning::
-    The callbacks described below were added early to Bokeh in an ad-hoc
-    fashion. Many of them can be accomplished with the generic mechanism
-    described above, and as such, may be deprecated in favor of the generic
-    mechanism in the future.
+Examples
+~~~~~~~~
 
 CustomJS for Widgets
 ''''''''''''''''''''
 
-Bokeh lets you express even more advanced callbacks that must be called on
-the Javascript side in order to add custom logic and interactivity when a
-widget is used. For instance, we may want to change the data of a plot when
-a user clicks on a button or changes a slider Widget.
-
-Custom callbacks like these can be set using a CustomJS object and passing it
-as the ``callback`` argument to a Widget object.
-
-The code below shows an example of CustomJS set on a slider Widget that
+A common use case for property callbacks is responsing to changes to widgets.
+The code below shows an example of ``CustomJS`` set on a slider Widget that
 changes the source of a plot when the slider is used.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: above
 
-CustomJS for Tools
-''''''''''''''''''
-
-Bokeh allows for some tool events to trigger custom Javascript callbacks that
-have access to the tool's attributes. Below, a callback on the BoxSelectTool
-uses the selection box dimensions (accessed in the geometry field of the
-cb_data object that is injected into the Callback code attribute), in order to
-add a Rect glyph to the plot with identical dimensions.
-
-.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_tools.py
-    :source-position: above
-
 CustomJS for Selections
 '''''''''''''''''''''''
 
-Bokeh also provides the means to specify the same kind of callback to be
+Another common scenario is wanting to specify the same kind of callback to be
 executed whenever a selection changes. As a simple demonstration, the example
 below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
@@ -192,6 +162,42 @@ a line through that value.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
     :source-position: above
 
+CustomJS for Range Update
+'''''''''''''''''''''''''
+
+The properties of range objects may also be connected to ``CustomJS`` callbacks
+in order to perform specialized work whenever a range changes:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
+    :source-position: above
+
+CustomJS for Tools
+''''''''''''''''''
+
+Bokeh allows for some tool events to trigger custom Javascript callbacks that
+have access to the tool's attributes. Below, a callback on the BoxSelectTool
+uses the selection box dimensions (accessed in the geometry field of the
+cb_data object that is injected into the Callback code attribute), in order to
+add a Rect glyph to the plot with identical dimensions.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_tools.py
+    :source-position: above
+
+
+CustomJS for Specialized Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the generic mechanisms described above for adding ``CustomJS``
+callbacks to Bokeh models, there are also a some Bokeh models that have a
+``.callback`` property specifically for executing ``CustomJS`` in response
+to specific events or situations.
+
+.. warning::
+    The callbacks described below were added early to Bokeh in an ad-hoc
+    fashion. Many of them can be accomplished with the generic mechanism
+    described above, and as such, may be deprecated in favor of the generic
+    mechanism in the future.
+
 CustomJS for Hover
 ''''''''''''''''''
 
@@ -202,18 +208,8 @@ hover tool is over.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_hover.py
     :source-position: above
 
-CustomJS for Range Update
-'''''''''''''''''''''''''
-
-With Bokeh, ranges have a callback attribute that accept a Callback instance
-and execute Javascript code on range updates that are triggered by tool
-interactions such as a box zoom, wheel scroll or pan.
-
-.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
-    :source-position: above
-
 OpenURL
-~~~~~~~
+'''''''
 
 Opening an URL when users click on a glyph (for instance a circle marker) is
 a very popular feature. Bokeh lets users enable this feature by exposing an
