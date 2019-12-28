@@ -22,7 +22,6 @@ from mock import patch
 from bokeh.core.validation import check_integrity
 from bokeh.models import (
     CategoricalScale,
-    CustomJS,
     DataRange1d,
     FactorRange,
     GlyphRenderer,
@@ -193,8 +192,6 @@ class TestPlotValidation(object):
         p, dep = figure(), figure()
         dep.extra_x_ranges['foo'] = Range1d()
         dep.grid.x_range_name="foo"
-        p.x_range.callback = CustomJS(code = "", args = {"dep": dep})
-        assert dep in p.references()
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 0
