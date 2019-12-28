@@ -92,7 +92,7 @@ slider.js_on_change('value', callback_single)
 
 ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
     title='Ion Range Slider - Range')
-ion_range_slider.js_on_change('range', ©©ack_ion)
+ion_range_slider.js_on_change('range', callback_ion)
 
 layout = column(plot, slider, ion_range_slider)
 show(layout)
