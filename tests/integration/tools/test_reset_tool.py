@@ -16,15 +16,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.selenium import COUNT, RECORD
+from bokeh._testing.util.selenium import RECORD
 from bokeh.models import (
-    CategoricalScale,
     Circle,
     ColumnDataSource,
     CustomAction,
     CustomJS,
-    DataRange1d,
-    FactorRange,
     Plot,
     Range1d,
     Rect,
@@ -136,129 +133,5 @@ class Test_ResetTool(object):
         assert results['indices'] == []
         assert results['line_indices'] == []
         assert results['multiline_indices'] == {}
-
-        assert page.has_no_console_errors()
-
-    def test_reset_triggers_range1d_callbacks(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        plot.add_tools(ResetTool(), ZoomInTool())
-        plot.x_range.callback = CustomJS(code=COUNT("xrcb"))
-        plot.x_range.js_on_change('start', CustomJS(code=COUNT("xrstart")))
-        plot.x_range.js_on_change('end', CustomJS(code=COUNT("xrend")))
-        plot.y_range.callback = CustomJS(code=COUNT("yrcb"))
-        plot.y_range.js_on_change('start', CustomJS(code=COUNT("yrstart")))
-        plot.y_range.js_on_change('end', CustomJS(code=COUNT("yrend")))
-
-        page = single_plot_page(plot)
-
-        # Change the ranges using a zoom in tool
-        button = page.get_toolbar_button('zoom-in')
-        button.click()
-
-        results = page.results
-        assert results['xrcb'] == 1
-        assert results['xrstart'] == 1
-        assert results['xrend'] == 1
-        assert results['yrcb'] == 1
-        assert results['yrstart'] == 1
-        assert results['yrend'] == 1
-
-        # Click the reset tool and check the callback was called
-        button = page.get_toolbar_button('reset')
-        button.click()
-
-        results = page.results
-        assert results['xrcb'] == 2
-        assert results['xrstart'] == 2
-        assert results['xrend'] == 2
-        assert results['yrcb'] == 2
-        assert results['yrstart'] == 2
-        assert results['yrend'] == 2
-
-        assert page.has_no_console_errors()
-
-    def test_reset_triggers_datarange1d_callbacks(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=DataRange1d(), y_range=DataRange1d(), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        plot.add_tools(ResetTool(), ZoomInTool())
-        plot.x_range.callback = CustomJS(code=COUNT("xrcb"))
-        plot.x_range.js_on_change('start', CustomJS(code=COUNT("xrstart")))
-        plot.x_range.js_on_change('end', CustomJS(code=COUNT("xrend")))
-        plot.y_range.callback = CustomJS(code=COUNT("yrcb"))
-        plot.y_range.js_on_change('start', CustomJS(code=COUNT("yrstart")))
-        plot.y_range.js_on_change('end', CustomJS(code=COUNT("yrend")))
-
-        page = single_plot_page(plot)
-
-        # Change the ranges using a zoom in tool
-        button = page.get_toolbar_button('zoom-in')
-        button.click()
-
-        # Callbacks have "extra" invocations due to DataRange1d auto-ranging on init.
-
-        results = page.results
-        assert results['xrcb'] == 3
-        assert results['xrstart'] == 2
-        assert results['xrend'] == 2
-        assert results['yrcb'] == 3
-        assert results['yrstart'] == 2
-        assert results['yrend'] == 2
-
-        # Click the reset tool and check the callback was called
-        button = page.get_toolbar_button('reset')
-        button.click()
-
-        results = page.results
-        assert results['xrcb'] == 6
-        assert results['xrstart'] == 3
-        assert results['xrend'] == 3
-        assert results['yrcb'] == 6
-        assert results['yrstart'] == 3
-        assert results['yrend'] == 3
-
-        assert page.has_no_console_errors()
-
-    def test_reset_triggers_factorrange_callbacks(self, single_plot_page):
-        source = ColumnDataSource(dict(x=["a", "b"], y=["a", "a"]))
-        plot = Plot(plot_height=400, plot_width=400,
-                    x_scale=CategoricalScale(), x_range=FactorRange(factors=["a", "b", "c"]),
-                    y_scale=CategoricalScale(), y_range=FactorRange(factors=["a", "b", "c"]), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        plot.add_tools(ResetTool(), ZoomInTool())
-        plot.x_range.callback = CustomJS(code=COUNT("xrcb"))
-        plot.x_range.js_on_change('start', CustomJS(code=COUNT("xrstart")))
-        plot.x_range.js_on_change('end', CustomJS(code=COUNT("xrend")))
-        plot.y_range.callback = CustomJS(code=COUNT("yrcb"))
-        plot.y_range.js_on_change('start', CustomJS(code=COUNT("yrstart")))
-        plot.y_range.js_on_change('end', CustomJS(code=COUNT("yrend")))
-
-        page = single_plot_page(plot)
-
-        # Change the ranges using a zoom in tool
-        button = page.get_toolbar_button('zoom-in')
-        button.click()
-
-        results = page.results
-        assert results['xrcb'] == 1
-        assert results['xrstart'] == 1
-        assert results['xrend'] == 1
-        assert results['yrcb'] == 1
-        assert results['yrstart'] == 1
-        assert results['yrend'] == 1
-
-        # Click the reset tool and check the callback was called
-        button = page.get_toolbar_button('reset')
-        button.click()
-
-        results = page.results
-        assert results['xrcb'] == 3
-        assert results['xrstart'] == 2
-        assert results['xrend'] == 2
-        assert results['yrcb'] == 3
-        assert results['yrstart'] == 2
-        assert results['yrend'] == 2
 
         assert page.has_no_console_errors()

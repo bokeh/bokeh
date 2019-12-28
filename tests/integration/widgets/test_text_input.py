@@ -139,36 +139,6 @@ class Test_TextInput(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_callback_property_executes(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
-        text_input = TextInput(css_classes=['foo'])
-        text_input.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
-
-        page = single_plot_page(column(text_input, plot))
-
-        el = page.driver.find_element_by_css_selector('.foo input')
-        enter_text_in_element(page.driver, el, "val1")
-
-        results = page.results
-        assert results['value'] == 'val1'
-
-        # double click to highlight and overwrite old text
-        enter_text_in_element(page.driver, el, "val2", click=2)
-
-        results = page.results
-        assert results['value'] == 'val2'
-
-        # Check clicking outside input also triggers
-        enter_text_in_element(page.driver, el, "val3", click=2, enter=False)
-        page.click_canvas_at_position(10, 10)
-        results = page.results
-
-        assert results['value'] == 'val3'
-
-        assert page.has_no_console_errors()
-
     def test_js_on_change_executes(self, single_plot_page):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)

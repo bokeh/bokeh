@@ -75,26 +75,6 @@ class Test_RadioButtonGroup(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_callback_property_executes(self, bokeh_model_page):
-        group = RadioButtonGroup(labels=LABELS, css_classes=["foo"])
-        group.callback = CustomJS(code=RECORD("active", "cb_obj.active"))
-
-        page = bokeh_model_page(group)
-
-        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(3)')
-        el.click()
-
-        results = page.results
-        assert results['active'] == 2
-
-        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(1)')
-        el.click()
-
-        results = page.results
-        assert results['active'] == 0
-
-        assert page.has_no_console_errors()
-
     def test_js_on_change_executes(self, bokeh_model_page):
         group = RadioButtonGroup(labels=LABELS, css_classes=["foo"])
         group.js_on_click(CustomJS(code=RECORD("active", "cb_obj.active")))
