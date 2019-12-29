@@ -631,7 +631,7 @@ export class Figure extends Plot {
   }
 
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
-                        defaults: Attrs = {}, trait_defaults: Attrs = {}): Attrs {
+                        defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
 
     const _split_feature_trait = function(ft: string): string[] {
       const fta: string[] = ft.split('_', 2)
@@ -647,7 +647,7 @@ export class Figure extends Plot {
     if (!defaults.hasOwnProperty('text_color')) {
       defaults.text_color = 'black'
     }
-    trait_defaults = {...trait_defaults}
+    const trait_defaults: Attrs = {}
     if (!trait_defaults.hasOwnProperty('color')) {
       trait_defaults.color = _default_color
     }
@@ -666,6 +666,8 @@ export class Figure extends Plot {
         } else if (!cls.prototype.props.hasOwnProperty(trait)
                  && props.hasOwnProperty(prefix+trait)) {
           result[pname] = props[prefix+trait]
+        } else if (override_defaults.hasOwnProperty(trait)) {
+          result[pname] = override_defaults[trait]
         } else if (defaults.hasOwnProperty(pname)) {
           result[pname] = defaults[pname]
         } else if (trait_defaults.hasOwnProperty(trait)) {
