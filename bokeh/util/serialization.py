@@ -28,9 +28,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
-import math
 import sys
 import uuid
+from math import isinf, isnan
 from threading import Lock
 
 # External imports
@@ -227,6 +227,13 @@ def convert_datetime_array(array):
     elif array.dtype.kind == 'm':
         array = array.astype('timedelta64[us]').astype('int64') / 1000.
 
+    # XXX (bev) special case dates, not great
+    elif array.dtype.kind == 'O' and len(array) > 0 and isinstance(array[0], dt.date):
+        try:
+            array = array.astype('datetime64[us]').astype('int64') / 1000.
+        except Exception:
+            pass
+
     return array
 
 def make_id():
@@ -412,30 +419,26 @@ def serialize_array(array, force_list=False, buffers=None):
     else:
         return encode_binary_dict(array, buffers)
 
-def traverse_data(obj, use_numpy=True, buffers=None):
+def traverse_data(obj, buffers=None):
     ''' Recursively traverse an object until a flat list is found.
 
-    If NumPy is available, the flat list is converted to a numpy array
-    and passed to transform_array() to handle ``nan``, ``inf``, and
-    ``-inf``.
-
-    Otherwise, iterate through all items, converting non-JSON items
+    The flat list is converted to a numpy array and passed to transform_array()
+    to handle ``nan``, ``inf``, and ``-inf``.
 
     Args:
         obj (list) : a list of values or lists
-        use_numpy (bool, optional) toggle NumPy as a dependency for testing
-            This argument is only useful for testing (default: True)
+
     '''
-    if use_numpy and all(isinstance(el, np.ndarray) for el in obj):
+    if all(isinstance(el, np.ndarray) for el in obj):
         return [transform_array(el, buffers=buffers) for el in obj]
     obj_copy = []
     for item in obj:
         # Check the base/common case first for performance reasons
         # Also use type(x) is float because it's faster than isinstance
         if type(item) is float:
-            if math.isnan(item):
+            if isnan(item):
                 item = 'NaN'
-            elif math.isinf(item):
+            elif isinf(item):
                 if item > 0:
                     item = 'Infinity'
                 else:

@@ -145,14 +145,8 @@ def test_convert_datetime_type_with_tz():
 testing = [[float('nan'), 3], [float('-inf'), [float('inf')]]]
 expected = [['NaN', 3.0], ['-Infinity', ['Infinity']]]
 
-def test_traverse_return_valid_json():
+def test_traverse_data():
     assert bus.traverse_data(testing) == expected
-
-def test_traverse_with_numpy():
-    assert bus.traverse_data(testing, True) == expected
-
-def test_traverse_without_numpy():
-    assert bus.traverse_data(testing, False) == expected
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
 @pytest.mark.unit
