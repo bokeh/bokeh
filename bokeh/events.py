@@ -167,7 +167,7 @@ class Event(object):
             raise ValueError("Could not find appropriate Event class for event_name: %r" % event_name)
 
         event_values = dct['event_values']
-        model_id = event_values.pop('model_id')
+        model_id = event_values.pop('model', {"id": None})["id"]
         event = _CONCRETE_EVENT_CLASSES[event_name](model=None, **event_values)
         event._model_id = model_id
         return event

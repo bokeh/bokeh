@@ -250,16 +250,6 @@ class ServerSession(object):
 
         return connection.ok(message)
 
-    @_needs_document_lock
-    def _handle_event(self, message, connection):
-        message.notify_event(self.document)
-        return connection.ok(message)
-
-    @classmethod
-    def event(cls, message, connection):
-        return connection.session._handle_event(message, connection)
-
-
     @classmethod
     def patch(cls, message, connection):
         ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''

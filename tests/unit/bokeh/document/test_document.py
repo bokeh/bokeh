@@ -15,7 +15,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import json
 import logging
 from copy import copy
 
@@ -946,7 +945,7 @@ class TestDocument(object):
         button1.on_click(clicked_1)
         d.add_root(button1)
 
-        event_json = json.dumps({"event_name":"button_click","event_values":{"model_id":button1.id}})
+        event_json = {"event_name": "button_click", "event_values": {"model": {"id": button1.id}}}
         try:
             d.apply_json_event(event_json)
         except RuntimeError:

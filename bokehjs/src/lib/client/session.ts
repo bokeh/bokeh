@@ -1,20 +1,14 @@
-import {Document, EventManager, DocumentChangedEvent, ModelChangedEvent} from "document"
+import {Document, DocumentChangedEvent, ModelChangedEvent} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
-import {BokehEvent} from "core/bokeh_events"
 import {logger} from "core/logging"
 
 export class ClientSession {
 
   protected _document_listener: (event: DocumentChangedEvent) => void = (event) => this._document_changed(event)
 
-  readonly event_manager: EventManager
-
   constructor(protected readonly _connection: ClientConnection, readonly document: Document, readonly id: string) {
     this.document.on_change(this._document_listener)
-
-    this.event_manager = this.document.event_manager
-    this.event_manager.session = this
   }
 
   handle(message: Message): void {
@@ -32,11 +26,6 @@ export class ClientSession {
 
   close(): void {
     this._connection.close()
-  }
-
-  send_event(event: BokehEvent): void {
-    const message = Message.create('EVENT', {}, JSON.stringify(event.to_json()))
-    this._connection.send(message)
   }
 
   /*protected*/ _connection_closed(): void {

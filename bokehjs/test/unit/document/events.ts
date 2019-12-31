@@ -10,6 +10,7 @@ const EVENTS = [
   "ColumnsPatchedEvent",
   "ColumnsStreamedEvent",
   "DocumentChangedEvent",
+  "MessageSentEvent",
   "ModelChangedEvent",
   "TitleChangedEvent",
   "RootAddedEvent",

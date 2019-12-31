@@ -14,7 +14,8 @@ export interface ModelChanged {
 
 export interface MessageSent {
   kind: "MessageSent"
-  data: unknown
+  msg_type: string
+  msg_data: unknown
 }
 
 export interface TitleChanged {
@@ -62,14 +63,24 @@ export abstract class DocumentChangedEvent {
 }
 
 export class MessageSentEvent extends DocumentChangedEvent {
-  constructor(document: Document, readonly data: unknown) {
+  constructor(document: Document, readonly msg_type: string, readonly msg_data: unknown) {
     super(document)
   }
 
   json(_references: References): DocumentChanged {
+    const value = this.msg_data
+    const value_json = HasProps._value_to_json("", value, null)
+    const value_refs: {[key: string]: HasProps} = {}
+    HasProps._value_record_references(value, value_refs, true)
+    /* XXX: this will cause all referenced models to be reinitialized
+    for (const id in value_refs) {
+      references[id] = value_refs[id]
+    }
+    */
     return {
       kind: "MessageSent",
-      data: this.data,
+      msg_type: this.msg_type,
+      msg_data: value_json,
     }
   }
 }

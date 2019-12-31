@@ -36,6 +36,7 @@ import sys
 from collections import defaultdict
 from functools import wraps
 from json import loads
+from typing import Any, Callable, Dict, List
 
 # External imports
 import jinja2
@@ -53,7 +54,6 @@ from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.version import __version__
 from .events import (
-    MessageSentEvent,
     ModelChangedEvent,
     RootAddedEvent,
     RootRemovedEvent,
@@ -97,6 +97,9 @@ class Document(object):
     of serialization for Bokeh.
 
     '''
+
+    _message_callbacks: Dict[str, List[Callable[[Any], None]]]
+
     def __init__(self, **kwargs):
         self._roots = list()
         self._theme = kwargs.pop('theme', default_theme)
@@ -108,6 +111,7 @@ class Document(object):
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
+        self._message_callbacks = {}
         self._session_destroyed_callbacks = set()
         self._session_callbacks = set()
         self._session_context = None
@@ -118,6 +122,7 @@ class Document(object):
 
         # set of models subscribed to user events
         self._subscribed_models = defaultdict(set)
+        self.on_message("bokeh_event", self.apply_json_event)
 
         self._callback_objs_by_callable = {self.add_next_tick_callback: defaultdict(set),
                                            self.add_periodic_callback: defaultdict(set),
@@ -338,7 +343,7 @@ class Document(object):
         return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_timeout_callback)
 
     def apply_json_event(self, json):
-        event = loads(json, object_hook=Event.decode_json)
+        event = Event.decode_json(json)
         if not isinstance(event, Event):
             log.warning('Could not decode event json: %s' % json)
         else:
@@ -388,8 +393,7 @@ class Document(object):
 
         for event_json in events_json:
             if event_json['kind'] == 'MessageSent':
-                from ipywidgets_bokeh import receive_message
-                receive_message(event_json["data"])
+                self._trigger_on_message(event_json["msg_type"], event_json["msg_data"])
 
             elif event_json['kind'] == 'ModelChanged':
                 patched_id = event_json['model']['id']
@@ -661,6 +665,24 @@ class Document(object):
 
         for event in events:
             self._trigger_on_change(event)
+
+    def on_message(self, msg_type: str, callback: Callable[[Any], None]) -> None:
+        message_callbacks = self._message_callbacks.get(msg_type, None)
+        if message_callbacks is None:
+            self._message_callbacks[msg_type] = [callback]
+        elif callback not in message_callbacks:
+            message_callbacks.append(callback)
+
+    def remove_on_message(self, msg_type: str, callback: Callable[[Any], None]) -> None:
+        message_callbacks = self._message_callbacks.get(msg_type, None)
+        if message_callbacks is not None and callback in message_callbacks:
+            message_callbacks.remove(callback)
+
+    def _trigger_on_message(self, msg_type: str, msg_data: Any) -> None:
+        message_callbacks = self._message_callbacks.get(msg_type, None)
+        if message_callbacks is not None:
+            for cb in message_callbacks:
+                cb(msg_data)
 
     def on_change(self, *callbacks):
         ''' Provide callbacks to invoke if the document or any Model reachable

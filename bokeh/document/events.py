@@ -147,16 +147,12 @@ class DocumentPatchedEvent(DocumentChangedEvent):
 class MessageSentEvent(DocumentPatchedEvent):
     """ """
 
-    def __init__(self, document, data, setter=None, callback_invoker=None):
+    def __init__(self, document, msg_type, msg_data, setter=None, callback_invoker=None):
         super(MessageSentEvent, self).__init__(document, setter, callback_invoker)
-        self.data = data
+        self.msg_type = msg_type
+        self.msg_data = msg_data
 
     def dispatch(self, receiver):
-        ''' Dispatch handling of this event to a receiver.
-
-        This method will invoke ``receiver._document_model_changed`` if it exists.
-
-        '''
         super(MessageSentEvent, self).dispatch(receiver)
         if hasattr(receiver, '_document_message_sent'):
             receiver._document_message_sent(self)
@@ -164,7 +160,8 @@ class MessageSentEvent(DocumentPatchedEvent):
     def generate(self, references, buffers):
         return {
             'kind' : 'MessageSent',
-            'data' : self.data,
+            'msg_type' : self.msg_type,
+            'msg_data' : self.msg_data,
         }
 
 class ModelChangedEvent(DocumentPatchedEvent):

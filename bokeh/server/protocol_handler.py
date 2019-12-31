@@ -39,7 +39,6 @@ class ProtocolHandler(object):
     ''' A Bokeh server may be expected to receive any of the following protocol
     messages:
 
-    * ``EVENT``
     * ``PATCH-DOC``
     * ``PULL-DOC-REQ``
     * ``PUSH-DOC``
@@ -63,7 +62,6 @@ class ProtocolHandler(object):
         self._handlers['PUSH-DOC'] = ServerSession.push
         self._handlers['PATCH-DOC'] = ServerSession.patch
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
-        self._handlers['EVENT'] = ServerSession.event
 
     async def handle(self, message, connection):
         ''' Delegate a received message to the appropriate handler.

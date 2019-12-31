@@ -7,7 +7,7 @@ import {Attrs} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data} from "core/util/serialization"
-import {MultiDict, Set} from "core/util/data_structures"
+import {MultiDict, Set as OurSet} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values} from "core/util/object"
 import {isEqual} from "core/util/eq"
@@ -16,7 +16,13 @@ import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
 import {Model} from "model"
-import {DocumentChanged, DocumentChangedEvent, ModelChanged, ModelChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./events"
+import {
+  DocumentChanged, DocumentChangedEvent,
+  ModelChanged, ModelChangedEvent,
+  RootAddedEvent, RootRemovedEvent,
+  TitleChangedEvent,
+  MessageSentEvent,
+} from "./events"
 
 export class EventManager {
   // Dispatches events to the subscribed models
@@ -26,13 +32,13 @@ export class EventManager {
 
   constructor(readonly document: Document) {}
 
-  send_event(event: BokehEvent): void {
-    if (this.session != null)
-      this.session.send_event(event)
+  send_event(bokeh_event: BokehEvent): void {
+    const event = new MessageSentEvent(this.document, "bokeh_event", bokeh_event.to_json())
+    this.document._trigger_on_change(event)
   }
 
   trigger(event: BokehEvent): void {
-    for (const id of this.subscribed_models.values) {
+    for (const id of this.subscribed_models) {
       if (event.origin != null && event.origin.id !== id)
         continue
       const model = this.document._all_models[id]
@@ -76,7 +82,7 @@ export class Document {
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: ((event: DocumentChangedEvent) => void)[]
-  protected _message_callbacks: ((data: unknown) => void)[]
+  protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
@@ -90,7 +96,7 @@ export class Document {
     this._all_models_by_name = new MultiDict()
     this._all_models_freeze_count = 0
     this._callbacks = []
-    this._message_callbacks = []
+    this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
@@ -200,11 +206,11 @@ export class Document {
   }
 
   protected _recompute_all_models(): void {
-    let new_all_models_set = new Set<HasProps>()
+    let new_all_models_set = new OurSet<HasProps>()
     for (const r of this._roots) {
       new_all_models_set = new_all_models_set.union(r.references())
     }
-    const old_all_models_set = new Set(values(this._all_models))
+    const old_all_models_set = new OurSet(values(this._all_models))
     const to_detach = old_all_models_set.diff(new_all_models_set)
     const to_attach = new_all_models_set.diff(old_all_models_set)
     const recomputed: {[key: string]: HasProps} = {}
@@ -279,20 +285,24 @@ export class Document {
     return this._all_models_by_name.get_one(name, `Multiple models are named '${name}'`)
   }
 
-  on_message(callback: (data: unknown) => void): void {
-    if (!includes(this._message_callbacks, callback))
-      this._message_callbacks.push(callback)
+  on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
+    const message_callbacks = this._message_callbacks.get(msg_type)
+    if (message_callbacks == null)
+      this._message_callbacks.set(msg_type, new Set([callback]))
+    else
+      message_callbacks.add(callback)
   }
 
-  remove_on_message(callback: (event: unknown) => void): void {
-    const i = this._message_callbacks.indexOf(callback)
-    if (i >= 0)
-      this._message_callbacks.splice(i, 1)
+  remove_on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
+    this._message_callbacks.get(msg_type)?.delete(callback)
   }
 
-  _trigger_on_message(data: unknown): void {
-    for (const cb of this._message_callbacks) {
-      cb(data)
+  protected _trigger_on_message(msg_type: string, msg_data: unknown): void {
+    const message_callbacks = this._message_callbacks.get(msg_type)
+    if (message_callbacks != null) {
+      for (const cb of message_callbacks) {
+        cb(msg_data)
+      }
     }
   }
 
@@ -689,7 +699,8 @@ export class Document {
     for (const event_json of events_json) {
       switch (event_json.kind) {
         case 'MessageSent': {
-          this._trigger_on_message(event_json.data)
+          const msg_data = Document._resolve_refs(event_json.msg_data, old_references, new_references)
+          this._trigger_on_message(event_json.msg_type, msg_data)
           break
         }
         case 'ModelChanged': {
