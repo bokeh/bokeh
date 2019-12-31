@@ -97,7 +97,15 @@ class patch_doc(Message):
         '''
 
         '''
-        doc.apply_json_patch(self.content, setter)
+        from bokeh.io.doc import curdoc, set_curdoc
+
+        old_doc = curdoc()
+        set_curdoc(doc)
+
+        try:
+            doc.apply_json_patch(self.content, setter)
+        finally:
+            set_curdoc(old_doc)
 
 def process_document_events(events, use_buffers=True):
     ''' Create a JSON string describing a patch to be applied as well as
