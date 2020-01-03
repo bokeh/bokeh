@@ -108,7 +108,7 @@ Add renderers
     In this case, we use |Figure.line| for our data, specifying visual
     customizations like colors, legends and widths.
 
-Ask Bokeh to |show| or |save| the results.
+Ask Bokeh to |show| or |save| the results
     These functions save the plot to an HTML file and optionally display it in
     a browser.
 
