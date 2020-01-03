@@ -4,7 +4,7 @@ Providing Data
 ==============
 
 No data visualization is possible without the underlying data to be represented.
-In this section, the various ways of providing data for plots is explained, from
+In this section, the various ways of providing data for plots are explained, from
 passing data values directly to creating a |ColumnDataSource| and filtering using
 a |CDSView|.
 
@@ -37,7 +37,7 @@ The |ColumnDataSource| is the core of most Bokeh plots, providing the data
 that is visualized by the glyphs of the plot. With the |ColumnDataSource|,
 it is easy to share data between multiple plots and widgets, such as the
 |DataTable|. When the same |ColumnDataSource| is used to drive multiple
-renderers, selections of the data source are also shared. Thus it is possible
+renderers, selections of the data source are also shared. Thus, it is possible
 to use a select tool to choose data points from one plot and have them automatically
 highlighted in a second plot (:ref:`userguide_data_linked_selection`).
 
@@ -219,10 +219,10 @@ of :func:`~bokeh.transform.factor_cmap` to colormap those same categories:
 CustomJSTransform
 ~~~~~~~~~~~~~~~~~
 
-In addition to built-in transforms above, there is also a ``CustomJSTransform``
+In addition to the built-in transforms above, there is also a ``CustomJSTransform``
 that allows for specifying arbitrary JavaScript code to perform a transform step
 on ColumnDataSource data. Typically, the ``v_func`` (for "vectorized" function)
-is provided. (Less commonly a scalar equivalent ``func`` may also be needed).
+is provided (less commonly, a scalar equivalent ``func`` may also be needed).
 The ``v_func`` code should expect an array of inputs in the variable ``xs``, and
 return a JavaScript array with the transformed values:
 
