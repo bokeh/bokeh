@@ -131,7 +131,6 @@ export class ToolbarBaseView extends DOMView {
 
     bars.push(this.model.actions.map(el))
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
-    bars.push(this.model.help.map(el))
 
     for (const bar of bars) {
       if (bar.length !== 0) {
