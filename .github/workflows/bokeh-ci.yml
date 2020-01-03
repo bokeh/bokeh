@@ -280,7 +280,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         shell: bash
         run: |
-          UPLOAD="`[ -z $GITHUB_HEAD_REF ] && echo '' || echo '--upload'`"
+          UPLOAD="`[ -z $AWS_ACCESS_KEY_ID ] && echo '' || echo '--upload'`"
           py.test -s -v -m examples     \
             --color=yes                 \
             --tb line                   \
