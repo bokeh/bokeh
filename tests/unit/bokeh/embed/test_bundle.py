@@ -14,8 +14,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import os
+
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.resources import INLINE
 
 # Module under test
 import bokeh.embed.bundle as beb # isort:skip
@@ -59,7 +63,30 @@ def test_widget():
 #-----------------------------------------------------------------------------
 
 class Test_bundle_for_objs_and_resources(object):
-    pass
+
+    def test_env_vars_precedence(self):
+        b = beb.bundle_for_objs_and_resources([], INLINE)
+        assert all('localhost' not in x for x in b.js_files)
+
+        # this is a cheap test that a BokehJS file is inline
+        assert any(len(x) > 5000 for x in b.js_raw)
+
+        os.environ['BOKEH_RESOURCES'] = "server-dev"
+        b = beb.bundle_for_objs_and_resources([], INLINE)
+        del os.environ['BOKEH_RESOURCES']
+        assert any('localhost' in x for x in b.js_files)
+
+        # this is a cheap test that a BokehJS file is NOT inline
+        assert all(len(x) < 5000 for x in b.js_raw)
+
+        os.environ['BOKEH_RESOURCES'] = "cdn"
+        b = beb.bundle_for_objs_and_resources([], INLINE)
+        del os.environ['BOKEH_RESOURCES']
+        assert any('cdn' in x for x in b.js_files)
+
+        # this is a cheap test that a BokehJS file is NOT inline
+        assert all(len(x) < 5000 for x in b.js_raw)
+
 
 #-----------------------------------------------------------------------------
 # Private API
