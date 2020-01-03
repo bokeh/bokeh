@@ -67,7 +67,7 @@ General Grid Layout
 
 The |layout| function can be used to arrange both plots and widgets in a grid,
 generating the necessary |row| and |column| layouts automatically. This allows
-for quickly spelling a layouts like this:
+for quickly creating layouts:
 
 .. code-block:: python
 
@@ -190,7 +190,7 @@ Limitations
 -----------
 
 The Bokeh layout system is not a completely generic, general purpose layout
-engine. It is intentionally sacrifices some capability in order to make common
+engine. It intentionally sacrifices some capability in order to make common
 use cases and scenarios simple to express. Extremely nested layouts with
 many different sizing modes may yield undesirable results, either in terms of
 perfomance, or visual appearance. For such cases it is recommended to use the
