@@ -117,8 +117,8 @@ some of the examples below.
 
 The |bokeh.plotting| interface is also quite handy if we need to customize
 the output a bit more by adding more data series, glyphs, logarithmic axis,
-and so on. It's also possible to easily combine multiple glyphs together on one
-plot as shown below:
+and so on. It's easy to combine multiple glyphs together on one plot as shown
+below:
 
 .. bokeh-plot::
     :source-position: above
@@ -162,7 +162,7 @@ At this point we should mention Jupyter notebooks.
 Jupyter notebooks are a common tool for exploratory data analysis, widely
 used across the PyData community. Bokeh integrates seamlessly with Jupyter
 notebooks. To view the above examples in a notebook, you would only
-change |output_file| to a call to |output_notebook| instead.
+change |output_file| to |output_notebook| instead.
 
 You can interact directly with `live tutorial notebooks`_ hosted online by
 MyBinder. Static versions of these may be viewed at the
@@ -262,7 +262,7 @@ with the |bokeh.plotting| interface come configured with
 automatically set the plot bounds to encompass all the available data.
 But it is possible to supply explicit
 :class:`Range1d <bokeh.models.ranges.Range1d>` objects for fixed bounds.
-As a convenience these can also typically be spelled as 2-tuples or lists::
+As a convenience, these can also typically be spelled as 2-tuples or lists::
 
     p = figure(x_range=[0,10], y_range=(10, 20))
 
