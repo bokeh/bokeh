@@ -80,7 +80,7 @@ between data points, instead of connecting points with linear segments. The
     :source-position: above
 
 Step levels can be drawn before, after, or centered on the x-coordinates,
-as condfigured by the ``mode`` parameter.
+as configured by the ``mode`` parameter.
 
 Multiple Lines
 ''''''''''''''
@@ -116,9 +116,9 @@ Stacked Lines
 
 In some instances, it is desirable to stack lines that are aligned on a common
 index (e.g. time series of percentages). The |vline_stack| and |hline_stack|
-convenience methods can be used to accomplish this. Note the these methods
-stack columns from an explicity supplied ``ColumnDataSource`` (see the section
-:ref:`userguide_data` for more information
+convenience methods can be used to accomplish this. Note that these methods
+stack columns from an explicitly supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
     :source-position: above
@@ -153,7 +153,7 @@ Stacked Bars
 
 It is often desirable to stack bars. This can be accomplished with the
 |vbar_stack| and |hbar_stack| convenience methods. Note the these methods
-stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+stack columns from an explicitly supplied ``ColumnDataSource`` (see the section
 :ref:`userguide_data` for more information).
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_hbar_stack.py
@@ -223,7 +223,7 @@ Stacked Areas
 
 It is often desirable to stack directed areas. This can be accomplished with
 the |varea_stack| and |harea_stack| convenience methods. Note the these methods
-stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+stack columns from an explicitly supplied ``ColumnDataSource`` (see the section
 :ref:`userguide_data` for more information.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_varea_stack.py
@@ -480,7 +480,7 @@ Setting Ranges
 --------------
 
 By default, Bokeh will attempt to automatically set the data bounds
-of plots to fit snugly around the data. Sometimes you may need to
+of plots to fit snugly around the data. Sometimes, you may need to
 set a plot's range explicitly. This can be accomplished by setting the
 ``x_range`` or ``y_range`` properties using a ``Range1d`` object that
 gives the *start* and *end* points of the range you want:
@@ -491,7 +491,7 @@ gives the *start* and *end* points of the range you want:
 
 As a convenience, the |figure| function can also accept tuples of
 *(start, end)* as values for the ``x_range`` or ``y_range`` parameters.
-Below is a an example that shows both methods of setting the range:
+Below is an example that shows both methods of setting the range:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_figure_range.py
     :source-position: above

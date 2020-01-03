@@ -165,7 +165,7 @@ The second component is a library in Python (or other languages) that can
 generate the JSON described above. In the Python Bokeh library, this is
 accomplished at the lowest level by exposing a set of "model" classes
 that exactly mirror the set of BokehJS Models that are created in the
-browser. These python model classes know how to validate their content and
+browser. These Python model classes know how to validate their content and
 attributes, and also how to serialize themselves to JSON. All of
 these low level models live in the **low-level** |bokeh.models| interface.
 Most of the models are very simple, usually consisting of a few property
