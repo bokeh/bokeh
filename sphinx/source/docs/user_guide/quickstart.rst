@@ -93,8 +93,8 @@ directly inline in this document.)
 The basic steps to creating plots with the |bokeh.plotting| interface are:
 
 Prepare some data
-    In this case plain python lists, but could also be NumPy arrays or
-    Pandas series.
+    In this case plain Python lists, but NumPy arrays or Pandas series also
+    work.
 
 Tell Bokeh where to generate output
     In this case using |output_file|, with the filename ``"lines.html"``.
