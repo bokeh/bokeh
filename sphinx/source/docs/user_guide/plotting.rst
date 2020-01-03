@@ -80,7 +80,7 @@ between data points, instead of connecting points with linear segments. The
     :source-position: above
 
 Step levels can be drawn before, after, or centered on the x-coordinates,
-as condfigured by the ``mode`` parameter.
+as configured by the ``mode`` parameter.
 
 Multiple Lines
 ''''''''''''''
