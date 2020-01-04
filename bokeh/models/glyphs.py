@@ -136,6 +136,13 @@ class XYGlyph(Glyph):
 
     '''
 
+@abstract
+class ConnectedXYGlyph(XYGlyph):
+    ''' Base class of glyphs with `x` and `y` coordinate attributes and
+    a connected topology.
+
+    '''
+
 class AnnularWedge(XYGlyph):
     ''' Render annular wedges.
 
@@ -688,7 +695,7 @@ class ImageURL(XYGlyph):
     specified URL. Default is zero ms.
     """)
 
-class Line(XYGlyph):
+class Line(ConnectedXYGlyph):
     ''' Render a single line.
 
     The ``Line`` glyph is different from most other glyphs in that the vector
@@ -826,7 +833,7 @@ class Oval(XYGlyph):
     The %s values for the ovals.
     """)
 
-class Patch(XYGlyph):
+class Patch(ConnectedXYGlyph):
     ''' Render a single patch.
 
     The ``Patch`` glyph is different from most other glyphs in that the vector

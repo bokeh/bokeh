@@ -37,13 +37,14 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import (
     BAD_COLUMN_NAME,
+    CDSVIEW_FILTERS_WITH_CONNECTED,
     CDSVIEW_SOURCE_DOESNT_MATCH,
     MALFORMED_GRAPH_SOURCE,
     MISSING_GLYPH,
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from .glyphs import Circle, Glyph, MultiLine
+from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
 from .sources import CDSView, ColumnDataSource, DataSource, WebSource
 from .tiles import TileSource, WMTSTileSource
@@ -127,6 +128,14 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
+    def __str__(self):
+        return f"GlyphRenderer(id={self.id}, glyph={str(self.glyph)}, ...)"
+
+    @error(CDSVIEW_FILTERS_WITH_CONNECTED)
+    def _check_cdsview_filters_with_connected(self):
+        if isinstance(self.glyph, ConnectedXYGlyph) and len(self.view.filters) > 0:
+            return str(self)
+
     @error(MISSING_GLYPH)
     def _check_missing_glyph(self):
         if not self.glyph: return str(self)
@@ -172,6 +181,11 @@ class GlyphRenderer(DataRenderer):
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.
+
+    .. note:
+        Only the default (filterless) CDSView is compatible with glyphs that
+        have connected topology, such as Line and Patch. Setting filters on
+        views for these glyphs will result, in a warning and undefined behavior.
     """)
 
     glyph = Instance(Glyph, help="""
