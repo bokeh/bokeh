@@ -185,7 +185,7 @@ class GlyphRenderer(DataRenderer):
     .. note:
         Only the default (filterless) CDSView is compatible with glyphs that
         have connected topology, such as Line and Patch. Setting filters on
-        views for these glyphs will result, in a warning and undefined behavior.
+        views for these glyphs will result in a warning and undefined behavior.
     """)
 
     glyph = Instance(Glyph, help="""
