@@ -456,6 +456,17 @@ class ResetTool(Action):
 
     pass
 
+class FullscreenTool(Action):
+    ''' *toolbar icon*: |fullscreen_icon|
+
+    The fullscreen tool is an action, when toggled the plot the tool is attached
+    to is fullscreened. Not that if the plot is inside an <iframe> you will need
+    to add a allowfullscreen attribute (+ webkitallowfullscreen and mozallowfullscreen)
+
+    .. |fullscreen_icon| image:: /_images/icons/Fullscreen.png
+        :height: 18pt
+    '''
+
 class TapTool(Tap):
     ''' *toolbar icon*: |tap_icon|
 
