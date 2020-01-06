@@ -1,7 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
-import {logger} from "core/logging"
 import * as p from "core/properties"
 
 export namespace LogTickFormatter {
@@ -32,8 +31,6 @@ export class LogTickFormatter extends TickFormatter {
   initialize(): void {
     super.initialize()
     this.basic_formatter = new BasicTickFormatter()
-    if (this.ticker == null)
-      logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
   }
 
   doFormat(ticks: number[], opts: {loc: number}): string[] {

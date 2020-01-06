@@ -55,7 +55,7 @@ from .tickers import *
 from .tiles import *
 from .tools import *
 from .transforms import *
-from .widgets import *
+from .widgets import *  # lgtm [py/polluting-import]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
