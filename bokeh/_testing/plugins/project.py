@@ -154,18 +154,7 @@ def bokeh_app_info(request, driver):
 
     return func
 
-class _BokehModelPage(object):
-
-    def __init__(self, model, driver, output_file_url, has_no_console_errors):
-        self._driver = driver
-        self._model = model
-        self._has_no_console_errors = has_no_console_errors
-
-        save(self._model)
-
-        self._driver.get(output_file_url)
-
-        self.init_results()
+class _BokehPageMixin(object):
 
     @property
     def results(self):
@@ -214,6 +203,18 @@ class _BokehModelPage(object):
     def has_no_console_errors(self):
         return self._has_no_console_errors(self._driver)
 
+class _BokehModelPage(_BokehPageMixin):
+
+    def __init__(self, model, driver, output_file_url, has_no_console_errors):
+        self._driver = driver
+        self._model = model
+        self._has_no_console_errors = has_no_console_errors
+
+        save(self._model)
+
+        self._driver.get(output_file_url)
+
+        self.init_results()
 
 class _CanvasMixin(object):
 
@@ -233,13 +234,11 @@ class _CanvasMixin(object):
     def get_toolbar_button(self, name):
         return self.driver.find_element_by_class_name('bk-tool-icon-' + name)
 
-
 @pytest.fixture()
 def bokeh_model_page(driver, output_file_url, has_no_console_errors):
     def func(model):
         return _BokehModelPage(model, driver, output_file_url, has_no_console_errors)
     return func
-
 
 class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
 
@@ -250,15 +249,13 @@ class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
         self.canvas = self._driver.find_element_by_tag_name('canvas')
         wait_for_canvas_resize(self.canvas, self._driver)
 
-
 @pytest.fixture()
 def single_plot_page(driver, output_file_url, has_no_console_errors):
     def func(model):
         return _SinglePlotPage(model, driver, output_file_url, has_no_console_errors)
     return func
 
-
-class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
+class _BokehServerPage(_BokehPageMixin, _CanvasMixin):
 
     def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors):
         self._driver = driver
@@ -272,7 +269,6 @@ class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 
         self.canvas = self._driver.find_element_by_tag_name('canvas')
         wait_for_canvas_resize(self.canvas, self._driver)
-
 
 @pytest.fixture()
 def bokeh_server_page(driver, bokeh_app_info, has_no_console_errors):
