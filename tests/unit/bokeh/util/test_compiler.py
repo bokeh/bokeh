@@ -45,6 +45,24 @@ function f(a, b) { return a + b; }
 var some = require('some/module');
 """, deps=["some/module"])
 
+    assert buc.nodejs_compile("""
+const {Model} = require("lib/model");
+
+class MyModel extends Model {
+    static __name__ = 'MyModel';
+}
+
+exports.MyModel = MyModel;
+""", "javascript", "some.js") == \
+        dict(code="""\
+const { Model } = require("lib/model");
+class MyModel extends Model {
+}
+MyModel.__name__ = 'MyModel';
+exports.MyModel = MyModel;
+""",
+             deps=["lib/model"])
+
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
         dict(error=
             '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - '
