@@ -44,7 +44,7 @@ greatly. It is *strongly* recommended that anyone developing Bokeh also use
 ``conda``, and the remainder of the instructions will assume that ``conda``
 is available.
 
-To install Conda on any platform, see the `Download conda`_ section of the
+To install Conda on any platform, see the `Downloading conda`_ section of the
 `conda documentation`_.
 
 Conda environment
@@ -75,6 +75,15 @@ source repository, issue the following command:
 .. code-block:: sh
 
     git clone https://github.com/bokeh/bokeh.git
+
+.. note::
+
+    Active @bokeh/dev contributors should clone the main source repository to
+    make sure the complete CI testing automation runs successfully.
+
+New or casual contributors are required to clone their forks of the `bokeh source
+repository`_. To fork and clone Github repositories, refer to `Fork a repo`_
+section of `GitHub Help`_.
 
 This will create a ``bokeh`` directory at your file system location. This
 ``bokeh`` directory is referred to as the *source checkout* for the remainder
@@ -407,13 +416,16 @@ web browser to the appropriate address, the default is ``localhost:5006``.
 
 If you have any problems with the steps here, please `contact the developers`_.
 
-.. _Anaconda: https://anaconda.com/downloads
-.. _contact the developers: https://bokeh.org
-.. _conda package manager: https://conda.io/docs/intro.html
-.. _conda documentation: https://conda.io/docs/index.html
-.. _Download conda: https://conda.io/docs/download.html
+.. _Anaconda: https://www.anaconda.com/distribution/
+.. _bokeh source repository: https://github.com/bokeh/bokeh
+.. _contact the developers: https://discourse.bokeh.org/c/development
+.. _conda package manager: https://docs.conda.io/projects/conda/en/latest/
+.. _conda documentation: https://docs.conda.io/projects/conda/en/latest/
+.. _Downloading conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html
+.. _Fork a repo: https://help.github.com/en/github/getting-started-with-github/fork-a-repo
 .. _Git: https://git-scm.com
 .. _GitHub: https://github.com
+.. _GitHub Help: https://help.github.com
 .. _Installing Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
 .. _Pro Git Book: https://git-scm.com/book/en/v2
