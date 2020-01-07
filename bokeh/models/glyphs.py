@@ -57,7 +57,6 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import Anchor, Direction, StepMode
-from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
@@ -81,7 +80,7 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
-from ..model import Model
+from .glyph import ConnectedXYGlyph, Glyph, XYGlyph
 from .mappers import ColorMapper, LinearColorMapper
 
 #-----------------------------------------------------------------------------
@@ -93,6 +92,7 @@ __all__ = (
     'Annulus',
     'Arc',
     'Bezier',
+    'ConnectedXYGlyph',
     'Ellipse',
     'Glyph',
     'HArea',
@@ -123,25 +123,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-@abstract
-class Glyph(Model):
-    ''' Base class for all glyph models.
-
-    '''
-
-@abstract
-class XYGlyph(Glyph):
-    ''' Base class of glyphs with `x` and `y` coordinate attributes.
-
-    '''
-
-@abstract
-class ConnectedXYGlyph(XYGlyph):
-    ''' Base class of glyphs with `x` and `y` coordinate attributes and
-    a connected topology.
-
-    '''
 
 class AnnularWedge(XYGlyph):
     ''' Render annular wedges.
