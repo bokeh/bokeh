@@ -339,7 +339,7 @@ resources:
 
   to your commit message.
 
-.. _contact the developers: https://bokeh.org
+.. _contact the developers: https://discourse.bokeh.org/c/development
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest: https://docs.pytest.org
 .. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp
