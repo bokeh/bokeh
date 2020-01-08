@@ -60,7 +60,7 @@ from ..core.properties import (
     ScreenDistanceSpec,
 )
 from ..core.property_mixins import FillProps, LineProps
-from .glyphs import XYGlyph
+from .glyph import XYGlyph
 
 #-----------------------------------------------------------------------------
 # Globals and constants
