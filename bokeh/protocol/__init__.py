@@ -27,7 +27,6 @@ from . import messages
 from .exceptions import ProtocolError
 from .messages.ack import ack
 from .messages.error import error
-from .messages.event import event
 from .messages.ok import ok
 from .messages.patch_doc import patch_doc
 from .messages.pull_doc_reply import pull_doc_reply
@@ -47,7 +46,6 @@ __all__ = (
 SPEC = {
     "ACK": ack,
     "ERROR": error,
-    "EVENT": event,
     "OK": ok,
     'PATCH-DOC': patch_doc,
     'PULL-DOC-REPLY': pull_doc_reply,

@@ -43,7 +43,7 @@ __all__ = (
     'SessionCallbackAdded',
     'SessionCallbackRemoved',
     'TitleChangedEvent',
-    'TitleChangedEvent',
+    'MessageSentEvent',
 )
 
 #-----------------------------------------------------------------------------
@@ -142,6 +142,26 @@ class DocumentPatchedEvent(DocumentChangedEvent):
 
         '''
         raise NotImplementedError()
+
+class MessageSentEvent(DocumentPatchedEvent):
+    """ """
+
+    def __init__(self, document, msg_type, msg_data, setter=None, callback_invoker=None):
+        super(MessageSentEvent, self).__init__(document, setter, callback_invoker)
+        self.msg_type = msg_type
+        self.msg_data = msg_data
+
+    def dispatch(self, receiver):
+        super(MessageSentEvent, self).dispatch(receiver)
+        if hasattr(receiver, '_document_message_sent'):
+            receiver._document_message_sent(self)
+
+    def generate(self, references, buffers):
+        return {
+            'kind' : 'MessageSent',
+            'msg_type' : self.msg_type,
+            'msg_data' : self.msg_data,
+        }
 
 class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a

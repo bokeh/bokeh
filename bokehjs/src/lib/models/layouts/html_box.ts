@@ -25,6 +25,8 @@ export namespace HTMLBox {
   export type Props = LayoutDOM.Props
 }
 
+export interface HTMLBox extends HTMLBox.Attrs {}
+
 export abstract class HTMLBox extends LayoutDOM {
   properties: HTMLBox.Props
 

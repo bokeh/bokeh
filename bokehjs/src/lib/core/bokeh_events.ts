@@ -16,7 +16,7 @@ export abstract class BokehEvent {
 
   /* prototype */ event_name: string
 
-  origin?: HasProps
+  origin: HasProps | null = null
 
   to_json(): EventJSON {
     const {event_name} = this
@@ -24,8 +24,7 @@ export abstract class BokehEvent {
   }
 
   protected _to_json(): JSON {
-    const {origin} = this
-    return {model_id: origin != null ? origin.id : null}
+    return {model: this.origin}
   }
 }
 

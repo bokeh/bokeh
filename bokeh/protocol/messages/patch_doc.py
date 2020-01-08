@@ -97,7 +97,7 @@ class patch_doc(Message):
         '''
 
         '''
-        doc.apply_json_patch(self.content, setter)
+        doc._with_self_as_curdoc(lambda: doc.apply_json_patch(self.content, setter))
 
 def process_document_events(events, use_buffers=True):
     ''' Create a JSON string describing a patch to be applied as well as

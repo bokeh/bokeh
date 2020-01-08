@@ -12,6 +12,12 @@ export interface ModelChanged {
   hint?: any
 }
 
+export interface MessageSent {
+  kind: "MessageSent"
+  msg_type: string
+  msg_data: unknown
+}
+
 export interface TitleChanged {
   kind: "TitleChanged"
   title: string
@@ -48,12 +54,35 @@ export interface ColumnsPatched {
 }
 
 export type DocumentChanged =
-  ModelChanged | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+  ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
 
 export abstract class DocumentChangedEvent {
   constructor(readonly document: Document) {}
 
   abstract json(references: References): DocumentChanged
+}
+
+export class MessageSentEvent extends DocumentChangedEvent {
+  constructor(document: Document, readonly msg_type: string, readonly msg_data: unknown) {
+    super(document)
+  }
+
+  json(_references: References): DocumentChanged {
+    const value = this.msg_data
+    const value_json = HasProps._value_to_json("", value, null)
+    const value_refs: {[key: string]: HasProps} = {}
+    HasProps._value_record_references(value, value_refs, true)
+    /* XXX: this will cause all referenced models to be reinitialized
+    for (const id in value_refs) {
+      references[id] = value_refs[id]
+    }
+    */
+    return {
+      kind: "MessageSent",
+      msg_type: this.msg_type,
+      msg_data: value_json,
+    }
+  }
 }
 
 export class ModelChangedEvent extends DocumentChangedEvent {

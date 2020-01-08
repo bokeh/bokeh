@@ -35,12 +35,6 @@ bokeh.protocol.messages
 .. automodule:: bokeh.protocol.messages.ack
    :members:
 
-``EVENT``
-~~~~~~~~~
-
-.. automodule:: bokeh.protocol.messages.event
-   :members:
-
 ``ERROR``
 ~~~~~~~~~
 

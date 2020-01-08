@@ -52,7 +52,7 @@ def test_common_decode_json():
     for event_name, event_cls in events._CONCRETE_EVENT_CLASSES.items():
         if event_name is None: continue # Skip abstract base class
         event = events.Event.decode_json({'event_name':event_cls.event_name,
-                                          'event_values':{'model_id':'test-model-id'}})
+                                          'event_values':{'model': {'id': 'test-model-id'}}})
         assert event._model_id == 'test-model-id'
 
 def test_pointevent_subclass_decode_json():
@@ -68,7 +68,7 @@ def test_pointevent_subclass_decode_json():
         assert event._model_id == 'test-model-id'
 
 def test_panevent_decode_json():
-    event_values = dict(model_id='test-model-id', delta_x=0.1, delta_y=0.3,
+    event_values = dict(model={'id': 'test-model-id'}, delta_x=0.1, delta_y=0.3,
                         sx=3, sy=-2, x=10, y=100)
     event = events.Event.decode_json({'event_name':  events.Pan.event_name,
                                      'event_values': event_values.copy()})
@@ -81,7 +81,7 @@ def test_panevent_decode_json():
     assert event._model_id == 'test-model-id'
 
 def test_mousewheelevent_decode_json():
-    event_values = dict(model_id='test-model-id', delta=-0.1, sx=3, sy=-2, x=10, y=100)
+    event_values = dict(model={'id': 'test-model-id'}, delta=-0.1, sx=3, sy=-2, x=10, y=100)
     event = events.Event.decode_json({'event_name':  events.MouseWheel.event_name,
                                       'event_values': event_values.copy()})
     assert event.delta == -0.1
@@ -92,7 +92,7 @@ def test_mousewheelevent_decode_json():
     assert event._model_id == 'test-model-id'
 
 def test_pinchevent_decode_json():
-    event_values = dict(model_id='test-model-id', scale=42, sx=3, sy=-2, x=10, y=100)
+    event_values = dict(model={'id': 'test-model-id'}, scale=42, sx=3, sy=-2, x=10, y=100)
     event = events.Event.decode_json({'event_name':  events.Pinch.event_name,
                                       'event_values': event_values.copy()})
     assert event.scale == 42
