@@ -26,7 +26,8 @@ from warnings import warn
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
 from ..model import Model
-from ..resources import BaseResources
+from ..resources import BaseResources, Resources
+from ..settings import settings
 from ..util.compiler import bundle_models
 
 #-----------------------------------------------------------------------------
@@ -127,6 +128,11 @@ def bundle_for_objs_and_resources(objs, resources):
         Bundle
 
     '''
+    # Any env vars will overide a local default passed in
+    resources = settings.resources(default=resources)
+    if isinstance(resources, str):
+        resources = Resources(mode=resources)
+
     if resources is None or isinstance(resources, BaseResources):
         js_resources = css_resources = resources
     elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
