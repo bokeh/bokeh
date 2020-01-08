@@ -43,7 +43,6 @@ __all__ = (
     'SessionCallbackAdded',
     'SessionCallbackRemoved',
     'TitleChangedEvent',
-    'TitleChangedEvent',
     'MessageSentEvent',
 )
 
