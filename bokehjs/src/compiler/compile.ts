@@ -8,6 +8,12 @@ import * as transforms from "./transforms"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
 
+function parse_patched_tsconfig(base_dir: string, preconfigure: ts.CompilerOptions) {
+  // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.
+  const json = {...tsconfig_json, include: undefined, files: ["dummy.ts"]}
+  return parse_tsconfig(json, base_dir, preconfigure)
+}
+
 export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir: string): {outputs?: Outputs} & TSOutput {
   const preconfigure: ts.CompilerOptions = {
     module: ts.ModuleKind.CommonJS,
@@ -20,10 +26,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
     outDir: undefined,
   }
 
-  // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.
-  const json = {...tsconfig_json, include: undefined, files: ["dummy.ts"]}
-
-  const tsconfig = parse_tsconfig(json, base_dir, preconfigure)
+  const tsconfig = parse_patched_tsconfig(base_dir, preconfigure)
   if (tsconfig.diagnostics != null)
     return {diagnostics: tsconfig.diagnostics}
 
@@ -39,30 +42,20 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   return {outputs, ...compile_files(files, tsconfig.options, transformers, host)}
 }
 
-function compile_javascript(file: string, code: string): {output: string, error?: string} {
-  const result = ts.transpileModule(code, {
+function compile_javascript(base_dir: string, file: string, code: string): { output?: string } & TSOutput {
+  const tsconfig = parse_patched_tsconfig(base_dir, {})
+  if (tsconfig.diagnostics != null)
+    return {diagnostics: tsconfig.diagnostics}
+
+  const {outputText, diagnostics} = ts.transpileModule(code, {
     fileName: file,
     reportDiagnostics: true,
     compilerOptions: {
-      target: ts.ScriptTarget.ES5,
+      target: tsconfig.options.target,
       module: ts.ModuleKind.CommonJS,
     },
   })
-
-  const format_host: ts.FormatDiagnosticsHost = {
-    getCanonicalFileName: (path) => path,
-    getCurrentDirectory: ts.sys.getCurrentDirectory,
-    getNewLine: () => ts.sys.newLine,
-  }
-
-  const {outputText, diagnostics} = result
-  if (diagnostics == null || diagnostics.length == 0)
-    return {output: outputText}
-  else {
-    const error = ts.formatDiagnosticsWithColorAndContext(
-      ts.sortAndDeduplicateDiagnostics(diagnostics), format_host)
-    return {output: outputText, error}
-  }
+  return {output: outputText, diagnostics}
 }
 
 function normalize(path: string): string {
@@ -88,11 +81,13 @@ export async function compile_and_resolve_deps(input: {code: string, lang: strin
       }
       break
     case "javascript": {
-      const result = compile_javascript(file, code)
-      if (result.error == null)
-        output = result.output
-      else
-        return {error: result.error}
+      const result = compile_javascript(".", file, code)
+      if (result.diagnostics != null && result.diagnostics.length != 0) {
+        const failure = report_diagnostics(result.diagnostics)
+        return {error: failure.text}
+      } else {
+        output = result.output!
+      }
       break
     }
     case "less":
