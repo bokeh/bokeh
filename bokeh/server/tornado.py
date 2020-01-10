@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
+import sys
 from pprint import pformat
 from urllib.parse import urljoin
 
@@ -598,3 +599,8 @@ BokehTornado.__doc__ = format_docstring(
     DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
 )
+
+# See https://github.com/bokeh/bokeh/issues/9507
+if sys.platform == 'win32':
+    import asyncio
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
