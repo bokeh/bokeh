@@ -35,7 +35,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -118,7 +118,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -206,7 +206,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -325,7 +325,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -421,7 +421,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -530,7 +530,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -627,7 +627,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -715,7 +715,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -813,7 +813,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.7.12 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
