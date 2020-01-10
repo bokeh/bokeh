@@ -601,6 +601,6 @@ BokehTornado.__doc__ = format_docstring(
 )
 
 # See https://github.com/bokeh/bokeh/issues/9507
-if sys.platform == 'win32':
+if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
     import asyncio
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
