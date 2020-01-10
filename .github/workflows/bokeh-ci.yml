@@ -534,6 +534,8 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          # XXX (bev) note C-F just for unit tests
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
