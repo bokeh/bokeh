@@ -1,6 +1,10 @@
 name: GitHub-CI
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
 
@@ -491,7 +495,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
       - uses: actions/checkout@v2-beta
