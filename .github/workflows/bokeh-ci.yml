@@ -525,6 +525,7 @@ jobs:
             echo "::add-path::$HOME/miniconda3/Scripts"
           else
             echo "::add-path::$HOME/miniconda3/bin"
+            echo "::add-path::$HOME/miniconda3/envs/test/bin"
           fi
 
       - name: Configure conda
@@ -561,8 +562,8 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test` python=${{ matrix.python-version }}
+          conda create -n test --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
+          conda install -n test --yes --quiet --use-local bokeh `python scripts/deps.py run test` python=${{ matrix.python-version }}
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -594,7 +595,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ runner.os }}" = "Windows" ]]; then
-            source activate base
+            source activate test
           fi
           py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
 
