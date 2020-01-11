@@ -55,7 +55,7 @@
   <td>Live Tutorial</td>
   <td>
     <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
-    <img src="https://mybinder.org/badge.svg"
+    <img src="https://mybinder.org/badge_logo.svg"
          alt="Live Bokeh tutorial notebooks on MyBinder" />
     </a>
   </td>
