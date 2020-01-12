@@ -51,19 +51,10 @@ class Date(Property):
     ''' Accept Date (but not DateTime) values.
 
     '''
-    def __init__(self, default=None, help=None):
-        super().__init__(default=default, help=help)
-
     def transform(self, value):
         value = super().transform(value)
 
-        if isinstance(value, (float,) + bokeh_integer_types):
-            # XXX (bev) hacky: try to convert as ms first, if out of bounds, re-try as seconds
-            try:
-                value = datetime.date.fromtimestamp(value).isoformat()
-            except (ValueError, OSError):
-                value = datetime.date.fromtimestamp(value/1000).isoformat()
-        elif isinstance(value, str):
+        if isinstance(value, str):
             value = dateutil.parser.parse(value).date().isoformat()
         elif isinstance(value, datetime.date):
             value = value.isoformat()
@@ -73,8 +64,16 @@ class Date(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or isinstance(value, (datetime.date, str, float,) + bokeh_integer_types)):
-            msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
+        if value is None:
+            return
+
+        if isinstance(value, datetime.date):
+            return
+
+        try:
+            dateutil.parser.parse(value).date().isoformat()
+        except Exception:
+            msg = "" if not detail else f"expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
 class Datetime(Property):
@@ -87,6 +86,9 @@ class Datetime(Property):
 
     def transform(self, value):
         value = super().transform(value)
+
+        if isinstance(value, str):
+            value = dateutil.parser.parse(value)
 
         # Handled by serialization in protocol.py for now, except for Date
         if isinstance(value, datetime.date):
@@ -103,8 +105,19 @@ class Datetime(Property):
         if isinstance(value, datetime.date):
             return
 
-        msg = "" if not detail else "Expected a datetime value, got %r" % value
+        if isinstance(value, str):
+            try:
+                dateutil.parser.parse(value).date()
+                return
+            except Exception:
+                pass
+
+        msg = "" if not detail else f"Expected a datetime value, got {value!r}"
         raise ValueError(msg)
+
+    @staticmethod
+    def is_timestamp(value):
+        return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)
 
 class TimeDelta(Property):
     ''' Accept TimeDelta values.
@@ -125,7 +138,7 @@ class TimeDelta(Property):
         if is_timedelta_type(value):
             return
 
-        msg = "" if not detail else "Expected a timedelta instance, got %r" % value
+        msg = "" if not detail else f"Expected a timedelta instance, got {value!r}"
         raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

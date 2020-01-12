@@ -196,7 +196,7 @@ class TestValidateDetailDefault(object):
         p = Date()
         with pytest.raises(ValueError) as e:
             p.validate(object())
-        assert matches(str(e.value), r"expected a date, string or timestamp, got <object object at 0x.*>")
+        assert matches(str(e.value), r"expected an ISO date string, got <object object at 0x.*>")
     def test_DashPattern(self):
         p = DashPattern()
         with pytest.raises(ValueError) as e:

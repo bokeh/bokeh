@@ -625,8 +625,12 @@ def _get_axis_class(axis_type, range_input, dim):
             return CategoricalAxis, {}
         elif isinstance(range_input, Range1d):
             try:
-                # Easier way to validate type of Range1d parameters
-                Datetime.validate(Datetime(), range_input.start)
+                value = range_input.start
+                # Datetime accepts ints/floats as timestamps, but we don't want
+                # to assume that implies a datetime axis
+                if Datetime.is_timestamp(value):
+                    return LinearAxis, {}
+                Datetime.validate(Datetime(), value)
                 return DatetimeAxis, {}
             except ValueError:
                 pass
