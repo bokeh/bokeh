@@ -90,7 +90,7 @@ class Datetime(Property):
         if isinstance(value, str):
             value = dateutil.parser.parse(value)
 
-        elif isinstance(value, (float,) + bokeh_integer_types):
+        elif Datetime.is_timestamp(value):
             value = datetime.date.fromtimestamp(value)
 
         # Handled by serialization in protocol.py for now, except for Date
