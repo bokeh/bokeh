@@ -43,7 +43,6 @@ def test_daterangeslider_value_as_datetime_when_set_as_datetime():
     s = mws.DateRangeSlider(start=start, end=end, value=(start, end))
     assert s.value_as_datetime == (start, end)
 
-@pytest.mark.skip
 def test_daterangeslider_value_as_datetime_when_set_as_timestamp():
     start = datetime(2017, 8, 9, 0, 0)
     end = datetime(2017, 8, 10, 0, 0)
@@ -53,7 +52,6 @@ def test_daterangeslider_value_as_datetime_when_set_as_timestamp():
             value=(convert_datetime_type(start), convert_datetime_type(end)))
     assert s.value_as_datetime == (start, end)
 
-@pytest.mark.skip
 def test_daterangeslider_value_as_datetime_when_set_mixed():
     start = datetime(2017, 8, 9, 0, 0)
     end = datetime(2017, 8, 10, 0, 0)
@@ -71,7 +69,6 @@ def test_daterangeslider_value_as_date_when_set_as_date():
     s = mws.DateRangeSlider(start=start, end=end, value=(start, end))
     assert s.value_as_date == (start, end)
 
-@pytest.mark.skip
 def test_daterangeslider_value_as_date_when_set_as_timestamp():
     start = date(2017, 8, 9)
     end = date(2017, 8, 10)
@@ -81,7 +78,6 @@ def test_daterangeslider_value_as_date_when_set_as_timestamp():
             value=(convert_date_to_datetime(start), convert_date_to_datetime(end)))
     assert s.value_as_date == (start, end)
 
-@pytest.mark.skip
 def test_daterangeslider_value_as_date_when_set_mixed():
     start = date(2017, 8, 9)
     end = date(2017, 8, 10)

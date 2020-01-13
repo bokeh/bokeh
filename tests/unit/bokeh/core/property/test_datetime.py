@@ -74,6 +74,10 @@ class Test_Datetime(object):
 
     def test_valid(self, pd):
         prop = bcpd.Datetime()
+        assert prop.is_valid(0)
+        assert prop.is_valid(1)
+        assert prop.is_valid(0.0)
+        assert prop.is_valid(1.0)
         assert prop.is_valid("2020-01-11T13:00:00")
         assert prop.is_valid(datetime.datetime.now())
         assert prop.is_valid(datetime.time(10,12))
@@ -87,10 +91,6 @@ class Test_Datetime(object):
         assert not prop.is_valid("")
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
-        assert not prop.is_valid(0)
-        assert not prop.is_valid(1)
-        assert not prop.is_valid(0.0)
-        assert not prop.is_valid(1.0)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid(())
         assert not prop.is_valid([])

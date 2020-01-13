@@ -31,6 +31,7 @@ from bokeh.core.properties import (
     DashPattern,
     DataDistanceSpec,
     Date,
+    Datetime,
     Dict,
     DistanceSpec,
     Either,
@@ -192,11 +193,16 @@ class TestValidateDetailDefault(object):
         with pytest.raises(ValueError) as e:
             p.validate("junk")
         assert matches(str(e.value), r"expected an element of ColumnData\(String, Seq\(Float\)\), got 'junk'")
+    def test_Datetime(self):
+        p = Datetime()
+        with pytest.raises(ValueError) as e:
+            p.validate(object())
+        assert matches(str(e.value), r"Expected a date, datetime object, or timestamp, got <object object at 0x.*>")
     def test_Date(self):
         p = Date()
         with pytest.raises(ValueError) as e:
             p.validate(object())
-        assert matches(str(e.value), r"expected an ISO date string, got <object object at 0x.*>")
+        assert matches(str(e.value), r"Expected an ISO date string, got <object object at 0x.*>")
     def test_DashPattern(self):
         p = DashPattern()
         with pytest.raises(ValueError) as e:

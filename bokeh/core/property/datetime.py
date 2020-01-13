@@ -73,7 +73,7 @@ class Date(Property):
         try:
             dateutil.parser.parse(value).date().isoformat()
         except Exception:
-            msg = "" if not detail else f"expected an ISO date string, got {value!r}"
+            msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
 class Datetime(Property):
@@ -90,6 +90,9 @@ class Datetime(Property):
         if isinstance(value, str):
             value = dateutil.parser.parse(value)
 
+        elif isinstance(value, (float,) + bokeh_integer_types):
+            value = datetime.date.fromtimestamp(value)
+
         # Handled by serialization in protocol.py for now, except for Date
         if isinstance(value, datetime.date):
             value = convert_date_to_datetime(value)
@@ -105,6 +108,9 @@ class Datetime(Property):
         if isinstance(value, datetime.date):
             return
 
+        if Datetime.is_timestamp(value):
+            return
+
         if isinstance(value, str):
             try:
                 dateutil.parser.parse(value).date()
@@ -112,7 +118,7 @@ class Datetime(Property):
             except Exception:
                 pass
 
-        msg = "" if not detail else f"Expected a datetime value, got {value!r}"
+        msg = "" if not detail else f"Expected a date, datetime object, or timestamp, got {value!r}"
         raise ValueError(msg)
 
     @staticmethod

@@ -111,6 +111,7 @@ def test_convert_datetime_type_non_pandas_types():
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59)) == 1514993879000.0
     assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(datetime.time(3, 54)) == 14040000.0
+    assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(np.datetime64("2016-05-11")) == 1462924800000.0
 
 def test_convert_datetime_type_pandas_types(pd):
