@@ -222,7 +222,7 @@ def _graph(node_source, edge_source, **kwargs):
     marker = kwargs.pop('node_marker', None)
     if isinstance(marker, dict) and 'field' in marker or marker in node_source.data:
         marker_type = Scatter
-        kwargs['node_marker'] = marker
+        kwargs['node_marker'] = field(marker)
     else:
         if isinstance(marker, dict) and 'value' in marker:
             marker = marker['value']

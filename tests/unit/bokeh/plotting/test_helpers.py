@@ -42,6 +42,8 @@ from bokeh.models import (
     Marker,
     MercatorAxis,
     Range1d,
+    Scatter,
+    X
 )
 from bokeh.plotting import Figure
 
@@ -456,6 +458,20 @@ def test__graph_properly_handle_node_property_mixins():
     assert r.nonselection_glyph.radius == 0.6
     assert r.hover_glyph.radius == 0.6
     assert r.muted_glyph.radius == 0.6
+
+def test__graph_handles_node_marker_correctly():
+    kw = bph._graph({}, {}, node_marker='x')
+    node_glyph = kw['node_renderer'].glyph
+    assert isinstance(node_glyph, X)
+
+def test__graph_handles_node_marker_dataspec_correctly():
+    node_source = {'marker': ['square', 'circle', 'x']}
+
+    kw = bph._graph(node_source, {}, node_marker='marker')
+
+    node_glyph = kw['node_renderer'].glyph
+    assert isinstance(node_glyph, Scatter)
+    assert node_glyph.marker == {'field': 'marker'}
 
 def test__graph_properly_handle_edge_property_mixins():
     kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",
