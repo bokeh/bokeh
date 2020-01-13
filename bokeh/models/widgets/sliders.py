@@ -111,7 +111,7 @@ class Slider(AbstractSlider):
     """)
 
     value_throttled = Float(help="""
-    Initial or selected value, throttled according to callback_policy.
+    Initial or selected value, throttled according to report only on mouseup.
     """)
 
     step = Float(default=1, help="""
@@ -128,7 +128,7 @@ class RangeSlider(AbstractSlider):
     """)
 
     value_throttled = Tuple(Float, Float, help="""
-    Initial or selected value, throttled according to callback_policy.
+    Initial or selected value, throttled according to report only on mouseup.
     """)
 
     start = Float(help="""
