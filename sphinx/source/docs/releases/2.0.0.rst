@@ -109,6 +109,18 @@ The ``ColumnDataSource.data`` property can only be set from plain Python dicts.
 Attempting to set from another CDS, i.e ``s1.data = s2.data``, will raise an
 error.
 
+Date and Datetime Properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``Date`` property has been narrowed, in order to afford an unambiguous date
+type in the form of an ISO date string. The ``Date`` type accepts ISO date
+strings, and ``datetime.date`` objects.
+
+As a result, the ``DatePicker`` widget no longer accepts datetime values or
+timestamps. All values must be valid ``Date`` values.
+
+The ``Datetime`` now accepts timestamps (milliseconds since epoch) directly.
+
 Missing Renderers Warning
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
