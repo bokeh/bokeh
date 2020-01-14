@@ -2,9 +2,24 @@ import flatpickr from "flatpickr"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
+import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 import {bk_input} from "styles/widgets/inputs"
 import "styles/widgets/flatpickr"
+
+type DatesList = (string | string[])[]
+
+function _convert_date_list(value: DatesList): any[] {
+  const result: any[] = []
+  for (const item of value) {
+    if (isString(item))
+      result.push(item)
+    else if (isArray(item) && item.length == 2)
+      result.push({from: item[0], to: item[1]})
+  }
+  return result
+}
 
 export class DatePickerView extends InputWidgetView {
   model: DatePicker
@@ -13,8 +28,24 @@ export class DatePickerView extends InputWidgetView {
 
   private _picker: flatpickr.Instance
 
+  private _set(key: string, value: any): void {
+    if (this._picker != null) {
+      this._picker.set(key as any, value)
+    }
+  }
+
   connect_signals(): void {
     super.connect_signals()
+
+    const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
+    this.connect(value.change, () => this._set("defaultDate", value.value()))
+    this.connect(min_date.change, () => this._set("minDate", min_date.value()))
+    this.connect(max_date.change, () => this._set("maxDate", max_date.value()))
+    this.connect(disabled_dates.change, () => this._set("disable", disabled_dates.value()))
+    this.connect(enabled_dates.change, () => this._set("enable", enabled_dates.value()))
+    this.connect(position.change, () => this._set("position", position.value()))
+    this.connect(inline.change, () => this._set("inline", inline.value()))
+
   }
 
   render(): void {
@@ -25,11 +56,14 @@ export class DatePickerView extends InputWidgetView {
 
     this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
-
     this._picker = flatpickr(this.input_el, {
       defaultDate: this.model.value,
       minDate: this.model.min_date,
       maxDate: this.model.max_date,
+      inline: this.model.inline,
+      position: this.model.position,
+      disable: _convert_date_list(this.model.disabled_dates),
+      enable: _convert_date_list(this.model.enabled_dates),
       onChange: (selected_dates, date_string, instance) => this._on_change(selected_dates, date_string, instance),
     })
   }
@@ -44,9 +78,13 @@ export namespace DatePicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InputWidget.Props & {
-    value:    p.Property<string>
-    min_date: p.Property<string>
-    max_date: p.Property<string>
+    value:          p.Property<string>
+    min_date:       p.Property<string>
+    max_date:       p.Property<string>
+    disabled_dates: p.Property<DatesList>
+    enabled_dates:  p.Property<DatesList>
+    position:       p.Property<CalendarPosition>
+    inline:         p.Property<boolean>
   }
 }
 
@@ -63,9 +101,13 @@ export class DatePicker extends InputWidget {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({
-      value:    [ p.Any ],
-      min_date: [ p.Any ],
-      max_date: [ p.Any ],
+      value:          [ p.Any                      ],
+      min_date:       [ p.Any                      ],
+      max_date:       [ p.Any                      ],
+      disabled_dates: [ p.Any,              []     ],
+      enabled_dates:  [ p.Any,              []     ],
+      position:       [ p.CalendarPosition, "auto" ],
+      inline:         [ p.Boolean,          false  ],
     })
   }
 }

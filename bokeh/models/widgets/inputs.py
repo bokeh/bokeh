@@ -19,12 +19,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ...core.enums import CalendarPosition
 from ...core.has_props import abstract
 from ...core.properties import (
+    Bool,
     ColorHex,
     Date,
     Dict,
     Either,
+    Enum,
     Float,
     Int,
     List,
@@ -252,6 +255,30 @@ class DatePicker(InputWidget):
 
     max_date = Date(default=None, help="""
     Optional latest allowable date.
+    """)
+
+    disabled_dates = List(Either(Date, Tuple(Date, Date)), default=[], help="""
+    A list of dates of ``(start, end)`` date ranges to make unavailable for
+    selection. All other dates will be avalable.
+
+    .. note::
+        Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
+    """)
+
+    enabled_dates = List(Either(Date, Tuple(Date, Date)), default=[], help="""
+    A list of dates of ``(start, end)`` date ranges to make available for
+    selection. All other dates will be unavailable.
+
+    .. note::
+        Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
+    """)
+
+    position = Enum(CalendarPosition, default="auto", help="""
+    Where the calendar is rendered relative to the input when ``inline`` is False.
+    """)
+
+    inline = Bool(default=False, help="""
+    Whether the calendar sholud be displayed inline.
     """)
 
 class ColorPicker(InputWidget):

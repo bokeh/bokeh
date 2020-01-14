@@ -82,6 +82,7 @@ __all__ = (
     'Anchor',
     'AngleUnits',
     'ButtonType',
+    'CalendarPosition',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -232,6 +233,9 @@ AngleUnits = enumeration("deg", "rad")
 
 #: Specify a style for button widgets
 ButtonType = enumeration("default", "primary", "success", "warning", "danger")
+
+#: Specify a position for the DatePicker calendar to display
+CalendarPosition = enumeration("auto", "above", "below")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
