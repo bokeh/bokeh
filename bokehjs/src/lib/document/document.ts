@@ -610,10 +610,14 @@ export class Document {
   static from_json(json: DocJson): Document {
     logger.debug("Creating Document from JSON")
 
+    function pyify(version: string) {
+      return version.replace(/-(dev|rc)\./, "$1")
+    }
+
     const py_version = json.version! // XXX!
     const is_dev = py_version.indexOf('+') !== -1 || py_version.indexOf('-') !== -1
     const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
-    if (!is_dev && js_version !== py_version) {
+    if (!is_dev && pyify(js_version) != py_version) {
       logger.warn("JS/Python version mismatch")
       logger.warn(versions_string)
     } else

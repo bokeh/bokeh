@@ -619,7 +619,8 @@ describe("Document", () => {
     try {
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
-      parsed.version = `${js_version}`
+      const py_version = js_version.replace(/-(dev|rc)\./, "$1")
+      parsed.version = `${py_version}`
       const out0 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out0.warn).to.be.equal("")
 
@@ -627,23 +628,23 @@ describe("Document", () => {
       const out1 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out1.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
-      parsed.version = `${js_version}rc123`
+      parsed.version = `${py_version}rc123`
       const out2 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out2.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
-      parsed.version = `${js_version}dev123`
+      parsed.version = `${py_version}dev123`
       const out3 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out3.warn).to.be.equal(`[bokeh] JS/Python version mismatch\n[bokeh] Library versions: JS (${js_version}) / Python (${parsed.version})\n`)
 
-      parsed.version = `${js_version}-foo`
+      parsed.version = `${py_version}-foo`
       const out4 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out4.warn).to.be.equal("")
 
-      parsed.version = `${js_version}rc123-foo`
+      parsed.version = `${py_version}rc123-foo`
       const out5 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out5.warn).to.be.equal("")
 
-      parsed.version = `${js_version}dev123-bar`
+      parsed.version = `${py_version}dev123-bar`
       const out6 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out6.warn).to.be.equal("")
     } finally {
