@@ -31,6 +31,7 @@ ALL  = (
     'Anchor',
     'AngleUnits',
     'ButtonType',
+    'CalendarPosition',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -144,6 +145,9 @@ class Test_bce(object):
 
     def test_ButtonType(self):
         assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger")
+
+    def test_CalendarPosition(self):
+        assert tuple(bce.CalendarPosition) == ("auto", "above", "below")
 
     def test_DashPattern(self):
         assert tuple(bce.DashPattern) ==("solid", "dashed", "dotted", "dotdash", "dashdot")
@@ -300,6 +304,7 @@ def test_enums_contents():
         'Anchor',
         'AngleUnits',
         'ButtonType',
+        'CalendarPosition',
         'DashPattern',
         'DateFormat',
         'DatetimeUnits',
