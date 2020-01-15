@@ -107,7 +107,7 @@ def detect_phantomjs(version: str = '2.1') -> str:
         phantomjs_path = shutil.which("phantomjs") or "phantomjs"
 
     try:
-        proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE)
+        proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE, stdin=PIPE)
         proc.wait()
         out = proc.communicate()
 
