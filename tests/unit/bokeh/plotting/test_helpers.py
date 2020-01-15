@@ -43,7 +43,7 @@ from bokeh.models import (
     MercatorAxis,
     Range1d,
     Scatter,
-    X
+    X,
 )
 from bokeh.plotting import Figure
 
