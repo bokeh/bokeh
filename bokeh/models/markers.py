@@ -299,6 +299,7 @@ marker_types = {
     "diamond_cross": DiamondCross,
     "hex": Hex,
     "inverted_triangle": InvertedTriangle,
+    "scatter": Scatter,
     "square": Square,
     "square_cross": SquareCross,
     "square_x": SquareX,
