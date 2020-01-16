@@ -170,7 +170,7 @@ class _TileProvidersModule(types.ModuleType):
     )
 
     _WIKIMEDIA_ATTRIBUTION = (
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors'
     )
 
     _ESRI_IMAGERY_ATTRIBUTION = (
