@@ -165,6 +165,19 @@ class _TileProvidersModule(types.ModuleType):
         'under %s.'
     )
 
+    _OSM_ATTRIBTION = (
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    )
+
+    _WIKIMEDIA_ATTRIBUTION = (
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    )
+
+    _ESRI_IMAGERY_ATTRIBUTION = (
+        '&copy; <a href="http://downloads.esri.com/ArcGISOnline/docs/tou_summary.pdf">Esri</a>, '
+        'Earthstar Geographics'
+    )
+
     _SERVICE_URLS = dict(
         CARTODBPOSITRON='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         CARTODBPOSITRON_RETINA='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
@@ -173,6 +186,9 @@ class _TileProvidersModule(types.ModuleType):
         STAMEN_TONER='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
         STAMEN_TONER_BACKGROUND='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
         STAMEN_TONER_LABELS='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
+        OSM='https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
+        WIKIMEDIA='https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png',
+        ESRI_IMAGERY='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg'
     )
 
     _STAMEN_ATTRIBUTION_URLS = dict(
@@ -186,6 +202,7 @@ class _TileProvidersModule(types.ModuleType):
     Vendors = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
                           'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
                           'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
+                          'OSM','WIKIMEDIA','ESRI_IMAGERY',
                           case_sensitive=True)
 
     def get_provider(self, provider_name):
@@ -205,6 +222,12 @@ class _TileProvidersModule(types.ModuleType):
             attribution = self._CARTO_ATTRIBUTION
         elif selected_provider.startswith('STAMEN'):
             attribution = self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
+        elif selected_provider.startswith('OSM'):
+            attribution = self._OSM_ATTRIBTION
+        elif selected_provider.startswith('WIKIMEDIA'):
+            attribution = self._WIKIMEDIA_ATTRIBUTION
+        elif selected_provider.startswith('ESRI_IMAGERY'):
+            attribution = self._ESRI_IMAGERY_ATTRIBUTION
         else:
             raise ValueError('Can not retrieve attribution for %s' % selected_provider)
         return WMTSTileSource(url=url, attribution=attribution)
@@ -218,6 +241,10 @@ class _TileProvidersModule(types.ModuleType):
     STAMEN_TONER = Vendors.STAMEN_TONER
     STAMEN_TONER_BACKGROUND = Vendors.STAMEN_TONER_BACKGROUND
     STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
+    STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
+    OSM = Vendors.OSM
+    WIKIMEDIA = Vendors.WIKIMEDIA
+    ESRI_IMAGERY = Vendors.ESRI_IMAGERY
 
 #-----------------------------------------------------------------------------
 # Code
@@ -233,6 +260,9 @@ _mod.__all__ = (
     'STAMEN_TONER',
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
+    'OSM',
+    'WIKIMEDIA',
+    'ESRI_IMAGERY',
     'get_provider',
     'Vendors'
 )
