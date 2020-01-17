@@ -326,9 +326,9 @@ class Test_MinMaxBounds(object):
     def test_MinMaxBounds_with_datetime(self):
         prop = bcpv.MinMaxBounds(accept_datetime=True)
 
-        assert prop.is_valid((datetime.date(2012, 10, 1), datetime.date(2012, 12, 2)))
+        assert prop.is_valid((datetime.datetime(2012, 10, 1), datetime.datetime(2012, 12, 2)))
 
-        assert not prop.is_valid((datetime.date(2012, 10, 1), 22))
+        assert not prop.is_valid((datetime.datetime(2012, 10, 1), 22))
 
     def test_has_ref(self):
         prop = bcpv.MinMaxBounds()

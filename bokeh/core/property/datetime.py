@@ -25,7 +25,11 @@ import datetime
 import dateutil.parser
 
 # Bokeh imports
-from ...util.dependencies import import_optional
+from ...util.serialization import (
+    convert_date_to_datetime,
+    is_datetime_type,
+    is_timedelta_type,
+)
 from .bases import Property
 from .primitive import bokeh_integer_types
 
@@ -39,8 +43,6 @@ __all__ = (
     'TimeDelta',
 )
 
-pd = import_optional('pandas')
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -49,27 +51,34 @@ class Date(Property):
     ''' Accept Date (but not DateTime) values.
 
     '''
-    def __init__(self, default=None, help=None):
-        super().__init__(default=default, help=help)
-
     def transform(self, value):
         value = super().transform(value)
 
-        if isinstance(value, (float,) + bokeh_integer_types):
-            try:
-                value = datetime.date.fromtimestamp(value)
-            except (ValueError, OSError):
-                value = datetime.date.fromtimestamp(value/1000)
-        elif isinstance(value, str):
-            value = dateutil.parser.parse(value).date()
+        if isinstance(value, str):
+            value = dateutil.parser.parse(value).date().isoformat()
+        elif isinstance(value, datetime.date):
+            value = value.isoformat()
 
         return value
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or isinstance(value, (datetime.date, str, float,) + bokeh_integer_types)):
-            msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
+        if value is None:
+            return
+
+        # datetime.datetime is datetime.date, exclude manually up front
+        if isinstance(value, datetime.datetime):
+            msg = "" if not detail else "Expected a date value, got a datetime.datetime"
+            raise ValueError(msg)
+
+        if isinstance(value, datetime.date):
+            return
+
+        try:
+            dateutil.parser.parse(value).date().isoformat()
+        except Exception:
+            msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
 class Datetime(Property):
@@ -82,34 +91,44 @@ class Datetime(Property):
 
     def transform(self, value):
         value = super().transform(value)
+
+        if isinstance(value, str):
+            value = dateutil.parser.parse(value)
+
+        elif Datetime.is_timestamp(value):
+            value = datetime.date.fromtimestamp(value)
+
+        # Handled by serialization in protocol.py for now, except for Date
+        if isinstance(value, datetime.date):
+            value = convert_date_to_datetime(value)
+
         return value
-        # Handled by serialization in protocol.py for now
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        datetime_types = (datetime.datetime, datetime.date)
-        try:
-            import numpy as np
-            datetime_types += (np.datetime64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'datetime64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
+        if is_datetime_type(value):
+            return
+
+        if isinstance(value, datetime.date):
+            return
+
+        if Datetime.is_timestamp(value):
+            return
+
+        if isinstance(value, str):
+            try:
+                dateutil.parser.parse(value).date()
+                return
+            except Exception:
                 pass
 
-        if (isinstance(value, datetime_types)):
-            return
-
-        if pd and isinstance(value, (pd.Timestamp)):
-            return
-
-        msg = "" if not detail else "Expected a datetime instance, got %r" % value
+        msg = "" if not detail else f"Expected a date, datetime object, or timestamp, got {value!r}"
         raise ValueError(msg)
+
+    @staticmethod
+    def is_timestamp(value):
+        return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)
 
 class TimeDelta(Property):
     ''' Accept TimeDelta values.
@@ -127,27 +146,10 @@ class TimeDelta(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        timedelta_types = (datetime.timedelta,)
-        try:
-            import numpy as np
-            timedelta_types += (np.timedelta64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'timedelta64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, timedelta_types)):
+        if is_timedelta_type(value):
             return
 
-        if pd and isinstance(value, (pd.Timedelta)):
-            return
-
-        msg = "" if not detail else "Expected a timedelta instance, got %r" % value
+        msg = "" if not detail else f"Expected a timedelta instance, got {value!r}"
         raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

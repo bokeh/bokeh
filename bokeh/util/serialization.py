@@ -28,9 +28,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
-import math
 import sys
 import uuid
+from math import isinf, isnan
 from threading import Lock
 
 # External imports
@@ -59,9 +59,8 @@ BINARY_ARRAY_TYPES = set([
 ])
 
 DATETIME_TYPES = set([
-    dt.datetime,
-    dt.date,
     dt.time,
+    dt.datetime,
     np.datetime64,
 ])
 
@@ -84,6 +83,7 @@ __doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str
 
 __all__ = (
     'array_encoding_disabled',
+    'convert_date_to_datetime',
     'convert_datetime_array',
     'convert_datetime_type',
     'convert_timedelta_type',
@@ -131,6 +131,18 @@ def is_timedelta_type(obj):
     '''
     return isinstance(obj, (dt.timedelta, np.timedelta64))
 
+def convert_date_to_datetime(obj):
+    ''' Convert a date object to a datetime
+
+    Args:
+        obj (date) : the object to convert
+
+    Returns:
+        datetime
+
+    '''
+    return (dt.datetime(*obj.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000
+
 def convert_timedelta_type(obj):
     ''' Convert any recognized timedelta value to floating point absolute
     milliseconds.
@@ -175,11 +187,12 @@ def convert_datetime_type(obj):
     # Datetime (datetime is a subclass of date)
     elif isinstance(obj, dt.datetime):
         diff = obj.replace(tzinfo=None) - DT_EPOCH
-        return diff.total_seconds() * 1000.
+        return diff.total_seconds() * 1000
 
+    # XXX (bev) ideally this would not be here "dates are not datetimes"
     # Date
     elif isinstance(obj, dt.date):
-        return (dt.datetime(*obj.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000
+        return convert_date_to_datetime(obj)
 
     # NumPy datetime64
     elif isinstance(obj, np.datetime64):
@@ -213,6 +226,13 @@ def convert_datetime_array(array):
 
     elif array.dtype.kind == 'm':
         array = array.astype('timedelta64[us]').astype('int64') / 1000.
+
+    # XXX (bev) special case dates, not great
+    elif array.dtype.kind == 'O' and len(array) > 0 and isinstance(array[0], dt.date):
+        try:
+            array = array.astype('datetime64[us]').astype('int64') / 1000.
+        except Exception:
+            pass
 
     return array
 
@@ -399,30 +419,26 @@ def serialize_array(array, force_list=False, buffers=None):
     else:
         return encode_binary_dict(array, buffers)
 
-def traverse_data(obj, use_numpy=True, buffers=None):
+def traverse_data(obj, buffers=None):
     ''' Recursively traverse an object until a flat list is found.
 
-    If NumPy is available, the flat list is converted to a numpy array
-    and passed to transform_array() to handle ``nan``, ``inf``, and
-    ``-inf``.
-
-    Otherwise, iterate through all items, converting non-JSON items
+    The flat list is converted to a numpy array and passed to transform_array()
+    to handle ``nan``, ``inf``, and ``-inf``.
 
     Args:
         obj (list) : a list of values or lists
-        use_numpy (bool, optional) toggle NumPy as a dependency for testing
-            This argument is only useful for testing (default: True)
+
     '''
-    if use_numpy and all(isinstance(el, np.ndarray) for el in obj):
+    if all(isinstance(el, np.ndarray) for el in obj):
         return [transform_array(el, buffers=buffers) for el in obj]
     obj_copy = []
     for item in obj:
         # Check the base/common case first for performance reasons
         # Also use type(x) is float because it's faster than isinstance
         if type(item) is float:
-            if math.isnan(item):
+            if isnan(item):
                 item = 'NaN'
-            elif math.isinf(item):
+            elif isinf(item):
                 if item > 0:
                     item = 'Infinity'
                 else:

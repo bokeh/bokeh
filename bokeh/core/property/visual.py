@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import base64
+import datetime  # lgtm [py/import-and-import-from]
 import re
 from io import BytesIO
 
@@ -27,6 +28,7 @@ from io import BytesIO
 import PIL.Image
 
 # Bokeh imports
+from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto
 from .bases import Property
@@ -213,12 +215,21 @@ class MinMaxBounds(Either):
         super().validate(value, detail)
 
         if value is None:
-            pass
+            return True
 
-        elif value[0] is None or value[1] is None:
-            pass
+        if value[0] is None or value[1] is None:
+            return True
 
-        elif value[0] >= value[1]:
+        value = list(value)
+
+        # make sure the values are timestamps for comparison
+        if isinstance(value[0], datetime.datetime):
+            value[0] = convert_datetime_type(value[0])
+
+        if isinstance(value[1], datetime.datetime):
+            value[1] = convert_datetime_type(value[1])
+
+        if value[0] >= value[1]:
             msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
             raise ValueError(msg)
 

@@ -20,6 +20,9 @@ export const BoxOrigin: BoxOrigin[] = ["corner", "center"]
 export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
 export const ButtonType: ButtonType[] = ["default", "primary", "success", "warning", "danger"]
 
+export type CalendarPosition = "auto" | "above" | "below"
+export const CalendarPosition: CalendarPosition[] = ["auto", "above", "below"]
+
 export type Dimension = "width" | "height"
 export const Dimension: Dimension[] = ["width", "height"]
 

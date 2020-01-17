@@ -1,43 +1,25 @@
-import Pikaday from "pikaday"
+import flatpickr from "flatpickr"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
+import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
+import {isString, isArray} from "core/util/types"
 import {bk_input} from "styles/widgets/inputs"
-import "styles/widgets/pikaday"
+import "styles/widgets/flatpickr"
 
-Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.PikadayOptions}): void {
-  if (this._o.container)
-    return
+type Date = string
+type DatesList = (Date | [Date, Date])[]
 
-  this.el.style.position = 'absolute'
-
-  const field = this._o.trigger!
-  const width = this.el.offsetWidth
-  const height = this.el.offsetHeight
-  const viewportWidth = window.innerWidth || document.documentElement!.clientWidth
-  const viewportHeight = window.innerHeight || document.documentElement!.clientHeight
-  const scrollTop = window.pageYOffset || document.body.scrollTop || document.documentElement!.scrollTop
-
-  const clientRect = field.getBoundingClientRect()
-  let left = clientRect.left + window.pageXOffset
-  let top = clientRect.bottom + window.pageYOffset
-
-  // adjust left/top origin to .bk-root
-  left -= this.el.parentElement!.offsetLeft
-  top -= this.el.parentElement!.offsetTop
-
-  // default position is bottom & left
-  if ((this._o.reposition && left + width > viewportWidth) ||
-      (this._o.position!.indexOf('right') > -1 && left - width + field.offsetWidth > 0))
-    left = left - width + field.offsetWidth
-
-  if ((this._o.reposition && top + height > viewportHeight + scrollTop) ||
-      (this._o.position!.indexOf('top') > -1 && top - height - field.offsetHeight > 0))
-    top = top - height - field.offsetHeight
-
-  this.el.style.left = left + 'px'
-  this.el.style.top = top + 'px'
+function _convert_date_list(value: DatesList): any[] {
+  const result: any[] = []
+  for (const item of value) {
+    if (isString(item))
+      result.push(item)
+    else if (isArray(item) && item.length == 2)
+      result.push({from: item[0], to: item[1]})
+  }
+  return result
 }
 
 export class DatePickerView extends InputWidgetView {
@@ -45,52 +27,50 @@ export class DatePickerView extends InputWidgetView {
 
   protected input_el: HTMLInputElement
 
-  private _picker: Pikaday
+  private _picker: flatpickr.Instance
+
+  private _set(key: string, value: any): void {
+    if (this._picker != null) {
+      this._picker.set(key as any, value)
+    }
+  }
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+
+    const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
+    this.connect(value.change, () => this._set("defaultDate", value.value()))
+    this.connect(min_date.change, () => this._set("minDate", min_date.value()))
+    this.connect(max_date.change, () => this._set("maxDate", max_date.value()))
+    this.connect(disabled_dates.change, () => this._set("disable", disabled_dates.value()))
+    this.connect(enabled_dates.change, () => this._set("enable", enabled_dates.value()))
+    this.connect(position.change, () => this._set("position", position.value()))
+    this.connect(inline.change, () => this._set("inline", inline.value()))
+
   }
 
   render(): void {
     if (this._picker != null)
-      this._picker.destroy()
+      return
 
     super.render()
 
     this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
-
-    this._picker = new Pikaday({
-      field: this.input_el,
-      defaultDate: this._unlocal_date(new Date(this.model.value)),
-      setDefaultDate: true,
-      minDate: this.model.min_date != null ? this._unlocal_date(new Date(this.model.min_date)) : undefined,
-      maxDate: this.model.max_date != null ? this._unlocal_date(new Date(this.model.max_date)) : undefined,
-      onSelect: (date) => this._on_select(date),
+    this._picker = flatpickr(this.input_el, {
+      defaultDate: this.model.value,
+      minDate: this.model.min_date,
+      maxDate: this.model.max_date,
+      inline: this.model.inline,
+      position: this.model.position,
+      disable: _convert_date_list(this.model.disabled_dates),
+      enable: _convert_date_list(this.model.enabled_dates),
+      onChange: (selected_dates, date_string, instance) => this._on_change(selected_dates, date_string, instance),
     })
-
-    this._root_element.appendChild(this._picker.el)
   }
 
-  _unlocal_date(date: Date): Date {
-    //Get the UTC offset (in minutes) of date (will be based on the timezone of the user's system).
-    //Then multiply to get the offset in ms.
-    //This way it can be used to recreate the user specified date, agnostic to their local systems's timezone.
-    const timeOffsetInMS = date.getTimezoneOffset() * 60000
-    date.setTime(date.getTime() - timeOffsetInMS)
-
-    const datestr = date.toISOString().substr(0, 10)
-    const tup = datestr.split('-')
-    return new Date(Number(tup[0]), Number(tup[1])-1, Number(tup[2]))
-  }
-
-  _on_select(date: Date): void {
-    // Always use toDateString()!
-    // toString() breaks the websocket #4965.
-    // toISOString() returns the wrong day (IE on day earlier) #7048
-    // XXX: this should be handled by the serializer
-    this.model.value = date.toDateString()
+  _on_change(_selected_dates: any, date_string: string, _instance: flatpickr.Instance): void {
+    this.model.value = date_string
     this.change_input()
   }
 }
@@ -99,9 +79,13 @@ export namespace DatePicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InputWidget.Props & {
-    value:    p.Property<string>
-    min_date: p.Property<string>
-    max_date: p.Property<string>
+    value:          p.Property<string>
+    min_date:       p.Property<string>
+    max_date:       p.Property<string>
+    disabled_dates: p.Property<DatesList>
+    enabled_dates:  p.Property<DatesList>
+    position:       p.Property<CalendarPosition>
+    inline:         p.Property<boolean>
   }
 }
 
@@ -118,10 +102,13 @@ export class DatePicker extends InputWidget {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({
-      // TODO (bev) types
-      value:    [ p.Any, new Date().toDateString() ],
-      min_date: [ p.Any                            ],
-      max_date: [ p.Any                            ],
+      value:          [ p.Any                      ],
+      min_date:       [ p.Any                      ],
+      max_date:       [ p.Any                      ],
+      disabled_dates: [ p.Any,              []     ],
+      enabled_dates:  [ p.Any,              []     ],
+      position:       [ p.CalendarPosition, "auto" ],
+      inline:         [ p.Boolean,          false  ],
     })
   }
 }
