@@ -8,7 +8,8 @@ import {isString, isArray} from "core/util/types"
 import {bk_input} from "styles/widgets/inputs"
 import "styles/widgets/flatpickr"
 
-type DatesList = (string | string[])[]
+type Date = string
+type DatesList = (Date | [Date, Date])[]
 
 function _convert_date_list(value: DatesList): any[] {
   const result: any[] = []
