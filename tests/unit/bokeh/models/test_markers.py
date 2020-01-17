@@ -14,6 +14,7 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Bokeh imports
 # Module under test
 from bokeh.models.markers import Marker, marker_types
 
