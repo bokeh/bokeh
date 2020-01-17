@@ -67,6 +67,11 @@ class Date(Property):
         if value is None:
             return
 
+        # datetime.datetime is datetime.date, exclude manually up front
+        if isinstance(value, datetime.datetime):
+            msg = "" if not detail else "Expected a date value, got a datetime.datetime"
+            raise ValueError(msg)
+
         if isinstance(value, datetime.date):
             return
 
