@@ -130,6 +130,7 @@ class Test_CartoProviders(object):
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
 
+@pytest.mark.parametrize('name', ['OSM'])
 @pytest.mark.unit
 class Test_OsmProvider(object):
     def test_type(self, name):
@@ -151,6 +152,7 @@ class Test_OsmProvider(object):
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
 
+@pytest.mark.parametrize('name', ['WIKIMEDIA'])
 @pytest.mark.unit
 class Test_WikimediaProvider(object):
     def test_type(self, name):
@@ -172,6 +174,7 @@ class Test_WikimediaProvider(object):
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
 
+@pytest.mark.parametrize('name', ['ESRI_IMAGERY'])
 @pytest.mark.unit
 class Test_EsriProvider(object):
     def test_type(self, name):
