@@ -30,8 +30,9 @@ section = {
     "test"   : meta_src["test"]["requires"],
 }
 
+args = sys.argv[1:] or ["build", "deploy", "run", "test"]
 spec = []
-for name in sys.argv[1:]:
+for name in args:
     spec += section[name]
 
 # bare python unpins python version causing upgrade to latest

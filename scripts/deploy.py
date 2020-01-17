@@ -30,7 +30,7 @@ except ImportError:
 
 
 class config(object):
-    ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc)\d+)?$")
+    ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((dev|rc)(\d+))?$")
     FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)?$")
 
     def __init__(self):
@@ -39,21 +39,37 @@ class config(object):
         self._last_full_version = None
         self._problems = []
 
+    def _to_js_version(self, v):
+        match = self.ANY_VERSION.match(v)
+        (version, suffix, release, number) = match.groups()
+        if suffix is not None:
+            return f"{version}-{release}.{number}"
+        else:
+            return version
+
     @property
     def new_version(self): return self._new_version
 
+    @property
+    def js_new_version(self):
+        return self._to_js_version(self.new_version)
+
     @new_version.setter
     def new_version(self, v):
-        m =  self.ANY_VERSION.match(v)
+        m = self.ANY_VERSION.match(v)
         if not m: raise ValueError("Invalid Bokeh version %r" % v)
         self._new_version = v
 
     @property
     def last_any_version(self): return self._last_any_version
 
+    @property
+    def js_last_any_version(self):
+        return self._to_js_version(self.last_any_version)
+
     @last_any_version.setter
     def last_any_version(self, v):
-        m =  self.ANY_VERSION.match(v)
+        m = self.ANY_VERSION.match(v)
         if not m: raise ValueError("Invalid Bokeh version %r" % v)
         self._last_any_version = v
 
@@ -62,7 +78,7 @@ class config(object):
 
     @last_full_version.setter
     def last_full_version(self, v):
-        m =  self.FULL_VERSION.match(v)
+        m = self.FULL_VERSION.match(v)
         if not m: raise ValueError("Invalid Bokeh version %r" % v)
         self._last_full_version = v
 
@@ -312,7 +328,7 @@ def update_bokehjs_versions():
         'bokehjs/package-lock.json',
     ]
 
-    pat = r"(release|version)([\" ][:=] [\"\'])" + CONFIG.last_any_version + "([\"\'])"
+    pat = r"(release|version)([\" ][:=] [\"\'])" + CONFIG.js_last_any_version + "([\"\'])"
 
     for filename in regex_filenames:
         path = join(CONFIG.top_dir, filename)
@@ -321,10 +337,10 @@ def update_bokehjs_versions():
             match = re.search(pat, text)
 
         if not match:
-            failed("Unable to find version string for %r in file %r" % (CONFIG.last_any_version, filename))
+            failed("Unable to find version string for %r in file %r" % (CONFIG.js_last_any_version, filename))
             continue
 
-        text = re.sub(pat, r'\g<1>\g<2>%s\g<3>' % CONFIG.new_version, text)
+        text = re.sub(pat, r'\g<1>\g<2>%s\g<3>' % CONFIG.js_new_version, text)
 
         try:
             with open(path, 'w') as f:
@@ -332,22 +348,22 @@ def update_bokehjs_versions():
         except Exception as e:
             failed("Unable to write new version to file %r" % filename, str(e).split("\n"))
         else:
-            passed("Updated version from %r to %r in file %r" % (CONFIG.last_any_version, CONFIG.new_version, filename))
-            commit(filename, CONFIG.new_version)
+            passed("Updated version from %r to %r in file %r" % (CONFIG.js_last_any_version, CONFIG.js_new_version, filename))
+            commit(filename, CONFIG.js_new_version)
 
     for filename in json_filenames:
         path = join(CONFIG.top_dir, filename)
         content = json.load(open(path))
         try:
-            content['version'] = CONFIG.new_version
+            content['version'] = CONFIG.js_new_version
             with open(path, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
         except Exception as e:
             failed("Unable to write new version to file %r" % filename, str(e).split("\n"))
         else:
-            passed("Updated version from %r to %r in file %r" % (CONFIG.last_any_version, CONFIG.new_version, filename))
-            commit(filename, CONFIG.new_version)
+            passed("Updated version from %r to %r in file %r" % (CONFIG.js_last_any_version, CONFIG.js_new_version, filename))
+            commit(filename, CONFIG.js_new_version)
 
 def update_changelog():
     try:

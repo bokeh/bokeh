@@ -1,6 +1,6 @@
 {
-  "name": "bokehjs",
-  "version": "2.0.0dev5",
+  "name": "@bokeh/bokehjs",
+  "version": "2.0.0-dev.5",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -20,6 +20,12 @@
     "node": ">=10.13",
     "npm": ">=6.0"
   },
+  "files": [
+    "build/js/bokeh*.min.js",
+    "build/js/legacy/bokeh*.min.js",
+    "build/js/lib/**/*.js",
+    "build/js/types/**/*.d.ts"
+  ],
   "devDependencies": {
     "semver": "^6.3.0",
     "toposort": "^2.0.2",
