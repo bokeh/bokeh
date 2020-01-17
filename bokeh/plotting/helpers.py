@@ -36,7 +36,6 @@ from ..models import (
     BoxZoomTool,
     CategoricalAxis,
     CategoricalScale,
-    Circle,
     ColumnarDataSource,
     ColumnDataSource,
     ContinuousTicker,
@@ -68,6 +67,7 @@ from ..models import (
     RedoTool,
     ResetTool,
     SaveTool,
+    Scatter,
     TapTool,
     Tool,
     UndoTool,
@@ -76,6 +76,7 @@ from ..models import (
     ZoomInTool,
     ZoomOutTool,
 )
+from ..models.markers import marker_types
 from ..transform import stack
 from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
@@ -198,7 +199,7 @@ def _graph(node_source, edge_source, **kwargs):
 
     if not isinstance(node_source, ColumnarDataSource):
         try:
-            # try converting the soruce to ColumnDataSource
+            # try converting the source to ColumnDataSource
             node_source = ColumnDataSource(node_source)
         except ValueError as err:
             msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
@@ -209,7 +210,7 @@ def _graph(node_source, edge_source, **kwargs):
 
     if not isinstance(edge_source, ColumnarDataSource):
         try:
-            # try converting the soruce to ColumnDataSource
+            # try converting the source to ColumnDataSource
             edge_source = ColumnDataSource(edge_source)
         except ValueError as err:
             msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
@@ -218,25 +219,39 @@ def _graph(node_source, edge_source, **kwargs):
             )
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
+    marker = kwargs.pop('node_marker', None)
+    if isinstance(marker, dict) and 'field' in marker or marker in node_source.data:
+        marker_type = Scatter
+        kwargs['node_marker'] = field(marker)
+    else:
+        if isinstance(marker, dict) and 'value' in marker:
+            marker = marker['value']
+        elif marker is None:
+            marker = 'circle'
+        marker_type = marker_types.get(marker)
+    if marker_type is None:
+        msg = "Could not determine marker type for node_marker={marker}".format(marker=repr(marker))
+        raise ValueError(msg)
+
     ## node stuff
-    node_ca = _pop_visuals(Circle, kwargs, prefix="node_")
+    node_ca = _pop_visuals(marker_type, kwargs, prefix="node_")
 
     if any(x.startswith('node_selection_') for x in kwargs):
-        snode_ca = _pop_visuals(Circle, kwargs, prefix="node_selection_", defaults=node_ca)
+        snode_ca = _pop_visuals(marker_type, kwargs, prefix="node_selection_", defaults=node_ca)
     else:
         snode_ca = None
 
     if any(x.startswith('node_hover_') for x in kwargs):
-        hnode_ca = _pop_visuals(Circle, kwargs, prefix="node_hover_", defaults=node_ca)
+        hnode_ca = _pop_visuals(marker_type, kwargs, prefix="node_hover_", defaults=node_ca)
     else:
         hnode_ca = None
 
     if any(x.startswith('node_muted_') for x in kwargs):
-        mnode_ca = _pop_visuals(Circle, kwargs, prefix="node_muted_", defaults=node_ca)
+        mnode_ca = _pop_visuals(marker_type, kwargs, prefix="node_muted_", defaults=node_ca)
     else:
         mnode_ca = None
 
-    nsnode_ca = _pop_visuals(Circle, kwargs, prefix="node_nonselection_", defaults=node_ca)
+    nsnode_ca = _pop_visuals(marker_type, kwargs, prefix="node_nonselection_", defaults=node_ca)
 
     ## edge stuff
     edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
@@ -259,13 +274,13 @@ def _graph(node_source, edge_source, **kwargs):
     nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca)
 
     ## node stuff
-    node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in Circle.properties()}
+    node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in marker_type.properties()}
 
-    node_glyph = _make_glyph(Circle, node_kwargs, node_ca)
-    nsnode_glyph = _make_glyph(Circle, node_kwargs, nsnode_ca)
-    snode_glyph = _make_glyph(Circle, node_kwargs, snode_ca)
-    hnode_glyph = _make_glyph(Circle, node_kwargs, hnode_ca)
-    mnode_glyph = _make_glyph(Circle, node_kwargs, mnode_ca)
+    node_glyph = _make_glyph(marker_type, node_kwargs, node_ca)
+    nsnode_glyph = _make_glyph(marker_type, node_kwargs, nsnode_ca)
+    snode_glyph = _make_glyph(marker_type, node_kwargs, snode_ca)
+    hnode_glyph = _make_glyph(marker_type, node_kwargs, hnode_ca)
+    mnode_glyph = _make_glyph(marker_type, node_kwargs, mnode_ca)
 
     node_renderer = GlyphRenderer(glyph=node_glyph,
                                   nonselection_glyph=nsnode_glyph,

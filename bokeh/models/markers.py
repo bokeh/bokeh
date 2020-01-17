@@ -288,6 +288,25 @@ class X(Marker):
 # Dev API
 #-----------------------------------------------------------------------------
 
+marker_types = {
+    "asterisk": Asterisk,
+    "circle": Circle,
+    "circle_cross": CircleCross,
+    "circle_x": CircleX,
+    "cross": Cross,
+    "dash": Dash,
+    "diamond": Diamond,
+    "diamond_cross": DiamondCross,
+    "hex": Hex,
+    "inverted_triangle": InvertedTriangle,
+    "scatter": Scatter,
+    "square": Square,
+    "square_cross": SquareCross,
+    "square_x": SquareX,
+    "triangle": Triangle,
+    "x": X
+}
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
