@@ -190,7 +190,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
-                    inner_radius=0.2, outer_radius=0.5)
+                     inner_radius=0.2, outer_radius=0.5)
 
         show(plot)
 
@@ -257,7 +257,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.circle_cross(x=[1,2,3], y=[4,5,6], size=20,
-                        color="#FB8072", fill_alpha=0.2, line_width=2)
+                          color="#FB8072", fill_alpha=0.2, line_width=2)
 
         show(plot)
 
@@ -276,7 +276,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                    color="#DD1C77", fill_alpha=0.2)
+                      color="#DD1C77", fill_alpha=0.2)
 
         show(plot)
 
@@ -295,7 +295,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                color="#E6550D", line_width=2)
+                   color="#E6550D", line_width=2)
 
         show(plot)
 
@@ -314,7 +314,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                color="#99D594", line_width=2)
+                  color="#99D594", line_width=2)
 
         show(plot)
 
@@ -333,7 +333,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                    color="#1C9099", line_width=2)
+                     color="#1C9099", line_width=2)
 
         show(plot)
 
@@ -352,7 +352,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                        color="#386CB0", fill_color=None, line_width=2)
+                           color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 
@@ -371,7 +371,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.harea(x1=[0, 0, 0], x2=[1, 4, 2], y=[1, 2, 3],
-                    fill_color="#99D594")
+                   fill_color="#99D594")
 
         show(plot)
 
@@ -408,7 +408,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
-                    color="#386CB0", fill_color=None, line_width=2)
+                     color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 
@@ -500,14 +500,14 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-    :source-position: above
+        :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, output_file, show
 
-    p = figure(title="line", plot_width=300, plot_height=300)
-    p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
+        p = figure(title="line", plot_width=300, plot_height=300)
+        p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
 
-    show(p)
+        show(p)
 
 """
         pass
@@ -522,15 +522,15 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-    :source-position: above
+        :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, output_file, show
 
-    p = figure(plot_width=300, plot_height=300)
-    p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
+        p = figure(plot_width=300, plot_height=300)
+        p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
                     color=['red','green'])
 
-    show(p)
+        show(p)
 
 """
         pass
@@ -545,15 +545,15 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-    :source-position: above
+        :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, output_file, show
 
-    p = figure(plot_width=300, plot_height=300)
-    p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
+        p = figure(plot_width=300, plot_height=300)
+        p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
                         ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
                         color=['red', 'green'])
-    show(p)
+        show(p)
 
 """
         pass
@@ -570,7 +570,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.oval(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=0.4,
-                angle=-0.7, color="#1D91C0")
+                  angle=-0.7, color="#1D91C0")
 
         show(plot)
 
@@ -583,14 +583,14 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-    :source-position: above
+        :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, output_file, show
 
-    p = figure(plot_width=300, plot_height=300)
-    p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
+        p = figure(plot_width=300, plot_height=300)
+        p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
 
-    show(p)
+        show(p)
 
 """
         pass
@@ -605,15 +605,15 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-    :source-position: above
+        :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, output_file, show
 
-    p = figure(plot_width=300, plot_height=300)
-    p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
-                color=["#43a2ca", "#a8ddb5"])
+        p = figure(plot_width=300, plot_height=300)
+        p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
+                  color=["#43a2ca", "#a8ddb5"])
 
-    show(p)
+        show(p)
 
 """
         pass
@@ -630,7 +630,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
-                right=[1.2, 2.5, 3.7], color="#B3DE69")
+                  right=[1.2, 2.5, 3.7], color="#B3DE69")
 
         show(plot)
 
@@ -672,7 +672,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
-                width_units="screen", height_units="screen")
+                  width_units="screen", height_units="screen")
 
         show(plot)
 
@@ -708,9 +708,9 @@ Examples:
         from bokeh.plotting import figure, output_file, show
 
         plot = figure(plot_width=300, plot_height=300)
-        plot.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1, 2, 3],
-                    y1=[1.2, 2.5, 3.7], color="#F4A582",
-                    line_width=3)
+        plot.segment(x0=[1, 2, 3], y0=[1, 2, 3],
+                     x1=[1, 2, 3], y1=[1.2, 2.5, 3.7],
+                     color="#F4A582", line_width=3)
 
         show(plot)
 
@@ -747,7 +747,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                        color="#7FC97F",fill_color=None, line_width=2)
+                          color="#7FC97F",fill_color=None, line_width=2)
 
         show(plot)
 
@@ -766,7 +766,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                    color="#FDAE6B",fill_color=None, line_width=2)
+                      color="#FDAE6B",fill_color=None, line_width=2)
 
         show(plot)
 
@@ -795,7 +795,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                    color="#99D594", line_width=2)
+                      color="#99D594", line_width=2)
 
         show(plot)
 
@@ -807,14 +807,14 @@ Examples:
         """
 Examples:
 
-.. bokeh-plot::
+    .. bokeh-plot::
         :source-position: above
 
         from bokeh.plotting import figure, output_file, show
 
         plot = figure(plot_width=300, plot_height=300)
         plot.varea(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
-                fill_color="#99D594")
+                   fill_color="#99D594")
 
         show(plot)
 
@@ -851,7 +851,7 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
-                end_angle=4.1, radius_units="screen", color="#2b8cbe")
+                   end_angle=4.1, radius_units="screen", color="#2b8cbe")
 
         show(plot)
 

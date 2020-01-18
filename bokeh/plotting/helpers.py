@@ -92,28 +92,28 @@ __all__ = (
     'get_default_color',
 )
 
-DEDENT = re.compile("^    ")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 def glyph_method(glyphclass):
     def decorator(func):
-        params = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + glyphclass.parameters() + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
+        parameters = glyphclass.parameters()
+
+        sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
 
         @wraps(func)
         def wrapped(self, *args, **kwargs):
             if len(args) > len(glyphclass._args):
                 raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
-            for arg, param in zip(args, params[1:]):
+            for arg, param in zip(args, sigparams[1:]):
                 kwargs[param.name] = arg
             return create_renderer(glyphclass, self, **kwargs)
 
-        wrapped.__signature__ = Signature(parameters=params)
+        wrapped.__signature__ = Signature(parameters=sigparams)
         wrapped.__name__ = func.__name__
 
-        wrapped.__doc__ = generate_docstring(glyphclass, func.__doc__)
+        wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 
         return wrapped
 
@@ -123,8 +123,25 @@ def glyph_method(glyphclass):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def docstring_args(glyphclass):
-    return f""
+def docstring_args(parameters):
+    arglines = []
+    for param, typ, doc in (x for x in parameters if x[0].kind == Parameter.POSITIONAL_OR_KEYWORD):
+        default = param.default if param.default != Parameter.empty else None
+
+        # add a line for the arg
+        arglines.append(f"    {param.name} ({typ}{', optional' if default else ''}):")
+
+        # add the docs for the argument
+        if doc:
+            arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
+
+        # if there is a default, add it last
+        if default is not None:
+            arglines.append(f"\n        (default: {default})")
+
+        # blank line between args
+        arglines.append("")
+    return "\n".join(arglines)
 
 def docstring_extra(extra_docs):
     return "" if extra_docs is None else extra_docs
@@ -133,20 +150,37 @@ def docstring_header(glyphclass):
     module = "markers" if issubclass(glyphclass, Marker) else "glyphs"
     return f"Configure and add :class:`~bokeh.models.{module}.{glyphclass.__name__}` glyphs to this Figure."
 
-def docstring_kwargs(glyphclass):
-    return f""
+def docstring_kwargs(parameters):
+    arglines = []
+    for param, typ, doc in (x for x in parameters if x[0].kind == Parameter.KEYWORD_ONLY):
+        default = param.default if param.default != Parameter.empty else None
+
+        # add a line for the arg
+        arglines.append(f"    {param.name} ({typ}{', optional' if default else ''}):")
+
+        # add the docs for the argument
+        if doc:
+            arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
+
+        # if there is a default, add it last
+        if default is not None:
+            arglines.append(f"\n        (default: {default})")
+
+        # blank line between args
+        arglines.append("")
+    return "\n".join(arglines)
 
 def docstring_other():
     return OTHER_PARAMS
 
-def generate_docstring(glyphclass, extra_docs):
+def generate_docstring(glyphclass, parameters, extra_docs):
     return f""" {docstring_header(glyphclass)}
 
 Args:
-{docstring_args(glyphclass)}
+{docstring_args(parameters)}
 
 Keyword args:
-{docstring_kwargs(glyphclass)}
+{docstring_kwargs(parameters)}
 
 {docstring_other()}
 
@@ -159,7 +193,7 @@ hover. See the `Glyphs`_ section od the User's Guide for full details.
 .. _Glyphs: https://docs.bokeh.org/en/latest/docs/user_guide/styling.html#glyphs
 
 Returns:
-    GlyphRenderer
+    :class:`~bokeh.models.renderers.GlyphRenderer`
 
 {docstring_extra(extra_docs)}
 """
@@ -298,53 +332,53 @@ def _graph(node_source, edge_source, **kwargs):
         raise ValueError(msg)
 
     ## node stuff
-    node_ca = _pop_visuals(marker_type, kwargs, prefix="node_")
+    node_visuals = pop_visuals(marker_type, kwargs, prefix="node_")
 
     if any(x.startswith('node_selection_') for x in kwargs):
-        snode_ca = _pop_visuals(marker_type, kwargs, prefix="node_selection_", defaults=node_ca)
+        snode_visuals = pop_visuals(marker_type, kwargs, prefix="node_selection_", defaults=node_visuals)
     else:
-        snode_ca = None
+        snode_visuals = None
 
     if any(x.startswith('node_hover_') for x in kwargs):
-        hnode_ca = _pop_visuals(marker_type, kwargs, prefix="node_hover_", defaults=node_ca)
+        hnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_hover_", defaults=node_visuals)
     else:
-        hnode_ca = None
+        hnode_visuals = None
 
     if any(x.startswith('node_muted_') for x in kwargs):
-        mnode_ca = _pop_visuals(marker_type, kwargs, prefix="node_muted_", defaults=node_ca)
+        mnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_muted_", defaults=node_visuals)
     else:
-        mnode_ca = None
+        mnode_visuals = None
 
-    nsnode_ca = _pop_visuals(marker_type, kwargs, prefix="node_nonselection_", defaults=node_ca)
+    nsnode_visuals = pop_visuals(marker_type, kwargs, prefix="node_nonselection_", defaults=node_visuals)
 
     ## edge stuff
-    edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
+    edge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_")
 
     if any(x.startswith('edge_selection_') for x in kwargs):
-        sedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_selection_", defaults=edge_ca)
+        sedge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_selection_", defaults=edge_visuals)
     else:
-        sedge_ca = None
+        sedge_visuals = None
 
     if any(x.startswith('edge_hover_') for x in kwargs):
-        hedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_hover_", defaults=edge_ca)
+        hedge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_hover_", defaults=edge_visuals)
     else:
-        hedge_ca = None
+        hedge_visuals = None
 
     if any(x.startswith('edge_muted_') for x in kwargs):
-        medge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_ca)
+        medge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_muted_", defaults=edge_visuals)
     else:
-        medge_ca = None
+        medge_visuals = None
 
-    nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_ca)
+    nsedge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_visuals)
 
     ## node stuff
     node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in marker_type.properties()}
 
-    node_glyph = _make_glyph(marker_type, node_kwargs, node_ca)
-    nsnode_glyph = _make_glyph(marker_type, node_kwargs, nsnode_ca)
-    snode_glyph = _make_glyph(marker_type, node_kwargs, snode_ca)
-    hnode_glyph = _make_glyph(marker_type, node_kwargs, hnode_ca)
-    mnode_glyph = _make_glyph(marker_type, node_kwargs, mnode_ca)
+    node_glyph = make_glyph(marker_type, node_kwargs, node_visuals)
+    nsnode_glyph = make_glyph(marker_type, node_kwargs, nsnode_visuals)
+    snode_glyph = make_glyph(marker_type, node_kwargs, snode_visuals)
+    hnode_glyph = make_glyph(marker_type, node_kwargs, hnode_visuals)
+    mnode_glyph = make_glyph(marker_type, node_kwargs, mnode_visuals)
 
     node_renderer = GlyphRenderer(glyph=node_glyph,
                                   nonselection_glyph=nsnode_glyph,
@@ -356,11 +390,11 @@ def _graph(node_source, edge_source, **kwargs):
     ## edge stuff
     edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
 
-    edge_glyph = _make_glyph(MultiLine, edge_kwargs, edge_ca)
-    nsedge_glyph = _make_glyph(MultiLine, edge_kwargs, nsedge_ca)
-    sedge_glyph = _make_glyph(MultiLine, edge_kwargs, sedge_ca)
-    hedge_glyph = _make_glyph(MultiLine, edge_kwargs, hedge_ca)
-    medge_glyph = _make_glyph(MultiLine, edge_kwargs, medge_ca)
+    edge_glyph = make_glyph(MultiLine, edge_kwargs, edge_visuals)
+    nsedge_glyph = make_glyph(MultiLine, edge_kwargs, nsedge_visuals)
+    sedge_glyph = make_glyph(MultiLine, edge_kwargs, sedge_visuals)
+    hedge_glyph = make_glyph(MultiLine, edge_kwargs, hedge_visuals)
+    medge_glyph = make_glyph(MultiLine, edge_kwargs, medge_visuals)
 
     edge_renderer = GlyphRenderer(glyph=edge_glyph,
                                   nonselection_glyph=nsedge_glyph,
@@ -384,7 +418,7 @@ _RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
                   'level', 'view', 'visible', 'muted']
 
 
-def _pop_renderer_args(kwargs):
+def pop_renderer_args(kwargs):
     result = {attr: kwargs.pop(attr)
               for attr in _RENDERER_ARGS
               if attr in kwargs}
@@ -392,7 +426,7 @@ def _pop_renderer_args(kwargs):
     return result
 
 
-def _pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={}):
+def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={}):
     """
     Applies basic cascading logic to deduce properties for a glyph.
 
@@ -486,7 +520,7 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={}
 
 _LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 
-def _pop_legend_kwarg(kwargs):
+def pop_legend_kwarg(kwargs):
     result = {attr: kwargs.pop(attr) for attr in _LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
         raise ValueError("Only one of %s may be provided, got: %s" % (nice_join(_LEGEND_ARGS), nice_join(result.keys())))
@@ -551,7 +585,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
     return incompatible_literal_spec_values
 
 
-def _make_glyph(glyphclass, kws, extra):
+def make_glyph(glyphclass, kws, extra):
     if extra is None:
         return None
     kws = kws.copy()
@@ -915,18 +949,6 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active
     else:
         raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
 
-_arg_template = """    %s (%s) : %s
-        (default: %r)
-"""
-_doc_template = """ Configure and add :class:`~bokeh.models.%s.%s` glyphs to this Figure.
-
-Args:
-%s
-
-Keyword Args:
-%s
-"""
-
 OTHER_PARAMS = """
 Other Parameters:
     alpha (float, optional) :
@@ -1040,7 +1062,7 @@ Other Parameters:
 
 """
 
-def _convert_data_source(kwargs):
+def convert_data_source(kwargs):
     is_user_source = kwargs.get('source', None) is not None
     if is_user_source:
         source = kwargs['source']
@@ -1062,56 +1084,51 @@ def _convert_data_source(kwargs):
 
 def create_renderer(glyphclass, plot, **kwargs):
     # convert data source, if necessary
-    is_user_source = _convert_data_source(kwargs)
+    is_user_source = convert_data_source(kwargs)
 
-    # Save off legend kwargs before we get going
-    legend_kwarg = _pop_legend_kwarg(kwargs)
+    # save off legend kwargs before we get going
+    legend_kwarg = pop_legend_kwarg(kwargs)
 
-    # Need to check if user source is present before _pop_renderer_args
-    renderer_kws = _pop_renderer_args(kwargs)
+    # need to check if user source is present before pop_renderer_args
+    renderer_kws = pop_renderer_args(kwargs)
     source = renderer_kws['data_source']
 
     # handle the main glyph, need to process literals
-    glyph_ca = _pop_visuals(glyphclass, kwargs)
+    glyph_visuals = pop_visuals(glyphclass, kwargs)
     incompatible_literal_spec_values = []
     incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
-    incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+    incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_visuals, source, is_user_source)
     if incompatible_literal_spec_values:
         raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
     # handle the nonselection glyph, we always set one
-    nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, override_defaults={'alpha':0.1})
+    nonselection_visuals = pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_visuals, override_defaults={'alpha':0.1})
 
     # handle the selection glyph, if any properties were given
     if any(x.startswith('selection_') for x in kwargs):
-        sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=glyph_ca)
+        selection_visuals = pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=glyph_visuals)
     else:
-        sglyph_ca = None
+        selection_visuals = None
 
     # handle the hover glyph, if any properties were given
     if any(x.startswith('hover_') for x in kwargs):
-        hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=glyph_ca)
+        hover_visuals = pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=glyph_visuals)
     else:
-        hglyph_ca = None
+        hover_visuals = None
 
     # handle the mute glyph, if any properties were given
     if any(x.startswith('muted_') for x in kwargs):
-        mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_ca)
+        muted_visuals = pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_visuals)
     else:
-        mglyph_ca = None
+        muted_visuals = None
 
-    glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
-    nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
-    sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
-    hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
-    mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
-
-    glyph_renderer = GlyphRenderer(glyph=glyph,
-                                    nonselection_glyph=nsglyph,
-                                    selection_glyph=sglyph,
-                                    hover_glyph=hglyph,
-                                    muted_glyph=mglyph,
-                                    **renderer_kws)
+    glyph_renderer = GlyphRenderer(
+        glyph=make_glyph(glyphclass, kwargs, glyph_visuals),
+        nonselection_glyph=make_glyph(glyphclass, kwargs, nonselection_visuals),
+        selection_glyph=make_glyph(glyphclass, kwargs, selection_visuals),
+        hover_glyph=make_glyph(glyphclass, kwargs, hover_visuals),
+        muted_glyph=make_glyph(glyphclass, kwargs, muted_visuals),
+        **renderer_kws)
 
     if legend_kwarg:
         _update_legend(plot, legend_kwarg, glyph_renderer)

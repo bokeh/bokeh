@@ -70,7 +70,8 @@ class Glyph(Model):
                 # for positional arg properties, default=None means no default
                 default=Parameter.empty if default is None else default
             )
-            arg_params.append(param)
+            typ = descriptor.property._sphinx_type()
+            arg_params.append((param, typ, descriptor.__doc__))
 
         # these are not really useful, and should also really be private, just skip them
         omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
@@ -85,16 +86,17 @@ class Glyph(Model):
                 kind=Parameter.KEYWORD_ONLY,
                 default=descriptor.class_default(cls)
             )
-            kwarg_params.append(param)
+            typ = descriptor.property._sphinx_type()
+            kwarg_params.append((param, typ, descriptor.__doc__))
 
-        for kw in cls._extra_kws:
+        for kw, (typ, doc) in cls._extra_kws.items():
             param = Parameter(
                 name=kw,
                 kind=Parameter.KEYWORD_ONLY,
             )
-            kwarg_params.append(param)
+            kwarg_params.append((param, typ, doc))
 
-        kwarg_params.sort(key=lambda x: x.name)
+        kwarg_params.sort(key=lambda x: x[0].name)
 
         return arg_params + kwarg_params
 

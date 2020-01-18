@@ -110,6 +110,7 @@ class Property(PropertyDescriptorFactory):
         ''' Generate a sphinx :class: link to this property.
 
         '''
+        # extra space at the end is unfortunately necessary to appease Sphinx
         return ":class:`~bokeh.core.properties.%s` " % cls.__name__
 
     @staticmethod
