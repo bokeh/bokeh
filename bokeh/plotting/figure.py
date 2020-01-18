@@ -29,9 +29,7 @@ from ..core.properties import (
     String,
     Tuple,
 )
-from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool
-from ..models import glyphs as _glyphs
-from ..models import markers as _markers
+from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
@@ -39,12 +37,12 @@ from .helpers import (
     _double_stack,
     _get_range,
     _get_scale,
-    _glyph_function,
     _graph,
     _process_active_tools,
     _process_axis_and_grid,
     _process_tools_arg,
     _single_stack,
+    glyph_method,
 )
 
 #-----------------------------------------------------------------------------
@@ -176,27 +174,36 @@ class Figure(Plot):
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
-    annular_wedge = _glyph_function(_glyphs.AnnularWedge)
+    @glyph_method(glyphs.AnnularWedge)
+    def annular_wedge(self, **kwargs):
+        pass
 
-    annulus = _glyph_function(_glyphs.Annulus, """
+    @glyph_method(glyphs.Annulus)
+    def annulus(self, **kwargs):
+        """
 Examples:
 
-        .. bokeh-plot::
-            :source-position: above
+    .. bokeh-plot::
+        :source-position: above
 
-            from bokeh.plotting import figure, output_file, show
+        from bokeh.plotting import figure, output_file, show
 
-            plot = figure(plot_width=300, plot_height=300)
-            plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
-                         inner_radius=0.2, outer_radius=0.5)
+        plot = figure(plot_width=300, plot_height=300)
+        plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
+                    inner_radius=0.2, outer_radius=0.5)
 
-            show(plot)
+        show(plot)
 
-    """)
+"""
+        pass
 
-    arc = _glyph_function(_glyphs.Arc)
+    @glyph_method(glyphs.Arc)
+    def arc(self, **kwargs):
+        pass
 
-    asterisk = _glyph_function(_markers.Asterisk, """
+    @glyph_method(markers.Asterisk)
+    def asterisk(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -209,11 +216,16 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    bezier = _glyph_function(_glyphs.Bezier)
+    @glyph_method(glyphs.Bezier)
+    def bezier(self, **kwargs):
+        pass
 
-    circle = _glyph_function(_markers.Circle, """
+    @glyph_method(markers.Circle)
+    def circle(self, **kwargs):
+        """
 .. note::
     Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
     defaults to data units.
@@ -230,9 +242,12 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    circle_cross = _glyph_function(_markers.CircleCross, """
+    @glyph_method(markers.CircleCross)
+    def circle_cross(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -242,13 +257,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.circle_cross(x=[1,2,3], y=[4,5,6], size=20,
-                          color="#FB8072", fill_alpha=0.2, line_width=2)
+                        color="#FB8072", fill_alpha=0.2, line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    circle_x = _glyph_function(_markers.CircleX, """
+    @glyph_method(markers.CircleX)
+    def circle_x(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -258,13 +276,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                     color="#DD1C77", fill_alpha=0.2)
+                    color="#DD1C77", fill_alpha=0.2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    cross = _glyph_function(_markers.Cross, """
+    @glyph_method(markers.Cross)
+    def cross(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -274,13 +295,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                   color="#E6550D", line_width=2)
+                color="#E6550D", line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    dash = _glyph_function(_markers.Dash, """
+    @glyph_method(markers.Dash)
+    def dash(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -290,13 +314,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                  color="#99D594", line_width=2)
+                color="#99D594", line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    diamond = _glyph_function(_markers.Diamond, """
+    @glyph_method(markers.Diamond)
+    def diamond(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -310,9 +337,12 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    diamond_cross = _glyph_function(_markers.DiamondCross, """
+    @glyph_method(markers.DiamondCross)
+    def diamond_cross(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -322,29 +352,35 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                           color="#386CB0", fill_color=None, line_width=2)
+                        color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    harea = _glyph_function(_glyphs.HArea, """
-    Examples:
+    @glyph_method(glyphs.HArea)
+    def harea(self, **kwargs):
+        """
+Examples:
 
-   .. bokeh-plot::
+    .. bokeh-plot::
         :source-position: above
 
         from bokeh.plotting import figure, output_file, show
 
         plot = figure(plot_width=300, plot_height=300)
         plot.harea(x1=[0, 0, 0], x2=[1, 4, 2], y=[1, 2, 3],
-                      fill_color="#99D594")
+                    fill_color="#99D594")
 
         show(plot)
 
-    """)
+"""
+        pass
 
-    hbar = _glyph_function(_glyphs.HBar, """
+    @glyph_method(glyphs.HBar)
+    def hbar(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -356,9 +392,13 @@ Examples:
         plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
 
         show(plot)
-""")
 
-    ellipse = _glyph_function(_glyphs.Ellipse, """
+"""
+        pass
+
+    @glyph_method(glyphs.Ellipse)
+    def ellipse(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -368,13 +408,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
-                     color="#386CB0", fill_color=None, line_width=2)
+                    color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    hex = _glyph_function(_markers.Hex, """
+    @glyph_method(markers.Hex)
+    def hex(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -387,9 +430,12 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    hex_tile = _glyph_function(_glyphs.HexTile, """
+    @glyph_method(glyphs.HexTile)
+    def hex_tile(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -402,26 +448,37 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    image = _glyph_function(_glyphs.Image, """
+    @glyph_method(glyphs.Image)
+    def image(self, **kwargs):
+        """
 .. note::
     If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
     exception will be raised. If neither is passed, then the ``Greys9``
     palette will be used as a default.
 
-""")
+"""
+        pass
 
-    image_rgba = _glyph_function(_glyphs.ImageRGBA, """
+    @glyph_method(glyphs.ImageRGBA)
+    def image_rgba(self, **kwargs):
+        """
 .. note::
     The ``image_rgba`` method accepts images as a two-dimensional array of RGBA
     values (encoded as 32-bit integers).
 
-""")
+"""
+        pass
 
-    image_url = _glyph_function(_glyphs.ImageURL)
+    @glyph_method(glyphs.ImageURL)
+    def image_url(self, **kwargs):
+        pass
 
-    inverted_triangle = _glyph_function(_markers.InvertedTriangle, """
+    @glyph_method(markers.InvertedTriangle)
+    def inverted_triangle(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -434,24 +491,30 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    line = _glyph_function(_glyphs.Line, """
+    @glyph_method(glyphs.Line)
+    def line(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
-       :source-position: above
+    :source-position: above
 
-       from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, output_file, show
 
-       p = figure(title="line", plot_width=300, plot_height=300)
-       p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
+    p = figure(title="line", plot_width=300, plot_height=300)
+    p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
 
-       show(p)
+    show(p)
 
-""")
+"""
+        pass
 
-    multi_line = _glyph_function(_glyphs.MultiLine, """
+    @glyph_method(glyphs.MultiLine)
+    def multi_line(self, **kwargs):
+        """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -459,19 +522,22 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-       :source-position: above
+    :source-position: above
 
-       from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, output_file, show
 
-       p = figure(plot_width=300, plot_height=300)
-       p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
+    p = figure(plot_width=300, plot_height=300)
+    p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
                     color=['red','green'])
 
-       show(p)
+    show(p)
 
-""")
+"""
+        pass
 
-    multi_polygons = _glyph_function(_glyphs.MultiPolygons, """
+    @glyph_method(glyphs.MultiPolygons)
+    def multi_polygons(self, **kwargs):
+        """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is a
     nested array.
@@ -479,19 +545,22 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-       :source-position: above
+    :source-position: above
 
-       from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, output_file, show
 
-       p = figure(plot_width=300, plot_height=300)
-       p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
+    p = figure(plot_width=300, plot_height=300)
+    p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
                         ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
                         color=['red', 'green'])
-       show(p)
+    show(p)
 
-""")
+"""
+        pass
 
-    oval = _glyph_function(_glyphs.Oval, """
+    @glyph_method(glyphs.Oval)
+    def oval(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -501,28 +570,34 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.oval(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=0.4,
-                  angle=-0.7, color="#1D91C0")
+                angle=-0.7, color="#1D91C0")
 
         show(plot)
 
-""")
+"""
+        pass
 
-    patch = _glyph_function(_glyphs.Patch, """
+    @glyph_method(glyphs.Patch)
+    def patch(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
-       :source-position: above
+    :source-position: above
 
-       from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, output_file, show
 
-       p = figure(plot_width=300, plot_height=300)
-       p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
+    p = figure(plot_width=300, plot_height=300)
+    p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
 
-       show(p)
+    show(p)
 
-""")
+"""
+        pass
 
-    patches = _glyph_function(_glyphs.Patches, """
+    @glyph_method(glyphs.Patches)
+    def patches(self, **kwargs):
+        """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -530,19 +605,22 @@ Examples:
 Examples:
 
     .. bokeh-plot::
-       :source-position: above
+    :source-position: above
 
-       from bokeh.plotting import figure, output_file, show
+    from bokeh.plotting import figure, output_file, show
 
-       p = figure(plot_width=300, plot_height=300)
-       p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
-                 color=["#43a2ca", "#a8ddb5"])
+    p = figure(plot_width=300, plot_height=300)
+    p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
+                color=["#43a2ca", "#a8ddb5"])
 
-       show(p)
+    show(p)
 
-""")
+"""
+        pass
 
-    quad = _glyph_function(_glyphs.Quad, """
+    @glyph_method(glyphs.Quad)
+    def quad(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -552,15 +630,20 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
-                  right=[1.2, 2.5, 3.7], color="#B3DE69")
+                right=[1.2, 2.5, 3.7], color="#B3DE69")
 
         show(plot)
 
-""")
+"""
+        pass
 
-    quadratic = _glyph_function(_glyphs.Quadratic)
+    @glyph_method(glyphs.Quadratic)
+    def quadratic(self, **kwargs):
+        pass
 
-    ray = _glyph_function(_glyphs.Ray, """
+    @glyph_method(glyphs.Ray)
+    def ray(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -570,13 +653,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=-0.7, color="#FB8072",
-                 line_width=2)
+                line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    rect = _glyph_function(_glyphs.Rect, """
+    @glyph_method(glyphs.Rect)
+    def rect(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -586,13 +672,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
-                  width_units="screen", height_units="screen")
+                width_units="screen", height_units="screen")
 
         show(plot)
 
-""")
+"""
+        pass
 
-    step = _glyph_function(_glyphs.Step, """
+    @glyph_method(glyphs.Step)
+    def step(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -605,10 +694,12 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-
-    segment = _glyph_function(_glyphs.Segment, """
+    @glyph_method(glyphs.Segment)
+    def segment(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -618,14 +709,17 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1, 2, 3],
-                     y1=[1.2, 2.5, 3.7], color="#F4A582",
-                     line_width=3)
+                    y1=[1.2, 2.5, 3.7], color="#F4A582",
+                    line_width=3)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    square = _glyph_function(_markers.Square, """
+    @glyph_method(markers.Square)
+    def square(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -638,9 +732,12 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    square_cross = _glyph_function(_markers.SquareCross, """
+    @glyph_method(markers.SquareCross)
+    def square_cross(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -650,13 +747,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                          color="#7FC97F",fill_color=None, line_width=2)
+                        color="#7FC97F",fill_color=None, line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    square_x = _glyph_function(_markers.SquareX, """
+    @glyph_method(markers.SquareX)
+    def square_x(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -666,23 +766,26 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                      color="#FDAE6B",fill_color=None, line_width=2)
+                    color="#FDAE6B",fill_color=None, line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    text = _glyph_function(_glyphs.Text, """
+    @glyph_method(glyphs.Text)
+    def text(self, **kwargs):
+        """
 .. note::
     The location and angle of the text relative to the ``x``, ``y`` coordinates
     is indicated by the alignment and baseline text properties.
 
-Returns:
-    GlyphRenderer
+"""
+        pass
 
-""")
-
-    triangle = _glyph_function(_markers.Triangle, """
+    @glyph_method(markers.Triangle)
+    def triangle(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -692,29 +795,35 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                      color="#99D594", line_width=2)
+                    color="#99D594", line_width=2)
 
         show(plot)
 
-""")
+"""
+        pass
 
-    varea = _glyph_function(_glyphs.VArea, """
+    @glyph_method(glyphs.VArea)
+    def varea(self, **kwargs):
+        """
 Examples:
 
-   .. bokeh-plot::
+.. bokeh-plot::
         :source-position: above
 
         from bokeh.plotting import figure, output_file, show
 
         plot = figure(plot_width=300, plot_height=300)
         plot.varea(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
-                   fill_color="#99D594")
+                fill_color="#99D594")
 
         show(plot)
 
-""")
+"""
+        pass
 
-    vbar = _glyph_function(_glyphs.VBar, """
+    @glyph_method(glyphs.VBar)
+    def vbar(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -727,9 +836,12 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
-    wedge = _glyph_function(_glyphs.Wedge, """
+    @glyph_method(glyphs.Wedge)
+    def wedge(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -739,13 +851,16 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
-                   end_angle=4.1, radius_units="screen", color="#2b8cbe")
+                end_angle=4.1, radius_units="screen", color="#2b8cbe")
 
         show(plot)
 
-""")
+"""
+        pass
 
-    x = _glyph_function(_markers.X, """
+    @glyph_method(markers.X)
+    def x(self, **kwargs):
+        """
 Examples:
 
     .. bokeh-plot::
@@ -758,11 +873,14 @@ Examples:
 
         show(plot)
 
-""")
+"""
+        pass
 
     # -------------------------------------------------------------------------
 
-    _scatter = _glyph_function(_markers.Scatter)
+    @glyph_method(markers.Scatter)
+    def _scatter(self, **kwargs):
+        pass
 
     def scatter(self, *args, **kwargs):
         ''' Creates a scatter plot of the given x and y items.
@@ -813,7 +931,7 @@ Examples:
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
         ''' Perform a simple equal-weight hexagonal binning.
 
-        A :class:`~bokeh.models._glyphs.HexTile` glyph will be added to display
+        A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
         the binning. The :class:`~bokeh.models.sources.ColumnDataSource` for
         the glyph will have columns ``q``, ``r``, and ``count``, where ``q``
         and ``r`` are `axial coordinates`_ for a tile, and ``count`` is the

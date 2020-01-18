@@ -20,10 +20,10 @@ import difflib
 import itertools
 import re
 import sys
-import textwrap
 import warnings
-from collections import OrderedDict
 from collections.abc import Iterable, Sequence
+from functools import wraps
+from inspect import Parameter, Signature
 
 # External imports
 import numpy as np
@@ -92,13 +92,77 @@ __all__ = (
     'get_default_color',
 )
 
+DEDENT = re.compile("^    ")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+def glyph_method(glyphclass):
+    def decorator(func):
+        params = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + glyphclass.parameters() + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
+
+        @wraps(func)
+        def wrapped(self, *args, **kwargs):
+            if len(args) > len(glyphclass._args):
+                raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
+            for arg, param in zip(args, params[1:]):
+                kwargs[param.name] = arg
+            return create_renderer(glyphclass, self, **kwargs)
+
+        wrapped.__signature__ = Signature(parameters=params)
+        wrapped.__name__ = func.__name__
+
+        wrapped.__doc__ = generate_docstring(glyphclass, func.__doc__)
+
+        return wrapped
+
+    return decorator
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def docstring_args(glyphclass):
+    return f""
+
+def docstring_extra(extra_docs):
+    return "" if extra_docs is None else extra_docs
+
+def docstring_header(glyphclass):
+    module = "markers" if issubclass(glyphclass, Marker) else "glyphs"
+    return f"Configure and add :class:`~bokeh.models.{module}.{glyphclass.__name__}` glyphs to this Figure."
+
+def docstring_kwargs(glyphclass):
+    return f""
+
+def docstring_other():
+    return OTHER_PARAMS
+
+def generate_docstring(glyphclass, extra_docs):
+    return f""" {docstring_header(glyphclass)}
+
+Args:
+{docstring_args(glyphclass)}
+
+Keyword args:
+{docstring_kwargs(glyphclass)}
+
+{docstring_other()}
+
+It is also possible to set the color and alpha parameters of extra glyphs for
+selection, nonselection, hover, or muted. To do so, add the relevane prefix to
+any visual parameter. For example, pass ``nonselection_alpha`` to set the line
+and fill alpha for nonselect, or ``hover_fill_alpha`` to set the fill alpha for
+hover. See the `Glyphs`_ section od the User's Guide for full details.
+
+.. _Glyphs: https://docs.bokeh.org/en/latest/docs/user_guide/styling.html#glyphs
+
+Returns:
+    GlyphRenderer
+
+{docstring_extra(extra_docs)}
+"""
 
 def get_default_color(plot=None):
     colors = [
@@ -851,55 +915,6 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active
     else:
         raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
 
-def _get_argspecs(glyphclass):
-    argspecs = OrderedDict()
-    for arg in glyphclass._args:
-        spec = {}
-        descriptor = getattr(glyphclass, arg)
-
-        # running python with -OO will discard docstrings -> __doc__ is None
-        if descriptor.__doc__:
-            spec['desc'] = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
-        else:
-            spec['desc'] = ""
-        spec['default'] = descriptor.class_default(glyphclass)
-        spec['type'] = descriptor.property._sphinx_type()
-        argspecs[arg] = spec
-    return argspecs
-
-# This template generates the following:
-#
-# def foo(self, x, y=10, kwargs):
-#     kwargs['x'] = x
-#     kwargs['y'] = y
-#     return func(self, **kwargs)
-_sigfunc_template = """
-def %s(self, %s, **kwargs):
-%s
-    return func(self, **kwargs)
-"""
-
-def _get_sigfunc(func_name, func, argspecs):
-    # This code is to wrap the generic func(*args, **kw) glyph method so that
-    # a much better signature is available to users. E.g., for ``square`` we have:
-    #
-    # Signature: p.square(x, y, size=4, angle=0.0, **kwargs)
-    #
-    # which provides descriptive names for positional args, as well as any defaults
-    func_args_with_defaults = []
-    for arg, spec in argspecs.items():
-        if spec['default'] is None:
-            func_args_with_defaults.append(arg)
-        else:
-            func_args_with_defaults.append("%s=%r" % (arg, spec['default']))
-    args_text = ", ".join(func_args_with_defaults)
-    kwargs_assign_text = "\n".join("    kwargs[%r] = %s" % (x, x) for x in argspecs)
-    func_text = _sigfunc_template % (func_name, args_text, kwargs_assign_text)
-    func_code = compile(func_text, "<fakesource>", "exec")
-    func_globals = {}
-    eval(func_code, {"func": func}, func_globals)
-    return func_globals[func_name]
-
 _arg_template = """    %s (%s) : %s
         (default: %r)
 """
@@ -910,7 +925,9 @@ Args:
 
 Keyword Args:
 %s
+"""
 
+OTHER_PARAMS = """
 Other Parameters:
     alpha (float, optional) :
         An alias to set all alpha keyword arguments at once. (default: None)
@@ -1021,132 +1038,87 @@ Other Parameters:
     level (RenderLevel, optional) :
         Specify the render level order for this glyph.
 
-It is also possible to set the color and alpha parameters of a "nonselection"
-glyph. To do so, prefix any visual parameter with ``'nonselection_'``.
-For example, pass ``nonselection_alpha`` or ``nonselection_fill_alpha``.
-
-Returns:
-    GlyphRenderer
-
 """
 
-def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
-    func.__name__ = glyphclass.__name__
+def _convert_data_source(kwargs):
+    is_user_source = kwargs.get('source', None) is not None
+    if is_user_source:
+        source = kwargs['source']
+        if not isinstance(source, ColumnarDataSource):
+            try:
+                # try converting the source to ColumnDataSource
+                source = ColumnDataSource(source)
+            except ValueError as err:
+                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
+                    curr_type=str(type(source)),
+                    err=err.message
+                )
+                raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
-    # these are not really useful, and should also really be private, just skip them
-    omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
+            # update kwargs so that others can use the new source
+            kwargs['source'] = source
 
-    kwlines = []
-    kws = glyphclass.properties() - set(argspecs) - omissions
-    for kw in kws:
-        descriptor = glyphclass.lookup(kw)
-        typ = descriptor.property._sphinx_type()
-        if descriptor.__doc__:
-            desc = "\n        ".join(textwrap.dedent(descriptor.__doc__).split("\n"))
-        else:
-            desc = ""
-        kwlines.append(_arg_template % (kw, typ, desc, descriptor.class_default(glyphclass)))
-    extra_kws = getattr(glyphclass, '_extra_kws', {})
-    for kw, (typ, desc) in extra_kws.items():
-        kwlines.append("    %s (%s) : %s" % (kw, typ, desc))
-    kwlines.sort()
+    return is_user_source
 
-    arglines = []
-    for arg, spec in argspecs.items():
-        arglines.append(_arg_template % (arg, spec['type'], spec['desc'], spec['default']))
+def create_renderer(glyphclass, plot, **kwargs):
+    # convert data source, if necessary
+    is_user_source = _convert_data_source(kwargs)
 
-    mod = "markers" if issubclass(glyphclass, Marker) else "glyphs"
-    func.__doc__ = _doc_template % (mod, func.__name__, "\n".join(arglines), "\n".join(kwlines))
-    if extra_docs:
-        func.__doc__ += extra_docs
+    # Save off legend kwargs before we get going
+    legend_kwarg = _pop_legend_kwarg(kwargs)
 
-def _glyph_function(glyphclass, extra_docs=None):
+    # Need to check if user source is present before _pop_renderer_args
+    renderer_kws = _pop_renderer_args(kwargs)
+    source = renderer_kws['data_source']
 
-    def func(self, **kwargs):
+    # handle the main glyph, need to process literals
+    glyph_ca = _pop_visuals(glyphclass, kwargs)
+    incompatible_literal_spec_values = []
+    incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
+    incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+    if incompatible_literal_spec_values:
+        raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
-        # convert data source, if necessary
-        is_user_source = kwargs.get('source', None) is not None
-        if is_user_source:
-            source = kwargs['source']
-            if not isinstance(source, ColumnarDataSource):
-                try:
-                    # try converting the source to ColumnDataSource
-                    source = ColumnDataSource(source)
-                except ValueError as err:
-                    msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
-                        curr_type=str(type(source)),
-                        err=err.message
-                    )
-                    raise ValueError(msg).with_traceback(sys.exc_info()[2])
+    # handle the nonselection glyph, we always set one
+    nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, override_defaults={'alpha':0.1})
 
-                # update kwargs so that others can use the new source
-                kwargs['source'] = source
+    # handle the selection glyph, if any properties were given
+    if any(x.startswith('selection_') for x in kwargs):
+        sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=glyph_ca)
+    else:
+        sglyph_ca = None
 
-        # Save off legend kwargs before we get going
-        legend_kwarg = _pop_legend_kwarg(kwargs)
+    # handle the hover glyph, if any properties were given
+    if any(x.startswith('hover_') for x in kwargs):
+        hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=glyph_ca)
+    else:
+        hglyph_ca = None
 
-        # Need to check if user source is present before _pop_renderer_args
-        renderer_kws = _pop_renderer_args(kwargs)
-        source = renderer_kws['data_source']
+    # handle the mute glyph, if any properties were given
+    if any(x.startswith('muted_') for x in kwargs):
+        mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_ca)
+    else:
+        mglyph_ca = None
 
-        # handle the main glyph, need to process literals
-        glyph_ca = _pop_visuals(glyphclass, kwargs)
-        incompatible_literal_spec_values = []
-        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
-        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
-        if incompatible_literal_spec_values:
-            raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
+    glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
+    nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
+    sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
+    hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
+    mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
 
-        # handle the nonselection glyph, we always set one
-        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, override_defaults={'alpha':0.1})
+    glyph_renderer = GlyphRenderer(glyph=glyph,
+                                    nonselection_glyph=nsglyph,
+                                    selection_glyph=sglyph,
+                                    hover_glyph=hglyph,
+                                    muted_glyph=mglyph,
+                                    **renderer_kws)
 
-        # handle the selection glyph, if any properties were given
-        if any(x.startswith('selection_') for x in kwargs):
-            sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=glyph_ca)
-        else:
-            sglyph_ca = None
+    if legend_kwarg:
+        _update_legend(plot, legend_kwarg, glyph_renderer)
 
-        # handle the hover glyph, if any properties were given
-        if any(x.startswith('hover_') for x in kwargs):
-            hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=glyph_ca)
-        else:
-            hglyph_ca = None
+    plot.renderers.append(glyph_renderer)
 
-        # handle the mute glyph, if any properties were given
-        if any(x.startswith('muted_') for x in kwargs):
-            mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_ca)
-        else:
-            mglyph_ca = None
-
-        glyph = _make_glyph(glyphclass, kwargs, glyph_ca)
-        nsglyph = _make_glyph(glyphclass, kwargs, nsglyph_ca)
-        sglyph = _make_glyph(glyphclass, kwargs, sglyph_ca)
-        hglyph = _make_glyph(glyphclass, kwargs, hglyph_ca)
-        mglyph = _make_glyph(glyphclass, kwargs, mglyph_ca)
-
-        glyph_renderer = GlyphRenderer(glyph=glyph,
-                                       nonselection_glyph=nsglyph,
-                                       selection_glyph=sglyph,
-                                       hover_glyph=hglyph,
-                                       muted_glyph=mglyph,
-                                       **renderer_kws)
-
-        if legend_kwarg:
-            _update_legend(self, legend_kwarg, glyph_renderer)
-
-        self.renderers.append(glyph_renderer)
-
-        return glyph_renderer
-
-    argspecs = _get_argspecs(glyphclass)
-
-    sigfunc = _get_sigfunc(glyphclass.__name__.lower(), func, argspecs)
-
-    sigfunc.glyph_method = True
-
-    _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
-
-    return sigfunc
+    return glyph_renderer
 
 #-----------------------------------------------------------------------------
 # Code

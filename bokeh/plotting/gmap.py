@@ -26,12 +26,11 @@ from ..models import (
     Range1d,
     Title,
     Tool,
-    glyphs,
-    markers,
 )
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
-from .helpers import _glyph_function, _process_active_tools, _process_tools_arg
+from .figure import Figure
+from .helpers import _process_active_tools, _process_tools_arg
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -105,79 +104,108 @@ class GMap(GMapPlot):
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
-    annular_wedge = _glyph_function(glyphs.AnnularWedge)
 
-    annulus = _glyph_function(glyphs.Annulus)
+    annular_wedge = Figure.annular_wedge
 
-    arc = _glyph_function(glyphs.Arc)
+    annulus = Figure.annulus
 
-    asterisk = _glyph_function(markers.Asterisk)
+    arc = Figure.arc
 
-    bezier = _glyph_function(glyphs.Bezier)
+    asterisk = Figure.asterisk
 
-    circle = _glyph_function(markers.Circle)
+    bezier = Figure.bezier
 
-    circle_cross = _glyph_function(markers.CircleCross)
+    circle = Figure.circle
 
-    circle_x = _glyph_function(markers.CircleX)
+    circle_cross = Figure.circle_cross
 
-    cross = _glyph_function(markers.Cross)
+    circle_x = Figure.circle_x
 
-    dash = _glyph_function(markers.Dash)
+    cross = Figure.cross
 
-    diamond = _glyph_function(markers.Diamond)
+    dash = Figure.dash
 
-    diamond_cross = _glyph_function(markers.DiamondCross)
+    diamond = Figure.diamond
 
-    hbar = _glyph_function(glyphs.HBar)
+    diamond_cross = Figure.diamond_cross
 
-    ellipse = _glyph_function(glyphs.Ellipse)
+    graph = Figure.graph
 
-    image = _glyph_function(glyphs.Image)
+    harea = Figure.harea
 
-    image_rgba = _glyph_function(glyphs.ImageRGBA)
+    harea_stack = Figure.harea_stack
 
-    image_url = _glyph_function(glyphs.ImageURL)
+    hbar = Figure.hbar
 
-    inverted_triangle = _glyph_function(markers.InvertedTriangle)
+    hbar_stack = Figure.hbar_stack
 
-    line = _glyph_function(glyphs.Line)
+    hline_stack = Figure.hline_stack
 
-    multi_line = _glyph_function(glyphs.MultiLine)
+    ellipse = Figure.ellipse
 
-    multi_polygons = _glyph_function(glyphs.MultiPolygons)
+    hex = Figure.hex
 
-    oval = _glyph_function(glyphs.Oval)
+    hexbin = Figure.hexbin
 
-    patch = _glyph_function(glyphs.Patch)
+    hex_tile = Figure.hex_tile
 
-    patches = _glyph_function(glyphs.Patches)
+    image = Figure.image
 
-    quad = _glyph_function(glyphs.Quad)
+    image_rgba = Figure.image_rgba
 
-    quadratic = _glyph_function(glyphs.Quadratic)
+    image_url = Figure.image_url
 
-    ray = _glyph_function(glyphs.Ray)
+    inverted_triangle = Figure.inverted_triangle
 
-    rect = _glyph_function(glyphs.Rect)
+    line = Figure.line
 
-    segment = _glyph_function(glyphs.Segment)
+    multi_line = Figure.multi_line
 
-    square = _glyph_function(markers.Square)
+    multi_polygons = Figure.multi_polygons
 
-    square_cross = _glyph_function(markers.SquareCross)
+    oval = Figure.oval
 
-    square_x = _glyph_function(markers.SquareX)
+    patch = Figure.patch
 
-    text = _glyph_function(glyphs.Text)
+    patches = Figure.patches
 
-    triangle = _glyph_function(markers.Triangle)
+    quad = Figure.quad
 
-    vbar = _glyph_function(glyphs.VBar)
+    quadratic = Figure.quadratic
 
-    wedge = _glyph_function(glyphs.Wedge)
+    ray = Figure.ray
 
-    x = _glyph_function(markers.X)
+    rect = Figure.rect
+
+    step = Figure.step
+
+    scatter = Figure.scatter
+
+    segment = Figure.segment
+
+    square = Figure.square
+
+    square_cross = Figure.square_cross
+
+    square_x = Figure.square_x
+
+    text = Figure.text
+
+    triangle = Figure.triangle
+
+    varea = Figure.varea
+
+    varea_stack = Figure.varea_stack
+
+    vbar = Figure.vbar
+
+    vbar_stack = Figure.vbar_stack
+
+    vline_stack = Figure.vline_stack
+
+    wedge = Figure.wedge
+
+    x = Figure.x
 
 def gmap(google_api_key, map_options, **kwargs):
     ''' Create a new :class:`~bokeh.plotting.gmap.GMap` for plotting.
