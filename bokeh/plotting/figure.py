@@ -33,17 +33,11 @@ from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs,
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
-from .helpers import (
-    _double_stack,
-    _get_range,
-    _get_scale,
-    _graph,
-    _process_active_tools,
-    _process_axis_and_grid,
-    _process_tools_arg,
-    _single_stack,
-    glyph_method,
-)
+from ._decorators import glyph_method
+from ._graph import get_graph_kwargs
+from ._plot import get_range, get_scale, process_axis_and_grid
+from ._stack import double_stack, single_stack
+from ._tools import process_active_tools, process_tools_arg
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +48,6 @@ DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 __all__ = (
     'Figure',
     'figure',
-    'FigureOptions',
     'markers'
 )
 
@@ -161,18 +154,18 @@ class Figure(Plot):
 
         super().__init__(*arg, **kw)
 
-        self.x_range = _get_range(opts.x_range)
-        self.y_range = _get_range(opts.y_range)
+        self.x_range = get_range(opts.x_range)
+        self.y_range = get_range(opts.y_range)
 
-        self.x_scale = _get_scale(self.x_range, opts.x_axis_type)
-        self.y_scale = _get_scale(self.y_range, opts.y_axis_type)
+        self.x_scale = get_scale(self.x_range, opts.x_axis_type)
+        self.y_scale = get_scale(self.y_range, opts.y_axis_type)
 
-        _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
-        _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
+        process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
+        process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
 
-        tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
+        tool_objs, tool_map = process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+        process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
     @glyph_method(glyphs.AnnularWedge)
     def annular_wedge(self, **kwargs):
@@ -1077,7 +1070,7 @@ Examples:
 
         '''
         result = []
-        for kw in _double_stack(stackers, "x1", "x2", **kw):
+        for kw in double_stack(stackers, "x1", "x2", **kw):
             result.append(self.harea(**kw))
         return result
 
@@ -1118,7 +1111,7 @@ Examples:
 
         '''
         result = []
-        for kw in _double_stack(stackers, "left", "right", **kw):
+        for kw in double_stack(stackers, "left", "right", **kw):
             result.append(self.hbar(**kw))
         return result
 
@@ -1168,13 +1161,13 @@ Examples:
 
         if isinstance(y, (list, tuple)):
             kw['x'] = x
-            for kw in _single_stack(y, "y", **kw):
+            for kw in single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
         if isinstance(x, (list, tuple)):
             kw['y'] = y
-            for kw in _single_stack(x, "x", **kw):
+            for kw in single_stack(x, "x", **kw):
                 result.append(self.line(**kw))
             return result
 
@@ -1257,7 +1250,7 @@ Examples:
 
         '''
         result = []
-        for kw in _double_stack(stackers, "y1", "y2", **kw):
+        for kw in double_stack(stackers, "y1", "y2", **kw):
             result.append(self.varea(**kw))
         return result
 
@@ -1299,7 +1292,7 @@ Examples:
 
         '''
         result = []
-        for kw in _double_stack(stackers, "bottom", "top", **kw):
+        for kw in double_stack(stackers, "bottom", "top", **kw):
             result.append(self.vbar(**kw))
         return result
 
@@ -1362,7 +1355,7 @@ Examples:
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
 
         '''
-        kw = _graph(node_source, edge_source, **kwargs)
+        kw = get_graph_kwargs(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
         return graph_renderer

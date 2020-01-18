@@ -29,8 +29,8 @@ from ..models import (
 )
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
+from ._tools import process_active_tools, process_tools_arg
 from .figure import Figure
-from .helpers import _process_active_tools, _process_tools_arg
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -100,9 +100,9 @@ class GMap(GMapPlot):
         yt = MercatorTicker(dimension="lat")
         self.add_layout(LinearAxis(formatter=yf, ticker=yt), 'left')
 
-        tool_objs, tool_map = _process_tools_arg(self, opts.tools)
+        tool_objs, tool_map = process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+        process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
 
     annular_wedge = Figure.annular_wedge
