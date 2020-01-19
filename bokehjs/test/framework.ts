@@ -1,3 +1,5 @@
+import "./setup"
+
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {div} from "@bokehjs/core/dom"

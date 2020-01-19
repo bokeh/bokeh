@@ -35,7 +35,7 @@ function git(...args: string[]): cp.SpawnSyncReturns<string> {
   return cp.spawnSync("git", [...args], {encoding: "utf8"})
 }
 
-export function diff_baseline(baseline_path: string): string | null {
+export function diff_baseline(baseline_path: string): string {
   const proc = git("diff", "--color", "--exit-code", baseline_path)
   if (proc.status == 0) {
     const proc = git("diff", "--color", "/dev/null", baseline_path)

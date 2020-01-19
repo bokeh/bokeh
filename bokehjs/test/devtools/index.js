@@ -1,4 +1,5 @@
 const {register} = require("ts-node")
+const {argv} = require("yargs")
 
 process.on('uncaughtException', function(err) {
   console.error(err)
@@ -7,5 +8,9 @@ process.on('uncaughtException', function(err) {
 
 register({project: "./test/devtools/tsconfig.json", cache: false, logError: true})
 
-if (require.main != null)
-  require("./devtools")
+if (require.main != null) {
+  if (argv._[0] == "server")
+    require("./server")
+  else
+    require("./devtools")
+}
