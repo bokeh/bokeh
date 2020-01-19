@@ -66,24 +66,27 @@ Returns:
 # Private API
 #-----------------------------------------------------------------------------
 
+def _add_arglines(arglines, param, typ, doc):
+    default = param.default if param.default != Parameter.empty else None
+
+    # add a line for the arg
+    arglines.append(f"    {param.name} ({typ}{', optional' if default else ''}):")
+
+    # add the docs for the argument
+    if doc:
+        arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
+
+    # if there is a default, add it last
+    if default is not None:
+        arglines.append(f"\n        (default: {default})")
+
+    # blank line between args
+    arglines.append("")
+
 def _docstring_args(parameters):
     arglines = []
     for param, typ, doc in (x for x in parameters if x[0].kind == Parameter.POSITIONAL_OR_KEYWORD):
-        default = param.default if param.default != Parameter.empty else None
-
-        # add a line for the arg
-        arglines.append(f"    {param.name} ({typ}{', optional' if default else ''}):")
-
-        # add the docs for the argument
-        if doc:
-            arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
-
-        # if there is a default, add it last
-        if default is not None:
-            arglines.append(f"\n        (default: {default})")
-
-        # blank line between args
-        arglines.append("")
+        _add_arglines(arglines, param, typ, doc)
     return "\n".join(arglines)
 
 def _docstring_extra(extra_docs):
@@ -96,21 +99,7 @@ def _docstring_header(glyphclass):
 def _docstring_kwargs(parameters):
     arglines = []
     for param, typ, doc in (x for x in parameters if x[0].kind == Parameter.KEYWORD_ONLY):
-        default = param.default if param.default != Parameter.empty else None
-
-        # add a line for the arg
-        arglines.append(f"    {param.name} ({typ}{', optional' if default else ''}):")
-
-        # add the docs for the argument
-        if doc:
-            arglines += [f"    {x}" for x in doc.rstrip().strip("\n").split("\n")]
-
-        # if there is a default, add it last
-        if default is not None:
-            arglines.append(f"\n        (default: {default})")
-
-        # blank line between args
-        arglines.append("")
+        _add_arglines(arglines, param, typ, doc)
     return "\n".join(arglines)
 
 def _docstring_other():
