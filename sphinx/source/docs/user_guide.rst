@@ -21,6 +21,7 @@ User Guide
     user_guide/interaction
     user_guide/server
     user_guide/notebook
+    user_guide/jupyter
     user_guide/export
     user_guide/embed
     user_guide/cli
@@ -82,6 +83,9 @@ topic:
 
 :ref:`userguide_notebook`
     Display interactive plots inside Jupyter notebooks.
+
+:ref:`userguide_jupyter`
+    Integrate with the Jupyter ecosystem.
 
 :ref:`userguide_export`
     Learn how to export Bokeh layouts as PNGs and SVGs.
