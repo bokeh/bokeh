@@ -1,5 +1,38 @@
 import chalk from "chalk"
-import {array as toposort} from "toposort"
+
+export type Result<T = unknown> = Success<T> | Failure<T>
+
+export class Success<T> {
+  constructor(readonly value: T) {}
+
+  is_Success(): this is Success<T> {
+    return true
+  }
+
+  is_Failure(): this is Failure<T> {
+    return false
+  }
+}
+
+export class Failure<T> {
+  constructor(readonly value: Error) {}
+
+  is_Success(): this is Success<T> {
+    return false
+  }
+
+  is_Failure(): this is Failure<T> {
+    return true
+  }
+}
+
+export function success<T>(value: T): Result<T> {
+  return new Success(value)
+}
+
+export function failure<T>(error: Error): Result<T> {
+  return new Failure<T>(error)
+}
 
 export class BuildError extends Error {
   constructor(readonly component: string, message: string) {
@@ -12,9 +45,9 @@ export function log(message: string): void {
   console.log(`[${chalk.gray(now)}] ${message}`)
 }
 
-export type Fn<T> = () => Promise<T>
+export type Fn<T> = () => Promise<Result<T> | void>
 
-class Task<T = any> {
+class Task<T = unknown> {
   constructor(readonly name: string,
               readonly deps: string[],
               readonly fn?: Fn<T>) {}
@@ -36,63 +69,82 @@ export function task_names(): string[] {
   return Array.from(tasks.keys())
 }
 
-function resolve_tasks(names: string[]): Task[] {
-  const nodes: Set<Task> = new Set()
-  const edges: [Task, Task][] = []
+function* resolve_task(name: string, parent?: Task): Iterable<Task> {
+  const [prefix, suffix] = name.split(":", 2)
 
-  function build_graph(task: Task): void {
-    nodes.add(task)
+  if (prefix == "*") {
+    for (const task of tasks.values()) {
+      if (task.name.endsWith(`:${suffix}`)) {
+        yield task
+      }
+    }
+  } else if (tasks.has(name)) {
+    yield tasks.get(name)!
+  } else {
+    let message = `unknown task '${chalk.cyan(name)}'`
+    if (parent != null)
+      message += ` referenced from '${chalk.cyan(parent.name)}'`
+    throw new Error(message)
+  }
+}
 
-    for (const dep of task.deps) {
-      const task_dep = tasks.get(dep)
-      if (task_dep != null) {
-        edges.push([task_dep, task]) // before -> after
-        build_graph(task_dep)
-      } else
-        throw new Error(`unknown task '${chalk.cyan(dep)}' referenced from '${chalk.cyan(task.name)}'`)
+async function exec_task(task: Task): Promise<Result> {
+  if (task.fn == null) {
+    log(`Finished '${chalk.cyan(task.name)}'`)
+    return success(undefined)
+  } else {
+    log(`Starting '${chalk.cyan(task.name)}'...`)
+    const start = Date.now()
+    let result: Result
+    try {
+      const value = await task.fn()
+      result = value === undefined ? success(value) : value
+    } catch (error) {
+      result = failure(error)
+    }
+    const end = Date.now()
+    const diff = end - start
+    const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
+    log(`${result.is_Success() ? "Finished" : chalk.red("Failed")} '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
+    return result
+  }
+}
+
+export async function run(...names: string[]): Promise<Result> {
+  const finished = new Map<Task, Result>()
+
+  async function _run(task: Task): Promise<Result> {
+    if (finished.has(task)) {
+      return finished.get(task)!
+    } else {
+      let failed = false
+
+      for (const name of task.deps) {
+        for (const dep of resolve_task(name, task)) {
+          const result = await _run(dep)
+          if (result.is_Failure())
+            failed = true
+        }
+      }
+
+      let result: Result
+      if (!failed)
+        result = await exec_task(task)
+      else
+        result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed`))
+
+      finished.set(task, result)
+      return result
     }
   }
 
   for (const name of names) {
-    const [main, sub] = name.split(":", 2)
-
-    if (main == "*") {
-      const selected = Array.from(tasks.values()).filter((task) => {
-        return task.name.endsWith(`:${sub}`)
-      })
-
-      if (selected.length != 0) {
-        for (const task of selected)
-          build_graph(task)
-      } else
-        throw new Error(`empty selection: ${name}`)
-    } else {
-      const task = tasks.get(name)
-
-      if (task != null)
-        build_graph(task)
-      else
-        throw new Error(`unknown task: ${name}`)
+    for (const task of resolve_task(name)) {
+      const result = await _run(task)
+      if (result.is_Failure())
+        return result
     }
   }
 
-  return toposort(Array.from(nodes), edges)
-}
-
-export async function run(...names: string[]): Promise<void> {
-  const tasks = resolve_tasks(names)
-
-  for (const task of tasks) {
-    if (task.fn == null)
-      log(`Finished '${chalk.cyan(task.name)}'`)
-    else {
-      log(`Starting '${chalk.cyan(task.name)}'...`)
-      const start = Date.now()
-      await task.fn()
-      const end = Date.now()
-      const diff = end - start
-      const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
-      log(`Finished '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
-    }
-  }
+  return success(undefined)
 }

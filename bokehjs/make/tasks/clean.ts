@@ -5,14 +5,14 @@ import {build_dir} from "../paths"
 
 task("clean", ["clean:scripts", "clean:styles"])
 
-task("clean:all", () => {
-  return del(build_dir.all)
+task("clean:all", async () => {
+  await del(build_dir.all)
 })
 
-task("clean:scripts", () => {
-  return del(build_dir.js)
+task("clean:scripts", async () => {
+  await del(build_dir.js)
 })
 
-task("clean:styles", () => {
-  return del(build_dir.css)
+task("clean:styles", async () => {
+  await del(build_dir.css)
 })

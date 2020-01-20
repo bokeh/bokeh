@@ -1,4 +1,4 @@
-import {spawn} from "child_process"
+import {spawn, ChildProcess} from "child_process"
 import {argv} from "yargs"
 import {join} from "path"
 
@@ -71,6 +71,7 @@ function bundle(name: string): void {
     transpile: "ES2017",
     externals: [/^@bokehjs\//],
     prelude: default_prelude({global: "Tests"}),
+    shims: ["fs", "module"],
   })
 
   if (!argv.rebuild) linker.load_cache()
@@ -80,12 +81,62 @@ function bundle(name: string): void {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
+function headless(): Promise<ChildProcess> {
+  const args = ["--headless", "--hide-scrollbars", "--remote-debugging-port=9222"]
+  const proc = spawn("chromium-browser", args, {stdio: "pipe"})
+
+  process.once("exit",    () => proc.kill())
+  process.once("SIGINT",  () => proc.kill("SIGINT"))
+  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+
+  return new Promise((resolve, reject) => {
+    setTimeout(() => reject(new Error("timeout")), 5000)
+    proc.on("error", reject)
+    proc.stderr.on("data", (chunk) => {
+      const data: string = chunk.toString()
+      if (data.search(/DevTools listening/) != 0) {
+        resolve(proc)
+      }
+    })
+  })
+}
+
+function server(): Promise<ChildProcess> {
+  const args = ["--no-warnings", "./test/devtools", "server"]
+
+  if (argv.debug) {
+    if (argv.debug === true)
+      args.unshift("--inspect-brk")
+    else
+      args.unshift(`--inspect-brk=${argv.debug}`)
+  }
+
+  const proc = spawn(process.execPath, args, {stdio: ["inherit", "inherit", "inherit", "ipc"]})
+
+  process.once("exit",    () => proc.kill())
+  process.once("SIGINT",  () => proc.kill("SIGINT"))
+  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+
+  return new Promise((resolve, reject) => {
+    proc.on("error", reject)
+    proc.on("message", (msg) => {
+      if (msg == "ready")
+        resolve(proc)
+      else
+        reject(new BuildError("devtools-server", "failed to start"))
+    })
+  })
+}
+
+function opt(name: string, value: unknown): string {
+  return value != null ? `--${name}=${value}` : ""
+}
+
 function devtools(name: string): Promise<void> {
-  const grep = argv.k ?? argv.grep
-  const args = ["--no-warnings", "./test/devtools", `test/${name}/index.html`, grep != null ? `--grep=${grep}` : ""]
+  const args = ["--no-warnings", "./test/devtools", `http://localhost:5777/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
   const proc = spawn(process.execPath, args, {stdio: 'inherit'})
 
-  process.once('exit',    () => proc.kill())
+  process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
   process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
@@ -102,6 +153,16 @@ function devtools(name: string): Promise<void> {
   })
 }
 
+task("test:start:headless", async () => {
+  await headless()
+})
+
+task("test:start:server", async () => {
+  await server()
+})
+
+task("test:start", ["test:start:headless", "test:start:server"])
+
 task("test:compile", ["defaults:generate"], async () => {
   const success = compile_typescript("./test/tsconfig.json", {log})
 
@@ -111,10 +172,18 @@ task("test:compile", ["defaults:generate"], async () => {
 
 task("test:bundle", ["test:unit:bundle", "test:integration:bundle"])
 
-task("test:unit:bundle", ["test:compile"], async () => bundle("unit"))
-task("test:unit", ["test:unit:bundle"], async () => devtools("unit"))
+task("test:unit:bundle", ["test:compile"], async () => {
+  bundle("unit")
+})
+task("test:unit", ["test:start", "test:unit:bundle"], async () => {
+  await devtools("unit")
+})
 
-task("test:integration:bundle", ["test:compile"], async () => bundle("integration"))
-task("test:integration", ["test:integration:bundle"], async () => devtools("integration"))
+task("test:integration:bundle", ["test:compile"], async () => {
+  bundle("integration")
+})
+task("test:integration", ["test:start", "test:integration:bundle"], async () => {
+  await devtools("integration")
+})
 
 task("test", ["test:size", "test:unit", "test:integration"])

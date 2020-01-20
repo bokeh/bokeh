@@ -13,7 +13,9 @@ import {report_diagnostics} from "./compiler"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 
-const cache_version = 2
+const root_path = process.cwd()
+
+const cache_version = 3
 
 export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
   let i = 0
@@ -48,6 +50,7 @@ export type ModuleInfo = {
   dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
   externals: Set<string>
+  shims: Set<string>
 }
 
 export type ModuleCode = {
@@ -101,7 +104,7 @@ export class Bundle {
     let sources: string = ""
     const sourcemap = combine.create()
     const aliases = new Map<string, number | string>()
-    const externals = new Map<string, true>()
+    const externals = new Map<string, boolean>()
 
     const newlines = (source: string): number => {
       const result = source.match(/\n/g)
@@ -126,6 +129,8 @@ export class Bundle {
 
       for (const external of module.externals)
         externals.set(external, true)
+      for (const external of module.shims)
+        externals.set(external, false)
 
       const start = wrap(safe_id(module), "")
       sources += start
@@ -134,7 +139,8 @@ export class Bundle {
       const source_with_sourcemap = minified ? artifact.code.min_source : artifact.code.source
       const source = combine.removeComments(source_with_sourcemap).trimRight()
       sources += source
-      sourcemap.addFile({source: source_with_sourcemap, sourceFile: module.file}, {line})
+      const map_path = join("@@", relative(root_path, module.file))
+      sourcemap.addFile({source: source_with_sourcemap, sourceFile: map_path}, {line})
       line += newlines(source)
 
       const end = ",\n"
@@ -185,6 +191,7 @@ export interface LinkerOpts {
   plugin?: boolean
   exports?: string[]
   prelude?: string
+  shims?: string[]
 }
 
 export class Linker {
@@ -202,6 +209,7 @@ export class Linker {
   readonly plugin: boolean
   readonly exports: Set<string>
   readonly prelude: string | null
+  readonly shims: Set<string>
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -239,10 +247,16 @@ export class Linker {
     this.transpile = opts.transpile != null ? opts.transpile : null
     this.minify = opts.minify != null ? opts.minify : true
     this.plugin = opts.plugin != null ? opts.plugin : false
+
+    this.shims = new Set(opts.shims ?? [])
   }
 
   is_external(dep: string): boolean {
     return this.external_modules.has(dep) || this.external_regex.some((re) => re.test(dep))
+  }
+
+  is_shimmed(dep: string): boolean {
+    return this.shims.has(dep)
   }
 
   link(): Bundle[] {
@@ -384,6 +398,7 @@ export class Linker {
           dependency_map: new Map(module.dependency_map),
           dependency_paths: new Map(module.dependency_paths),
           externals: new Set(module.externals),
+          shims: new Set(module.shims),
         },
         code,
       } as ModuleArtifact
@@ -415,6 +430,7 @@ export class Linker {
           dependency_map: [...module.dependency_map.entries()],
           dependency_paths: [...module.dependency_paths.entries()],
           externals: [...module.externals.values()],
+          shims: [...module.shims.values()],
         },
         code: artifact.code,
       })
@@ -459,7 +475,7 @@ export class Linker {
     return null
   }
 
-  protected resolve_relative(dep: string, parent: Parent): string {
+  protected resolve_relative(dep: string, parent: Parent): Path | Error {
     const path = resolve(dirname(parent.file), dep)
 
     if (file_exists(path))
@@ -477,7 +493,7 @@ export class Linker {
         if (!has_file)
           return pkg_file
         else
-          throw new Error(`both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
+          return new Error(`both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
       }
     }
 
@@ -486,10 +502,10 @@ export class Linker {
     else if (has_json_file)
       return json_file
     else
-      throw new Error(`can't resolve '${dep}' from '${parent.file}'`)
+      return new Error(`can't resolve '${dep}' from '${parent.file}'`)
   }
 
-  protected resolve_absolute(dep: string, parent: Parent): string {
+  protected resolve_absolute(dep: string, parent: Parent): Path | Error {
     for (const base of this.bases) {
       let path = join(base, dep)
       if (file_exists(path))
@@ -528,10 +544,10 @@ export class Linker {
       }
     }
 
-    throw new Error(`can't resolve '${dep}' from '${parent.file}'`)
+    return new Error(`can't resolve '${dep}' from '${parent.file}'`)
   }
 
-  resolve_file(dep: string, parent: Parent): Path {
+  resolve_file(dep: string, parent: Parent): Path | Error {
     if (dep.startsWith("."))
       return this.resolve_relative(dep, parent)
     else
@@ -605,6 +621,7 @@ export class Linker {
     let ast: ts.SourceFile | undefined
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
+    let shims: Set<string>
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
@@ -629,13 +646,23 @@ export class Linker {
 
       if (collected == null)
         collected = transforms.collect_deps(ast)
-      const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep))
+      const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep) && !this.is_shimmed(dep))
 
-      dependency_paths = new Map(filtered.map((dep) => [dep, this.resolve_file(dep, {file})]))
+      dependency_paths = new Map()
+      for (const dep of filtered) {
+        const resolved = this.resolve_file(dep, {file})
+        if (resolved instanceof Error)
+          console.log(resolved)
+        else
+          dependency_paths.set(dep, resolved)
+      }
+
       externals = new Set(collected.filter((dep) => this.is_external(dep)))
+      shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
       dependency_paths = cached!.module.dependency_paths
       externals = cached!.module.externals
+      shims = cached!.module.shims
       source = cached!.module.source
     }
 
@@ -655,6 +682,7 @@ export class Linker {
       dependency_map: new Map(),
       dependencies: new Map(),
       externals,
+      shims,
     }
   }
 

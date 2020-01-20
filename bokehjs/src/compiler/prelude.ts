@@ -78,9 +78,9 @@ ${comment(license)}
         mod = cache[id];
         if (!mod) {
           if (!modules[id]) {
-            if (parent_require && externals[id]) {
+            if (externals[id] === false || (externals[id] == true && parent_require)) {
               try {
-                mod = {exports: parent_require(id)};
+                mod = {exports: externals[id] ? parent_require(id) : {}};
                 cache[id] = cache[name] = mod;
                 return mod.exports;
               } catch (e) {}
@@ -173,9 +173,9 @@ export function default_prelude(options: {global?: string} = {}): string {
         mod = cache[id];
         if (!mod) {
           if (!modules[id]) {
-            if (parent_require && externals[id]) {
+            if (externals[id] === false || (externals[id] == true && parent_require)) {
               try {
-                mod = {exports: parent_require(id)};
+                mod = {exports: externals[id] ? parent_require(id) : {}};
                 cache[id] = cache[name] = mod;
                 return mod.exports;
               } catch (e) {}
