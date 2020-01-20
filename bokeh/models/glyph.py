@@ -58,6 +58,13 @@ class Glyph(Model):
 
     @classmethod
     def parameters(cls):
+        ''' Generate Python ``Parameter`` values suitable for functions that are
+        derived from the glyph.
+
+        Returns:
+            list(Parameter)
+
+        '''
         arg_params = []
 
         for arg in cls._args:

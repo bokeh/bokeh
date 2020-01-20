@@ -42,10 +42,6 @@ LEGEND_KWS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 # Dev API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
 @pytest.mark.parametrize('key', LEGEND_KWS)
 def test_pop_legend_kwarg(key):
     kws = {'foo': 10, key: 'bar'}
@@ -56,6 +52,10 @@ def test_pop_legend_kwarg_error(keys):
     kws = dict(zip(keys, range(len(keys))))
     with pytest.raises(ValueError):
         bpl.pop_legend_kwarg(kws)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def test__find_legend_item():
     legend = Legend(items=[LegendItem(label=dict(value="foo")), LegendItem(label=dict(field="bar"))])
@@ -109,7 +109,6 @@ class Test__handle_legend_deprecated(object):
         bpl._handle_legend_deprecated(dict(field="bar"), legend, renderer)
         assert len(legend.items) == 2
         assert all("field" in item.label for item in legend.items)
-
 
 class Test__handle_legend_field(object):
 

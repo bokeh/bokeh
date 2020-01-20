@@ -36,10 +36,6 @@ import bokeh.plotting._renderer as bpr # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
 class Test__pop_visuals(object):
 
     def test_basic_prop(self):
@@ -85,6 +81,9 @@ class Test__pop_visuals(object):
         assert ca["fill_color"] == "white"
         assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
 
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 # # TODO: ideally, the list of arguments should be received directly from
 # # GlyphRenderer, but such case requires a system that would be able to generate
