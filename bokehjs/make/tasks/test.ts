@@ -2,6 +2,8 @@ import {spawn, ChildProcess} from "child_process"
 import {argv} from "yargs"
 import {join} from "path"
 
+import which from "which"
+
 import {task, log, BuildError} from "../task"
 import {Linker} from "@compiler/linker"
 import {default_prelude} from "@compiler/prelude"
@@ -81,9 +83,21 @@ function bundle(name: string): void {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
-function headless(): Promise<ChildProcess> {
+async function chrome(): Promise<string> {
+  const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
+  for (const name of names) {
+    try {
+      return await which(name)
+    } catch {}
+  }
+
+  throw new BuildError("headless", "can't find chromium or chrome executables")
+}
+
+async function headless(): Promise<ChildProcess> {
+  const cmd = await chrome()
   const args = ["--headless", "--hide-scrollbars", "--remote-debugging-port=9222"]
-  const proc = spawn("chromium-browser", args, {stdio: "pipe"})
+  const proc = spawn(cmd, args, {stdio: "pipe"})
 
   process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
@@ -93,9 +107,12 @@ function headless(): Promise<ChildProcess> {
     setTimeout(() => reject(new Error("timeout")), 5000)
     proc.on("error", reject)
     proc.stderr.on("data", (chunk) => {
-      const data: string = chunk.toString()
-      if (data.search(/DevTools listening/) != 0) {
-        resolve(proc)
+      const text = `${chunk}`
+      for (const line of text.split("\n")) {
+        if (line.match(/DevTools listening/) != null) {
+          console.log(line)
+          resolve(proc)
+        }
       }
     })
   })
