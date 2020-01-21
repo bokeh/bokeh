@@ -40,6 +40,8 @@
     "tsconfig-paths": "^3.8.0",
     "less": "^3.9.0",
     "@types/less": "^3.0.1",
+    "which": "^2.0.2",
+    "@types/which": "^1.3.2",
     "cli-progress": "^3.5.0",
     "@types/cli-progress": "^3.4.1",
     "chalk": "^3.0.0",
