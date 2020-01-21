@@ -116,7 +116,7 @@ def build_or_install_bokehjs():
     If ``--existing-js`` is detected, then this setup.py is being run from a
     packaged sdist, no action is taken.
 
-    Note that ``-build-js`` is only compatible with the following ``setup.py``
+    Note that ``--build-js`` is only compatible with the following ``setup.py``
     commands: install, develop, sdist, egg_info, build
 
     Returns:
@@ -131,12 +131,19 @@ def build_or_install_bokehjs():
         sys.argv.remove('--existing-js')
         return "packaged"
 
-    if '--build-js' not in sys.argv and '--install-js' not in sys.argv:
+    is_release = False
+
+    if '--build-js' not in sys.argv and '--build-js-stripped' not in sys.argv and '--install-js' not in sys.argv:
         jsbuild = jsbuild_prompt()
 
     elif '--build-js' in sys.argv:
         jsbuild = True
         sys.argv.remove('--build-js')
+
+    elif '--build-js-stripped' in sys.argv:
+        jsbuild = True
+        is_release = True
+        sys.argv.remove('--build-js-stripped')
 
     # must be "--install-js"
     else:
@@ -149,7 +156,7 @@ def build_or_install_bokehjs():
         sys.exit(1)
 
     if jsbuild:
-        build_js()
+        build_js(is_release)
         install_js()
         return "built"
     else:
@@ -175,9 +182,9 @@ def fixup_building_sdist():
         if "--install-js" in sys.argv:
             print("Removing '--install-js' incompatible with 'sdist'")
             sys.argv.remove('--install-js')
-        if "--build-js" not in sys.argv:
-            print("Adding '--build-js' required for 'sdist'")
-            sys.argv.append('--build-js')
+        if "--build-js-stripped" not in sys.argv:
+            print("Adding '--build-js-stripped' required for 'sdist'")
+            sys.argv.append('--build-js-stripped')
 
 def fixup_for_packaged():
     ''' If we are installing FROM an sdist, then a pre-built BokehJS is
@@ -193,15 +200,21 @@ def fixup_for_packaged():
         None
 
     '''
-    if exists(join(ROOT, 'PKG-INFO')):
-        if "--build-js" in sys.argv or "--install-js" in sys.argv:
-            print(SDIST_BUILD_WARNING)
-            if "--build-js" in sys.argv:
-                sys.argv.remove('--build-js')
-            if "--install-js" in sys.argv:
-                sys.argv.remove('--install-js')
-        if "--existing-js" not in sys.argv:
-            sys.argv.append('--existing-js')
+    if not exists(join(ROOT, 'PKG-INFO')):
+        return
+
+    orig_argv_len = len(sys.argv)
+    if "--build-js" in sys.argv:
+        sys.argv.remove('--build-js')
+    if "--build-js" in sys.argv:
+        sys.argv.remove('--build-j-release')
+    if "--install-js" in sys.argv:
+        sys.argv.remove('--install-js')
+    if len(sys.argv) < orig_argv_len:
+        print(SDIST_BUILD_WARNING)
+
+    if "--existing-js" not in sys.argv:
+        sys.argv.append('--existing-js')
 
 # Horrible hack: workaround to allow creation of bdist_wheel on pip
 # installation. Why, for God's sake, is pip forcing the generation of wheels
@@ -267,7 +280,7 @@ def jsbuild_prompt():
 # Helpers for operations in the bokehjs dir
 # -----------------------------------------------------------------------------
 
-def build_js():
+def build_js(is_release):
     ''' Build BokehJS files under the ``bokehjs`` source subdirectory.
 
     Also prints a table of statistics about the generated assets (file sizes,
@@ -281,7 +294,8 @@ def build_js():
     sys.stdout.flush()
     os.chdir('bokehjs')
 
-    cmd = ["node", "make", 'build', '--emit-error']
+    build_cmd = "build:stripped" if is_release else "build"
+    cmd = ["node", "make", "clean", build_cmd]
 
     t0 = time.time()
     try:
@@ -450,7 +464,8 @@ SDIST_BUILD_WARNING = """
 Source distribution (sdist) packages come with PRE-BUILT BokehJS files.
 
 Building/installing from the bokehjs source directory of sdist packages is
-disabled, and the options --build-js and --install-js will be IGNORED.
+disabled, and the options --build-js, --build-js-stripped, and --install-js will
+be IGNORED.
 
 To build or develop BokehJS yourself, you must clone the full Bokeh GitHub
 repository from https://github.com/bokeh/bokeh

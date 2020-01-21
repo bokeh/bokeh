@@ -1,3 +1,4 @@
+import {spawn} from "child_process"
 import {join} from "path"
 import {argv} from "yargs"
 
@@ -16,6 +17,19 @@ task("scripts:compile", ["styles:compile"], async () => {
 
   if (argv.emitError && !success)
     process.exit(1)
+})
+
+task("scripts:strip", ["scripts:compile"], async () => {
+  const proc = spawn("sh", ["strip_source_map.sh", paths.build_dir.js], {cwd: "make/"})
+  return new Promise((resolve, reject) => {
+    proc.on("exit", (code) => {
+      if (code === 0) {
+        log("strip_source_map.sh DONE!")
+        resolve()
+      } else
+        reject(new Error(`strip_source_map.sh exited code ${code}`))
+    })
+  })
 })
 
 function min_js(js: string): string {
