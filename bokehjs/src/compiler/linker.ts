@@ -153,17 +153,20 @@ export class Bundle {
     sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});\n})\n`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
-    return new Artifact(sources, source_map, aliases)
+    return new Artifact(sources, minified ? null : source_map, aliases)
   }
 }
 
 export class Artifact {
   constructor(readonly source: string,
-              readonly sourcemap: object,
+              readonly sourcemap: object | null,
               readonly exported: Map<string, number | string>) {}
 
   full_source(name: string): string {
-    return `${this.source}\n${convert.generateMapFileComment(name)}\n`
+    if (this.sourcemap != null)
+      return `${this.source}\n${convert.generateMapFileComment(name)}\n`
+    else
+      return `${this.source}\n`
   }
 
   get module_names(): string[] {
@@ -174,7 +177,9 @@ export class Artifact {
     const dir = dirname(path)
     const name = basename(path, ".js")
     write(path, this.full_source(name + ".js.map"))
-    write(join(dir, name + ".js.map"), JSON.stringify(this.sourcemap))
+    if (this.sourcemap != null) {
+      write(join(dir, name + ".js.map"), JSON.stringify(this.sourcemap))
+    }
   }
 }
 
