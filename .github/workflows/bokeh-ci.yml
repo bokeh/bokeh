@@ -265,6 +265,7 @@ jobs:
       - name: Start chrome headless
         shell: bash
         run: |
+          chromium-browser --version
           chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
 
       - name: Cache sampledata
