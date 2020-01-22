@@ -597,6 +597,12 @@ jobs:
           if [[ "${{ runner.os }}" = "Windows" ]]; then
             source activate test
           fi
+          # verify python being used is the expected one
+          echo "PYTHON: `python -c 'import platform; print(platform.python_version())'`"
+          echo "MATRIX: ${{ matrix.python-version }}"
+          echo "PRE"
+          if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+          echo "POST"
           py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
 
 
