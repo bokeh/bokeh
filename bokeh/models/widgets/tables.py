@@ -14,6 +14,8 @@
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
+from Lib.typing import Sequence
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -53,6 +55,7 @@ __all__ = (
     'CellFormatter',
     'CellEditor',
     'CheckboxEditor',
+    'CompositeFormatter',
     'DataCube',
     'DataTable',
     'DateEditor',
@@ -238,6 +241,29 @@ class BooleanFormatter(CellFormatter):
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
     The icon visualizing the check mark.
     """)
+
+class CompositeFormatter(CellFormatter):
+    '''CompositeFormatter applies multiple formatters to a single TableColumn
+
+    '''
+
+    formatters = Sequence(Instance(CellFormatter), default=[], help="""
+        The CompositeFormatter class may be used with any combination of 
+        the installed formatters in the Bokeh library to apply multiple 
+        formatting capabilities (BooleanFormatter, CellFormatter, DateFormatter, 
+        HTMLTemplateFormatter, NumberFormatter, ScientificFormatter, StringFormatter, 
+        to a single TableColumn.
+        
+        Example:
+        example_formatter = CompositeFormatter(formatters=[
+        NumberFormatter(format='0[.]0000'),
+        HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%='
+                                       ' manufacturer %>+<%= model %>" target="_blank">'
+                                       '<%= value %></a>'),
+        ])
+        
+        TableColumn(field='Part ID', title='Part ID', formatter=example_formatter, ...)
+        """)
 
 class DateFormatter(CellFormatter):
     ''' Date cell formatter.
