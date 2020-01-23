@@ -380,11 +380,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install chromium-browser
 
-      - name: Start chrome headless
-        shell: bash
-        run: |
-          chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
-
       - name: Run tests
         shell: bash
         run: |
