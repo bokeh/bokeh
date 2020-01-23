@@ -470,7 +470,7 @@ interactors to quickly create simple GUI forms automatically. Updates to the
 widgets in the GUI can trigger python callback functions that execute in
 the Jupyter Python kernel. It is often useful to have these callbacks call
 :func:`~bokeh.io.push_notebook` to push updates to displayed plots. For more
-detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
+detailed information, see :ref:`userguide_jupyter_notebook_jupyter_interactors`.
 
 .. note::
     It is currently possible to push updates from python, to BokehJS (i.e.,
