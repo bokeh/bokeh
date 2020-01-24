@@ -14,7 +14,7 @@
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-from Lib.typing import Sequence
+# from typing import Sequence
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -245,25 +245,23 @@ class BooleanFormatter(CellFormatter):
 class CompositeFormatter(CellFormatter):
     '''CompositeFormatter applies multiple formatters to a single TableColumn
 
+    Example:
+    .. code-block:: python
+
+        example_formatter = CompositeFormatter(formatters=[StringFormatter(font_style="bold"), HTMLTemplateFormatter(
+        template='<code><%= value %></code>')])
+
+        TableColumn(field='Part ID', title='Part ID', formatter=example_formatter, ...)
     '''
 
-    formatters = Sequence(Instance(CellFormatter), default=[], help="""
-        The CompositeFormatter class may be used with any combination of 
-        the installed formatters in the Bokeh library to apply multiple 
-        formatting capabilities (BooleanFormatter, CellFormatter, DateFormatter, 
-        HTMLTemplateFormatter, NumberFormatter, ScientificFormatter, StringFormatter, 
-        to a single TableColumn.
-        
-        Example:
-        example_formatter = CompositeFormatter(formatters=[
-        NumberFormatter(format='0[.]0000'),
-        HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%='
-                                       ' manufacturer %>+<%= model %>" target="_blank">'
-                                       '<%= value %></a>'),
-        ])
-        
-        TableColumn(field='Part ID', title='Part ID', formatter=example_formatter, ...)
-        """)
+    formatters = Seq(Instance(CellFormatter, help="""
+        The CompositeFormatter class may be used with any combination of
+        the installed formatters in the Bokeh library to apply multiple
+        formatting capabilities (BooleanFormatter, CellFormatter, DateFormatter,
+        HTMLTemplateFormatter, NumberFormatter, ScientificFormatter, StringFormatter,
+        to a single TableColumn. Formatters are implemented in the order they are 
+        listed, i.e: from "(" to ")".
+        """))
 
 class DateFormatter(CellFormatter):
     ''' Date cell formatter.
