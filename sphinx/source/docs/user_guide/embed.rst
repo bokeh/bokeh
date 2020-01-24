@@ -120,8 +120,18 @@ Then the corresponding code on the page might look like:
 
     <script>
     fetch('/plot')
-        .then(function(response) { return response.json(); })
-        .then(function(item) { Bokeh.embed.embed_item(item); })
+        .then(function(response) { return response.json() })
+        .then(function(item) { return Bokeh.embed.embed_item(item) })
+    </script>
+
+or with modern syntax:
+
+.. code-block:: html
+
+    <script>
+    const response = await fetch('/plot')
+    const item = await response.json()
+    Bokeh.embed.embed_item(item)
     </script>
 
 A full example can be found a :bokeh-tree:`examples/embed/json_item.py`.

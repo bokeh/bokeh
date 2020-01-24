@@ -396,6 +396,8 @@ export abstract class LayoutDOM extends Model {
   properties: LayoutDOM.Props
   default_view: Class<LayoutDOMView, [LayoutDOMView.Options]>
 
+  __view_type__: LayoutDOMView
+
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)
   }

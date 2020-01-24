@@ -44,6 +44,7 @@ export interface HasProps extends HasProps.Attrs {
 }
 
 export abstract class HasProps extends Signalable() {
+  __view_type__: View
 
   // XXX: setter is only required for backwards compatibility
   set type(name: string) {
