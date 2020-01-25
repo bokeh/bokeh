@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as proj from "core/util/projections"
 import * as visuals from "core/visuals"
-import {Geometry, RectGeometry} from "core/geometry"
+import * as geometry from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
 import {Model} from "../../model"
@@ -41,11 +41,10 @@ export abstract class GlyphView extends View {
 
   index: SpatialIndex
 
-  protected _nohit_warned: {[key: string]: boolean} = {}
+  protected _nohit_warned: Set<geometry.Geometry["type"]> = new Set()
 
   initialize(): void {
     super.initialize()
-    this._nohit_warned = {}
     this.visuals = new visuals.Visuals(this.model)
   }
 
@@ -179,21 +178,40 @@ export abstract class GlyphView extends View {
 
   draw_legend_for_index(_ctx: Context2d, _bbox: Rect, _index: number): void {}
 
-  hit_test(geometry: Geometry): hittest.HitTestResult {
-    let result = null
+  protected _hit_point?(geometry: geometry.PointGeometry): Selection
+  protected _hit_span?(geometry: geometry.SpanGeometry): Selection
+  protected _hit_rect?(geometry: geometry.RectGeometry): Selection
+  protected _hit_poly?(geometry: geometry.PolyGeometry): Selection
 
-    const func = `_hit_${geometry.type}`
-    if ((this as any)[func] != null) {
-      result = (this as any)[func](geometry)
-    } else if (this._nohit_warned[geometry.type] == null) {
-      logger.debug(`'${geometry.type}' selection not available for ${this.model.type}`)
-      this._nohit_warned[geometry.type] = true
+  hit_test(geometry: geometry.Geometry): hittest.HitTestResult {
+    switch (geometry.type) {
+      case "point":
+        if (this._hit_point != null)
+          return this._hit_point(geometry)
+        break
+      case "span":
+        if (this._hit_span != null)
+          return this._hit_span(geometry)
+        break
+      case "rect":
+        if (this._hit_rect != null)
+          return this._hit_rect(geometry)
+        break
+      case "poly":
+        if (this._hit_poly != null)
+          return this._hit_poly(geometry)
+        break
     }
 
-    return result
+    if (!this._nohit_warned.has(geometry.type)) {
+      logger.debug(`'${geometry.type}' selection not available for ${this.model.type}`)
+      this._nohit_warned.add(geometry.type)
+    }
+
+    return null
   }
 
-  protected _hit_rect_against_index(geometry: RectGeometry): Selection {
+  protected _hit_rect_against_index(geometry: geometry.RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)

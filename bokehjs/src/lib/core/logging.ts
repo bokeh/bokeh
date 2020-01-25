@@ -111,3 +111,12 @@ export function set_log_level(level: string | LogLevel): LogLevel {
   }
   return previous_level
 }
+
+export function with_log_level(level: string | LogLevel, fn: () => void): void {
+  const original = set_log_level(level)
+  try {
+    fn()
+  } finally {
+    set_log_level(original)
+  }
+}

@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
 import {Set} from "@bokehjs/core/util/data_structures"
-import {set_log_level} from "@bokehjs/core/logging"
+import {with_log_level} from "@bokehjs/core/logging"
 
 import {keys} from "@bokehjs/core/util/object"
 import {ColumnDataSource, stream_to_column, slice, patch_to_column} from "@bokehjs/models/sources/column_data_source"
@@ -515,8 +515,7 @@ describe("column_data_source module", () => {
     })
 
     it("should not alert for consistent column lengths (including zero)", () => {
-      const original = set_log_level("info")
-      try {
+      with_log_level("info", () => {
         const r0 = new ColumnDataSource({data: {foo: []}})
         const out0 = trap(() => r0.get_length())
         expect(out0.warn).to.be.equal("")
@@ -536,14 +535,11 @@ describe("column_data_source module", () => {
         const r4 = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
         const out4 = trap(() => r4.get_length())
         expect(out4.warn).to.be.equal("")
-      } finally {
-        set_log_level(original)
-      }
+      })
     })
 
     it("should alert if column lengths are inconsistent", () => {
-      const original = set_log_level("info")
-      try {
+      with_log_level("info", () => {
         const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
         const out0 = trap(() => r0.get_length())
         expect(out0.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
@@ -551,9 +547,7 @@ describe("column_data_source module", () => {
         const r1 = new ColumnDataSource({data: {foo: [1], bar: [1, 2], baz: [1]}})
         const out1 = trap(() => r1.get_length())
         expect(out1.warn).to.be.equal("[bokeh] data source has columns of inconsistent lengths\n")
-      } finally {
-        set_log_level(original)
-      }
+      })
     })
   })
 
