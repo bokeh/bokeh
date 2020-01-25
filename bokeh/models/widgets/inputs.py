@@ -258,7 +258,8 @@ class MultiChoice(InputWidget):
     """)
 
     delete_button = Bool(default=True, help="""
-    Whether to add a button to remove a selected option.""")
+    Whether to add a button to remove a selected option.
+    """)
 
     max_items = Int(default=None, help="""
     The maximum number of items that can be selected.
@@ -269,8 +270,11 @@ class MultiChoice(InputWidget):
     """)
 
     placeholder = String(default=None, help="""
-    A string that is displayed if not item is added.""")
+    A string that is displayed if not item is added.
+    """)
 
+    solid = Bool(default=True, help="""
+    Specify whether the choices should be solidly filled.""")
 
 
 class DatePicker(InputWidget):

@@ -51,15 +51,25 @@ export class MultiChoiceView extends InputWidgetView {
     this.group_el.appendChild(this.select_el)
     this.render_selection()
 
+    let item = "choices__item"
+    let button = "choices__button"
+    if (this.model.solid) {
+      item = item+" solid"
+      button = button+" solid"
+    } else {
+      item = item+" light"
+      button = button+" light"
+    }
     const opts: Partial<ChoicesNS.Options> = {
       removeItemButton: this.model.delete_button,
+      classNames: ({item, button} as ChoicesNS.ClassNames),
     }
     if (this.model.placeholder !== null)
-      opts["placeholderValue"] = this.model.placeholder
+      opts.placeholderValue = this.model.placeholder
     if (this.model.max_items !== null)
-      opts["maxItemCount"] = this.model.max_items
+      opts.maxItemCount = this.model.max_items
     if (this.model.option_limit !== null)
-      opts["renderChoiceLimit"] = this.model.option_limit
+      opts.renderChoiceLimit = this.model.option_limit
     this.choice_el = new Choices(this.select_el, opts)
     this.select_el.addEventListener("change", () => this.change_input())
   }
@@ -107,6 +117,7 @@ export namespace MultiChoice {
     delete_button: p.Property<boolean>
     placeholder: p.Property<string | null>
     option_limit: p.Property<number | null>
+    solid: p.Property<boolean>
   }
 }
 
@@ -129,6 +140,7 @@ export class MultiChoice extends InputWidget {
       delete_button: [ p.Boolean, true ],
       placeholder:   [ p.String,  null ],
       option_limit:  [ p.Number,  null ],
+      solid:         [ p.Boolean, true ],
     })
   }
 }
