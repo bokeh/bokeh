@@ -183,7 +183,7 @@ class TestResources(object):
         ]
 
     def test_server_with_versioner(self) -> None:
-        def versioner(path):
+        def versioner(path: str) -> str:
             return path + "?v=VERSIONED"
 
         r = resources.Resources(mode="server", root_url="http://foo/", path_versioner=versioner)

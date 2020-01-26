@@ -115,7 +115,7 @@ class Bundle(object):
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
-def bundle_for_objs_and_resources(objs: Sequence[Union[Model, Document]], resources: Optional[Resources]):
+def bundle_for_objs_and_resources(objs: Optional[Sequence[Union[Model, Document]]], resources: Optional[Resources]):
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 

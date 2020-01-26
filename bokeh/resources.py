@@ -36,6 +36,8 @@ log = logging.getLogger(__name__)
 import json
 import re
 from os.path import basename, join, relpath
+from typing import Callable, Dict, List, Optional, Tuple, cast
+from typing_extensions import Literal, TypedDict
 
 # Bokeh imports
 from . import __version__
@@ -54,6 +56,19 @@ DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
+Mode = Literal["inline", "cdn", "server", "server-dev", "relative", "relative-dev", "absolute", "absolute-dev"]
+LogLevel = Literal["trace", "debug", "info", "warn", "error", "fatal"]
+PathVersioner = Callable[[str], str]
+Kind = Literal["js", "css"]
+
+class Message(TypedDict):
+    type: str
+    text: str
+
+class Urls(TypedDict):
+    urls: Callable[[List[str], Kind], List[str]]
+    messages: List[Message]
+
 # __all__ defined at the bottom on the class module
 
 # -----------------------------------------------------------------------------
@@ -65,10 +80,10 @@ DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER
 # -----------------------------------------------------------------------------
 
 
-_SRI_HASHES = None
+_SRI_HASHES: Optional[Dict[str, Dict[str, str]]] = None
 
 
-def get_all_sri_hashes():
+def get_all_sri_hashes() -> Dict[str, Dict[str, str]]:
     """ Report SRI script hashes for all versions of BokehJS.
 
     Bokeh provides `Subresource Integrity`_ hashes for all JavaScript files that
@@ -106,10 +121,11 @@ def get_all_sri_hashes():
     if not _SRI_HASHES:
         _SRI_HASHES = json.load(open(join(ROOT_DIR, "_sri.json")))
 
+    assert _SRI_HASHES
     return dict(_SRI_HASHES)
 
 
-def get_sri_hashes_for_version(version):
+def get_sri_hashes_for_version(version: str) -> Dict[str, str]:
     """ Report SRI script hashes for a specific version of BokehJS.
 
     Bokeh provides `Subresource Integrity`_ hashes for all JavaScript files that
@@ -153,7 +169,7 @@ def get_sri_hashes_for_version(version):
     return hashes[version]
 
 
-def verify_sri_hashes():
+def verify_sri_hashes() -> None:
     """ Verify the SRI hashes in a full release package.
 
     This function compares the computed SRI hashes for the BokehJS files in a
@@ -202,20 +218,25 @@ class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
+    _js_components: List[str]
+    _css_components: List[str]
+    _log_level: Optional[LogLevel]
+
+    messages: List[Message]
+
     def __init__(
         self,
-        mode=None,
-        version=None,
-        root_dir=None,
-        minified=None,
-        legacy=None,
-        log_level=None,
-        root_url=None,
-        path_versioner=None,
-        components=None,
-        base_dir=None,
-    ):
-
+        mode: Optional[Mode] = None,
+        version: Optional[str] = None,
+        root_dir: Optional[str] = None,
+        minified: Optional[bool] = None,
+        legacy: Optional[bool] = None,
+        log_level: Optional[LogLevel] = None,
+        root_url: Optional[str] = None,
+        path_versioner: Optional[PathVersioner] = None,
+        components: Optional[List[str]] = None,
+        base_dir: Optional[str] = None,
+    ) -> None:
         self._components = components
 
         if hasattr(self, "_js_components"):
@@ -284,18 +305,18 @@ class BaseResources(object):
     # Properties --------------------------------------------------------------
 
     @property
-    def log_level(self):
+    def log_level(self) -> Optional[LogLevel]:
         return self._log_level
 
     @log_level.setter
-    def log_level(self, level):
+    def log_level(self, level: Optional[LogLevel]) -> None:
         valid_levels = ["trace", "debug", "info", "warn", "error", "fatal"]
         if not (level is None or level in valid_levels):
             raise ValueError("Unknown log level '{}', valid levels are: {}".format(level, str(valid_levels)))
         self._log_level = level
 
     @property
-    def root_url(self):
+    def root_url(self) -> str:
         if self._root_url is not None:
             return self._root_url
         else:
@@ -303,23 +324,22 @@ class BaseResources(object):
 
     # Public methods ----------------------------------------------------------
 
-    def components(self, kind):
+    def components(self, kind: Kind) -> List[str]:
         components = self.js_components if kind == "js" else self.css_components
         if self._components is not None:
             components = [c for c in components if c in self._components]
         return components
 
-    def _file_paths(self, kind):
+    def _file_paths(self, kind: Kind) -> List[str]:
         minified = ".min" if not self.dev and self.minified else ""
         legacy = "legacy" if self.legacy else ""
         files = ["%s%s.%s" % (component, minified, kind) for component in self.components(kind)]
         paths = [join(self.base_dir, kind, legacy, file) for file in files]
         return paths
 
-    def _collect_external_resources(self, resource_attr):
+    def _collect_external_resources(self, resource_attr: str) -> List[str]:
         """ Collect external resources set on resource_attr attribute of all models."""
-
-        external_resources = []
+        external_resources: List[str] = []
 
         for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external = getattr(cls, resource_attr, None)
@@ -334,15 +354,17 @@ class BaseResources(object):
 
         return external_resources
 
-    def _cdn_urls(self):
+    def _cdn_urls(self) -> Urls:
         return _get_cdn_urls(self.version, self.minified, self.legacy)
 
-    def _server_urls(self):
+    def _server_urls(self) -> Urls:
         return _get_server_urls(self.root_url, False if self.dev else self.minified, self.legacy, self.path_versioner)
 
-    def _resolve(self, kind):
+    def _resolve(self, kind: Kind) -> Tuple[List[str], List[str]]:
         paths = self._file_paths(kind)
-        files, raw = [], []
+
+        files: List[str] = []
+        raw: List[str] = []
 
         if self.mode == "inline":
             raw = [self._inline(path) for path in paths]
@@ -361,7 +383,7 @@ class BaseResources(object):
         return (files, raw)
 
     @staticmethod
-    def _inline(path):
+    def _inline(path: str) -> str:
         begin = "/* BEGIN %s */" % basename(path)
         with open(path, "rb") as f:
             middle = f.read().decode("utf-8")
@@ -417,17 +439,17 @@ class Resources(BaseResources):
 
     """
 
-    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    _css_components = []
+    _js_components: List[str] = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    _css_components: List[str] = []
 
     @property
-    def js_files(self):
+    def js_files(self) -> List[str]:
         files, _ = self._resolve("js")
         external_resources = self._collect_external_resources("__javascript__")
         return external_resources + files
 
     @property
-    def js_raw(self):
+    def js_raw(self) -> List[str]:
         _, raw = self._resolve("js")
 
         if self.log_level is not None:
@@ -438,28 +460,28 @@ class Resources(BaseResources):
 
         return raw
 
-    def render_js(self):
-        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
+    def render_js(self) -> str:
+        return cast(str, JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files))
 
     @property
-    def css_files(self):
+    def css_files(self) -> List[str]:
         files, _ = self._resolve("css")
         external_resources = self._collect_external_resources("__css__")
         return external_resources + files
 
     @property
-    def css_raw(self):
+    def css_raw(self) -> List[str]:
         _, raw = self._resolve("css")
         return raw
 
     @property
-    def css_raw_str(self):
+    def css_raw_str(self) -> List[str]:
         return [json.dumps(css) for css in self.css_raw]
 
-    def render_css(self):
-        return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
+    def render_css(self) -> str:
+        return cast(str, CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files))
 
-    def render(self):
+    def render(self) -> str:
         return "%s\n%s" % (self.render_css(), self.render_js())
 
 # -----------------------------------------------------------------------------
@@ -470,12 +492,10 @@ class Resources(BaseResources):
 class _SessionCoordinates(object):
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
 
-    def __init__(self, **kwargs):
-        self._url = kwargs.get("url", DEFAULT_SERVER_HTTP_URL)
+    _url: str
+    _session_id: Optional[str]
 
-        if self._url is None:
-            raise ValueError("url cannot be None")
-
+    def __init__(self, *, url: str = DEFAULT_SERVER_HTTP_URL, session_id: Optional[str] = None):
         if self._url == "default":
             self._url = DEFAULT_SERVER_HTTP_URL
 
@@ -485,23 +505,23 @@ class _SessionCoordinates(object):
         self._url = self._url.rstrip("/")
 
         # we lazy-generate the session_id so we can generate it server-side when appropriate
-        self._session_id = kwargs.get("session_id")
+        self._session_id = session_id
 
     # Properties --------------------------------------------------------------
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self._url
 
     @property
-    def session_id(self):
+    def session_id(self) -> str:
         """ Session ID derived from the kwargs provided."""
         if self._session_id is None:
             self._session_id = generate_session_id()
         return self._session_id
 
     @property
-    def session_id_allowing_none(self):
+    def session_id_allowing_none(self) -> Optional[str]:
         """ Session ID provided in kwargs, keeping it None if it hasn't been generated yet.
 
         The purpose of this is to preserve ``None`` as long as possible... in some cases
@@ -513,11 +533,11 @@ class _SessionCoordinates(object):
 _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 
-def _cdn_base_url():
+def _cdn_base_url() -> str:
     return "https://cdn.bokeh.org"
 
 
-def _get_cdn_urls(version=None, minified=True, legacy=False):
+def _get_cdn_urls(version: Optional[str] = None, minified: bool = True, legacy: bool = False) -> Urls:
     if version is None:
         if settings.docs_cdn():
             version = settings.docs_cdn()
@@ -538,10 +558,10 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     if version.endswith(("dev", "rc")):
         log.debug("Getting CDN URL for local dev version will not produce usable URL")
 
-    def mk_url(comp, kind):
+    def mk_url(comp: str, kind: Kind) -> str:
         return f"{base_url}/{container}/{_legacy}{comp}-{version}{_minified}.{kind}"
 
-    result = {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
+    result: Urls = {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
 
     if len(__version__.split("-")) > 1:
         result["messages"].append(
@@ -557,11 +577,11 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     return result
 
 
-def _get_server_urls(root_url, minified=True, legacy=False, path_versioner=None):
+def _get_server_urls(root_url: str, minified: bool = True, legacy: bool = False, path_versioner: Optional[PathVersioner] = None) -> Urls:
     _minified = ".min" if minified else ""
     _legacy = "legacy/" if legacy else ""
 
-    def mk_url(comp, kind):
+    def mk_url(comp: str, kind: Kind) -> str:
         path = f"{kind}/{_legacy}{comp}{_minified}.{kind}"
         if path_versioner is not None:
             path = path_versioner(path)
@@ -570,7 +590,7 @@ def _get_server_urls(root_url, minified=True, legacy=False, path_versioner=None)
     return {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
 
 
-def _compute_single_hash(path):
+def _compute_single_hash(path: str) -> str:
     assert path.endswith(".js")
 
     from subprocess import PIPE, Popen
