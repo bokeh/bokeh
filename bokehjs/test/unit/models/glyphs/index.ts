@@ -1,3 +1,4 @@
+import "./glyph"
 import "./image"
 import "./image_rgba"
 import "./image_url"
