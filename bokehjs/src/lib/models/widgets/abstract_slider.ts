@@ -36,6 +36,9 @@ abstract class AbstractBaseSliderView extends ControlView {
   connect_signals(): void {
     super.connect_signals()
 
+    const {direction, orientation, tooltips} = this.model.properties
+    this.on_change([direction, orientation, tooltips], () => this.render())
+
     const {start, end, value, step, title} = this.model.properties
     this.on_change([start, end, value, step], () => {
       const {start, end, value, step} = this._calc_to()
@@ -51,7 +54,8 @@ abstract class AbstractBaseSliderView extends ControlView {
       this._set_bar_color()
     })
 
-    this.on_change([value, title], () => this._update_title())
+    const {show_value} = this.model.properties
+    this.on_change([value, title, show_value], () => this._update_title())
   }
 
   _update_title(): void {
