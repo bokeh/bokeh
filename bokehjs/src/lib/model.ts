@@ -23,6 +23,7 @@ export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
   properties: Model.Props
+
   private _js_callbacks: {[key: string]: (() => void)[]}
 
   constructor(attrs?: Partial<Model.Attrs>) {

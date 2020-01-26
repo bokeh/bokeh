@@ -23,12 +23,12 @@ page = Template("""
   <script>
   fetch('/plot')
     .then(function(response) { return response.json(); })
-    .then(function(item) { Bokeh.embed.embed_item(item); })
+    .then(function(item) { return Bokeh.embed.embed_item(item); })
   </script>
   <script>
   fetch('/plot2')
     .then(function(response) { return response.json(); })
-    .then(function(item) { Bokeh.embed.embed_item(item, "myplot2"); })
+    .then(function(item) { return Bokeh.embed.embed_item(item, "myplot2"); })
   </script>
 </body>
 """)

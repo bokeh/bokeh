@@ -9,8 +9,10 @@ export function delay(func: () => void, wait: number): number {
 
 const _defer = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setImmediate
 
-export function defer(func: () => void): number {
-  return _defer(func)
+export function defer<T>(func: () => T): Promise<T> {
+  return new Promise((resolve) => {
+    _defer(() => resolve(func()))
+  })
 }
 
 export interface ThrottleOptions {

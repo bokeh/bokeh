@@ -10,12 +10,13 @@ import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {some, every, includes} from "../core/util/array"
-import {clone, values} from "../core/util/object"
+import {clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
+import {ViewOf} from "core/view"
 
 import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
 
-import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
+import {LayoutDOM} from "models/layouts/layout_dom"
 import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
@@ -983,10 +984,10 @@ export function figure(attributes?: Partial<FigureAttrs>): Figure {
 
 declare var $: any
 
-export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<LayoutDOMView>
-export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView[]>
+export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>>
+export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>[]>
 
-export async function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView | LayoutDOMView[]> {
+export async function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<LayoutDOM>[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
@@ -1009,7 +1010,7 @@ export async function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | 
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = values(await embed.add_document_standalone(doc, element)) as LayoutDOMView[] // XXX
+  const views = await embed.add_document_standalone(doc, element) as ViewOf<LayoutDOM>[]
 
   return new Promise((resolve, _reject) => {
     const result = isArray(obj) ? views : views[0]

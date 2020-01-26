@@ -3,6 +3,7 @@ import {logger} from "../core/logging"
 import {unescape, uuid4} from "../core/util/string"
 import {isString} from "../core/util/types"
 import {defer} from "core/util/callback"
+import {View} from "core/view"
 
 import {DocsJson, RenderItem} from "./json"
 import {add_document_standalone} from "./standalone"
@@ -18,7 +19,7 @@ export {BOKEH_ROOT} from "./dom"
 export type JsonItem = {doc: DocJson, root_id: string, target_id: string}
 type Roots = {[index: string]: string}
 
-export function embed_item(item: JsonItem, target_id?: string): void {
+export async function embed_item(item: JsonItem, target_id?: string): Promise<View[]> {
   const docs_json: DocsJson = {}
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc
@@ -31,20 +32,21 @@ export function embed_item(item: JsonItem, target_id?: string): void {
     element.classList.add(BOKEH_ROOT)
 
   const roots: Roots = {[item.root_id]: target_id}
-  const render_item: RenderItem = { roots, docid: doc_id }
+  const render_item: RenderItem = {roots, docid: doc_id}
 
-  defer(() => _embed_items(docs_json, [render_item]))
+  const [views] = await defer(() => _embed_items(docs_json, [render_item]))
+  return views
 }
 
 // TODO (bev) this is currently clunky. Standalone embeds only provide
 // the first two args, whereas server provide the app_app, and *may* prove and
 // absolute_url as well if non-relative links are needed for resources. This function
 // should probably be split in to two pieces to reflect the different usage patterns
-export function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): void {
-  defer(() => _embed_items(docs_json, render_items, app_path, absolute_url))
+export async function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<View[][]> {
+  return await defer(() => _embed_items(docs_json, render_items, app_path, absolute_url))
 }
 
-async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<void> {
+async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<View[][]> {
   if (isString(docs_json))
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
 
@@ -54,18 +56,19 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
     docs[docid] = Document.from_json(doc_json)
   }
 
+  const views: View[][] = []
   for (const item of render_items) {
     const element = _resolve_element(item)
     const roots = _resolve_root_elements(item)
 
     if (item.docid != null) {
-      add_document_standalone(docs[item.docid], element, roots, item.use_for_title)
+      views.push(await add_document_standalone(docs[item.docid], element, roots, item.use_for_title))
     } else if (item.sessionid != null) {
       const websocket_url = _get_ws_url(app_path, absolute_url)
       logger.debug(`embed: computed ws url: ${websocket_url}`)
 
       try {
-        await add_document_from_session(websocket_url, item.sessionid, element, roots, item.use_for_title)
+        views.push(await add_document_from_session(websocket_url, item.sessionid, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
       } catch (error) {
         console.log("Error rendering Bokeh items:", error)
@@ -73,4 +76,6 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
     } else
       throw new Error(`Error rendering Bokeh items: either 'docid' or 'sessionid' was expected.`)
   }
+
+  return views
 }

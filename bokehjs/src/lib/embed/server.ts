@@ -1,7 +1,7 @@
 import {ClientSession} from "../client/session"
 import {pull_session} from "../client/connection"
 import {logger} from "../core/logging"
-import {DOMView} from "../core/dom_view"
+import {View} from "../core/view"
 
 import {add_document_standalone} from "./standalone"
 
@@ -43,7 +43,7 @@ function _get_session(websocket_url: string, session_id: string, args_string: st
 
 // Fill element with the roots from session_id
 export async function add_document_from_session(websocket_url: string, session_id: string, element: HTMLElement,
-    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): Promise<{[key: string]: DOMView}> {
+    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): Promise<View[]> {
   const args_string = window.location.search.substr(1)
   let session: ClientSession
   try {
