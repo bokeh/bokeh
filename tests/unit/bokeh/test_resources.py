@@ -65,7 +65,7 @@ class TestResources(object):
         assert resources.INLINE.mode == "inline"
 
     def test_inline(self) -> None:
-        r = resources.Resources(mode="inline")
+        r = resources.InlineResources()
         assert r.mode == "inline"
         assert r.dev == False
 
@@ -82,7 +82,7 @@ class TestResources(object):
 
     def test_cdn(self) -> None:
         resources.__version__ = "1.0"
-        r = resources.Resources(mode="cdn", version="1.0")
+        r = resources.CDNResources(version="1.0")
         assert r.mode == "cdn"
         assert r.dev == False
 
@@ -91,7 +91,7 @@ class TestResources(object):
         assert r.messages == []
 
         resources.__version__ = "1.0-1-abc"
-        r = resources.Resources(mode="cdn", version="1.0")
+        r = resources.CDNResources(version="1.0")
         assert r.messages == [
             {
                 "text": "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
@@ -100,7 +100,7 @@ class TestResources(object):
         ]
 
     def test_server_default(self) -> None:
-        r = resources.Resources(mode="server")
+        r = resources.ServerResources()
         assert r.mode == "server"
         assert r.dev == False
 
@@ -116,7 +116,7 @@ class TestResources(object):
         ]
 
     def test_server_root_url(self) -> None:
-        r = resources.Resources(mode="server", root_url="http://foo/")
+        r = resources.ServerResources(root_url="http://foo/")
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
         assert r.css_raw == []
@@ -130,7 +130,7 @@ class TestResources(object):
         ]
 
     def test_server_root_url_empty(self) -> None:
-        r = resources.Resources(mode="server", root_url="")
+        r = resources.ServerResources(root_url="")
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
         assert r.css_raw == []
@@ -147,7 +147,7 @@ class TestResources(object):
         def versioner(path: str) -> str:
             return path + "?v=VERSIONED"
 
-        r = resources.Resources(mode="server", root_url="http://foo/", path_versioner=versioner)
+        r = resources.ServerResources(root_url="http://foo/", path_versioner=versioner)
 
         assert r.js_files == [
             "http://foo/static/js/bokeh.min.js?v=VERSIONED",
@@ -157,7 +157,7 @@ class TestResources(object):
         ]
 
     def test_server_dev(self) -> None:
-        r = resources.Resources(mode="server-dev")
+        r = resources.ServerResources(dev=True)
         assert r.mode == "server"
         assert r.dev == True
 
@@ -165,14 +165,14 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-        r = resources.Resources(mode="server-dev", root_url="http://foo/")
+        r = resources.ServerResources(dev=True, root_url="http://foo/")
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"]
         assert r.css_raw == []
         assert r.messages == []
 
     def test_relative(self) -> None:
-        r = resources.Resources(mode="relative")
+        r = resources.RelativeResources()
         assert r.mode == "relative"
         assert r.dev == False
 
@@ -181,7 +181,7 @@ class TestResources(object):
         assert r.messages == []
 
     def test_relative_dev(self) -> None:
-        r = resources.Resources(mode="relative-dev")
+        r = resources.RelativeResources(dev=True)
         assert r.mode == "relative"
         assert r.dev == True
 
@@ -190,7 +190,7 @@ class TestResources(object):
         assert r.messages == []
 
     def test_absolute(self) -> None:
-        r = resources.Resources(mode="absolute")
+        r = resources.AbsoluteResources()
         assert r.mode == "absolute"
         assert r.dev == False
 
@@ -199,7 +199,7 @@ class TestResources(object):
         assert r.messages == []
 
     def test_absolute_dev(self) -> None:
-        r = resources.Resources(mode="absolute-dev")
+        r = resources.AbsoluteResources(dev=True)
         assert r.mode == "absolute"
         assert r.dev == True
 
@@ -207,25 +207,8 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-    def test_argument_checks(self) -> None:
-        with pytest.raises(ValueError):
-            resources.Resources("foo")
-
-        for mode in ("inline", "cdn", "server", "server-dev", "absolute", "absolute-dev"):
-            with pytest.raises(ValueError):
-                resources.Resources(mode, root_dir="foo")
-
-        for mode in ("inline", "server", "server-dev", "relative", "relative-dev", "absolute", "absolute-dev"):
-            with pytest.raises(ValueError):
-                resources.Resources(mode, version="foo")
-
-        for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
-            with pytest.raises(ValueError):
-                resources.Resources(mode, root_url="foo")
-
 
 ## Test external resources
-
 
 def test_external_js_and_css_resource_embedding() -> None:
     """ This test method has to be at the end of the test modules because
