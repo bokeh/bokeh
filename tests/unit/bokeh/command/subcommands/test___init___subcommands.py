@@ -30,16 +30,16 @@ import bokeh.command.subcommands as sc # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_all():
+def test_all() -> None:
     assert hasattr(sc, 'all')
     assert type(sc.all) is list
 
-def test_all_types():
+def test_all_types() -> None:
     from bokeh.command.subcommand import Subcommand
 
     assert all(issubclass(x, Subcommand) for x in sc.all)
 
-def test_all_count():
+def test_all_count() -> None:
     from os.path import dirname
     from os import listdir
 

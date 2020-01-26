@@ -43,12 +43,12 @@ LEGEND_KWS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 #-----------------------------------------------------------------------------
 
 @pytest.mark.parametrize('key', LEGEND_KWS)
-def test_pop_legend_kwarg(key):
+def test_pop_legend_kwarg(key) -> None:
     kws = {'foo': 10, key: 'bar'}
     assert bpl.pop_legend_kwarg(kws) == {key: "bar"}
 
 @pytest.mark.parametrize('keys', all_combinations(LEGEND_KWS))
-def test_pop_legend_kwarg_error(keys):
+def test_pop_legend_kwarg_error(keys) -> None:
     kws = dict(zip(keys, range(len(keys))))
     with pytest.raises(ValueError):
         bpl.pop_legend_kwarg(kws)
@@ -57,7 +57,7 @@ def test_pop_legend_kwarg_error(keys):
 # Private API
 #-----------------------------------------------------------------------------
 
-def test__find_legend_item():
+def test__find_legend_item() -> None:
     legend = Legend(items=[LegendItem(label=dict(value="foo")), LegendItem(label=dict(field="bar"))])
     assert bpl._find_legend_item(dict(value="baz"), legend) is None
     assert bpl._find_legend_item(dict(value="foo"), legend) is legend.items[0]
@@ -66,11 +66,11 @@ def test__find_legend_item():
 class Test__handle_legend_deprecated(object):
 
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {'junk': 10}, {'label': 'foo', 'junk': 10}, {'value': 'foo', 'junk': 10}])
-    def test_bad_arg(self, arg):
+    def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
             bpl._handle_legend_deprecated(arg, "legend", "renderer")
 
-    def test_value_string(self):
+    def test_value_string(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(value="foo"))])
         renderer = GlyphRenderer(data_source=ColumnDataSource())
         bpl._handle_legend_deprecated("foo", legend, renderer)
@@ -80,7 +80,7 @@ class Test__handle_legend_deprecated(object):
         assert len(legend.items) == 2
         assert all("value" in item.label for item in legend.items)
 
-    def test_value_dict(self):
+    def test_value_dict(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(value="foo"))])
         renderer = GlyphRenderer(data_source=ColumnDataSource())
         bpl._handle_legend_deprecated(dict(value="foo"), legend, renderer)
@@ -90,7 +90,7 @@ class Test__handle_legend_deprecated(object):
         assert len(legend.items) == 2
         assert all("value" in item.label for item in legend.items)
 
-    def test_field_string(self):
+    def test_field_string(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(field="foo"))])
         renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
         bpl._handle_legend_deprecated("foo", legend, renderer)
@@ -100,7 +100,7 @@ class Test__handle_legend_deprecated(object):
         assert len(legend.items) == 2
         assert all("field" in item.label for item in legend.items)
 
-    def test_field_dict(self):
+    def test_field_dict(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(field="foo"))])
         renderer = GlyphRenderer(data_source=ColumnDataSource(data=dict(foo=[], bar=[])))
         bpl._handle_legend_deprecated(dict(field="foo"), legend, renderer)
@@ -113,11 +113,11 @@ class Test__handle_legend_deprecated(object):
 class Test__handle_legend_field(object):
 
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
-    def test_bad_arg(self, arg):
+    def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
             bpl._handle_legend_field(arg, "legend", "renderer")
 
-    def test_label_already_exists(self):
+    def test_label_already_exists(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(field="foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_field("foo", legend, renderer)
@@ -125,7 +125,7 @@ class Test__handle_legend_field(object):
         assert legend.items[0].label == dict(field="foo")
         assert legend.items[0].renderers == [renderer]
 
-    def test_label_not_already_exists(self):
+    def test_label_not_already_exists(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(field="foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_field("bar", legend, renderer)
@@ -138,17 +138,17 @@ class Test__handle_legend_field(object):
 class Test__handle_legend_group(object):
 
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
-    def test_bad_arg(self, arg):
+    def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
             bpl._handle_legend_group(arg, "legend", "renderer")
 
-    def test_bad_source(self):
+    def test_bad_source(self) -> None:
         with pytest.raises(ValueError):
             bpl._handle_legend_group("foo", "legend", GlyphRenderer())
         with pytest.raises(ValueError):
             bpl._handle_legend_group("foo", "legend", GlyphRenderer(data_source=ColumnDataSource(data=dict(bar=[]))))
 
-    def test_items(self):
+    def test_items(self) -> None:
         source = ColumnDataSource(data=dict(foo=[10,10,20,30,20,30,40]))
         renderer = GlyphRenderer(data_source=source)
         legend = Legend(items=[])
@@ -173,11 +173,11 @@ class Test__handle_legend_group(object):
 class Test__handle_legend_label(object):
 
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
-    def test_bad_arg(self, arg):
+    def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
             bpl._handle_legend_label(arg, "legend", "renderer")
 
-    def test_label_already_exists(self):
+    def test_label_already_exists(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(value="foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_label("foo", legend, renderer)
@@ -185,7 +185,7 @@ class Test__handle_legend_label(object):
         assert legend.items[0].label == dict(value="foo")
         assert legend.items[0].renderers == [renderer]
 
-    def test_label_not_already_exists(self):
+    def test_label_not_already_exists(self) -> None:
         legend = Legend(items=[LegendItem(label=dict(value="foo"))])
         renderer = GlyphRenderer()
         bpl._handle_legend_label("bar", legend, renderer)

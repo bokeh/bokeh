@@ -39,7 +39,7 @@ basicConfig()
 
 @pytest.mark.asyncio
 @pytest.mark.unit
-async def test_send_message_raises(caplog):
+async def test_send_message_raises(caplog) -> None:
     class ExcMessage(object):
         def send(self, handler):
             raise WebSocketClosedError()

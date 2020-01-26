@@ -36,7 +36,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.autompg", ALL))
 
 @pytest.mark.sampledata
-def test_autompg(pd):
+def test_autompg(pd) -> None:
     import bokeh.sampledata.autompg as bsa
     assert isinstance(bsa.autompg, pd.DataFrame)
 
@@ -45,7 +45,7 @@ def test_autompg(pd):
     assert all(x in [1,2,3] for x in bsa.autompg.origin)
 
 @pytest.mark.sampledata
-def test_autompg_clean(pd):
+def test_autompg_clean(pd) -> None:
     import bokeh.sampledata.autompg as bsa
     assert isinstance(bsa.autompg_clean, pd.DataFrame)
 

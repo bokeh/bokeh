@@ -35,7 +35,7 @@ import bokeh.io.notebook as binb # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_install_notebook_hook():
+def test_install_notebook_hook() -> None:
     binb.install_notebook_hook("foo", "load", "doc", "app")
     assert binb._HOOKS["foo"]['load'] == "load"
     assert binb._HOOKS["foo"]['doc'] == "doc"
@@ -76,7 +76,7 @@ def test_show_doc_no_server(mock_notebook_content,
 class Test_push_notebook(object):
 
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
-    def test_no_events(self, mock_comms):
+    def test_no_events(self, mock_comms) -> None:
         mock_comms.return_value = MagicMock()
 
         d = Document()
@@ -86,7 +86,7 @@ class Test_push_notebook(object):
         assert mock_comms.call_count == 0
 
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
-    def test_with_events(self, mock_comms):
+    def test_with_events(self, mock_comms) -> None:
         mock_comm = MagicMock()
         mock_send = MagicMock(return_value="junk")
         mock_comm.send = mock_send
@@ -110,12 +110,12 @@ class Test_push_notebook(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-def test__origin_url():
+def test__origin_url() -> None:
     assert binb._origin_url("foo.com:8888") == "foo.com:8888"
     assert binb._origin_url("http://foo.com:8888") == "foo.com:8888"
     assert binb._origin_url("https://foo.com:8888") == "foo.com:8888"
 
-def test__server_url():
+def test__server_url() -> None:
     assert binb._server_url("foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("http://foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("https://foo.com:8888", 10) == "https://foo.com:10/"

@@ -40,7 +40,7 @@ Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.stocks", ALL)
 
 @pytest.mark.sampledata
 @pytest.mark.parametrize('name', ['AAPL', 'FB', 'GOOG', 'IBM', 'MSFT'])
-def test_data(name):
+def test_data(name) -> None:
     import bokeh.sampledata.stocks as bss
     data = getattr(bss, name)
     assert isinstance(data, dict)

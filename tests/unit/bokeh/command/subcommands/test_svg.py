@@ -39,20 +39,20 @@ import bokeh.command.subcommands.svg as scsvg # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = scsvg.SVG(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_name():
+def test_name() -> None:
     assert scsvg.SVG.name == "svg"
 
-def test_help():
+def test_help() -> None:
     assert scsvg.SVG.help == "Create standalone SVG files for one or more applications"
 
-def test_args():
+def test_args() -> None:
     assert scsvg.SVG.args == (
 
         ('files', dict(
@@ -91,7 +91,7 @@ def test_args():
 
     )
 
-def test_no_script(capsys):
+def test_no_script(capsys) -> None:
     with (TmpDir(prefix="bokeh-svg-no-script")) as dirname:
         with WorkingDir(dirname):
             with pytest.raises(SystemExit):
@@ -107,7 +107,7 @@ bokeh svg: error: %s
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script(capsys):
+def test_basic_script(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "svg", "scatter.py"])
@@ -121,7 +121,7 @@ def test_basic_script(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_output_after(capsys):
+def test_basic_script_with_output_after(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "svg", "scatter.py", "--output", "foo.svg"])
@@ -135,7 +135,7 @@ def test_basic_script_with_output_after(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_output_before(capsys):
+def test_basic_script_with_output_before(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "svg", "--output", "foo.svg", "scatter.py"])
@@ -149,7 +149,7 @@ def test_basic_script_with_output_before(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_output_stdout(capsys):
+def test_basic_script_with_output_stdout(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "svg", "--output", "-", "scatter.py"])
@@ -164,7 +164,7 @@ def test_basic_script_with_output_stdout(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_multiple_svg_scripts(capsys):
+def test_multiple_svg_scripts(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "svg", "scatter1.py", "scatter2.py", "scatter3.py"])
@@ -181,7 +181,7 @@ def test_multiple_svg_scripts(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_multiple_svg_plots(capsys):
+def test_basic_script_with_multiple_svg_plots(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "svg", "scatter.py"])

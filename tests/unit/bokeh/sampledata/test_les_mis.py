@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.les_mis", ALL))
 
 @pytest.mark.sampledata
-def test_data():
+def test_data() -> None:
     import bokeh.sampledata.les_mis as bsl
     assert isinstance(bsl.data, dict)
 

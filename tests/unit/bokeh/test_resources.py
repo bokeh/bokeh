@@ -49,7 +49,7 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
 class TestSRIHashes(object):
-    def test_get_all_hashes_valid_format(self):
+    def test_get_all_hashes_valid_format(self) -> None:
         all_hashes = resources.get_all_sri_hashes()
         for key, value in all_hashes.items():
             assert VERSION_PAT.match(key), f"{key} is not a valid version for the SRI hashes dict"
@@ -60,7 +60,7 @@ class TestSRIHashes(object):
             for h in value.values():
                 assert len(h) == 64
 
-    def test_get_all_hashes_copies(self):
+    def test_get_all_hashes_copies(self) -> None:
         ah1 = resources.get_all_sri_hashes()
         ah2 = resources.get_all_sri_hashes()
         assert ah1 == ah2 == resources._SRI_HASHES
@@ -70,7 +70,7 @@ class TestSRIHashes(object):
 
     # TODO: (bev) conda build on CI is generating bogus versions like "0+untagged.1.g19dd2c8"
     @pytest.mark.skip
-    def test_get_all_hashes_no_future_keys(self):
+    def test_get_all_hashes_no_future_keys(self) -> None:
         current = V(__version__.split("-", 1)[0])  # remove git hash, "-dirty", etc
         all_hashes = resources.get_all_sri_hashes()
         for key in all_hashes:
@@ -78,7 +78,7 @@ class TestSRIHashes(object):
                 V(key) < current
             ), f"SRI hash dict contains vesion {key} which is newer than current version {__version__}"
 
-    def test_get_sri_hashes_for_version(self):
+    def test_get_sri_hashes_for_version(self) -> None:
         all_hashes = resources.get_all_sri_hashes()
         for key, value in all_hashes.items():
             h = resources.get_sri_hashes_for_version(key)
@@ -88,12 +88,12 @@ class TestSRIHashes(object):
 ## Test JSResources
 
 
-def test_js_resources_default_mode_is_cdn():
+def test_js_resources_default_mode_is_cdn() -> None:
     r = resources.JSResources()
     assert r.mode == "cdn"
 
 
-def test_js_resources_inline_has_no_css_resources():
+def test_js_resources_inline_has_no_css_resources() -> None:
     r = resources.JSResources(mode="inline")
     assert r.mode == "inline"
     assert r.dev is False
@@ -107,12 +107,12 @@ def test_js_resources_inline_has_no_css_resources():
 ## Test CSSResources
 
 
-def test_css_resources_default_mode_is_cdn():
+def test_css_resources_default_mode_is_cdn() -> None:
     r = resources.CSSResources()
     assert r.mode == "cdn"
 
 
-def test_inline_css_resources():
+def test_inline_css_resources() -> None:
     r = resources.CSSResources(mode="inline")
     assert r.mode == "inline"
     assert r.dev is False
@@ -123,11 +123,11 @@ def test_inline_css_resources():
 
 
 class TestResources(object):
-    def test_basic(self):
+    def test_basic(self) -> None:
         r = resources.Resources()
         assert r.mode == "cdn"
 
-    def test_log_level(self):
+    def test_log_level(self) -> None:
         r = resources.Resources()
         for level in LOG_LEVELS:
             r.log_level = level
@@ -137,11 +137,11 @@ class TestResources(object):
         with pytest.raises(ValueError):
             setattr(r, "log_level", "foo")
 
-    def test_module_attrs(self):
+    def test_module_attrs(self) -> None:
         assert resources.CDN.mode == "cdn"
         assert resources.INLINE.mode == "inline"
 
-    def test_inline(self):
+    def test_inline(self) -> None:
         r = resources.Resources(mode="inline")
         assert r.mode == "inline"
         assert r.dev == False
@@ -151,13 +151,13 @@ class TestResources(object):
         assert len(r.css_raw) == 0
         assert r.messages == []
 
-    def test_get_cdn_urls(self):
+    def test_get_cdn_urls(self) -> None:
         dev_version = "0.0.1dev2"
         result = _get_cdn_urls(version=dev_version)
         url = result["urls"](["bokeh"], "js")[0]
         assert "bokeh/dev" in url
 
-    def test_cdn(self):
+    def test_cdn(self) -> None:
         resources.__version__ = "1.0"
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.mode == "cdn"
@@ -176,7 +176,7 @@ class TestResources(object):
             }
         ]
 
-    def test_server_default(self):
+    def test_server_default(self) -> None:
         r = resources.Resources(mode="server")
         assert r.mode == "server"
         assert r.dev == False
@@ -192,7 +192,7 @@ class TestResources(object):
             "http://localhost:5006/static/js/bokeh-gl.min.js",
         ]
 
-    def test_server_root_url(self):
+    def test_server_root_url(self) -> None:
         r = resources.Resources(mode="server", root_url="http://foo/")
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
@@ -206,7 +206,7 @@ class TestResources(object):
             "http://foo/static/js/bokeh-gl.min.js",
         ]
 
-    def test_server_root_url_empty(self):
+    def test_server_root_url_empty(self) -> None:
         r = resources.Resources(mode="server", root_url="")
 
         assert r.js_raw == [DEFAULT_LOG_JS_RAW]
@@ -220,7 +220,7 @@ class TestResources(object):
             "static/js/bokeh-gl.min.js",
         ]
 
-    def test_server_with_versioner(self):
+    def test_server_with_versioner(self) -> None:
         def versioner(path):
             return path + "?v=VERSIONED"
 
@@ -233,7 +233,7 @@ class TestResources(object):
             "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
         ]
 
-    def test_server_dev(self):
+    def test_server_dev(self) -> None:
         r = resources.Resources(mode="server-dev")
         assert r.mode == "server"
         assert r.dev == True
@@ -248,7 +248,7 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-    def test_relative(self):
+    def test_relative(self) -> None:
         r = resources.Resources(mode="relative")
         assert r.mode == "relative"
         assert r.dev == False
@@ -257,7 +257,7 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-    def test_relative_dev(self):
+    def test_relative_dev(self) -> None:
         r = resources.Resources(mode="relative-dev")
         assert r.mode == "relative"
         assert r.dev == True
@@ -266,7 +266,7 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-    def test_absolute(self):
+    def test_absolute(self) -> None:
         r = resources.Resources(mode="absolute")
         assert r.mode == "absolute"
         assert r.dev == False
@@ -275,7 +275,7 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-    def test_absolute_dev(self):
+    def test_absolute_dev(self) -> None:
         r = resources.Resources(mode="absolute-dev")
         assert r.mode == "absolute"
         assert r.dev == True
@@ -284,7 +284,7 @@ class TestResources(object):
         assert r.css_raw == []
         assert r.messages == []
 
-    def test_argument_checks(self):
+    def test_argument_checks(self) -> None:
         with pytest.raises(ValueError):
             resources.Resources("foo")
 
@@ -304,7 +304,7 @@ class TestResources(object):
 ## Test external resources
 
 
-def test_external_js_and_css_resource_embedding():
+def test_external_js_and_css_resource_embedding() -> None:
     """ This test method has to be at the end of the test modules because
     subclassing a Model causes the CustomModel to be added as a Model and
     messes up the Resources state for the other tests.
@@ -340,7 +340,7 @@ def test_external_js_and_css_resource_embedding():
     assert r.js_files.count("external_js_1") == 1
 
 
-def test_external_js_and_css_resource_ordering():
+def test_external_js_and_css_resource_ordering() -> None:
     class ZClass(Model):
         __javascript__ = "z_class"
 

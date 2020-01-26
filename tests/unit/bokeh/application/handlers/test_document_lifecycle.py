@@ -46,7 +46,7 @@ class Test_DocumentLifecycleHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_document_bad_on_session_destroyed_signature(self):
+    def test_document_bad_on_session_destroyed_signature(self) -> None:
         doc = Document()
 
         def destroy(a, b):
@@ -56,7 +56,7 @@ class Test_DocumentLifecycleHandler(object):
             doc.on_session_destroyed(destroy)
 
     @pytest.mark.asyncio
-    async def test_document_on_session_destroyed(self):
+    async def test_document_on_session_destroyed(self) -> None:
         doc = Document()
         handler = bahd.DocumentLifecycleHandler()
 
@@ -72,7 +72,7 @@ class Test_DocumentLifecycleHandler(object):
         assert session_context._document.session_destroyed_callbacks == set()
 
     @pytest.mark.asyncio
-    async def test_document_on_session_destroyed_calls_multiple(self):
+    async def test_document_on_session_destroyed_calls_multiple(self) -> None:
         doc = Document()
 
         def increment(session_context):

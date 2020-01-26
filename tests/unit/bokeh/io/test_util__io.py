@@ -35,11 +35,11 @@ import bokeh.io.util as biu # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_detect_current_filename():
+def test_detect_current_filename() -> None:
     assert biu.detect_current_filename().endswith(("py.test", "pytest", "py.test-script.py"))
 
 @patch('bokeh.io.util.NamedTemporaryFile')
-def test_temp_filename(mock_tmp):
+def test_temp_filename(mock_tmp) -> None:
     fn = Mock()
     type(fn).name = PropertyMock(return_value="Junk.test")
     mock_tmp.return_value = fn
@@ -50,7 +50,7 @@ def test_temp_filename(mock_tmp):
     assert mock_tmp.call_args[0] == ()
     assert mock_tmp.call_args[1] == {'suffix': '.test'}
 
-def test_default_filename():
+def test_default_filename() -> None:
     old_detect_current_filename = biu.detect_current_filename
     old__no_access = biu._no_access
     old__shares_exec_prefix = biu._shares_exec_prefix
@@ -98,13 +98,13 @@ def test_default_filename():
 #-----------------------------------------------------------------------------
 
 @patch('os.access')
-def test__no_access(mock_access):
+def test__no_access(mock_access) -> None:
     biu._no_access("test")
     assert mock_access.called
     assert mock_access.call_args[0] == ("test", os.W_OK | os.X_OK)
     assert mock_access.call_args[1] == {}
 
-def test__shares_exec_prefix():
+def test__shares_exec_prefix() -> None:
     import sys
     old_ex = sys.exec_prefix
     try:

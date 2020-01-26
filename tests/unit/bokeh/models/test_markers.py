@@ -22,7 +22,7 @@ from bokeh.models.markers import Marker, marker_types
 # Setup
 #-----------------------------------------------------------------------------
 
-def test_all_markers_in_markers_dictionary():
+def test_all_markers_in_markers_dictionary() -> None:
     not_found = [marker for marker in Marker.__subclasses__()
                  if marker not in marker_types.values()]
     assert len(not_found) == 0

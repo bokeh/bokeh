@@ -53,16 +53,16 @@ class Test_Application(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_empty(self):
+    def test_empty(self) -> None:
         a = baa.Application()
         doc = a.create_document()
         assert not doc.roots
 
-    def test_invalid_kwarg(self):
+    def test_invalid_kwarg(self) -> None:
         with pytest.raises(TypeError):
             baa.Application(junk="foo")
 
-    def test_one_handler(self):
+    def test_one_handler(self) -> None:
         a = baa.Application()
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
@@ -72,7 +72,7 @@ class Test_Application(object):
         doc = a.create_document()
         assert len(doc.roots) == 2
 
-    def test_two_handlers(self):
+    def test_two_handlers(self) -> None:
         a = baa.Application()
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
@@ -86,7 +86,7 @@ class Test_Application(object):
         doc = a.create_document()
         assert len(doc.roots) == 3
 
-    def test_failed_handler(self, caplog):
+    def test_failed_handler(self, caplog) -> None:
         a = baa.Application()
         handler = CodeHandler(filename="junk", source="bad(")
         a.add(handler)
@@ -96,7 +96,7 @@ class Test_Application(object):
             a.initialize_document(d)
             assert len(caplog.records) == 1
 
-    def test_no_static_path(self):
+    def test_no_static_path(self) -> None:
         a = baa.Application()
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
@@ -109,7 +109,7 @@ class Test_Application(object):
         a.add(handler2)
         assert a.static_path == None
 
-    def test_static_path(self):
+    def test_static_path(self) -> None:
         a = baa.Application()
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
@@ -123,7 +123,7 @@ class Test_Application(object):
         a.add(handler2)
         assert a.static_path == "foo"
 
-    def test_excess_static_path(self):
+    def test_excess_static_path(self) -> None:
         a = baa.Application()
         def add_roots(doc):
             doc.add_root(AnotherModelInTestApplication())
@@ -140,7 +140,7 @@ class Test_Application(object):
         assert "More than one static path" in str(e.value)
 
     @mock.patch('bokeh.document.document.check_integrity')
-    def test_application_validates_document_by_default(self, check_integrity):
+    def test_application_validates_document_by_default(self, check_integrity) -> None:
         a = baa.Application()
         d = Document()
         d.add_root(figure())
@@ -148,7 +148,7 @@ class Test_Application(object):
         assert check_integrity.called
 
     @mock.patch('bokeh.document.document.check_integrity')
-    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch):
+    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch) -> None:
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         a = baa.Application()
         d = Document()
@@ -164,13 +164,13 @@ class Test_ServerContext(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_abstract(self):
+    def test_abstract(self) -> None:
         with pytest.raises(TypeError):
             baa.ServerContext()
 
 class Test_SessionContext(object):
 
-    def test_abstract(self):
+    def test_abstract(self) -> None:
         with pytest.raises(TypeError):
             baa.SessionContext()
 

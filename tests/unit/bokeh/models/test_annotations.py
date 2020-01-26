@@ -63,7 +63,7 @@ from bokeh.models import (
 # General API
 #-----------------------------------------------------------------------------
 
-def test_Legend():
+def test_Legend() -> None:
     legend = Legend()
     assert legend.location == 'top_right'
     assert legend.orientation == 'vertical'
@@ -105,7 +105,7 @@ def test_Legend():
         prefix('inactive_', FILL))
 
 
-def test_ColorBar():
+def test_ColorBar() -> None:
     color_bar = ColorBar()
     assert color_bar.location == 'top_right'
     assert color_bar.orientation == 'vertical'
@@ -162,7 +162,7 @@ def test_ColorBar():
     )
 
 
-def test_Arrow():
+def test_Arrow() -> None:
     arrow = Arrow()
     assert arrow.x_start is None
     assert arrow.y_start is None
@@ -193,7 +193,7 @@ def test_Arrow():
         LINE)
 
 
-def test_BoxAnnotation():
+def test_BoxAnnotation() -> None:
     box = BoxAnnotation()
     assert box.left is None
     assert box.left_units == 'data'
@@ -225,7 +225,7 @@ def test_BoxAnnotation():
     ], LINE, FILL)
 
 
-def test_Band():
+def test_Band() -> None:
     band = Band()
     assert band.level == 'annotation'
     assert band.lower is None
@@ -255,7 +255,7 @@ def test_Band():
     ], LINE, FILL)
 
 
-def test_Label():
+def test_Label() -> None:
     label = Label()
     assert label.level == 'annotation'
     assert label.x is None
@@ -292,13 +292,13 @@ def test_Label():
         prefix('border_', LINE),
         prefix('background_', FILL))
 
-def test_Label_accepts_datetime_xy():
+def test_Label_accepts_datetime_xy() -> None:
     obj = Label(x = datetime(2018,8,7,0,0),
                 y = datetime(2018,8,7,0,0))
     assert obj.x == 1533600000000.0
     assert obj.y == 1533600000000.0
 
-def test_LabelSet():
+def test_LabelSet() -> None:
     label_set = LabelSet()
     assert label_set.level == 'annotation'
     assert label_set.x is None
@@ -339,7 +339,7 @@ def test_LabelSet():
         prefix('border_', LINE),
         prefix('background_', FILL))
 
-def test_Slope():
+def test_Slope() -> None:
     slope = Slope()
     assert slope.gradient is None
     assert slope.y_intercept is None
@@ -357,7 +357,7 @@ def test_Slope():
     ], LINE)
 
 
-def test_Span():
+def test_Span() -> None:
     line = Span()
     assert line.location is None
     assert line.location_units == 'data'
@@ -378,11 +378,11 @@ def test_Span():
         "render_mode"
     ], LINE)
 
-def test_Span_accepts_datetime_location():
+def test_Span_accepts_datetime_location() -> None:
     obj = Span(location = datetime(2018,8,7,0,0))
     assert obj.location == 1533600000000.0
 
-def test_Title():
+def test_Title() -> None:
     title = Title()
     assert title.level == 'annotation'
     assert title.text is None
@@ -415,7 +415,7 @@ def test_Title():
         prefix('background_', FILL))
 
 
-def test_Whisker():
+def test_Whisker() -> None:
     whisker = Whisker()
     assert whisker.level == 'underlay'
     assert whisker.lower is None
@@ -451,7 +451,7 @@ def test_Whisker():
         "y_range_name"],
         LINE)
 
-def test_Whisker_and_Band_accept_negative_values():
+def test_Whisker_and_Band_accept_negative_values() -> None:
     whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
     assert whisker.base == -1.
     assert whisker.lower == -1.5
@@ -461,7 +461,7 @@ def test_Whisker_and_Band_accept_negative_values():
     assert band.lower == -1.5
     assert band.upper == -0.5
 
-def test_can_add_multiple_glyph_renderers_to_legend_item():
+def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()
     gr_1 = GlyphRenderer()
     gr_2 = GlyphRenderer()
@@ -471,7 +471,7 @@ def test_can_add_multiple_glyph_renderers_to_legend_item():
         assert mock_logger.error.call_count == 0
 
 
-def test_legend_item_with_field_label_and_different_data_sources_raises_a_validation_error():
+def test_legend_item_with_field_label_and_different_data_sources_raises_a_validation_error() -> None:
     legend_item = LegendItem()
     gr_1 = GlyphRenderer(data_source=ColumnDataSource(data={'label': [1]}))
     gr_2 = GlyphRenderer(data_source=ColumnDataSource(data={'label': [1]}))
@@ -482,7 +482,7 @@ def test_legend_item_with_field_label_and_different_data_sources_raises_a_valida
         assert mock_logger.error.call_count == 1
 
 
-def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_a_validation_error():
+def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_a_validation_error() -> None:
     legend_item = LegendItem()
     gr_1 = GlyphRenderer(data_source=ColumnDataSource())
     gr_2 = GlyphRenderer(data_source=ColumnDataSource())
@@ -493,7 +493,7 @@ def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_
         assert mock_logger.error.call_count == 0
 
 
-def test_legend_item_with_field_label_raises_error_if_field_not_in_cds():
+def test_legend_item_with_field_label_raises_error_if_field_not_in_cds() -> None:
     legend_item = LegendItem()
     gr_1 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.label = field('label')

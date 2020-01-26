@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.glucose", ALL))
 
 @pytest.mark.sampledata
-def test_data(pd):
+def test_data(pd) -> None:
     import bokeh.sampledata.glucose as bsg
     assert isinstance(bsg.data, pd.DataFrame)
 

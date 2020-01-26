@@ -42,7 +42,7 @@ ALL = (
 
 class Test_Angle(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpn.Angle()
 
         assert prop.is_valid(None)
@@ -56,7 +56,7 @@ class Test_Angle(object):
         assert prop.is_valid(0.0)
         assert prop.is_valid(1.0)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpn.Angle()
 
         assert not prop.is_valid(1.0+1.0j)
@@ -67,24 +67,24 @@ class Test_Angle(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpn.Angle()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpn.Angle()
         assert str(prop) == "Angle"
 
 class Test_Interval(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpn.Interval()
 
         with pytest.raises(ValueError):
             bcpn.Interval(Int, 0.0, 1.0)
 
-    def test_valid_int(self):
+    def test_valid_int(self) -> None:
         prop = bcpn.Interval(Int, 0, 255)
 
         assert prop.is_valid(None)
@@ -97,7 +97,7 @@ class Test_Interval(object):
         assert prop.is_valid(1)
         assert prop.is_valid(127)
 
-    def test_invalid_int(self):
+    def test_invalid_int(self) -> None:
         prop = bcpn.Interval(Int, 0, 255)
 
         assert not prop.is_valid(0.0)
@@ -113,7 +113,7 @@ class Test_Interval(object):
         assert not prop.is_valid(-1)
         assert not prop.is_valid(256)
 
-    def test_valid_float(self):
+    def test_valid_float(self) -> None:
         prop = bcpn.Interval(Float, 0.0, 1.0)
 
         assert prop.is_valid(None)
@@ -128,7 +128,7 @@ class Test_Interval(object):
         assert prop.is_valid(1.0)
         assert prop.is_valid(0.5)
 
-    def test_invalid_float(self):
+    def test_invalid_float(self) -> None:
         prop = bcpn.Interval(Float, 0.0, 1.0)
 
         assert not prop.is_valid(1.0+1.0j)
@@ -142,17 +142,17 @@ class Test_Interval(object):
         assert not prop.is_valid(-0.001)
         assert not prop.is_valid( 1.001)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpn.Interval(Float, 0.0, 1.0)
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpn.Interval(Float, 0.0, 1.0)
         assert str(prop) == "Interval(Float, 0.0, 1.0)"
 
 class Test_Size(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpn.Size()
 
         assert prop.is_valid(None)
@@ -168,7 +168,7 @@ class Test_Size(object):
         assert prop.is_valid(100)
         assert prop.is_valid(100.1)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpn.Size()
 
         assert not prop.is_valid(1.0+1.0j)
@@ -182,17 +182,17 @@ class Test_Size(object):
         assert not prop.is_valid(-100)
         assert not prop.is_valid(-0.001)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpn.Size()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpn.Size()
         assert str(prop) == "Size"
 
 class Test_Percent(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpn.Percent()
 
         assert prop.is_valid(None)
@@ -207,7 +207,7 @@ class Test_Percent(object):
         assert prop.is_valid(1.0)
         assert prop.is_valid(0.5)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpn.Percent()
 
         assert not prop.is_valid(1.0+1.0j)
@@ -221,17 +221,17 @@ class Test_Percent(object):
         assert not prop.is_valid(-0.001)
         assert not prop.is_valid( 1.001)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpn.Percent()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpn.Percent()
         assert str(prop) == "Percent"
 
 class Test_NonNegativeInt(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpn.NonNegativeInt()
 
         assert prop.is_valid(None)
@@ -245,7 +245,7 @@ class Test_NonNegativeInt(object):
         assert prop.is_valid(2)
         assert prop.is_valid(100)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpn.NonNegativeInt()
 
         assert not prop.is_valid(-1)
@@ -262,17 +262,17 @@ class Test_NonNegativeInt(object):
         assert not prop.is_valid(-100)
         assert not prop.is_valid(-0.001)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpn.NonNegativeInt()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpn.NonNegativeInt()
         assert str(prop) == "NonNegativeInt"
 
 class Test_PositiveInt(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpn.PositiveInt()
 
         assert prop.is_valid(None)
@@ -284,7 +284,7 @@ class Test_PositiveInt(object):
         assert prop.is_valid(2)
         assert prop.is_valid(100)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpn.PositiveInt()
 
         assert not prop.is_valid(False)
@@ -304,11 +304,11 @@ class Test_PositiveInt(object):
         assert not prop.is_valid(-100)
         assert not prop.is_valid(-0.001)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpn.PositiveInt()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpn.PositiveInt()
         assert str(prop) == "PositiveInt"
 

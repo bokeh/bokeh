@@ -48,11 +48,11 @@ class TestPushDocument(object):
         doc.add_root(SomeModelInTestPushDoc())
         return doc
 
-    def test_create(self):
+    def test_create(self) -> None:
         sample = self._sample_doc()
         proto.create("PUSH-DOC", sample)
 
-    def test_create_then_parse(self):
+    def test_create_then_parse(self) -> None:
         sample = self._sample_doc()
         msg = proto.create("PUSH-DOC", sample)
         copy = document.Document()

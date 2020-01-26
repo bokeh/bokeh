@@ -43,7 +43,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_DataTableCopyPaste(object):
 
-    def test_single_row_copy(self, bokeh_model_page):
+    def test_single_row_copy(self, bokeh_model_page) -> None:
         data = {'x': [1,2,3,4], 'y': [1,1,1,1], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
         table = DataTable(columns=[
@@ -73,7 +73,7 @@ class Test_DataTableCopyPaste(object):
 
         assert page.has_no_console_errors()
 
-    def test_single_row_copy_with_zero(self, bokeh_model_page):
+    def test_single_row_copy_with_zero(self, bokeh_model_page) -> None:
         data = {'x': [1,2,3,4], 'y': [0,0,0,0], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
         table = DataTable(columns=[
@@ -103,7 +103,7 @@ class Test_DataTableCopyPaste(object):
 
         assert page.has_no_console_errors()
 
-    def test_multi_row_copy(self, bokeh_model_page):
+    def test_multi_row_copy(self, bokeh_model_page) -> None:
         data = {'x': [1,2,3,4], 'y': [0,1,2,3], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)
         table = DataTable(columns=[

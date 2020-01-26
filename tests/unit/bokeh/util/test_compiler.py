@@ -33,7 +33,7 @@ import bokeh.util.compiler as buc # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_nodejs_compile_javascript():
+def test_nodejs_compile_javascript() -> None:
     assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
         dict(code="""\
 function f(a, b) { return a + b; }
@@ -71,18 +71,18 @@ exports.MyModel = MyModel;
             '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
             '\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n')
 
-def test_nodejs_compile_less():
+def test_nodejs_compile_less() -> None:
     assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == \
         dict(code=""".bk-some-style{color:#800080}""")
 
     assert buc.nodejs_compile(""".bk-some-style color: green; }""", "less", "some.less") == \
         dict(error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n")
 
-def test_Implementation():
+def test_Implementation() -> None:
     obj = buc.Implementation()
     assert obj.file == None
 
-def test_Inline():
+def test_Inline() -> None:
     obj = buc.Inline("code")
     assert obj.code == "code"
     assert obj.file == None
@@ -91,21 +91,21 @@ def test_Inline():
     assert obj.code == "code"
     assert obj.file == "file"
 
-def test_TypeScript():
+def test_TypeScript() -> None:
     obj = buc.TypeScript("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
     assert obj.file == None
     assert obj.lang == "typescript"
 
-def test_JavaScript():
+def test_JavaScript() -> None:
     obj = buc.JavaScript("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
     assert obj.file == None
     assert obj.lang == "javascript"
 
-def test_Less():
+def test_Less() -> None:
     obj = buc.Less("code")
     assert isinstance(obj, buc.Inline)
     assert obj.code == "code"
@@ -113,7 +113,7 @@ def test_Less():
     assert obj.lang == "less"
 
 @patch('io.open')
-def test_FromFile(mock_open):
+def test_FromFile(mock_open) -> None:
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
 
@@ -126,16 +126,16 @@ def test_FromFile(mock_open):
     obj = buc.FromFile("path.less")
     assert obj.lang == "less"
 
-def test_exts():
+def test_exts() -> None:
     assert buc.exts == (".ts", ".js", ".css", ".less")
 
-def test_jsons():
+def test_jsons() -> None:
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
         if file.endswith('.json'):
             with io.open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
                 assert all(['\\' not in mod for mod in json.loads(f.read())])
 
-def test_inline_extension():
+def test_inline_extension() -> None:
     from bokeh.io import save
     from bokeh.models import TickFormatter
     from bokeh.plotting import figure

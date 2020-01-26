@@ -55,7 +55,7 @@ attrs:
 
 class TestThemes(object):
 
-    def test_construct_empty_theme_from_file(self):
+    def test_construct_empty_theme_from_file(self) -> None:
         # windows will throw permissions error with auto-delete
         with (tempfile.NamedTemporaryFile(delete=False)) as file:
             # create and apply empty theme with no exception thrown
@@ -66,34 +66,34 @@ class TestThemes(object):
         file.close()
         os.remove(file.name)
 
-    def test_construct_empty_theme_from_json(self):
+    def test_construct_empty_theme_from_json(self) -> None:
         # create and apply empty theme with no exception thrown
         theme = Theme(json=dict())
         theme.apply_to_model(ThemedModel())
 
-    def test_construct_no_json_or_filename(self):
+    def test_construct_no_json_or_filename(self) -> None:
         with pytest.raises(ValueError) as exc:
             Theme()
         assert "requires json or a filename" in repr(exc.value)
 
-    def test_construct_json_and_filename(self):
+    def test_construct_json_and_filename(self) -> None:
         with pytest.raises(ValueError) as exc:
             # we check "" and {} as falsey values, to try to trick
             # our code into thinking they weren't provided.
             Theme(filename="", json={})
         assert "not both" in repr(exc.value)
 
-    def test_construct_bad_attrs(self):
+    def test_construct_bad_attrs(self) -> None:
         with pytest.raises(ValueError) as exc:
             Theme(json=dict(attrs=42))
         assert "should be a dictionary of class names" in repr(exc.value)
 
-    def test_construct_bad_class_props(self):
+    def test_construct_bad_class_props(self) -> None:
         with pytest.raises(ValueError) as exc:
             Theme(json=dict(attrs=dict(SomeClass=42)))
         assert "should be a dictionary of properties" in repr(exc.value)
 
-    def test_construct_nonempty_theme_from_file(self):
+    def test_construct_nonempty_theme_from_file(self) -> None:
         # windows will throw permissions error with auto-delete
         with (tempfile.NamedTemporaryFile(delete=False)) as file:
             # create and apply empty theme with no exception thrown
@@ -105,7 +105,7 @@ class TestThemes(object):
         file.close()
         os.remove(file.name)
 
-    def test_theming_a_model(self):
+    def test_theming_a_model(self) -> None:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
@@ -123,7 +123,7 @@ class TestThemes(object):
         assert 'w00t' == obj.string
         assert [('string', 'hello', 'w00t')] == changes['calls']
 
-    def test_theming_a_model_via_base(self):
+    def test_theming_a_model_via_base(self) -> None:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
@@ -141,7 +141,7 @@ class TestThemes(object):
         assert 'w00t' == obj.string
         assert [('string', 'hello', 'w00t')] == changes['calls']
 
-    def test_subclass_theme_used_rather_than_base(self):
+    def test_subclass_theme_used_rather_than_base(self) -> None:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
@@ -162,7 +162,7 @@ class TestThemes(object):
         assert 'bar' == obj.string
         assert [('string', 'hello', 'bar')] == changes['calls']
 
-    def test_theming_a_document_after_adding_root(self):
+    def test_theming_a_document_after_adding_root(self) -> None:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
@@ -185,7 +185,7 @@ class TestThemes(object):
         assert 'hello' == obj.string
         assert [('string', 'hello', 'w00t'), ('string', 'w00t', 'hello')] == changes['calls']
 
-    def test_theming_a_document_before_adding_root(self):
+    def test_theming_a_document_before_adding_root(self) -> None:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
@@ -208,7 +208,7 @@ class TestThemes(object):
         assert 'hello' == obj.string
         assert [('string', 'hello', 'w00t'), ('string', 'w00t', 'hello')] == changes['calls']
 
-    def test_setting_document_theme_to_none(self):
+    def test_setting_document_theme_to_none(self) -> None:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
@@ -254,7 +254,7 @@ class TestThemes(object):
         else:
             raise RuntimeError("Could not find class for " + model_name)
 
-    def test_default_theme_is_empty(self):
+    def test_default_theme_is_empty(self) -> None:
         # this is kind of a silly test once we fix default.yaml to be empty :-)
         # the point is to list all the things to fix.
         doc = Document()
@@ -273,28 +273,28 @@ class TestThemes(object):
         self._compare_dict_to_model_class_defaults(doc.theme._line_defaults, LineProps)
         assert 0 == len(doc.theme._line_defaults)
 
-    def test_setting_built_in_theme_obj(self):
+    def test_setting_built_in_theme_obj(self) -> None:
         obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         doc.theme = built_in_themes[LIGHT_MINIMAL]
         assert "#5B5B5B" == doc.theme._json['attrs']['ColorBar']['title_text_color']
 
-    def test_setting_built_in_theme_str(self):
+    def test_setting_built_in_theme_str(self) -> None:
         obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         doc.theme = DARK_MINIMAL
         assert "#20262B" == doc.theme._json['attrs']['Figure']['background_fill_color']
 
-    def test_setting_built_in_theme_missing(self):
+    def test_setting_built_in_theme_missing(self) -> None:
         obj = SomeModel()
         doc = Document()
         doc.add_root(obj)
         with pytest.raises(ValueError):
             doc.theme = 'some_theme_i_guess'
 
-    def test_setting_built_in_theme_error(self):
+    def test_setting_built_in_theme_error(self) -> None:
         obj = SomeModel()
         doc = Document()
         doc.add_root(obj)

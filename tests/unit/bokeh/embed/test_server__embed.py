@@ -25,7 +25,7 @@ import bokeh.embed.server as bes # isort:skip
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def test_plot():
+def test_plot() -> None:
     from bokeh.plotting import figure
     test_plot = figure()
     test_plot.circle([1, 2], [2, 3])
@@ -37,21 +37,21 @@ def test_plot():
 
 class TestServerDocument(object):
 
-    def test_invalid_resources_param(self):
+    def test_invalid_resources_param(self) -> None:
         with pytest.raises(ValueError):
             bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=123)
         with pytest.raises(ValueError):
             bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="whatever")
 
-    def test_resources_default_is_implicit(self):
+    def test_resources_default_is_implicit(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources="default")
         assert 'resources=' not in r
 
-    def test_resources_none(self):
+    def test_resources_none(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=None)
         assert 'resources=none' in r
 
-    def test_general(self):
+    def test_general(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
@@ -69,7 +69,7 @@ class TestServerDocument(object):
         assert attrs == { 'id' : divid,
                           'src' : src }
 
-    def test_script_attrs_arguments_provided(self):
+    def test_script_attrs_arguments_provided(self) -> None:
         r = bes.server_document(arguments=dict(foo=10))
         assert 'foo=10' in r
         html = bs4.BeautifulSoup(r, "lxml")
@@ -86,7 +86,7 @@ class TestServerDocument(object):
         assert attrs == { 'id' : divid,
                           'src' : src }
 
-    def test_script_attrs_url_provided_absolute_resources(self):
+    def test_script_attrs_url_provided_absolute_resources(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
@@ -104,7 +104,7 @@ class TestServerDocument(object):
         assert attrs == { 'id' : divid,
                           'src' : src }
 
-    def test_script_attrs_url_provided(self):
+    def test_script_attrs_url_provided(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "lxml")
@@ -123,11 +123,11 @@ class TestServerDocument(object):
 
 class TestServerSession(object):
 
-    def test_return_type(self, test_plot):
+    def test_return_type(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
         assert isinstance(r, str)
 
-    def test_script_attrs_session_id_provided(self, test_plot):
+    def test_script_attrs_session_id_provided(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
         assert 'bokeh-session-id=fakesession' in r
         html = bs4.BeautifulSoup(r, "lxml")
@@ -144,21 +144,21 @@ class TestServerSession(object):
         assert attrs == { 'id' : divid,
                           'src' : src }
 
-    def test_invalid_resources_param(self, test_plot):
+    def test_invalid_resources_param(self, test_plot) -> None:
         with pytest.raises(ValueError):
             bes.server_session(test_plot, session_id='fakesession', resources=123)
         with pytest.raises(ValueError):
             bes.server_session(test_plot, session_id='fakesession', resources="whatever")
 
-    def test_resources_default_is_implicit(self, test_plot):
+    def test_resources_default_is_implicit(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession', resources="default")
         assert 'resources=' not in r
 
-    def test_resources_none(self, test_plot):
+    def test_resources_none(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession', resources=None)
         assert 'resources=none' in r
 
-    def test_model_none(self):
+    def test_model_none(self) -> None:
         r = bes.server_session(None, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "lxml")
         scripts = html.findAll(name='script')
@@ -174,7 +174,7 @@ class TestServerSession(object):
         assert attrs == { 'id' : divid,
                           'src' : src }
 
-    def test_general(self, test_plot):
+    def test_general(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
         assert 'bokeh-session-id=fakesession' in r
         html = bs4.BeautifulSoup(r, "lxml")
@@ -201,20 +201,20 @@ class TestServerSession(object):
 
 class Test__clean_url(object):
 
-    def test_default(self):
+    def test_default(self) -> None:
         assert bes._clean_url("default") == bes.DEFAULT_SERVER_HTTP_URL.rstrip("/")
 
-    def test_bad_ws(self):
+    def test_bad_ws(self) -> None:
         with pytest.raises(ValueError):
             bes._clean_url("ws://foo")
 
-    def test_arg(self):
+    def test_arg(self) -> None:
         assert bes._clean_url("http://foo/bar") == "http://foo/bar"
         assert bes._clean_url("http://foo/bar/") == "http://foo/bar"
 
 class Test__get_app_path(object):
 
-    def test_arg(self):
+    def test_arg(self) -> None:
         assert bes._get_app_path("foo") == "/foo"
         assert bes._get_app_path("http://foo") == "/"
         assert bes._get_app_path("http://foo/bar") == "/bar"
@@ -223,16 +223,16 @@ class Test__get_app_path(object):
 
 class Test__process_arguments(object):
 
-    def test_None(self):
+    def test_None(self) -> None:
         assert bes._process_arguments(None) == ""
 
-    def test_args(self):
+    def test_args(self) -> None:
         args = dict(foo=10, bar="baz")
         r = bes._process_arguments(args)
         # order unspecified
         assert r == "&foo=10&bar=baz" or r == "&bar=baz&foo=10"
 
-    def test_args_ignores_bokeh_prefixed(self):
+    def test_args_ignores_bokeh_prefixed(self) -> None:
         args = dict(foo=10, bar="baz")
         args["bokeh-junk"] = 20
         r = bes._process_arguments(args)
@@ -241,41 +241,41 @@ class Test__process_arguments(object):
 
 class Test__process_app_path(object):
 
-    def test_root(self):
+    def test_root(self) -> None:
         assert bes._process_app_path("/") == ""
 
-    def test_arg(self):
+    def test_arg(self) -> None:
         assert bes._process_app_path("/stuff") == "&bokeh-app-path=/stuff"
 
 class Test__process_relative_urls(object):
 
-    def test_True(self):
+    def test_True(self) -> None:
         assert bes._process_relative_urls(True, "") == ""
         assert bes._process_relative_urls(True, "/stuff") == ""
 
-    def test_Flase(self):
+    def test_Flase(self) -> None:
         assert bes._process_relative_urls(False, "/stuff") == "&bokeh-absolute-url=/stuff"
 
 class Test__process_resources(object):
 
-    def test_bad_input(self):
+    def test_bad_input(self) -> None:
         with pytest.raises(ValueError):
             bes._process_resources("foo")
 
-    def test_None(self):
+    def test_None(self) -> None:
         assert bes._process_resources(None) == "&resources=none"
 
-    def test_default(self):
+    def test_default(self) -> None:
         assert bes._process_resources("default") == ""
 
 class Test__process_session_id(object):
 
-    def test_arg(self):
+    def test_arg(self) -> None:
         assert bes._process_session_id("foo123") == "&bokeh-session-id=foo123"
 
 def Test__src_path(object):
 
-    def test_args(self):
+    def test_args(self) -> None:
         assert bes._src_path("http://foo", "1234") =="http://foo/autoload.js?bokeh-autoload-element=1234"
 
 #-----------------------------------------------------------------------------

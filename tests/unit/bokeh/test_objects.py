@@ -96,13 +96,13 @@ class TestModelCls(object):
             foo = 1
         return Test_Class
 
-    def test_metaclassing(self):
+    def test_metaclassing(self) -> None:
         tclass = self.mkclass()
         assert hasattr(tclass, '__view_model__')
         with pytest.raises(Warning):
             self.mkclass()
 
-    def test_get_class(self):
+    def test_get_class(self) -> None:
         from bokeh.model import get_class
         self.mkclass()
         tclass = get_class('test_objects.Test_Class')
@@ -118,11 +118,11 @@ class DeepModel(Model):
 
 class TestCollectModels(object):
 
-    def test_references_large(self):
+    def test_references_large(self) -> None:
         root, objects = large_plot(10)
         assert set(root.references()) == objects
 
-    def test_references_deep(self):
+    def test_references_deep(self) -> None:
         root = DeepModel()
         objects = set([root])
         parent = root
@@ -147,7 +147,7 @@ class TestModel(object):
         self.pObjectClass = SomeModel
         self.maxDiff = None
 
-    def test_init(self):
+    def test_init(self) -> None:
         testObject = self.pObjectClass(id='test_id')
         assert testObject.id == 'test_id'
 
@@ -159,11 +159,11 @@ class TestModel(object):
             testObject.properties_with_values(include_defaults=True)
         assert dict() == testObject.properties_with_values(include_defaults=False)
 
-    def test_struct(self):
+    def test_struct(self) -> None:
         testObject = self.pObjectClass(id='test_id')
         assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.struct
 
-    def test_references_by_ref_by_value(self):
+    def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps
         from bokeh.core.properties import Instance, Int
 
@@ -197,7 +197,7 @@ class TestModel(object):
         assert x1.references() == {t1, y, t2,     x1}
         assert x2.references() == {t1, y, t2, z2, x2}
 
-    def test_references_in_containers(self):
+    def test_references_in_containers(self) -> None:
         from bokeh.core.properties import Int, String, Instance, List, Tuple, Dict
 
         # XXX: can't use Y, because of:
@@ -220,7 +220,7 @@ class TestModel(object):
 
         assert v.references() == set([v, u1, u2, u3, u4, u5])
 
-    def test_to_json(self):
+    def test_to_json(self) -> None:
         child_obj = SomeModelToJson(foo=57, bar="hello")
         obj = SomeModelToJson(child=child_obj,
                               foo=42, bar="world")
@@ -242,7 +242,7 @@ class TestModel(object):
                 '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
                 '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj.id, obj.id) == json_string
 
-    def test_no_units_in_json(self):
+    def test_no_units_in_json(self) -> None:
         from bokeh.models import AnnularWedge
         obj = AnnularWedge()
         json = obj.to_json(include_defaults=True)
@@ -251,7 +251,7 @@ class TestModel(object):
         assert 'outer_radius' in json
         assert 'outer_radius_units' not in json
 
-    def test_dataspec_field_in_json(self):
+    def test_dataspec_field_in_json(self) -> None:
         from bokeh.models import AnnularWedge
         obj = AnnularWedge()
         obj.start_angle = "fieldname"
@@ -260,7 +260,7 @@ class TestModel(object):
         assert 'start_angle_units' not in json
         assert dict(units='rad', field='fieldname') == json['start_angle']
 
-    def test_dataspec_value_in_json(self):
+    def test_dataspec_value_in_json(self) -> None:
         from bokeh.models import AnnularWedge
         obj = AnnularWedge()
         obj.start_angle = 60
@@ -269,7 +269,7 @@ class TestModel(object):
         assert 'start_angle_units' not in json
         assert dict(units='rad', value=60) == json['start_angle']
 
-    def test_list_default(self):
+    def test_list_default(self) -> None:
         class HasListDefault(Model):
             value = List(String, default=["hello"])
         obj = HasListDefault()
@@ -285,7 +285,7 @@ class TestModel(object):
         # 'value' should now be included
         assert 'value' in obj.properties_with_values(include_defaults=False)
 
-    def test_dict_default(self):
+    def test_dict_default(self) -> None:
         class HasDictDefault(Model):
             value = Dict(String, Int, default=dict(hello=42))
         obj = HasDictDefault()
@@ -303,7 +303,7 @@ class TestModel(object):
         assert 'value' in obj.properties_with_values(include_defaults=False)
         assert dict(hello=42, world=57) == obj.value
 
-    def test_func_default_with_counter(self):
+    def test_func_default_with_counter(self) -> None:
         counter = dict(value=0)
         def next_value():
             counter['value'] += 1
@@ -318,7 +318,7 @@ class TestModel(object):
         # non-default because it's unstable.
         assert 'value' in obj1.properties_with_values(include_defaults=False)
 
-    def test_func_default_with_model(self):
+    def test_func_default_with_model(self) -> None:
         class HasFuncDefaultModel(Model):
             child = Instance(Model, lambda: SomeModel())
         obj1 = HasFuncDefaultModel()
@@ -357,7 +357,7 @@ class HasListProp(Model):
 
 class TestListMutation(TestContainerMutation):
 
-    def test_whether_included_in_props_with_values(self):
+    def test_whether_included_in_props_with_values(self) -> None:
         obj = HasListProp()
         assert 'foo' not in obj.properties_with_values(include_defaults=False)
         assert 'foo' in obj.properties_with_values(include_defaults=True)
@@ -372,7 +372,7 @@ class TestListMutation(TestContainerMutation):
         assert 'foo' in obj.properties_with_values(include_defaults=False)
         assert 'foo' in obj.properties_with_values(include_defaults=True)
 
-    def test_assignment_maintains_owners(self):
+    def test_assignment_maintains_owners(self) -> None:
         obj = HasListProp()
         old_list = obj.foo
         assert isinstance(old_list, PropertyValueList)
@@ -384,7 +384,7 @@ class TestListMutation(TestContainerMutation):
         assert 0 == len(old_list._owners)
         assert 1 == len(new_list._owners)
 
-    def test_list_delitem(self):
+    def test_list_delitem(self) -> None:
         obj = HasListProp(foo=["a", "b", "c"])
         assert isinstance(obj.foo, PropertyValueList)
         def mutate(x):
@@ -393,7 +393,7 @@ class TestListMutation(TestContainerMutation):
                              ["a", "b", "c"],
                              ["a", "c"])
 
-    def test_list_delslice(self):
+    def test_list_delslice(self) -> None:
         obj = HasListProp(foo=["a", "b", "c", "d"])
         assert isinstance(obj.foo, PropertyValueList)
         def mutate(x):
@@ -402,7 +402,7 @@ class TestListMutation(TestContainerMutation):
                              ["a", "b", "c", "d"],
                              ["a", "d"])
 
-    def test_list_iadd(self):
+    def test_list_iadd(self) -> None:
         obj = HasListProp(foo=["a"])
         assert isinstance(obj.foo, PropertyValueList)
         def mutate(x):
@@ -411,7 +411,7 @@ class TestListMutation(TestContainerMutation):
                              ["a"],
                              ["a", "b"])
 
-    def test_list_imul(self):
+    def test_list_imul(self) -> None:
         obj = HasListProp(foo=["a"])
         assert isinstance(obj.foo, PropertyValueList)
         def mutate(x):
@@ -420,7 +420,7 @@ class TestListMutation(TestContainerMutation):
                              ["a"],
                              ["a", "a", "a"])
 
-    def test_list_setitem(self):
+    def test_list_setitem(self) -> None:
         obj = HasListProp(foo=["a"])
         assert isinstance(obj.foo, PropertyValueList)
         def mutate(x):
@@ -429,7 +429,7 @@ class TestListMutation(TestContainerMutation):
                              ["a"],
                              ["b"])
 
-    def test_list_setslice(self):
+    def test_list_setslice(self) -> None:
         obj = HasListProp(foo=["a", "b", "c", "d"])
         assert isinstance(obj.foo, PropertyValueList)
         def mutate(x):
@@ -438,45 +438,45 @@ class TestListMutation(TestContainerMutation):
                              ["a", "b", "c", "d"],
                              ["a", "x", "d"])
 
-    def test_list_append(self):
+    def test_list_append(self) -> None:
         obj = HasListProp()
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.append("bar"), [], ["bar"])
 
-    def test_list_extend(self):
+    def test_list_extend(self) -> None:
         obj = HasListProp()
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.extend(["x", "y"]), [], ["x", "y"])
 
-    def test_list_insert(self):
+    def test_list_insert(self) -> None:
         obj = HasListProp(foo=["a", "b"])
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.insert(1, "x"),
                              ["a", "b"],
                              ["a", "x", "b"])
 
-    def test_list_pop(self):
+    def test_list_pop(self) -> None:
         obj = HasListProp(foo=["a", "b"])
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.pop(),
                              ["a", "b"],
                              ["a"])
 
-    def test_list_remove(self):
+    def test_list_remove(self) -> None:
         obj = HasListProp(foo=["a", "b"])
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.remove("b"),
                              ["a", "b"],
                              ["a"])
 
-    def test_list_reverse(self):
+    def test_list_reverse(self) -> None:
         obj = HasListProp(foo=["a", "b"])
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.reverse(),
                              ["a", "b"],
                              ["b", "a"])
 
-    def test_list_sort(self):
+    def test_list_sort(self) -> None:
         obj = HasListProp(foo=["b", "a"])
         assert isinstance(obj.foo, PropertyValueList)
         self._check_mutation(obj, 'foo', lambda x: x.sort(),
@@ -496,7 +496,7 @@ class HasIntDictProp(Model):
 
 class TestDictMutation(TestContainerMutation):
 
-    def test_whether_included_in_props_with_values(self):
+    def test_whether_included_in_props_with_values(self) -> None:
         obj = HasStringDictProp()
         assert 'foo' not in obj.properties_with_values(include_defaults=False)
         assert 'foo' in obj.properties_with_values(include_defaults=True)
@@ -511,7 +511,7 @@ class TestDictMutation(TestContainerMutation):
         assert 'foo' in obj.properties_with_values(include_defaults=False)
         assert 'foo' in obj.properties_with_values(include_defaults=True)
 
-    def test_assignment_maintains_owners(self):
+    def test_assignment_maintains_owners(self) -> None:
         obj = HasStringDictProp()
         old_dict = obj.foo
         assert isinstance(old_dict, PropertyValueDict)
@@ -523,7 +523,7 @@ class TestDictMutation(TestContainerMutation):
         assert 0 == len(old_dict._owners)
         assert 1 == len(new_dict._owners)
 
-    def test_dict_delitem_string(self):
+    def test_dict_delitem_string(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -532,7 +532,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, c=3))
 
-    def test_dict_delitem_int(self):
+    def test_dict_delitem_int(self) -> None:
         obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -541,7 +541,7 @@ class TestDictMutation(TestContainerMutation):
                              { 1 : "a", 2 : "b", 3 : "c" },
                              { 2 : "b", 3 : "c" })
 
-    def test_dict_setitem_string(self):
+    def test_dict_setitem_string(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -550,7 +550,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=42, c=3))
 
-    def test_dict_setitem_int(self):
+    def test_dict_setitem_int(self) -> None:
         obj = HasIntDictProp(foo={ 1 : "a", 2 : "b", 3 : "c" })
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -559,7 +559,7 @@ class TestDictMutation(TestContainerMutation):
                              { 1 : "a", 2 : "b", 3 : "c" },
                              { 1 : "a", 2 : "bar", 3 : "c" })
 
-    def test_dict_clear(self):
+    def test_dict_clear(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -568,7 +568,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict())
 
-    def test_dict_pop(self):
+    def test_dict_pop(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -577,19 +577,19 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, c=3))
 
-    def test_dict_pop_default_works(self):
+    def test_dict_pop_default_works(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         assert 42 == obj.foo.pop('z', 42)
 
-    def test_dict_popitem_works(self):
+    def test_dict_popitem_works(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         i = obj.foo.popitem()
         assert i == ('a', 1) or i == ('b', 2) or i == ('c', 3)
         # we don't _check_mutation since the end value is nondeterministic
 
-    def test_dict_setdefault(self):
+    def test_dict_setdefault(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):
@@ -602,7 +602,7 @@ class TestDictMutation(TestContainerMutation):
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=2, c=3, z=44))
 
-    def test_dict_update(self):
+    def test_dict_update(self) -> None:
         obj = HasStringDictProp(foo=dict(a=1, b=2, c=3))
         assert isinstance(obj.foo, PropertyValueDict)
         def mutate(x):

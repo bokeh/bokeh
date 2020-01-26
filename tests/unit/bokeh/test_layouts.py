@@ -27,7 +27,7 @@ from bokeh.plotting import figure
 # General API
 #-----------------------------------------------------------------------------
 
-def test_gridplot_merge_tools_flat():
+def test_gridplot_merge_tools_flat() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
     gridplot([[p1, p2], [p3, p4]], merge_tools=True)
@@ -35,7 +35,7 @@ def test_gridplot_merge_tools_flat():
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
 
-def test_gridplot_merge_tools_with_None():
+def test_gridplot_merge_tools_with_None() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
     gridplot([[p1, None, p2], [p3, p4, None]], merge_tools=True)
@@ -43,7 +43,7 @@ def test_gridplot_merge_tools_with_None():
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
 
-def test_gridplot_merge_tools_nested():
+def test_gridplot_merge_tools_nested() -> None:
     p1, p2, p3, p4, p5, p6, p7 = figure(), figure(), figure(), figure(), figure(), figure(), figure()
     r1 = row(p1, p2)
     r2 = row(p3, p4)
@@ -54,7 +54,7 @@ def test_gridplot_merge_tools_nested():
     for p in p1, p2, p3, p4, p5, p6, p7:
         assert p.toolbar_location is None
 
-def test_gridplot_None():
+def test_gridplot_None() -> None:
     def p():
         p = figure()
         p.circle([1, 2, 3], [4, 5, 6])
@@ -66,7 +66,7 @@ def test_gridplot_None():
     assert isinstance(g, GridBox) and len(g.children) == 4
     assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
-def test_layout_simple():
+def test_layout_simple() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
     grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed')
@@ -75,14 +75,14 @@ def test_layout_simple():
     for r in grid.children:
         assert isinstance(r, Row)
 
-def test_layout_kwargs():
+def test_layout_kwargs() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
     grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed', name='simple')
 
     assert grid.name == 'simple'
 
-def test_layout_nested():
+def test_layout_nested() -> None:
     p1, p2, p3, p4, p5, p6 = figure(), figure(), figure(), figure(), figure(), figure()
 
     grid = layout([[[p1, p1], [p2, p2]], [[p3, p4], [p5, p6]]], sizing_mode='fixed')
@@ -93,7 +93,7 @@ def test_layout_nested():
         for c in r.children:
             assert isinstance(c, Column)
 
-def test_grid():
+def test_grid() -> None:
     s0 = Spacer()
     s1 = Spacer()
     s2 = Spacer()

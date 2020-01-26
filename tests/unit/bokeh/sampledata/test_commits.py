@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.commits", ALL))
 
 @pytest.mark.sampledata
-def test_data(pd):
+def test_data(pd) -> None:
     import bokeh.sampledata.commits as bsc
     assert isinstance(bsc.data, pd.DataFrame)
 

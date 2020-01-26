@@ -36,11 +36,11 @@ ALL = (
 
 class Test_Either(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpe.Either()
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpe.Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))
 
         assert prop.is_valid(None)
@@ -58,7 +58,7 @@ class Test_Either(object):
         assert prop.is_valid(False)
         assert prop.is_valid(True)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpe.Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))
 
         assert not prop.is_valid(0.0)
@@ -76,11 +76,11 @@ class Test_Either(object):
 
         assert not prop.is_valid([1, 2, ""])
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpe.Either(Int, Int)
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpe.Either(Int, Int)
         assert str(prop) == "Either(Int, Int)"
 

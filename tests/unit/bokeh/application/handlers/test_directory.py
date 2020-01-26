@@ -72,7 +72,7 @@ class Test_DirectoryHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_directory_empty_mainpy(self):
+    def test_directory_empty_mainpy(self) -> None:
         doc = Document()
         def load(filename):
             handler = bahd.DirectoryHandler(filename=filename)
@@ -86,7 +86,7 @@ class Test_DirectoryHandler(object):
 
         assert not doc.roots
 
-    def test_directory_mainpy_adds_roots(self):
+    def test_directory_mainpy_adds_roots(self) -> None:
         doc = Document()
         def load(filename):
             handler = bahd.DirectoryHandler(filename=filename)
@@ -101,7 +101,7 @@ class Test_DirectoryHandler(object):
 
         assert len(doc.roots) == 2
 
-    def test_directory_empty_mainipynb(self):
+    def test_directory_empty_mainipynb(self) -> None:
         import nbformat
 
         doc = Document()
@@ -121,7 +121,7 @@ class Test_DirectoryHandler(object):
 
         assert not doc.roots
 
-    def test_directory_mainipynb_adds_roots(self):
+    def test_directory_mainipynb_adds_roots(self) -> None:
         import nbformat
 
         doc = Document()
@@ -144,7 +144,7 @@ class Test_DirectoryHandler(object):
 
         assert len(doc.roots) == 2
 
-    def test_directory_has_theme_file(self):
+    def test_directory_has_theme_file(self) -> None:
         doc = Document()
         def load(filename):
             handler = bahd.DirectoryHandler(filename=filename)
@@ -185,7 +185,7 @@ some.foo = 57
         assert another_model.bar == 1
 
     @pytest.mark.asyncio
-    async def test_directory_with_server_lifecycle(self):
+    async def test_directory_with_server_lifecycle(self) -> None:
         doc = Document()
         result = {}
         def load(filename):
@@ -210,7 +210,7 @@ some.foo = 57
         assert "on_session_created" == await handler.on_session_created(None)
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
-    def test_directory_with_static(self):
+    def test_directory_with_static(self) -> None:
         doc = Document()
         result = {}
         def load(filename):
@@ -231,7 +231,7 @@ some.foo = 57
         assert handler.static_path() is not None
         assert handler.static_path().endswith("static")
 
-    def test_directory_without_static(self):
+    def test_directory_without_static(self) -> None:
         doc = Document()
         result = {}
         def load(filename):
@@ -250,7 +250,7 @@ some.foo = 57
         handler = result['handler']
         assert handler.static_path() is None
 
-    def test_directory_with_template(self):
+    def test_directory_with_template(self) -> None:
         doc = Document()
         result = {}
         def load(filename):
@@ -269,7 +269,7 @@ some.foo = 57
 
         assert isinstance(doc.template, jinja2.Template)
 
-    def test_directory_without_template(self):
+    def test_directory_without_template(self) -> None:
         doc = Document()
         result = {}
         def load(filename):
@@ -287,7 +287,7 @@ some.foo = 57
 
         assert doc.template is FILE
 
-    def test_safe_to_fork(self):
+    def test_safe_to_fork(self) -> None:
         doc = Document()
         result = {}
         def load(filename):
@@ -303,11 +303,11 @@ some.foo = 57
             'main.py' : "# This script does nothing",
         }, load)
 
-    def test_missing_filename_raises(self):
+    def test_missing_filename_raises(self) -> None:
         with pytest.raises(ValueError):
             bahd.DirectoryHandler()
 
-    def test_url_path(self):
+    def test_url_path(self) -> None:
         doc = Document()
         result = {}
         def load(filename):

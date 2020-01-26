@@ -63,7 +63,7 @@ def modify_doc(doc):
 @pytest.mark.selenium
 class Test_TextInput(object):
 
-    def test_displays_text_input(self, bokeh_model_page):
+    def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = TextAreaInput(css_classes=["foo"])
         page = bokeh_model_page(text_input)
         input_div = page.driver.find_element_by_class_name('foo')
@@ -71,7 +71,7 @@ class Test_TextInput(object):
         assert el.tag_name == 'textarea'
         assert page.has_no_console_errors()
 
-    def test_displays_placeholder(self, bokeh_model_page):
+    def test_displays_placeholder(self, bokeh_model_page) -> None:
         text_input = TextAreaInput(placeholder="placeholder", css_classes=["foo"])
         page = bokeh_model_page(text_input)
         input_div = page.driver.find_element_by_class_name('foo')
@@ -79,7 +79,7 @@ class Test_TextInput(object):
         assert el.get_attribute('placeholder') == "placeholder"
         assert page.has_no_console_errors()
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_class_name('foo')

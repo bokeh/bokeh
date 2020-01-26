@@ -34,11 +34,11 @@ import bokeh.client.websocket as bcw # isort:skip
 
 class Test_WebSocketClientConnectionWrapper(object):
 
-    def test_creation_raises_with_None(self):
+    def test_creation_raises_with_None(self) -> None:
         with pytest.raises(ValueError):
             bcw.WebSocketClientConnectionWrapper(None)
 
-    def test_creation(self):
+    def test_creation(self) -> None:
         w = bcw.WebSocketClientConnectionWrapper("socket")
         assert w._socket == "socket"
         assert isinstance(w.write_lock, locks.Lock)

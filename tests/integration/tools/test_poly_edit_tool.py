@@ -246,7 +246,7 @@ class Test_PolyEditTool(object):
 
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    def test_poly_delete_syncs_to_server(self, bokeh_server_page):
+    def test_poly_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [1.6, 2.027027027027027]],
                     "ys": [[1, 1], [1.5, 1.8749999999999998]]}
         page = bokeh_server_page(_make_server_plot(expected))

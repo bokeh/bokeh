@@ -38,7 +38,7 @@ import bokeh.embed.util as beu # isort:skip
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def test_plot():
+def test_plot() -> None:
     from bokeh.plotting import figure
     test_plot = figure()
     test_plot.circle([1, 2], [2, 3])
@@ -104,20 +104,20 @@ class EmbedTestUtilModel(Model):
 
 class Test_FromCurdoc(object):
 
-    def test_type(self):
+    def test_type(self) -> None:
         assert isinstance(beu.FromCurdoc, type)
 
 _ODFERR = "OutputDocumentFor expects a sequence of Models"
 
 class Test_OutputDocumentFor_general(object):
 
-    def test_error_on_empty_list(self):
+    def test_error_on_empty_list(self) -> None:
         with pytest.raises(ValueError) as e:
             with beu.OutputDocumentFor([]):
                 pass
         assert str(e.value).endswith(_ODFERR)
 
-    def test_error_on_mixed_list(self):
+    def test_error_on_mixed_list(self) -> None:
         p = SomeModel()
         d = Document()
         orig_theme = d.theme
@@ -128,13 +128,13 @@ class Test_OutputDocumentFor_general(object):
         assert d.theme is orig_theme
 
     @pytest.mark.parametrize('v', [10, -0,3, "foo", True])
-    def test_error_on_wrong_types(self, v):
+    def test_error_on_wrong_types(self, v) -> None:
         with pytest.raises(ValueError) as e:
             with beu.OutputDocumentFor(v):
                 pass
         assert str(e.value).endswith(_ODFERR)
 
-    def test_with_doc_in_child_raises_error(self):
+    def test_with_doc_in_child_raises_error(self) -> None:
         doc = Document()
         p1 = SomeModel()
         p2 = OtherModel(child=SomeModel())
@@ -148,13 +148,13 @@ class Test_OutputDocumentFor_general(object):
             assert "already in a doc" in str(e.value)
 
     @patch('bokeh.document.document.check_integrity')
-    def test_validates_document_by_default(self, check_integrity, test_plot):
+    def test_validates_document_by_default(self, check_integrity, test_plot) -> None:
         with beu.OutputDocumentFor([test_plot]):
             pass
         assert check_integrity.called
 
     @patch('bokeh.document.document.check_integrity')
-    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot):
+    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot) -> None:
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         with beu.OutputDocumentFor([test_plot]):
             pass
@@ -162,7 +162,7 @@ class Test_OutputDocumentFor_general(object):
 
 class Test_OutputDocumentFor_default_apply_theme(object):
 
-    def test_single_model_with_document(self):
+    def test_single_model_with_document(self) -> None:
         # should use existing doc in with-block
         p = SomeModel()
         d = Document()
@@ -174,14 +174,14 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p.document is d
         assert d.theme is orig_theme
 
-    def test_single_model_with_no_document(self):
+    def test_single_model_with_no_document(self) -> None:
         p = SomeModel()
         assert p.document is None
         with beu.OutputDocumentFor([p]):
             assert p.document is not None
         assert p.document is not None
 
-    def test_list_of_model_with_no_documents(self):
+    def test_list_of_model_with_no_documents(self) -> None:
         # should create new (permanent) doc for inputs
         p1 = SomeModel()
         p2 = SomeModel()
@@ -197,7 +197,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p1.document is p2.document
         assert p1.document.theme is new_theme
 
-    def test_list_of_model_same_as_roots(self):
+    def test_list_of_model_same_as_roots(self) -> None:
         # should use existing doc in with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -213,7 +213,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_model_same_as_roots_with_always_new(self):
+    def test_list_of_model_same_as_roots_with_always_new(self) -> None:
         # should use new temp doc for everything inside with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -230,7 +230,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_model_subset_roots(self):
+    def test_list_of_model_subset_roots(self) -> None:
         # should use new temp doc for subset inside with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -247,7 +247,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_models_different_docs(self):
+    def test_list_of_models_different_docs(self) -> None:
         # should use new temp doc for eveything inside with-block
         d = Document()
         orig_theme = d.theme
@@ -269,7 +269,7 @@ class Test_OutputDocumentFor_default_apply_theme(object):
 
 class Test_OutputDocumentFor_custom_apply_theme(object):
 
-    def test_single_model_with_document(self):
+    def test_single_model_with_document(self) -> None:
         # should use existing doc in with-block
         p = SomeModel()
         d = Document()
@@ -281,7 +281,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert p.document is d
         assert d.theme is orig_theme
 
-    def test_single_model_with_no_document(self):
+    def test_single_model_with_no_document(self) -> None:
         p = SomeModel()
         assert p.document is None
         with beu.OutputDocumentFor([p], apply_theme=Theme(json={})):
@@ -290,7 +290,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert p.document is not None
         assert p.document.theme is not new_theme
 
-    def test_list_of_model_with_no_documents(self):
+    def test_list_of_model_with_no_documents(self) -> None:
         # should create new (permanent) doc for inputs
         p1 = SomeModel()
         p2 = SomeModel()
@@ -308,7 +308,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         # should restore to default theme after with-block
         assert p1.document.theme is not new_theme
 
-    def test_list_of_model_same_as_roots(self):
+    def test_list_of_model_same_as_roots(self) -> None:
         # should use existing doc in with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -324,7 +324,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_model_same_as_roots_with_always_new(self):
+    def test_list_of_model_same_as_roots_with_always_new(self) -> None:
         # should use new temp doc for everything inside with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -341,7 +341,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_model_subset_roots(self):
+    def test_list_of_model_subset_roots(self) -> None:
         # should use new temp doc for subset inside with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -358,7 +358,7 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_models_different_docs(self):
+    def test_list_of_models_different_docs(self) -> None:
         # should use new temp doc for eveything inside with-block
         d = Document()
         orig_theme = d.theme
@@ -387,7 +387,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
     def teardown_method(self):
         curdoc().theme = self.orig_theme
 
-    def test_single_model_with_document(self):
+    def test_single_model_with_document(self) -> None:
         # should use existing doc in with-block
         p = SomeModel()
         d = Document()
@@ -399,7 +399,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p.document is d
         assert d.theme is orig_theme
 
-    def test_single_model_with_no_document(self):
+    def test_single_model_with_no_document(self) -> None:
         p = SomeModel()
         assert p.document is None
         with beu.OutputDocumentFor([p], apply_theme=beu.FromCurdoc):
@@ -409,7 +409,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p.document is new_doc
         assert p.document.theme is not curdoc().theme
 
-    def test_list_of_model_with_no_documents(self):
+    def test_list_of_model_with_no_documents(self) -> None:
         # should create new (permanent) doc for inputs
         p1 = SomeModel()
         p2 = SomeModel()
@@ -427,7 +427,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         # should restore to default theme after with-block
         assert p1.document.theme is not curdoc().theme
 
-    def test_list_of_model_same_as_roots(self):
+    def test_list_of_model_same_as_roots(self) -> None:
         # should use existing doc in with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -443,7 +443,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_model_same_as_roots_with_always_new(self):
+    def test_list_of_model_same_as_roots_with_always_new(self) -> None:
         # should use new temp doc for everything inside with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -460,7 +460,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_model_subset_roots(self):
+    def test_list_of_model_subset_roots(self) -> None:
         # should use new temp doc for subset inside with-block
         p1 = SomeModel()
         p2 = SomeModel()
@@ -477,7 +477,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p2.document is d
         assert d.theme is orig_theme
 
-    def test_list_of_models_different_docs(self):
+    def test_list_of_models_different_docs(self) -> None:
         # should use new temp doc for eveything inside with-block
         d = Document()
         orig_theme = d.theme
@@ -499,7 +499,7 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
 class Test_standalone_docs_json_and_render_items(object):
 
-    def test_passing_model(self):
+    def test_passing_model(self) -> None:
         p1 = SomeModel()
         d = Document()
         d.add_root(p1)
@@ -512,7 +512,7 @@ class Test_standalone_docs_json_and_render_items(object):
         assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
         assert len(render_items) == 1
 
-    def test_passing_doc(self):
+    def test_passing_doc(self) -> None:
         p1 = SomeModel()
         d = Document()
         d.add_root(p1)
@@ -525,13 +525,13 @@ class Test_standalone_docs_json_and_render_items(object):
         assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'test_util__embed.SomeModel'}]
         assert len(render_items) == 1
 
-    def test_exception_for_missing_doc(self):
+    def test_exception_for_missing_doc(self) -> None:
         p1 = SomeModel()
         with pytest.raises(ValueError) as e:
             beu.standalone_docs_json_and_render_items([p1])
         assert str(e.value) == "A Bokeh Model must be part of a Document to render as standalone content"
 
-    def test_log_warning_if_python_property_callback(self, caplog):
+    def test_log_warning_if_python_property_callback(self, caplog) -> None:
         d = Document()
         m1 = EmbedTestUtilModel()
         c1 = _GoodPropertyCallback()
@@ -545,7 +545,7 @@ class Test_standalone_docs_json_and_render_items(object):
             assert len(caplog.records) == 1
             assert caplog.text != ''
 
-    def test_log_warning_if_python_event_callback(self, caplog):
+    def test_log_warning_if_python_event_callback(self, caplog) -> None:
         d = Document()
         m1 = EmbedTestUtilModel()
         c1 = _GoodEventCallback()
@@ -559,7 +559,7 @@ class Test_standalone_docs_json_and_render_items(object):
             assert len(caplog.records) == 1
             assert caplog.text != ''
 
-    def test_suppress_warnings(self, caplog):
+    def test_suppress_warnings(self, caplog) -> None:
         d = Document()
         m1 = EmbedTestUtilModel()
         c1 = _GoodPropertyCallback()
@@ -580,7 +580,7 @@ class Test_standalone_docs_json_and_render_items(object):
 class Test_standalone_docs_json(object):
 
     @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
-    def test_delgation(self, mock_sdjari):
+    def test_delgation(self, mock_sdjari) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         d = Document()
@@ -594,7 +594,7 @@ class Test_standalone_docs_json(object):
             pass
         mock_sdjari.assert_called_once_with([p1, p2])
 
-    def test_output(self):
+    def test_output(self) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         d = Document()
@@ -610,14 +610,14 @@ class Test_standalone_docs_json(object):
 
 class Test__create_temp_doc(object):
 
-    def test_no_docs(self):
+    def test_no_docs(self) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         beu._create_temp_doc([p1, p2])
         assert isinstance(p1.document, Document)
         assert isinstance(p2.document, Document)
 
-    def test_top_level_same_doc(self):
+    def test_top_level_same_doc(self) -> None:
         d = Document()
         p1 = SomeModel()
         p2 = SomeModel()
@@ -631,7 +631,7 @@ class Test__create_temp_doc(object):
 
         assert p2.document == p1.document
 
-    def test_top_level_different_doc(self):
+    def test_top_level_different_doc(self) -> None:
         d1 = Document()
         d2 = Document()
         p1 = SomeModel()
@@ -646,7 +646,7 @@ class Test__create_temp_doc(object):
 
         assert p2.document == p1.document
 
-    def test_child_docs(self):
+    def test_child_docs(self) -> None:
         d = Document()
         p1 = SomeModel()
         p2 = OtherModel(child=SomeModel())
@@ -665,14 +665,14 @@ class Test__create_temp_doc(object):
 
 class Test__dispose_temp_doc(object):
 
-    def test_no_docs(self):
+    def test_no_docs(self) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         beu._dispose_temp_doc([p1, p2])
         assert p1.document is None
         assert p2.document is None
 
-    def test_with_docs(self):
+    def test_with_docs(self) -> None:
         d1 = Document()
         d2 = Document()
         p1 = SomeModel()
@@ -685,7 +685,7 @@ class Test__dispose_temp_doc(object):
         assert p2.document is None
         assert p2.child.document is d2
 
-    def test_with_temp_docs(self):
+    def test_with_temp_docs(self) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         beu._create_temp_doc([p1, p2])
@@ -694,14 +694,14 @@ class Test__dispose_temp_doc(object):
         assert p2.document is None
 
 class Test__set_temp_theme(object):
-    def test_apply_None(self):
+    def test_apply_None(self) -> None:
         d = Document()
         orig = d.theme
         beu._set_temp_theme(d, None)
         assert d._old_theme is orig
         assert d.theme is orig
 
-    def test_apply_theme(self):
+    def test_apply_theme(self) -> None:
         t = Theme(json={})
         d = Document()
         orig = d.theme
@@ -709,7 +709,7 @@ class Test__set_temp_theme(object):
         assert d._old_theme is orig
         assert d.theme is t
 
-    def test_apply_from_curdoc(self):
+    def test_apply_from_curdoc(self) -> None:
         t = Theme(json={})
         curdoc().theme = t
         d = Document()
@@ -719,7 +719,7 @@ class Test__set_temp_theme(object):
         assert d.theme is t
 
 class Test__unset_temp_theme(object):
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = Theme(json={})
         d = Document()
         d._old_theme = t
@@ -727,7 +727,7 @@ class Test__unset_temp_theme(object):
         assert d.theme is t
         assert not hasattr(d, "_old_theme")
 
-    def test_no_old_theme(self):
+    def test_no_old_theme(self) -> None:
         d = Document()
         orig = d.theme
         beu._unset_temp_theme(d)

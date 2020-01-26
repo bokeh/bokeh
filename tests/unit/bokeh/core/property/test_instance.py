@@ -37,25 +37,25 @@ ALL = (
 
 class Test_Instance(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpi.Instance()
 
-    def test_serialized(self):
+    def test_serialized(self) -> None:
         prop = bcpi.Instance(_TestModel)
         assert prop.serialized == True
 
-    def test_readonly(self):
+    def test_readonly(self) -> None:
         prop = bcpi.Instance(_TestModel)
         assert prop.readonly == False
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpi.Instance(_TestModel)
 
         assert prop.is_valid(None)
         assert prop.is_valid(_TestModel())
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpi.Instance(_TestModel)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
@@ -71,7 +71,7 @@ class Test_Instance(object):
         assert not prop.is_valid(_TestModel2())
         assert not prop.is_valid(_TestHasProps())
 
-    def test_from_json(self):
+    def test_from_json(self) -> None:
         class MapOptions(HasProps):
             lat = Float
             lng = Float
@@ -81,11 +81,11 @@ class Test_Instance(object):
         v2 = MapOptions(lat=1, lng=2)
         assert v1.equals(v2)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpi.Instance(_TestModel)
         assert prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpi.Instance(_TestModel)
         assert str(prop) == "Instance(_TestModel)"
 

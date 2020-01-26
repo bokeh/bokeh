@@ -38,7 +38,7 @@ import bokeh.plotting._renderer as bpr # isort:skip
 
 class Test__pop_visuals(object):
 
-    def test_basic_prop(self):
+    def test_basic_prop(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
         ca = bpr.pop_visuals(Circle, kwargs)
         assert ca['fill_alpha'] == 0.7
@@ -47,7 +47,7 @@ class Test__pop_visuals(object):
         assert ca["fill_color"] == "#1f77b4"
         assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
 
-    def test_basic_trait(self):
+    def test_basic_trait(self) -> None:
         kwargs = dict(fill_alpha=0.7, alpha=0.8, color="red")
         ca = bpr.pop_visuals(Circle, kwargs)
         assert ca['fill_alpha'] == 0.7
@@ -56,14 +56,14 @@ class Test__pop_visuals(object):
         assert ca["fill_color"] == "red"
         assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
 
-    def test_override_defaults_with_prefix(self):
+    def test_override_defaults_with_prefix(self) -> None:
         glyph_kwargs = dict(fill_alpha=1, line_alpha=1)
         kwargs=dict(alpha=0.6)
         ca = bpr.pop_visuals(Circle, kwargs, prefix='nonselection_', defaults=glyph_kwargs, override_defaults={'alpha':0.1})
         assert ca['fill_alpha'] == 0.1
         assert ca['line_alpha'] == 0.1
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
         ca = bpr.pop_visuals(Circle, kwargs, defaults=dict(line_color="blue", fill_color="green"))
         assert ca['fill_alpha'] == 0.7
@@ -72,7 +72,7 @@ class Test__pop_visuals(object):
         assert ca["fill_color"] == "green"
         assert set(ca) == { "fill_color", "line_color", "fill_alpha", "line_alpha" }
 
-    def test_override_defaults(self):
+    def test_override_defaults(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8)
         ca = bpr.pop_visuals(Circle, kwargs, defaults=dict(line_color="blue", fill_color="green"), override_defaults=dict(color="white"))
         assert ca['fill_alpha'] == 0.7
@@ -99,7 +99,7 @@ class Test__pop_visuals(object):
 # }
 # @pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg]) for arg in bpr.RENDERER_ARGS])
 # @pytest.mark.unit
-# def test__glyph_receives_renderer_arg(arg, values):
+# def test__glyph_receives_renderer_arg(arg, values) -> None:
 #     for value in values:
 #         with mock.patch('bokeh.plotting.helpers.GlyphRenderer', autospec=True) as gr_mock:
 #             fn = bpd._glyph_function(Marker)

@@ -42,35 +42,35 @@ import bokeh.models.sources as bms # isort:skip
 
 class TestColumnDataSource(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         ds = bms.ColumnDataSource()
         assert isinstance(ds, bms.DataSource)
         assert isinstance(ds.selected, Selection)
 
-    def test_selected_is_readonly(self):
+    def test_selected_is_readonly(self) -> None:
         ds = bms.ColumnDataSource()
         with pytest.raises(RuntimeError) as e:
             ds.selected = Selection()
             assert str(e).endswith("ColumnDataSource.selected is a readonly property")
 
-    def test_selected_serialized(self):
+    def test_selected_serialized(self) -> None:
         ds = bms.ColumnDataSource()
         prop = ds.lookup('selected')
         assert prop.serialized == True
 
-    def test_init_dict_arg(self):
+    def test_init_dict_arg(self) -> None:
         data = dict(a=[1], b=[2])
         ds = bms.ColumnDataSource(data)
         assert ds.data == data
         assert set(ds.column_names) == set(data.keys())
 
-    def test_init_dict_data_kwarg(self):
+    def test_init_dict_data_kwarg(self) -> None:
         data = dict(a=[1], b=[2])
         ds = bms.ColumnDataSource(data=data)
         assert ds.data == data
         assert set(ds.column_names) == set(data.keys())
 
-    def test_init_dataframe_arg(self, pd):
+    def test_init_dataframe_arg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(df)
@@ -82,7 +82,7 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    def test_data_accepts_dataframe_arg(self, pd):
+    def test_data_accepts_dataframe_arg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource()
@@ -96,7 +96,7 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    def test_init_dataframe_data_kwarg(self, pd):
+    def test_init_dataframe_data_kwarg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(data=df)
@@ -108,7 +108,7 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    def test_init_dataframe_index_named_column(self, pd):
+    def test_init_dataframe_index_named_column(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(data=df)
@@ -120,7 +120,7 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == set(["level_0"])
 
-    def test_data_accepts_dataframe_index_named_column(self, pd):
+    def test_data_accepts_dataframe_index_named_column(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource()
@@ -134,7 +134,7 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == set(["level_0"])
 
-    def test_init_dataframe_column_categoricalindex(self, pd):
+    def test_init_dataframe_column_categoricalindex(self, pd) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
         data = [[0,2], [1,3]]
         df = pd.DataFrame(columns=columns, data=data)
@@ -147,7 +147,7 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    def test_data_accepts_dataframe_column_categoricalindex(self, pd):
+    def test_data_accepts_dataframe_column_categoricalindex(self, pd) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
         data = [[0,2], [1,3]]
         df = pd.DataFrame(columns=columns, data=data)
@@ -162,19 +162,19 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    def test_init_dataframe_nonstring_named_column(self, pd):
+    def test_init_dataframe_nonstring_named_column(self, pd) -> None:
         data = {1: [1, 2], 2: [2, 3]}
         df = pd.DataFrame(data)
         with pytest.raises(ValueError, match=r'expected an element of.*'):
             bms.ColumnDataSource(data=df)
 
-    def test_init_dataframe_nonstring_named_multicolumn(self, pd):
+    def test_init_dataframe_nonstring_named_multicolumn(self, pd) -> None:
         data = {(1, 2): [1, 2], (2, 3): [2, 3]}
         df = pd.DataFrame(data)
         with pytest.raises(TypeError, match=r'Could not flatten.*'):
             bms.ColumnDataSource(data=df)
 
-    def test_init_groupby_arg(self, pd):
+    def test_init_groupby_arg(self, pd) -> None:
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource(group)
@@ -186,7 +186,7 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_data_accepts_groupby_arg(self, pd):
+    def test_data_accepts_groupby_arg(self, pd) -> None:
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource()
@@ -200,7 +200,7 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_init_groupby_data_kwarg(self, pd):
+    def test_init_groupby_data_kwarg(self, pd) -> None:
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource(data=group)
@@ -212,7 +212,7 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_init_groupby_with_None_subindex_name(self, pd):
+    def test_init_groupby_with_None_subindex_name(self, pd) -> None:
         df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
         group = df.groupby(['A', [10, 20, 30, 40] * 2])
         ds = bms.ColumnDataSource(data=group)
@@ -224,7 +224,7 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_data_accepts_groupby_with_None_subindex_name(self, pd):
+    def test_data_accepts_groupby_with_None_subindex_name(self, pd) -> None:
         df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
         group = df.groupby(['A', [10, 20, 30, 40] * 2])
         ds = bms.ColumnDataSource()
@@ -238,7 +238,7 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_init_propertyvaluecolumndata_copy(self):
+    def test_init_propertyvaluecolumndata_copy(self) -> None:
         data = dict(a=[1], b=[2])
         cd = bms.ColumnDataSource(data).data
         ds = bms.ColumnDataSource(data=cd)
@@ -247,35 +247,35 @@ class TestColumnDataSource(object):
         ds.data['a'][0] = 2
         assert cd['a'][0] == 2
 
-    def test_add_with_name(self):
+    def test_add_with_name(self) -> None:
         ds = bms.ColumnDataSource()
         name = ds.add([1,2,3], name="foo")
         assert name == "foo"
         name = ds.add([4,5,6], name="bar")
         assert name == "bar"
 
-    def test_add_without_name(self):
+    def test_add_without_name(self) -> None:
         ds = bms.ColumnDataSource()
         name = ds.add([1,2,3])
         assert name == "Series 0"
         name = ds.add([4,5,6])
         assert name == "Series 1"
 
-    def test_add_with_and_without_name(self):
+    def test_add_with_and_without_name(self) -> None:
         ds = bms.ColumnDataSource()
         name = ds.add([1,2,3], "foo")
         assert name == "foo"
         name = ds.add([4,5,6])
         assert name == "Series 1"
 
-    def test_remove_exists(self):
+    def test_remove_exists(self) -> None:
         ds = bms.ColumnDataSource()
         name = ds.add([1,2,3], "foo")
         assert name
         ds.remove("foo")
         assert ds.column_names == []
 
-    def test_remove_exists2(self):
+    def test_remove_exists2(self) -> None:
         with warnings.catch_warnings(record=True) as w:
             ds = bms.ColumnDataSource()
             ds.remove("foo")
@@ -284,7 +284,7 @@ class TestColumnDataSource(object):
             assert w[0].category == UserWarning
             assert str(w[0].message) == "Unable to find column 'foo' in data source"
 
-    def test_stream_bad_data(self):
+    def test_stream_bad_data(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10], b=[20]))
         with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: a, b\)"):
             ds.stream(dict())
@@ -300,15 +300,15 @@ class TestColumnDataSource(object):
         with pytest.raises(ValueError, match=r"stream\(...\) only supports 1d sequences, got ndarray with size \(.*"):
             ds.stream(dict(a=[10], b=np.ones((1,1))))
 
-    def test__df_index_name_with_named_index(self, pd):
+    def test__df_index_name_with_named_index(self, pd) -> None:
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         assert bms.ColumnDataSource._df_index_name(df) == "c"
 
-    def test__df_index_name_with_unnamed_index(self, pd):
+    def test__df_index_name_with_unnamed_index(self, pd) -> None:
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
-    def test__df_index_name_with_named_multi_index(self, pd):
+    def test__df_index_name_with_named_multi_index(self, pd) -> None:
         data = io.StringIO(u'''
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
@@ -321,14 +321,14 @@ Lime,Green,99,$0.39
         assert df.index.names == ['Fruit', 'Color']
         assert bms.ColumnDataSource._df_index_name(df) == "Fruit_Color"
 
-    def test__df_index_name_with_unnamed_multi_index(self, pd):
+    def test__df_index_name_with_unnamed_multi_index(self, pd) -> None:
         arrays = [np.array(['bar', 'bar', 'baz', 'baz', 'foo', 'foo', 'qux', 'qux']),
                   np.array(['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two'])]
         df = pd.DataFrame(np.random.randn(8, 4), index=arrays)
         assert df.index.names == [None, None]
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
-    def test__stream_good_data(self):
+    def test__stream_good_data(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10], b=[20]))
         ds._document = "doc"
         stuff = {}
@@ -343,7 +343,7 @@ Lime,Green,99,$0.39
         assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
         assert stuff['kw'] == {}
 
-    def test_stream_good_data(self):
+    def test_stream_good_data(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10], b=[20]))
         ds._document = "doc"
         stuff = {}
@@ -357,7 +357,7 @@ Lime,Green,99,$0.39
         assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None)
         assert stuff['kw'] == {}
 
-    def test__stream_good_datetime64_data(self):
+    def test__stream_good_datetime64_data(self) -> None:
         now = dt.datetime.now()
         dates = np.array([now+dt.timedelta(i) for i in range(1, 10)], dtype='datetime64')
         ds = bms.ColumnDataSource(data=dict(index=dates, b=list(range(1, 10))))
@@ -374,7 +374,7 @@ Lime,Green,99,$0.39
         ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
         assert np.array_equal(stuff['args'][2]['index'], new_date)
 
-    def test__stream_good_datetime64_data_transformed(self):
+    def test__stream_good_datetime64_data_transformed(self) -> None:
         now = dt.datetime.now()
         dates = np.array([now+dt.timedelta(i) for i in range(1, 10)], dtype='datetime64')
         dates = convert_datetime_array(dates)
@@ -393,7 +393,7 @@ Lime,Green,99,$0.39
         transformed_date = convert_datetime_array(new_date)
         assert np.array_equal(stuff['args'][2]['index'], transformed_date)
 
-    def test__stream_good_df_with_date_index_data(self, pd):
+    def test__stream_good_df_with_date_index_data(self, pd) -> None:
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -417,7 +417,7 @@ Lime,Green,99,$0.39
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
-    def test__stream_good_dict_of_index_and_series_data(self, pd):
+    def test__stream_good_dict_of_index_and_series_data(self, pd) -> None:
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -441,7 +441,7 @@ Lime,Green,99,$0.39
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
-    def test__stream_good_dict_of_index_and_series_data_transformed(self, pd):
+    def test__stream_good_dict_of_index_and_series_data_transformed(self, pd) -> None:
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -472,7 +472,7 @@ Lime,Green,99,$0.39
             assert type(v) == np.ndarray
             assert np.array_equal(v, d2[k])
 
-    def test_stream_dict_to_ds_created_from_df(self, pd):
+    def test_stream_dict_to_ds_created_from_df(self, pd) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -523,7 +523,7 @@ Lime,Green,99,$0.39
                                                 b=np.array([20, 21, 22]),
                                                 c=np.array([30, 31, 32])))
 
-    def test_stream_series_to_ds_created_from_df(self, pd):
+    def test_stream_series_to_ds_created_from_df(self, pd) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -576,7 +576,7 @@ Lime,Green,99,$0.39
                                                 c=np.array([30, 31]),
                                                 index=np.array([0, 0])))
 
-    def test_stream_df_to_ds_created_from_df_named_index(self, pd):
+    def test_stream_df_to_ds_created_from_df_named_index(self, pd) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -629,7 +629,7 @@ Lime,Green,99,$0.39
                                                 b=np.array([20, 21, 22]),
                                                 c=np.array([30, 31, 32])))
 
-    def test_stream_df_to_ds_created_from_df_default_index(self, pd):
+    def test_stream_df_to_ds_created_from_df_default_index(self, pd) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -685,7 +685,7 @@ Lime,Green,99,$0.39
                                                 c=np.array([30, 31, 32]),
                                                 index=np.array([0, 0, 1])))
 
-    def test_patch_bad_columns(self):
+    def test_patch_bad_columns(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with pytest.raises(ValueError, match=r"Can only patch existing columns \(extra: c\)"):
             ds.patch(dict(c=[(0, 100)]))
@@ -693,12 +693,12 @@ Lime,Green,99,$0.39
             ds.patch(dict(a=[(0,100)], c=[(0, 100)], d=[(0, 100)]))
 
 
-    def test_patch_bad_simple_indices(self):
+    def test_patch_bad_simple_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(3\) in patch for column: a"):
             ds.patch(dict(a=[(3, 100)]))
 
-    def test_patch_good_simple_indices(self):
+    def test_patch_good_simple_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
@@ -711,7 +711,7 @@ Lime,Green,99,$0.39
         assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
         assert stuff['kw'] == {}
 
-    def test_patch_bad_slice_indices(self):
+    def test_patch_bad_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
         with pytest.raises(ValueError, match=r"Out-of bounds slice index stop \(10\) in patch for column: a"):
             ds.patch(dict(a=[(slice(10), list(range(10)))]))
@@ -727,7 +727,7 @@ Lime,Green,99,$0.39
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
 
 
-    def test_patch_good_slice_indices(self):
+    def test_patch_good_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
         ds._document = "doc"
         stuff = {}
@@ -740,7 +740,7 @@ Lime,Green,99,$0.39
         assert stuff['args'] == ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
         assert stuff['kw'] == {}
 
-    def test_data_column_lengths(self):
+    def test_data_column_lengths(self) -> None:
         # TODO: use this when soft=False
         #
         #with pytest.raises(ValueError):
@@ -781,27 +781,27 @@ Lime,Green,99,$0.39
         assert len(warns) == 1
         assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)"
 
-    def test_set_data_from_json_list(self):
+    def test_set_data_from_json_list(self) -> None:
         ds = bms.ColumnDataSource()
         data = {"foo": [1, 2, 3]}
         ds.set_from_json('data', data)
         assert ds.data == data
 
-    def test_set_data_from_json_base64(self):
+    def test_set_data_from_json_base64(self) -> None:
         ds = bms.ColumnDataSource()
         data = {"foo": np.arange(3, dtype=np.int64)}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
 
-    def test_set_data_from_json_nested_base64(self):
+    def test_set_data_from_json_nested_base64(self) -> None:
         ds = bms.ColumnDataSource()
         data = {"foo": [[np.arange(3, dtype=np.int64)]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
 
-    def test_set_data_from_json_nested_base64_and_list(self):
+    def test_set_data_from_json_nested_base64_and_list(self) -> None:
         ds = bms.ColumnDataSource()
         data = {"foo": [np.arange(3, dtype=np.int64), [1, 2, 3]]}
         json = transform_column_source_data(data)

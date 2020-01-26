@@ -52,7 +52,7 @@ def _make_plot():
 @pytest.mark.selenium
 class Test_ZoomInTool(object):
 
-    def test_deselected_by_default(self, single_plot_page):
+    def test_deselected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -62,7 +62,7 @@ class Test_ZoomInTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_clicking_zooms_in(self, single_plot_page):
+    def test_clicking_zooms_in(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)

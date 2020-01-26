@@ -45,7 +45,7 @@ items = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "ite
 @pytest.mark.selenium
 class Test_Dropdown(object):
 
-    def test_displays_menu_items(self, bokeh_model_page):
+    def test_displays_menu_items(self, bokeh_model_page) -> None:
         button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
 
         page = bokeh_model_page(button)
@@ -58,7 +58,7 @@ class Test_Dropdown(object):
         assert menu.is_displayed()
 
     @pytest.mark.parametrize('typ', list(ButtonType))
-    def test_displays_button_type(self, typ, bokeh_model_page):
+    def test_displays_button_type(self, typ, bokeh_model_page) -> None:
         button = Dropdown(label="Dropdown button", menu=items, button_type=typ, css_classes=["foo"])
 
         page = bokeh_model_page(button)
@@ -66,7 +66,7 @@ class Test_Dropdown(object):
         button = page.driver.find_element_by_css_selector('.foo button')
         assert typ in button.get_attribute('class')
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
@@ -119,7 +119,7 @@ class Test_Dropdown(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, bokeh_model_page):
+    def test_js_on_change_executes(self, bokeh_model_page) -> None:
         button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
         button.js_on_event('menu_item_click', CustomJS(code=RECORD("value", "this.item")))
 

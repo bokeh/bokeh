@@ -72,28 +72,28 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 Test___all__ = verify_all(b, ALL)
 
-def test___version___type():
+def test___version___type() -> None:
     assert isinstance(b.__version__, str)
 
-def test___version___defined():
+def test___version___defined() -> None:
     assert b.__version__ != 'unknown'
 
-def test_license(capsys):
+def test_license(capsys) -> None:
     b.license()
     out, err = capsys.readouterr()
     assert out == _LICENSE
 
 class TestWarnings(object):
     @pytest.mark.parametrize('cat', (BokehDeprecationWarning, BokehUserWarning))
-    def test_bokeh_custom(self, cat):
+    def test_bokeh_custom(self, cat) -> None:
         r = warnings.formatwarning("message", cat, "line", "lineno")
         assert r == "%s: %s\n" %(cat.__name__, "message")
 
-    def test_general_default(self):
+    def test_general_default(self) -> None:
         r = warnings.formatwarning("message", RuntimeWarning, "line", "lineno")
         assert r == "line:lineno: RuntimeWarning: message\n"
 
-    def test_filters(self):
+    def test_filters(self) -> None:
         assert ('always', None, BokehUserWarning, None, 0) in warnings.filters
         assert ('always', None, BokehDeprecationWarning, None, 0) in warnings.filters
 

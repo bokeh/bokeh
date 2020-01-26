@@ -32,7 +32,7 @@ import bokeh.models.mappers as bmm # isort:skip
 
 class Test_CategoricalColorMapper(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         mapper = bmm.CategoricalColorMapper()
         check_properties_existence(mapper, [
             "factors",
@@ -42,15 +42,15 @@ class Test_CategoricalColorMapper(object):
             "nan_color"],
         )
 
-    def test_warning_with_short_palette(self, recwarn):
+    def test_warning_with_short_palette(self, recwarn) -> None:
         bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green"])
         assert len(recwarn) == 1
 
-    def test_no_warning_with_long_palette(self, recwarn):
+    def test_no_warning_with_long_palette(self, recwarn) -> None:
         bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
         assert len(recwarn) == 0
 
-    def test_with_pandas_index(self, pd):
+    def test_with_pandas_index(self, pd) -> None:
         fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
         years = ['2015', '2016', '2017']
         data = {'2015'   : [2, 1, 4, 3, 2, 4],
@@ -66,7 +66,7 @@ class Test_CategoricalColorMapper(object):
 
 class Test_CategoricalPatternMapper(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         mapper = bmm.CategoricalPatternMapper()
         check_properties_existence(mapper, [
             "factors",
@@ -78,7 +78,7 @@ class Test_CategoricalPatternMapper(object):
 
 class Test_CategoricalMarkerMapper(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         mapper = bmm.CategoricalMarkerMapper()
         check_properties_existence(mapper, [
             "factors",
@@ -90,7 +90,7 @@ class Test_CategoricalMarkerMapper(object):
 
 class Test_LinearColorMapper(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         mapper = bmm.LinearColorMapper()
         check_properties_existence(mapper, [
             "palette",
@@ -103,7 +103,7 @@ class Test_LinearColorMapper(object):
 
 class Test_LogColorMapper(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         mapper = bmm.LogColorMapper()
         check_properties_existence(mapper, [
             "palette",

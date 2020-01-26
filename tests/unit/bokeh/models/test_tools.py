@@ -33,7 +33,7 @@ from bokeh.models.tools import Toolbar, ToolbarBox # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_Toolbar():
+def test_Toolbar() -> None:
     tb = Toolbar()
     assert tb.active_drag == 'auto'
     assert tb.active_inspect == 'auto'
@@ -42,7 +42,7 @@ def test_Toolbar():
     assert tb.autohide is False
 
 
-def test_Toolbar_with_autohide():
+def test_Toolbar_with_autohide() -> None:
     tb = Toolbar(autohide=True)
     assert tb.active_drag == 'auto'
     assert tb.active_inspect == 'auto'
@@ -54,18 +54,18 @@ def test_Toolbar_with_autohide():
 # ToolbarBox
 #
 
-def test_toolbar_box_is_instance_of_LayoutDOM():
+def test_toolbar_box_is_instance_of_LayoutDOM() -> None:
     tb_box = ToolbarBox()
     assert isinstance(tb_box, LayoutDOM)
 
 
-def test_toolbar_box_properties():
+def test_toolbar_box_properties() -> None:
     tb_box = ToolbarBox()
     assert tb_box.toolbar_location == "right"
 
 
 @mock.patch('bokeh.io.showing._show_with_state')
-def test_toolbar_box_with_no_children_does_not_raise_a_bokeh_warning(mock__show_with_state):
+def test_toolbar_box_with_no_children_does_not_raise_a_bokeh_warning(mock__show_with_state) -> None:
     # This is the normal way a ToolbarBox would be instantiated for example in
     # a gridplot. So we don't want to worry people with warnings. The children
     # for the ToolbarBox are created on the JS side.

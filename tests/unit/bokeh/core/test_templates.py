@@ -51,7 +51,7 @@ def compute_sha256(data):
 
 pinned_template_sha256 = "882bcee1a8d3a51f6e92680029f5cba119bb0c16e637d196524fa33384bd398f"
 
-def test_autoload_template_has_changed():
+def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the
     autoload_nb_js.js template then you should make sure that insertion of
     plots into notebooks is working as expected. In particular, this test was

@@ -40,7 +40,7 @@ class FakeSess(object):
 
 class Test_ClientConnection(object):
 
-    def test_creation(self):
+    def test_creation(self) -> None:
         c = bcc.ClientConnection("session", "wsurl")
         assert c.url == "wsurl"
         assert c.connected == False
@@ -52,7 +52,7 @@ class Test_ClientConnection(object):
         assert c._server_info is None
         assert c._arguments is None
 
-    def test_creation_with_arguments(self):
+    def test_creation_with_arguments(self) -> None:
         c = bcc.ClientConnection("session", "wsurl", arguments=dict(foo="bar"))
         assert c.url == "wsurl"
         assert c.connected == False
@@ -64,11 +64,11 @@ class Test_ClientConnection(object):
         assert c._server_info is None
         assert c._arguments == dict(foo="bar")
 
-    def test__formatted_url(self):
+    def test__formatted_url(self) -> None:
         c = bcc.ClientConnection(FakeSess(), "wsurl")
         assert c._formatted_url() == "wsurl?bokeh-session-id=session_id"
 
-    def test__formatted_url_with_arguments(self):
+    def test__formatted_url_with_arguments(self) -> None:
         c = bcc.ClientConnection(FakeSess(), "wsurl", arguments=dict(foo="bar"))
         assert c._formatted_url() == "wsurl?bokeh-session-id=session_id&foo=bar"
 

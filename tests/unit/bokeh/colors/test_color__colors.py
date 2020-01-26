@@ -30,11 +30,11 @@ import bokeh.colors.color as bcc # isort:skip
 
 class Test_Color(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         c = bcc.Color()
         assert c
 
-    def test_abstract(self):
+    def test_abstract(self) -> None:
         c = bcc.Color()
 
         with pytest.raises(NotImplementedError):
@@ -52,18 +52,18 @@ class Test_Color(object):
         with pytest.raises(NotImplementedError):
             c.to_rgb()
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         c = bcc.Color()
         with pytest.raises(NotImplementedError):
             repr(c)
 
-    def test_clamp(self):
+    def test_clamp(self) -> None:
         assert bcc.Color.clamp(10) == 10
         assert bcc.Color.clamp(10, 20) == 10
         assert bcc.Color.clamp(10, 5) == 5
         assert bcc.Color.clamp(-10) == 0
 
-    def test_darken(self):
+    def test_darken(self) -> None:
         c = HSL(10, 0.2, 0.2, 0.2)
         c2 = c.darken(0.1)
         assert c2 is not c
@@ -79,7 +79,7 @@ class Test_Color(object):
         assert c2.s == 0.2
         assert c2.l == 0
 
-    def test_lighten(self):
+    def test_lighten(self) -> None:
         c = HSL(10, 0.2, 0.2, 0.2)
         c2 = c.lighten(0.2)
         assert c2 is not c

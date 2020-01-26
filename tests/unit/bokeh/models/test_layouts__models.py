@@ -58,12 +58,12 @@ def check_children_prop(layout_callable):
         layout_callable(children=[ColumnDataSource()])
 
 
-def test_Row():
+def test_Row() -> None:
     check_props_with_sizing_mode(Row())
     check_children_prop(Row)
 
 
-def test_Column():
+def test_Column() -> None:
     check_props_with_sizing_mode(Column())
     check_children_prop(Column)
 
@@ -85,7 +85,7 @@ def check_widget_box_children_prop(layout_callable):
         layout_callable(children=[ColumnDataSource()])
 
 
-def test_LayoutDOM_css_classes():
+def test_LayoutDOM_css_classes() -> None:
     m = LayoutDOM()
     assert m.css_classes == []
     m.css_classes = ['foo']
@@ -95,7 +95,7 @@ def test_LayoutDOM_css_classes():
 
 
 # TODO (bev) deprecation: 3.0
-def test_widgetbox_deprecated():
+def test_widgetbox_deprecated() -> None:
     from bokeh.util.deprecation import BokehDeprecationWarning
     with pytest.warns(BokehDeprecationWarning):
         WidgetBox()

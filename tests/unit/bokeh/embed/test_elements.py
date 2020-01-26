@@ -34,7 +34,7 @@ import bokeh.embed.elements as bee # isort:skip
 
 class Test_div_for_render_item(object):
 
-    def test_render(self):
+    def test_render(self) -> None:
         render_item = RenderItem(docid="doc123", elementid="foo123")
         assert bee.div_for_render_item(render_item).strip() == """<div class="bk-root" id="foo123"></div>"""
 

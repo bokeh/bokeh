@@ -43,7 +43,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_DatePicker(object):
 
-    def test_basic(self, bokeh_model_page):
+    def test_basic(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
 
         page = bokeh_model_page(dp)
@@ -56,7 +56,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_inline(self, bokeh_model_page):
+    def test_inline(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30",
                         inline=True, css_classes=["foo"])
 
@@ -70,7 +70,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_widget_disabled(self, bokeh_model_page):
+    def test_widget_disabled(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30",
                         disabled=True, css_classes=["foo"])
 
@@ -81,7 +81,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_disabled_dates(self, bokeh_model_page):
+    def test_disabled_dates(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30",
                         disabled_dates=["2019-09-14", ("2019-09-16", date(2019, 9, 18))], css_classes=["foo"])
 
@@ -116,7 +116,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_enabled_dates(self, bokeh_model_page):
+    def test_enabled_dates(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30",
                         enabled_dates=["2019-09-14", ("2019-09-16", date(2019, 9, 18))], css_classes=["foo"])
 
@@ -151,7 +151,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, bokeh_model_page):
+    def test_js_on_change_executes(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
         dp.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
@@ -171,7 +171,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
@@ -196,7 +196,7 @@ class Test_DatePicker(object):
         results = page.results
         assert results['data']['val'] == ['2019-09-20', '2019-09-16']
 
-    def test_server_update_disabled(self, bokeh_server_page):
+    def test_server_update_disabled(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)

@@ -52,7 +52,7 @@ def _make_plot(dimensions="both"):
 @pytest.mark.selenium
 class Test_WheelZoomTool(object):
 
-    def test_deselected_by_default(self, single_plot_page):
+    def test_deselected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -62,7 +62,7 @@ class Test_WheelZoomTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_can_be_selected_and_deselected(self, single_plot_page):
+    def test_can_be_selected_and_deselected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -83,7 +83,7 @@ class Test_WheelZoomTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_zoom_out(self, single_plot_page):
+    def test_zoom_out(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -115,7 +115,7 @@ class Test_WheelZoomTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_zoom_in(self, single_plot_page):
+    def test_zoom_in(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -147,7 +147,7 @@ class Test_WheelZoomTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_xwheel_zoom(self, single_plot_page):
+    def test_xwheel_zoom(self, single_plot_page) -> None:
         plot = _make_plot(dimensions="width")
 
         page = single_plot_page(plot)
@@ -189,7 +189,7 @@ class Test_WheelZoomTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_ywheel_zoom(self, single_plot_page):
+    def test_ywheel_zoom(self, single_plot_page) -> None:
         plot = _make_plot(dimensions="height")
 
         page = single_plot_page(plot)

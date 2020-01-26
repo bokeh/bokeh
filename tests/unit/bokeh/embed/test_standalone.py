@@ -40,7 +40,7 @@ def stable_id():
     return 'ID'
 
 @pytest.fixture
-def test_plot():
+def test_plot() -> None:
     from bokeh.plotting import figure
     test_plot = figure()
     test_plot.circle([1, 2], [2, 3])
@@ -52,11 +52,11 @@ def test_plot():
 
 class Test_autoload_static(object):
 
-    def test_return_type(self, test_plot):
+    def test_return_type(self, test_plot) -> None:
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
 
-    def test_script_attrs(self, test_plot):
+    def test_script_attrs(self, test_plot) -> None:
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "lxml")
         scripts = html.findAll(name='script')
@@ -68,7 +68,7 @@ class Test_autoload_static(object):
 
 class Test_components(object):
 
-    def test_return_type(self):
+    def test_return_type(self) -> None:
         plot1 = figure()
         plot1.circle([], [])
         plot2 = figure()
@@ -95,7 +95,7 @@ class Test_components(object):
         assert all(isinstance(x, str) for x in divs.keys())
 
     @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
-    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
+    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id) -> None:
         doc = Document()
         plot1 = figure()
         plot1.circle([], [])
@@ -117,7 +117,7 @@ class Test_components(object):
         _, plotiddict = bes.components({'p1': plot1, 'p2': plot2}, wrap_plot_info=False)
         assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
 
-    def test_result_attrs(self, test_plot):
+    def test_result_attrs(self, test_plot) -> None:
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
@@ -125,7 +125,7 @@ class Test_components(object):
         assert scripts[0].attrs == {'type': 'text/javascript'}
 
     @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
-    def test_div_attrs(self, test_plot):
+    def test_div_attrs(self, test_plot) -> None:
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(div, "lxml")
 
@@ -139,11 +139,11 @@ class Test_components(object):
         assert div.attrs['data-root-id'] == test_plot.id
         assert div.text == ''
 
-    def test_script_is_utf8_encoded(self, test_plot):
+    def test_script_is_utf8_encoded(self, test_plot) -> None:
         script, div = bes.components(test_plot)
         assert isinstance(script, str)
 
-    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot):
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot) -> None:
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
@@ -158,7 +158,7 @@ class Test_components(object):
 
 class Test_file_html(object):
 
-    def test_return_type(self, test_plot):
+    def test_return_type(self, test_plot) -> None:
 
         class fake_template:
             def __init__(self, tester, user_template_variables=None):
@@ -191,7 +191,7 @@ class Test_file_html(object):
         assert isinstance(r, str)
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_js_only_resources(self, mock_warn, test_plot):
+    def test_file_html_handles_js_only_resources(self, mock_warn, test_plot) -> None:
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
         output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
@@ -199,7 +199,7 @@ class Test_file_html(object):
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_css(self, mock_warn, test_plot):
+    def test_file_html_provides_warning_if_no_css(self, mock_warn, test_plot) -> None:
         js_resources = JSResources()
         bes.file_html(test_plot, (js_resources, None), "title")
         mock_warn.assert_called_once_with(
@@ -207,7 +207,7 @@ class Test_file_html(object):
         )
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_css_only_resources(self, mock_warn, test_plot):
+    def test_file_html_handles_css_only_resources(self, mock_warn, test_plot) -> None:
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
         output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
@@ -215,18 +215,18 @@ class Test_file_html(object):
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_js(self, mock_warn, test_plot):
+    def test_file_html_provides_warning_if_no_js(self, mock_warn, test_plot) -> None:
         css_resources = CSSResources()
         bes.file_html(test_plot, (None, css_resources), "title")
         mock_warn.assert_called_once_with(
             'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
         )
 
-    def test_file_html_title_is_escaped(self, test_plot):
+    def test_file_html_title_is_escaped(self, test_plot) -> None:
         r = bes.file_html(test_plot, CDN, "&<")
         assert "<title>&amp;&lt;</title>" in r
 
-    def test_entire_doc_is_not_used(self):
+    def test_entire_doc_is_not_used(self) -> None:
         from bokeh.document import Document
         from bokeh.models import Button
 
@@ -245,29 +245,29 @@ class Test_file_html(object):
 
 class Test_json_item(object):
 
-    def test_with_target_id(self, test_plot):
+    def test_with_target_id(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
         assert out['target_id'] == "foo"
 
-    def test_without_target_id(self, test_plot):
+    def test_without_target_id(self, test_plot) -> None:
         out = bes.json_item(test_plot)
         assert out['target_id'] == None
 
-    def test_doc_json(self, test_plot):
+    def test_doc_json(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
         expected = list(standalone_docs_json([test_plot]).values())[0]
         assert out['doc'] == expected
 
-    def test_doc_title(self, test_plot):
+    def test_doc_title(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
         assert out['doc']['title'] == ""
 
-    def test_root_id(self, test_plot):
+    def test_root_id(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
         assert out['doc']['roots']['root_ids'][0] == out['root_id']
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')
-    def test_apply_theme(self, mock_OFD, test_plot):
+    def test_apply_theme(self, mock_OFD, test_plot) -> None:
         # the subsequent call inside ODF will fail since the model was never
         # added to a document. Ignoring that since we just want to make sure
         # ODF is called with the expected theme arg.

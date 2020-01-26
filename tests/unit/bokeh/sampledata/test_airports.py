@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.airports", ALL))
 
 @pytest.mark.sampledata
-def test_data(pd):
+def test_data(pd) -> None:
     import bokeh.sampledata.airports as bsa
     assert isinstance(bsa.data, pd.DataFrame)
 

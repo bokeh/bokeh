@@ -39,20 +39,20 @@ import bokeh.command.subcommands.json as scjson # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = scjson.JSON(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_name():
+def test_name() -> None:
     assert scjson.JSON.name == "json"
 
-def test_help():
+def test_help() -> None:
     assert scjson.JSON.help == "Create JSON files for one or more applications"
 
-def test_args():
+def test_args() -> None:
     assert scjson.JSON.args == (
 
         ('files', dict(
@@ -84,7 +84,7 @@ def test_args():
 
     )
 
-def test_no_script(capsys):
+def test_no_script(capsys) -> None:
     with (TmpDir(prefix="bokeh-json-no-script")) as dirname:
         with WorkingDir(dirname):
             with pytest.raises(SystemExit):
@@ -97,7 +97,7 @@ bokeh json: error: %s
 """ % (too_few)
         assert out == ""
 
-def test_basic_script(capsys):
+def test_basic_script(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "json", "scatter.py"])
@@ -110,7 +110,7 @@ def test_basic_script(capsys):
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
 
-def test_basic_script_with_output_after(capsys):
+def test_basic_script_with_output_after(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "json", "scatter.py", "--output", "foo.json"])
@@ -123,7 +123,7 @@ def test_basic_script_with_output_after(capsys):
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
 
-def test_basic_script_with_output_before(capsys):
+def test_basic_script_with_output_before(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "json", "--output", "foo.json", "scatter.py"])

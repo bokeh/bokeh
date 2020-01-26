@@ -51,7 +51,7 @@ def webdriver():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png():
+def test_get_screenshot_as_png() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
@@ -64,7 +64,7 @@ def test_get_screenshot_as_png():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_glyph():
+def test_get_screenshot_as_png_with_glyph() -> None:
     layout = Plot(x_range=Range1d(0, 1), y_range=Range1d(0, 1),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None, min_border=2,
@@ -88,7 +88,7 @@ def test_get_screenshot_as_png_with_glyph():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_driver(webdriver):
+def test_get_screenshot_as_png_with_driver(webdriver) -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
@@ -102,7 +102,7 @@ def test_get_screenshot_as_png_with_driver(webdriver):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_large_plot(webdriver):
+def test_get_screenshot_as_png_large_plot(webdriver) -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=800, plot_width=800, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
@@ -116,7 +116,7 @@ def test_get_screenshot_as_png_large_plot(webdriver):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_minified(webdriver):
+def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True, legacy=True))
@@ -124,7 +124,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
+def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False, legacy=True))
@@ -132,7 +132,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_svgs_no_svg_present():
+def test_get_svgs_no_svg_present() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
               plot_height=20, plot_width=20, toolbar_location=None)
 
@@ -141,7 +141,7 @@ def test_get_svgs_no_svg_present():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_svgs_with_svg_present(webdriver):
+def test_get_svgs_with_svg_present(webdriver) -> None:
 
     def fix_ids(svg):
         svg = re.sub(r'id="\w{12}"', 'id="X"', svg)
@@ -173,7 +173,7 @@ def test_get_svgs_with_svg_present(webdriver):
     assert svg0 == svg2
     assert svg1 == svg2
 
-def test_get_layout_html_resets_plot_dims():
+def test_get_layout_html_resets_plot_dims() -> None:
     initial_height, initial_width = 200, 250
 
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
@@ -184,7 +184,7 @@ def test_get_layout_html_resets_plot_dims():
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
 
-def test_layout_html_on_child_first():
+def test_layout_html_on_child_first() -> None:
     p = Plot(x_range=Range1d(), y_range=Range1d())
 
     bie.get_layout_html(p, height=100, width=100)
@@ -192,7 +192,7 @@ def test_layout_html_on_child_first():
     layout = row(p)
     bie.get_layout_html(layout)
 
-def test_layout_html_on_parent_first():
+def test_layout_html_on_parent_first() -> None:
     p = Plot(x_range=Range1d(), y_range=Range1d())
 
     layout = row(p)
@@ -205,14 +205,14 @@ def test_layout_html_on_parent_first():
 #-----------------------------------------------------------------------------
 
 @patch('PIL.Image.Image')
-def test__crop_image_args(mock_Image):
+def test__crop_image_args(mock_Image) -> None:
     image = mock_Image()
     bie._crop_image(image, left='left', right='right', top='top', bottom='bottom', extra=10)
     assert image.crop.call_count == 1
     assert image.crop.call_args[0] == (('left', 'top', 'right', 'bottom'), )
     assert image.crop.call_args[1] == {}
 
-def test__crop_image():
+def test__crop_image() -> None:
     image = Image.new(mode="RGBA", size=(10,10))
     rect = dict(left=2, right=8, top=3, bottom=7)
     cropped = bie._crop_image(image, **rect)

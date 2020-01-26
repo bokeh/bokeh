@@ -30,7 +30,7 @@ import bokeh.colors.hsl as bch # isort:skip
 
 class Test_HSL(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         assert c
         assert c.a == 1.0
@@ -44,13 +44,13 @@ class Test_HSL(object):
         assert c.s == 0.2
         assert c.l == 0.3
 
-    def test_repr(self):
+    def test_repr(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         assert repr(c) == c.to_css()
         c = bch.HSL(10, 0.2, 0.3, 0.3)
         assert repr(c) == c.to_css()
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         c2 = c.copy()
         assert c2 is not c
@@ -59,7 +59,7 @@ class Test_HSL(object):
         assert c2.s == c.s
         assert c2.l == c.l
 
-    def test_from_hsl(self):
+    def test_from_hsl(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         c2 = bch.HSL.from_hsl(c)
         assert c2 is not c
@@ -76,7 +76,7 @@ class Test_HSL(object):
         assert c2.s == c.s
         assert c2.l == c.l
 
-    def test_from_rgb(self):
+    def test_from_rgb(self) -> None:
         c = RGB(255, 100, 0)
         c2 = bch.HSL.from_rgb(c)
         assert c2 is not c
@@ -93,13 +93,13 @@ class Test_HSL(object):
         assert c2.s == 1.0
         assert c2.l == 0.5
 
-    def test_to_css(self):
+    def test_to_css(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         assert c.to_css() == "hsl(10, 20.0%, 30.0%)"
         c = bch.HSL(10, 0.2, 0.3, 0.3)
         assert c.to_css() == "hsla(10, 20.0%, 30.0%, 0.3)"
 
-    def test_to_hsl(self):
+    def test_to_hsl(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         c2 = c.to_hsl()
         assert c2 is not c
@@ -116,7 +116,7 @@ class Test_HSL(object):
         assert c2.s == c.s
         assert c2.l == c.l
 
-    def test_to_rgb(self):
+    def test_to_rgb(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         c2 = c.to_rgb()
         assert c2 is not c

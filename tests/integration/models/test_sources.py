@@ -42,7 +42,7 @@ def is_cds_data_streamed(evt):
 @pytest.mark.selenium
 class Test_ColumnDataSource(object):
 
-    def test_client_source_patch_sends_patch_event(self, bokeh_server_page):
+    def test_client_source_patch_sends_patch_event(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)
         def modify_doc(doc):
@@ -86,7 +86,7 @@ class Test_ColumnDataSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_client_source_stream_sends_patch_event(self, bokeh_server_page):
+    def test_client_source_stream_sends_patch_event(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)
         def modify_doc(doc):

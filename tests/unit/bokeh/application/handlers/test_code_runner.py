@@ -39,7 +39,7 @@ class TestCodeRunner(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_init(self):
+    def test_init(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         assert cr.failed is False
         assert cr.error is None
@@ -48,20 +48,20 @@ class TestCodeRunner(object):
         assert cr.source == "# test"
         assert cr.path == "path"
 
-    def test_syntax_error_init(self):
+    def test_syntax_error_init(self) -> None:
         cr = bahc.CodeRunner("This is a syntax error", "path", [])
         assert cr.failed is True
         assert "Invalid syntax in" in cr.error
         assert cr.error_detail is not None
 
-    def test_new_module_success(self):
+    def test_new_module_success(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         m = cr.new_module()
         assert isinstance(m, ModuleType)
         assert m.__dict__['__name__'].startswith('bk_script_')
         assert m.__dict__['__file__'] == abspath("path")
 
-    def test_new_module_resets_run_errors(self):
+    def test_new_module_resets_run_errors(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         cr._failed = True
         m = cr.new_module()
@@ -69,13 +69,13 @@ class TestCodeRunner(object):
         assert m.__dict__['__name__'].startswith('bk_script_')
         assert m.__dict__['__file__'] == abspath("path")
 
-    def test_new_module_returns_None_for_permanent_errors(self):
+    def test_new_module_returns_None_for_permanent_errors(self) -> None:
         cr = bahc.CodeRunner("This is a syntax error", "path", [])
         assert cr.failed is True
         m = cr.new_module()
         assert m is None
 
-    def test_reset_run_errors(self):
+    def test_reset_run_errors(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         cr._failed = True
         cr._error = "error"
@@ -85,7 +85,7 @@ class TestCodeRunner(object):
         assert cr.error is None
         assert cr.error_detail is None
 
-    def test_reset_run_errors_leaves_permanent_errors(self):
+    def test_reset_run_errors_leaves_permanent_errors(self) -> None:
         cr = bahc.CodeRunner("This is a syntax error", "path", [])
         cr._failed = True
         cr.reset_run_errors()
@@ -93,14 +93,14 @@ class TestCodeRunner(object):
         assert cr.error is not None
         assert cr.error_detail is not None
 
-    def test_run_sets_ran(self):
+    def test_run_sets_ran(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         m = cr.new_module()
         assert not cr.ran
         cr.run(m, lambda: None)
         assert cr.ran
 
-    def test_run_runs_post_check(self):
+    def test_run_runs_post_check(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         m = cr.new_module()
         assert not cr.ran
@@ -111,14 +111,14 @@ class TestCodeRunner(object):
         assert cr.ran
         assert result == dict(ran=True)
 
-    def test_run_fixups_argv(self):
+    def test_run_fixups_argv(self) -> None:
         cr = bahc.CodeRunner("import sys; argv = list(sys.argv)", "path", ["foo", 10])
         assert not cr.ran
         m = cr.new_module()
         cr.run(m, lambda: None)
         assert m.__dict__['argv'] == ["path", "foo", 10]
 
-    def test_run_fixups_path(self):
+    def test_run_fixups_path(self) -> None:
         cr = bahc.CodeRunner("import sys; path = list(sys.path)", "/dir/to/path", ["foo", 10])
         assert not cr.ran
         m = cr.new_module()
@@ -126,7 +126,7 @@ class TestCodeRunner(object):
         assert m.__dict__['path'][0] == dirname("/dir/to/path")
         assert m.__dict__['path'][1:] == sys.path
 
-    def test_run_restores_cwd(self):
+    def test_run_restores_cwd(self) -> None:
         old_cwd = os.getcwd()
         cr = bahc.CodeRunner("import os; os.chdir('/')", "path", ["foo", 10])
         assert not cr.ran
@@ -134,7 +134,7 @@ class TestCodeRunner(object):
         cr.run(m, lambda: None)
         assert os.getcwd() == old_cwd
 
-    def test_run_restores_argv(self):
+    def test_run_restores_argv(self) -> None:
         old_argv = list(sys.argv)
         cr = bahc.CodeRunner("# test", "path", ["foo", 10])
         assert not cr.ran
@@ -142,7 +142,7 @@ class TestCodeRunner(object):
         cr.run(m, lambda: None)
         assert sys.argv == old_argv
 
-    def test_run_restores_path(self):
+    def test_run_restores_path(self) -> None:
         old_path = list(sys.path)
         cr = bahc.CodeRunner("# test", "path", ["foo", 10])
         assert not cr.ran

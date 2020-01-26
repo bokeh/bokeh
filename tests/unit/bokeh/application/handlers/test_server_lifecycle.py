@@ -49,7 +49,7 @@ class Test_ServerLifecycleHandler(object):
     # Public methods ----------------------------------------------------------
 
     @pytest.mark.asyncio
-    async def test_empty_lifecycle(self):
+    async def test_empty_lifecycle(self) -> None:
         doc = Document()
         out = {}
         def load(filename):
@@ -66,7 +66,7 @@ class Test_ServerLifecycleHandler(object):
             raise RuntimeError(handler.error)
         assert not doc.roots
 
-    def test_lifecycle_bad_syntax(self):
+    def test_lifecycle_bad_syntax(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -77,7 +77,7 @@ class Test_ServerLifecycleHandler(object):
         assert handler.error is not None
         assert 'Invalid syntax' in handler.error
 
-    def test_lifecycle_runtime_error(self):
+    def test_lifecycle_runtime_error(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -88,7 +88,7 @@ class Test_ServerLifecycleHandler(object):
         assert handler.error is not None
         assert 'nope' in handler.error
 
-    def test_lifecycle_bad_server_loaded_signature(self):
+    def test_lifecycle_bad_server_loaded_signature(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -104,7 +104,7 @@ def on_server_loaded(a,b):
         assert 'func(a, b)' in handler.error
         assert "Traceback" in handler.error_detail
 
-    def test_lifecycle_bad_server_unloaded_signature(self):
+    def test_lifecycle_bad_server_unloaded_signature(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -120,7 +120,7 @@ def on_server_unloaded(a,b):
         assert 'func(a, b)' in handler.error
         assert "Traceback" in handler.error_detail
 
-    def test_lifecycle_bad_session_created_signature(self):
+    def test_lifecycle_bad_session_created_signature(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -135,7 +135,7 @@ def on_session_created(a,b):
         assert 'on_session_created must have signature func(session_context)' in handler.error
         assert 'func(a, b)' in handler.error
 
-    def test_lifecycle_bad_session_destroyed_signature(self):
+    def test_lifecycle_bad_session_destroyed_signature(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -151,7 +151,7 @@ def on_session_destroyed(a,b):
         assert 'func(a, b)' in handler.error
 
     @pytest.mark.asyncio
-    async def test_calling_lifecycle_hooks(self):
+    async def test_calling_lifecycle_hooks(self) -> None:
         result = {}
         def load(filename):
             handler = result['handler'] = bahs.ServerLifecycleHandler(filename=filename)
@@ -165,11 +165,11 @@ def on_session_destroyed(a,b):
         assert "on_session_created" == await handler.on_session_created(None)
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
-    def test_missing_filename_raises(self):
+    def test_missing_filename_raises(self) -> None:
         with pytest.raises(ValueError):
             bahs.ServerLifecycleHandler()
 
-    def test_url_path(self):
+    def test_url_path(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
@@ -183,7 +183,7 @@ def on_server_unloaded(server_context):
         assert handler.error is None
         assert handler.url_path().startswith("/")
 
-    def test_url_path_failed(self):
+    def test_url_path_failed(self) -> None:
         result = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)

@@ -36,7 +36,7 @@ import bokeh.io.showing as bis # isort:skip
 #-----------------------------------------------------------------------------
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_with_default_args(mock__show_with_state):
+def test_show_with_default_args(mock__show_with_state) -> None:
     curstate().reset()
     default_kwargs = dict(browser=None, new="tab", notebook_handle=False)
     p = Plot()
@@ -47,7 +47,7 @@ def test_show_with_default_args(mock__show_with_state):
     assert curdoc().roots == []
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_with_explicit_args(mock__show_with_state):
+def test_show_with_explicit_args(mock__show_with_state) -> None:
     curstate().reset()
     kwargs = dict(browser="browser", new="new", notebook_handle=True)
     p = Plot()
@@ -58,7 +58,7 @@ def test_show_with_explicit_args(mock__show_with_state):
     assert curdoc().roots == []
 
 @patch('bokeh.io.showing.run_notebook_hook')
-def test_show_with_app(mock_run_notebook_hook, ipython):
+def test_show_with_app(mock_run_notebook_hook, ipython) -> None:
     curstate().reset()
     app = Application()
     output_notebook()
@@ -70,7 +70,7 @@ def test_show_with_app(mock_run_notebook_hook, ipython):
     assert mock_run_notebook_hook.call_args[1] == {}
 
 @patch('bokeh.io.showing._show_with_state')
-def test_show_doesn_not_adds_obj_to_curdoc(m):
+def test_show_doesn_not_adds_obj_to_curdoc(m) -> None:
     curstate().reset()
     assert curstate().document.roots == []
     p = Plot()
@@ -82,7 +82,7 @@ def test_show_doesn_not_adds_obj_to_curdoc(m):
 
 @pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer()])
 @pytest.mark.unit
-def test_show_with_bad_object(obj):
+def test_show_with_bad_object(obj) -> None:
     with pytest.raises(ValueError):
         bis.show(obj)
 

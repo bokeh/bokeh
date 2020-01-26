@@ -31,7 +31,7 @@ pytest_plugins = (
 )
 
 @pytest.mark.examples
-def test_js_examples(js_example, example, config, report):
+def test_js_examples(js_example, example, config, report) -> None:
     if example.no_js:
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
@@ -39,7 +39,7 @@ def test_js_examples(js_example, example, config, report):
         _run_in_browser(example, "file://%s" % example.path, config.option.verbose)
 
 @pytest.mark.examples
-def test_file_examples(file_example, example, config, report):
+def test_file_examples(file_example, example, config, report) -> None:
     (status, duration, out, err) = _run_example(example)
     info("Example run in %s" % white("%.3fs" % duration))
 
@@ -63,7 +63,7 @@ def test_file_examples(file_example, example, config, report):
         _run_in_browser(example, "file://%s.html" % example.path_no_ext, config.option.verbose)
 
 @pytest.mark.examples
-def test_server_examples(server_example, example, config, report, bokeh_server):
+def test_server_examples(server_example, example, config, report, bokeh_server) -> None:
     app = build_single_handler_application(example.path)
     doc = app.create_document()
 

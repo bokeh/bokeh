@@ -34,7 +34,7 @@ BASIC_IMPORTS = [
 ]
 
 @pytest.mark.codebase
-def test_no_ipython_common():
+def test_no_ipython_common() -> None:
     ''' Basic usage of Bokeh should not result in any IPython code being
     imported. This test ensures that importing basic modules does not bring in
     IPython.

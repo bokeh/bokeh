@@ -42,20 +42,20 @@ import bokeh.command.subcommands.html as schtml # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = schtml.HTML(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_name():
+def test_name() -> None:
     assert schtml.HTML.name == "html"
 
-def test_help():
+def test_help() -> None:
     assert schtml.HTML.help == "Create standalone HTML files for one or more applications"
 
-def test_args():
+def test_args() -> None:
     assert schtml.HTML.args == (
 
         ('files', dict(
@@ -86,7 +86,7 @@ def test_args():
 
     )
 
-def test_no_script(capsys):
+def test_no_script(capsys) -> None:
     with (TmpDir(prefix="bokeh-html-no-script")) as dirname:
         with WorkingDir(dirname):
             with pytest.raises(SystemExit):
@@ -99,7 +99,7 @@ bokeh html: error: %s
 """ % (too_few)
         assert out == ""
 
-def test_basic_script(capsys):
+def test_basic_script(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "html", "scatter.py"])
@@ -111,7 +111,7 @@ def test_basic_script(capsys):
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
-def test_basic_script_with_output_after(capsys):
+def test_basic_script_with_output_after(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "html", "scatter.py", "--output", "foo.html"])
@@ -123,7 +123,7 @@ def test_basic_script_with_output_after(capsys):
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
-def test_basic_script_with_output_before(capsys):
+def test_basic_script_with_output_before(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "html", "--output", "foo.html", "scatter.py"])
@@ -136,7 +136,7 @@ def test_basic_script_with_output_before(capsys):
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @patch('bokeh.util.browser.view')
-def test_show(mock_view, capsys):
+def test_show(mock_view, capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "html", "--show", "scatter.py"])

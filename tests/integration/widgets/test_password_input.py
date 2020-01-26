@@ -54,7 +54,7 @@ def modify_doc(doc):
 @pytest.mark.selenium
 class Test_PasswordInput(object):
 
-    def test_displays_password_input(self, bokeh_model_page):
+    def test_displays_password_input(self, bokeh_model_page) -> None:
         pw_input = PasswordInput(css_classes=["foo"])
 
         page = bokeh_model_page(pw_input)
@@ -64,7 +64,7 @@ class Test_PasswordInput(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page):
+    def test_displays_title(self, bokeh_model_page) -> None:
         pw_input = PasswordInput(title="title", css_classes=["foo"])
 
         page = bokeh_model_page(pw_input)
@@ -77,7 +77,7 @@ class Test_PasswordInput(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_placeholder(self, bokeh_model_page):
+    def test_displays_placeholder(self, bokeh_model_page) -> None:
         pw_input = PasswordInput(placeholder="placeholder", css_classes=["foo"])
 
         page = bokeh_model_page(pw_input)
@@ -91,7 +91,7 @@ class Test_PasswordInput(object):
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page):
+    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector('.foo input')
@@ -108,7 +108,7 @@ class Test_PasswordInput(object):
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector('.foo input')
@@ -139,7 +139,7 @@ class Test_PasswordInput(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, single_plot_page):
+    def test_js_on_change_executes(self, single_plot_page) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))

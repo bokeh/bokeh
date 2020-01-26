@@ -36,7 +36,7 @@ ALL = (
 
 class Test_Enum(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpe.Enum()
 
@@ -46,7 +46,7 @@ class Test_Enum(object):
         with pytest.raises(TypeError):
             bcpe.Enum("red", "green", "red")
 
-    def test_from_values_valid(self):
+    def test_from_values_valid(self) -> None:
         prop = bcpe.Enum("red", "green", "blue")
 
         assert prop.is_valid(None)
@@ -55,7 +55,7 @@ class Test_Enum(object):
         assert prop.is_valid("green")
         assert prop.is_valid("blue")
 
-    def test_from_values_invalid(self):
+    def test_from_values_invalid(self) -> None:
         prop = bcpe.Enum("red", "green", "blue")
 
         assert not prop.is_valid(False)
@@ -80,7 +80,7 @@ class Test_Enum(object):
         assert not prop.is_valid(" green")
         assert not prop.is_valid(" blue")
 
-    def test_from_enum_valid(self):
+    def test_from_enum_valid(self) -> None:
         prop = bcpe.Enum(LineJoin)
 
         assert prop.is_valid(None)
@@ -89,7 +89,7 @@ class Test_Enum(object):
         assert prop.is_valid("round")
         assert prop.is_valid("bevel")
 
-    def test_from_enum_invalid(self):
+    def test_from_enum_invalid(self) -> None:
         prop = bcpe.Enum(LineJoin)
 
         assert not prop.is_valid(False)
@@ -114,18 +114,18 @@ class Test_Enum(object):
         assert not prop.is_valid(" round")
         assert not prop.is_valid(" bevel")
 
-    def test_case_insensitive_enum_valid(self):
+    def test_case_insensitive_enum_valid(self) -> None:
         prop = bcpe.Enum(NamedColor)
 
         assert prop.is_valid("red")
         assert prop.is_valid("Red")
         assert prop.is_valid("RED")
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpe.Enum("foo")
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpe.Enum("foo")
         assert str(prop).startswith("Enum(")
 
