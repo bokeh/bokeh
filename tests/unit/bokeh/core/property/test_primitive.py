@@ -42,7 +42,7 @@ ALL = (
 
 class Test_Bool(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpp.Bool()
 
         assert prop.is_valid(None)
@@ -53,7 +53,7 @@ class Test_Bool(object):
         assert prop.is_valid(np.bool8(False))
         assert prop.is_valid(np.bool8(True))
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.Bool()
 
         assert not prop.is_valid(0)
@@ -95,17 +95,17 @@ class Test_Bool(object):
         if hasattr(np, "complex256"):
             assert not prop.is_valid(np.complex256(1.0+1.0j))
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpp.Bool()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpp.Bool()
         assert str(prop) == "Bool"
 
 class Test_Complex(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpp.Complex()
 
         assert prop.is_valid(None)
@@ -147,7 +147,7 @@ class Test_Complex(object):
         assert prop.is_valid(False)
         assert prop.is_valid(True)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.Complex()
 
         assert not prop.is_valid("")
@@ -160,17 +160,17 @@ class Test_Complex(object):
         assert not prop.is_valid(np.bool8(False))
         assert not prop.is_valid(np.bool8(True))
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpp.Complex()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpp.Complex()
         assert str(prop) == "Complex"
 
 class Test_Float(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpp.Float()
 
         assert prop.is_valid(None)
@@ -207,7 +207,7 @@ class Test_Float(object):
         assert prop.is_valid(False)
         assert prop.is_valid(True)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.Float()
 
         assert not prop.is_valid(1.0+1.0j)
@@ -225,17 +225,17 @@ class Test_Float(object):
         if hasattr(np, "complex256"):
             assert not prop.is_valid(np.complex256(1.0+1.0j))
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpp.Float()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpp.Float()
         assert str(prop) == "Float"
 
 class Test_Int(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpp.Int()
 
         assert prop.is_valid(None)
@@ -264,7 +264,7 @@ class Test_Int(object):
         assert prop.is_valid(False)
         assert prop.is_valid(True)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.Int()
 
         assert not prop.is_valid(0.0)
@@ -290,17 +290,17 @@ class Test_Int(object):
         if hasattr(np, "complex256"):
             assert not prop.is_valid(np.complex256(1.0+1.0j))
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpp.Int()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpp.Int()
         assert str(prop) == "Int"
 
 class Test_String(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpp.String()
 
         assert prop.is_valid(None)
@@ -308,7 +308,7 @@ class Test_String(object):
         assert prop.is_valid("")
         assert prop.is_valid("6")
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.String()
 
         assert not prop.is_valid(False)
@@ -325,11 +325,11 @@ class Test_String(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpp.String()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpp.String()
         assert str(prop) == "String"
 

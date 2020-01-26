@@ -84,15 +84,15 @@ _ESRI_URLS = {
 @pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',])
 @pytest.mark.unit
 class Test_StamenProviders(object):
-    def test_type(self, name):
+    def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
 
-    def test_url(self, name):
+    def test_url(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.url == _STAMEN_URLS[name]
 
-    def test_attribution(self, name):
+    def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
 
         assert p.attribution == (
@@ -102,7 +102,7 @@ class Test_StamenProviders(object):
             'under %s.'
         ) % _STAMEN_LIC[name]
 
-    def test_copies(self, name):
+    def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
@@ -110,22 +110,22 @@ class Test_StamenProviders(object):
 @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA'])
 @pytest.mark.unit
 class Test_CartoProviders(object):
-    def test_type(self, name):
+    def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
 
-    def test_url(self, name):
+    def test_url(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.url == _CARTO_URLS[name]
 
-    def test_attribution(self, name):
+    def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.attribution == (
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
             '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         )
 
-    def test_copies(self, name):
+    def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
@@ -133,21 +133,21 @@ class Test_CartoProviders(object):
 @pytest.mark.parametrize('name', ['OSM'])
 @pytest.mark.unit
 class Test_OsmProvider(object):
-    def test_type(self, name):
+    def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
 
-    def test_url(self, name):
+    def test_url(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.url == _OSM_URLS[name]
 
-    def test_attribution(self, name):
+    def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.attribution == (
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         )
 
-    def test_copies(self, name):
+    def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
@@ -155,21 +155,21 @@ class Test_OsmProvider(object):
 @pytest.mark.parametrize('name', ['WIKIMEDIA'])
 @pytest.mark.unit
 class Test_WikimediaProvider(object):
-    def test_type(self, name):
+    def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
 
-    def test_url(self, name):
+    def test_url(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.url == _WIKIMEDIA_URLS[name]
 
-    def test_attribution(self, name):
+    def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.attribution == (
             '&copy; <a href="https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use">Wikimedia Maps</a> contributors'
         )
 
-    def test_copies(self, name):
+    def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
@@ -177,21 +177,21 @@ class Test_WikimediaProvider(object):
 @pytest.mark.parametrize('name', ['ESRI_IMAGERY'])
 @pytest.mark.unit
 class Test_EsriProvider(object):
-    def test_type(self, name):
+    def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
 
-    def test_url(self, name):
+    def test_url(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.url == _ESRI_URLS[name]
 
-    def test_attribution(self, name):
+    def test_attribution(self, name) -> None:
         p = bt.get_provider(getattr(bt, name))
         assert p.attribution == (
             '&copy; <a href="http://downloads.esri.com/ArcGISOnline/docs/tou_summary.pdf">Esri</a>, '
             'Earthstar Geographics'
         )
-    def test_copies(self, name):
+    def test_copies(self, name) -> None:
         p1 = bt.get_provider(getattr(bt, name))
         p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
@@ -204,7 +204,7 @@ class Test_GetProvider(object):
     @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
                                       'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
                                       'STAMEN_TONER_LABELS', 'OSM', 'WIKIMEDIA', 'ESRI_IMAGERY', ])
-    def test_get_provider(self, name):
+    def test_get_provider(self, name) -> None:
         assert name in bt.Vendors
         enum_member = getattr(bt.Vendors, name)
         assert hasattr(bt, name)
@@ -224,7 +224,7 @@ class Test_GetProvider(object):
         assert p1.url == p2.url == p3.url == p4.url
         assert p1.attribution == p2.attribution == p3.attribution == p4.attribution
 
-    def test_unknown_vendor(self):
+    def test_unknown_vendor(self) -> None:
         with pytest.raises(ValueError):
             bt.get_provider("This is not a valid tile vendor")
 

@@ -27,7 +27,7 @@ from . import TOP_PATH
 #-----------------------------------------------------------------------------
 
 @pytest.mark.codebase
-def test_isort():
+def test_isort() -> None:
     ''' Assures that the Python codebase passes configured Flake8 checks
 
     '''

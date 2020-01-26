@@ -43,7 +43,7 @@ ALL = (
 
 Test___all__ = verify_all(bi, ALL)
 
-def test_jupyter_notebook_hook_installed():
+def test_jupyter_notebook_hook_installed() -> None:
     assert list(binb._HOOKS) == ["jupyter"]
     assert binb._HOOKS["jupyter"]['load'] == binb.load_notebook
     assert binb._HOOKS["jupyter"]['doc']  == binb.show_doc

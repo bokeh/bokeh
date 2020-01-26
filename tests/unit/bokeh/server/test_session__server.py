@@ -31,7 +31,7 @@ import bokeh.server.session as bss # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_creation():
+def test_creation() -> None:
     d = Document()
     s = bss.ServerSession('some-id', d, 'ioloop')
     assert s.id == 'some-id'
@@ -40,7 +40,7 @@ def test_creation():
     assert s.expiration_requested is False
     assert s.expiration_blocked == 0
 
-def test_subscribe():
+def test_subscribe() -> None:
     d = Document()
     s = bss.ServerSession('some-id', d, 'ioloop')
     assert s.connection_count == 0
@@ -53,7 +53,7 @@ def test_subscribe():
     s.unsubscribe('connection2')
     assert s.connection_count == 0
 
-def test_destroy_calls():
+def test_destroy_calls() -> None:
     d = Document()
     s = bss.ServerSession('some-id', d, 'ioloop')
     with mock.patch('bokeh.document.Document.delete_modules') as docdm:

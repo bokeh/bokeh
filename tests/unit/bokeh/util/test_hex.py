@@ -35,7 +35,7 @@ y = 2 + np.random.standard_normal(n)
 
 class Test_axial_to_cartesian(object):
 
-    def test_default_aspect_pointytop(self):
+    def test_default_aspect_pointytop(self) -> None:
         q = np.array([0, 0, 0, 1, -1, 1, -1])
         r = np.array([0, 1, -1, 0, 1, -1, 0])
 
@@ -46,7 +46,7 @@ class Test_axial_to_cartesian(object):
         assert list(y) == [-0.0, -1.5, 1.5, -0.0, -1.5, 1.5, -0.0]
 
 
-    def test_default_aspect_flattop(self):
+    def test_default_aspect_flattop(self) -> None:
         q = np.array([0, 0, 0, 1, -1, 1, -1])
         r = np.array([0, 1, -1, 0, 1, -1, 0])
 
@@ -58,7 +58,7 @@ class Test_axial_to_cartesian(object):
 
 class Test_cartesian_to_axial(object):
 
-    def test_default_aspect_pointytop(self):
+    def test_default_aspect_pointytop(self) -> None:
         x = np.array([0, -2, 2, -1.5, -1.5, 1.5, 1.5])
         y = np.array([0, 0, 0, 1.5, -1.5, 1.5, -1.5])
 
@@ -68,7 +68,7 @@ class Test_cartesian_to_axial(object):
             (0,0), (-1, 0), (1,0), (0,-1), (-1, 1), (1, -1), (0,1)
         ]
 
-    def test_default_aspect_flattop(self):
+    def test_default_aspect_flattop(self) -> None:
         x = np.array([0, 0, 0, 1.5, -1.5, 1.5, -1.5])
         y = np.array([0, -2, 2, -1.5, -1.5, 1.5, 1.5])
 
@@ -82,7 +82,7 @@ class Test_hexbin(object):
 
     # hexbin requires pandas
 
-    def test_gaussian_pointytop(self, pd):
+    def test_gaussian_pointytop(self, pd) -> None:
         bins = buh.hexbin(x, y, 2)
         assert list(bins.q) == [0,0,1,1,1,2,2]
         assert list(bins.r) == [-1,0,-2,-1,0,-2,-1]
@@ -90,7 +90,7 @@ class Test_hexbin(object):
 
         assert bins.equals(buh.hexbin(x, y, 2, "pointytop"))
 
-    def test_gaussian_flattop(self, pd):
+    def test_gaussian_flattop(self, pd) -> None:
         bins = buh.hexbin(x, y, 2, "flattop")
         assert list(bins.q) == [0, 0, 1, 1, 1, 2]
         assert list(bins.r) == [-1, 0, -2, -1, 0, -2]

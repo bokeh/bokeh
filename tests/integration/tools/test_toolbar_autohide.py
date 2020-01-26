@@ -33,7 +33,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_Toobar_Autohide(object):
 
-    def test_toolbar_is_visible_by_default_and_stays_visible(self, single_plot_page):
+    def test_toolbar_is_visible_by_default_and_stays_visible(self, single_plot_page) -> None:
         plot = figure(height=800, width=1000)
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)
 
@@ -53,7 +53,7 @@ class Test_Toobar_Autohide(object):
 
         assert page.has_no_console_errors()
 
-    def test_toolbar_with_autohide_becomes_visible_when_cursor_is_over_plot(self, single_plot_page):
+    def test_toolbar_with_autohide_becomes_visible_when_cursor_is_over_plot(self, single_plot_page) -> None:
         plot = figure(height=800, width=1000)
         plot.toolbar.autohide = True
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)

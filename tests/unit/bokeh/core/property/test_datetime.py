@@ -44,13 +44,13 @@ ALL = (
 
 class Test_Date(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpd.Date()
         assert prop.is_valid(datetime.date(2020, 1,11))
         assert prop.is_valid("2020-01-10")
         assert prop.is_valid(None)
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpd.Date()
         assert not prop.is_valid(datetime.datetime(2020, 1,11))
         assert not prop.is_valid("")
@@ -63,17 +63,17 @@ class Test_Date(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpd.Date()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpd.Date()
         assert str(prop) == "Date"
 
 class Test_Datetime(object):
 
-    def test_valid(self, pd):
+    def test_valid(self, pd) -> None:
         prop = bcpd.Datetime()
         assert prop.is_valid(0)
         assert prop.is_valid(1)
@@ -86,7 +86,7 @@ class Test_Datetime(object):
         if pd:
             assert prop.is_valid(pd.Timestamp("2010-01-11"))
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpd.Datetime()
         assert not prop.is_valid(None)
         assert not prop.is_valid("")
@@ -99,7 +99,7 @@ class Test_Datetime(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_is_timestamp(self):
+    def test_is_timestamp(self) -> None:
         assert bcpd.Datetime.is_timestamp(0)
         assert bcpd.Datetime.is_timestamp(0.0)
         assert bcpd.Datetime.is_timestamp(10)
@@ -110,21 +110,21 @@ class Test_Datetime(object):
         assert not bcpd.Datetime.is_timestamp(True)
         assert not bcpd.Datetime.is_timestamp(False)
 
-    def test_transform_date(self):
+    def test_transform_date(self) -> None:
         t = datetime.date(2020, 1, 11)
         prop = bcpd.Datetime()
         assert prop.transform(t) == convert_date_to_datetime(t)
 
-    def test_transform_str(self):
+    def test_transform_str(self) -> None:
         t = datetime.date(2020, 1, 11)
         prop = bcpd.Datetime()
         assert prop.transform("2020-01-11") == convert_date_to_datetime(t)
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpd.Datetime()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpd.Datetime()
         assert str(prop) == "Datetime"
 

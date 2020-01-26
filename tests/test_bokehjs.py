@@ -16,7 +16,7 @@ import pytest
 @pytest.mark.js
 class TestBokehJS(object):
 
-    def test_bokehjs(self):
+    def test_bokehjs(self) -> None:
         os.chdir('bokehjs')
         proc = subprocess.Popen(["node", "make", "test"], stdout=subprocess.PIPE)
         out, errs = proc.communicate()

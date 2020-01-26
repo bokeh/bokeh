@@ -39,7 +39,7 @@ logging.basicConfig(level=logging.DEBUG)
 # General API
 #-----------------------------------------------------------------------------
 
-def test_default_resources(ManagedServerLoop):
+def test_default_resources(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         r = server._tornado.resources()
@@ -77,7 +77,7 @@ def test_default_resources(ManagedServerLoop):
         assert r.root_url == "/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
 
-def test_env_resources(ManagedServerLoop):
+def test_env_resources(ManagedServerLoop) -> None:
     os.environ['BOKEH_RESOURCES'] = 'cdn'
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -85,7 +85,7 @@ def test_env_resources(ManagedServerLoop):
         assert r.mode == "cdn"
     del os.environ['BOKEH_RESOURCES']
 
-def test_dev_resources(ManagedServerLoop):
+def test_dev_resources(ManagedServerLoop) -> None:
     os.environ['BOKEH_DEV'] = 'yes'
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -94,7 +94,7 @@ def test_dev_resources(ManagedServerLoop):
         assert r.dev
     del os.environ['BOKEH_DEV']
 
-def test_index(ManagedServerLoop):
+def test_index(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server._tornado.index is None
@@ -102,7 +102,7 @@ def test_index(ManagedServerLoop):
     with ManagedServerLoop(application, index='foo') as server:
         assert server._tornado.index == "foo"
 
-def test_prefix(ManagedServerLoop):
+def test_prefix(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server._tornado.prefix == ""
@@ -111,14 +111,14 @@ def test_prefix(ManagedServerLoop):
         with ManagedServerLoop(application, prefix=prefix) as server:
             assert server._tornado.prefix == "/foo"
 
-def test_xsrf_cookies():
+def test_xsrf_cookies() -> None:
     bt = tornado.BokehTornado(applications={})
     assert not bt.settings['xsrf_cookies']
 
     bt = tornado.BokehTornado(applications={}, xsrf_cookies=True)
     assert bt.settings['xsrf_cookies']
 
-def test_auth_provider():
+def test_auth_provider() -> None:
     bt = tornado.BokehTornado(applications={})
     assert isinstance(bt.auth_provider, NullAuth)
 
@@ -128,12 +128,12 @@ def test_auth_provider():
     bt = tornado.BokehTornado(applications={}, auth_provider=FakeAuth)
     assert bt.auth_provider is FakeAuth
 
-def test_websocket_max_message_size_bytes():
+def test_websocket_max_message_size_bytes() -> None:
     app = Application()
     t = tornado.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
     assert t.settings['websocket_max_message_size'] == 12345
 
-def test_websocket_origins(ManagedServerLoop, unused_tcp_port):
+def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
         assert server._tornado.websocket_origins == set(["localhost:%s" % unused_tcp_port])
@@ -150,7 +150,7 @@ def test_websocket_origins(ManagedServerLoop, unused_tcp_port):
     with ManagedServerLoop(application, allow_websocket_origin=["foo:8080", "bar"]) as server:
         assert server._tornado.websocket_origins == set(["foo:8080", "bar:80"])
 
-def test_default_app_paths():
+def test_default_app_paths() -> None:
     app = Application()
     t = tornado.BokehTornado({}, "", [])
     assert t.app_paths == set()
@@ -164,7 +164,7 @@ def test_default_app_paths():
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios
-def test_log_stats(ManagedServerLoop):
+def test_log_stats(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         server._tornado._log_stats()
@@ -180,7 +180,7 @@ def test_log_stats(ManagedServerLoop):
         server._tornado._log_stats()
 
 @pytest.mark.asyncio
-async def test_metadata(ManagedServerLoop):
+async def test_metadata(ManagedServerLoop) -> None:
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:
         meta_url = url(server) + 'metadata'

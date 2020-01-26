@@ -99,7 +99,7 @@ from bokeh.models.glyphs import ( # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_AnnularWedge():
+def test_AnnularWedge() -> None:
     glyph = AnnularWedge()
     assert glyph.x is None
     assert glyph.y is None
@@ -125,7 +125,7 @@ def test_AnnularWedge():
     ], FILL, LINE, GLYPH)
 
 
-def test_Annulus():
+def test_Annulus() -> None:
     glyph = Annulus()
     assert glyph.x is None
     assert glyph.y is None
@@ -143,7 +143,7 @@ def test_Annulus():
     ], FILL, LINE, GLYPH)
 
 
-def test_Arc():
+def test_Arc() -> None:
     glyph = Arc()
     assert glyph.x is None
     assert glyph.y is None
@@ -165,7 +165,7 @@ def test_Arc():
     ], LINE, GLYPH)
 
 
-def test_Bezier():
+def test_Bezier() -> None:
     glyph = Bezier()
     assert glyph.x0 is None
     assert glyph.y0 is None
@@ -188,7 +188,7 @@ def test_Bezier():
     ], LINE, GLYPH)
 
 
-def test_HArea():
+def test_HArea() -> None:
     glyph = HArea()
     assert glyph.y is None
     assert glyph.x1 is None
@@ -202,7 +202,7 @@ def test_HArea():
     ], FILL, HATCH, GLYPH)
 
 
-def test_HBar():
+def test_HBar() -> None:
     glyph = HBar()
     assert glyph.y is None
     assert glyph.height is None
@@ -219,7 +219,7 @@ def test_HBar():
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Image():
+def test_Image() -> None:
     glyph = Image()
     assert glyph.image is None
     assert glyph.x is None
@@ -241,7 +241,7 @@ def test_Image():
     ], GLYPH)
 
 
-def test_ImageRGBA():
+def test_ImageRGBA() -> None:
     glyph = ImageRGBA()
     assert glyph.image is None
     assert glyph.x is None
@@ -262,7 +262,7 @@ def test_ImageRGBA():
     ], GLYPH)
 
 
-def test_ImageURL():
+def test_ImageURL() -> None:
     glyph = ImageURL()
     assert glyph.url is None
     assert glyph.x is None
@@ -293,7 +293,7 @@ def test_ImageURL():
     ], GLYPH)
 
 
-def test_Line():
+def test_Line() -> None:
     glyph = Line()
     assert glyph.x is None
     assert glyph.y is None
@@ -304,7 +304,7 @@ def test_Line():
     ], LINE, GLYPH)
 
 
-def test_MultiLine():
+def test_MultiLine() -> None:
     glyph = MultiLine()
     assert glyph.xs is None
     assert glyph.ys is None
@@ -315,7 +315,7 @@ def test_MultiLine():
     ], LINE, GLYPH)
 
 
-def test_MultiPolygons():
+def test_MultiPolygons() -> None:
     glyph = MultiPolygons()
     assert glyph.xs is None
     assert glyph.ys is None
@@ -328,7 +328,7 @@ def test_MultiPolygons():
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Oval():
+def test_Oval() -> None:
     glyph = Oval()
     assert glyph.x is None
     assert glyph.y is None
@@ -349,7 +349,7 @@ def test_Oval():
     ], FILL, LINE, GLYPH)
 
 
-def test_Patch():
+def test_Patch() -> None:
     glyph = Patch()
     assert glyph.x is None
     assert glyph.y is None
@@ -362,7 +362,7 @@ def test_Patch():
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Patches():
+def test_Patches() -> None:
     glyph = Patches()
     assert glyph.xs is None
     assert glyph.ys is None
@@ -375,7 +375,7 @@ def test_Patches():
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Quad():
+def test_Quad() -> None:
     glyph = Quad()
     assert glyph.left is None
     assert glyph.right is None
@@ -392,7 +392,7 @@ def test_Quad():
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Quadratic():
+def test_Quadratic() -> None:
     glyph = Quadratic()
     assert glyph.x0 is None
     assert glyph.y0 is None
@@ -411,7 +411,7 @@ def test_Quadratic():
     ], LINE, GLYPH)
 
 
-def test_Ray():
+def test_Ray() -> None:
     glyph = Ray()
     assert glyph.x is None
     assert glyph.y is None
@@ -428,7 +428,7 @@ def test_Ray():
     ], LINE, GLYPH)
 
 
-def test_Rect():
+def test_Rect() -> None:
     glyph = Rect()
     assert glyph.x is None
     assert glyph.y is None
@@ -451,7 +451,7 @@ def test_Rect():
     ], FILL, LINE, GLYPH)
 
 
-def test_Segment():
+def test_Segment() -> None:
     glyph = Segment()
     assert glyph.x0 is None
     assert glyph.y0 is None
@@ -466,7 +466,7 @@ def test_Segment():
     ], LINE, GLYPH)
 
 
-def test_Step():
+def test_Step() -> None:
     glyph = Step()
     assert glyph.x is None
     assert glyph.y is None
@@ -479,7 +479,7 @@ def test_Step():
     ], LINE, GLYPH)
 
 
-def test_Text():
+def test_Text() -> None:
     glyph = Text()
     assert glyph.x is None
     assert glyph.y is None
@@ -497,7 +497,7 @@ def test_Text():
     ], TEXT, GLYPH)
 
 
-def test_VArea():
+def test_VArea() -> None:
     glyph = VArea()
     assert glyph.x is None
     assert glyph.y1 is None
@@ -511,7 +511,7 @@ def test_VArea():
     ], FILL, HATCH, GLYPH)
 
 
-def test_VBar():
+def test_VBar() -> None:
     glyph = VBar()
     assert glyph.x is None
     assert glyph.width is None
@@ -528,7 +528,7 @@ def test_VBar():
     ], FILL, HATCH, LINE, GLYPH)
 
 
-def test_Wedge():
+def test_Wedge() -> None:
     glyph = Wedge()
     assert glyph.x is None
     assert glyph.y is None
@@ -551,7 +551,7 @@ def test_Wedge():
     ], FILL, LINE, GLYPH)
 
 
-def test_Asterisk():
+def test_Asterisk() -> None:
     marker = Asterisk()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -559,7 +559,7 @@ def test_Asterisk():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_Circle():
+def test_Circle() -> None:
     marker = Circle()
     check_marker_properties(marker)
     assert marker.radius is None
@@ -572,7 +572,7 @@ def test_Circle():
     ], MARKER, FILL, LINE, GLYPH)
 
 
-def test_CircleCross():
+def test_CircleCross() -> None:
     marker = CircleCross()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -580,7 +580,7 @@ def test_CircleCross():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_CircleX():
+def test_CircleX() -> None:
     marker = CircleX()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -588,7 +588,7 @@ def test_CircleX():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_Cross():
+def test_Cross() -> None:
     marker = Cross()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -596,7 +596,7 @@ def test_Cross():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_Dash():
+def test_Dash() -> None:
     marker = Dash()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -604,7 +604,7 @@ def test_Dash():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_Diamond():
+def test_Diamond() -> None:
     marker = Diamond()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -612,7 +612,7 @@ def test_Diamond():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_DiamondCross():
+def test_DiamondCross() -> None:
     marker = DiamondCross()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -620,7 +620,7 @@ def test_DiamondCross():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_InvertedTriangle():
+def test_InvertedTriangle() -> None:
     marker = InvertedTriangle()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -628,7 +628,7 @@ def test_InvertedTriangle():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_Square():
+def test_Square() -> None:
     marker = Square()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -636,7 +636,7 @@ def test_Square():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_SquareCross():
+def test_SquareCross() -> None:
     marker = SquareCross()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -644,7 +644,7 @@ def test_SquareCross():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_SquareX():
+def test_SquareX() -> None:
     marker = SquareX()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -652,7 +652,7 @@ def test_SquareX():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_Triangle():
+def test_Triangle() -> None:
     marker = Triangle()
     check_marker_properties(marker)
     check_fill_properties(marker)
@@ -660,7 +660,7 @@ def test_Triangle():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
-def test_X():
+def test_X() -> None:
     marker = X()
     check_marker_properties(marker)
     check_fill_properties(marker)

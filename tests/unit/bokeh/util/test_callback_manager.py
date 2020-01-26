@@ -104,62 +104,62 @@ def _partially_bad_event(event):
 
 class TestPropertyCallbackManager(object):
 
-    def test_creation(self):
+    def test_creation(self) -> None:
         m = cbm.PropertyCallbackManager()
         assert len(m._callbacks) == 0
 
-    def test_on_change_good_method(self):
+    def test_on_change_good_method(self) -> None:
         m = cbm.PropertyCallbackManager()
         good = _GoodPropertyCallback()
         m.on_change('foo', good.method)
         assert len(m._callbacks) == 1
         assert m._callbacks['foo'] == [good.method]
 
-    def test_on_change_good_partial_function(self):
+    def test_on_change_good_partial_function(self) -> None:
         m = cbm.PropertyCallbackManager()
         p = partial(_partially_good_property, 'foo')
         m.on_change('bar', p)
         assert len(m._callbacks) == 1
 
-    def test_on_change_good_partial_method(self):
+    def test_on_change_good_partial_method(self) -> None:
         m = cbm.PropertyCallbackManager()
         good = _GoodPropertyCallback()
         p = partial(good.partially_good, 'foo')
         m.on_change('bar', p)
         assert len(m._callbacks) == 1
 
-    def test_on_change_good_extra_kwargs_function(self):
+    def test_on_change_good_extra_kwargs_function(self) -> None:
         m = cbm.PropertyCallbackManager()
         m.on_change('bar', _just_fine_property)
         assert len(m._callbacks) == 1
 
-    def test_on_change_good_extra_kwargs_method(self):
+    def test_on_change_good_extra_kwargs_method(self) -> None:
         m = cbm.PropertyCallbackManager()
         good = _GoodPropertyCallback()
         m.on_change('bar', good.just_fine)
         assert len(m._callbacks) == 1
 
-    def test_on_change_good_functor(self):
+    def test_on_change_good_functor(self) -> None:
         m = cbm.PropertyCallbackManager()
         good = _GoodPropertyCallback()
         m.on_change('foo', good)
         assert len(m._callbacks) == 1
         assert m._callbacks['foo'] == [good]
 
-    def test_on_change_good_function(self):
+    def test_on_change_good_function(self) -> None:
         m = cbm.PropertyCallbackManager()
         m.on_change('foo', _good_property)
         assert len(m._callbacks) == 1
         assert m._callbacks['foo'] == [_good_property]
 
-    def test_on_change_good_lambda(self):
+    def test_on_change_good_lambda(self) -> None:
         m = cbm.PropertyCallbackManager()
         good = lambda x, y, z: x
         m.on_change('foo', good)
         assert len(m._callbacks) == 1
         assert m._callbacks['foo'] == [good]
 
-    def test_on_change_good_closure(self):
+    def test_on_change_good_closure(self) -> None:
         def good(x, y, z):
             pass
         m = cbm.PropertyCallbackManager()
@@ -167,7 +167,7 @@ class TestPropertyCallbackManager(object):
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 1
 
-    def test_on_change_bad_method(self):
+    def test_on_change_bad_method(self) -> None:
         m = cbm.PropertyCallbackManager()
         bad = _BadPropertyCallback()
         with pytest.raises(ValueError):
@@ -175,7 +175,7 @@ class TestPropertyCallbackManager(object):
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 0
 
-    def test_on_change_bad_functor(self):
+    def test_on_change_bad_functor(self) -> None:
         m = cbm.PropertyCallbackManager()
         bad = _BadPropertyCallback()
         with pytest.raises(ValueError):
@@ -183,21 +183,21 @@ class TestPropertyCallbackManager(object):
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 0
 
-    def test_on_change_bad_function(self):
+    def test_on_change_bad_function(self) -> None:
         m = cbm.PropertyCallbackManager()
         with pytest.raises(ValueError):
             m.on_change('foo', _bad_property)
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 0
 
-    def test_on_change_bad_lambda(self):
+    def test_on_change_bad_lambda(self) -> None:
         m = cbm.PropertyCallbackManager()
         with pytest.raises(ValueError):
             m.on_change('foo', lambda x, y: x)
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 0
 
-    def test_on_change_bad_closure(self):
+    def test_on_change_bad_closure(self) -> None:
         def bad(x, y):
             pass
         m = cbm.PropertyCallbackManager()
@@ -206,7 +206,7 @@ class TestPropertyCallbackManager(object):
         assert len(m._callbacks) == 1
         assert len(m._callbacks['foo']) == 0
 
-    def test_on_change_same_attr_twice_multiple_calls(self):
+    def test_on_change_same_attr_twice_multiple_calls(self) -> None:
         def good1(x, y, z):
             pass
 
@@ -218,7 +218,7 @@ class TestPropertyCallbackManager(object):
         assert len(m1._callbacks) == 1
         assert m1._callbacks['foo'] == [good1, good2]
 
-    def test_on_change_same_attr_twice_one_call(self):
+    def test_on_change_same_attr_twice_one_call(self) -> None:
         def good1(x, y, z):
             pass
 
@@ -229,7 +229,7 @@ class TestPropertyCallbackManager(object):
         assert len(m2._callbacks) == 1
         assert m2._callbacks['foo'] == [good1, good2]
 
-    def test_on_change_different_attrs(self):
+    def test_on_change_different_attrs(self) -> None:
         def good1(x, y, z):
             pass
 
@@ -242,7 +242,7 @@ class TestPropertyCallbackManager(object):
         assert m1._callbacks['foo'] == [good1]
         assert m1._callbacks['bar'] == [good2]
 
-    def test_trigger(self):
+    def test_trigger(self) -> None:
         m = cbm.PropertyCallbackManager()
         good = _GoodPropertyCallback()
         m.on_change('foo', good.method)
@@ -251,7 +251,7 @@ class TestPropertyCallbackManager(object):
         assert good.last_old == 42
         assert good.last_new == 43
 
-    def test_trigger_with_two_callbacks(self):
+    def test_trigger_with_two_callbacks(self) -> None:
         m = cbm.PropertyCallbackManager()
         good1 = _GoodPropertyCallback()
         good2 = _GoodPropertyCallback()
@@ -267,11 +267,11 @@ class TestPropertyCallbackManager(object):
 
 class TestEventCallbackManager(object):
 
-    def test_creation(self):
+    def test_creation(self) -> None:
         m = cbm.EventCallbackManager()
         assert len(m._event_callbacks) == 0
 
-    def test_on_change_good_method(self):
+    def test_on_change_good_method(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         good = _GoodEventCallback()
@@ -279,7 +279,7 @@ class TestEventCallbackManager(object):
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [good.method]
 
-    def test_on_change_good_partial_function(self):
+    def test_on_change_good_partial_function(self) -> None:
         m = cbm.EventCallbackManager()
         p = partial(_partially_good_event, 'foo')
         m.subscribed_events = []
@@ -287,14 +287,14 @@ class TestEventCallbackManager(object):
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [p]
 
-    def test_on_change_bad_partial_function(self):
+    def test_on_change_bad_partial_function(self) -> None:
         m = cbm.EventCallbackManager()
         p = partial(_partially_bad_event, 'foo')
         m.subscribed_events = []
         m.on_event('foo', p)
         assert len(m._event_callbacks) == 1
 
-    def test_on_change_good_partial_method(self):
+    def test_on_change_good_partial_method(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         good = _GoodEventCallback()
@@ -302,7 +302,7 @@ class TestEventCallbackManager(object):
         m.on_event('foo', p)
         assert len(m._event_callbacks) == 1
 
-    def test_on_change_good_functor(self):
+    def test_on_change_good_functor(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         good = _GoodEventCallback()
@@ -310,21 +310,21 @@ class TestEventCallbackManager(object):
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [good]
 
-    def test_on_change_good_function(self):
+    def test_on_change_good_function(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         m.on_event('foo', _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
-    def test_on_change_unicode_event_name(self):
+    def test_on_change_unicode_event_name(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         m.on_event(u'foo', _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
-    def test_on_change_good_lambda(self):
+    def test_on_change_good_lambda(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         good = lambda event: event
@@ -332,7 +332,7 @@ class TestEventCallbackManager(object):
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [good]
 
-    def test_on_change_good_closure(self):
+    def test_on_change_good_closure(self) -> None:
         def good(event):
             pass
         m = cbm.EventCallbackManager()
@@ -341,35 +341,35 @@ class TestEventCallbackManager(object):
         assert len(m._event_callbacks) == 1
         assert len(m._event_callbacks['foo']) == 1
 
-    def test_on_change_bad_method(self):
+    def test_on_change_bad_method(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
         m.on_event('foo', bad.method)
         assert len(m._event_callbacks) == 1
 
-    def test_on_change_bad_functor(self):
+    def test_on_change_bad_functor(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
         m.on_event('foo', bad)
         assert len(m._event_callbacks) == 1
 
-    def test_on_change_bad_function(self):
+    def test_on_change_bad_function(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         with pytest.raises(ValueError):
             m.on_event('foo', _bad_event)
         assert len(m._event_callbacks) == 0
 
-    def test_on_change_bad_lambda(self):
+    def test_on_change_bad_lambda(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         with pytest.raises(ValueError):
             m.on_event('foo', lambda x, y: x)
         assert len(m._event_callbacks) == 0
 
-    def test_on_change_bad_closure(self):
+    def test_on_change_bad_closure(self) -> None:
         def bad(event, y):
             pass
         m = cbm.EventCallbackManager()
@@ -378,7 +378,7 @@ class TestEventCallbackManager(object):
             m.on_event('foo', bad)
         assert len(m._event_callbacks) == 0
 
-    def test_on_change_with_two_callbacks(self):
+    def test_on_change_with_two_callbacks(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         good1 = _GoodEventCallback()
@@ -386,7 +386,7 @@ class TestEventCallbackManager(object):
         m.on_event('foo', good1.method)
         m.on_event('foo', good2.method)
 
-    def test_on_change_with_two_callbacks_one_bad(self):
+    def test_on_change_with_two_callbacks_one_bad(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         good = _GoodEventCallback()
@@ -394,7 +394,7 @@ class TestEventCallbackManager(object):
         m.on_event('foo', good.method, bad.method)
         assert len(m._event_callbacks) == 1
 
-    def test__trigger_event_wraps_curdoc(self):
+    def test__trigger_event_wraps_curdoc(self) -> None:
         # This test is pretty clunky by assures that callbacks triggered by
         # events use the correct value of curdoc()
         from bokeh.io.doc import set_curdoc

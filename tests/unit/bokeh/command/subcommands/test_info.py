@@ -35,20 +35,20 @@ import bokeh.command.subcommands.info as scinfo # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = scinfo.Info(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_name():
+def test_name() -> None:
     assert scinfo.Info.name == "info"
 
-def test_help():
+def test_help() -> None:
     assert scinfo.Info.help == "Print information about Bokeh and Bokeh server configuration"
 
-def test_args():
+def test_args() -> None:
     assert scinfo.Info.args == (
         ('--static', dict(
             action='store_true',
@@ -56,7 +56,7 @@ def test_args():
         )),
     )
 
-def test_run(capsys):
+def test_run(capsys) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
@@ -71,13 +71,13 @@ def test_run(capsys):
     assert lines[7] == ""
     assert err == ""
 
-def test_run_static(capsys):
+def test_run_static(capsys) -> None:
     main(["bokeh", "info", "--static"])
     out, err = capsys.readouterr()
     assert err == ""
     assert out.endswith(join('bokeh', 'server', 'static') + '\n')
 
-def test__version_missing(ipython):
+def test__version_missing(ipython) -> None:
     assert scinfo._version('bokeh', '__version__') is not None
     assert scinfo._version('IPython', '__version__') is not None
     assert scinfo._version('tornado', 'version') is not None

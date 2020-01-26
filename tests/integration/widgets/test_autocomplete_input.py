@@ -58,7 +58,7 @@ def modify_doc(doc):
 @pytest.mark.selenium
 class Test_AutocompleteInput(object):
 
-    def test_displays_text_input(self, bokeh_model_page):
+    def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
@@ -68,7 +68,7 @@ class Test_AutocompleteInput(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page):
+    def test_displays_title(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
@@ -81,7 +81,7 @@ class Test_AutocompleteInput(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_menu(self, bokeh_model_page):
+    def test_displays_menu(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
@@ -124,7 +124,7 @@ class Test_AutocompleteInput(object):
 
         assert page.has_no_console_errors()
 
-    def test_min_characters(self, bokeh_model_page):
+    def test_min_characters(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"],
                                        completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"],
                                        min_characters=1)
@@ -150,7 +150,7 @@ class Test_AutocompleteInput(object):
         assert "bk-active" not in items[1].get_attribute('class')
         assert "bk-active" not in items[2].get_attribute('class')
 
-    def test_arrow_cannot_escape_menu(self, bokeh_model_page):
+    def test_arrow_cannot_escape_menu(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
@@ -207,7 +207,7 @@ class Test_AutocompleteInput(object):
 
         assert page.has_no_console_errors()
 
-    def test_mouse_hover(self, bokeh_model_page):
+    def test_mouse_hover(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
         page = bokeh_model_page(text_input)
@@ -238,7 +238,7 @@ class Test_AutocompleteInput(object):
         assert "bk-active" in items[1].get_attribute('class')
 
     @flaky(max_runs=10)
-    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page):
+    def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector('.foo input')
@@ -255,7 +255,7 @@ class Test_AutocompleteInput(object):
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    def test_server_on_change_round_trip_full_entry(self, bokeh_server_page):
+    def test_server_on_change_round_trip_full_entry(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         # double click to highlight and overwrite old text
@@ -286,7 +286,7 @@ class Test_AutocompleteInput(object):
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page):
+    def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         # double click to highlight and overwrite old text
@@ -317,7 +317,7 @@ class Test_AutocompleteInput(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page):
+    def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         # double click to highlight and overwrite old text

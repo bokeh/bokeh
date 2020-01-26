@@ -79,7 +79,7 @@ def _make_server_plot(expected, num_objects=0):
 @pytest.mark.selenium
 class Test_BoxEditTool(object):
 
-    def test_selected_by_default(self, single_plot_page):
+    def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
         page = single_plot_page(plot)
@@ -89,7 +89,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page):
+    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
         page = single_plot_page(plot)
@@ -110,7 +110,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_double_click_triggers_draw(self, single_plot_page):
+    def test_double_click_triggers_draw(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
         page = single_plot_page(plot)
@@ -130,7 +130,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_shift_drag_triggers_draw(self, single_plot_page):
+    def test_shift_drag_triggers_draw(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
         page = single_plot_page(plot)
@@ -147,7 +147,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_drag_moves_box(self, single_plot_page):
+    def test_drag_moves_box(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
         page = single_plot_page(plot)
@@ -169,7 +169,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_backspace_deletes_drawn_box(self, single_plot_page):
+    def test_backspace_deletes_drawn_box(self, single_plot_page) -> None:
         plot = _make_plot('both', num_objects=2)
 
         page = single_plot_page(plot)
@@ -191,7 +191,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_num_objects_limits_drawn_boxes(self, single_plot_page):
+    def test_num_objects_limits_drawn_boxes(self, single_plot_page) -> None:
         plot = _make_plot('both', num_objects=2)
 
         page = single_plot_page(plot)
@@ -209,7 +209,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_box_draw_syncs_to_server(self, bokeh_server_page):
+    def test_box_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2, 1.2162162162162162],
                     "y": [1, 1, 1.875],
                     "width": [0.5, 0.5, 0.8108108108108109],
@@ -226,7 +226,7 @@ class Test_BoxEditTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
-    def test_box_drag_syncs_to_server(self, bokeh_server_page):
+    def test_box_drag_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5000000000000002],
                     "width": [0.5, 0.5, 0.8108108108108109],
@@ -246,7 +246,7 @@ class Test_BoxEditTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
-    def test_box_delete_syncs_to_server(self, bokeh_server_page):
+    def test_box_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [2], "y": [1],
                     "width": [0.5], "height": [0.5]}
 

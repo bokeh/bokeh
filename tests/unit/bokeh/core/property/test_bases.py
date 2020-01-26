@@ -44,13 +44,13 @@ ALL = (
 class TestProperty(object):
 
     @patch('bokeh.core.property.bases.Property.validate')
-    def test_is_valid_supresses_validation_detail(self, mock_validate):
+    def test_is_valid_supresses_validation_detail(self, mock_validate) -> None:
         p = bcpb.Property()
         p.is_valid(None)
         assert mock_validate.called
         assert mock_validate.call_args[0] == (None, False)
 
-    def test_serialized_default(self):
+    def test_serialized_default(self) -> None:
         p = bcpb.Property()
         assert p.serialized == True
         assert p.readonly == False
@@ -66,7 +66,7 @@ class TestProperty(object):
         assert p.readonly == True
 
 
-    def test_assert_bools(self):
+    def test_assert_bools(self) -> None:
         hp = HasProps()
         p = bcpb.Property()
 
@@ -78,7 +78,7 @@ class TestProperty(object):
                 p.prepare_value(hp, "foo", 10)
                 assert str(e) == "false"
 
-    def test_assert_functions(self):
+    def test_assert_functions(self) -> None:
         hp = HasProps()
         p = bcpb.Property()
 
@@ -92,7 +92,7 @@ class TestProperty(object):
                 p.prepare_value(hp, "foo", 10)
                 assert str(e) == "false"
 
-    def test_assert_msg_funcs(self):
+    def test_assert_msg_funcs(self) -> None:
         hp = HasProps()
         p = bcpb.Property()
 
@@ -105,7 +105,7 @@ class TestProperty(object):
                 p.prepare_value(hp, "foo", 10)
                 assert str(e) == "bad True name, 10"
 
-    def test_matches_basic_types(self, capsys):
+    def test_matches_basic_types(self, capsys) -> None:
         p = bcpb.Property()
         for x in [1, 1.2, "a", np.arange(4), None, False, True, {}, []]:
                 assert p.matches(x, x) is True
@@ -113,7 +113,7 @@ class TestProperty(object):
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_compatible_arrays(self, capsys):
+    def test_matches_compatible_arrays(self, capsys) -> None:
         p = bcpb.Property()
         a = np.arange(5)
         b = np.arange(5)
@@ -125,7 +125,7 @@ class TestProperty(object):
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_incompatible_arrays(self, capsys):
+    def test_matches_incompatible_arrays(self, capsys) -> None:
         p = bcpb.Property()
         a = np.arange(5)
         b = np.arange(5).astype(str)
@@ -134,7 +134,7 @@ class TestProperty(object):
         # no way to suppress FutureWarning in this case
         # assert err == ""
 
-    def test_matches_dicts_with_array_values(self, capsys):
+    def test_matches_dicts_with_array_values(self, capsys) -> None:
         p = bcpb.Property()
         d1 = dict(foo=np.arange(10))
         d2 = dict(foo=np.arange(10))
@@ -151,7 +151,7 @@ class TestProperty(object):
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_non_dict_containers_with_array_false(self, capsys):
+    def test_matches_non_dict_containers_with_array_false(self, capsys) -> None:
         p = bcpb.Property()
         d1 = [np.arange(10)]
         d2 = [np.arange(10)]
@@ -166,7 +166,7 @@ class TestProperty(object):
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_dicts_with_series_values(self, capsys, pd):
+    def test_matches_dicts_with_series_values(self, capsys, pd) -> None:
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -183,7 +183,7 @@ class TestProperty(object):
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_dicts_with_index_values(self, capsys, pd):
+    def test_matches_dicts_with_index_values(self, capsys, pd) -> None:
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -200,7 +200,7 @@ class TestProperty(object):
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_validation_on(self):
+    def test_validation_on(self) -> None:
         assert bcpb.Property._should_validate == True
         assert bcpb.validation_on()
 

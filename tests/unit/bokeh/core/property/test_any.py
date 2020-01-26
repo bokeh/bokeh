@@ -36,7 +36,7 @@ ALL = (
 
 class Test_Any(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpa.Any()
         assert prop.is_valid(None)
         assert prop.is_valid(False)
@@ -53,16 +53,16 @@ class Test_Any(object):
         assert prop.is_valid(_TestHasProps())
         assert prop.is_valid(_TestModel())
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         pass
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpa.Any()
         assert not prop.has_ref
 
 class Test_AnyRef(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpa.AnyRef()
         assert prop.is_valid(None)
         assert prop.is_valid(False)
@@ -79,10 +79,10 @@ class Test_AnyRef(object):
         assert prop.is_valid(_TestHasProps())
         assert prop.is_valid(_TestModel())
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         pass
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpa.AnyRef()
         assert prop.has_ref
 

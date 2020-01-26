@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.us_holidays", ALL))
 
 @pytest.mark.sampledata
-def test_us_holidays():
+def test_us_holidays() -> None:
     import bokeh.sampledata.us_holidays as bsu
     assert isinstance(bsu.us_holidays, list)
 

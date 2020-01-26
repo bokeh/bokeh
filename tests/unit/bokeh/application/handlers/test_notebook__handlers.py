@@ -50,7 +50,7 @@ class Test_NotebookHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_runner_strips_line_magics(self, ipython):
+    def test_runner_strips_line_magics(self, ipython) -> None:
         doc = Document()
         source = nbformat.v4.new_notebook()
         source.cells.append(nbformat.v4.new_code_cell('%time'))
@@ -61,7 +61,7 @@ class Test_NotebookHandler(object):
 
         with_script_contents(source, load)
 
-    def test_runner_strips_cell_magics(self):
+    def test_runner_strips_cell_magics(self) -> None:
         doc = Document()
         source = nbformat.v4.new_notebook()
         code = '%%timeit\n1+1'
@@ -73,7 +73,7 @@ class Test_NotebookHandler(object):
 
         with_script_contents(source, load)
 
-    def test_runner_uses_source_from_filename(self):
+    def test_runner_uses_source_from_filename(self) -> None:
         doc = Document()
         source = nbformat.v4.new_notebook()
         result = {}
@@ -93,7 +93,7 @@ class Test_NotebookHandler(object):
         assert result['handler']._runner.source == expected_source
         assert not doc.roots
 
-    def test_missing_filename_raises(self):
+    def test_missing_filename_raises(self) -> None:
         with pytest.raises(ValueError):
             bahn.NotebookHandler()
 

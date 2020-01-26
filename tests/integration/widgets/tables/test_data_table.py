@@ -44,7 +44,7 @@ class Test_CellEditor_Base(object):
 @pytest.mark.selenium
 class Test_DataTable(object):
 
-    def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page):
+    def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         column = TableColumn(field='values', title='values')
@@ -60,7 +60,7 @@ class Test_DataTable(object):
 
         assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_initial_selection(self, bokeh_model_page):
+    def test_row_highlights_reflect_initial_selection(self, bokeh_model_page) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         source.selected.indices = [1]
@@ -77,7 +77,7 @@ class Test_DataTable(object):
 
         assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_ui_selection(self, bokeh_model_page):
+    def test_row_highlights_reflect_ui_selection(self, bokeh_model_page) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         column = TableColumn(field='values', title='values')
@@ -102,7 +102,7 @@ class Test_DataTable(object):
 
         assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_js_selection(self, bokeh_model_page):
+    def test_row_highlights_reflect_js_selection(self, bokeh_model_page) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})
         col = TableColumn(field='values', title='values')

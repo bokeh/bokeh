@@ -41,7 +41,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_Button(object):
 
-    def test_displays_label(self, bokeh_model_page):
+    def test_displays_label(self, bokeh_model_page) -> None:
         button = Button(label="label", css_classes=["foo"])
 
         page = bokeh_model_page(button)
@@ -50,7 +50,7 @@ class Test_Button(object):
         assert button.text == "label"
 
     @pytest.mark.parametrize('typ', list(ButtonType))
-    def test_displays_button_type(self, typ, bokeh_model_page):
+    def test_displays_button_type(self, typ, bokeh_model_page) -> None:
         button = Button(button_type=typ, css_classes=["foo"])
 
         page = bokeh_model_page(button)
@@ -58,7 +58,7 @@ class Test_Button(object):
         button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         assert typ in button.get_attribute('class')
 
-    def test_server_on_click_round_trip(self, bokeh_server_page):
+    def test_server_on_click_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
@@ -84,7 +84,7 @@ class Test_Button(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_server_on_event_round_trip(self, bokeh_server_page):
+    def test_server_on_event_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
@@ -110,7 +110,7 @@ class Test_Button(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_js_on_event_executes(self, bokeh_model_page):
+    def test_js_on_event_executes(self, bokeh_model_page) -> None:
         button = Button(css_classes=['foo'])
         button.js_on_event('button_click', CustomJS(code=RECORD("clicked", "true")))
 
@@ -124,7 +124,7 @@ class Test_Button(object):
 
         assert page.has_no_console_errors()
 
-    def test_js_on_click_executes(self, bokeh_model_page):
+    def test_js_on_click_executes(self, bokeh_model_page) -> None:
         button = Button(css_classes=['foo'])
         button.js_on_click(CustomJS(code=RECORD("clicked", "true")))
 

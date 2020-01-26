@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.movies_data", ALL))
 
 @pytest.mark.sampledata
-def test_movie_path():
+def test_movie_path() -> None:
     import bokeh.sampledata.movies_data as bsm
     assert isinstance(bsm.movie_path, str)
 

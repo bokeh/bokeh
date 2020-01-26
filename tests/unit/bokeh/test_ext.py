@@ -28,7 +28,7 @@ import bokeh.ext as ext # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_ext_commands(tmpdir):
+def test_ext_commands(tmpdir) -> None:
     tmp = str(tmpdir.mkdir("bk_ext_01"))
 
     assert _names(tmp) == []

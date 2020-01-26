@@ -39,7 +39,7 @@ import bokeh.core.validation as v # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_error_decorator_code():
+def test_error_decorator_code() -> None:
     for code in ec:
         @v.error(code)
         def good():
@@ -51,7 +51,7 @@ def test_error_decorator_code():
             return "bad"
         assert bad() == [(code,) + ec[code] + ('bad',)]
 
-def test_warning_decorator_code():
+def test_warning_decorator_code() -> None:
     for code in wc:
         @v.warning(code)
         def good():
@@ -63,7 +63,7 @@ def test_warning_decorator_code():
             return "bad"
         assert bad() == [(code,) + wc[code] + ('bad',)]
 
-def test_error_decorator_custom():
+def test_error_decorator_custom() -> None:
     @v.error("E1")
     def good():
         return None
@@ -74,7 +74,7 @@ def test_error_decorator_custom():
         return "bad"
     assert bad() == [(9999, 'EXT:E2', 'Custom extension reports error', 'bad')]
 
-def test_warning_decorator_custom():
+def test_warning_decorator_custom() -> None:
     @v.warning("W1")
     def good():
         return None
@@ -99,7 +99,7 @@ class Mod(Model):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_pass(mock_warn, mock_error):
+def test_check_pass(mock_warn, mock_error) -> None:
     m = Mod()
 
     v.check_integrity([m])
@@ -108,7 +108,7 @@ def test_check_pass(mock_warn, mock_error):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_error(mock_warn, mock_error):
+def test_check_error(mock_warn, mock_error) -> None:
     m = Mod(foo=10)
     v.check_integrity([m])
     assert mock_error.called
@@ -116,7 +116,7 @@ def test_check_error(mock_warn, mock_error):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_warn(mock_warn, mock_error):
+def test_check_warn(mock_warn, mock_error) -> None:
     m = Mod(foo=-10)
     v.check_integrity([m])
     assert not mock_error.called
@@ -124,7 +124,7 @@ def test_check_warn(mock_warn, mock_error):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_and_check_warn(mock_warn, mock_error):
+def test_silence_and_check_warn(mock_warn, mock_error) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
     try:
@@ -140,7 +140,7 @@ def test_silence_and_check_warn(mock_warn, mock_error):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error):
+def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error) -> None:
     m = Mod(foo=-10)
     with pytest.raises(ValueError, match=('Input to silence should be a '
                                           'warning object')):
@@ -151,7 +151,7 @@ def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_warning_already_in_silencers_is_ok(mock_warn, mock_error):
+def test_silence_warning_already_in_silencers_is_ok(mock_warn, mock_error) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
     try:
@@ -171,7 +171,7 @@ def test_silence_warning_already_in_silencers_is_ok(mock_warn, mock_error):
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn, mock_error):
+def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn, mock_error) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
 

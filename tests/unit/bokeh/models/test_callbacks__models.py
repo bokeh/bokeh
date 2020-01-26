@@ -31,7 +31,7 @@ from bokeh.models import CustomJS # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_js_callback():
+def test_js_callback() -> None:
     slider = Slider()
 
     cb = CustomJS(code="foo();", args=dict(x=slider))

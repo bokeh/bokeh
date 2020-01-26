@@ -29,7 +29,7 @@ import bokeh.command as command # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_doc():
+def test_doc() -> None:
     import bokeh.command.subcommands as sc
     assert len(command.__doc__.split("\n")) == 5 + 3*len(sc.all)
     for x in sc.all:

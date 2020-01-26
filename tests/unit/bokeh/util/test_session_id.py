@@ -68,13 +68,13 @@ _MERSENNE_MSG = 'A secure pseudo-random number generator is not available on you
 #-----------------------------------------------------------------------------
 
 class TestSessionId(object):
-    def test_base64_roundtrip(self):
+    def test_base64_roundtrip(self) -> None:
         for s in [ "", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
                    "abcdefgh", "abcdefghi",
                    "abcdefghijklmnopqrstuvwxyz" ]:
             assert s == _base64_decode_utf8(_base64_encode(s))
 
-    def test_reseed_if_needed(self):
+    def test_reseed_if_needed(self) -> None:
         # we have to set a seed in order to be able to get state
         random.seed(codecs.encode("abcdefg", "utf-8"))
         state = random.getstate()
@@ -91,14 +91,14 @@ class TestSessionId(object):
         finally:
             bokeh.util.session_id.random = saved
 
-    def test_signature(self):
+    def test_signature(self) -> None:
         sig = _signature("xyz", secret_key="abc")
         with_same_key = _signature("xyz", secret_key="abc")
         assert sig == with_same_key
         with_different_key = _signature("xyz", secret_key="qrs")
         assert sig != with_different_key
 
-    def test_generate_unsigned(self):
+    def test_generate_unsigned(self) -> None:
         session_id = generate_session_id(signed=False)
         assert 44 == len(session_id)
         another_session_id = generate_session_id(signed=False)
@@ -106,33 +106,33 @@ class TestSessionId(object):
 
         assert session_id != another_session_id
 
-    def test_generate_signed(self):
+    def test_generate_signed(self) -> None:
         session_id = generate_session_id(signed=True, secret_key="abc")
         assert '-' in session_id
         assert check_session_id_signature(session_id, secret_key="abc", signed=True)
         assert not check_session_id_signature(session_id, secret_key="qrs", signed=True)
 
-    def test_check_signature_of_unsigned(self):
+    def test_check_signature_of_unsigned(self) -> None:
         session_id = generate_session_id(signed=False, secret_key="abc") # secret shouldn't be used
         assert not check_session_id_signature(session_id, secret_key="abc", signed=True)
 
-    def test_check_signature_of_empty_string(self):
+    def test_check_signature_of_empty_string(self) -> None:
         assert not check_session_id_signature("", secret_key="abc", signed=True)
 
-    def test_check_signature_of_junk_with_hyphen_in_it(self):
+    def test_check_signature_of_junk_with_hyphen_in_it(self) -> None:
         assert not check_session_id_signature("foo-bar-baz", secret_key="abc", signed=True)
 
-    def test_check_signature_with_signing_disabled(self):
+    def test_check_signature_with_signing_disabled(self) -> None:
         assert check_session_id_signature("gobbledygook", secret_key="abc", signed=False)
 
-    def test_generate_secret_key(self):
+    def test_generate_secret_key(self) -> None:
         key = generate_secret_key()
         assert 44 == len(key)
         key2 = generate_secret_key()
         assert 44 == len(key2)
         assert key != key2
 
-    def test_string_encoding_does_not_affect_session_id_check(self):
+    def test_string_encoding_does_not_affect_session_id_check(self) -> None:
         # originates from #6653
         session_id = generate_session_id(signed=True, secret_key="abc")
         assert check_session_id_signature(session_id, secret_key="abc", signed=True)
@@ -148,7 +148,7 @@ class TestSessionId(object):
 
 class Test__get_sysrandom(object):
 
-    def test_default(self):
+    def test_default(self) -> None:
         import random
         try:
             random.SystemRandom()
@@ -159,7 +159,7 @@ class Test__get_sysrandom(object):
         assert using_sysrandom == expected
 
     @patch('random.SystemRandom', new_callable=_nie)
-    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom):
+    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom) -> None:
         with pytest.warns(UserWarning) as warns:
             random, using_sysrandom = _get_sysrandom()
             assert not using_sysrandom
@@ -173,7 +173,7 @@ class Test__get_sysrandom(object):
             )
 
     @patch('random.SystemRandom', new_callable=_nie)
-    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom):
+    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom) -> None:
         os.environ["BOKEH_SECRET_KEY"] = "foo"
         with pytest.warns(UserWarning) as warns:
             random, using_sysrandom = _get_sysrandom()

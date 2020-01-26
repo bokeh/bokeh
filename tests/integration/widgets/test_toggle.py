@@ -41,7 +41,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_Toggle(object):
 
-    def test_displays_label(self, bokeh_model_page):
+    def test_displays_label(self, bokeh_model_page) -> None:
         button = Toggle(label="label", css_classes=["foo"])
 
         page = bokeh_model_page(button)
@@ -50,7 +50,7 @@ class Test_Toggle(object):
         assert button.text == "label"
 
     @pytest.mark.parametrize('typ', list(ButtonType))
-    def test_displays_button_type(self, typ, bokeh_model_page):
+    def test_displays_button_type(self, typ, bokeh_model_page) -> None:
         button = Toggle(button_type=typ, css_classes=["foo"])
 
         page = bokeh_model_page(button)
@@ -58,7 +58,7 @@ class Test_Toggle(object):
         button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         assert typ in button.get_attribute('class')
 
-    def test_server_on_click_round_trip(self, bokeh_server_page):
+    def test_server_on_click_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
@@ -105,7 +105,7 @@ class Test_Toggle(object):
 
     # XXX (bev) Toggle does not register to process ButtonClick events
 
-    def test_js_on_click_executes(self, bokeh_model_page):
+    def test_js_on_click_executes(self, bokeh_model_page) -> None:
         button = Toggle(css_classes=['foo'])
         button.js_on_click(CustomJS(code=RECORD("value", "cb_obj.active")))
 

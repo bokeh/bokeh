@@ -55,7 +55,7 @@ _css = dict(both='pan', width='xpan', height='ypan')
 class Test_PanTool(object):
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_selected_by_default(self, dim, single_plot_page):
+    def test_selected_by_default(self, dim, single_plot_page) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
@@ -68,7 +68,7 @@ class Test_PanTool(object):
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_can_be_deselected_and_selected(self, dim, single_plot_page):
+    def test_can_be_deselected_and_selected(self, dim, single_plot_page) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
@@ -92,7 +92,7 @@ class Test_PanTool(object):
         assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
-    def test_pan_has_no_effect_when_deslected(self, dim, single_plot_page):
+    def test_pan_has_no_effect_when_deslected(self, dim, single_plot_page) -> None:
         plot = _make_plot(dim)
 
         page = single_plot_page(plot)
@@ -114,7 +114,7 @@ class Test_PanTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_pan_updates_both_ranges(self, single_plot_page):
+    def test_pan_updates_both_ranges(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -131,7 +131,7 @@ class Test_PanTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_xpan_upates_only_xrange(self, single_plot_page):
+    def test_xpan_upates_only_xrange(self, single_plot_page) -> None:
         plot = _make_plot('width')
 
         page = single_plot_page(plot)
@@ -148,7 +148,7 @@ class Test_PanTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_ypan_updates_only_yrange(self, single_plot_page):
+    def test_ypan_updates_only_yrange(self, single_plot_page) -> None:
         plot = _make_plot('height')
 
         page = single_plot_page(plot)

@@ -28,7 +28,7 @@ import bokeh.models.grids as bmg # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_ticker_accepts_number_sequences():
+def test_ticker_accepts_number_sequences() -> None:
     g = bmg.Grid(ticker=[-10, 0, 10, 20.7])
     assert isinstance(g.ticker, FixedTicker)
     assert g.ticker.ticks == [-10, 0, 10, 20.7]
@@ -38,7 +38,7 @@ def test_ticker_accepts_number_sequences():
     assert isinstance(g.ticker, FixedTicker)
     assert g.ticker.ticks == [-10, 0, 10, 20.7]
 
-def test_ticker_accepts_axis():
+def test_ticker_accepts_axis() -> None:
     g = bmg.Grid(axis=LinearAxis())
     assert isinstance(g.axis, LinearAxis)
 

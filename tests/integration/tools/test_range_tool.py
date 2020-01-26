@@ -55,7 +55,7 @@ def _make_plot():
 @pytest.mark.selenium
 class Test_RangeTool(object):
 
-    def test_selected_by_default(self, single_plot_page):
+    def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -66,7 +66,7 @@ class Test_RangeTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page):
+    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -89,7 +89,7 @@ class Test_RangeTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_has_no_effect_when_deselected(self, single_plot_page):
+    def test_center_pan_has_no_effect_when_deselected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -108,7 +108,7 @@ class Test_RangeTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_updates_range_when_selected(self, single_plot_page):
+    def test_center_pan_updates_range_when_selected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -131,7 +131,7 @@ class Test_RangeTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_with_right_side_outside(self, single_plot_page):
+    def test_center_pan_with_right_side_outside(self, single_plot_page) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.end = 1.1
 
@@ -155,7 +155,7 @@ class Test_RangeTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_center_pan_with_left_side_outside(self, single_plot_page):
+    def test_center_pan_with_left_side_outside(self, single_plot_page) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.start = -0.1
 
@@ -179,7 +179,7 @@ class Test_RangeTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_left_edge_drag_updates_start(self, single_plot_page):
+    def test_left_edge_drag_updates_start(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -200,7 +200,7 @@ class Test_RangeTool(object):
         assert results['start'] == 0.2
         assert results['end'] == 0.6
 
-    def test_left_edge_drag_can_flip(self, single_plot_page):
+    def test_left_edge_drag_can_flip(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -213,7 +213,7 @@ class Test_RangeTool(object):
         assert results['start'] == 0.6
         assert results['end'] == 0.7
 
-    def test_left_edge_drag_with_right_edge_outside(self, single_plot_page):
+    def test_left_edge_drag_with_right_edge_outside(self, single_plot_page) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.end = 1.1
 
@@ -227,7 +227,7 @@ class Test_RangeTool(object):
         assert results['start'] == 0.7
         assert results['end'] == 1.1
 
-    def test_right_edge_drag_updates_end(self, single_plot_page):
+    def test_right_edge_drag_updates_end(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -248,7 +248,7 @@ class Test_RangeTool(object):
         assert results['start'] == 0.4
         assert results['end'] == 0.5
 
-    def test_right_edge_drag_can_flip(self, single_plot_page):
+    def test_right_edge_drag_can_flip(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -261,7 +261,7 @@ class Test_RangeTool(object):
         assert results['start'] == 0.3
         assert results['end'] == 0.4
 
-    def test_right_edge_drag_with_left_edge_outside(self, single_plot_page):
+    def test_right_edge_drag_with_left_edge_outside(self, single_plot_page) -> None:
         plot = _make_plot()
         plot.tools[0].x_range.start = -0.1
 
@@ -278,7 +278,7 @@ class Test_RangeTool(object):
 
     # TODO (bev) This test is broken due to some dumb reason with tooling
     @pytest.mark.skip
-    def test_center_pan_stops_at_plot_range_limit(self, single_plot_page):
+    def test_center_pan_stops_at_plot_range_limit(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)

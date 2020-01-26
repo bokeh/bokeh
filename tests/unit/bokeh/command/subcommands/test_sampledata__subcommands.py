@@ -34,24 +34,24 @@ did_call_download = False
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = scsample.Sampledata(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_name():
+def test_name() -> None:
     assert scsample.Sampledata.name == "sampledata"
 
-def test_help():
+def test_help() -> None:
     assert scsample.Sampledata.help == "Download the bokeh sample data sets"
 
-def test_args():
+def test_args() -> None:
     assert scsample.Sampledata.args == (
     )
 
-def test_run(capsys):
+def test_run(capsys) -> None:
     main(["bokeh", "sampledata"])
     assert did_call_download == True
 

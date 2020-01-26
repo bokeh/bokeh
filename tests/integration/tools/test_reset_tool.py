@@ -54,7 +54,7 @@ def _make_plot():
 @pytest.mark.selenium
 class Test_ResetTool(object):
 
-    def test_deselected_by_default(self, single_plot_page):
+    def test_deselected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -64,7 +64,7 @@ class Test_ResetTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_clicking_resets_range(self, single_plot_page):
+    def test_clicking_resets_range(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -95,7 +95,7 @@ class Test_ResetTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_clicking_resets_selection(self, single_plot_page):
+    def test_clicking_resets_selection(self, single_plot_page) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         source.selected.indices = [0]
         source.selected.line_indices = [0]

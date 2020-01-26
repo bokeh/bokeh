@@ -53,14 +53,14 @@ offset = 2
 
 Test___all__ = verify_all(bd, ALL)
 
-def test_bounce():
+def test_bounce() -> None:
     results = []
     func = bd.bounce([0, 1, 5, -1])(_collector(results))
     for i in range(8):
         func()
     assert results == [0, 1, 5, -1, -1, 5, 1, 0]
 
-def test_cosine():
+def test_cosine() -> None:
     results = []
     func = bd.cosine(w, A, phi, offset)(_collector(results))
     for i in range(4):
@@ -70,14 +70,14 @@ def test_cosine():
         [4.985012495834077, 4.763182982008655, 4.294526561853465, 3.6209069176044197]
     )
 
-def test_count():
+def test_count() -> None:
     results = []
     func = bd.count()(_collector(results))
     for i in range(8):
         func()
     assert results == list(range(8))
 
-def test_force():
+def test_force() -> None:
     results = []
     seq = (x for x in ["foo", "bar", "baz"])
     w = bd.force(_collector(results), seq)
@@ -88,21 +88,21 @@ def test_force():
     w()
     assert results == ["foo", "bar", "baz"]
 
-def test_linear():
+def test_linear() -> None:
     results = []
     func = bd.linear(m=2.5, b=3.7)(_collector(results))
     for i in range(4):
         func()
     assert_allclose(results, [3.7, 6.2, 8.7, 11.2])
 
-def test_repeat():
+def test_repeat() -> None:
     results = []
     func = bd.repeat([0, 1, 5, -1])(_collector(results))
     for i in range(8):
         func()
     assert results == [0, 1, 5, -1, 0, 1, 5, -1]
 
-def test_sine():
+def test_sine() -> None:
     results = []
     func = bd.sine(w, A, phi, offset)(_collector(results))
     for i in range(4):
@@ -120,7 +120,7 @@ def test_sine():
 # Private API
 #-----------------------------------------------------------------------------
 
-def test__advance():
+def test__advance() -> None:
     results = []
     testf = _collector(results)
     s = bd._advance(testf)

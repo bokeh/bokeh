@@ -112,7 +112,7 @@ ALL = (
 
 class Basictest(object):
 
-    def test_simple_class(self):
+    def test_simple_class(self) -> None:
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
@@ -152,7 +152,7 @@ class Basictest(object):
         without_defaults = f.properties_with_values(include_defaults=False)
         assert dict(x=18, y="bar", z=[100,2,3], zz={'a': 10}) == without_defaults
 
-    def test_enum(self):
+    def test_enum(self) -> None:
         class Foo(HasProps):
             x = Enum("blue", "red", "green")     # the first item is the default
             y = Enum("small", "medium", "large", default="large")
@@ -173,7 +173,7 @@ class Basictest(object):
         with pytest.raises(ValueError):
             f.y = "yellow"
 
-    def test_inheritance(self):
+    def test_inheritance(self) -> None:
         class Base(HasProps):
             x = Int(12)
             y = String("hello")
@@ -185,7 +185,7 @@ class Basictest(object):
         assert frozenset(['x', 'y', 'z']) == frozenset(c.properties())
         assert c.y == "hello"
 
-    def test_set(self):
+    def test_set(self) -> None:
         class Foo(HasProps):
             x = Int(12)
             y = Enum("red", "blue", "green")
@@ -202,7 +202,7 @@ class Basictest(object):
         with pytest.raises(ValueError):
             f.update(y="orange")
 
-    def test_no_parens(self):
+    def test_no_parens(self) -> None:
         class Foo(HasProps):
             x = Int
             y = Int()
@@ -211,7 +211,7 @@ class Basictest(object):
         f.x = 13
         assert f.x == 13
 
-    def test_accurate_properties_sets(self):
+    def test_accurate_properties_sets(self) -> None:
         class Base(HasProps):
             num = Int(12)
             container = List(String)
@@ -259,7 +259,7 @@ class Basictest(object):
         # in a new set every time
         #assert s.properties(with_bases=False) is s.properties(with_bases=False)
 
-    def test_accurate_dataspecs(self):
+    def test_accurate_dataspecs(self) -> None:
         class Base(HasProps):
             num = NumberSpec(12)
             not_a_dataspec = Float(10)
@@ -282,7 +282,7 @@ class Basictest(object):
         assert dict(mixin_num=mixin.lookup("mixin_num")) == mixin.dataspecs_with_props()
         assert dict(num=sub.lookup("num"), mixin_num=sub.lookup("mixin_num"), sub_num=sub.lookup("sub_num")) == sub.dataspecs_with_props()
 
-    def test_not_serialized(self):
+    def test_not_serialized(self) -> None:
         class NotSerialized(HasProps):
             x = Int(12, serialized=False)
             y = String("hello")
@@ -311,7 +311,7 @@ class Basictest(object):
         assert 'x' not in o.properties_with_values(include_defaults=False)
         assert 'y' in o.properties_with_values(include_defaults=False)
 
-    def test_readonly(self):
+    def test_readonly(self) -> None:
         class Readonly(HasProps):
             x = Int(12, readonly=True)    # with default
             y = Int(readonly=True)        # without default
@@ -345,7 +345,7 @@ class Basictest(object):
         assert o.y == None
         assert o.z == 'xyz'
 
-    def test_include_defaults(self):
+    def test_include_defaults(self) -> None:
         class IncludeDefaultsTest(HasProps):
             x = Int(12)
             y = String("hello")
@@ -367,7 +367,7 @@ class Basictest(object):
         assert 'x' in o.properties_with_values(include_defaults=False)
         assert 'y' in o.properties_with_values(include_defaults=False)
 
-    def test_include_defaults_with_kwargs(self):
+    def test_include_defaults_with_kwargs(self) -> None:
         class IncludeDefaultsKwargsTest(HasProps):
             x = Int(12)
             y = String("hello")
@@ -381,7 +381,7 @@ class Basictest(object):
         assert 'x' in o.properties_with_values(include_defaults=False)
         assert 'y' in o.properties_with_values(include_defaults=False)
 
-    def test_include_defaults_set_to_same(self):
+    def test_include_defaults_set_to_same(self) -> None:
         class IncludeDefaultsSetToSameTest(HasProps):
             x = Int(12)
             y = String("hello")
@@ -402,7 +402,7 @@ class Basictest(object):
         assert 'x' not in o.properties_with_values(include_defaults=False)
         assert 'y' not in o.properties_with_values(include_defaults=False)
 
-    def test_override_defaults(self):
+    def test_override_defaults(self) -> None:
         class FooBase(HasProps):
             x = Int(12)
 
@@ -431,7 +431,7 @@ class Basictest(object):
         assert 'x' not in f_sub.properties_with_values(include_defaults=False)
         assert 'x' not in f_sub_sub.properties_with_values(include_defaults=False)
 
-    # def test_kwargs_init(self):
+    # def test_kwargs_init(self) -> None:
     #     class Foo(HasProps):
     #         x = String
     #         y = Int
@@ -453,7 +453,7 @@ class Bar(HasProps):
 class Baz(HasProps):
     pass
 
-def test_HasProps_equals():
+def test_HasProps_equals() -> None:
     class Foo(HasProps):
         x = Int(12)
         y = String("hello")
@@ -479,7 +479,7 @@ def test_HasProps_equals():
     v = Foo().equals(FooUnrelated())
     assert v is False
 
-def test_HasProps_clone():
+def test_HasProps_clone() -> None:
     p1 = Plot(plot_width=1000)
     c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()

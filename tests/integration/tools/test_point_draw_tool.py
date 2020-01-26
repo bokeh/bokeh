@@ -76,7 +76,7 @@ def _make_server_plot(expected):
 @pytest.mark.selenium
 class Test_PointDrawTool(object):
 
-    def test_selected_by_default(self, single_plot_page):
+    def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -86,7 +86,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page):
+    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -107,7 +107,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_click_triggers_draw(self, single_plot_page):
+    def test_click_triggers_draw(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -123,7 +123,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_click_does_not_trigger_draw(self, single_plot_page):
+    def test_click_does_not_trigger_draw(self, single_plot_page) -> None:
         plot = _make_plot(add=False)
 
         page = single_plot_page(plot)
@@ -138,7 +138,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_drag_moves_point(self, single_plot_page):
+    def test_drag_moves_point(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -155,7 +155,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_drag_does_not_move_point(self, single_plot_page):
+    def test_drag_does_not_move_point(self, single_plot_page) -> None:
         plot = _make_plot(drag=False)
 
         page = single_plot_page(plot)
@@ -172,7 +172,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_num_object_limits_points(self, single_plot_page):
+    def test_num_object_limits_points(self, single_plot_page) -> None:
         plot = _make_plot(num_objects=2)
 
         page = single_plot_page(plot)
@@ -188,7 +188,7 @@ class Test_PointDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_point_draw_syncs_to_server(self, bokeh_server_page):
+    def test_point_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5]}
 
@@ -200,7 +200,7 @@ class Test_PointDrawTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
-    def test_point_drag_syncs_to_server(self, bokeh_server_page):
+    def test_point_drag_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2, 2.1891891891891895],
                     "y": [1, 1, 1.1024999999999998]}
 
@@ -213,7 +213,7 @@ class Test_PointDrawTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
-    def test_point_delete_syncs_to_server(self, bokeh_server_page):
+    def test_point_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2],
                     "y": [1, 1]}
 

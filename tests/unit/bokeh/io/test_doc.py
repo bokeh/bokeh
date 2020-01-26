@@ -29,14 +29,14 @@ import bokeh.io.doc as bid # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_curdoc_from_curstate():
+def test_curdoc_from_curstate() -> None:
     assert bid.curdoc() is curstate().document
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_set_curdoc_sets_curstate():
+def test_set_curdoc_sets_curstate() -> None:
     d = Document()
     bid.set_curdoc(d)
     assert curstate().document is d

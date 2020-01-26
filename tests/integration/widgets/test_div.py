@@ -38,7 +38,7 @@ are <i>200</i> and <i>100</i> respectively."""
 @pytest.mark.selenium
 class Test_Div(object):
 
-    def test_displays_div_as_html(self, bokeh_model_page):
+    def test_displays_div_as_html(self, bokeh_model_page) -> None:
         div = Div(text=text, css_classes=["foo"])
 
         page = bokeh_model_page(div)
@@ -48,7 +48,7 @@ class Test_Div(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_div_as_text(self, bokeh_model_page):
+    def test_displays_div_as_text(self, bokeh_model_page) -> None:
         div = Div(text=text, css_classes=["foo"], render_as_text=True)
 
         page = bokeh_model_page(div)
@@ -58,7 +58,7 @@ class Test_Div(object):
 
         assert page.has_no_console_errors()
 
-    def test_set_style(self, bokeh_model_page):
+    def test_set_style(self, bokeh_model_page) -> None:
         para = Div(text=text, css_classes=["foo"], style={'font-size': '20pt'})
 
         page = bokeh_model_page(para)

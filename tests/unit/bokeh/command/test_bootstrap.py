@@ -43,24 +43,24 @@ def _assert_version_output(capsys):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_no_subcommand(capsys):
+def test_no_subcommand(capsys) -> None:
     with pytest.raises(SystemExit):
         main(["bokeh"])
     out, err = capsys.readouterr()
     assert err == "ERROR: Must specify subcommand, one of: build, html, info, init, json, png, sampledata, secret, serve, static or svg\n"
     assert out == ""
 
-def test_version(capsys):
+def test_version(capsys) -> None:
     with pytest.raises(SystemExit):
         main(["bokeh", "--version"])
     _assert_version_output(capsys)
 
-def test_version_short(capsys):
+def test_version_short(capsys) -> None:
     with pytest.raises(SystemExit):
         main(["bokeh", "-v"])
     _assert_version_output(capsys)
 
-def test_error(capsys):
+def test_error(capsys) -> None:
     from bokeh.command.subcommands.info import Info
     old_invoke = Info.invoke
     def err(x, y): raise RuntimeError("foo")

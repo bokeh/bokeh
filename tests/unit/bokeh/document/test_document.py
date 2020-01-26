@@ -59,7 +59,7 @@ class TestDocumentHold(object):
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
     @pytest.mark.unit
-    def test_hold(self, policy):
+    def test_hold(self, policy) -> None:
         d = document.Document()
         assert d._hold == None
         assert d._held_events == []
@@ -67,14 +67,14 @@ class TestDocumentHold(object):
         d.hold(policy)
         assert d._hold == policy
 
-    def test_hold_bad_policy(self):
+    def test_hold_bad_policy(self) -> None:
         d = document.Document()
         with pytest.raises(ValueError):
             d.hold("junk")
 
     @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
     @pytest.mark.unit
-    def test_rehold(self, first, second, caplog):
+    def test_rehold(self, first, second, caplog) -> None:
         d = document.Document()
         with caplog.at_level(logging.WARN):
             d.hold(first)
@@ -96,7 +96,7 @@ class TestDocumentHold(object):
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
     @pytest.mark.unit
-    def test_unhold(self, policy):
+    def test_unhold(self, policy) -> None:
         d = document.Document()
         assert d._hold == None
         assert d._held_events == []
@@ -107,7 +107,7 @@ class TestDocumentHold(object):
         assert d._hold == None
 
     @patch("bokeh.document.document.Document._trigger_on_change")
-    def test_unhold_triggers_events(self, mock_trigger):
+    def test_unhold_triggers_events(self, mock_trigger) -> None:
         d = document.Document()
         d.hold('collect')
         d._held_events = [1,2,3]
@@ -120,7 +120,7 @@ extra = []
 
 class Test_Document_delete_modules(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         d = document.Document()
         assert not d.roots
         class FakeMod(object):
@@ -135,7 +135,7 @@ class Test_Document_delete_modules(object):
         assert 'junkjunkjunk' not in sys.modules
         assert d._modules is None
 
-    def test_extra_referrer_error(self, caplog):
+    def test_extra_referrer_error(self, caplog) -> None:
         d = document.Document()
         assert not d.roots
         class FakeMod(object):
@@ -164,23 +164,23 @@ class Test_Document_delete_modules(object):
 
 class TestDocument(object):
 
-    def test_empty(self):
+    def test_empty(self) -> None:
         d = document.Document()
         assert not d.roots
 
-    def test_default_template_vars(self):
+    def test_default_template_vars(self) -> None:
         d = document.Document()
         assert not d.roots
         assert d.template_variables == {}
 
-    def test_add_roots(self):
+    def test_add_roots(self) -> None:
         d = document.Document()
         assert not d.roots
         d.add_root(AnotherModelInTestDocument())
         assert len(d.roots) == 1
         assert next(iter(d.roots)).document == d
 
-    def test_roots_preserves_insertion_order(self):
+    def test_roots_preserves_insertion_order(self) -> None:
         d = document.Document()
         assert not d.roots
         roots = [
@@ -197,13 +197,13 @@ class TestDocument(object):
         assert next(roots_iter) is roots[1]
         assert next(roots_iter) is roots[2]
 
-    def test_set_title(self):
+    def test_set_title(self) -> None:
         d = document.Document()
         assert d.title == document.DEFAULT_TITLE
         d.title = "Foo"
         assert d.title == "Foo"
 
-    def test_all_models(self):
+    def test_all_models(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -220,7 +220,7 @@ class TestDocument(object):
         d.remove_root(m)
         assert len(d._all_models) == 0
 
-    def test_get_model_by_id(self):
+    def test_get_model_by_id(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -234,7 +234,7 @@ class TestDocument(object):
         assert d.get_model_by_id(m2.id) == m2
         assert d.get_model_by_id("not a valid ID") is None
 
-    def test_get_model_by_name(self):
+    def test_get_model_by_name(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -249,7 +249,7 @@ class TestDocument(object):
         assert d.get_model_by_name(m2.name) == m2
         assert d.get_model_by_name("not a valid name") is None
 
-    def test_get_model_by_changed_name(self):
+    def test_get_model_by_changed_name(self) -> None:
         d = document.Document()
         m = SomeModelInTestDocument(name="foo")
         d.add_root(m)
@@ -258,7 +258,7 @@ class TestDocument(object):
         assert d.get_model_by_name("foo") == None
         assert d.get_model_by_name("bar") == m
 
-    def test_get_model_by_changed_from_none_name(self):
+    def test_get_model_by_changed_from_none_name(self) -> None:
         d = document.Document()
         m = SomeModelInTestDocument(name=None)
         d.add_root(m)
@@ -266,7 +266,7 @@ class TestDocument(object):
         m.name = "bar"
         assert d.get_model_by_name("bar") == m
 
-    def test_get_model_by_changed_to_none_name(self):
+    def test_get_model_by_changed_to_none_name(self) -> None:
         d = document.Document()
         m = SomeModelInTestDocument(name="bar")
         d.add_root(m)
@@ -274,7 +274,7 @@ class TestDocument(object):
         m.name = None
         assert d.get_model_by_name("bar") == None
 
-    def test_can_get_name_overriding_model_by_name(self):
+    def test_can_get_name_overriding_model_by_name(self) -> None:
         d = document.Document()
         m = ModelThatOverridesName(name="foo")
         d.add_root(m)
@@ -282,7 +282,7 @@ class TestDocument(object):
         m.name = "bar"
         assert d.get_model_by_name("bar") == m
 
-    def test_cannot_get_model_with_duplicate_name(self):
+    def test_cannot_get_model_with_duplicate_name(self) -> None:
         d = document.Document()
         m = SomeModelInTestDocument(name="foo")
         m2 = SomeModelInTestDocument(name="foo")
@@ -298,7 +298,7 @@ class TestDocument(object):
         d.remove_root(m)
         assert d.get_model_by_name("foo") == m2
 
-    def test_select(self):
+    def test_select(self) -> None:
         # we aren't trying to replace test_query here, only test
         # our wrappers around it, so no need to try every kind of
         # query
@@ -348,7 +348,7 @@ class TestDocument(object):
         assert set([child3, root3]) == set(d.select(dict(foo=57)))
         assert set([child3, root3]) == set(root3.select(dict(foo=57)))
 
-    def test_is_single_string_selector(self):
+    def test_is_single_string_selector(self) -> None:
         d = document.Document()
         # this is an implementation detail but just ensuring it works
         assert d._is_single_string_selector(dict(foo='c'), 'foo')
@@ -356,7 +356,7 @@ class TestDocument(object):
         assert not d._is_single_string_selector(dict(foo='c', bar='d'), 'foo')
         assert not d._is_single_string_selector(dict(foo=42), 'foo')
 
-    def test_all_models_with_multiple_references(self):
+    def test_all_models_with_multiple_references(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -382,7 +382,7 @@ class TestDocument(object):
         d.remove_root(root2)
         assert len(d._all_models) == 0
 
-    def test_all_models_with_cycles(self):
+    def test_all_models_with_cycles(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -415,7 +415,7 @@ class TestDocument(object):
         d.remove_root(root2)
         assert len(d._all_models) == 0
 
-    def test_change_notification(self):
+    def test_change_notification(self) -> None:
         d = document.Document()
         assert not d.roots
         m = AnotherModelInTestDocument()
@@ -441,7 +441,7 @@ class TestDocument(object):
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
-    def test_stream_notification(self):
+    def test_stream_notification(self) -> None:
         d = document.Document()
         assert not d.roots
         m = ColumnDataSource(data=dict(a=[10], b=[20]))
@@ -471,7 +471,7 @@ class TestDocument(object):
         assert len(curdoc_from_listener) == 1
         assert curdoc_from_listener[0] is d
 
-    def test_patch_notification(self):
+    def test_patch_notification(self) -> None:
         d = document.Document()
         assert not d.roots
         m = ColumnDataSource(data=dict(a=[10,11], b=[20,21]))
@@ -501,7 +501,7 @@ class TestDocument(object):
         assert curdoc_from_listener[0] is d
 
 
-    def test_change_notification_removal(self):
+    def test_change_notification_removal(self) -> None:
         d = document.Document()
         assert not d.roots
         m = AnotherModelInTestDocument()
@@ -519,7 +519,7 @@ class TestDocument(object):
         m.bar = 43
         assert len(events) == 1
 
-    def test_notification_of_roots(self):
+    def test_notification_of_roots(self) -> None:
         d = document.Document()
         assert not d.roots
 
@@ -553,7 +553,7 @@ class TestDocument(object):
         assert isinstance(events[3], RootRemovedEvent)
         assert events[3].model == m2
 
-    def test_notification_of_title(self):
+    def test_notification_of_title(self) -> None:
         d = document.Document()
         assert not d.roots
         assert d.title == document.DEFAULT_TITLE
@@ -570,7 +570,7 @@ class TestDocument(object):
         assert events[0].document is d
         assert events[0].title == "Foo"
 
-    def test_add_remove_periodic_callback(self):
+    def test_add_remove_periodic_callback(self) -> None:
         d = document.Document()
 
         events = []
@@ -595,7 +595,7 @@ class TestDocument(object):
         assert isinstance(events[0], SessionCallbackAdded)
         assert isinstance(events[1], SessionCallbackRemoved)
 
-    def test_add_remove_timeout_callback(self):
+    def test_add_remove_timeout_callback(self) -> None:
         d = document.Document()
 
         events = []
@@ -620,7 +620,7 @@ class TestDocument(object):
         assert isinstance(events[0], SessionCallbackAdded)
         assert isinstance(events[1], SessionCallbackRemoved)
 
-    def test_add_partial_callback(self):
+    def test_add_partial_callback(self) -> None:
         from functools import partial
         d = document.Document()
 
@@ -641,7 +641,7 @@ class TestDocument(object):
         assert callback_obj == d.session_callbacks[0] == events[0].callback
         assert callback_obj.timeout == 1
 
-    def test_add_remove_next_tick_callback(self):
+    def test_add_remove_next_tick_callback(self) -> None:
         d = document.Document()
 
         events = []
@@ -665,7 +665,7 @@ class TestDocument(object):
         assert isinstance(events[0], SessionCallbackAdded)
         assert isinstance(events[1], SessionCallbackRemoved)
 
-    def test_periodic_callback_gets_curdoc(self):
+    def test_periodic_callback_gets_curdoc(self) -> None:
         d = document.Document()
         assert curdoc() is not d
         curdoc_from_cb = []
@@ -676,7 +676,7 @@ class TestDocument(object):
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0] is d
 
-    def test_timeout_callback_gets_curdoc(self):
+    def test_timeout_callback_gets_curdoc(self) -> None:
         d = document.Document()
         assert curdoc() is not d
         curdoc_from_cb = []
@@ -687,7 +687,7 @@ class TestDocument(object):
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0] is d
 
-    def test_next_tick_callback_gets_curdoc(self):
+    def test_next_tick_callback_gets_curdoc(self) -> None:
         d = document.Document()
         assert curdoc() is not d
         curdoc_from_cb = []
@@ -698,7 +698,7 @@ class TestDocument(object):
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0] is d
 
-    def test_model_callback_gets_curdoc(self):
+    def test_model_callback_gets_curdoc(self) -> None:
         d = document.Document()
         m = AnotherModelInTestDocument(bar=42)
         d.add_root(m)
@@ -711,7 +711,7 @@ class TestDocument(object):
         assert len(curdoc_from_cb) == 1
         assert curdoc_from_cb[0] is d
 
-    def test_clear(self):
+    def test_clear(self) -> None:
         d = document.Document()
         assert not d.roots
         assert d.title == document.DEFAULT_TITLE
@@ -725,7 +725,7 @@ class TestDocument(object):
         assert not d._all_models
         assert d.title == "Foo" # do not reset title
 
-    def test_serialization_one_model(self):
+    def test_serialization_one_model(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -739,7 +739,7 @@ class TestDocument(object):
         assert len(copy.roots) == 1
         assert copy.title == "Foo"
 
-    def test_serialization_more_models(self):
+    def test_serialization_more_models(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -765,13 +765,13 @@ class TestDocument(object):
         some_root = next(iter(copy.roots))
         assert some_root.child.foo == 44
 
-    def test_serialization_has_version(self):
+    def test_serialization_has_version(self) -> None:
         from bokeh import __version__
         d = document.Document()
         json = d.to_json()
         assert json['version'] == __version__
 
-    def test_patch_integer_property(self):
+    def test_patch_integer_property(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -796,7 +796,7 @@ class TestDocument(object):
 
         assert child1.foo == 67
 
-    def test_patch_spec_property(self):
+    def test_patch_spec_property(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -849,7 +849,7 @@ class TestDocument(object):
         patch_test(71)
         assert 'screen' == root1.foo_units
 
-    def test_patch_reference_property(self):
+    def test_patch_reference_property(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -890,7 +890,7 @@ class TestDocument(object):
         assert child2.id not in d._all_models
         assert child3.id not in d._all_models
 
-    def test_patch_two_properties_at_once(self):
+    def test_patch_two_properties_at_once(self) -> None:
         d = document.Document()
         assert not d.roots
         assert len(d._all_models) == 0
@@ -914,7 +914,7 @@ class TestDocument(object):
         assert root1.child.foo == 44
 
     # a more realistic set of models instead of fake models
-    def test_scatter(self):
+    def test_scatter(self) -> None:
         from bokeh.io.doc import set_curdoc
         from bokeh.plotting import figure
         import numpy as np
@@ -931,7 +931,7 @@ class TestDocument(object):
         d.add_root(p1)
         assert len(d.roots) == 1
 
-    def test_event_handles_new_callbacks_in_event_callback(self):
+    def test_event_handles_new_callbacks_in_event_callback(self) -> None:
         from bokeh.models import Button
         d = document.Document()
         button1 = Button(label="1")

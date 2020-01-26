@@ -113,14 +113,14 @@ def large_plot():
 
 plot = large_plot()
 
-def test_type():
+def test_type() -> None:
 
     for typ, count in typcases.items():
         res = list(q.find(plot.references(), dict(type=typ)))
         assert len(res) == count
         assert all(isinstance(x, typ) for x in res)
 
-def test_tags_with_scalar():
+def test_tags_with_scalar() -> None:
     cases = {
         11: 1,
         12: 0,
@@ -130,7 +130,7 @@ def test_tags_with_scalar():
         res = list(q.find(plot.references(), dict(tags=tag)))
         assert len(res) == count
 
-def test_tags_with_string():
+def test_tags_with_string() -> None:
     cases = {
         "foo": 2,
         "bar": 1,
@@ -140,7 +140,7 @@ def test_tags_with_string():
         res = list(q.find(plot.references(), dict(tags=tag)))
         assert len(res) == count
 
-def test_tags_with_seq():
+def test_tags_with_seq() -> None:
     cases = {
         "foo": 2,
         "bar": 1,
@@ -153,7 +153,7 @@ def test_tags_with_seq():
     res = list(q.find(plot.references(), dict(tags=list(cases.keys()))))
     assert len(res) == 2
 
-def test_name():
+def test_name() -> None:
     cases = {
         "myline": Line,
         "mycircle": Circle,
@@ -165,7 +165,7 @@ def test_name():
         assert len(res) == 1
         assert all(isinstance(x.glyph, typ) for x in res)
 
-def test_in():
+def test_in() -> None:
     res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'b']})))
     assert len(res) == 0
 
@@ -194,7 +194,7 @@ def test_in():
     res = list(q.find(plot.references(), dict(type={q.IN: list(typcases.keys())})))
     assert len(res) == 17
 
-def test_disjuction():
+def test_disjuction() -> None:
     res = list(
         q.find(plot.references(),
         {q.OR: [dict(type=Axis), dict(type=Grid)]})
@@ -219,7 +219,7 @@ def test_disjuction():
     )
     assert len(res) == 6
 
-def test_conjuction():
+def test_conjuction() -> None:
     res = list(
         q.find(plot.references(), dict(type=Axis, tags="foo"))
     )
@@ -235,7 +235,7 @@ def test_conjuction():
     )
     assert len(res) == 1
 
-def test_ops():
+def test_ops() -> None:
     res = list(
         q.find(plot.references(), {'size': {q.EQ: 5}})
     )
@@ -266,11 +266,11 @@ def test_ops():
     )
     assert len(res) == 0
 
-def test_malformed_exception():
+def test_malformed_exception() -> None:
     with pytest.raises(ValueError):
         q.match(plot, {11: {q.EQ: 5}})
 
-def test_with_context():
+def test_with_context() -> None:
     res = list(
         q.find(plot.references(), {'layout': 'below'}, {'plot': plot})
     )

@@ -36,7 +36,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.browsers", ALL))
 
 @pytest.mark.sampledata
-def test_browsers_nov_2013(pd):
+def test_browsers_nov_2013(pd) -> None:
     import bokeh.sampledata.browsers as bsb
     assert isinstance(bsb.browsers_nov_2013, pd.DataFrame)
 
@@ -44,7 +44,7 @@ def test_browsers_nov_2013(pd):
     assert len(bsb.browsers_nov_2013) == 118
 
 @pytest.mark.sampledata
-def test_icons():
+def test_icons() -> None:
     import bokeh.sampledata.browsers as bsb
     assert isinstance(bsb.icons, dict)
 

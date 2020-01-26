@@ -38,7 +38,7 @@ ALL =  (
 Test___all__ = verify_all(bm, ALL)
 
 @patch('bokeh.command.bootstrap.main')
-def test_main(mock_main):
+def test_main(mock_main) -> None:
     import sys
     old_argv = sys.argv
     sys.argv = ["foo", "bar"]

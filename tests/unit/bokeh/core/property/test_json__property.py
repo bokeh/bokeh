@@ -35,7 +35,7 @@ ALL = (
 
 class Test_JSON(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpj.JSON()
 
         assert prop.is_valid(None)
@@ -43,7 +43,7 @@ class Test_JSON(object):
         assert prop.is_valid('[]')
         assert prop.is_valid('[{"foo": 10}]')
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpj.JSON()
 
         assert not prop.is_valid("")
@@ -67,11 +67,11 @@ class Test_JSON(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpj.JSON()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpj.JSON()
         assert str(prop) == "JSON"
 

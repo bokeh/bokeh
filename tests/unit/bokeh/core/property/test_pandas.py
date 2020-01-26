@@ -36,11 +36,11 @@ ALL = (
 
 class Test_PandasDataFrame(object):
 
-    def test_valid(self, pd):
+    def test_valid(self, pd) -> None:
         prop = bcpp.PandasDataFrame()
         assert prop.is_valid(pd.DataFrame())
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.PandasDataFrame()
         assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)
@@ -52,11 +52,11 @@ class Test_PandasDataFrame(object):
 
 class Test_PandasGroupBy(object):
 
-    def test_valid(self, pd):
+    def test_valid(self, pd) -> None:
         prop = bcpp.PandasGroupBy()
         assert prop.is_valid(pd.core.groupby.GroupBy(pd.DataFrame()))
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpp.PandasGroupBy()
         assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)

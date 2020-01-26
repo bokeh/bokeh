@@ -28,7 +28,7 @@ import bokeh.models.axes as bma # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_ticker_accepts_number_sequences():
+def test_ticker_accepts_number_sequences() -> None:
     a = bma.Axis(ticker=[-10, 0, 10, 20.7])
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]

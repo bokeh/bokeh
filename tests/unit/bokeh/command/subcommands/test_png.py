@@ -37,20 +37,20 @@ from bokeh.command.bootstrap import main
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = scpng.PNG(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_name():
+def test_name() -> None:
     assert scpng.PNG.name == "png"
 
-def test_help():
+def test_help() -> None:
     assert scpng.PNG.help == "Create standalone PNG files for one or more applications"
 
-def test_args():
+def test_args() -> None:
     assert scpng.PNG.args == (
 
         ('files', dict(
@@ -90,7 +90,7 @@ def test_args():
 
     )
 
-def test_no_script(capsys):
+def test_no_script(capsys) -> None:
     with (TmpDir(prefix="bokeh-png-no-script")) as dirname:
         with WorkingDir(dirname):
             with pytest.raises(SystemExit):
@@ -106,7 +106,7 @@ bokeh png: error: %s
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script(capsys):
+def test_basic_script(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "png", "scatter.py"])
@@ -120,7 +120,7 @@ def test_basic_script(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_output_after(capsys):
+def test_basic_script_with_output_after(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "png", "scatter.py", "--output", "foo.png"])
@@ -134,7 +134,7 @@ def test_basic_script_with_output_after(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_output_before(capsys):
+def test_basic_script_with_output_before(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "png", "--output", "foo.png", "scatter.py"])
@@ -148,7 +148,7 @@ def test_basic_script_with_output_before(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_output_stdout(capsysbinary):
+def test_basic_script_with_output_stdout(capsysbinary) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "png", "--output", "-", "scatter.py"])
@@ -163,7 +163,7 @@ def test_basic_script_with_output_stdout(capsysbinary):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_basic_script_with_multiple_png_plots(capsys):
+def test_basic_script_with_multiple_png_plots(capsys) -> None:
     def run(dirname):
         with WorkingDir(dirname):
             main(["bokeh", "png", "scatter1.py", "scatter2.py", "scatter3.py"])

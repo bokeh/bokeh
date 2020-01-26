@@ -36,14 +36,14 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.airport_routes", ALL))
 
 @pytest.mark.sampledata
-def test_airports(pd):
+def test_airports(pd) -> None:
     import bokeh.sampledata.airport_routes as bsa
     assert isinstance(bsa.airports, pd.DataFrame)
 
     # don't check detail for external data
 
 @pytest.mark.sampledata
-def test_routes(pd):
+def test_routes(pd) -> None:
     import bokeh.sampledata.airport_routes as bsa
     assert isinstance(bsa.routes, pd.DataFrame)
 

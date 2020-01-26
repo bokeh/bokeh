@@ -57,7 +57,7 @@ Test___all__ = verify_all(bt, ALL)
 
 class Test_cumsum(object):
 
-    def test_basic(object):
+    def test_basic(object) -> None:
         s = bt.cumsum("foo")
         assert isinstance(s, dict)
         assert list(s.keys()) == ["expr"]
@@ -65,7 +65,7 @@ class Test_cumsum(object):
         assert s['expr'].field == 'foo'
         assert s['expr'].include_zero == False
 
-    def test_include_zero(object):
+    def test_include_zero(object) -> None:
         s = bt.cumsum("foo", include_zero=True)
         assert isinstance(s, dict)
         assert list(s.keys()) == ["expr"]
@@ -76,7 +76,7 @@ class Test_cumsum(object):
 
 class Test_dodge(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.dodge("foo", 0.5)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -85,7 +85,7 @@ class Test_dodge(object):
         assert t['transform'].value == 0.5
         assert t['transform'].range is None
 
-    def test_with_range(self):
+    def test_with_range(self) -> None:
         r = FactorRange("a")
         t = bt.dodge("foo", 0.5, range=r)
         assert isinstance(t, dict)
@@ -98,7 +98,7 @@ class Test_dodge(object):
 
 class Test_factor_cmap(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.factor_cmap("foo", ["red", "green"], ["foo", "bar"], start=1, end=2, nan_color="pink")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -110,7 +110,7 @@ class Test_factor_cmap(object):
         assert t['transform'].end == 2
         assert t['transform'].nan_color == "pink"
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         t = bt.factor_cmap("foo", ["red", "green"], ["foo", "bar"])
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -124,7 +124,7 @@ class Test_factor_cmap(object):
 
 class Test_factor_hatch(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -135,7 +135,7 @@ class Test_factor_hatch(object):
         assert t['transform'].start == 1
         assert t['transform'].end == 2
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"])
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -149,7 +149,7 @@ class Test_factor_hatch(object):
 
 class Test_factor_mark(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -160,7 +160,7 @@ class Test_factor_mark(object):
         assert t['transform'].start == 1
         assert t['transform'].end == 2
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"])
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -173,7 +173,7 @@ class Test_factor_mark(object):
 
 class Test_jitter(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.jitter("foo", width=0.5, mean=0.1, distribution="normal")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -184,7 +184,7 @@ class Test_jitter(object):
         assert t['transform'].distribution == "normal"
         assert t['transform'].range is None
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         t = bt.jitter("foo", width=0.5)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -195,7 +195,7 @@ class Test_jitter(object):
         assert t['transform'].distribution == "uniform"
         assert t['transform'].range is None
 
-    def test_with_range(self):
+    def test_with_range(self) -> None:
         r = FactorRange("a")
         t = bt.jitter("foo", width=0.5, mean=0.1, range=r)
         assert isinstance(t, dict)
@@ -210,7 +210,7 @@ class Test_jitter(object):
 
 class Test_linear_cmap(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.linear_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -223,7 +223,7 @@ class Test_linear_cmap(object):
         assert t['transform'].high_color == "blue"
         assert t['transform'].nan_color == "pink"
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         t = bt.linear_cmap("foo", ["red", "green"], 0, 10)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -238,7 +238,7 @@ class Test_linear_cmap(object):
 
 class Test_log_cmap(object):
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         t = bt.log_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -251,7 +251,7 @@ class Test_log_cmap(object):
         assert t['transform'].high_color == "blue"
         assert t['transform'].nan_color == "pink"
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         t = bt.log_cmap("foo", ["red", "green"], 0, 10)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
@@ -266,7 +266,7 @@ class Test_log_cmap(object):
 
 class Test_stack(object):
 
-    def test_basic(object):
+    def test_basic(object) -> None:
         s = bt.stack("foo", "junk")
         assert isinstance(s, dict)
         assert list(s.keys()) == ["expr"]
@@ -275,7 +275,7 @@ class Test_stack(object):
 
 class Test_transform(object):
 
-    def test_basic(object):
+    def test_basic(object) -> None:
         t = bt.transform("foo", "junk")
         assert t == dict(field="foo", transform="junk")
 

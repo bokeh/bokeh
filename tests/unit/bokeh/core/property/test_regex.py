@@ -35,11 +35,11 @@ ALL = (
 
 class Test_Regex(object):
 
-    def test_init(self):
+    def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpr.Regex()
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpr.Regex("^x*$")
 
         assert prop.is_valid(None)
@@ -47,7 +47,7 @@ class Test_Regex(object):
         assert prop.is_valid("")
         assert prop.is_valid("x")
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpr.Regex("^x*$")
 
         assert not prop.is_valid("xy")
@@ -66,11 +66,11 @@ class Test_Regex(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpr.Regex("")
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpr.Regex("")
         assert str(prop).startswith("Regex(")
 

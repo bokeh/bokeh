@@ -41,20 +41,20 @@ import bokeh.command.util as util # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_die(capsys):
+def test_die(capsys) -> None:
     with pytest.raises(SystemExit):
         util.die("foo")
     out, err = capsys.readouterr()
     assert err == "foo\n"
     assert out == ""
 
-def test_build_single_handler_application_unknown_file():
+def test_build_single_handler_application_unknown_file() -> None:
     with pytest.raises(ValueError) as e:
         f = tempfile.NamedTemporaryFile(suffix=".bad")
         util.build_single_handler_application(f.name)
     assert "Expected a '.py' script or '.ipynb' notebook, got: " in str(e.value)
 
-def test_build_single_handler_application_nonexistent_file():
+def test_build_single_handler_application_nonexistent_file() -> None:
     with pytest.raises(ValueError) as e:
         util.build_single_handler_application("junkjunkjunk")
     assert "Path for Bokeh server application does not exist: " in str(e.value)
@@ -70,7 +70,7 @@ If this is not the case, renaming main.py will suppress this warning.
 """
 
 @patch('warnings.warn')
-def test_build_single_handler_application_main_py(mock_warn):
+def test_build_single_handler_application_main_py(mock_warn) -> None:
     f = tempfile.NamedTemporaryFile(suffix="main.py", delete=False)
     f.close() #close file to open it later on windows
     util.build_single_handler_application(f.name)
@@ -81,7 +81,7 @@ def test_build_single_handler_application_main_py(mock_warn):
 _SIZE_WARNING = "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
 
 class Test_set_single_plot_width_height(object):
-    def test_neither(self):
+    def test_neither(self) -> None:
         p = figure(plot_width=200, plot_height=300)
         d = Document()
         d.add_root(p)
@@ -89,7 +89,7 @@ class Test_set_single_plot_width_height(object):
         assert p.plot_width == 200
         assert p.plot_height == 300
 
-    def test_width(self):
+    def test_width(self) -> None:
         p = figure(plot_width=200, plot_height=300)
         d = Document()
         d.add_root(p)
@@ -97,7 +97,7 @@ class Test_set_single_plot_width_height(object):
         assert p.plot_width == 400
         assert p.plot_height == 300
 
-    def test_height(self):
+    def test_height(self) -> None:
         p = figure(plot_width=200, plot_height=300)
         d = Document()
         d.add_root(p)
@@ -105,7 +105,7 @@ class Test_set_single_plot_width_height(object):
         assert p.plot_width == 200
         assert p.plot_height == 400
 
-    def test_both(self):
+    def test_both(self) -> None:
         p = figure(plot_width=200, plot_height=300)
         d = Document()
         d.add_root(p)
@@ -113,7 +113,7 @@ class Test_set_single_plot_width_height(object):
         assert p.plot_width == 400
         assert p.plot_height == 500
 
-    def test_multiple_roots(self):
+    def test_multiple_roots(self) -> None:
         p1 = figure(plot_width=200, plot_height=300)
         p2 = figure(plot_width=200, plot_height=300)
         d = Document()
@@ -124,7 +124,7 @@ class Test_set_single_plot_width_height(object):
             assert len(warns) == 1
             assert warns[0].message.args[0] == _SIZE_WARNING
 
-    def test_layout(self):
+    def test_layout(self) -> None:
         p = figure(plot_width=200, plot_height=300)
         d = Document()
         d.add_root(row(p))

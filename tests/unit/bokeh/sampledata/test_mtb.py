@@ -35,7 +35,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.mtb", ALL))
 
 @pytest.mark.sampledata
-def test_obiszow_mtb_xcm(pd):
+def test_obiszow_mtb_xcm(pd) -> None:
     import bokeh.sampledata.mtb as bsm
     assert isinstance(bsm.obiszow_mtb_xcm, pd.DataFrame)
 

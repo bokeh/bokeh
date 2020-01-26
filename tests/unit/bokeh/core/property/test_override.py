@@ -34,16 +34,16 @@ ALL = (
 
 class Test_Override(object):
 
-    def test_create_default(self):
+    def test_create_default(self) -> None:
         o = bcpo.Override(default=10)
         assert o.default_overridden
         assert o.default == 10
 
-    def test_create_no_args(self):
+    def test_create_no_args(self) -> None:
         with pytest.raises(ValueError):
             bcpo.Override()
 
-    def test_create_unkown_args(self):
+    def test_create_unkown_args(self) -> None:
         with pytest.raises(ValueError):
             bcpo.Override(default=10, junk=20)
 

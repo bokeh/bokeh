@@ -32,7 +32,7 @@ BASIC_IMPORTS = [
 ]
 
 @pytest.mark.codebase
-def test_no_tornado_common():
+def test_no_tornado_common() -> None:
     ''' Basic usage of Bokeh should not result in any Tornado code being
     imported. This test ensures that importing basic modules does not bring in
     Tornado.

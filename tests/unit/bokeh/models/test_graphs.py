@@ -28,12 +28,12 @@ from bokeh.models.graphs import StaticLayoutProvider, from_networkx # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_staticlayoutprovider_init_props():
+def test_staticlayoutprovider_init_props() -> None:
     provider = StaticLayoutProvider()
     assert provider.graph_layout == {}
 
 # TODO (bev) deprecation: 3.0
-def test_from_networkx_deprecated():
+def test_from_networkx_deprecated() -> None:
     G=nx.Graph()
     G.add_nodes_from([0,1,2,3])
     G.add_edges_from([[0,1], [0,2], [2,3]])

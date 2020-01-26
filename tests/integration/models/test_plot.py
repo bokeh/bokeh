@@ -34,7 +34,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_Plot(object):
 
-    def test_inner_dims_trigger_on_dynamic_add(self, bokeh_server_page):
+    def test_inner_dims_trigger_on_dynamic_add(self, bokeh_server_page) -> None:
 
         data = {}
         def modify_doc(doc):

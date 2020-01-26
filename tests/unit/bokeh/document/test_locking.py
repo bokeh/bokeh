@@ -28,7 +28,7 @@ import bokeh.document.locking as locking # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_next_tick_callback_works():
+def test_next_tick_callback_works() -> None:
     d = locking.UnlockedDocumentProxy(Document())
     assert curdoc() is not d
     curdoc_from_cb = []
@@ -42,7 +42,7 @@ def test_next_tick_callback_works():
     callback_obj = d.add_next_tick_callback(cb2)
     d.remove_next_tick_callback(callback_obj)
 
-def test_other_attrs_raise():
+def test_other_attrs_raise() -> None:
     d = locking.UnlockedDocumentProxy(Document())
     assert curdoc() is not d
     for attr in (set(dir(d._doc)) - set(dir(d))) | {'foo'}:
@@ -50,7 +50,7 @@ def test_other_attrs_raise():
             getattr(d, attr)
         assert e.value.args[0] == locking.UNSAFE_DOC_ATTR_USAGE_MSG
 
-def test_without_document_lock():
+def test_without_document_lock() -> None:
     d = Document()
     assert curdoc() is not d
     curdoc_from_cb = []

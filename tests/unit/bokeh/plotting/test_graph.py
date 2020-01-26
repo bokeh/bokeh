@@ -30,7 +30,7 @@ import bokeh.plotting.graph as bpg # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_from_networkx_method():
+def test_from_networkx_method() -> None:
     G=nx.Graph()
     G.add_nodes_from([0,1,2,3])
     G.add_edges_from([[0,1], [0,2], [2,3]])
@@ -44,7 +44,7 @@ def test_from_networkx_method():
     assert set(gl.keys()) == set([0,1,2,3])
     assert_allclose(gl[0], np.array([1., 0.]), atol=1e-7)
 
-def test_from_networkx_method_with_kwargs():
+def test_from_networkx_method_with_kwargs() -> None:
     G=nx.Graph()
     G.add_nodes_from([0,1,2,3])
     G.add_edges_from([[0,1], [0,2], [2,3]])
@@ -55,7 +55,7 @@ def test_from_networkx_method_with_kwargs():
     assert set(gl.keys()) == set([0,1,2,3])
     assert_allclose(gl[0], np.array([2., 0.]), atol=1e-7)
 
-def test_from_networkx_with_scalar_attributes():
+def test_from_networkx_with_scalar_attributes() -> None:
     G = nx.Graph()
     G.add_nodes_from([(0, {"attr_1": "a", "attr_2": 10}),
                       (1, {"attr_1": "b"}),
@@ -75,7 +75,7 @@ def test_from_networkx_with_scalar_attributes():
     assert renderer.edge_renderer.data_source.data["attr_2"] == [None, 10]
 
 @pytest.mark.parametrize('typ', [list, tuple])
-def test_from_networkx_with_sequence_attributes(typ):
+def test_from_networkx_with_sequence_attributes(typ) -> None:
     G = nx.Graph()
     G.add_nodes_from([(0, {"attr_1": typ([1, 2]), "attr_2": 10}),
                       (1, {}),
@@ -94,7 +94,7 @@ def test_from_networkx_with_sequence_attributes(typ):
     assert renderer.edge_renderer.data_source.data["attr_1"] == [[1, 11], [2, 22]]
     assert renderer.edge_renderer.data_source.data["attr_2"] == [None, 10]
 
-def test_from_networkx_errors_with_mixed_attributes():
+def test_from_networkx_errors_with_mixed_attributes() -> None:
     G = nx.Graph()
     G.add_nodes_from([(0, {"attr_1": [1, 2], "attr_2": 10}),
                       (1, {}),
@@ -110,7 +110,7 @@ def test_from_networkx_errors_with_mixed_attributes():
     with pytest.raises(ValueError):
         bpg.from_networkx(G, nx.circular_layout)
 
-def test_from_networkx_with_bad_attributes():
+def test_from_networkx_with_bad_attributes() -> None:
     G = nx.Graph()
     G.add_nodes_from([(0, {"index": "a", "attr_1": 10}),
                       (1, {"index": "b", "attr_1": 20})])
@@ -141,7 +141,7 @@ def test_from_networkx_with_bad_attributes():
         assert renderer.edge_renderer.data_source.data["end"] == [1]
         assert renderer.edge_renderer.data_source.data["attr_1"] == [10]
 
-def test_from_networkx_fixed_layout():
+def test_from_networkx_fixed_layout() -> None:
     G = nx.Graph()
     G.add_nodes_from([0, 1, 2])
     G.add_edges_from([[0, 1], [0, 2]])
@@ -161,7 +161,7 @@ def test_from_networkx_fixed_layout():
     assert renderer.layout_provider.graph_layout[1] == fixed_layout[1]
     assert renderer.layout_provider.graph_layout[2] == fixed_layout[2]
 
-def test_from_networkx_with_missing_layout():
+def test_from_networkx_with_missing_layout() -> None:
     G = nx.Graph()
     G.add_nodes_from([0, 1, 2])
     G.add_edges_from([[0, 1], [0, 2]])

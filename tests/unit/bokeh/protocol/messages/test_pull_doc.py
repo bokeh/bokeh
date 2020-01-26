@@ -48,14 +48,14 @@ class TestPullDocument(object):
         doc.add_root(SomeModelInTestPullDoc())
         return doc
 
-    def test_create_req(self):
+    def test_create_req(self) -> None:
         proto.create("PULL-DOC-REQ")
 
-    def test_create_reply(self):
+    def test_create_reply(self) -> None:
         sample = self._sample_doc()
         proto.create("PULL-DOC-REPLY", 'fakereqid', sample)
 
-    def test_create_reply_then_parse(self):
+    def test_create_reply_then_parse(self) -> None:
         sample = self._sample_doc()
         msg = proto.create("PULL-DOC-REPLY", 'fakereqid', sample)
         copy = document.Document()

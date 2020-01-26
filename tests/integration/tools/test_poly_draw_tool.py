@@ -81,7 +81,7 @@ def _make_server_plot(expected):
 @pytest.mark.selenium
 class Test_PolyDrawTool(object):
 
-    def test_selected_by_default(self, single_plot_page):
+    def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -91,7 +91,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page):
+    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -112,7 +112,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_double_click_triggers_draw(self, single_plot_page):
+    def test_double_click_triggers_draw(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -129,7 +129,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_click_snaps_to_vertex(self, single_plot_page):
+    def test_click_snaps_to_vertex(self, single_plot_page) -> None:
         plot = _make_plot(vertices=True)
 
         page = single_plot_page(plot)
@@ -148,7 +148,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_drag_moves_multi_line(self, single_plot_page):
+    def test_drag_moves_multi_line(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -166,7 +166,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_drag_does_not_move_multi_line(self, single_plot_page):
+    def test_drag_does_not_move_multi_line(self, single_plot_page) -> None:
         plot = _make_plot(drag=False)
 
         page = single_plot_page(plot)
@@ -184,7 +184,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_num_object_limits_multi_lines(self, single_plot_page):
+    def test_num_object_limits_multi_lines(self, single_plot_page) -> None:
         plot = _make_plot(num_objects=1)
 
         page = single_plot_page(plot)
@@ -202,7 +202,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_poly_draw_syncs_to_server(self, bokeh_server_page):
+    def test_poly_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [1.6216216216216217, 2.4324324324324325]],
                     "ys": [[1, 1], [1.5, 0.75]]}
 
@@ -218,7 +218,7 @@ class Test_PolyDrawTool(object):
 
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    def test_poly_drag_syncs_to_server(self, bokeh_server_page):
+    def test_poly_drag_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [2.1891891891891895, 3]],
                     "ys": [[1, 1], [1.125, 0.375]]}
 
@@ -233,7 +233,7 @@ class Test_PolyDrawTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
-    def test_poly_delete_syncs_to_server(self, bokeh_server_page):
+    def test_poly_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2]],
                     "ys": [[1, 1]]}
 

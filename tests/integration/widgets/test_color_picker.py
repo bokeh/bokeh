@@ -62,7 +62,7 @@ def enter_value_in_color_picker(driver, el, color):
 @pytest.mark.selenium
 class Test_ColorPicker(object):
 
-    def test_display_color_input(self, bokeh_model_page):
+    def test_display_color_input(self, bokeh_model_page) -> None:
         colorpicker = ColorPicker(css_classes=["foo"])
 
         page = bokeh_model_page(colorpicker)
@@ -72,7 +72,7 @@ class Test_ColorPicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page):
+    def test_displays_title(self, bokeh_model_page) -> None:
         colorpicker = ColorPicker(css_classes=["foo"], title="title")
 
         page = bokeh_model_page(colorpicker)
@@ -85,7 +85,7 @@ class Test_ColorPicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_input_value(self, bokeh_model_page):
+    def test_input_value(self, bokeh_model_page) -> None:
         colorpicker = ColorPicker(color='red', css_classes=["foo"])
 
         page = bokeh_model_page(colorpicker)
@@ -96,7 +96,7 @@ class Test_ColorPicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector('.foo input')

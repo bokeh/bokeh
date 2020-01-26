@@ -76,7 +76,7 @@ def _make_server_plot(expected, num_objects=0):
 @pytest.mark.selenium
 class Test_FreehandDrawTool(object):
 
-    def test_selected_by_default(self, single_plot_page):
+    def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -86,7 +86,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_can_be_deselected_and_selected(self, single_plot_page):
+    def test_can_be_deselected_and_selected(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -107,7 +107,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_drag_triggers_draw(self, single_plot_page):
+    def test_drag_triggers_draw(self, single_plot_page) -> None:
         plot = _make_plot()
 
         page = single_plot_page(plot)
@@ -122,7 +122,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_num_object_limits_lines(self, single_plot_page):
+    def test_num_object_limits_lines(self, single_plot_page) -> None:
         plot = _make_plot(num_objects=1)
 
         page = single_plot_page(plot)
@@ -138,7 +138,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.has_no_console_errors()
 
-    def test_freehand_draw_syncs_to_server(self, bokeh_server_page):
+    def test_freehand_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {'xs': [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
                     'ys': [[1.5, 1.125, 1.125, 1.125]]}
 
@@ -149,7 +149,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.results == {"matches": "True"}
 
-    def test_line_delete_syncs_to_server(self, bokeh_server_page):
+    def test_line_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {'xs': [], 'ys': []}
 
         page = bokeh_server_page(_make_server_plot(expected))

@@ -35,12 +35,12 @@ ALL = (
 
 class Test_Auto(object):
 
-    def test_valid(self):
+    def test_valid(self) -> None:
         prop = bcpa.Auto()
         assert prop.is_valid(None)
         assert prop.is_valid("auto")
 
-    def test_invalid(self):
+    def test_invalid(self) -> None:
         prop = bcpa.Auto()
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
@@ -56,11 +56,11 @@ class Test_Auto(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         prop = bcpa.Auto()
         assert not prop.has_ref
 
-    def test_str(self):
+    def test_str(self) -> None:
         prop = bcpa.Auto()
         assert str(prop) == "Auto"
 

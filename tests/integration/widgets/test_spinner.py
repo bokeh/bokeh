@@ -68,7 +68,7 @@ def enter_value_in_spinner(driver, el, value, del_prev=True):
 @pytest.mark.selenium
 class Test_Spinner(object):
 
-    def test_display_number_input(self, bokeh_model_page):
+    def test_display_number_input(self, bokeh_model_page) -> None:
         spinner = Spinner(css_classes=["foo"])
 
         page = bokeh_model_page(spinner)
@@ -78,7 +78,7 @@ class Test_Spinner(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page):
+    def test_displays_title(self, bokeh_model_page) -> None:
         spinner = Spinner(title="title", css_classes=["foo"])
 
         page = bokeh_model_page(spinner)
@@ -90,7 +90,7 @@ class Test_Spinner(object):
 
         assert page.has_no_console_errors()
 
-    def test_input_value_min_max_step(self, bokeh_model_page):
+    def test_input_value_min_max_step(self, bokeh_model_page) -> None:
         spinner = Spinner(value=1, low=0, high=10, step=1, css_classes=["foo"])
 
         page = bokeh_model_page(spinner)
@@ -104,7 +104,7 @@ class Test_Spinner(object):
 
         assert page.has_no_console_errors()
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
         el = page.driver.find_element_by_css_selector('.foo input')

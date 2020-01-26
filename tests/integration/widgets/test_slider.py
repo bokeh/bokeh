@@ -72,7 +72,7 @@ def get_bar_color(driver, css_class):
 @pytest.mark.selenium
 class Test_Slider(object):
 
-    def test_display(self, bokeh_model_page):
+    def test_display(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
@@ -83,7 +83,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
-    def test_displays_title(self, bokeh_model_page):
+    def test_displays_title(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
@@ -96,7 +96,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
-    def test_title_updates(self, bokeh_model_page):
+    def test_title_updates(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
         page = bokeh_model_page(slider)
@@ -117,7 +117,7 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     @pytest.mark.skip
-    def test_keypress_event(self, bokeh_model_page):
+    def test_keypress_event(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
         el = page.driver.find_element_by_css_selector('.foo')
@@ -130,7 +130,7 @@ class Test_Slider(object):
         assert float(get_title_value(page.driver, ".foo")) == 10
         assert page.has_no_console_errors()
 
-    def test_displays_bar_color(self, bokeh_model_page):
+    def test_displays_bar_color(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300, bar_color="red")
 
         page = bokeh_model_page(slider)
@@ -142,7 +142,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, bokeh_model_page):
+    def test_js_on_change_executes(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
         slider.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
@@ -155,7 +155,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
@@ -207,7 +207,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    def test_server_callback_value_vs_value_throttled(self, bokeh_server_page):
+    def test_server_callback_value_vs_value_throttled(self, bokeh_server_page) -> None:
         junk = dict(v=0, vt=0)
 
         def modify_doc(doc):
@@ -241,7 +241,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    def test_server_bar_color_updates(self, bokeh_server_page):
+    def test_server_bar_color_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
@@ -264,7 +264,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    def test_server_title_updates(self, bokeh_server_page):
+    def test_server_title_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)

@@ -37,13 +37,13 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
-def test_daterangeslider_value_as_datetime_when_set_as_datetime():
+def test_daterangeslider_value_as_datetime_when_set_as_datetime() -> None:
     start = datetime(2017, 8, 9, 0, 0)
     end = datetime(2017, 8, 10, 0, 0)
     s = mws.DateRangeSlider(start=start, end=end, value=(start, end))
     assert s.value_as_datetime == (start, end)
 
-def test_daterangeslider_value_as_datetime_when_set_as_timestamp():
+def test_daterangeslider_value_as_datetime_when_set_as_timestamp() -> None:
     start = datetime(2017, 8, 9, 0, 0)
     end = datetime(2017, 8, 10, 0, 0)
     s = mws.DateRangeSlider(start=start, end=end,
@@ -52,7 +52,7 @@ def test_daterangeslider_value_as_datetime_when_set_as_timestamp():
             value=(convert_datetime_type(start), convert_datetime_type(end)))
     assert s.value_as_datetime == (start, end)
 
-def test_daterangeslider_value_as_datetime_when_set_mixed():
+def test_daterangeslider_value_as_datetime_when_set_mixed() -> None:
     start = datetime(2017, 8, 9, 0, 0)
     end = datetime(2017, 8, 10, 0, 0)
     s = mws.DateRangeSlider(start=start, end=end,
@@ -63,13 +63,13 @@ def test_daterangeslider_value_as_datetime_when_set_mixed():
             value=(convert_datetime_type(start), end))
     assert s.value_as_datetime == (start, end)
 
-def test_daterangeslider_value_as_date_when_set_as_date():
+def test_daterangeslider_value_as_date_when_set_as_date() -> None:
     start = date(2017, 8, 9)
     end = date(2017, 8, 10)
     s = mws.DateRangeSlider(start=start, end=end, value=(start, end))
     assert s.value_as_date == (start, end)
 
-def test_daterangeslider_value_as_date_when_set_as_timestamp():
+def test_daterangeslider_value_as_date_when_set_as_timestamp() -> None:
     start = date(2017, 8, 9)
     end = date(2017, 8, 10)
     s = mws.DateRangeSlider(start=start, end=end,
@@ -78,7 +78,7 @@ def test_daterangeslider_value_as_date_when_set_as_timestamp():
             value=(convert_date_to_datetime(start), convert_date_to_datetime(end)))
     assert s.value_as_date == (start, end)
 
-def test_daterangeslider_value_as_date_when_set_mixed():
+def test_daterangeslider_value_as_date_when_set_mixed() -> None:
     start = date(2017, 8, 9)
     end = date(2017, 8, 10)
     s = mws.DateRangeSlider(start=start, end=end,
@@ -89,13 +89,13 @@ def test_daterangeslider_value_as_date_when_set_mixed():
             value=(convert_date_to_datetime(start), end))
     assert s.value_as_date == (start, end)
 
-def test_rangeslider_equal_start_end_exception():
+def test_rangeslider_equal_start_end_exception() -> None:
     start = 0
     end = 0
     with pytest.raises(ValueError):
         mws.RangeSlider(start=start, end=end)
 
-def test_rangeslider_equal_start_end_validation(caplog):
+def test_rangeslider_equal_start_end_validation(caplog) -> None:
     start = 0
     end = 10
     s = mws.RangeSlider(start=start, end=end)

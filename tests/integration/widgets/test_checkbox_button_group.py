@@ -43,7 +43,7 @@ LABELS = ["Option 1", "Option 2", "Option 3"]
 @pytest.mark.selenium
 class Test_CheckboxButtonGroup(object):
 
-    def test_server_on_change_round_trip(self, bokeh_server_page):
+    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
@@ -76,7 +76,7 @@ class Test_CheckboxButtonGroup(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, bokeh_model_page):
+    def test_js_on_change_executes(self, bokeh_model_page) -> None:
         group = CheckboxButtonGroup(labels=LABELS, css_classes=["foo"])
         group.js_on_click(CustomJS(code=RECORD("active", "cb_obj.active")))
 

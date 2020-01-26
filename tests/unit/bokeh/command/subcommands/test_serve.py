@@ -44,23 +44,23 @@ from bokeh.resources import DEFAULT_SERVER_PORT
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create():
+def test_create() -> None:
     import argparse
     from bokeh.command.subcommand import Subcommand
 
     obj = scserve.Serve(parser=argparse.ArgumentParser())
     assert isinstance(obj, Subcommand)
 
-def test_loglevels():
+def test_loglevels() -> None:
     assert scserve.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 
-def test_name():
+def test_name() -> None:
     assert scserve.Serve.name == "serve"
 
-def test_help():
+def test_help() -> None:
     assert scserve.Serve.help == "Run a Bokeh server hosting one or more applications"
 
-def test_args():
+def test_args() -> None:
     from bokeh.util.string import nice_join
 
     assert scserve.Serve.args == (
@@ -318,13 +318,13 @@ def check_error(args):
         pytest.fail("command %s unexpected successful" % (cmd,))
     return out
 
-def test_host_not_available():
+def test_host_not_available() -> None:
     host = "8.8.8.8"
     out = check_error(["--address", host])
     expected = "Cannot start Bokeh server, address %r not available" % host
     assert expected in out
 
-def test_port_not_available():
+def test_port_not_available() -> None:
     sock = socket.socket()
     try:
         sock.bind(('0.0.0.0', 0))
@@ -335,7 +335,7 @@ def test_port_not_available():
     finally:
         sock.close()
 
-def test_no_glob_by_default_on_filename_if_wildcard_in_quotes():
+def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
     import os.path
 
     here = os.path.abspath(os.path.dirname(__file__))
@@ -346,7 +346,7 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes():
     assert '*' in out
 
 @pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
-def test_glob_flag_on_filename_if_wildcard_in_quotes():
+def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
     import os.path
@@ -370,7 +370,7 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes():
         assert r.status_code == 200
 
 @pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
-def test_actual_port_printed_out():
+def test_actual_port_printed_out() -> None:
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
     pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
@@ -389,7 +389,7 @@ def test_actual_port_printed_out():
         assert r.status_code == 200
 
 @pytest.mark.skip
-def test_websocket_max_message_size_printed_out():
+def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:
         sleep(2)
@@ -399,7 +399,7 @@ def test_websocket_max_message_size_printed_out():
         pytest.fail("no matching log line in process output")
 
 @pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
-def test_xsrf_printed_option():
+def test_xsrf_printed_option() -> None:
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
     pat = re.compile(r'XSRF cookie protection enabled')
@@ -414,7 +414,7 @@ def test_xsrf_printed_option():
         pytest.fail("no matching log line in process output")
 
 @pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
-def test_xsrf_printed_envar():
+def test_xsrf_printed_envar() -> None:
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
     pat = re.compile(r'XSRF cookie protection enabled')
@@ -431,7 +431,7 @@ def test_xsrf_printed_envar():
     os.environ["BOKEH_XSRF_COOKIES"]
 
 @pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
-def test_auth_module_printed():
+def test_auth_module_printed() -> None:
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
     pat = re.compile(r'User authentication hooks provided \(no default user\)')

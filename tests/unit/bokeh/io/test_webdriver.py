@@ -32,11 +32,11 @@ import bokeh.io.webdriver as biw # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create_phantomjs_webdriver():
+def test_create_phantomjs_webdriver() -> None:
     d = biw.create_phantomjs_webdriver()
     assert isinstance(d, selenium.webdriver.phantomjs.webdriver.WebDriver)
 
-def test_terminate_webdriver():
+def test_terminate_webdriver() -> None:
     d = biw.create_phantomjs_webdriver()
     assert d.service.process is not None
     biw.terminate_webdriver(d)
@@ -47,7 +47,7 @@ _driver_map = {
 }
 
 class Test_webdriver_control(object):
-    def test_default(self):
+    def test_default(self) -> None:
         # other tests may have interacted with the global biw.webdriver_control,
         # so create a new instance only to check default values
         wc = biw._WebdriverState()
@@ -55,7 +55,7 @@ class Test_webdriver_control(object):
         assert wc.kind == "phantomjs"
         assert wc.current is None
 
-    def test_get_with_reuse(self):
+    def test_get_with_reuse(self) -> None:
         biw.webdriver_control.reuse = True
         assert biw.webdriver_control.reuse == True
         d1 = biw.webdriver_control.get()
@@ -63,7 +63,7 @@ class Test_webdriver_control(object):
         assert d1 is d2
         biw.webdriver_control.reset()
 
-    def test_get_with_reuse_and_reset(self):
+    def test_get_with_reuse_and_reset(self) -> None:
         biw.webdriver_control.reuse = True
         assert biw.webdriver_control.reuse == True
         d1 = biw.webdriver_control.get()
@@ -74,7 +74,7 @@ class Test_webdriver_control(object):
         assert d2 is d3
         biw.webdriver_control.reset()
 
-    def test_get_without_reuse(self):
+    def test_get_without_reuse(self) -> None:
         biw.webdriver_control.reuse = False
         assert biw.webdriver_control.reuse == False
         d1 = biw.webdriver_control.get()
@@ -84,7 +84,7 @@ class Test_webdriver_control(object):
         biw.webdriver_control.reset()
 
     @pytest.mark.parametrize('kind', ['phantomjs'])
-    def test_create(self, kind):
+    def test_create(self, kind) -> None:
         biw.webdriver_control.kind = kind
         assert biw.webdriver_control.kind == kind
         d = biw.webdriver_control.create()

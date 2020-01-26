@@ -48,15 +48,15 @@ ALL = (
 
 class Test_PropertyDescriptor(object):
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         d = bcpd.PropertyDescriptor("foo")
         assert d.name == "foo"
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         d = bcpd.PropertyDescriptor("foo")
         assert str(d) == "PropertyDescriptor(foo)"
 
-    def test_abstract(self):
+    def test_abstract(self) -> None:
         d = bcpd.PropertyDescriptor("foo")
         class Foo(object): pass
         f = Foo()
@@ -88,14 +88,14 @@ class Test_PropertyDescriptor(object):
             d._internal_set(f, 11)
 
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._internal_set')
-    def test_set_from_json(self, mock_iset):
+    def test_set_from_json(self, mock_iset) -> None:
         class Foo(object): pass
         f = Foo()
         d = bcpd.PropertyDescriptor("foo")
         d.set_from_json(f, "bar", 10)
         assert mock_iset.called_once_with((f, "bar", 10), {})
 
-    def test_erializable_value(self):
+    def test_erializable_value(self) -> None:
         result = {}
         class Foo(object):
             def serialize_value(self, val):
@@ -112,7 +112,7 @@ class Test_PropertyDescriptor(object):
         d.serializable_value(f)
         assert result['foo'] == 10
 
-    def test_add_prop_descriptor_to_class_dupe_name(self):
+    def test_add_prop_descriptor_to_class_dupe_name(self) -> None:
         d = bcpd.PropertyDescriptor("foo")
         new_class_attrs = {'foo': 10}
         with pytest.raises(RuntimeError) as e:
@@ -121,7 +121,7 @@ class Test_PropertyDescriptor(object):
 
 class Test_BasicPropertyDescriptor(object):
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         class Foo(object):
             '''doc'''
             pass
@@ -131,13 +131,13 @@ class Test_BasicPropertyDescriptor(object):
         assert d.property == f
         assert d.__doc__ == f.__doc__
 
-    def test___str__(self):
+    def test___str__(self) -> None:
         class Foo(object): pass
         f = Foo()
         d = bcpd.BasicPropertyDescriptor("foo", f)
         assert str(d) == str(f)
 
-    def test___get__improper(self):
+    def test___get__improper(self) -> None:
         class Foo(object): pass
         f = Foo()
         d = bcpd.BasicPropertyDescriptor("foo", f)
@@ -145,7 +145,7 @@ class Test_BasicPropertyDescriptor(object):
             d.__get__(None, None)
         assert str(e.value).endswith("both 'obj' and 'owner' are None, don't know what to do")
 
-    def test___set__improper(self):
+    def test___set__improper(self) -> None:
         class Foo(object): pass
         f = Foo()
         d = bcpd.BasicPropertyDescriptor("foo", f)
@@ -153,7 +153,7 @@ class Test_BasicPropertyDescriptor(object):
             d.__set__("junk", None)
         assert str(e.value).endswith("Cannot set a property value 'foo' on a str instance before HasProps.__init__")
 
-    def test___delete__(self):
+    def test___delete__(self) -> None:
         class Foo(Model):
             foo = Int()
             bar = List(Int, default=[10])
@@ -211,7 +211,7 @@ class Test_BasicPropertyDescriptor(object):
         assert f._unstable_default_values == dict(bar=[10])
         assert calls == ['baz', 'baz', 'bar', 'bar']
 
-    def test_class_default(self):
+    def test_class_default(self) -> None:
         result = {}
         class Foo(object):
             def themed_default(*args, **kw):
@@ -222,21 +222,21 @@ class Test_BasicPropertyDescriptor(object):
         d.class_default(d)
         assert result['called']
 
-    def test_serialized(self):
+    def test_serialized(self) -> None:
         class Foo(object): pass
         f = Foo()
         f.serialized = "stuff"
         d = bcpd.BasicPropertyDescriptor("foo", f)
         assert d.serialized == "stuff"
 
-    def test_readonly(self):
+    def test_readonly(self) -> None:
         class Foo(object): pass
         f = Foo()
         f.readonly = "stuff"
         d = bcpd.BasicPropertyDescriptor("foo", f)
         assert d.readonly == "stuff"
 
-    def test_has_ref(self):
+    def test_has_ref(self) -> None:
         class Foo(object): pass
         f = Foo()
         f.has_ref = "stuff"
@@ -244,7 +244,7 @@ class Test_BasicPropertyDescriptor(object):
         assert d.has_ref == "stuff"
 
     @patch('bokeh.core.property.descriptors.BasicPropertyDescriptor._trigger')
-    def test__trigger(self, mock_trigger):
+    def test__trigger(self, mock_trigger) -> None:
         class Foo(object):
             _property_values = dict(foo=10, bar=20)
         class Match(object):
@@ -264,7 +264,7 @@ class Test_BasicPropertyDescriptor(object):
 
 class Test_UnitSpecDescriptor(object):
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         class Foo(object):
             '''doc'''
             pass

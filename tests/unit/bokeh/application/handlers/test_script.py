@@ -37,7 +37,7 @@ class Test_ScriptHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_runner_uses_source_from_filename(self):
+    def test_runner_uses_source_from_filename(self) -> None:
         doc = Document()
         source = "# Test contents for script"
         result = {}
@@ -52,7 +52,7 @@ class Test_ScriptHandler(object):
         assert result['handler']._runner.source == source
         assert not doc.roots
 
-    def test_runner_script_with_encoding(self):
+    def test_runner_script_with_encoding(self) -> None:
         doc = Document()
         source = "# -*- coding: utf-8 -*-\nimport os"
         result = {}
@@ -67,7 +67,7 @@ class Test_ScriptHandler(object):
         assert result['handler'].failed is False
         assert not doc.roots
 
-    def test_missing_filename_raises(self):
+    def test_missing_filename_raises(self) -> None:
         with pytest.raises(ValueError):
             bahs.ScriptHandler()
 

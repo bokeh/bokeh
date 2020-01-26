@@ -60,7 +60,7 @@ class Child(Parent):
 class OverrideChild(Parent):
     int1 = Override(default=20)
 
-def test_HasProps_default_init():
+def test_HasProps_default_init() -> None:
     p = Parent()
     assert p.int1 == 10
     assert p.ds1 == None
@@ -75,7 +75,7 @@ def test_HasProps_default_init():
     assert c.ds2 == None
     assert c.lst2 == [1,2,3]
 
-def test_HasProps_kw_init():
+def test_HasProps_kw_init() -> None:
     p = Parent(int1=30, ds1="foo")
     assert p.int1 == 30
     assert p.ds1 == "foo"
@@ -90,13 +90,13 @@ def test_HasProps_kw_init():
     assert c.ds2 == 10
     assert c.lst2 == [2,3,4]
 
-def test_HasProps_override():
+def test_HasProps_override() -> None:
     ov = OverrideChild()
     assert ov.int1 == 20
     assert ov.ds1 == None
     assert ov.lst1 == []
 
-def test_HasProps_equals():
+def test_HasProps_equals() -> None:
     p1 = Parent()
     p2 = Parent()
     assert p1.equals(p2)
@@ -105,7 +105,7 @@ def test_HasProps_equals():
     p2.int1 = 25
     assert p1.equals(p2)
 
-def test_HasProps_update():
+def test_HasProps_update() -> None:
     c = Child()
     c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
@@ -116,7 +116,7 @@ def test_HasProps_update():
     assert c.ds2 ==  None
     assert c.lst2 == [1,2]
 
-def test_HasProps_set_from_json():
+def test_HasProps_set_from_json() -> None:
     c = Child()
     c.set_from_json('lst2', [1,2])
     assert c.int1 == 10
@@ -146,7 +146,7 @@ def test_HasProps_set_from_json():
     assert c.lst2 == [1,2]
 
 
-def test_HasProps_update_from_json():
+def test_HasProps_update_from_json() -> None:
     c = Child()
     c.update_from_json(dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
@@ -158,14 +158,14 @@ def test_HasProps_update_from_json():
     assert c.lst2 == [1,2]
 
 @patch('bokeh.core.has_props.HasProps.set_from_json')
-def test_HasProps_update_from_json_passes_models_and_setter(mock_set):
+def test_HasProps_update_from_json_passes_models_and_setter(mock_set) -> None:
     c = Child()
     c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
     assert mock_set.called
     assert mock_set.call_args[0] == ('lst1', [1, 2], 'foo', 'bar')
     assert mock_set.call_args[1] == {}
 
-def test_HasProps_set():
+def test_HasProps_set() -> None:
     c = Child()
     c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
     assert c.int1 == 25
@@ -180,7 +180,7 @@ def test_HasProps_set():
     assert c.str2 == "somesome"
     assert c.str2_proxy == "somesome"
 
-def test_HasProps_set_error():
+def test_HasProps_set_error() -> None:
     c = Child()
     with pytest.raises(AttributeError) as e:
         c.int3 = 10
@@ -190,7 +190,7 @@ def test_HasProps_set_error():
     assert str(e.value).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
 
 
-def test_HasProps_lookup():
+def test_HasProps_lookup() -> None:
     p = Parent()
     d = p.lookup('int1')
     assert isinstance(d, BasicPropertyDescriptor)
@@ -202,7 +202,7 @@ def test_HasProps_lookup():
     assert isinstance(d, BasicPropertyDescriptor)
     assert d.name == 'lst1'
 
-def test_HasProps_apply_theme():
+def test_HasProps_apply_theme() -> None:
     c = Child()
     theme = dict(int2=10, lst1=["foo", "bar"])
     c.apply_theme(theme)
@@ -239,7 +239,7 @@ def test_HasProps_apply_theme():
     assert c.ds2 == "foo"
     assert c.lst2 == [1,2,3]
 
-def test_HasProps_unapply_theme():
+def test_HasProps_unapply_theme() -> None:
     c = Child()
     theme = dict(int2=10, lst1=["foo", "bar"])
     c.apply_theme(theme)
@@ -267,7 +267,7 @@ def test_HasProps_unapply_theme():
 class EitherSimpleDefault(hp.HasProps):
     foo = Either(List(Int), Int, default=10)
 
-def test_HasProps_apply_theme_either_simple():
+def test_HasProps_apply_theme_either_simple() -> None:
 
     # check applying multiple themes
     c = EitherSimpleDefault()
@@ -311,7 +311,7 @@ def test_HasProps_apply_theme_either_simple():
 class EitherContainerDefault(hp.HasProps):
     foo = Either(List(Int), Int, default=[10])
 
-def test_HasProps_apply_theme_either_container():
+def test_HasProps_apply_theme_either_container() -> None:
 
     # check applying multiple themes
     c = EitherContainerDefault()
@@ -355,7 +355,7 @@ def test_HasProps_apply_theme_either_container():
 class IntFuncDefault(hp.HasProps):
     foo = Int(default=lambda: 10)
 
-def test_HasProps_apply_theme_func_default():
+def test_HasProps_apply_theme_func_default() -> None:
 
     # check applying multiple themes
     c = IntFuncDefault()

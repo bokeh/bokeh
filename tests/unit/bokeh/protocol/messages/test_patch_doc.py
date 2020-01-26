@@ -64,11 +64,11 @@ class TestPatchDocument(object):
         doc.add_root(SomeModelInTestPatchDoc())
         return doc
 
-    def test_create_no_events(self):
+    def test_create_no_events(self) -> None:
         with pytest.raises(ValueError):
             proto.create("PATCH-DOC", [])
 
-    def test_create_multiple_docs(self):
+    def test_create_multiple_docs(self) -> None:
         sample1 = self._sample_doc()
         obj1 = next(iter(sample1.roots))
         event1 = ModelChangedEvent(sample1, obj1, 'foo', obj1.foo, 42, 42)
@@ -79,13 +79,13 @@ class TestPatchDocument(object):
         with pytest.raises(ValueError):
             proto.create("PATCH-DOC", [event1, event2])
 
-    def test_create_model_changed(self):
+    def test_create_model_changed(self) -> None:
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
         event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
         proto.create("PATCH-DOC", [event])
 
-    def test_create_then_apply_model_changed(self):
+    def test_create_then_apply_model_changed(self) -> None:
         sample = self._sample_doc()
 
         foos = []
@@ -107,7 +107,7 @@ class TestPatchDocument(object):
         foos.sort()
         assert foos == [ 2, 42 ]
 
-    def test_patch_event_contains_setter(self):
+    def test_patch_event_contains_setter(self) -> None:
         sample = self._sample_doc()
         root = None
         other_root = None
@@ -198,7 +198,7 @@ class _Event(object):
 class _M(Model):
     pass
 
-def test_process_document_events_no_refs():
+def test_process_document_events_no_refs() -> None:
     e = _Event([], [])
     r, bufs = process_document_events([e])
     assert bufs == []
@@ -208,7 +208,7 @@ def test_process_document_events_no_refs():
     assert len(json['events']) == 1
     assert json['events'] == ['junk']
 
-def test_process_document_events_with_refs():
+def test_process_document_events_with_refs() -> None:
     e = _Event([_M(),_M()], [])
     r, bufs = process_document_events([e])
     assert bufs == []
@@ -218,7 +218,7 @@ def test_process_document_events_with_refs():
     assert len(json['events']) == 1
     assert json['events'] == ['junk']
 
-def test_process_document_events_no_buffers():
+def test_process_document_events_no_buffers() -> None:
     e = _Event([], [])
     r, bufs = process_document_events([e])
     assert bufs == []
@@ -228,7 +228,7 @@ def test_process_document_events_no_buffers():
     assert len(json['events']) == 1
     assert json['events'] == ['junk']
 
-def test_process_document_events_with_buffers():
+def test_process_document_events_with_buffers() -> None:
     e = _Event([], [1,2])
     r, bufs = process_document_events([e])
     assert bufs == [1, 2]
@@ -238,7 +238,7 @@ def test_process_document_events_with_buffers():
     assert len(json['events']) == 1
     assert json['events'] == ['junk']
 
-def test_process_document_events_mixed():
+def test_process_document_events_mixed() -> None:
     e1 = _Event([], [1,2])
     e2 = _Event([_M(),_M(),_M()], [3,4, 5])
     e3 = _Event([_M(),_M()], [])
@@ -250,7 +250,7 @@ def test_process_document_events_mixed():
     assert len(json['events']) == 3
     assert json['events'] == ['junk', 'junk', 'junk']
 
-def test_process_document_events_with_buffers_and_use_buffers_false():
+def test_process_document_events_with_buffers_and_use_buffers_false() -> None:
     e = _Event([], [1,2])
     r, bufs = process_document_events([e], use_buffers=False)
     assert bufs == []
