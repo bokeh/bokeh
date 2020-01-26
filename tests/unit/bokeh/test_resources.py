@@ -45,45 +45,6 @@ DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 # General API
 # -----------------------------------------------------------------------------
 
-VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
-
-
-class TestSRIHashes(object):
-    def test_get_all_hashes_valid_format(self) -> None:
-        all_hashes = resources.get_all_sri_hashes()
-        for key, value in all_hashes.items():
-            assert VERSION_PAT.match(key), f"{key} is not a valid version for the SRI hashes dict"
-            assert isinstance(value, dict)
-            assert len(value)
-            assert f"bokeh-{key}.js" in value
-            assert f"bokeh-{key}.min.js" in value
-            for h in value.values():
-                assert len(h) == 64
-
-    def test_get_all_hashes_copies(self) -> None:
-        ah1 = resources.get_all_sri_hashes()
-        ah2 = resources.get_all_sri_hashes()
-        assert ah1 == ah2 == resources._SRI_HASHES
-        assert ah1 is not ah2
-        assert ah1 is not resources._SRI_HASHES
-        assert ah2 is not resources._SRI_HASHES
-
-    # TODO: (bev) conda build on CI is generating bogus versions like "0+untagged.1.g19dd2c8"
-    @pytest.mark.skip
-    def test_get_all_hashes_no_future_keys(self) -> None:
-        current = V(__version__.split("-", 1)[0])  # remove git hash, "-dirty", etc
-        all_hashes = resources.get_all_sri_hashes()
-        for key in all_hashes:
-            assert (
-                V(key) < current
-            ), f"SRI hash dict contains vesion {key} which is newer than current version {__version__}"
-
-    def test_get_sri_hashes_for_version(self) -> None:
-        all_hashes = resources.get_all_sri_hashes()
-        for key, value in all_hashes.items():
-            h = resources.get_sri_hashes_for_version(key)
-            assert h == all_hashes[key]
-
 class TestResources(object):
     def test_basic(self) -> None:
         r = resources.Resources()

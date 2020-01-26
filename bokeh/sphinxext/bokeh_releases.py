@@ -45,7 +45,7 @@ from os.path import join
 from packaging.version import Version as V
 
 # Bokeh imports
-from bokeh.resources import get_sri_hashes_for_version
+from bokeh.resources.sri import get_sri_hashes_for_version
 
 # Bokeh imports
 from .bokeh_directive import BokehDirective
