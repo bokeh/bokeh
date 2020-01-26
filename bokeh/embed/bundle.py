@@ -20,13 +20,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import dirname, exists, join
-from warnings import warn
+from typing import Optional, Sequence, Union
 
 # Bokeh imports
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
 from ..model import Model
-from ..resources import BaseResources, Resources
+from ..resources import Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
 
@@ -115,14 +115,14 @@ class Bundle(object):
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
-def bundle_for_objs_and_resources(objs, resources):
+def bundle_for_objs_and_resources(objs: Sequence[Union[Model, Document]], resources: Optional[Resources]):
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
     Args:
         objs (seq[Model or Document]) :
 
-        resources (BaseResources or tuple[BaseResources])
+        resources (Resources)
 
     Returns:
         Bundle
@@ -132,19 +132,6 @@ def bundle_for_objs_and_resources(objs, resources):
     resources = settings.resources(default=resources)
     if isinstance(resources, str):
         resources = Resources(mode=resources)
-
-    if resources is None or isinstance(resources, BaseResources):
-        js_resources = css_resources = resources
-    elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
-        js_resources, css_resources = resources
-
-        if js_resources and not css_resources:
-            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-
-        if css_resources and not js_resources:
-            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-    else:
-        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
 
     from copy import deepcopy
 
@@ -158,22 +145,20 @@ def bundle_for_objs_and_resources(objs, resources):
     css_files = []
     css_raw = []
 
-    if js_resources:
-        js_resources = deepcopy(js_resources)
-        if not use_widgets and "bokeh-widgets" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-widgets")
-        if not use_tables and "bokeh-tables" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-tables")
-        if not use_gl and "bokeh-gl" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-gl")
+    if resources:
+        resources = deepcopy(resources)
+        if not use_widgets and "bokeh-widgets" in resources.js_components:
+            resources.js_components.remove("bokeh-widgets")
+        if not use_tables and "bokeh-tables" in resources.js_components:
+            resources.js_components.remove("bokeh-tables")
+        if not use_gl and "bokeh-gl" in resources.js_components:
+            resources.js_components.remove("bokeh-gl")
 
-        js_files.extend(js_resources.js_files)
-        js_raw.extend(js_resources.js_raw)
+        js_files.extend(resources.js_files)
+        js_raw.extend(resources.js_raw)
 
-    if css_resources:
-        css_resources = deepcopy(css_resources)
-        css_files.extend(css_resources.css_files)
-        css_raw.extend(css_resources.css_raw)
+        css_files.extend(resources.css_files)
+        css_raw.extend(resources.css_raw)
 
     js_raw.extend(_bundle_extensions(objs, resources))
 
@@ -225,7 +210,7 @@ def _bundle_extensions(objs, resources):
         ext = ".min.js" if resources is None or resources.minified else ".js"
         artifact = join(dirname(module.__file__), "dist", name + ext)
         if exists(artifact):
-            bundle = BaseResources._inline(artifact)
+            bundle = Resources._inline(artifact)
             extensions.append(bundle)
 
     return extensions

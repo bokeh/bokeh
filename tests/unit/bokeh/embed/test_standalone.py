@@ -19,7 +19,6 @@ from collections import OrderedDict
 
 # External imports
 import bs4
-from jinja2 import Template
 from mock import patch
 
 # Bokeh imports
@@ -27,7 +26,7 @@ from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
-from bokeh.resources import CDN, CSSResources, JSResources
+from bokeh.resources import CDN
 
 # Module under test
 import bokeh.embed.standalone as bes # isort:skip
@@ -189,38 +188,6 @@ class Test_file_html(object):
                             fake_template(self, {"test_var"}),
                             {"test_var": "test"})
         assert isinstance(r, str)
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_js_only_resources(self, mock_warn, test_plot) -> None:
-        js_resources = JSResources(mode="relative", components=["bokeh"])
-        template = Template("<head>{{ bokeh_js }}</head><body></body>")
-        output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
-        html = "<head>%s</head><body></body>" % js_resources.render_js()
-        assert output == html
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_css(self, mock_warn, test_plot) -> None:
-        js_resources = JSResources()
-        bes.file_html(test_plot, (js_resources, None), "title")
-        mock_warn.assert_called_once_with(
-            'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
-        )
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_css_only_resources(self, mock_warn, test_plot) -> None:
-        css_resources = CSSResources(mode="relative", components=["bokeh"])
-        template = Template("<head>{{ bokeh_css }}</head><body></body>")
-        output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
-        html = "<head>%s</head><body></body>" % css_resources.render_css()
-        assert output == html
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_js(self, mock_warn, test_plot) -> None:
-        css_resources = CSSResources()
-        bes.file_html(test_plot, (None, css_resources), "title")
-        mock_warn.assert_called_once_with(
-            'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
-        )
 
     def test_file_html_title_is_escaped(self, test_plot) -> None:
         r = bes.file_html(test_plot, CDN, "&<")

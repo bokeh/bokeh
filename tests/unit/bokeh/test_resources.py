@@ -84,44 +84,6 @@ class TestSRIHashes(object):
             h = resources.get_sri_hashes_for_version(key)
             assert h == all_hashes[key]
 
-
-## Test JSResources
-
-
-def test_js_resources_default_mode_is_cdn() -> None:
-    r = resources.JSResources()
-    assert r.mode == "cdn"
-
-
-def test_js_resources_inline_has_no_css_resources() -> None:
-    r = resources.JSResources(mode="inline")
-    assert r.mode == "inline"
-    assert r.dev is False
-
-    assert len(r.js_raw) == 5
-    assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
-    assert hasattr(r, "css_raw") is False
-    assert r.messages == []
-
-
-## Test CSSResources
-
-
-def test_css_resources_default_mode_is_cdn() -> None:
-    r = resources.CSSResources()
-    assert r.mode == "cdn"
-
-
-def test_inline_css_resources() -> None:
-    r = resources.CSSResources(mode="inline")
-    assert r.mode == "inline"
-    assert r.dev is False
-
-    assert len(r.css_raw) == 0
-    assert hasattr(r, "js_raw") is False
-    assert r.messages == []
-
-
 class TestResources(object):
     def test_basic(self) -> None:
         r = resources.Resources()

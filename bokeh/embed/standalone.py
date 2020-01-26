@@ -28,7 +28,7 @@ from jinja2 import Template
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, MACROS, ROOT_DIV
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
-from ..resources import CSSResources, JSResources, Resources
+from ..resources import Resources
 from ..themes import Theme
 from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
@@ -241,7 +241,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     return script, result
 
 def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Union[Resources, Tuple[JSResources, CSSResources]],
+              resources: Resources,
               title: Optional[str] = None,
               template: Union[Template, str] = FILE,
               template_variables: Dict[str, Any] = {},
@@ -258,7 +258,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
         models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
-        resources (Resources or tuple(JSResources or None, CSSResources or None)) :
+        resources (Resources or None) :
             A resource configuration for Bokeh JS & CSS assets.
 
         title (str, optional) :
