@@ -14,8 +14,6 @@
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-# from typing import Sequence
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -39,6 +37,7 @@ from ...core.properties import (
     Int,
     List,
     Override,
+    Seq,
     String,
 )
 from ...model import Model
@@ -249,7 +248,7 @@ class CompositeFormatter(CellFormatter):
     .. code-block:: python
 
         example_formatter = CompositeFormatter(formatters=[StringFormatter(font_style="bold"), HTMLTemplateFormatter(
-        template='<code><%= value %></code>')])
+            template='<code><%= value %></code>')])
 
         TableColumn(field='Part ID', title='Part ID', formatter=example_formatter, ...)
     '''
@@ -259,8 +258,8 @@ class CompositeFormatter(CellFormatter):
         the installed formatters in the Bokeh library to apply multiple
         formatting capabilities (BooleanFormatter, CellFormatter, DateFormatter,
         HTMLTemplateFormatter, NumberFormatter, ScientificFormatter, StringFormatter,
-        to a single TableColumn. Formatters are implemented in the order they are 
-        listed, i.e: from "(" to ")".
+        to a single TableColumn. Formatters will be implemented in the same order they appear
+        in the sequence.
         """))
 
 class DateFormatter(CellFormatter):
