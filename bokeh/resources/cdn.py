@@ -27,7 +27,7 @@ from typing import List, Optional
 from .. import __version__
 from ..settings import settings
 from .base import Kind, Resources, Urls
-from .bundles import Asset, ScriptRef
+from .assets import Asset, ScriptRef
 
 # -----------------------------------------------------------------------------
 # Globals and constants

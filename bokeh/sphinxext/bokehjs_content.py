@@ -193,11 +193,13 @@ class BokehJSContent(CodeBlock):
         """
         js_source = self.get_js_source()
         if self.options.get("include_html", False):
-            resources = get_sphinx_resources(include_bokehjs_api=True)
+            resources = get_sphinx_resources()
+            bundle = resources.resolve()
+            bundle.add_artifact("bokeh-api")
             html_source = BJS_HTML.render(
-                css_files=resources.css_files,
-                js_files=resources.js_files,
-                bjs_script=js_source)
+                bundle=bundle.render(),
+                bjs_script=js_source,
+            )
             return [html_source, "html"]
         else:
             return [js_source, "javascript"]
@@ -241,10 +243,10 @@ def html_visit_bokehjs_content(self, node):
     if node['include_bjs_header']:
         #we only want to inject the CODEPEN_INIT on one
         #bokehjs-content block per page
-        resources = get_sphinx_resources(include_bokehjs_api=True)
-        self.body.append(BJS_CODEPEN_INIT.render(
-            css_files=resources.css_files,
-            js_files=resources.js_files))
+        resources = get_sphinx_resources()
+        bundle = resources.resolve()
+        bundle.add_artifact("bokeh-api")
+        self.body.append(BJS_CODEPEN_INIT.render(bundle=bundle.render()))
 
     self.body.append(
         BJS_PROLOGUE.render(

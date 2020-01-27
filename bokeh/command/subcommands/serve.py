@@ -419,7 +419,7 @@ from tornado.autoreload import watch
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.resources import DEFAULT_SERVER_PORT
+from bokeh.resources.server import DEFAULT_SERVER_PORT
 from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.tornado import (
     DEFAULT_SESSION_TOKEN_EXPIRATION,

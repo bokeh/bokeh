@@ -25,7 +25,7 @@ from typing import Callable, List, Optional
 # Bokeh imports
 from ..util.session_id import generate_session_id
 from .base import Kind, Resources, Urls
-from .bundles import Asset, ScriptRef
+from .assets import Asset, ScriptRef
 
 # -----------------------------------------------------------------------------
 # Globals and constants

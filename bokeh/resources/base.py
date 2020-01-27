@@ -21,13 +21,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, List, Optional, Set, Type, Union
+from typing import Callable, Dict, Iterator, List, Optional, Set, Type, Union
 from typing_extensions import Literal, TypedDict
 
 # Bokeh imports
 from ..model import Model
 from ..settings import settings
-from .bundles import Asset, Script, ScriptRef, Style, StyleRef
+from .assets import Bundle, Asset, Script, ScriptRef, Style, StyleRef
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -81,7 +81,7 @@ class Resources(ABC):
     """
 
     mode: str
-    dev: bool
+    dev: bool = False
 
     _log_level: Optional[LogLevel]
 
@@ -104,24 +104,31 @@ class Resources(ABC):
 
     def _resolve_external(self) -> List[Asset]:
         """ Collect external resources set on resource_attr attribute of all models."""
-        assets: List[Asset] = []
         visited: Set[str] = set()
 
-        def resolve_attr(cls: Type[Model], attr: str, ctor: Union[Type[StyleRef], Type[ScriptRef]]) -> None:
+        def resolve_attr(cls: Type[Model], attr: str) -> Iterator[str]:
             external: Union[str, List[str]] = getattr(cls, attr, [])
 
-            for url in [external] if isinstance(external, str) else external:
+            if isinstance(external, str):
+                url = external
                 if url not in visited:
                     visited.add(url)
-                    assets.append(ctor(url))
+                    yield url
+            else:
+                for url in external:
+                    if url not in visited:
+                        visited.add(url)
+                        yield url
 
-        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
-            resolve_attr(cls, "__css__", StyleRef)
-            resolve_attr(cls, "__javascript__", ScriptRef)
+        assets: List[Asset] = []
+
+        for cls in sorted(Model.all_models(), key=lambda model: model.__qualified_model__):
+            assets.extend([ StyleRef(url) for url in resolve_attr(cls, "__css__") ])
+            assets.extend([ ScriptRef(url) for url in resolve_attr(cls, "__javascript__") ])
 
         return assets
 
-    def resolve(self) -> List[Asset]:
+    def resolve(self) -> Bundle:
         assets: List[Asset] = []
 
         assets.extend(self._resolve_external())
@@ -132,7 +139,7 @@ class Resources(ABC):
         if self.dev:
             assets.append(Script("Bokeh.settings.dev = true"))
 
-        return assets
+        return Bundle(*assets)
 
     @property
     def log_level(self) -> Optional[LogLevel]:

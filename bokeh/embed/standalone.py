@@ -29,8 +29,8 @@ from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, MACROS, ROOT_DIV
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..resources import Resources
+from ..resources.assets import Bundle, Script
 from ..themes import Theme
-from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
 from .util import (
     FromCurdoc,
@@ -97,7 +97,7 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
     with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
-    bundle = bundle_for_objs_and_resources(None, resources)
+    bundle = resources.resolve()
     bundle.add(Script(script_for_render_items(docs_json, [render_item])))
 
     (_, elementid) = list(render_item.roots.to_json().items())[0]
@@ -216,7 +216,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     with OutputDocumentFor(models, apply_theme=theme):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
-    bundle = bundle_for_objs_and_resources(None, None)
+    bundle = Bundle() # XXX bundle_for_objs_and_resources(None, None)
     bundle.add(Script(script_for_render_items(docs_json, [render_item])))
 
     script = bundle.scripts(tag=wrap_script)
@@ -303,7 +303,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
     with OutputDocumentFor(models_seq, apply_theme=theme, always_new=_always_new) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models_seq, suppress_callback_warning=suppress_callback_warning)
         title = _title_from_models(models_seq, title)
-        bundle = bundle_for_objs_and_resources([doc], resources)
+        bundle = resources.resolve(doc)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 

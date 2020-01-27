@@ -39,6 +39,7 @@ from ...core.properties import (
     Override,
     String,
 )
+from ...resources.artifacts import Artifact, tables
 from ...model import Model
 from ..sources import CDSView, DataSource
 from .widget import Widget
@@ -605,6 +606,13 @@ class TableWidget(Widget):
     ''' Abstract base class for data table (data grid) widgets.
 
     '''
+
+    @classmethod
+    def class_artifacts(cls) -> List[Artifact]:
+        return super.class_artifacts() + [tables]
+
+    def artifacts(self) -> List[Artifact]:
+        return super.artifacts() + [tables]
 
     source = Instance(DataSource, help="""
     The source of data for the widget.

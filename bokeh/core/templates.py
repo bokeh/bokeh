@@ -11,11 +11,9 @@ models in various ways.
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_NB_JS
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_REQUEST_TAG
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_TAG
-.. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.DOC_JS
 .. bokeh-jinja:: bokeh.core.templates.DOC_NB_JS
 .. bokeh-jinja:: bokeh.core.templates.FILE
-.. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_LOAD
 .. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
 .. bokeh-jinja:: bokeh.core.templates.ROOT_DIV
@@ -50,12 +48,10 @@ __all__ = (
     'AUTOLOAD_NB_JS',
     'AUTOLOAD_REQUEST_TAG',
     'AUTOLOAD_TAG',
-    'CSS_RESOURCES',
     'DOC_JS',
     'DOC_NB_JS',
     'FILE',
     'get_env',
-    'JS_RESOURCES',
     'MACROS',
     'NOTEBOOK_LOAD',
     'PLOT_DIV',
@@ -89,10 +85,6 @@ _env.filters['json'] = lambda obj: Markup(json.dumps(obj))
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-JS_RESOURCES = _env.get_template("js_resources.html")
-
-CSS_RESOURCES = _env.get_template("css_resources.html")
 
 SCRIPT_TAG = _env.get_template("script_tag.html")
 

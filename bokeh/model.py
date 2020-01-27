@@ -22,12 +22,14 @@ log = logging.getLogger(__name__)
 from inspect import isclass
 from json import loads
 from operator import itemgetter
+from typing import ClassVar, Dict, List, Type
 
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, Instance, List, String
+from .core import properties as p
 from .events import Event
+from .resources import artifacts
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from .util.serialization import make_id
@@ -140,7 +142,7 @@ def get_class(view_model_name):
     from . import models; models
     from .plotting import Figure; Figure
 
-    d = Model.model_class_reverse_map
+    d = Model._model_class_reverse_map
     if view_model_name in d:
         return d[view_model_name]
     else:
@@ -174,7 +176,20 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     '''
 
-    model_class_reverse_map = {}
+    @classmethod
+    def class_artifacts(cls) -> List[artifacts.Artifact]:
+        return [artifacts.bokeh]
+
+    def artifacts(self) -> List[artifacts.Artifact]:
+        return [artifacts.bokeh]
+
+    __qualified_model__: ClassVar[str]
+
+    _model_class_reverse_map: Dict[str, Type["Model"]] = {}
+
+    @classmethod
+    def all_models(cls) -> List[Type["Model"]]:
+        return list(cls._model_class_reverse_map.values())
 
     @classmethod
     def __init_subclass__(cls):
@@ -200,10 +215,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         # update the mapping of view model names to classes, checking for any duplicates
         # and handling any subtype relationships or custom implementations
-        previous = cls.model_class_reverse_map.get(qualified, None)
+        previous = cls._model_class_reverse_map.get(qualified, None)
         if previous is not None and not hasattr(cls, "__implementation__"):
             raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
-        cls.model_class_reverse_map[qualified] = cls
+        cls._model_class_reverse_map[qualified] = cls
 
     def __new__(cls, *args, **kwargs):
         obj =  super().__new__(cls)
@@ -243,7 +258,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     def id(self):
         return self._id
 
-    name = String(help="""
+    name = p.String(help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -262,7 +277,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    tags = List(Any, help="""
+    tags = p.List(p.Any, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -286,7 +301,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
+    js_event_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.CustomJS")),
     help="""
     A mapping of event names to lists of ``CustomJS`` callbacks.
 
@@ -299,13 +314,13 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         plot.js_on_event('tap', callback)
     """)
 
-    subscribed_events = List(String, help="""
+    subscribed_events = p.List(p.String, help="""
     List of events that are subscribed to by Python callbacks. This is
     the set of events that will be communicated from BokehJS back to
     Python for this model.
     """)
 
-    js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
+    js_property_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.CustomJS")), help="""
     A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 
@@ -653,8 +668,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     @staticmethod
     def _clear_extensions():
-        Model.model_class_reverse_map = {
-            k: v for k, v in Model.model_class_reverse_map.items()
+        Model._model_class_reverse_map = {
+            k: v for k, v in Model._model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
         }
 

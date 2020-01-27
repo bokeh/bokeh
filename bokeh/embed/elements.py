@@ -26,6 +26,7 @@ from typing import List, Optional
 from ..core.json_encoder import serialize_json
 from ..core.templates import DOC_JS, FILE, MACROS, PLOT_DIV, _env
 from ..document.document import DEFAULT_TITLE
+from ..resources.assets import Bundle
 from ..settings import settings
 from ..util.serialization import make_id
 from .util import RenderItem
@@ -62,12 +63,12 @@ def div_for_render_item(item: RenderItem) -> str:
     '''
     return PLOT_DIV.render(doc=item, macros=MACROS)
 
-def html_page_for_render_items(bundle, docs_json, render_items, title, template=None, template_variables={}):
+def html_page_for_render_items(bundle: Bundle, docs_json, render_items, title, template=None, template_variables={}):
     ''' Render an HTML page from a template and Bokeh render items.
 
     Args:
-        bundle (tuple):
-            a tuple containing (bokehjs, bokehcss)
+        bundle (Bundle):
+            A bundle of bokehjs and other assets.
 
         docs_json (JSON-like):
             Serialized Bokeh Document
@@ -91,8 +92,6 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     if title is None:
         title = DEFAULT_TITLE
 
-    bokeh_js, bokeh_css = bundle
-
     json_id = make_id()
     json = escape(serialize_json(docs_json), quote=False)
     json = wrap_in_script_tag(json, "application/json", json_id)
@@ -100,11 +99,9 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     script = wrap_in_script_tag(script_for_render_items(json_id, render_items))
 
     context = template_variables.copy()
-
     context.update(dict(
         title = title,
-        bokeh_js = bokeh_js,
-        bokeh_css = bokeh_css,
+        bundle = bundle.render(),
         plot_script = json + script,
         docs = render_items,
         base = FILE,

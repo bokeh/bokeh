@@ -42,7 +42,7 @@ __all__ = (
 
 class Artifact:
 
-    def __init__(self, name: str, *, depends: Optional[List[Artifact]] = None) -> None:
+    def __init__(self, name: str, *, depends: Optional[List["Artifact"]] = None) -> None:
         pass
 
 # -----------------------------------------------------------------------------

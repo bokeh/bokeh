@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Enum, Int, Override
+from ...resources.artifacts import Artifact, widgets
 from ..layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------
@@ -49,6 +50,13 @@ class Widget(LayoutDOM):
     ''' A base class for all interactive widget types.
 
     '''
+
+    @classmethod
+    def class_artifacts(cls) -> List[Artifact]:
+        return super.class_artifacts() + [widgets]
+
+    def artifacts(self) -> List[Artifact]:
+        return super.artifacts() + [widgets]
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the widget either horizontally (default) or vertically.

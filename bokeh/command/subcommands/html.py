@@ -71,7 +71,7 @@ from argparse import Namespace
 
 # Bokeh imports
 from bokeh.embed import file_html
-from bokeh.resources import Resources
+from bokeh.resources import CDN
 
 # Bokeh imports
 from ...document import Document
@@ -126,8 +126,7 @@ class HTML(FileOutputSubcommand):
         '''
 
         '''
-        resources = Resources(mode="cdn", root_dir=None)
-        return file_html(doc, resources)
+        return file_html(doc, CDN)
 
 #-----------------------------------------------------------------------------
 # Dev API

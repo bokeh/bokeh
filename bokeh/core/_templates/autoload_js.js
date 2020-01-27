@@ -111,21 +111,16 @@ calls it with the rendered model.
     document.body.appendChild(element);
   }
 
-  {% if bundle %}
   var js_urls = {{ bundle.js_urls|json }};
   var css_urls = {{ bundle.css_urls|json }};
-  {% else %}
-  var js_urls = {{ js_urls|json }};
-  var css_urls = {{ css_urls|json }};
-  {% endif %}
 
   var inline_js = [
-    {%- for css in (bundle.css_raw if bundle else css_raw) %}
+    {%- for css in bundle.css_raw %}
     function(Bokeh) {
       inject_raw_css({{ css|json }});
     },
     {%- endfor %}
-    {%- for js in (bundle.js_raw if bundle else js_raw) %}
+    {%- for js in bundle.js_raw %}
     function(Bokeh) {
       {{ js|indent(6) }}
     },

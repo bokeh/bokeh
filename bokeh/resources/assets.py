@@ -19,8 +19,11 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+from abc import ABC, abstractmethod
+from typing import Callable, List, Optional, Union
 
 # Bokeh imports
+from .artifacts import Artifact#, Resolver
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -32,39 +35,60 @@ __all__ = ()
 # General API
 # -----------------------------------------------------------------------------
 
-class Asset:
-    pass
+class Asset(ABC):
 
-class Link(Asset):
-    pass
+    @abstractmethod
+    def render(self) -> str:
+        pass
 
-class Inline(Asset):
-    pass
-
-class ScriptRef(Link):
+class ScriptRef(Asset):
 
     def __init__(self, url: str, type: str = "text/javascript") -> None:
         self.url = url
         self.type = type
 
-class Script(Inline):
+    def render(self) -> str:
+        return f"""<script type="{self.type}" src="{self.url}"></script>"""
+
+class Script(Asset):
 
     def __init__(self, content: str, type: str = "text/javascript") -> None:
         self.content = content
         self.type = type
 
-class StyleRef(Link):
+    def render(self) -> str:
+        return f"""<script type="{self.type}">{self.content}</script>"""
+
+class StyleRef(Asset):
 
     def __init__(self, url: str) -> None:
         self.url = url
 
-class Style(Inline):
+    def render(self) -> str:
+        return f"""<link rel="stylesheet" href="{self.url}" type="text/css" />"""
+
+class Style(Asset):
 
     def __init__(self, content: str) -> None:
         self.content = content
 
+    def render(self) -> str:
+        return f"""<style>\n{self.content}\n</style>"""
+
+Resolver = Callable[[], Asset]
+
 class Bundle:
-    pass
+
+    _assets: List[Asset]
+
+    def __init__(self, *assets: Asset, resolver: Optional[Resolver] = None) -> None:
+        self._assets = list(assets)
+
+    def render(self) -> str:
+        return "\n".join([ asset.render() for asset in self._assets ])
+
+    def add(self, *assets: Union[Asset, Artifact]) -> None:
+        pass
 
 # -----------------------------------------------------------------------------
 # Dev API

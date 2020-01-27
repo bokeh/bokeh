@@ -24,7 +24,6 @@ from os.path import dirname, exists, join
 from typing import Optional, Sequence, Union
 
 # Bokeh imports
-from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
 from ..model import Model
 from ..resources import Resources
@@ -36,7 +35,6 @@ from ..util.compiler import bundle_models
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Bundle',
     'bundle_for_objs_and_resources',
 )
 
@@ -48,73 +46,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ScriptRef(object):
+collect_artifacts(Model.all_models())
 
-    def __init__(self, url, type="text/javascript"):
-        self.url = url
-        self.type = type
+def collect_artifacts(objects: Optional[Union[Sequence[Type[Model]], Sequence[Union[Model, Document]]]]) -> List[Artifact]:
+    for model in models:
 
-class Script(object):
-
-    def __init__(self, content, type="text/javascript"):
-        self.content = content
-        self.type = type
-
-class StyleRef(object):
-
-    def __init__(self, url):
-        self.url = url
-
-class Style(object):
-
-    def __init__(self, content):
-        self.content = content
-
-class Bundle(object):
-
-    @classmethod
-    def of(cls, js_files, js_raw, css_files, css_raw):
-        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw)
-
-    def __init__(self, **kwargs):
-        self.js_files = kwargs.get("js_files", [])
-        self.js_raw = kwargs.get("js_raw", [])
-        self.css_files = kwargs.get("css_files", [])
-        self.css_raw = kwargs.get("css_raw", [])
-
-    def __iter__(self):
-        yield self._render_js()
-        yield self._render_css()
-
-    def _render_js(self):
-        return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw)
-
-    def _render_css(self):
-        return CSS_RESOURCES.render(css_files=self.css_files, css_raw=self.css_raw)
-
-    def scripts(self, tag=True):
-        if tag:
-            return JS_RESOURCES.render(js_raw=self.js_raw, js_files=[])
-        else:
-            return "\n".join(self.js_raw)
-
-    @property
-    def js_urls(self):
-        return self.js_files
-
-    @property
-    def css_urls(self):
-        return self.css_files
-
-    def add(self, artifact):
-        if isinstance(artifact, ScriptRef):
-            self.js_files.append(artifact.url)
-        elif isinstance(artifact, Script):
-            self.js_raw.append(artifact.content)
-        elif isinstance(artifact, StyleRef):
-            self.css_files.append(artifact.url)
-        elif isinstance(artifact, Style):
-            self.css_raw.append(artifact.content)
 
 def bundle_for_objs_and_resources(objs: Optional[Sequence[Union[Model, Document]]], resources: Optional[Resources]):
     ''' Generate rendered CSS and JS resources suitable for the given
@@ -187,7 +123,7 @@ def _query_extensions(objs, query):
             continue
         names.add(name)
 
-        for model in Model.model_class_reverse_map.values():
+        for model in Model.all_models():
             if model.__module__.startswith(name):
                 if query(model):
                     return True
@@ -198,7 +134,7 @@ def _bundle_extensions(objs, resources):
     names = set()
     extensions = []
 
-    for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
+    for obj in _all_objs(objs) if objs is not None else Model.all_models():
         if hasattr(obj, "__implementation__"):
             continue
         name = obj.__view_module__.split(".")[0]

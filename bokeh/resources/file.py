@@ -27,7 +27,7 @@ from typing import List, Optional
 from ..util.paths import bokehjsdir
 from ..settings import settings
 from .base import Resources, Kind
-from .bundles import Asset, Script, ScriptRef
+from .assets import Asset, Script, ScriptRef
 
 # -----------------------------------------------------------------------------
 # Globals and constants
