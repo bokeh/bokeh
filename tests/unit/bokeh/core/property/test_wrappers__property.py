@@ -398,12 +398,12 @@ def test_PropertyValueList_mutators(mock_notify) -> None:
     # code as covered.
     try:
         pvl.__setslice__(1,2,3)
-    except:
+    except Exception:
         pass
 
     try:
         pvl.__delslice__(1,2)
-    except:
+    except Exception:
         pass
 
 def test_PropertyValueColumnData___copy__() -> None:
