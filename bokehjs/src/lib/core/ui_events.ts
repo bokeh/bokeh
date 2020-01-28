@@ -105,7 +105,10 @@ export class UIEvents implements EventListenerObject {
   readonly keydown:      UISignal<KeyEvent>     = new Signal(this, 'keydown')
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, 'keyup')
 
-  private readonly hammer = new Hammer(this.hit_area, {touchAction: 'auto', inputClass: Hammer.TouchMouseInput})
+  private readonly hammer = new Hammer(this.hit_area, {
+    touchAction: 'auto',
+    inputClass: Hammer.TouchMouseInput // https://github.com/bokeh/bokeh/issues/9187
+  })
 
   constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
