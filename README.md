@@ -65,7 +65,7 @@
   <td>Build Status</td>
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://github.com/bokeh/bokeh/workflows/GitHub-CI/badge.svg"
+    <img src="https://github.com/bokeh/bokeh/workflows/GitHub-CI/badge.svg?branch=master"
          alt="Current github actions build status" />
     </a>
   </td>
