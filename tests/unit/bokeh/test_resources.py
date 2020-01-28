@@ -19,7 +19,7 @@ import os
 
 # Bokeh imports
 from bokeh.models import Model
-from bokeh.resources import _get_cdn_urls
+from bokeh.resources.assets import Script, ScriptLink
 
 # Module under test
 import bokeh.resources as resources  # isort:skip
@@ -41,9 +41,6 @@ DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 # -----------------------------------------------------------------------------
 
 class TestResources(object):
-    def test_basic(self) -> None:
-        r = resources.Resources()
-        assert r.mode == "cdn"
 
     def test_log_level(self) -> None:
         r = resources.Resources()
@@ -64,6 +61,7 @@ class TestResources(object):
         assert r.mode == "inline"
         assert r.dev == False
 
+        b = r.bundle()
         assert len(r.js_raw) == 5
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert len(r.css_raw) == 0
@@ -142,13 +140,14 @@ class TestResources(object):
         def versioner(path: str) -> str:
             return path + "?v=VERSIONED"
 
-        r = resources.ServerResources(root_url="http://foo/", path_versioner=versioner)
+        res = resources.ServerResources(root_url="http://foo/", path_versioner=versioner)
+        bundle = res.resolve()
 
-        assert r.js_files == [
-            "http://foo/static/js/bokeh.min.js?v=VERSIONED",
-            "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
-            "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
-            "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
+        assert bundle.assets == [
+            ScriptLink("http://foo/static/js/bokeh.min.js?v=VERSIONED"),
+            ScriptLink("http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED"),
+            ScriptLink("http://foo/static/js/bokeh-tables.min.js?v=VERSIONED"),
+            ScriptLink("http://foo/static/js/bokeh-gl.min.js?v=VERSIONED"),
         ]
 
     def test_server_dev(self) -> None:
@@ -224,7 +223,8 @@ def test_external_js_and_css_resource_embedding() -> None:
         __javascript__ = ["external_js_1", "external_js_3"]
         __css__ = ["external_css_1", "external_css_2"]
 
-    r = resources.Resources()
+    res = resources.CDNResources()
+    bundle =
 
     assert "external_js_1" in r.js_files
     assert "external_css_1" in r.css_files
