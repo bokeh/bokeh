@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -37,6 +37,7 @@ from ...core.properties import (
     Int,
     List,
     Override,
+    Seq,
     String,
 )
 from ...model import Model
@@ -53,6 +54,7 @@ __all__ = (
     'CellFormatter',
     'CellEditor',
     'CheckboxEditor',
+    'CompositeFormatter',
     'DataCube',
     'DataTable',
     'DateEditor',
@@ -238,6 +240,27 @@ class BooleanFormatter(CellFormatter):
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
     The icon visualizing the check mark.
     """)
+
+class CompositeFormatter(CellFormatter):
+    '''CompositeFormatter applies multiple formatters to a single TableColumn
+
+    Example:
+    .. code-block:: python
+
+        example_formatter = CompositeFormatter(formatters=[StringFormatter(font_style="bold"), HTMLTemplateFormatter(
+            template='<code><%= value %></code>')])
+
+        TableColumn(field='Part ID', title='Part ID', formatter=example_formatter, ...)
+    '''
+
+    formatters = Seq(Instance(CellFormatter, help="""
+        The CompositeFormatter class may be used with any combination of
+        the installed formatters in the Bokeh library to apply multiple
+        formatting capabilities (BooleanFormatter, CellFormatter, DateFormatter,
+        HTMLTemplateFormatter, NumberFormatter, ScientificFormatter, StringFormatter,
+        to a single TableColumn. Formatters will be implemented in the same order they appear
+        in the sequence.
+        """))
 
 class DateFormatter(CellFormatter):
     ''' Date cell formatter.
