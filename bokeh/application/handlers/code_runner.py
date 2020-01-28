@@ -23,10 +23,11 @@ log = logging.getLogger(__name__)
 import os
 import sys
 import traceback
+from os.path import basename
 from types import ModuleType
 
 # Bokeh imports
-from ...util.serialization import make_id
+from ...util.serialization import make_globally_unique_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,16 +50,22 @@ class CodeRunner(object):
 
     '''
 
-    def __init__(self, source, path, argv):
+    def __init__(self, source, path, argv, package=None):
         '''
 
         Args:
-            source (str) : python source code
+            source (str) :
+                A string containing Python source code to execute
 
-            path (str) : a filename to use in any debugging or error output
+            path (str) :
+                A filename to use in any debugging or error output
 
-            argv (list[str]) : a list of string arguments to make available
-                as ``sys.argv`` when the code executes
+            argv (list[str]) :
+                A list of string arguments to make available as ``sys.argv``
+                when the code executes
+
+            package (bool) :
+                An optional package module to configure
 
         '''
         self._permanent_error = None
@@ -79,6 +86,7 @@ class CodeRunner(object):
         self._path = path
         self._source = source
         self._argv = argv
+        self._package = package
         self.ran = False
 
     # Properties --------------------------------------------------------------
@@ -133,9 +141,15 @@ class CodeRunner(object):
         if self._code is None:
             return None
 
-        module_name = 'bk_script_' + make_id().replace('-', '')
+        module_name = 'bokeh_app_' + make_globally_unique_id().replace('-', '')
         module = ModuleType(module_name)
         module.__dict__['__file__'] = os.path.abspath(self._path)
+        if self._package:
+            module.__package__ = self._package.__name__
+            module.__path__ = [os.path.dirname(self._path)]
+        if basename(self.path) == "__init__.py":
+            module.__package__ = module_name
+            module.__path__ = [os.path.dirname(self._path)]
 
         return module
 
@@ -150,15 +164,17 @@ class CodeRunner(object):
         self._error = None
         self._error_detail = None
 
-    def run(self, module, post_check):
+    def run(self, module, post_check=None):
         ''' Execute the configured source code in a module and run any post
         checks.
 
         Args:
-            module (Module) : a module to execute the configured code in.
+            module (Module) :
+                A module to execute the configured code in.
 
-            post_check(callable) : a function that can raise an exception
-                if expected post-conditions are not met after code execution.
+            post_check (callable, optional) :
+                A function that raises an exception if expected post-conditions
+                are not met after code execution.
 
         '''
         try:
@@ -172,7 +188,8 @@ class CodeRunner(object):
             sys.argv = [os.path.basename(self._path)] + self._argv
 
             exec(self._code, module.__dict__)
-            post_check()
+
+            if post_check: post_check()
 
         except Exception as e:
             self._failed = True

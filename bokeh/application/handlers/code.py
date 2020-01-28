@@ -93,8 +93,9 @@ class CodeHandler(Handler):
         filename = kwargs['filename']
 
         argv = kwargs.get('argv', [])
+        package = kwargs.get('package', False)
 
-        self._runner = CodeRunner(source, filename, argv)
+        self._runner = CodeRunner(source, filename, argv, package=package)
 
         self._loggers = {}
         for f in CodeHandler._io_functions:

@@ -46,12 +46,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 from os.path import basename, dirname, exists, join
 
 # External imports
 from jinja2 import Environment, FileSystemLoader
 
 # Bokeh imports
+from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler
 from .script import ScriptHandler
@@ -92,6 +94,16 @@ class DirectoryHandler(Handler):
         src_path = kwargs['filename']
         argv = kwargs.get('argv', [])
 
+        init_py = join(src_path, '__init__.py')
+
+        if exists(init_py):
+            self._package_runner = CodeRunner(open(init_py).read(), init_py, argv)
+            self._package =  self._package_runner.new_module()
+            sys.modules[self._package.__name__] = self._package
+        else:
+            self._package_runner = None
+            self._package = None
+
         main_py = join(src_path, 'main.py')
         main_ipy = join(src_path, 'main.ipynb')
         if exists(main_py) and exists(main_ipy):
@@ -107,12 +119,12 @@ class DirectoryHandler(Handler):
         self._main = main
 
         handler = NotebookHandler if main.endswith('.ipynb') else ScriptHandler
-        self._main_handler = handler(filename=self._main, argv=argv)
+        self._main_handler = handler(filename=self._main, argv=argv, package=self._package)
 
         lifecycle = join(src_path, 'server_lifecycle.py')
         if exists(lifecycle):
             self._lifecycle = lifecycle
-            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv)
+            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv, package=self._package)
         else:
             self._lifecycle = None
             self._lifecycle_handler = Handler() # no-op handler
@@ -198,6 +210,9 @@ class DirectoryHandler(Handler):
             server_context (ServerContext) :
 
         '''
+
+        if self._package_runner and self._package:
+            self._package_runner.run(self._package)
         return self._lifecycle_handler.on_server_loaded(server_context)
 
     def on_server_unloaded(self, server_context):
