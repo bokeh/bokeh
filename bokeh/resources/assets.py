@@ -37,11 +37,21 @@ __all__ = ()
 
 class Asset(ABC):
 
+    type: str
+
     @abstractmethod
     def render(self) -> str:
         pass
 
-class ScriptRef(Asset):
+class Link(Asset):
+
+    url: str
+
+class Inline(Asset):
+
+    content: str
+
+class ScriptLink(Link):
 
     def __init__(self, url: str, type: str = "text/javascript") -> None:
         self.url = url
@@ -50,7 +60,7 @@ class ScriptRef(Asset):
     def render(self) -> str:
         return f"""<script type="{self.type}" src="{self.url}"></script>"""
 
-class Script(Asset):
+class Script(Inline):
 
     def __init__(self, content: str, type: str = "text/javascript") -> None:
         self.content = content
@@ -59,18 +69,20 @@ class Script(Asset):
     def render(self) -> str:
         return f"""<script type="{self.type}">{self.content}</script>"""
 
-class StyleRef(Asset):
+class StyleLink(Link):
 
     def __init__(self, url: str) -> None:
         self.url = url
+        self.type = "text/css"
 
     def render(self) -> str:
-        return f"""<link rel="stylesheet" href="{self.url}" type="text/css" />"""
+        return f"""<link rel="stylesheet" href="{self.url}" type="{self.type}" />"""
 
-class Style(Asset):
+class Style(Inline):
 
     def __init__(self, content: str) -> None:
         self.content = content
+        self.type = "text/css"
 
     def render(self) -> str:
         return f"""<style>\n{self.content}\n</style>"""
@@ -89,6 +101,10 @@ class Bundle:
 
     def add(self, *assets: Union[Asset, Artifact]) -> None:
         pass
+
+    @property
+    def assets(self) -> List[Asset]:
+        return list(self._assets)
 
 # -----------------------------------------------------------------------------
 # Dev API

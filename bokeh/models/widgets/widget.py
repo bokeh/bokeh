@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import List
+
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Enum, Int, Override

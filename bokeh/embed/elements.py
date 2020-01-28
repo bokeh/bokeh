@@ -26,7 +26,7 @@ from typing import List, Optional
 from ..core.json_encoder import serialize_json
 from ..core.templates import DOC_JS, FILE, MACROS, PLOT_DIV, _env
 from ..document.document import DEFAULT_TITLE
-from ..resources.assets import Bundle
+from ..resources.assets import Bundle, Script
 from ..settings import settings
 from ..util.serialization import make_id
 from .util import RenderItem
@@ -124,7 +124,7 @@ def html_page_for_render_items(bundle: Bundle, docs_json, render_items, title, t
     return html
 
 def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
-                            app_path: Optional[str] = None, absolute_url: Optional[str] = None) -> str:
+                            app_path: Optional[str] = None, absolute_url: Optional[str] = None) -> Script:
     ''' Render an script for Bokeh render items.
     Args:
         docs_json_or_id:
@@ -138,7 +138,7 @@ def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
         absolute_url (Theme, optional) :
 
     Returns:
-        str
+        Script
     '''
     if isinstance(docs_json_or_id, str):
         docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
@@ -162,7 +162,7 @@ def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
     if not settings.dev:
         js = wrap_in_safely(js)
 
-    return wrap_in_onload(js)
+    return Script(wrap_in_onload(js))
 
 #-----------------------------------------------------------------------------
 # Private API

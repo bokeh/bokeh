@@ -27,7 +27,7 @@ from typing import List, Optional
 from ..util.paths import bokehjsdir
 from ..settings import settings
 from .base import Resources, Kind
-from .assets import Asset, Script, ScriptRef
+from .assets import Asset, Script, ScriptLink
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -41,7 +41,7 @@ __all__ = ()
 
 class FileResources(Resources):
 
-    def __init__(self, *, base_dir: Optional[str] = None) -> None:
+    def __init__(self, *, base_dir: Optional[str] = None, dev: Optional[bool] = None) -> None:
         self.base_dir = base_dir or bokehjsdir(self.dev)
 
     def _file_paths(self, kind: Kind) -> List[str]:
@@ -56,24 +56,21 @@ class RelativeResources(FileResources):
 
     _default_root_dir = "."
 
-    def __init__(self, *, root_dir: Optional[str] = None) -> None:
+    def __init__(self, *, root_dir: Optional[str] = None, dev: Optional[bool] = None) -> None:
         self.root_dir = settings.rootdir(root_dir)
 
     def _resolve(self, kind: Kind) -> List[Asset]:
         paths = self._file_paths(kind)
         root_dir = self.root_dir or self._default_root_dir
         files = [ relpath(path, root_dir) for path in paths ]
-        return [ ScriptRef(file) for file in files ]
+        return [ ScriptLink(file) for file in files ]
 
 class AbsoluteResources(FileResources):
     mode = "absolute"
 
-    def __init__(self) -> None:
-        pass
-
     def _resolve(self, kind: Kind) -> List[Asset]:
         files = self._file_paths(kind)
-        return [ ScriptRef(file) for file in files ]
+        return [ ScriptLink(file) for file in files ]
 
 class InlineResources(FileResources):
     mode = "inline"

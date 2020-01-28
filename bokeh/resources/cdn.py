@@ -26,8 +26,8 @@ from typing import List, Optional
 # Bokeh imports
 from .. import __version__
 from ..settings import settings
-from .base import Kind, Resources, Urls
-from .assets import Asset, ScriptRef
+from .base import Kind, Resources, Urls, Message
+from .assets import Asset, ScriptLink
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -44,13 +44,13 @@ __all__ = ()
 class CDNResources(Resources):
     mode = "cdn"
 
-    def __init__(self, version: Optional[str] = None) -> None:
+    def __init__(self, *, version: Optional[str] = None, dev: Optional[bool] = None) -> None:
         self.version = settings.version(version)
 
     def _resolve(self, kind: Kind) -> List[Asset]:
         cdn = self._cdn_urls()
-        urls = list(cdn["urls"](self.components(kind), kind))
-        return [ ScriptRef(url) for url in urls ]
+        urls = cdn.urls(self.components(kind), kind)
+        return [ ScriptLink(url) for url in urls ]
 
     def _cdn_base_url(self) -> str:
         return "https://cdn.bokeh.org"
@@ -81,18 +81,15 @@ class CDNResources(Resources):
         def mk_url(comp: str, kind: Kind) -> str:
             return f"{base_url}/{container}/{_legacy}{comp}-{version}{_minified}.{kind}"
 
-        result: Urls = {
-            "urls": lambda components, kind: [mk_url(component, kind) for component in components],
-            "messages": [],
-        }
+        result = Urls(lambda components, kind: [ mk_url(component, kind) for component in components ])
 
         if len(__version__.split("-")) > 1:
-            result["messages"].append({
-                "type": "warn",
-                "text": (
+            result.messages.append(Message(
+                type = "warn",
+                text = (
                     f"Requesting CDN BokehJS version '{version}' from Bokeh development version '{__version__}'. "
                     "This configuration is unsupported and may not work!"
                 ),
-            })
+            ))
 
         return result

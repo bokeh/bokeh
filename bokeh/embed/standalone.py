@@ -29,7 +29,7 @@ from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, MACROS, ROOT_DIV
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..resources import Resources
-from ..resources.assets import Bundle, Script
+from ..resources.assets import Bundle
 from ..themes import Theme
 from .elements import html_page_for_render_items, script_for_render_items
 from .util import (
@@ -98,7 +98,7 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     bundle = resources.resolve()
-    bundle.add(Script(script_for_render_items(docs_json, [render_item])))
+    bundle.add(script_for_render_items(docs_json, [render_item]))
 
     (_, elementid) = list(render_item.roots.to_json().items())[0]
 
@@ -217,7 +217,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
     bundle = Bundle() # XXX bundle_for_objs_and_resources(None, None)
-    bundle.add(Script(script_for_render_items(docs_json, [render_item])))
+    bundle.add(script_for_render_items(docs_json, [render_item]))
 
     script = bundle.scripts(tag=wrap_script)
 

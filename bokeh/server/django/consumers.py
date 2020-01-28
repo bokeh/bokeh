@@ -32,7 +32,6 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
-from bokeh.embed.bundle import Script, bundle_for_objs_and_resources
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.server import server_html_page_for_session
 from bokeh.embed.util import RenderItem
@@ -140,10 +139,10 @@ class AutoloadJsConsumer(SessionConsumer):
 
         resources_param = self.get_argument("resources", "default")
         resources = self.resources(server_url) if resources_param != "none" else None
-        bundle = bundle_for_objs_and_resources(None, resources)
+        bundle = resources.resolve()
 
         render_items = [RenderItem(token=session.token, elementid=element_id, use_for_title=False)]
-        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
+        bundle.add(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url))
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
         headers = [

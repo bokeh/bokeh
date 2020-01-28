@@ -21,13 +21,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Iterator, List, Optional, Set, Type, Union
-from typing_extensions import Literal, TypedDict
+from typing import Callable, Iterator, List, NamedTuple, Optional, Set, Type, Union
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..model import Model
 from ..settings import settings
-from .assets import Bundle, Asset, Script, ScriptRef, Style, StyleRef
+from .assets import Bundle, Asset, Script, ScriptLink, StyleLink
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -36,13 +36,13 @@ from .assets import Bundle, Asset, Script, ScriptRef, Style, StyleRef
 LogLevel = Literal["trace", "debug", "info", "warn", "error", "fatal"]
 Kind = Literal["js", "css"]
 
-class Message(TypedDict):
+class Message(NamedTuple):
     type: str
     text: str
 
-class Urls(TypedDict):
+class Urls(NamedTuple):
     urls: Callable[[List[str], Kind], List[str]]
-    messages: List[Message]
+    messages: List[Message] = []
 
 __all__ = ()
 
@@ -123,8 +123,8 @@ class Resources(ABC):
         assets: List[Asset] = []
 
         for cls in sorted(Model.all_models(), key=lambda model: model.__qualified_model__):
-            assets.extend([ StyleRef(url) for url in resolve_attr(cls, "__css__") ])
-            assets.extend([ ScriptRef(url) for url in resolve_attr(cls, "__javascript__") ])
+            assets.extend([ StyleLink(url) for url in resolve_attr(cls, "__css__") ])
+            assets.extend([ ScriptLink(url) for url in resolve_attr(cls, "__javascript__") ])
 
         return assets
 

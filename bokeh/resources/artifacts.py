@@ -42,8 +42,12 @@ __all__ = (
 
 class Artifact:
 
+    name: str
+    depends: List["Artifact"]
+
     def __init__(self, name: str, *, depends: Optional[List["Artifact"]] = None) -> None:
-        pass
+        self.name = name
+        self.depends = depends or []
 
 # -----------------------------------------------------------------------------
 # Dev API

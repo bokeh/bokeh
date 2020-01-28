@@ -26,7 +26,6 @@ from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
 from ..util.string import format_docstring
-from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items
 from .util import RenderItem
 
@@ -234,7 +233,7 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
     if template_variables is None:
         template_variables = {}
 
-    bundle = bundle_for_objs_and_resources(None, resources)
+    bundle = resources.resolve()
     html = html_page_for_render_items(bundle, {}, [render_item], title,
         template=template, template_variables=template_variables)
     return html

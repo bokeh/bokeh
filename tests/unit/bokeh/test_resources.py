@@ -16,13 +16,8 @@ import pytest  # noqa isort:skip
 
 # Standard library imports
 import os
-import re
-
-# External imports
-from packaging.version import Version as V
 
 # Bokeh imports
-from bokeh import __version__
 from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
 

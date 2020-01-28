@@ -278,7 +278,7 @@ def calc_cache_key(custom_models):
     not ideal but possibly a better solution can be found found later.
 
     '''
-    model_names = {model.full_name for model in custom_models.values()}
+    model_names = { model.full_name for model in custom_models.values() }
     encoded_names = ",".join(sorted(model_names)).encode('utf-8')
     return hashlib.sha256(encoded_names).hexdigest()
 

@@ -58,13 +58,13 @@ Notebook according to a Resources object.
         </tr>
         <tr class="bokeh_notebook">
             <th class="bokeh_notebook" rowspan="2">BokehJS</th>
-            <th class="bokeh_notebook">js</th>
-            <td class="bokeh_notebook">{{ js_info }}</td>
         </tr>
+        {%- for type, url in assets %}
         <tr class="bokeh_notebook">
-            <th class="bokeh_notebook">css</th>
-            <td class="bokeh_notebook">{{ css_info }}</td>
+            <th class="bokeh_notebook">{{ type }}</th>
+            <td class="bokeh_notebook">{{ url }}</td>
         </tr>
+        {%- endfor %}
     </table>
     {%- endif %}
     {%- for warning in warnings %}

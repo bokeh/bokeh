@@ -25,7 +25,7 @@ from typing import Callable, List, Optional
 # Bokeh imports
 from ..util.session_id import generate_session_id
 from .base import Kind, Resources, Urls
-from .assets import Asset, ScriptRef
+from .assets import Asset, ScriptLink
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -48,7 +48,7 @@ class ServerResources(Resources):
 
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
-    def __init__(self, *, root_url: Optional[str] = None, path_versioner: Optional[PathVersioner] = None) -> None:
+    def __init__(self, *, root_url: Optional[str] = None, path_versioner: Optional[PathVersioner] = None, dev: Optional[bool] = None) -> None:
 
         """
         root_url (str, optional) : URL and port of Bokeh Server to load resources from
@@ -60,8 +60,8 @@ class ServerResources(Resources):
 
     def _resolve(self, kind: Kind) -> List[Asset]:
         server = self._server_urls()
-        urls = list(server["urls"](self.components(kind), kind))
-        return [ ScriptRef(url) for url in urls ]
+        urls = server.urls(self.components(kind), kind)
+        return [ ScriptLink(url) for url in urls ]
 
     @property
     def root_url(self) -> str:
@@ -80,10 +80,7 @@ class ServerResources(Resources):
                 path = self.path_versioner(path)
             return f"{self.root_url}static/{path}"
 
-        return {
-            "urls": lambda components, kind: [ mk_url(component, kind) for component in components ],
-            "messages": [],
-        }
+        return Urls(lambda components, kind: [ mk_url(component, kind) for component in components ])
 
 # -----------------------------------------------------------------------------
 # Private API
