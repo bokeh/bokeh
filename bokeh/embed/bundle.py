@@ -114,7 +114,7 @@ def _query_extensions(objs, query):
     names = set()
 
     for obj in _all_objs(objs):
-        if hasattr(obj, "__implementation__"):
+        if obj.is_extension():
             continue
         name = obj.__view_module__.split(".")[0]
         if name == "bokeh":
@@ -135,7 +135,7 @@ def _bundle_extensions(objs, resources):
     extensions = []
 
     for obj in _all_objs(objs) if objs is not None else Model.all_models():
-        if hasattr(obj, "__implementation__"):
+        if obj.is_extension():
             continue
         name = obj.__view_module__.split(".")[0]
         if name == "bokeh":

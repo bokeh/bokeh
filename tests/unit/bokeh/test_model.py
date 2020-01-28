@@ -129,11 +129,11 @@ class Test_js_link(object):
 
 def test_all_builtin_models_default_constructible() -> None:
     bad = []
-    for name, cls in Model.model_class_reverse_map.items():
+    for cls in Model.all_models():
         try:
             cls()
         except:
-            bad.append(name)
+            bad.append(cls.__qualified__)
         assert bad == []
 
 def test_select() -> None:

@@ -28,6 +28,7 @@ import sys
 from collections import OrderedDict
 from os.path import abspath, dirname, exists, isabs, join
 from subprocess import PIPE, Popen
+from typing import Dict, Optional, Type
 
 # Bokeh imports
 from ..model import Model
@@ -449,16 +450,14 @@ def _model_cache_no_op(model, implementation):
 
 _CACHING_IMPLEMENTATION = _model_cache_no_op
 
-def _get_custom_models(models):
+def _get_custom_models(models: Optional[Type[Model]]) -> Dict[str, CustomModel]:
     """Returns CustomModels for models with a custom `__implementation__`"""
     if models is None:
-        models = Model.model_class_reverse_map.values()
+        models = Model.all_models()
 
     custom_models = OrderedDict()
     for cls in models:
-        impl = getattr(cls, "__implementation__", None)
-
-        if impl is not None:
+        if cls.is_extension():
             model = CustomModel(cls)
             custom_models[model.full_name] = model
 

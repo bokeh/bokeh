@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 from inspect import isclass
 from json import loads
 from operator import itemgetter
-from typing import ClassVar, Dict, List, Type
+from typing import ClassVar, Dict, List, Optional, Type
 
 # Bokeh imports
 from .core.has_props import HasProps, abstract
@@ -142,9 +142,8 @@ def get_class(view_model_name):
     from . import models; models
     from .plotting import Figure; Figure
 
-    d = Model._model_class_reverse_map
-    if view_model_name in d:
-        return d[view_model_name]
+    if view_model_name in _known_models:
+        return _known_models[view_model_name]
     else:
         raise KeyError("View model name '%s' not found" % view_model_name)
 
@@ -170,6 +169,8 @@ _HTML_REPR = """
 </script>
 """
 
+_known_models: Dict[str, Type["Model"]] = {}
+
 @abstract
 class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
@@ -185,11 +186,15 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     __qualified_model__: ClassVar[str]
 
-    _model_class_reverse_map: Dict[str, Type["Model"]] = {}
-
     @classmethod
     def all_models(cls) -> List[Type["Model"]]:
-        return list(cls._model_class_reverse_map.values())
+        return list(_known_models.values())
+
+    __implementation__: ClassVar[Optional[str]] = None
+
+    @classmethod
+    def is_extension(cls):
+        return cls.__implementation__ is not None
 
     @classmethod
     def __init_subclass__(cls):
@@ -203,7 +208,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         module = cls.__view_module__
         model = cls.__dict__.get("__subtype__", cls.__view_model__)
-        impl = cls.__dict__.get("__implementation__", None)
+        impl = cls.__implementation__
 
         head = module.split(".")[0]
         if head == "bokeh" or head == "__main__" or impl is not None:
@@ -215,10 +220,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         # update the mapping of view model names to classes, checking for any duplicates
         # and handling any subtype relationships or custom implementations
-        previous = cls._model_class_reverse_map.get(qualified, None)
-        if previous is not None and not hasattr(cls, "__implementation__"):
+        previous = _known_models.get(qualified, None)
+        if previous is not None and not cls.is_extension():
             raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
-        cls._model_class_reverse_map[qualified] = cls
+        _known_models[qualified] = cls
 
     def __new__(cls, *args, **kwargs):
         obj =  super().__new__(cls)
@@ -228,7 +233,6 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         return obj
 
     def __init__(self, **kwargs):
-
         # "id" is popped from **kw in __new__, so in an ideal world I don't
         # think it should be here too. But Python does this, so it is:
         #
@@ -666,12 +670,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         self._document = doc
         self._update_event_callbacks()
 
-    @staticmethod
-    def _clear_extensions():
-        Model._model_class_reverse_map = {
-            k: v for k, v in Model._model_class_reverse_map.items()
-            if getattr(v, "__implementation__", None) is None
-        }
+    @classmethod
+    def _clear_extensions(cls):
+        global _known_models
+        _known_models = { key: model for key, model in _known_models.items() if not model.is_extension() }
 
     def _detach_document(self):
         ''' Detach a model from a Bokeh |Document|.
@@ -811,7 +813,6 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         else:
             # this isn't a Model, so recurse into it
             _visit_immediate_value_references(obj, visitor)
-
 
 #-----------------------------------------------------------------------------
 # Code
