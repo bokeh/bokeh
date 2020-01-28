@@ -107,7 +107,7 @@ export class UIEvents implements EventListenerObject {
 
   private readonly hammer = new Hammer(this.hit_area, {
     touchAction: 'auto',
-    inputClass: Hammer.TouchMouseInput // https://github.com/bokeh/bokeh/issues/9187
+    inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
 
   constructor(readonly plot_view: PlotView,
