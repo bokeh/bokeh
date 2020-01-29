@@ -242,9 +242,10 @@ class BooleanFormatter(CellFormatter):
     """)
 
 class CompositeFormatter(CellFormatter):
-    '''CompositeFormatter applies multiple formatters to a single TableColumn
+    ''' CompositeFormatter applies multiple formatters to a single TableColumn
 
     Example:
+
     .. code-block:: python
 
         example_formatter = CompositeFormatter(formatters=[StringFormatter(font_style="bold"), HTMLTemplateFormatter(
