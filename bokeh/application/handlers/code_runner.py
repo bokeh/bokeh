@@ -67,7 +67,13 @@ class CodeRunner(object):
             package (bool) :
                 An optional package module to configure
 
+        Raises:
+            ValueError, if package is specified for an __init__.py
+
         '''
+        if package and basename(path) == "__init__.py":
+            raise ValueError("__init__.py cannot have package specified")
+
         self._permanent_error = None
         self._permanent_error_detail = None
         self.reset_run_errors()

@@ -95,7 +95,6 @@ class DirectoryHandler(Handler):
         argv = kwargs.get('argv', [])
 
         init_py = join(src_path, '__init__.py')
-
         if exists(init_py):
             self._package_runner = CodeRunner(open(init_py).read(), init_py, argv)
             self._package =  self._package_runner.new_module()
