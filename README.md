@@ -268,7 +268,7 @@ Visit the [full documentation site](https://docs.bokeh.org) to view the [User's 
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
-If you would like to contribute to Bokeh, please review the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and say hello on the [bokeh-dev chat channel](https://gitter.im/bokeh/bokeh-dev).
+If you would like to contribute to Bokeh, please review the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and say hello on the [Zulip Chat for Developers](https://bokeh.zulipchat.com/).
 
 Follow us
 ---------
