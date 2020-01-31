@@ -7,7 +7,7 @@ import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 
-import {State, create_baseline, load_baseline, diff_baseline} from "./baselines"
+import {Box, State, create_baseline, load_baseline, diff_baseline} from "./baselines"
 
 const url = argv._[0]
 
@@ -58,10 +58,10 @@ function encode(s: string): string {
   return s.replace(/[ \/]/g, "_")
 }
 
-//type Rect = {x: number, y: number, width: number, height: number}
 type Suite = {description: string, suites: Suite[], tests: Test[]}
 type Test = {description: string, skip: boolean}
-type Result = {error: {str: string, stack?: string} | null, time: number, state?: State}
+
+type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
 async function run_tests(): Promise<void> {
   let client
@@ -262,13 +262,13 @@ async function run_tests(): Promise<void> {
 
       function to_seq(suites: Suite[], test: Test): [number[], number] {
         let current = top_level
-        const seq = []
+        const si = []
         for (const suite of suites) {
-          seq.push(current.suites.indexOf(suite))
+          si.push(current.suites.indexOf(suite))
           current = suite
         }
-        const i = current.tests.indexOf(test)
-        return [seq, i]
+        const ti = current.tests.indexOf(test)
+        return [si, ti]
       }
 
       function state(): object {
@@ -289,72 +289,84 @@ async function run_tests(): Promise<void> {
 
       progress.start(test_suite.length, 0, state())
 
-      for (const [suites, test, status] of test_suite) {
-        entries = []
+      try {
+        for (const [suites, test, status] of test_suite) {
+          entries = []
 
-        if (test.skip) {
-          status.skipped = true
-        } else {
-          const [seq, i] = to_seq(suites, test)
-          const output = await evaluate<string>(`Tests.run_test(${JSON.stringify(seq)}, ${JSON.stringify(i)})`)
-
-          const errors = entries.filter((entry) => entry.level == "error")
-          if (errors.length != 0) {
-            status.errors.push(...errors.map((entry) => entry.text))
-            // status.failure = true // XXX: too chatty right now
-          }
-
-          if (output instanceof Failure) {
-            status.errors.push(output.text)
-            status.failure = true
-          } else if (output instanceof Timeout) {
-            status.errors.push("timeout")
-            status.timeout = true
+          if (test.skip) {
+            status.skipped = true
           } else {
-            const result = JSON.parse(output.value) as Result
-            if (result.error != null) {
-              if (result.error.stack != null) {
-                status.errors.push(result.error.stack)
-              } else {
-                status.errors.push(result.error.str)
+            const seq = JSON.stringify(to_seq(suites, test))
+            const output = await evaluate<string>(`Tests.run(${seq})`)
+            try {
+              const errors = entries.filter((entry) => entry.level == "error")
+              if (errors.length != 0) {
+                status.errors.push(...errors.map((entry) => entry.text))
+                // status.failure = true // XXX: too chatty right now
               }
-              status.failure = true
-            } else if (result.state != null) {
-              const baseline_name = descriptions(suites, test).map(encode).join("__")
 
-              if (baseline_names.has(baseline_name)) {
-                status.errors.push("duplicated description")
+              if (output instanceof Failure) {
+                status.errors.push(output.text)
                 status.failure = true
+              } else if (output instanceof Timeout) {
+                status.errors.push("timeout")
+                status.timeout = true
               } else {
-                baseline_names.add(baseline_name)
-
-                const baseline_path = path.join("test", "baselines", baseline_name)
-                const baseline = create_baseline([result.state])
-                await fs.promises.writeFile(baseline_path, baseline)
-
-                const existing = load_baseline(baseline_path)
-                if (existing != baseline) {
-                  if (existing == null) {
-                    status.errors.push("missing baseline")
+                const result = JSON.parse(output.value) as Result
+                if (result.error != null) {
+                  if (result.error.stack != null) {
+                    status.errors.push(result.error.stack)
+                  } else {
+                    status.errors.push(result.error.str)
                   }
-                  const diff = diff_baseline(baseline_path)
-                  status.errors.push(diff)
                   status.failure = true
+                } else if (result.state != null) {
+                  const baseline_name = descriptions(suites, test).map(encode).join("__")
+
+                  if (baseline_names.has(baseline_name)) {
+                    status.errors.push("duplicated description")
+                    status.failure = true
+                  } else {
+                    const baseline_path = path.join("test", "baselines", baseline_name)
+                    baseline_names.add(baseline_name)
+
+                    const {bbox} = result
+                    if (bbox != null) {
+                      const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                      const buffer = Buffer.from(image.data, "base64")
+                      await fs.promises.writeFile(`${baseline_path}.png`, buffer)
+                    }
+
+                    const baseline = create_baseline([result.state])
+                    await fs.promises.writeFile(baseline_path, baseline)
+
+                    const existing = load_baseline(baseline_path)
+                    if (existing != baseline) {
+                      if (existing == null) {
+                        status.errors.push("missing baseline")
+                      }
+                      const diff = diff_baseline(baseline_path)
+                      status.errors.push(diff)
+                      status.failure = true
+                    }
+                  }
                 }
               }
+            } finally {
+              await evaluate(`Tests.cleanup(${seq})`)
             }
           }
+
+          if (status.skipped)
+            skipped++
+          if (status.failure || status.timeout)
+            failures++
+
+          progress.increment(1, state())
         }
-
-        if (status.skipped)
-          skipped++
-        if (status.failure || status.timeout)
-          failures++
-
-        progress.increment(1, state())
+      } finally {
+        progress.stop()
       }
-
-      progress.stop()
 
       for (const [suites, test, status] of test_suite) {
         if (status.failure || status.timeout) {
@@ -381,7 +393,7 @@ async function run_tests(): Promise<void> {
   } catch (err) {
     failure = true
     if (!(err instanceof Exit))
-      console.error("INTERNAL ERROR:", err)
+      console.error(`INTERNAL ERROR: ${err}`)
   } finally {
     if (client) {
       await client.close()

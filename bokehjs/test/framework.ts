@@ -68,7 +68,7 @@ _globalThis.it = it
 _globalThis.before_each = before_each
 _globalThis.after_each = after_each
 
-export async function run_tests(grep?: string | RegExp): Promise<void> {
+export async function run_all(grep?: string | RegExp): Promise<void> {
 
   async function _run_suite(suite: Suite, seq: Suite[]) {
     for (const sub_suite of suite.suites) {
@@ -97,9 +97,16 @@ export async function run_tests(grep?: string | RegExp): Promise<void> {
   await _run_suite(top_level, [top_level])
 }
 
+type Box = {x: number, y: number, width: number, height: number}
+type State = {type: string, bbox?: Box, children?: State[]}
+
+type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
+
+type TestSeq = [number[], number]
+
 let current_test: Test | null = null
 
-export async function run_test(si: number[], ti: number): Promise<{}> {
+function from_seq([si, ti]: TestSeq): [Suite[], Test] {
   let current = top_level
   const suites = [current]
   for (const i of si) {
@@ -107,10 +114,28 @@ export async function run_test(si: number[], ti: number): Promise<{}> {
     suites.push(current)
   }
   const test = current.tests[ti]
-  return await _run_test(suites, test)
+  return [suites, test]
 }
 
-async function _run_test(suites: Suite[], test: Test): Promise<{}> {
+export async function run(seq: TestSeq): Promise<string> {
+  const [suites, test] = from_seq(seq)
+  const result = await _run_test(suites, test)
+  return JSON.stringify(result)
+}
+
+export async function cleanup(seq: TestSeq): Promise<void> {
+  const [, test] = from_seq(seq)
+  if (test.view != null) {
+    try {
+      test.view.remove()
+    } catch {}
+  }
+  if (test.el != null) {
+    test.el.remove()
+  }
+}
+
+async function _run_test(suites: Suite[], test: Test): Promise<Result> {
   const {fn} = test
   const start = Date.now()
   let error: {str: string, stack?: string} | null = null
@@ -139,23 +164,24 @@ async function _run_test(suites: Suite[], test: Test): Promise<{}> {
         await fn()
     }
   }
+
   const end = Date.now()
   const time = end - start
-  const result = (() => {
-    if (error == null && test.view != null) {
-      try {
-        const {x, y, width, height} = test.view.el.getBoundingClientRect()
-        const bbox = {x, y, width, height}
-        const state = test.view.serializable_state()
-        return {error, time, state, bbox}
-      } catch (err) {
-        //throw err
-        _handle(err)
-      }
+
+  if (error == null && test.view != null) {
+    try {
+      const rect = test.el!.getBoundingClientRect()
+      const left = rect.left + window.pageXOffset - document.documentElement!.clientLeft
+      const top = rect.top + window.pageYOffset - document.documentElement!.clientTop
+      const bbox = {x: left, y: top, width: rect.width, height: rect.height}
+      const state = test.view.serializable_state() as any
+      return {error, time, state, bbox}
+    } catch (err) {
+      //throw err
+      _handle(err)
     }
-    return {error, time}
-  })()
-  return JSON.stringify(result)
+  }
+  return {error, time}
 }
 
 export async function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000]): Promise<LayoutDOMView> {
