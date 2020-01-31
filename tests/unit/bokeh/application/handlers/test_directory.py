@@ -86,6 +86,29 @@ class Test_DirectoryHandler(object):
 
         assert not doc.roots
 
+    def test_directory_initpy(self) -> None:
+        doc = Document()
+        results = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            # this will get called by the server but we have to fake it here
+            handler.on_server_loaded("server_context")
+            results['package'] = handler._package is not None and handler._package_runner is not None and handler._package_runner.ran
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        with_directory_contents({
+            'main.py' : "from . import foo\n" + script_adds_two_roots('SomeModelInTestDirectory',
+                                                                      'AnotherModelInTestDirectory'),
+            "__init__.py": "",
+            "foo.py": " # this script does nothing"
+
+        }, load)
+
+        assert len(doc.roots) == 2
+        assert results['package'] == True
+
     def test_directory_mainpy_adds_roots(self) -> None:
         doc = Document()
         def load(filename):
@@ -144,6 +167,35 @@ class Test_DirectoryHandler(object):
 
         assert len(doc.roots) == 2
 
+    def test_directory_both_mainipynb_and_mainpy(self) -> None:
+        doc = Document()
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        import nbformat
+        source = nbformat.v4.new_notebook()
+
+        with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectory',
+                                              'AnotherModelInTestDirectory'),
+            'main.ipynb': nbformat.writes(source),
+        }, load)
+
+        assert len(doc.roots) == 2
+
+    def test_directory_missing_main(self) -> None:
+        doc = Document()
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+        with pytest.raises(ValueError):
+            with_directory_contents({}, load)
+
     def test_directory_has_theme_file(self) -> None:
         doc = Document()
         def load(filename):
@@ -185,6 +237,7 @@ some.foo = 57
         assert another_model.bar == 1
 
     @pytest.mark.asyncio
+    @pytest.mark.unit
     async def test_directory_with_server_lifecycle(self) -> None:
         doc = Document()
         result = {}

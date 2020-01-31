@@ -52,6 +52,16 @@ class TestCodeHandler(object):
 
     # Public methods ----------------------------------------------------------
 
+    def test_missing_source(self) -> None:
+        with pytest.raises(ValueError) as e:
+            bahc.CodeHandler()
+            assert str(e) == "Must pass source to CodeHandler"
+
+    def test_missing_filename(self) -> None:
+        with pytest.raises(ValueError) as e:
+            bahc.CodeHandler(source="# This script does nothing")
+            assert str(e) == "Must pass filename to CodeHandler"
+
     def test_empty_script(self) -> None:
         doc = Document()
         handler = bahc.CodeHandler(source="# This script does nothing", filename="path/to/test_filename")

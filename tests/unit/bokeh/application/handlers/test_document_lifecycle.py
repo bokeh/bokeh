@@ -14,6 +14,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import logging
+
 # Bokeh imports
 from bokeh.document import Document
 
@@ -56,6 +59,7 @@ class Test_DocumentLifecycleHandler(object):
             doc.on_session_destroyed(destroy)
 
     @pytest.mark.asyncio
+    @pytest.mark.unit
     async def test_document_on_session_destroyed(self) -> None:
         doc = Document()
         handler = bahd.DocumentLifecycleHandler()
@@ -72,6 +76,7 @@ class Test_DocumentLifecycleHandler(object):
         assert session_context._document.session_destroyed_callbacks == set()
 
     @pytest.mark.asyncio
+    @pytest.mark.unit
     async def test_document_on_session_destroyed_calls_multiple(self) -> None:
         doc = Document()
 
@@ -89,3 +94,20 @@ class Test_DocumentLifecycleHandler(object):
         session_context = MockSessionContext(doc)
         await handler.on_session_destroyed(session_context)
         assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'
+
+    @pytest.mark.asyncio
+    @pytest.mark.unit
+    async def test_document_on_session_destroyed_exceptions(self, caplog) -> None:
+        doc = Document()
+
+        def blowup(session_context):
+            raise ValueError("boom!")
+
+        doc.on_session_destroyed(blowup)
+
+        handler = bahd.DocumentLifecycleHandler()
+        session_context = MockSessionContext(doc)
+        with caplog.at_level(logging.WARN):
+            await handler.on_session_destroyed(session_context)
+            assert len(caplog.records) == 1
+            assert "boom!" in caplog.text

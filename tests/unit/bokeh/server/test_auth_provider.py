@@ -22,7 +22,7 @@ from tornado.web import RequestHandler
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
-from bokeh._testing.util.filesystem import with_file_contents
+from bokeh._testing.util.filesystem import with_file_contents, with_file_contents_async
 
 # Module under test
 import bokeh.server.auth_provider as bsa # isort:skip
@@ -142,18 +142,19 @@ def get_user(handler): return 10
 login_url = "/foo"
         """, func, suffix='.py')
 
-# TODO (bev) enable when Bokeh 2 uses native coroutine
-#     @pytest.mark.asyncio
-#     async def test_get_user_async(self) -> None:
-#         async def func(filename):
-#             am = bsa.AuthModule(filename)
-#             assert am.get_user_async is not None
-#             assert await am.get_user_await('handler') == 10
+    @pytest.mark.asyncio
+    @pytest.mark.unit
+    async def test_get_user_async(self) -> None:
+        async def func(filename):
+            am = bsa.AuthModule(filename)
+            assert am.get_user_async is not None
+            assert await am.get_user_async('handler') == 10
 
-#         with_file_contents("""
-# async def get_user(handler): yeild 10
-# login_url = "/foo"
-#         """, func, suffix='.py')
+        await with_file_contents_async("""
+async def get_user_async(handler): return 10
+login_url = "/foo"
+        """, func, suffix='.py')
+
 
     def test_login_url(self) -> None:
         def func(filename):
