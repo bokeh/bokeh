@@ -255,6 +255,7 @@ async function run_tests(): Promise<void> {
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
 
+      const baselines_root = path.join("test", "baselines")
       const baseline_names = new Set<string>()
 
       let skipped = 0
@@ -324,7 +325,7 @@ async function run_tests(): Promise<void> {
                     status.errors.push("duplicated description")
                     status.failure = true
                   } else {
-                    const baseline_path = path.join("test", "baselines", baseline_name)
+                    const baseline_path = path.join(baselines_root, baseline_name)
                     baseline_names.add(baseline_name)
 
                     const {bbox} = result
@@ -382,8 +383,19 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      if (failures != 0)
+      const files = new Set(await fs.promises.readdir(baselines_root))
+      for (const name of baseline_names) {
+        files.delete(name)
+        files.delete(`${name}.png`)
+      }
+
+      if (files.size != 0) {
+        fail(`there are outdated baselines:\n${[...files].join("\n")}`)
+      }
+
+      if (failures != 0) {
         throw new Exit(1)
+      }
     } finally {
       await Runtime.discardConsoleEntries()
     }
