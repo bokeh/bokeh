@@ -117,10 +117,9 @@ function from_seq([si, ti]: TestSeq): [Suite[], Test] {
   return [suites, test]
 }
 
-export async function run(seq: TestSeq): Promise<string> {
+export async function run(seq: TestSeq): Promise<Result> {
   const [suites, test] = from_seq(seq)
-  const result = await _run_test(suites, test)
-  return JSON.stringify(result)
+  return await _run_test(suites, test)
 }
 
 export async function cleanup(seq: TestSeq): Promise<void> {

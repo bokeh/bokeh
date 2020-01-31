@@ -140,7 +140,7 @@ async function run_tests(): Promise<void> {
       }
 
       async function evaluate<T>(expression: string, timeout: number = 5000): Promise<Value<T> | Failure | Timeout> {
-        const output = await with_timeout(Runtime.evaluate({expression, awaitPromise: true}), timeout)
+        const output = await with_timeout(Runtime.evaluate({expression, returnByValue: true, awaitPromise: true}), timeout)
         if (output instanceof Timeout) {
           return output
         } else {
@@ -186,13 +186,13 @@ async function run_tests(): Promise<void> {
 
       handle_exceptions = false
 
-      const ret = await evaluate<string>("JSON.stringify(Tests.top_level)")
-      if (!(ret instanceof Value)) {
+      const result = await evaluate<Suite>("Tests.top_level")
+      if (!(result instanceof Value)) {
         // TODO: Failure.text
         fail("internal error: failed to collect tests")
       }
 
-      const top_level = JSON.parse(ret.value) as Suite
+      const top_level = result.value
 
       type Status = {
         success?: boolean
@@ -297,7 +297,7 @@ async function run_tests(): Promise<void> {
             status.skipped = true
           } else {
             const seq = JSON.stringify(to_seq(suites, test))
-            const output = await evaluate<string>(`Tests.run(${seq})`)
+            const output = await evaluate<Result>(`Tests.run(${seq})`)
             try {
               const errors = entries.filter((entry) => entry.level == "error")
               if (errors.length != 0) {
@@ -312,13 +312,10 @@ async function run_tests(): Promise<void> {
                 status.errors.push("timeout")
                 status.timeout = true
               } else {
-                const result = JSON.parse(output.value) as Result
+                const result = output.value
                 if (result.error != null) {
-                  if (result.error.stack != null) {
-                    status.errors.push(result.error.stack)
-                  } else {
-                    status.errors.push(result.error.str)
-                  }
+                  const {str, stack} = result.error
+                  status.errors.push(stack ?? str)
                   status.failure = true
                 } else if (result.state != null) {
                   const baseline_name = descriptions(suites, test).map(encode).join("__")
