@@ -6,8 +6,10 @@ import path = require("path")
 import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
+import {PNG} from "pngjs"
+import pixelmatch from "pixelmatch"
 
-import {Box, State, create_baseline, load_baseline, diff_baseline} from "./baselines"
+import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 
 const url = argv._[0]
 
@@ -56,6 +58,26 @@ function defer(ms: number = 0): Promise<void> {
 
 function encode(s: string): string {
   return s.replace(/[ \/]/g, "_")
+}
+
+type ImageDiff = {pixels: number, percent: number, diff: Buffer}
+
+function diff_image(existing: Buffer, current: Buffer): ImageDiff | null {
+  const existing_img = PNG.sync.read(existing)
+  const current_img = PNG.sync.read(current)
+  const {width, height} = current_img
+  const diff_img = new PNG({width, height})
+
+  const pixels = pixelmatch(existing_img.data, current_img.data, diff_img.data, width, height, {threshold: 0.1})
+  if (pixels == 0) {
+    return null
+  } else {
+    return {
+      pixels,
+      percent: pixels/(width*height)*100,
+      diff: PNG.sync.write(diff_img),
+    }
+  }
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
@@ -200,6 +222,11 @@ async function run_tests(): Promise<void> {
         timeout?: boolean
         skipped?: boolean
         errors: string[]
+        baseline_name?: string
+        baseline?: string
+        baseline_diff?: string
+        image?: Buffer
+        image_diff?: Buffer
       }
 
       type TestItem = [Suite[], Test, Status]
@@ -332,7 +359,26 @@ async function run_tests(): Promise<void> {
                     if (bbox != null) {
                       const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
                       const buffer = Buffer.from(image.data, "base64")
-                      await fs.promises.writeFile(`${baseline_path}.png`, buffer)
+                      const current = PNG.sync.write(PNG.sync.read(buffer))
+                      status.image = current
+                      const image_path = `${baseline_path}.png`
+                      await fs.promises.writeFile(image_path, current)
+
+                      const existing = load_baseline_image(image_path)
+                      if (existing == null) {
+                        status.failure = true
+                        status.errors.push("missing baseline image")
+                      } else {
+                        const result = diff_image(existing, current)
+                        if (result != null) {
+                          const diff_path = `${baseline_path}.diff.png`
+                          await fs.promises.writeFile(diff_path, result.diff)
+
+                          status.failure = true
+                          status.image_diff = result.diff
+                          status.errors.push(`images differ by ${result.pixels}px (${result.percent}%)`)
+                        }
+                      }
                     }
 
                     const baseline = create_baseline([result.state])
