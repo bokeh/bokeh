@@ -594,7 +594,7 @@ jobs:
           fi
           # verify python being used is the expected one
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          py.test -m unit --cov=bokeh --cov-config=.coveragerc --color=yes tests
+          py.test -m unit --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests
 
 
 
@@ -677,7 +677,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -m "unit and not sampledata" --cov=bokeh --cov-config=.coveragerc --color=yes tests
+          py.test -m "unit and not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests
 
 
 
