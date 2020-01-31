@@ -54,19 +54,44 @@ class TestCodeRunner(object):
         assert "Invalid syntax in" in cr.error
         assert cr.error_detail is not None
 
+    def test_package_error_init(self) -> None:
+        with pytest.raises(ValueError):
+            bahc.CodeRunner("This is a syntax error", "/foo/__init__.py", [], "package")
+
     def test_new_module_success(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         m = cr.new_module()
         assert isinstance(m, ModuleType)
-        assert m.__dict__['__name__'].startswith('bk_script_')
+        assert m.__dict__['__name__'].startswith('bokeh_app_')
         assert m.__dict__['__file__'] == abspath("path")
+        assert m.__dict__['__package__'] is None
+
+    def test_new_module_initpy(self) -> None:
+        cr = bahc.CodeRunner("# test", "/foo/__init__.py", [])
+        m = cr.new_module()
+        assert isinstance(m, ModuleType)
+        assert m.__dict__['__name__'].startswith('bokeh_app_')
+        assert m.__dict__['__file__'].endswith("__init__.py")
+        assert m.__dict__['__package__'] == m.__dict__['__name__']
+
+    def test_new_module_package(self) -> None:
+        cr = bahc.CodeRunner("# test", "/foo/__init__.py", [])
+        package = cr.new_module()
+
+        cr = bahc.CodeRunner("# test", "path", [], package=package)
+        m = cr.new_module()
+
+        assert isinstance(m, ModuleType)
+        assert m.__dict__['__name__'].startswith('bokeh_app_')
+        assert m.__dict__['__file__'] == abspath("path")
+        assert m.__dict__['__package__'] == package.__dict__["__name__"]
 
     def test_new_module_resets_run_errors(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         cr._failed = True
         m = cr.new_module()
         assert isinstance(m, ModuleType)
-        assert m.__dict__['__name__'].startswith('bk_script_')
+        assert m.__dict__['__name__'].startswith('bokeh_app_')
         assert m.__dict__['__file__'] == abspath("path")
 
     def test_new_module_returns_None_for_permanent_errors(self) -> None:

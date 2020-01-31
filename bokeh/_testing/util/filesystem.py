@@ -108,6 +108,20 @@ def with_file_contents(contents, func, dir=None, suffix=''):
 
     with_temporary_file(with_file_object, dir=dir, suffix=suffix)
 
+async def with_file_contents_async(contents, func, dir=None, suffix=''):
+    '''
+
+    '''
+    async def with_file_object(f):
+        f.write(contents.encode("UTF-8"))
+        f.flush()
+        # Windows will get mad if we try to rename it without closing,
+        # and some users of with_file_contents want to rename it.
+        f.close()
+        await func(f.name)
+
+    await with_temporary_file_async(with_file_object, dir=dir, suffix=suffix)
+
 def with_temporary_file(func, dir=None, suffix=''):
     '''
 
@@ -122,6 +136,24 @@ def with_temporary_file(func, dir=None, suffix=''):
     f = tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix=suffix)
     try:
         func(f)
+    finally:
+        f.close()
+        os.remove(f.name)
+
+async def with_temporary_file_async(func, dir=None, suffix=''):
+    '''
+
+    '''
+    if dir is None:
+        dir = _LOCAL_TMP
+
+    # Windows throws a permission denied if we use delete=True for
+    # auto-delete, and then try to open the file again ourselves
+    # with f.name. So we manually delete in the finally block
+    # below.
+    f = tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix=suffix)
+    try:
+        await func(f)
     finally:
         f.close()
         os.remove(f.name)

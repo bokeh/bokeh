@@ -65,10 +65,11 @@ class ServerLifecycleHandler(LifecycleHandler):
             raise ValueError('Must pass a filename to ServerLifecycleHandler')
         filename = kwargs['filename']
         argv = kwargs.get('argv', [])
+        package = kwargs.get('package', False)
 
         source = codecs.open(filename, 'r', 'UTF-8').read()
 
-        self._runner = CodeRunner(source, filename, argv)
+        self._runner = CodeRunner(source, filename, argv, package=package)
 
         if not self._runner.failed:
             # unlike ScriptHandler, we only load the module one time

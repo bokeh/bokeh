@@ -269,6 +269,7 @@ The full set of files that Bokeh server knows about is:
 
     myapp
        |
+       +---__init__.py
        +---main.py
        +---server_lifecycle.py
        +---static
@@ -277,6 +278,8 @@ The full set of files that Bokeh server knows about is:
             +---index.html
 
 The optional components are
+
+* An ``__init__.py`` file that marks this direcory as a package. Package relative imports, e.g. ``from . import mymod`` and ``from .mymod import func`` will be possible.
 
 * A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as described in :ref:`userguide_server_applications_lifecycle`.
 
@@ -289,15 +292,20 @@ The optional components are
 When executing your ``main.py`` Bokeh server ensures that the standard
 ``__file__`` module attribute works as you would expect. So it is possible
 to include data files or custom user defined models in your directory
-however you like. Additionally, the application directory is also added
-to ``sys.path`` so that python modules in the application directory may
-be easily imported.
+however you like.
+
+Additionally, the application directory is also added to ``sys.path`` so that
+Python modules in the application directory may be easily imported. However, if
+an ``__init__.py`` is present in the direcory then the app is usable as a
+package, and standard package-relative imports will also work.
 
 An example might be:
 
 .. code-block:: none
 
     myapp
+       |
+       +---__init__.py
        |
        +---data
        |    +---things.csv
@@ -329,7 +337,7 @@ In this case you might have code similar to:
 .. code-block:: python
 
     from os.path import dirname, join
-    from helpers import load_data
+    from .helpers import load_data
 
     load_data(join(dirname(__file__), 'data', 'things.csv'))
 

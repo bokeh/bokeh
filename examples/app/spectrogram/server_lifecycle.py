@@ -1,6 +1,6 @@
 from threading import Thread
 
-import audio
+from . import audio
 
 
 def on_server_loaded(server_context):

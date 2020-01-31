@@ -3,13 +3,14 @@ from os.path import dirname, join
 
 import numpy as np
 
-import audio
-from audio import MAX_FREQ, NUM_BINS, TIMESLICE
 from bokeh.io import curdoc
 from bokeh.layouts import column, grid, row
 from bokeh.models import ColumnDataSource, Div, Slider
 from bokeh.plotting import figure
-from waterfall import WaterfallRenderer
+
+from . import audio
+from .audio import MAX_FREQ, NUM_BINS, TIMESLICE
+from .waterfall import WaterfallRenderer
 
 MAX_FREQ_KHZ = MAX_FREQ*0.001
 NUM_GRAMS = 800

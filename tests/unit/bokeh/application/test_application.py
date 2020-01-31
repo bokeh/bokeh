@@ -86,6 +86,36 @@ class Test_Application(object):
         doc = a.create_document()
         assert len(doc.roots) == 3
 
+    def test_two_handlers_in_init(self) -> None:
+        def add_roots(doc):
+            doc.add_root(AnotherModelInTestApplication())
+            doc.add_root(SomeModelInTestApplication())
+        def add_one_root(doc):
+            doc.add_root(AnotherModelInTestApplication())
+        handler = FunctionHandler(add_roots)
+        handler2 = FunctionHandler(add_one_root)
+        a = baa.Application(handler, handler2)
+        doc = a.create_document()
+        assert len(doc.roots) == 3
+
+    def test_safe_to_fork(self) -> None:
+        def add_roots(doc):
+            doc.add_root(AnotherModelInTestApplication())
+            doc.add_root(SomeModelInTestApplication())
+        def add_one_root(doc):
+            doc.add_root(AnotherModelInTestApplication())
+        handler = FunctionHandler(add_roots)
+        handler2 = FunctionHandler(add_one_root)
+        a = baa.Application(handler, handler2)
+        assert a.safe_to_fork
+        a.create_document()
+        assert not a.safe_to_fork
+
+    def test_metadata(self) -> None:
+        a = baa.Application(metadata="foo")
+        a.create_document()
+        assert a.metadata == "foo"
+
     def test_failed_handler(self, caplog) -> None:
         a = baa.Application()
         handler = CodeHandler(filename="junk", source="bad(")

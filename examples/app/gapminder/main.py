@@ -6,7 +6,8 @@ from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
                           HoverTool, Label, SingleIntervalTicker, Slider,)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
-from data import process_data
+
+from .data import process_data
 
 fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
 
