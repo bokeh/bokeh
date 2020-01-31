@@ -47,8 +47,6 @@
     "ts-node": "^8.7.0",
     "express": "^4.17.1",
     "@types/express": "^4.17.2",
-    "pixelmatch": "^5.1.0",
-    "@types/pixelmatch": "^5.0.0",
     "pngjs": "^3.4.0",
     "@types/pngjs": "^3.4.0",
     "source-map-support": "^0.5.16",

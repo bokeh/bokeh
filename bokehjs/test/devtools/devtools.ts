@@ -7,7 +7,6 @@ import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 import {PNG} from "pngjs"
-import pixelmatch from "pixelmatch"
 
 import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 
@@ -47,15 +46,6 @@ function timeout(ms: number): Promise<void> {
   })
 }
 
-/*
-function defer(ms: number = 0): Promise<void> {
-  return new Promise((resolve, _reject) => {
-    const timer = setTimeout(() => resolve(), ms)
-    timer.unref()
-  })
-}
-*/
-
 function encode(s: string): string {
   return s.replace(/[ \/]/g, "_")
 }
@@ -65,10 +55,35 @@ type ImageDiff = {pixels: number, percent: number, diff: Buffer}
 function diff_image(existing: Buffer, current: Buffer): ImageDiff | null {
   const existing_img = PNG.sync.read(existing)
   const current_img = PNG.sync.read(current)
+
+  // TODO: resize
+  const same_dims = existing_img.width == current_img.width && existing_img.height == current_img.height
+  if (!same_dims) {
+    throw new Error("bad dims")
+  }
+
   const {width, height} = current_img
   const diff_img = new PNG({width, height})
 
-  const pixels = pixelmatch(existing_img.data, current_img.data, diff_img.data, width, height, {threshold: 0.1})
+  const len = width*height
+  const a32 = new Uint32Array(existing_img.data.buffer, existing_img.data.byteOffset, len)
+  const b32 = new Uint32Array(current_img.data.buffer, current_img.data.byteOffset, len)
+  const c32 = new Uint32Array(diff_img.data.buffer, diff_img.data.byteOffset, len)
+
+  function rgba(r: number, g: number, b: number, a: number = 1.0): number {
+    return (a*255 & 0xFF) << 24 | (b & 0xFF) << 16 | (g & 0xFF) << 8 | (r & 0xFF)
+  }
+
+  c32.fill(rgba(0, 0, 0))
+
+  let pixels = 0
+  for (let i = 0; i < len; i++) {
+    if (a32[i] != b32[i]) {
+      pixels++
+      c32[i] = rgba(0, 0, 255)
+    }
+  }
+
   if (pixels == 0) {
     return null
   } else {
@@ -225,6 +240,7 @@ async function run_tests(): Promise<void> {
         baseline_name?: string
         baseline?: string
         baseline_diff?: string
+        reference?: Buffer
         image?: Buffer
         image_diff?: Buffer
       }
@@ -347,6 +363,7 @@ async function run_tests(): Promise<void> {
                   status.failure = true
                 } else if (result.state != null) {
                   const baseline_name = descriptions(suites, test).map(encode).join("__")
+                  status.baseline_name = baseline_name
 
                   if (baseline_names.has(baseline_name)) {
                     status.errors.push("duplicated description")
@@ -358,8 +375,7 @@ async function run_tests(): Promise<void> {
                     const {bbox} = result
                     if (bbox != null) {
                       const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                      const buffer = Buffer.from(image.data, "base64")
-                      const current = PNG.sync.write(PNG.sync.read(buffer))
+                      const current = Buffer.from(image.data, "base64")
                       status.image = current
                       const image_path = `${baseline_path}.png`
                       await fs.promises.writeFile(image_path, current)
@@ -369,11 +385,9 @@ async function run_tests(): Promise<void> {
                         status.failure = true
                         status.errors.push("missing baseline image")
                       } else {
+                        status.reference = existing
                         const result = diff_image(existing, current)
                         if (result != null) {
-                          const diff_path = `${baseline_path}.diff.png`
-                          await fs.promises.writeFile(diff_path, result.diff)
-
                           status.failure = true
                           status.image_diff = result.diff
                           status.errors.push(`images differ by ${result.pixels}px (${result.percent}%)`)
@@ -383,6 +397,7 @@ async function run_tests(): Promise<void> {
 
                     const baseline = create_baseline([result.state])
                     await fs.promises.writeFile(baseline_path, baseline)
+                    status.baseline = baseline
 
                     const existing = load_baseline(baseline_path)
                     if (existing != baseline) {
@@ -390,8 +405,9 @@ async function run_tests(): Promise<void> {
                         status.errors.push("missing baseline")
                       }
                       const diff = diff_baseline(baseline_path)
-                      status.errors.push(diff)
                       status.failure = true
+                      status.baseline_diff = diff
+                      status.errors.push(diff)
                     }
                   }
                 }
