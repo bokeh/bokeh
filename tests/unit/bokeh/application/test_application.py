@@ -108,12 +108,12 @@ class Test_Application(object):
         handler2 = FunctionHandler(add_one_root)
         a = baa.Application(handler, handler2)
         assert a.safe_to_fork
-        doc = a.create_document()
+        a.create_document()
         assert not a.safe_to_fork
 
     def test_metadata(self) -> None:
         a = baa.Application(metadata="foo")
-        doc = a.create_document()
+        a.create_document()
         assert a.metadata == "foo"
 
     def test_failed_handler(self, caplog) -> None:
