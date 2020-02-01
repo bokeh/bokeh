@@ -1,3 +1,6 @@
+import fs from "fs"
+import {join} from "path"
+
 import {argv} from "yargs"
 import express from "express"
 import nunjucks from "nunjucks"
@@ -16,6 +19,11 @@ app.get("/unit", (_req, res) => {
 })
 app.get("/integration", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js"})
+})
+
+app.get("/integration/report", async (_req, res) => {
+  const json = await fs.promises.readFile(join("test", "report.json"), {encoding: "utf-8"})
+  res.render("report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
 })
 
 process.once("SIGTERM", () => {

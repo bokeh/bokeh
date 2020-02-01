@@ -390,7 +390,7 @@ async function run_tests(): Promise<void> {
                         if (result != null) {
                           status.failure = true
                           status.image_diff = result.diff
-                          status.errors.push(`images differ by ${result.pixels}px (${result.percent}%)`)
+                          status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
                         }
                       }
                     }
@@ -444,6 +444,17 @@ async function run_tests(): Promise<void> {
           }
         }
       }
+
+      const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
+        const {failure, image, image_diff, reference} = status
+        return [descriptions(suites, test), {failure, image, image_diff, reference}]
+      }), (_key, value) => {
+        if (value?.type == "Buffer")
+          return Buffer.from(value.data).toString("base64")
+        else
+          return value
+      })
+      await fs.promises.writeFile(path.join("test", "report.json"), json)
 
       const files = new Set(await fs.promises.readdir(baselines_root))
       for (const name of baseline_names) {
