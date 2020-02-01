@@ -181,6 +181,14 @@ function opt(name: string, value: unknown): string {
 
 function devtools(name: string): Promise<void> {
   const args = ["--no-warnings", "./test/devtools", `http://localhost:5777/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
+
+  if (argv.debug) {
+    if (argv.debug === true)
+      args.unshift("--inspect-brk")
+    else
+      args.unshift(`--inspect-brk=${argv.debug}`)
+  }
+
   const proc = spawn(process.execPath, args, {stdio: 'inherit'})
 
   process.once("exit",    () => proc.kill())
