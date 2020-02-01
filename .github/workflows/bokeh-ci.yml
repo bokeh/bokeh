@@ -390,6 +390,21 @@ jobs:
         run: |
           py.test -s --color=yes tests/test_bokehjs.py
 
+      - name: Collect results
+        if: always()
+        shell: bash
+        run: |
+          mkdir integration-report
+          mkdir integration-report/baselines
+          cp bokehjs/test/report.json integration-report/
+          cp $(git status --short bokehjs/test/baselines | cut -c4-) integration-report/baselines/
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: integration-report
+          path: integration-report
 
 
 
