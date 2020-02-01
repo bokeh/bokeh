@@ -1,10 +1,4 @@
 /build
 /node_modules
-*~
-*.sw[opn]
-*.bak
-*#*
-*.#*
-*.DS_Store
-npm-debug.log
+/npm-debug.log
 /.package.json
