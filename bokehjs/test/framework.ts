@@ -68,6 +68,15 @@ _globalThis.it = it
 _globalThis.before_each = before_each
 _globalThis.after_each = after_each
 
+
+const _defer = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setImmediate
+
+export function defer(): Promise<void> {
+  return new Promise((resolve) => {
+    _defer(() => resolve())
+  })
+}
+
 export async function run_all(grep?: string | RegExp): Promise<void> {
 
   async function _run_suite(suite: Suite, seq: Suite[]) {
@@ -101,7 +110,6 @@ type Box = {x: number, y: number, width: number, height: number}
 type State = {type: string, bbox?: Box, children?: State[]}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
-
 type TestSeq = [number[], number]
 
 let current_test: Test | null = null
@@ -153,6 +161,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<Result> {
   current_test = test
   try {
     await fn()
+    await defer()
   } catch (err) {
     //throw err
     _handle(err)
