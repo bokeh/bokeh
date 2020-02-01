@@ -1,31 +1,21 @@
-import fs from "fs"
-
-import express from "express"
 import {argv} from "yargs"
+import express from "express"
+import nunjucks from "nunjucks"
 
 const app = express()
-app.engine("html", (path, options, callback) => {
-  fs.readFile(path, (err, content) => {
-    if (err)
-      return callback(err, "")
 
-    const rendered = content
-      .toString()
-      .replace(/{{ (\w+) }}/g, (_, key) => (options as any)[key])
-
-    return callback(null, rendered)
-  })
+nunjucks.configure(__dirname, {
+  autoescape: true,
+  express: app,
 })
-app.set("views", __dirname)
-app.set("view engine", "html")
 
 app.use("/static", express.static("build/"))
 
 app.get("/unit", (_req, res) => {
-  res.render("template", {title: "Unit Tests", main: "unit.js"})
+  res.render("template.html", {title: "Unit Tests", main: "unit.js"})
 })
 app.get("/integration", (_req, res) => {
-  res.render("template", {title: "Integration Tests", main: "integration.js"})
+  res.render("template.html", {title: "Integration Tests", main: "integration.js"})
 })
 
 process.once("SIGTERM", () => {
