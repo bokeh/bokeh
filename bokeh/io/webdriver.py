@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 import atexit
 import shutil
 from os.path import devnull
-from subprocess import PIPE, Popen
 from typing import Any, Optional
 
 # External imports
@@ -71,19 +70,7 @@ def create_chromium_webdriver() -> WebDriver:
 #-----------------------------------------------------------------------------
 
 def _detect(executable: str) -> Optional[str]:
-    path = shutil.which(executable)
-    if path is None:
-        return None
-
-    try:
-        proc = Popen([path, "--version"], stdout=PIPE, stderr=PIPE)
-        proc.communicate()
-        if proc.returncode != 0:
-            return None
-    except OSError:
-        return None
-
-    return path
+    return shutil.which(executable)
 
 def _is_available(executable: str) -> bool:
     return _detect(executable) is not None
