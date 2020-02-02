@@ -89,7 +89,8 @@ def _is_available(executable: str) -> bool:
     return _detect(executable) is not None
 
 def _has_firefox() -> bool:
-    return _is_available("firefox") and _is_available("geckodriver")
+    names = ["firefox-bin", "firefox"]
+    return any(_is_available(name) for name in names) and _is_available("geckodriver")
 
 def _has_chromium() -> bool:
     names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
