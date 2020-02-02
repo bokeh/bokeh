@@ -35,6 +35,7 @@ from bokeh.models import (
     Range1d,
     RangeSlider,
 )
+from bokeh.models.formatters import BasicTickFormatter
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -91,6 +92,20 @@ class Test_RangeSlider(object):
 
         assert get_title_text(page.driver, ".foo") == "bar: 1 .. 5"
         assert get_title_value(page.driver, ".foo") == "1 .. 5"
+
+        assert page.has_no_console_errors()
+
+    def test_displays_title_scientific(self, bokeh_model_page) -> None:
+        slider = RangeSlider(start=0, end=10e-6, step=1e-6, value=(1e-6, 8e-6), title="bar",
+            format=BasicTickFormatter(precision=2), css_classes=["foo"], width=300)
+
+        page = bokeh_model_page(slider)
+
+        el = page.driver.find_element_by_css_selector('.foo')
+        assert len(el.find_elements_by_css_selector('div.bk-input-group > div')) == 2
+
+        assert get_title_text(page.driver, ".foo") == "bar: 1.00e-6 .. 8.00e-6"
+        assert get_title_value(page.driver, ".foo") == "1.00e-6 .. 8.00e-6"
 
         assert page.has_no_console_errors()
 
