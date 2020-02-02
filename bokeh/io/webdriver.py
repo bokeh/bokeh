@@ -77,7 +77,7 @@ def _detect(executable: str) -> Optional[str]:
 
     try:
         proc = Popen([path, "--version"], stdout=PIPE, stderr=PIPE)
-        (stdout, stderr) = proc.communicate()
+        proc.communicate()
         if proc.returncode != 0:
             return None
     except OSError:
