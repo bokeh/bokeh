@@ -861,6 +861,8 @@ class Document(object):
             None
 
         '''
+        if (issubclass(selector, Document)):
+            selector = dict(type=selector)
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)

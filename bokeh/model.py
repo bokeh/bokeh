@@ -557,6 +557,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             None
 
         '''
+        if (issubclass(selector, Model)):
+            selector = dict(type=selector)
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)
