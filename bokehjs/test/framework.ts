@@ -14,6 +14,7 @@ export type Decl = {
 }
 
 export type Test = Decl & {
+  description: string
   skip: boolean
   view?: LayoutDOMView
   el?: HTMLElement
@@ -68,42 +69,50 @@ _globalThis.it = it
 _globalThis.before_each = before_each
 _globalThis.after_each = after_each
 
-
 const _defer = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setImmediate
 
-export function defer(): Promise<void> {
+function defer(): Promise<void> {
   return new Promise((resolve) => {
     _defer(() => resolve())
   })
 }
 
-export async function run_all(grep?: string | RegExp): Promise<void> {
-
-  async function _run_suite(suite: Suite, seq: Suite[]) {
-    for (const sub_suite of suite.suites) {
-      await _run_suite(sub_suite, seq.concat(sub_suite))
-    }
-
-    for (const test of suite.tests) {
-      const {description, skip} = test
-
-      if (skip)
-        continue
-
-      if (grep != null) {
-        const descriptions = seq.map((s) => s.description).concat(description ?? "")
-
-        const macher: (d: string) => boolean =
-          isString(grep) ? (d) => d.includes(grep) : (d) => d.search(grep) != -1
-        if (!descriptions.some(macher))
-          continue
-      }
-
-      await _run_test(seq, test)
-    }
+function* iter_from({suites, tests}: Suite, parents: Suite[] = []): Iterable<[Suite[], Test]> {
+  for (const suite of suites) {
+    yield* iter_from(suite, parents.concat(suite))
   }
 
-  await _run_suite(top_level, [top_level])
+  for (const test of tests) {
+    yield [parents, test]
+  }
+}
+
+function* iter_tests(): Iterable<[Suite[], Test]> {
+  yield* iter_from(top_level)
+}
+
+export async function run_all(grep?: string | RegExp): Promise<void> {
+  for (const [parents, test] of iter_tests()) {
+    if (test.skip)
+      continue
+
+    if (grep != null) {
+      const descriptions = [...parents, test].map((s) => s.description)
+
+      const macher: (d: string) => boolean =
+        isString(grep) ? (d) => d.includes(grep) : (d) => d.search(grep) != -1
+      if (!descriptions.some(macher))
+        continue
+    }
+
+    await _run_test(parents, test)
+  }
+}
+
+export async function clear_all(): Promise<void> {
+  for (const [, test] of iter_tests()) {
+    _clear_test(test)
+  }
 }
 
 type Box = {x: number, y: number, width: number, height: number}
@@ -130,15 +139,24 @@ export async function run(seq: TestSeq): Promise<Result> {
   return await _run_test(suites, test)
 }
 
-export async function cleanup(seq: TestSeq): Promise<void> {
+export async function clear(seq: TestSeq): Promise<void> {
   const [, test] = from_seq(seq)
+  _clear_test(test)
+}
+
+function _clear_test(test: Test): void {
   if (test.view != null) {
-    try {
+    const {model} = test.view
+    if (model.document != null) {
+      model.document.remove_root(model)
+    } else {
       test.view.remove()
-    } catch {}
+    }
+    test.view = undefined
   }
   if (test.el != null) {
     test.el.remove()
+    test.el = undefined
   }
 }
 
