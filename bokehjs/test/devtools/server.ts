@@ -10,6 +10,7 @@ const app = express()
 nunjucks.configure(__dirname, {
   autoescape: true,
   express: app,
+  noCache: true,
 })
 
 app.use("/static", express.static("build/"))
