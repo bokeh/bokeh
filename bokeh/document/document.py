@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 import sys
 from collections import defaultdict
 from functools import wraps
+from inspect import isclass
 from json import loads
 from typing import Any, Callable, Dict, List
 
@@ -861,7 +862,7 @@ class Document(object):
             None
 
         '''
-        if (issubclass(selector, Document)):
+        if isclass(selector) and issubclass(selector, Document):
             selector = dict(type=selector)
         for obj in self.select(selector):
             for key, val in updates.items():
