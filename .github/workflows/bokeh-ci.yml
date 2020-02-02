@@ -570,7 +570,6 @@ jobs:
         run: |
           pushd bokehjs
           npm install -g npm
-          npm install -g phantomjs-prebuilt
           npm ci --no-progress
           popd
           python setup.py --install-js
