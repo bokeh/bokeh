@@ -18,10 +18,6 @@ import pytest ; pytest
 import re
 from typing import Tuple
 
-# External imports
-from mock import patch
-from PIL import Image
-
 # Bokeh imports
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
@@ -56,46 +52,46 @@ def webdriver(request):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-@pytest.mark.parametrize("dimensions", [(4, 4), (14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
+@pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
     width, height = dimensions
-    border = 2
+    border = 5
 
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=width, plot_width=height,
                   min_border=border,
                   hidpi=False,
                   toolbar_location=None,
-                  outline_line_color=None, background_fill_color=None, border_fill_color=None)
+                  outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(layout, web_driver=webdriver)
+        png = bie.get_screenshot_as_png(layout, driver=webdriver)
 
     # a WxHpx image of white pixels
     assert png.size == (width, height)
 
     data = png.tobytes()
     assert len(data) == 4*width*height
-    assert data == b"\xff\xff\xff\xff"*width*height
+    assert data == b"\x00\xff\x00\xff"*width*height
 
 @pytest.mark.unit
 @pytest.mark.selenium
-@pytest.mark.parametrize("dimensions", [(4, 4), (14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
+@pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]) -> None:
     width, height = dimensions
-    border = 2
+    border = 5
 
     layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
                   plot_height=width, plot_width=height,
                   toolbar_location=None,
                   min_border=border,
                   hidpi=False,
-                  outline_line_color=None, background_fill_color=None, border_fill_color=None)
-    glyph = Rect(x="x", y="y", width=2, height=2, fill_color="red", line_color="red")
+                  outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
+    glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
     source = ColumnDataSource(data=dict(x=[0], y=[0]))
     layout.add_glyph(source, glyph)
 
-    png = bie.get_screenshot_as_png(layout, web_dirver=webdriver)
+    png = bie.get_screenshot_as_png(layout, driver=webdriver)
     assert png.size == (width, height)
 
     data = png.tobytes()
@@ -108,7 +104,8 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
             count += 1
 
     w, h, b = width, height, border
-    assert count == w*h - 2*b*(w + h) + 4*b**2
+    expected_count = w*h - 2*b*(w + h) + 4*b**2
+    assert count == expected_count
 
 @pytest.mark.unit
 @pytest.mark.selenium

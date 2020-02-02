@@ -58,7 +58,7 @@ __all__ = (
 def create_firefox_webdriver() -> WebDriver:
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
-    return webdriver.Firefox(options=options, log_path=devnull)
+    return webdriver.Firefox(options=options, service_log_path=devnull)
 
 def create_chromium_webdriver() -> WebDriver:
     options = webdriver.chrome.options.Options()
