@@ -92,7 +92,8 @@ def _has_firefox() -> bool:
     return _is_available("firefox") and _is_available("geckodriver")
 
 def _has_chromium() -> bool:
-    return _is_available("chromium-browser") and _is_available("chromedriver")
+    names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
+    return any(_is_available(name) for name in names) and _is_available("chromedriver")
 
 class _WebdriverState(object):
     '''
