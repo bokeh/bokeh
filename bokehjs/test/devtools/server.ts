@@ -32,7 +32,7 @@ process.once("SIGTERM", () => {
 })
 
 const host = argv.host as string | undefined ?? "127.0.0.1"
-const port = 5777
+const port = parseInt(argv.port as string | undefined ?? "5777")
 
 const server = app.listen(port, host)
 

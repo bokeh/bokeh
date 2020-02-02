@@ -185,7 +185,7 @@ function opt(name: string, value: unknown): string {
 }
 
 function devtools(name: string): Promise<void> {
-  const args = ["--no-warnings", "./test/devtools", `http://localhost:5777/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
+  const args = ["--no-warnings", "./test/devtools", `http://localhost:${port}/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
 
   if (argv.debug) {
     if (argv.debug === true)
@@ -223,7 +223,7 @@ task("test:start:headless", async () => {
 })
 
 task("test:start:server", async () => {
-  const port = 5777
+  const port = 5778
   if (await is_available(port)) {
     await server(port)
   } else {
