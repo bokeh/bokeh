@@ -23,6 +23,7 @@ import os
 import sys
 from os.path import basename, dirname, join, splitext
 from tempfile import NamedTemporaryFile
+from typing import Optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,7 +43,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def default_filename(ext):
+def default_filename(ext: str) -> str:
     ''' Generate a default filename with a given extension, attempting to use
     the filename of the currently running process, if possible.
 
@@ -76,7 +77,7 @@ def default_filename(ext):
     name, _ = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
-def detect_current_filename():
+def detect_current_filename() -> Optional[str]:
     ''' Attempt to return the filename of the currently running Python process
 
     Returns None if the filename cannot be detected.
@@ -85,17 +86,18 @@ def detect_current_filename():
 
     filename = None
     frame = inspect.currentframe()
-    try:
-        while frame.f_back and frame.f_globals.get('name') != '__main__':
-            frame = frame.f_back
+    if frame is not None:
+        try:
+            while frame.f_back and frame.f_globals.get('name') != '__main__':
+                frame = frame.f_back
 
-        filename = frame.f_globals.get('__file__')
-    finally:
-        del frame
+            filename = frame.f_globals.get('__file__')
+        finally:
+            del frame
 
     return filename
 
-def temp_filename(ext):
+def temp_filename(ext: str) -> str:
     ''' Generate a temporary, writable filename with the given extension
 
     '''
@@ -105,18 +107,19 @@ def temp_filename(ext):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _no_access(basedir):
+def _no_access(basedir: str) -> bool:
     ''' Return True if the given base dir is not accessible or writeable
 
     '''
     return not os.access(basedir, os.W_OK | os.X_OK)
 
-def _shares_exec_prefix(basedir):
+def _shares_exec_prefix(basedir: str) -> bool:
     ''' Whether a give base directory is on the system exex prefix
 
     '''
-    prefix = sys.exec_prefix
-    return (prefix is not None and basedir.startswith(prefix))
+    # XXX: exec_prefix has type str so why the check?
+    prefix: Optional[str] = sys.exec_prefix
+    return prefix is not None and basedir.startswith(prefix)
 
 #-----------------------------------------------------------------------------
 # Code
