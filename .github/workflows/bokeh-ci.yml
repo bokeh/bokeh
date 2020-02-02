@@ -678,7 +678,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -m "unit and not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests
+          py.test -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
 
 
