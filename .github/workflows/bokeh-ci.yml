@@ -491,6 +491,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
