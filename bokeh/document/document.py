@@ -49,6 +49,7 @@ from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
 from ..events import Event
+from ..model import Model
 from ..themes import Theme, built_in_themes
 from ..themes import default as default_theme
 from ..util.callback_manager import _check_callback
@@ -862,7 +863,7 @@ class Document(object):
             None
 
         '''
-        if isclass(selector) and issubclass(selector, Document):
+        if isclass(selector) and issubclass(selector, Model):
             selector = dict(type=selector)
         for obj in self.select(selector):
             for key, val in updates.items():
