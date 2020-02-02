@@ -72,21 +72,22 @@ class Style(object):
 class Bundle(object):
 
     @classmethod
-    def of(cls, js_files, js_raw, css_files, css_raw):
-        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw)
+    def of(cls, js_files, js_raw, css_files, css_raw, hashes):
+        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw, hashes=hashes)
 
     def __init__(self, **kwargs):
         self.js_files = kwargs.get("js_files", [])
         self.js_raw = kwargs.get("js_raw", [])
         self.css_files = kwargs.get("css_files", [])
         self.css_raw = kwargs.get("css_raw", [])
+        self.hashes = kwargs.get("hashes", None)
 
     def __iter__(self):
         yield self._render_js()
         yield self._render_css()
 
     def _render_js(self):
-        return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw)
+        return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw, hashes=self.hashes)
 
     def _render_css(self):
         return CSS_RESOURCES.render(css_files=self.css_files, css_raw=self.css_raw)
@@ -182,7 +183,7 @@ def bundle_for_objs_and_resources(objs, resources):
     if ext is not None:
         js_raw.append(ext)
 
-    return Bundle.of(js_files, js_raw, css_files, css_raw)
+    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else None)
 
 #-----------------------------------------------------------------------------
 # Private API

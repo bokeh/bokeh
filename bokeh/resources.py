@@ -343,6 +343,7 @@ class BaseResources(object):
     def _resolve(self, kind):
         paths = self._file_paths(kind)
         files, raw = [], []
+        hashes = None
 
         if self.mode == "inline":
             raw = [self._inline(path) for path in paths]
@@ -354,11 +355,13 @@ class BaseResources(object):
         elif self.mode == "cdn":
             cdn = self._cdn_urls()
             files = list(cdn["urls"](self.components(kind), kind))
+            if cdn["hashes"]:
+                hashes = cdn["hashes"](self.components(kind), kind)
         elif self.mode == "server":
             server = self._server_urls()
             files = list(server["urls"](self.components(kind), kind))
 
-        return (files, raw)
+        return (files, raw, hashes)
 
     @staticmethod
     def _inline(path):
@@ -426,13 +429,13 @@ class JSResources(BaseResources):
 
     @property
     def js_files(self):
-        files, _ = self._resolve("js")
+        files, _, __ = self._resolve("js")
         external_resources = self._collect_external_resources("__javascript__")
         return external_resources + files
 
     @property
     def js_raw(self):
-        _, raw = self._resolve("js")
+        _, raw, __ = self._resolve("js")
 
         if self.log_level is not None:
             raw.append('Bokeh.set_log_level("%s");' % self.log_level)
@@ -442,10 +445,15 @@ class JSResources(BaseResources):
 
         return raw
 
+    @property
+    def hashes(self):
+        _, __, hashes = self._resolve("js")
+        return hashes
+
     # Public methods ----------------------------------------------------------
 
     def render_js(self):
-        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
+        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files, hashes=self.hashes)
 
 
 class CSSResources(BaseResources):
@@ -498,13 +506,13 @@ class CSSResources(BaseResources):
 
     @property
     def css_files(self):
-        files, _ = self._resolve("css")
+        files, _, __ = self._resolve("css")
         external_resources = self._collect_external_resources("__css__")
         return external_resources + files
 
     @property
     def css_raw(self):
-        _, raw = self._resolve("css")
+        _, raw, __ = self._resolve("css")
         return raw
 
     @property
@@ -644,15 +652,20 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     # check the 'dev' fingerprint
     container = dev_container if _DEV_PAT.match(version) else rel_container
 
-    if version.endswith(("dev", "rc")):
-        log.debug("Getting CDN URL for local dev version will not produce usable URL")
+    def mk_filename(comp, kind):
+        return f"{comp}-{version}{_minified}.{kind}"
 
     def mk_url(comp, kind):
-        return f"{base_url}/{container}/{_legacy}{comp}-{version}{_minified}.{kind}"
+        return f"{base_url}/{container}/{_legacy}" + mk_filename(comp, kind)
 
-    result = {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
+    result = {
+        "urls": lambda components, kind: [mk_url(component, kind) for component in components],
+        "messages": [],
+        "hashes" : None
+    }
 
     if len(__version__.split("-")) > 1:
+        log.debug("Getting CDN URL for local dev version may not produce usable URL")
         result["messages"].append(
             {
                 "type": "warn",
@@ -662,6 +675,10 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
                 ),
             }
         )
+
+    if is_full_release():
+        sri_hashes = get_sri_hashes_for_version(version)
+        result['hashes'] = lambda components, kind: {mk_url(component, kind): sri_hashes[mk_filename(component, kind)] for component in components}
 
     return result
 
