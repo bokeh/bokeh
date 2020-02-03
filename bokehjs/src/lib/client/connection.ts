@@ -32,7 +32,7 @@ export class ClientConnection {
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
               readonly token: string = DEFAULT_TOKEN,
               readonly args_string: string | null = null) {
-    this.id = JSON.parse(atob(token))['session_id']
+    this.id = JSON.parse(atob(token.split('.')[0]))['session_id'].split('.')[0]
     logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
   }
 

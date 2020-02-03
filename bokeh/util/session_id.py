@@ -96,6 +96,8 @@ def generate_jwt_token(session_id: str,
         str
     """
     now = calendar.timegm(dt.datetime.now().utctimetuple())
+    if signed:
+        session_id = '.'.join([session_id, _signature(session_id, secret_key)])
     payload = {'session_id': session_id, 'session_expiry': now+expiration}
     if extra_payload:
         if "session_id" in extra_payload:
@@ -145,7 +147,7 @@ def check_token_signature(token: str,
 
     Args:
         token (str) :
-            The session_id to check
+            The token to check
 
         secret_key (str, optional) :
             Secret key (default: value of BOKEH_SECRET_KEY environment variable)
@@ -160,15 +162,26 @@ def check_token_signature(token: str,
     """
     secret_key = _ensure_bytes(secret_key)
     if signed:
-        pieces = token.split('.', 1)
-        if len(pieces) != 2:
+        token_pieces = token.split('.', 1)
+        if len(token_pieces) != 2:
             return False
-        base_id = pieces[0]
-        provided_signature = pieces[1]
-        expected_signature = _signature(base_id, secret_key)
+        base_token = token_pieces[0]
+        provided_token_signature = token_pieces[1]
+        expected_token_signature = _signature(base_token, secret_key)
         # hmac.compare_digest() uses a string compare algorithm that doesn't
         # short-circuit so we don't allow timing analysis
-        return hmac.compare_digest(expected_signature, provided_signature)
+        token_valid = hmac.compare_digest(
+            expected_token_signature, provided_token_signature
+        )
+        id_pieces = get_session_id(token).split('.', 1)
+        if len(id_pieces) != 2:
+            return False
+        provided_id_signature = id_pieces[1]
+        expected_id_signature = _signature(id_pieces[0], secret_key)
+        session_id_valid = hmac.compare_digest(
+            expected_id_signature, provided_id_signature
+        )
+        return token_valid and session_id_valid
     return True
 
 #-----------------------------------------------------------------------------
