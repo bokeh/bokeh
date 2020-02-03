@@ -72,7 +72,9 @@ def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
 
     data = png.tobytes()
     assert len(data) == 4*width*height
-    assert data == b"\x00\xff\x00\xff"*width*height
+    assert (data == b"\x00\xff\x00\xff"*width*height or
+            data == b"\x2e\xff\x05\xff"*width*height)   # XXX: Chrome on MacOS
+
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -100,7 +102,9 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
     # count red pixels in center area
     count = 0
     for x in range(width*height):
-        if data[x*4:x*4+4] == b"\xff\x00\x00\xff":
+        pixel = data[x*4:x*4+4]
+        if pixel == b"\xff\x00\x00\xff" or \
+           pixel == b"\xfc\x00\x06\xff":     # XXX: Chrome on MacOS
             count += 1
 
     w, h, b = width, height, border

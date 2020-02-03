@@ -14,6 +14,11 @@
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
+from ..util.dependencies import import_required # isort:skip
+import_required("selenium.webdriver",
+                "To use bokeh.io image export functions you need selenium "
+                "('conda install selenium' or 'pip install selenium')")
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -22,25 +27,18 @@ log = logging.getLogger(__name__)
 import atexit
 import shutil
 from os.path import devnull
-from typing import Any, Optional
+from typing import Optional
 
 # External imports
+from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from typing_extensions import Literal
-
-# Bokeh imports
-from ..util.dependencies import import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-webdriver = import_required('selenium.webdriver',
-                            'To use bokeh.io image export functions you need selenium ' +
-                            '("conda install selenium" or "pip install selenium")')
-
 DriverKind = Literal["firefox", "chromium"]
-
-WebDriver = Any
 
 __all__ = (
     'webdriver_control',
@@ -55,9 +53,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def create_firefox_webdriver() -> WebDriver:
+    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+    binary = FirefoxBinary(_detect("firefox"))
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
-    return webdriver.Firefox(options=options, service_log_path=devnull)
+    return webdriver.Firefox(firefox_binary=binary, options=options, service_log_path=devnull)
 
 def create_chromium_webdriver() -> WebDriver:
     options = webdriver.chrome.options.Options()
@@ -72,16 +72,23 @@ def create_chromium_webdriver() -> WebDriver:
 def _detect(executable: str) -> Optional[str]:
     return shutil.which(executable)
 
-def _is_available(executable: str) -> bool:
-    return _detect(executable) is not None
+def _try_create_firefox_webdriver() -> Optional[WebDriver]:
+    try:
+        return create_firefox_webdriver()
+    except Exception:
+        return None
+
+def _try_create_chromium_webdriver() -> Optional[WebDriver]:
+    try:
+        return create_chromium_webdriver()
+    except Exception:
+        return None
 
 def _has_firefox() -> bool:
-    names = ["firefox-bin", "firefox"]
-    return any(_is_available(name) for name in names) and _is_available("geckodriver")
+    return _try_create_firefox_webdriver() is not None
 
 def _has_chromium() -> bool:
-    names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
-    return any(_is_available(name) for name in names) and _is_available("chromedriver")
+    return _try_create_chromium_webdriver() is not None
 
 class _WebdriverState(object):
     '''

@@ -326,12 +326,13 @@ def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int]:
     calculate_window_size = """\
         const [width, height] = arguments
         return [
-            window.outerWidth - window.innerWidth + width,
-            window.outerHeight - window.innerHeight + height,
+            // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
+            Math.max(0, window.outerWidth - window.innerWidth) + width,
+            Math.max(0, window.outerHeight - window.innerHeight) + height,
         ]
     """
     [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)
-    eps = 100 # XXX: can't set window size exactly in some window managers, crop it to size later
+    eps = 100 # XXX: can't set window size exactly in certain window managers, crop it to size later
     web_driver.set_window_size(width + eps, height + eps)
     return viewport_size
 
