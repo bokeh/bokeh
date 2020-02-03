@@ -56,7 +56,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import io
-import sys
 from argparse import Namespace
 
 # Bokeh imports
@@ -120,18 +119,6 @@ class PNG(FileOutputSubcommand):
             super().invoke(args)
         finally:
             webdriver_control.terminate(self.driver)
-
-    def write_file(self, args: Namespace, filename: str, doc: Document) -> None:
-        '''
-
-        '''
-        contents = self.file_contents(args, doc)
-        if filename == '-':
-            sys.stdout.buffer.write(contents)
-        else:
-            with io.open(filename, "w+b") as f:
-                f.write(contents)
-        self.after_write_file(args, filename, doc)
 
     def file_contents(self, args: Namespace, doc: Document) -> bytes:
         '''

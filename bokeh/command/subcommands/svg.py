@@ -59,7 +59,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import argparse
-import io
+from typing import List
 
 # Bokeh imports
 from ...document import Document
@@ -123,23 +123,7 @@ class SVG(FileOutputSubcommand):
         finally:
             webdriver_control.terminate(self.driver)
 
-    def write_file(self, args: argparse.Namespace, filename: str, doc: Document) -> None:
-        '''
-
-        '''
-        contents = self.file_contents(args, doc)
-        for i, svg in enumerate(contents):
-            if filename == '-':
-                print(svg)
-            else:
-                if i > 0:
-                    idx = filename.find(".svg")
-                    filename = filename[:idx] + "_{}".format(i) + filename[idx:]
-                with io.open(filename, "w", encoding="utf-8") as f:
-                    f.write(svg)
-            self.after_write_file(args, filename, doc)
-
-    def file_contents(self, args: argparse.Namespace, doc: Document) -> bytes:
+    def file_contents(self, args: argparse.Namespace, doc: Document) -> List[str]:
         '''
 
         '''
