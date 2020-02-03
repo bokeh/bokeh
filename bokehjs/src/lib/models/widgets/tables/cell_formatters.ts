@@ -207,6 +207,35 @@ export class BooleanFormatter extends CellFormatter {
   }
 }
 
+export namespace CompositeFormatter {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = CellFormatter.Props & {
+    icon: p.Property<string> // XXX: enum
+  }
+}
+
+export interface CompositeFormatter extends CompositeFormatter.Attrs {}
+
+export class CompositeFormatter extends CellFormatter {
+  properties: CompositeFormatter.Props
+
+  constructor(attrs?: Partial<CompositeFormatter.Attrs>) {
+    super(attrs)
+  }
+
+  static init_CompositeFormatter(): void {
+
+    this.define<CompositeFormatter.Props>({
+      icon: [ p.String, 'check' ],
+    })
+  }
+
+  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+    return !!value ? i({class: this.icon}).outerHTML : ""
+  }
+}
+
 export namespace DateFormatter {
   export type Attrs = p.AttrsOf<Props>
 
