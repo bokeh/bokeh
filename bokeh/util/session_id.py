@@ -24,7 +24,9 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import base64
+import calendar
 import codecs
+import datetime as dt
 import hashlib
 import hmac
 import json
@@ -57,23 +59,26 @@ def generate_secret_key() -> str:
     '''
     return _get_random_string()
 
-def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                       signed: bool = settings.sign_sessions()) -> str:
+def generate_session_id() -> str:
     ''' Generate a random session ID.
 
     Typically, each browser tab connected to a Bokeh application has its own
     session ID.  In production deployments of a Bokeh app, session IDs should be
     random and unguessable - otherwise users of the app could interfere with one
     another.
+    '''
+    return _get_random_string()
 
-    If session IDs are signed with a secret key, the server can verify that the
-    generator of the session ID was "authorized" (the generator had to know the
-    secret key). This can be used to have a separate process, such as another
-    web application which generates new sessions on a Bokeh server. This other
-    process may require users to log in before redirecting them to the Bokeh
-    server with a valid session ID, for example.
+def generate_jwt_token(session_id: str,
+                       secret_key: Optional[bytes] = settings.secret_key_bytes(),
+                       signed: bool = settings.sign_sessions(),
+                       extra_payload=None, expiration=300) -> str:
+    """Generates a JWT token given a session_id and additional payload.
 
     Args:
+        session_id (str):
+            The session id to add to the token
+
         secret_key (str, optional) :
             Secret key (default: value of BOKEH_SECRET_KEY environment varariable)
 
@@ -81,34 +86,26 @@ def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(
             Whether to sign the session ID (default: value of BOKEH_SIGN_SESSIONS
             envronment varariable)
 
-    Returns:
-        str
-    '''
-    secret_key = _ensure_bytes(secret_key)
-    base_id = _get_random_string(secret_key=secret_key)
-    if not signed:
-        return base_id
-    return base_id + '.' + _signature(base_id, secret_key)
-
-def generate_jwt_token(session_id: str, extra_payload=None) -> str:
-    """Generates a JWT token given a session_id and additional payload.
-
-    Args:
-        session_id (str):
-            The session id to add to the token
-
         extra_payload (dict, optional) :
             Extra key/value pairs to include in the Bokeh session token
+
+        expiration (int, optional) :
+            Expiration time
 
     Returns:
         str
     """
-    payload = {'session_id': session_id}
+    now = calendar.timegm(dt.datetime.now().utctimetuple())
+    payload = {'session_id': session_id, 'session_expiry': now+expiration}
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
         payload.update(extra_payload)
-    return _base64_encode(json.dumps(payload))
+    token = _base64_encode(json.dumps(payload))
+    secret_key = _ensure_bytes(secret_key)
+    if not signed:
+        return token
+    return token + '.' + _signature(token, secret_key)
 
 def get_session_id(token):
     """Extracts the session id from a JWT token.
@@ -120,12 +117,26 @@ def get_session_id(token):
     Returns:
        str
     """
-    decoded = json.loads(_base64_decode(token))
+    decoded = json.loads(_base64_decode(token.split('.')[0]))
     return decoded['session_id']
 
-def check_session_id_signature(session_id: str,
-                               secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                               signed: Optional[bool] = settings.sign_sessions()) -> bool:
+def get_token_payload(token):
+    """Extract the payload from the token.
+
+    Args:
+        token (str):
+            A JWT token containing the session_id and other data.
+
+    Returns:
+        dict
+    """
+    decoded = json.loads(_base64_decode(token.split('.')[0]))
+    del decoded['session_id']
+    return decoded
+
+def check_token_signature(token: str,
+                          secret_key: Optional[bytes] = settings.secret_key_bytes(),
+                          signed: Optional[bool] = settings.sign_sessions()) -> bool:
     """Check the signature of a session ID, returning True if it's valid.
 
     The server uses this function to check whether a session ID was generated
@@ -133,7 +144,7 @@ def check_session_id_signature(session_id: str,
     always returns True.
 
     Args:
-        session_id (str) :
+        token (str) :
             The session_id to check
 
         secret_key (str, optional) :
@@ -149,7 +160,7 @@ def check_session_id_signature(session_id: str,
     """
     secret_key = _ensure_bytes(secret_key)
     if signed:
-        pieces = session_id.split('.', 1)
+        pieces = token.split('.', 1)
         if len(pieces) != 2:
             return False
         base_id = pieces[0]

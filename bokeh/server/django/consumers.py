@@ -100,7 +100,7 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
             self.application_context._loop = IOLoop.current()
 
     async def _get_session(self) -> ServerSession:
-        session_id = generate_session_id(secret_key=None, signed=False)
+        session_id = generate_session_id()
         session = await self.application_context.create_session_if_needed(session_id, self.request)
         return session
 

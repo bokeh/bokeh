@@ -38,7 +38,7 @@ from urllib.parse import quote_plus
 from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from ..util.browser import NEW_PARAM
-from ..util.session_id import generate_session_id
+from ..util.session_id import generate_session_id, generate_jwt_token
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
@@ -305,6 +305,11 @@ class ClientSession(object):
     def id(self):
         ''' A unique ID for this session. '''
         return self._id
+
+    @property
+    def token(self):
+        ''' A JWT token to authenticate the session. '''
+        return generate_jwt_token(self.id)
 
     # Public methods ----------------------------------------------------------
 

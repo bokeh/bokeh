@@ -237,7 +237,7 @@ class ClientConnection(object):
     # Private methods ---------------------------------------------------------
 
     def _formatted_url(self):
-        formatted_url = "%s?bokeh-session-id=%s" % (self._url, self._session.id)
+        formatted_url = self._url
         if self._arguments is not None:
             for key, value in self._arguments.items():
                 formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
@@ -248,7 +248,7 @@ class ClientConnection(object):
         formatted_url = self._formatted_url()
         request = HTTPRequest(formatted_url)
         try:
-            socket = await websocket_connect(request)
+            socket = await websocket_connect(request, subprotocols=["bokeh", self._session.token])
             self._socket = WebSocketClientConnectionWrapper(socket)
         except Exception as e:
             log.info("Failed to connect to server: %r", e)

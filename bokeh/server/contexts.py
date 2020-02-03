@@ -26,6 +26,7 @@ from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup
+from ..util.session_id import get_token_payload, generate_jwt_token
 from .session import ServerSession
 
 #-----------------------------------------------------------------------------
@@ -91,6 +92,7 @@ class BokehSessionContext(SessionContext):
         super().__init__(server_context, session_id)
         # request arguments used to instantiate this session
         self._request = None
+        self._token = None
 
     def _set_session(self, session):
         self._session = session
@@ -118,6 +120,10 @@ class BokehSessionContext(SessionContext):
     @property
     def request(self):
         return self._request
+
+    @property
+    def token(self):
+        return get_token_payload(self._token)
 
     @property
     def session(self):
@@ -176,7 +182,7 @@ class ApplicationContext(object):
 
         self.server_context._remove_all_callbacks()
 
-    async def create_session_if_needed(self, session_id, request=None):
+    async def create_session_if_needed(self, session_id, request=None, token=None):
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -194,6 +200,7 @@ class ApplicationContext(object):
                                                   logout_url=self._logout_url)
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request)
+            session_context._token = token
 
             # expose the session context to the document
             # use the _attribute to set the public property .session_context
@@ -207,7 +214,7 @@ class ApplicationContext(object):
 
             self._application.initialize_document(doc)
 
-            session = ServerSession(session_id, doc, io_loop=self._loop)
+            session = ServerSession(session_id, doc, io_loop=self._loop, token=token)
             del self._pending_sessions[session_id]
             self._sessions[session_id] = session
             session_context._set_session(session)

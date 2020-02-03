@@ -212,7 +212,7 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
 
     '''
     render_item = RenderItem(
-        sessionid = session.id,
+        token = session.token,
         roots = session.document.roots,
         use_for_title = True,
     )

@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import calendar
 import codecs
+import datetime as dt
 from urllib.parse import urlparse
 
 # External imports
@@ -28,7 +30,7 @@ from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.session_id import check_session_id_signature, get_session_id
+from bokeh.util.session_id import check_token_signature, get_session_id, get_token_payload
 
 # Bokeh imports
 from ...protocol import Protocol
@@ -67,7 +69,7 @@ class WSHandler(WebSocketHandler):
         # messages atomically.
         self.write_lock = locks.Lock()
 
-        self._authorized = False
+        self._token = None
 
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
@@ -114,15 +116,17 @@ class WSHandler(WebSocketHandler):
 
         '''
         log.info('WebSocket connection opened')
-
-        if self._authorized:
-            return
-
-        session_id = self.get_argument("bokeh-session-id", default=None)
-        if session_id is None:
+        if self._token is None:
             self.close()
-            raise ProtocolError("No bokeh-session-id specified")
-        self._open_connection(session_id)
+            raise ProtocolError("Token was not provided.")
+
+        try:
+            self.application.io_loop.spawn_callback(self._async_open, self._token)
+        except Exception as e:
+            # this isn't really an error (unless we have a
+            # bug), it just means a client disconnected
+            # immediately, most likely.
+            log.debug("Failed to fully open connection %r", e)
 
     def select_subprotocol(self, subprotocols):
         log.info('Subprotocol header received')
@@ -136,31 +140,31 @@ class WSHandler(WebSocketHandler):
 
         token = subprotocols[1]
 
+        now = calendar.timegm(dt.datetime.now().utctimetuple())
+        payload = get_token_payload(token)
+        if 'session_expiry' not in payload:
+            self.close()
+            raise ProtocolError("Session expiry has not been provided")
+        if now >= payload['session_expiry']:
+            self.close()
+            raise ProtocolError("Token is expired.")
+
         if token is None:
             self.close()
             raise ProtocolError("No token received in subprotocol header")
 
-        self._open_connection(get_session_id(token))
+        if not check_token_signature(token,
+                                     signed=self.application.sign_sessions,
+                                     secret_key=self.application.secret_key):
+            session_id = get_session_id(token)
+            log.error("Token for session %r had invalid signature", session_id)
+            raise ProtocolError("Invalid token signature")
+
+        self._token = token
+
         return "bokeh"
 
-    def _open_connection(self, session_id):
-        if not check_session_id_signature(session_id,
-                                          signed=self.application.sign_sessions,
-                                          secret_key=self.application.secret_key):
-            log.error("Session id had invalid signature: %r", session_id)
-            raise ProtocolError("Invalid session ID")
-
-        self._authorized = True
-
-        try:
-            self.application.io_loop.spawn_callback(self._async_open, session_id)
-        except Exception as e:
-            # this isn't really an error (unless we have a
-            # bug), it just means a client disconnected
-            # immediately, most likely.
-            log.debug("Failed to fully open connection %r", e)
-
-    async def _async_open(self, session_id):
+    async def _async_open(self, token):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
@@ -180,7 +184,8 @@ class WSHandler(WebSocketHandler):
 
         '''
         try:
-            await self.application_context.create_session_if_needed(session_id, self.request)
+            session_id = get_session_id(token)
+            await self.application_context.create_session_if_needed(session_id, self.request, token)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
