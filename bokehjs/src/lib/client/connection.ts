@@ -108,38 +108,25 @@ export class ClientConnection {
     message.send(this.socket)
   }
 
-  send_with_reply(message: Message): Promise<Message> {
+  async send_with_reply(message: Message): Promise<Message> {
     const promise = new Promise<Message>((resolve, reject) => {
       this._pending_replies[message.msgid()] = [resolve, reject]
       this.send(message)
     })
 
-    return promise.then(
-      (message) => {
-        if (message.msgtype() === "ERROR")
-          throw new Error(`Error reply ${message.content.text}`)
-        else
-          return message
-      },
-      (error) => {
-        throw error
-      },
-    )
+    const message = await promise
+    if (message.msgtype() === "ERROR")
+      throw new Error(`Error reply ${message.content.text}`)
+    else
+      return message
   }
 
-  protected _pull_doc_json(): Promise<DocJson> {
+  protected async _pull_doc_json(): Promise<DocJson> {
     const message = Message.create("PULL-DOC-REQ", {})
-    const promise = this.send_with_reply(message)
-    return promise.then(
-      (reply) => {
-        if (!('doc' in reply.content))
-          throw new Error("No 'doc' field in PULL-DOC-REPLY")
-        return reply.content.doc
-      },
-      (error) => {
-        throw error
-      },
-    )
+    const reply = await this.send_with_reply(message)
+    if (!("doc" in reply.content))
+      throw new Error("No 'doc' field in PULL-DOC-REPLY")
+    return reply.content.doc
   }
 
   protected _repull_session_doc(): void {

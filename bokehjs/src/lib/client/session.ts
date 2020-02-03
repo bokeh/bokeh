@@ -35,10 +35,10 @@ export class ClientSession {
   // Sends a request to the server for info about the server, such as its Bokeh
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
-  request_server_info(): Promise<unknown> {
+  async request_server_info(): Promise<unknown> {
     const message = Message.create('SERVER-INFO-REQ', {})
-    const promise = this._connection.send_with_reply(message)
-    return promise.then((reply) => reply.content)
+    const reply = await this._connection.send_with_reply(message)
+    return reply.content
   }
 
   // Sends some request to the server (no guarantee about which one) and returns
@@ -50,8 +50,8 @@ export class ClientSession {
   // results of that processing without a race condition. (This assumes the
   // server processes events in sequence, which it mostly has to semantically,
   // since reordering events might change the final state.)
-  force_roundtrip(): Promise<void> {
-    return this.request_server_info().then((_) => undefined)
+  async force_roundtrip(): Promise<void> {
+    await this.request_server_info()
   }
 
   protected _document_changed(event: DocumentChangedEvent): void {
