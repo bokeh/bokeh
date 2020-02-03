@@ -24,16 +24,18 @@ import random
 from mock import patch
 
 # Bokeh imports
-from bokeh.util.session_id import (generate_session_id,
-                                   generate_jwt_token,
-                                   generate_secret_key,
-                                   get_session_id,
-                                   check_session_id_signature,
-                                   _get_sysrandom,
-                                   _signature,
-                                   _reseed_if_needed,
-                                   _base64_decode,
-                                   _base64_encode)
+from bokeh.util.session_id import (
+    generate_session_id,
+    generate_jwt_token,
+    generate_secret_key,
+    get_session_id,
+    check_session_id_signature,
+    _get_sysrandom,
+    _signature,
+    _reseed_if_needed,
+    _base64_decode,
+    _base64_encode
+)
 
 # Module under test
 import bokeh.util.session_id # isort:skip

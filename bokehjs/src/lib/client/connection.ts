@@ -47,7 +47,7 @@ export class ClientConnection {
     this._pending_messages = []
 
     try {
-	  let token = `${this.token}`
+      let token = `${this.token}`
       let versioned_url = `${this.url}`
       if (this.args_string != null && this.args_string.length > 0)
         versioned_url += `&${this.args_string}`
