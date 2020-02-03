@@ -37,7 +37,7 @@ from bokeh.core.properties import List, String
 from bokeh.model import Model
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
-from bokeh.util.session_id import check_session_id_signature
+from bokeh.util.session_id import check_token_signature
 
 # Module under test
 import bokeh.server.server as server # isort:skip
@@ -397,6 +397,7 @@ async def test__request_in_session_context(ManagedServerLoop) -> None:
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server) + "?foo=10")
         html = response.body
+        print(html)
         sessionid = extract_sessionid_from_json(html)
 
         server_session = server.get_session('/', sessionid)

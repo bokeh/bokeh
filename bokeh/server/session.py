@@ -92,7 +92,7 @@ class ServerSession(object):
 
     '''
 
-    def __init__(self, session_id, document, token=None, io_loop=None):
+    def __init__(self, session_id, document, io_loop=None, token=None):
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
