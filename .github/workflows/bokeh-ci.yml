@@ -256,16 +256,13 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chrome
+      - name: Install chromium
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository ppa:canonical-chromium-builds/stage
-          sudo apt-get update
-          sudo apt-get install chromium-browser
+          sudo apt update
+          sudo apt install chromium-browser
 
-      - name: Start chrome headless
+      - name: Start chromium headless
         shell: bash
         run: |
           chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
@@ -376,14 +373,11 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chrome
+      - name: Install chromium
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository ppa:canonical-chromium-builds/stage
-          sudo apt-get update
-          sudo apt-get install chromium-browser
+          sudo apt update
+          sudo apt install chromium-browser
 
       - name: Run tests
         shell: bash
@@ -483,17 +477,11 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chromedriver
+      - name: Install chromium(-chromedriver)
         shell: bash
         run: |
-          sudo apt-get -y update
-          sudo apt-get -y install unzip xvfb libxi6 libgconf-2-4
-          sudo apt-get -y install google-chrome-stable
-          curl -o  chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/bin/chromedriver
-          sudo chown root:root /usr/bin/chromedriver
-          sudo chmod +x /usr/bin/chromedriver
+          sudo apt update
+          sudo apt install chromium-browser chromium-chromedriver
 
       - name: Run tests
         shell: bash
