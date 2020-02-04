@@ -243,7 +243,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 def file_html(models: Union[Model, Document, Sequence[Model]],
               resources: Union[Resources, Tuple[JSResources, CSSResources]],
               title: Optional[str] = None,
-              template: Template = FILE,
+              template: Union[Template, str] = FILE,
               template_variables: Dict[str, Any] = {},
               theme: ThemeLike = FromCurdoc,
               suppress_callback_warning: bool = False,

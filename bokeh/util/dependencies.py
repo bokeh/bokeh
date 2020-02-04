@@ -19,17 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import shutil
 from importlib import import_module
-from subprocess import PIPE, Popen
 from types import ModuleType
 from typing import Optional
-
-# External imports
-from packaging.version import Version as V
-
-# Bokeh imports
-from ..settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,7 +30,6 @@ from ..settings import settings
 __all__ = (
     'import_optional',
     'import_required',
-    'detect_phantomjs',
 )
 
 #-----------------------------------------------------------------------------
@@ -88,42 +79,6 @@ def import_required(mod_name: str, error_msg: str) -> ModuleType:
         return import_module(mod_name)
     except ImportError as e:
         raise RuntimeError(error_msg) from e
-
-
-def detect_phantomjs(version: str = '2.1') -> str:
-    ''' Detect if PhantomJS is avaiable in PATH, at a minimum version.
-
-    Args:
-        version (str, optional) :
-            Required minimum version for PhantomJS (mostly for testing)
-
-    Returns:
-        str, path to PhantomJS
-
-    '''
-    if settings.phantomjs_path() is not None:
-        phantomjs_path = settings.phantomjs_path()
-    else:
-        phantomjs_path = shutil.which("phantomjs") or "phantomjs"
-
-    try:
-        proc = Popen([phantomjs_path, "--version"], stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        proc.wait()
-        out = proc.communicate()
-
-        if len(out[1]) > 0:
-            raise RuntimeError('Error encountered in PhantomJS detection: %r' % out[1].decode('utf8'))
-
-        required = V(version)
-        installed = V(out[0].decode('utf8'))
-        if installed < required:
-            raise RuntimeError('PhantomJS version to old. Version>=%s required, installed: %s' % (required, installed))
-
-    except OSError:
-        raise RuntimeError('PhantomJS is not present in PATH or BOKEH_PHANTOMJS_PATH. Try "conda install phantomjs" or \
-            "npm install -g phantomjs-prebuilt"')
-
-    return phantomjs_path
 
 #-----------------------------------------------------------------------------
 # Dev API

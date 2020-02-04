@@ -476,9 +476,11 @@ export class PlotView extends LayoutDOMView {
       ctx.drawImage(webgl.canvas, 0, 0)
       // Set back hidpi transform
       ctx.save()
-      const ratio = this.canvas.pixel_ratio
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
+      if (this.model.hidpi) {
+        const ratio = this.canvas.pixel_ratio
+        ctx.scale(ratio, ratio)
+        ctx.translate(0.5, 0.5)
+      }
     }
   }
 
@@ -1002,8 +1004,10 @@ export class PlotView extends LayoutDOMView {
 
     // Set hidpi-transform
     ctx.save()   // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
-    ctx.scale(ratio, ratio)
-    ctx.translate(0.5, 0.5)
+    if (this.model.hidpi) {
+      ctx.scale(ratio, ratio)
+      ctx.translate(0.5, 0.5)
+    }
 
     const frame_box: FrameBox = [
       this.frame._left.value,

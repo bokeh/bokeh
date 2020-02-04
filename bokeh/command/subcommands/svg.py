@@ -59,11 +59,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import argparse
-import io
+from typing import List
 
 # Bokeh imports
 from ...document import Document
-from ...io.export import create_webdriver, get_svgs, terminate_webdriver
+from ...io.export import get_svgs
+from ...io.webdriver import webdriver_control
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
 
@@ -116,29 +117,13 @@ class SVG(FileOutputSubcommand):
         '''
 
         '''
-        self.driver = create_webdriver()
+        self.driver = webdriver_control.create()
         try:
             super().invoke(args)
         finally:
-            terminate_webdriver(self.driver)
+            webdriver_control.terminate(self.driver)
 
-    def write_file(self, args: argparse.Namespace, filename: str, doc: Document) -> None:
-        '''
-
-        '''
-        contents = self.file_contents(args, doc)
-        for i, svg in enumerate(contents):
-            if filename == '-':
-                print(svg)
-            else:
-                if i > 0:
-                    idx = filename.find(".svg")
-                    filename = filename[:idx] + "_{}".format(i) + filename[idx:]
-                with io.open(filename, "w", encoding="utf-8") as f:
-                    f.write(svg)
-            self.after_write_file(args, filename, doc)
-
-    def file_contents(self, args: argparse.Namespace, doc: Document) -> bytes:
+    def file_contents(self, args: argparse.Namespace, doc: Document) -> List[str]:
         '''
 
         '''

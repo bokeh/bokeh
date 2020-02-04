@@ -24,35 +24,37 @@ import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
+from typing import Any, List, Optional, Tuple, Union, cast
 
 # External imports
 from PIL import Image
 
 # Bokeh imports
+from ..document import Document
 from ..embed import file_html
-from ..resources import INLINE_LEGACY
+from ..models.layouts import LayoutDOM
+from ..resources import INLINE, Resources
 from .util import default_filename
+from .webdriver import WebDriver, webdriver_control
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'create_webdriver',
     'export_png',
     'export_svgs',
     'get_layout_html',
     'get_screenshot_as_png',
     'get_svgs',
-    'terminate_webdriver',
-    'webdriver_control',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def export_png(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
+def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> str:
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -65,11 +67,11 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
 
-        height (int) : the desired height of the exported layout obj only if
-            it's a Plot instance. Otherwise the height kwarg is ignored.
-
         width (int) : the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
+
+        height (int) : the desired height of the exported layout obj only if
+            it's a Plot instance. Otherwise the height kwarg is ignored.
 
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
@@ -90,7 +92,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
 
     '''
 
-    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver, timeout=timeout)
+    image = get_screenshot_as_png(obj, width=width, height=height, driver=webdriver, timeout=timeout)
 
     if filename is None:
         filename = default_filename("png")
@@ -102,7 +104,8 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
 
     return abspath(filename)
 
-def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
+def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -115,11 +118,11 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
 
-        height (int) : the desired height of the exported layout obj only if
-            it's a Plot instance. Otherwise the height kwarg is ignored.
-
         width (int) : the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
+
+        height (int) : the desired height of the exported layout obj only if
+            it's a Plot instance. Otherwise the height kwarg is ignored.
 
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
@@ -136,11 +139,11 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, height=height, width=width, driver=webdriver, timeout=timeout)
+    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")
-        return
+        return []
 
     if filename is None:
         filename = default_filename("svg")
@@ -159,25 +162,12 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
 
     return filenames
 
-# this is part of the API for this module
-from .webdriver import terminate_webdriver ; terminate_webdriver
-from .webdriver import webdriver_control ; webdriver_control
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_webdriver():
-    ''' Create a new webdriver.
-
-    .. note ::
-        Here for compatibility. Prefer methods on the webdriver_control
-        object.
-
-    '''
-    return webdriver_control.create()
-
-def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
+def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
+        resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> Image:
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
     Args:
@@ -192,7 +182,7 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
             the layout to be rendered.
 
     Returns:
-        cropped_image (PIL.Image.Image) : a pillow image loaded from PNG.
+        image (PIL.Image.Image) : a pillow image loaded from PNG.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
@@ -200,85 +190,95 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
 
     '''
     with _tmp_html() as tmp:
-        html = get_layout_html(obj, **kwargs)
+        html = get_layout_html(obj, resources=resources, width=width, height=height)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
-
-        web_driver.get("file:///" + tmp.path)
         web_driver.maximize_window()
-
-        ## resize for PhantomJS compat
-        web_driver.execute_script("document.body.style.width = '100%';")
-
+        web_driver.get("file:///" + tmp.path)
         wait_until_render_complete(web_driver, timeout)
-
+        [width, height] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
-        b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
+    return Image.open(io.BytesIO(png)).convert("RGBA").crop((0, 0, width, height))
 
-    image = Image.open(io.BytesIO(png))
-    cropped_image = _crop_image(image, **b_rect)
-
-    return cropped_image
-
-def get_svgs(obj, driver=None, timeout=5, **kwargs) -> bytes:
+def get_svgs(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
+        resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
     '''
 
     '''
     with _tmp_html() as tmp:
-        html = get_layout_html(obj, **kwargs)
+        html = get_layout_html(obj, resources=resources, width=width, height=height)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
-
         web_driver.get("file:///" + tmp.path)
-
         wait_until_render_complete(web_driver, timeout)
-
         svgs = web_driver.execute_script(_SVG_SCRIPT)
 
-    return svgs
+    return cast(List[str], svgs)
 
-def get_layout_html(obj, resources=INLINE_LEGACY, **kwargs):
+def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = INLINE,
+        width: Optional[int] = None, height: Optional[int] = None) -> str:
     '''
 
     '''
     resize = False
-    if kwargs.get('height') is not None or kwargs.get('width') is not None:
+    if width is not None or height is not None:
         # Defer this import, it is expensive
         from ..models.plots import Plot
         if not isinstance(obj, Plot):
             warnings.warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
         else:
             resize = True
-            old_height = obj.plot_height
+
             old_width = obj.plot_width
-            obj.plot_height = kwargs.get('height', old_height)
-            obj.plot_width = kwargs.get('width', old_width)
+            old_height = obj.plot_height
+
+            if width is not None:
+                obj.plot_width = width
+            if height is not None:
+                obj.plot_height = height
+
+    template = r"""\
+    {% block preamble %}
+    <style>
+        html, body {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+    {% endblock %}
+    """
 
     try:
-        html = file_html(obj, resources, title="", suppress_callback_warning=True, _always_new=True)
+        html = file_html(obj, resources, title="", template=template, suppress_callback_warning=True, _always_new=True)
     finally:
         if resize:
-            obj.plot_height = old_height
+            assert isinstance(obj, Plot)
             obj.plot_width = old_width
+            obj.plot_height = old_height
 
     return html
 
-def wait_until_render_complete(driver, timeout):
+def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     '''
 
     '''
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
 
-    def is_bokeh_loaded(driver):
-        return driver.execute_script('''
+    def is_bokeh_loaded(driver: WebDriver) -> bool:
+        return cast(bool, driver.execute_script('''
             return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
-        ''')
+        '''))
 
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
@@ -288,8 +288,8 @@ def wait_until_render_complete(driver, timeout):
 
     driver.execute_script(_WAIT_SCRIPT)
 
-    def is_bokeh_render_complete(driver):
-        return driver.execute_script('return window._bokeh_render_complete;')
+    def is_bokeh_render_complete(driver: WebDriver) -> bool:
+        return cast(bool, driver.execute_script('return window._bokeh_render_complete;'))
 
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_render_complete)
@@ -304,18 +304,37 @@ def wait_until_render_complete(driver, timeout):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _log_console(driver):
+def _log_console(driver: WebDriver) -> None:
     levels = {'WARNING', 'ERROR', 'SEVERE'}
-    logs = driver.get_log('browser')
+    try:
+        logs = driver.get_log('browser')
+    except Exception:
+        return
     messages = [ log.get("message") for log in logs if log.get('level') in levels ]
     if len(messages) > 0:
         log.warning("There were browser warnings and/or errors that may have affected your export")
         for message in messages:
             log.warning(message)
 
-_BOUNDING_RECT_SCRIPT = """
-return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()
-"""
+def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int]:
+    calculate_viewport_size = """\
+        const root = document.getElementsByClassName("bk-root")[0]
+        const {width, height} = root.children[0].getBoundingClientRect()
+        return [width, height]
+    """
+    viewport_size: Tuple[int, int] = web_driver.execute_script(calculate_viewport_size)
+    calculate_window_size = """\
+        const [width, height] = arguments
+        return [
+            // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
+            Math.max(0, window.outerWidth - window.innerWidth) + width,
+            Math.max(0, window.outerHeight - window.innerHeight) + height,
+        ]
+    """
+    [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)
+    eps = 100 # XXX: can't set window size exactly in certain window managers, crop it to size later
+    web_driver.set_window_size(width + eps, height + eps)
+    return viewport_size
 
 _SVG_SCRIPT = """
 var serialized_svgs = [];
@@ -342,29 +361,26 @@ else
   doc.idle.connect(done);
 """
 
-def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
-    ''' Crop the border from the layout
-
-    '''
-    return image.crop((left, top, right, bottom))
-
 class _TempFile(object):
 
-    _closed = False
+    _closed: bool = False
 
-    def __init__(self, prefix="tmp", suffix=""):
+    fd: int
+    path: str
+
+    def __init__(self, *, prefix: str = "tmp", suffix: str = "") -> None:
         self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
 
-    def __enter__(self):
+    def __enter__(self) -> "_TempFile":
         return self
 
-    def __exit__(self, exc, value, tb):
+    def __exit__(self, exc: Any, value: Any, tb: Any) -> None:
         self.close()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         if self._closed:
             return
 
@@ -372,19 +388,15 @@ class _TempFile(object):
             os.close(self.fd)
         except (OSError, IOError):
             pass
-        finally:
-            self.fd = None
 
         try:
             os.unlink(self.path)
         except (OSError, IOError):
             pass
-        finally:
-            self.path = None
 
         self._closed = True
 
-def _tmp_html():
+def _tmp_html() -> _TempFile:
     return _TempFile(prefix="bokeh", suffix=".html")
 
 #-----------------------------------------------------------------------------

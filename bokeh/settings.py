@@ -537,15 +537,6 @@ class Settings(object):
     Setting this value to False may afford a small performance improvement.
     """)
 
-    phantomjs_path = PrioritizedSetting("phantomjs_path", "BOKEH_PHANTOMJS_PATH", default=None, help="""
-    Path to the PhantomJS executable.
-
-    PhantomJS is an optional dependency that is required for PNG and SVG export.
-    Bokeh will try to automatically locate an installed PhantomJS executable.
-    Use this environment variable to override the location Bokeh finds, or to
-    point to a non-standard location.
-    """)
-
     pretty = PrioritizedSetting("pretty", "BOKEH_PRETTY", default=False, dev_default=True, help="""
     Whether JSON strings should be pretty-printed.
     """)

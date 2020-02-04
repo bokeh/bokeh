@@ -14,27 +14,33 @@
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
+from ..util.dependencies import import_required # isort:skip
+import_required("selenium.webdriver",
+                "To use bokeh.io image export functions you need selenium "
+                "('conda install selenium' or 'pip install selenium')")
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 import atexit
-import signal
-import sys
-import warnings
+import shutil
 from os.path import devnull
+from typing import Optional
 
-# Bokeh imports
-from ..util.dependencies import detect_phantomjs, import_optional, import_required
+# External imports
+from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
+from typing_extensions import Literal
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+DriverKind = Literal["firefox", "chromium"]
+
 __all__ = (
-    'create_phantomjs_webdriver',
-    'terminate_webdriver',
     'webdriver_control',
 )
 
@@ -46,98 +52,113 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+def create_firefox_webdriver() -> WebDriver:
+    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+    binary = FirefoxBinary(_detect("firefox"))
+    options = webdriver.firefox.options.Options()
+    options.add_argument("--headless")
+    return webdriver.Firefox(firefox_binary=binary, options=options, service_log_path=devnull)
 
-def kill_proc_tree(pid, including_parent=True):
-    psutil = import_optional('psutil')
-    if psutil is not None:
-        parent = psutil.Process(pid)
-        children = parent.children(recursive=True)
-        for child in children:
-            child.kill()
-        psutil.wait_procs(children)
-        if including_parent:
-            parent.kill()
-            parent.wait(5)
-
-
-def create_phantomjs_webdriver():
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
-
-        webdriver = import_required('selenium.webdriver',
-                                    'To use bokeh.io image export functions you need selenium ' +
-                                    '("conda install -c bokeh selenium" or "pip install selenium")')
-
-        phantomjs_path = detect_phantomjs()
-        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
-
-
-def terminate_webdriver(driver):
-    if driver.name == "phantomjs":
-        # https://github.com/seleniumhq/selenium/issues/767
-        if driver.service.process:
-            if sys.platform == 'win32':
-                kill_proc_tree(driver.service.process.pid, including_parent=False)
-            driver.service.process.send_signal(signal.SIGTERM)
-
-    try:
-        driver.quit()
-    except OSError:
-        pass
+def create_chromium_webdriver() -> WebDriver:
+    options = webdriver.chrome.options.Options()
+    options.add_argument("--headless")
+    options.add_argument("--hide-scrollbars")
+    return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
+def _detect(executable: str) -> Optional[str]:
+    return shutil.which(executable)
+
+def _try_create_firefox_webdriver() -> Optional[WebDriver]:
+    try:
+        return create_firefox_webdriver()
+    except Exception:
+        return None
+
+def _try_create_chromium_webdriver() -> Optional[WebDriver]:
+    try:
+        return create_chromium_webdriver()
+    except Exception:
+        return None
+
+def _has_firefox() -> bool:
+    return _try_create_firefox_webdriver() is not None
+
+def _has_chromium() -> bool:
+    return _try_create_chromium_webdriver() is not None
 
 class _WebdriverState(object):
     '''
 
     '''
 
-    def __init__(self, reuse=True, kind="phantomjs"):
+    _reuse: bool
+    _kind: DriverKind
+
+    current: Optional[WebDriver]
+
+    def __init__(self, *, reuse: bool = True, kind: Optional[DriverKind] = None):
         self.reuse = reuse
-        self.kind = kind
         self.current = None
 
-    def reset(self):
+        if kind is not None:
+            self.kind = kind
+        else:
+            if _has_chromium():
+                self.kind = "chromium"
+            elif _has_firefox():
+                self.kind = "firefox"
+            else:
+                raise RuntimeError("Neither firefox/geckodriver nor chromium-browser/chromedriver are available on system PATH. " \
+                                   "You can install the former with 'conda install -c conda-forge firefox geckodriver'.")
+
+    @staticmethod
+    def terminate(driver: WebDriver) -> None:
+        driver.quit()
+
+    def reset(self) -> None:
         if self.current is not None:
-            terminate_webdriver(self.current)
+            self.terminate(self.current)
             self.current = None
 
-    def get(self):
+    def get(self) -> WebDriver:
         if not self.reuse or self.current is None:
             if self.current is not None:
-                terminate_webdriver(self.current)
+                self.terminate(self.current)
             self.current = self.create()
         return self.current
 
-    def create(self):
-        if self.kind == "phantomjs":
-            return create_phantomjs_webdriver()
-        raise ValueError("Unknown webdriver kind %r" % self.kind)
+    def create(self, kind: Optional[DriverKind] = None) -> WebDriver:
+        driver_kind = kind or self.kind
+        if driver_kind == "firefox":
+            return create_firefox_webdriver()
+        elif driver_kind == "chromium":
+            return create_chromium_webdriver()
+        else:
+            raise ValueError(f"Unknown webdriver kind {driver_kind}")
 
     @property
-    def reuse(self):
+    def reuse(self) -> bool:
         return self._reuse
 
     @reuse.setter
-    def reuse(self, value):
+    def reuse(self, value: bool) -> None:
         self._reuse = value
 
     @property
-    def kind(self):
+    def kind(self) -> DriverKind:
         return self._kind
 
     @kind.setter
-    def kind(self, value):
-        # TODO (bev) enum/value check when more are added
+    def kind(self, value: DriverKind) -> None:
         self._kind = value
 
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
 
 webdriver_control = _WebdriverState()
 

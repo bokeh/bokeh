@@ -56,12 +56,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import io
-import sys
 from argparse import Namespace
 
 # Bokeh imports
 from ...document import Document
-from ...io.export import create_webdriver, get_screenshot_as_png, terminate_webdriver
+from ...io.export import get_screenshot_as_png
+from ...io.webdriver import webdriver_control
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
 
@@ -114,23 +114,11 @@ class PNG(FileOutputSubcommand):
         '''
 
         '''
-        self.driver = create_webdriver()
+        self.driver = webdriver_control.create()
         try:
             super().invoke(args)
         finally:
-            terminate_webdriver(self.driver)
-
-    def write_file(self, args: Namespace, filename: str, doc: Document) -> None:
-        '''
-
-        '''
-        contents = self.file_contents(args, doc)
-        if filename == '-':
-            sys.stdout.buffer.write(contents)
-        else:
-            with io.open(filename, "w+b") as f:
-                f.write(contents)
-        self.after_write_file(args, filename, doc)
+            webdriver_control.terminate(self.driver)
 
     def file_contents(self, args: Namespace, doc: Document) -> bytes:
         '''
