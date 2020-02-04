@@ -52,7 +52,38 @@ function encode(s: string): string {
 
 type ImageDiff = {pixels: number, percent: number, diff: Buffer}
 
-function diff_image(existing: Buffer, current: Buffer): ImageDiff | null {
+function rgba2hsla(r: number, g: number, b: number, a: number): [number, number, number, number] {
+  r /= 255, g /= 255, b /= 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+
+  const l = (max + min) / 2
+  let h = 0, s = 0
+
+  if (max != min) {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+    }
+
+    h /= 6
+  }
+
+  return [h, s, l, a]
+}
+
+function diff_image(existing: Buffer, current: Buffer, treshold: number = 0.05): ImageDiff | null {
   const existing_img = PNG.sync.read(existing)
   const current_img = PNG.sync.read(current)
 
@@ -70,17 +101,29 @@ function diff_image(existing: Buffer, current: Buffer): ImageDiff | null {
   const b32 = new Uint32Array(current_img.data.buffer, current_img.data.byteOffset, len)
   const c32 = new Uint32Array(diff_img.data.buffer, diff_img.data.byteOffset, len)
 
-  function rgba(r: number, g: number, b: number, a: number = 1.0): number {
+  function encode(r: number, g: number, b: number, a: number = 1.0): number {
     return (a*255 & 0xFF) << 24 | (b & 0xFF) << 16 | (g & 0xFF) << 8 | (r & 0xFF)
   }
 
-  c32.fill(rgba(0, 0, 0))
+  function decode(v: number): [number, number, number, number] {
+    return [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF, ((v >> 24) & 0xFF) / 255]
+  }
+
+  c32.fill(encode(0, 0, 0))
 
   let pixels = 0
   for (let i = 0; i < len; i++) {
-    if (a32[i] != b32[i]) {
-      pixels++
-      c32[i] = rgba(0, 0, 255)
+    const a = a32[i]
+    const b = b32[i]
+
+    if (a != b) {
+      const [h0, s0, l0, a0] = rgba2hsla(...decode(a))
+      const [h1, s1, l1, a1] = rgba2hsla(...decode(b))
+
+      if (h0 != h1 || s0 != s1 || Math.abs(l0 - l1) > treshold || a0 != a1) {
+        pixels++
+        c32[i] = encode(0, 0, 255)
+      }
     }
   }
 
@@ -377,9 +420,8 @@ async function run_tests(): Promise<void> {
                       const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
                       const current = Buffer.from(image.data, "base64")
                       status.image = current
-                      const image_path = `${baseline_path}.png`
-                      await fs.promises.writeFile(image_path, current)
 
+                      const image_path = `${baseline_path}.png`
                       const existing = load_baseline_image(image_path)
                       if (existing == null) {
                         status.failure = true
@@ -388,6 +430,7 @@ async function run_tests(): Promise<void> {
                         status.reference = existing
                         const result = diff_image(existing, current)
                         if (result != null) {
+                          await fs.promises.writeFile(image_path, current)
                           status.failure = true
                           status.image_diff = result.diff
                           status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
