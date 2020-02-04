@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABC, abstractmethod
-from typing import Callable, List, Optional, Union
+from json import dumps
+from typing import Any, Callable, List, Optional, Union
 
 # Bokeh imports
 from .artifacts import Artifact#, Resolver
@@ -40,7 +41,11 @@ class Asset(ABC):
     type: str
 
     @abstractmethod
-    def render(self) -> str:
+    def to_html(self) -> str:
+        pass
+
+    @abstractmethod
+    def to_js(self) -> str:
         pass
 
 class Link(Asset):
@@ -53,30 +58,75 @@ class Inline(Asset):
 
 class ScriptLink(Link):
 
-    def __init__(self, url: str, type: str = "text/javascript") -> None:
+    def __init__(self, url: str, *, type: str = "text/javascript",
+            integrity: Optional[str] = None, crossorigin: Optional[str] = None) -> None:
         self.url = url
         self.type = type
+        self.integrity = integrity
+        self.crossorigin = crossorigin
 
-    def render(self) -> str:
-        return f"""<script type="{self.type}" src="{self.url}"></script>"""
+    def to_html(self) -> str:
+        return tag("script", type=self.type, src=self.url, integrity=self.integrity, crossorigin=self.crossorigin)
+
+    def to_js(self) -> str:
+        return f"""\
+(function(onload, onerror) {{
+  const element = document.createElement("script");
+  element.onload = onload;
+  element.onerror = onerror;
+  element.type = {js(self.type)};
+  element.async = false;
+  element.integrity = {js(self.integrity)};
+  element.crossorigin = {js(self.crossorigin)};
+  element.src = {js(self.url)};
+  document.head.appendChild(element);
+}})
+"""
 
 class Script(Inline):
 
-    def __init__(self, content: str, type: str = "text/javascript") -> None:
+    def __init__(self, content: str, *, type: str = "text/javascript") -> None:
         self.content = content
         self.type = type
 
-    def render(self) -> str:
-        return f"""<script type="{self.type}">{self.content}</script>"""
+    def to_html(self) -> str:
+        return tag("script", self.content, type=self.type)
+
+    def to_js(self) -> str:
+        return f"""\
+(function() {{
+  const element = document.createElement("script");
+  element.type = {js(self.type)}
+  element.appendChild(document.createTextNode({js(self.content)}));
+  document.head.appendChild(element);
+}})
+"""
 
 class StyleLink(Link):
 
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, *, integrity: Optional[str] = None, crossorigin: Optional[str] = None) -> None:
         self.url = url
         self.type = "text/css"
+        self.integrity = integrity
+        self.crossorigin = crossorigin
 
-    def render(self) -> str:
-        return f"""<link rel="stylesheet" href="{self.url}" type="{self.type}" />"""
+    def to_html(self) -> str:
+        return tag("link", None, rel="stylesheet", href=self.url, type=self.type, integrity=self.integrity, crossorigin=self.crossorigin)
+
+    def to_js(self) -> str:
+        return f"""\
+(function(onload, onerror) {{
+  const element = document.createElement("link");
+  element.onload = onload;
+  element.onerror = onerror;
+  element.type = {js(self.type)};
+  element.rel = "stylesheet";
+  element.integrity = {js(self.integrity)};
+  element.crossorigin = {js(self.crossorigin)};
+  element.src = {js(self.url)};
+  document.head.appendChild(element);
+}})
+"""
 
 class Style(Inline):
 
@@ -84,8 +134,17 @@ class Style(Inline):
         self.content = content
         self.type = "text/css"
 
-    def render(self) -> str:
-        return f"""<style>\n{self.content}\n</style>"""
+    def to_html(self) -> str:
+        return tag("style", self.content)
+
+    def to_js(self) -> str:
+        return f"""\
+(function() {{
+  const element = document.createElement("style");
+  element.appendChild(document.createTextNode({js(self.content)}));
+  document.head.appendChild(element);
+}})
+"""
 
 Resolver = Callable[[], Asset]
 
@@ -96,8 +155,8 @@ class Bundle:
     def __init__(self, *assets: Asset, resolver: Optional[Resolver] = None) -> None:
         self._assets = list(assets)
 
-    def render(self) -> str:
-        return "\n".join([ asset.render() for asset in self._assets ])
+    def to_html(self) -> str:
+        return "\n".join([ asset.to_html() for asset in self._assets ])
 
     def add(self, *assets: Union[Asset, Artifact]) -> None:
         pass
@@ -113,6 +172,21 @@ class Bundle:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+def tag(name: str, content: Optional[str] = "", **kv: Optional[str]) -> str:
+    if content is not None:
+        return f"<{name}{args(**kv)}>{content}</{name}>"
+    else:
+        return f"<{name}{args(**kv)} />"
+
+def args(**kv: Optional[str]) -> str:
+    return "".join([ f' {key}="{escape(value)}"' for key, value in kv.items() if value is not None ])
+
+def escape(value: str) -> str:
+    return value.replace('"', '\\"')
+
+def js(value: Any) -> str:
+    return dumps(value)
 
 # -----------------------------------------------------------------------------
 # Code

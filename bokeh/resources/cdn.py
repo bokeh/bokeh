@@ -26,8 +26,10 @@ from typing import List, Optional
 # Bokeh imports
 from .. import __version__
 from ..settings import settings
-from .base import Kind, Resources, Urls, Message
+from ..util.version import is_full_release
 from .assets import Asset, ScriptLink
+from .base import Kind, Resources, Urls, Message
+from .sri import get_sri_hashes_for_version
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -75,15 +77,16 @@ class CDNResources(Resources):
         # check the 'dev' fingerprint
         container = dev_container if _DEV_PAT.match(version) else rel_container
 
-        if version.endswith(("dev", "rc")):
-            log.debug("Getting CDN URL for local dev version will not produce usable URL")
+        def mk_filename(comp: str, kind: Kind) -> str:
+            return f"{comp}-{version}{_minified}.{kind}"
 
         def mk_url(comp: str, kind: Kind) -> str:
-            return f"{base_url}/{container}/{_legacy}{comp}-{version}{_minified}.{kind}"
+            return f"{base_url}/{container}/{_legacy}{mk_filename(comp, kind)}"
 
         result = Urls(lambda components, kind: [ mk_url(component, kind) for component in components ])
 
         if len(__version__.split("-")) > 1:
+            log.debug("Getting CDN URL for local dev version may not produce usable URL")
             result.messages.append(Message(
                 type = "warn",
                 text = (
@@ -91,5 +94,10 @@ class CDNResources(Resources):
                     "This configuration is unsupported and may not work!"
                 ),
             ))
+
+        if is_full_release():
+            sri_hashes = get_sri_hashes_for_version(version)
+            result["hashes"] = lambda components, kind: \
+                { mk_url(component, kind): sri_hashes[mk_filename(component, kind)] for component in components }
 
         return result

@@ -51,12 +51,9 @@ CDN = CDNResources()
 
 INLINE = InlineResources()
 
-INLINE_LEGACY = INLINE(legacy=True)
-
 __all__ = (
     "CDN",
     "INLINE",
-    "INLINE_LEGACY",
     "resources",
 )
 
@@ -68,10 +65,11 @@ def resources(mode: Mode) -> Resources:
     """
     The following **mode** values are available for configuring a Resource object:
 
-    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
     * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.bokeh.org``
     * ``'server'`` configure to load from a Bokeh Server
     * ``'server-dev'`` same as ``server`` but supports non-minified assets
+    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
+    * ``'inline-dev'`` same as ``inline`` but supports non-minified assets
     * ``'relative'`` configure to load relative to the given directory
     * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
     * ``'absolute'`` configure to load from the installed Bokeh library static directory
