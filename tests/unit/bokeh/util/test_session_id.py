@@ -110,14 +110,17 @@ class TestSessionId(object):
             generate_jwt_token(session_id, extra_payload=dict(session_id=10))
 
     def test_generate_signed(self) -> None:
-        token = generate_jwt_token(generate_session_id(), signed=True, secret_key="abc")
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        token = generate_jwt_token(session_id, signed=True, secret_key="abc")
         assert '.' in token
-        assert "session_id" in json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
+        decoded = json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
+        assert "session_id" in decoded
+        assert decoded['session_id'] == session_id
         assert check_token_signature(token, secret_key="abc", signed=True)
         assert not check_token_signature(token, secret_key="qrs", signed=True)
 
     def test_payload_signed(self):
-        session_id = generate_session_id()
+        session_id = generate_session_id(signed=True, secret_key="abc")
         token = generate_jwt_token(session_id, signed=True, secret_key="abc", extra_payload=dict(foo=10))
         assert '.' in token
         decoded = json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
@@ -127,7 +130,7 @@ class TestSessionId(object):
         assert not check_token_signature(token, secret_key="qrs", signed=True)
         assert decoded['foo'] == 10
 
-    def test_payload_error_signed(self):
+    def test_payload_error(self):
         session_id = generate_session_id()
         with pytest.raises(RuntimeError):
             generate_jwt_token(session_id, extra_payload=dict(session_id=10))
@@ -155,8 +158,8 @@ class TestSessionId(object):
 
     def test_string_encoding_does_not_affect_session_id_check(self) -> None:
         # originates from #6653
-        token = generate_jwt_token(generate_session_id(), signed=True, secret_key="abc")
-        assert check_token_signature(token, secret_key="abc", signed=True)
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        token = generate_jwt_token(session_id, signed=True, secret_key="abc")
         assert check_token_signature(token, secret_key="abc", signed=True)
 
 #-----------------------------------------------------------------------------

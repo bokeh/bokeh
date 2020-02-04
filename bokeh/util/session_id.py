@@ -42,9 +42,12 @@ from bokeh.settings import settings
 
 __all__ = (
     'check_session_id_signature',
+    'check_token_signature',
     'generate_secret_key',
     'generate_jwt_token',
     'generate_session_id',
+    'get_session_id',
+    'get_token_payload',
 )
 
 #-----------------------------------------------------------------------------
@@ -59,7 +62,8 @@ def generate_secret_key() -> str:
     '''
     return _get_random_string()
 
-def generate_session_id() -> str:
+def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
+                        signed: bool = settings.sign_sessions()) -> str:
     ''' Generate a random session ID.
 
     Typically, each browser tab connected to a Bokeh application has its own
@@ -67,7 +71,10 @@ def generate_session_id() -> str:
     random and unguessable - otherwise users of the app could interfere with one
     another.
     '''
-    return _get_random_string()
+    session_id = _get_random_string()
+    if signed:
+        session_id = '.'.join([session_id, _signature(session_id, secret_key)])
+    return session_id
 
 def generate_jwt_token(session_id: str,
                        secret_key: Optional[bytes] = settings.secret_key_bytes(),
@@ -96,8 +103,6 @@ def generate_jwt_token(session_id: str,
         str
     """
     now = calendar.timegm(dt.datetime.now().utctimetuple())
-    if signed:
-        session_id = '.'.join([session_id, _signature(session_id, secret_key)])
     payload = {'session_id': session_id, 'session_expiry': now+expiration}
     if extra_payload:
         if "session_id" in extra_payload:
@@ -139,11 +144,11 @@ def get_token_payload(token):
 def check_token_signature(token: str,
                           secret_key: Optional[bytes] = settings.secret_key_bytes(),
                           signed: Optional[bool] = settings.sign_sessions()) -> bool:
-    """Check the signature of a session ID, returning True if it's valid.
+    """Check the signature of a token and the contained signature.
 
-    The server uses this function to check whether a session ID was generated
-    with the correct secret key. If signed sessions are disabled, this function
-    always returns True.
+    The server uses this function to check whether a token and the
+    contained session id was generated with the correct secret key.
+    If signed sessions are disabled, this function always returns True.
 
     Args:
         token (str) :
@@ -173,15 +178,31 @@ def check_token_signature(token: str,
         token_valid = hmac.compare_digest(
             expected_token_signature, provided_token_signature
         )
-        id_pieces = get_session_id(token).split('.', 1)
+        session_id = get_session_id(token)
+        session_id_valid = check_session_id_signature(session_id, secret_key, signed)
+        return token_valid and session_id_valid
+    return True
+
+def check_session_id_signature(session_id: str,
+                               secret_key: Optional[bytes] = settings.secret_key_bytes(),
+                               signed: Optional[bool] = settings.sign_sessions()) -> bool:
+    """Check the signature of a session ID, returning True if it's valid.
+
+    The server uses this function to check whether a session ID was generated
+    with the correct secret key. If signed sessions are disabled, this function
+    always returns True.
+    """
+    
+    secret_key = _ensure_bytes(secret_key)
+    if signed:
+        id_pieces = session_id.split('.', 1)
         if len(id_pieces) != 2:
             return False
         provided_id_signature = id_pieces[1]
         expected_id_signature = _signature(id_pieces[0], secret_key)
-        session_id_valid = hmac.compare_digest(
+        return hmac.compare_digest(
             expected_id_signature, provided_id_signature
         )
-        return token_valid and session_id_valid
     return True
 
 #-----------------------------------------------------------------------------

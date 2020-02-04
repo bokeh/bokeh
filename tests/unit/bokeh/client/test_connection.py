@@ -66,11 +66,11 @@ class Test_ClientConnection(object):
 
     def test__formatted_url(self) -> None:
         c = bcc.ClientConnection(FakeSess(), "wsurl")
-        assert c._formatted_url() == "wsurl?bokeh-session-id=session_id"
+        assert c._formatted_url() == "wsurl"
 
     def test__formatted_url_with_arguments(self) -> None:
         c = bcc.ClientConnection(FakeSess(), "wsurl", arguments=dict(foo="bar"))
-        assert c._formatted_url() == "wsurl?bokeh-session-id=session_id&foo=bar"
+        assert c._formatted_url() == "wsurl&foo=bar"
 
 #-----------------------------------------------------------------------------
 # Private API

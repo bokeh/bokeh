@@ -116,6 +116,27 @@ class WSHandler(WebSocketHandler):
 
         '''
         log.info('WebSocket connection opened')
+        token = self._token
+
+        if token is None:
+            self.close()
+            raise ProtocolError("No token received in subprotocol header")
+
+        now = calendar.timegm(dt.datetime.now().utctimetuple())
+        payload = get_token_payload(token)
+        if 'session_expiry' not in payload:
+            self.close()
+            raise ProtocolError("Session expiry has not been provided")
+        elif now >= payload['session_expiry']:
+            self.close()
+            raise ProtocolError("Token is expired.")
+        elif not check_token_signature(token,
+                                       signed=self.application.sign_sessions,
+                                       secret_key=self.application.secret_key):
+            session_id = get_session_id(token)
+            log.error("Token for session %r had invalid signature", session_id)
+            raise ProtocolError("Invalid token signature")
+
         if self._token is None:
             self.close()
             raise ProtocolError("Token was not provided.")
@@ -138,29 +159,7 @@ class WSHandler(WebSocketHandler):
             self.close()
             raise ProtocolError("Subprotocol header is not 'bokeh'")
 
-        token = subprotocols[1]
-
-        now = calendar.timegm(dt.datetime.now().utctimetuple())
-        payload = get_token_payload(token)
-        if 'session_expiry' not in payload:
-            self.close()
-            raise ProtocolError("Session expiry has not been provided")
-        if now >= payload['session_expiry']:
-            self.close()
-            raise ProtocolError("Token is expired.")
-
-        if token is None:
-            self.close()
-            raise ProtocolError("No token received in subprotocol header")
-
-        if not check_token_signature(token,
-                                     signed=self.application.sign_sessions,
-                                     secret_key=self.application.secret_key):
-            session_id = get_session_id(token)
-            log.error("Token for session %r had invalid signature", session_id)
-            raise ProtocolError("Invalid token signature")
-
-        self._token = token
+        self._token = subprotocols[1]
 
         return "bokeh"
 
@@ -324,6 +323,7 @@ class WSHandler(WebSocketHandler):
     def _protocol_error(self, message):
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
