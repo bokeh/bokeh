@@ -56,7 +56,6 @@ export class TooltipView extends AnnotationView {
       return
 
     const {frame} = this.plot_view
-    console.log(this)
 
     for (const [sx, sy, content] of data) {
       if (this.model.inner_only && !frame.bbox.contains(sx, sy))
