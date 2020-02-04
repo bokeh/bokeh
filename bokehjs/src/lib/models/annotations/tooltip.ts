@@ -83,6 +83,7 @@ export class TooltipView extends AnnotationView {
     let top: number
     let left = 0
     let right = 0
+
     switch (side) {
       case "right":
         this.el.classList.add(bk_left)
@@ -91,7 +92,7 @@ export class TooltipView extends AnnotationView {
         break
       case "left":
         this.el.classList.add(bk_right)
-        right = (this.ctx.canvas.width - sx) + arrow_size
+        right = (this.plot_view.layout.bbox.width - sx) + arrow_size
         top = sy - this.el.offsetHeight/2
         break
       case "below":
