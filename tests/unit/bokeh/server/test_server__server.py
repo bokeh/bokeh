@@ -37,7 +37,11 @@ from bokeh.core.properties import List, String
 from bokeh.model import Model
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
-from bokeh.util.session_id import check_token_signature, generate_jwt_token, get_session_id
+from bokeh.util.session_id import (
+    check_token_signature,
+    generate_jwt_token,
+    get_session_id,
+)
 
 # Module under test
 import bokeh.server.server as server # isort:skip

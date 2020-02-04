@@ -38,7 +38,7 @@ from urllib.parse import quote_plus
 from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from ..util.browser import NEW_PARAM
-from ..util.session_id import generate_session_id, generate_jwt_token
+from ..util.session_id import generate_jwt_token, generate_session_id
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------

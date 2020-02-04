@@ -192,7 +192,6 @@ def check_session_id_signature(session_id: str,
     with the correct secret key. If signed sessions are disabled, this function
     always returns True.
     """
-    
     secret_key = _ensure_bytes(secret_key)
     if signed:
         id_pieces = session_id.split('.', 1)

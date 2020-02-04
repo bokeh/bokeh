@@ -22,7 +22,11 @@ log = logging.getLogger(__name__)
 from tornado.web import HTTPError, RequestHandler, authenticated
 
 # Bokeh imports
-from bokeh.util.session_id import check_session_id_signature, generate_session_id, generate_jwt_token
+from bokeh.util.session_id import (
+    check_session_id_signature,
+    generate_jwt_token,
+    generate_session_id,
+)
 
 # Bokeh imports
 from .auth_mixin import AuthMixin

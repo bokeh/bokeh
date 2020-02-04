@@ -25,16 +25,16 @@ from mock import patch
 
 # Bokeh imports
 from bokeh.util.session_id import (
-    generate_session_id,
-    generate_jwt_token,
-    generate_secret_key,
-    get_session_id,
-    check_token_signature,
-    _get_sysrandom,
-    _signature,
-    _reseed_if_needed,
     _base64_decode,
     _base64_encode
+    _get_sysrandom,
+    _reseed_if_needed,
+    _signature,
+    check_token_signature,
+    generate_jwt_token,
+    generate_secret_key,
+    generate_session_id,
+    get_session_id,
 )
 
 # Module under test
