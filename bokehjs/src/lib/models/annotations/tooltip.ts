@@ -114,8 +114,8 @@ export class TooltipView extends AnnotationView {
     // be problematic
     if (this.el.childNodes.length > 0) {
       this.el.style.top = `${top}px`
-      this.el.style.left = left ? `${left}px` : 'unset'
-      this.el.style.right = right ? `${right}px` : 'unset'
+      this.el.style.left = left ? `${left}px` : 'inherit'
+      this.el.style.right = right ? `${right}px` : 'inherit'
     } else
       undisplay(this.el)
   }
