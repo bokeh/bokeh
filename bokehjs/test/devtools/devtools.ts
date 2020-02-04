@@ -456,14 +456,17 @@ async function run_tests(): Promise<void> {
       })
       await fs.promises.writeFile(path.join("test", "report.json"), json)
 
-      const files = new Set(await fs.promises.readdir(baselines_root))
-      for (const name of baseline_names) {
-        files.delete(name)
-        files.delete(`${name}.png`)
-      }
+      if (baseline_names.size != 0) {
+        const files = new Set(await fs.promises.readdir(baselines_root))
 
-      if (files.size != 0) {
-        fail(`there are outdated baselines:\n${[...files].join("\n")}`)
+        for (const name of baseline_names) {
+          files.delete(name)
+          files.delete(`${name}.png`)
+        }
+
+        if (files.size != 0) {
+          fail(`there are outdated baselines:\n${[...files].join("\n")}`)
+        }
       }
 
       if (failures != 0) {
