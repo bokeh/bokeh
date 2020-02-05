@@ -14,6 +14,16 @@ export type SessionResolver = (s: ClientSession) => void
 export type MessageResolver = (m: Message) => void
 export type PendingReply = {resolve: MessageResolver, reject: Rejecter}
 
+export type Token = {
+  session_expiry: number
+  session_id: string
+  [key: string]: unknown
+}
+
+export function parse_token(token: string): Token {
+  return JSON.parse(atob(token.split('.')[0]))
+}
+
 export class ClientConnection {
 
   protected readonly _number = _connection_count++
@@ -32,7 +42,7 @@ export class ClientConnection {
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
               readonly token: string = DEFAULT_TOKEN,
               readonly args_string: string | null = null) {
-    this.id = JSON.parse(atob(token.split('.')[0])).session_id.split('.')[0]
+    this.id = parse_token(token).session_id.split('.')[0]
     logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
   }
 

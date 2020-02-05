@@ -1,5 +1,5 @@
 import {ClientSession} from "../client/session"
-import {pull_session} from "../client/connection"
+import {parse_token, pull_session} from "../client/connection"
 import {logger} from "../core/logging"
 import {View} from "../core/view"
 
@@ -49,7 +49,7 @@ export async function add_document_from_session(websocket_url: string, token: st
   try {
     session = await _get_session(websocket_url, token, args_string)
   } catch (error) {
-    const session_id = JSON.parse(atob(token).split('.')[0]).session_id
+    const session_id = parse_token(token).session_id
     logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
     throw error
   }
