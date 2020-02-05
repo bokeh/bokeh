@@ -31,7 +31,7 @@ import hashlib
 import hmac
 import json
 import time
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 # Bokeh imports
 from bokeh.settings import settings
@@ -79,7 +79,8 @@ def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(
 def generate_jwt_token(session_id: str,
                        secret_key: Optional[bytes] = settings.secret_key_bytes(),
                        signed: bool = settings.sign_sessions(),
-                       extra_payload=None, expiration=300) -> str:
+                       extra_payload: Optional[Dict[str, Any]] = None,
+                       expiration: int = 300) -> str:
     """Generates a JWT token given a session_id and additional payload.
 
     Args:
@@ -114,7 +115,7 @@ def generate_jwt_token(session_id: str,
         return token
     return token + '.' + _signature(token, secret_key)
 
-def get_session_id(token):
+def get_session_id(token: str) -> Any:
     """Extracts the session id from a JWT token.
 
     Args:
@@ -127,7 +128,7 @@ def get_session_id(token):
     decoded = json.loads(_base64_decode(token.split('.')[0]))
     return decoded['session_id']
 
-def get_token_payload(token):
+def get_token_payload(token: str) -> Any:
     """Extract the payload from the token.
 
     Args:
@@ -266,17 +267,17 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     return str(encoded.rstrip('='))
 
 
-def _base64_decode(encoded: Union[bytes, str], encoding=None) -> bytes:
-    # put the padding back
-    mod = len(encoded) % 4
-    if mod != 0:
-        encoded = encoded + ("=" * (4 - mod))
-    assert (len(encoded) % 4) == 0
+def _base64_decode(encoded: Union[bytes, str], encoding: Optional[str] = None) -> Union[bytes, str]:
     # base64 lib both takes and returns bytes, we want to work with strings
-    encoded_as_bytes = codecs.encode(encoded, 'ascii')
+    encoded_as_bytes = codecs.encode(encoded, 'ascii') if isinstance(encoded, str) else encoded
+    # put the padding back
+    mod = len(encoded_as_bytes) % 4
+    if mod != 0:
+        encoded_as_bytes = encoded_as_bytes + (b"=" * (4 - mod))
+    assert (len(encoded_as_bytes) % 4) == 0
     result = base64.urlsafe_b64decode(encoded_as_bytes)
     if encoding:
-        result = codecs.decode(result, 'utf-8')
+        return codecs.decode(result, 'utf-8')
     return result
 
 def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
