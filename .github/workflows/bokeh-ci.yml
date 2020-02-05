@@ -387,7 +387,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -s --color=yes tests/js
+          py.test -s --color=yes tests/test_bokehjs.py
 
 
 

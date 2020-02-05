@@ -48,7 +48,7 @@ To run just the BokehJS unit tests, execute:
 
 .. code-block:: sh
 
-    py.test tests/js
+    py.test tests/test_bokehjs.py
 
 Alternatively, you can also navigate to the `bokehjs` subdirectory of the
 source checkout and execute:
