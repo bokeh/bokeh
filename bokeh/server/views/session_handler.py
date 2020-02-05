@@ -23,9 +23,10 @@ from tornado.web import HTTPError, RequestHandler, authenticated
 
 # Bokeh imports
 from bokeh.util.session_id import (
-    check_session_id_signature,
+    check_token_signature,
     generate_jwt_token,
     generate_session_id,
+    get_session_id,
 )
 
 # Bokeh imports
@@ -62,24 +63,31 @@ class SessionHandler(AuthMixin, RequestHandler):
 
     @authenticated
     async def get_session(self):
+        token = self.get_argument("bokeh-token", default=None)
         session_id = self.get_argument("bokeh-session-id", default=None)
-        # Also allow token (and double sign for now)
-        if session_id is None:
+        if token is not None:
+            if session_id is not None:
+                log.debug("Server received both token and session ID, expected only one")
+                raise HTTPError(status_code=403, reason="Both token and session ID were provided")
+            session_id = get_session_id(token)
+        elif session_id is None:
             if self.application.generate_session_ids:
                 session_id = generate_session_id(secret_key=self.application.secret_key,
                                                  signed=self.application.sign_sessions)
             else:
                 log.debug("Server configured not to generate session IDs and none was provided")
                 raise HTTPError(status_code=403, reason="No bokeh-session-id provided")
-        elif not check_session_id_signature(session_id,
-                                            secret_key=self.application.secret_key,
-                                            signed=self.application.sign_sessions):
-            log.error("Session id had invalid signature: %r", session_id)
-            raise HTTPError(status_code=403, reason="Invalid session ID")
 
-        token = generate_jwt_token(session_id,
-                                   secret_key=self.application.secret_key,
-                                   signed=self.application.sign_sessions)
+        if token is None:
+            token = generate_jwt_token(session_id,
+                                       secret_key=self.application.secret_key,
+                                       signed=self.application.sign_sessions)
+
+        if not check_token_signature(token,
+                                     secret_key=self.application.secret_key,
+                                     signed=self.application.sign_sessions):
+            log.error("Session id had invalid signature: %r", session_id)
+            raise HTTPError(status_code=403, reason="Invalid token or session ID")
 
         session = await self.application_context.create_session_if_needed(session_id, self.request, token)
 

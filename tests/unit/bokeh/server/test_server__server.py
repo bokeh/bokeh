@@ -535,6 +535,28 @@ async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
         assert expected == sessions[0].id
 
 @pytest.mark.asyncio
+@pytest.mark.unit
+async def test__use_provided_session_autoload_token(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        expected_token = generate_jwt_token(expected)
+        response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-token=" + expected_token)
+        js = response.body
+        token = extract_token_from_json(js)
+        assert expected_token == token
+        sessionid = get_session_id(token)
+        assert expected == sessionid
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert expected == sessions[0].id
+
+@pytest.mark.asyncio
+@pytest.mark.unit
 async def test__use_provided_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -613,7 +635,24 @@ async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
         expected = 'foo'
         with (pytest.raises(HTTPError)) as info:
             await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
-        assert 'Invalid session ID' in repr(info.value)
+        assert 'Invalid token or session ID' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test__reject_unsigned_token_autoload(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        token = generate_jwt_token(expected)
+        with (pytest.raises(HTTPError)) as info:
+            await http_get(server.io_loop, autoload_url(server) + "&bokeh-token=" + token)
+        assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
@@ -628,7 +667,7 @@ async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
         expected = 'foo'
         with (pytest.raises(HTTPError)) as info:
             await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
-        assert 'Invalid session ID' in repr(info.value)
+        assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)

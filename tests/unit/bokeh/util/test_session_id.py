@@ -26,7 +26,7 @@ from mock import patch
 # Bokeh imports
 from bokeh.util.session_id import (
     _base64_decode,
-    _base64_encode
+    _base64_encode,
     _get_sysrandom,
     _reseed_if_needed,
     _signature,
