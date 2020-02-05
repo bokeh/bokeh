@@ -33,7 +33,7 @@ pytest_plugins = (
 # check that .names is respected
 # check that .renderers is respected
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_TapTool(object):
 

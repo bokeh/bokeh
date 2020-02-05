@@ -25,7 +25,7 @@ from os.path import abspath, basename, join, relpath, split, splitext
 # Tests
 #-----------------------------------------------------------------------------
 
-@pytest.mark.codebase
+
 def test_code_quality() -> None:
     ''' Applies a collection of general codebase style and quality rules to
     every file inm the repository. Unless specifically excepted:

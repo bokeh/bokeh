@@ -50,7 +50,7 @@ PAGE = Template("""
 </body>
 """)
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_json_item(object):
 

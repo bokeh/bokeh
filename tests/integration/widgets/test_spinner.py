@@ -64,7 +64,7 @@ def enter_value_in_spinner(driver, el, value, del_prev=True):
     actions.perform()
 
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_Spinner(object):
 

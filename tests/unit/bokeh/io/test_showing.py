@@ -81,7 +81,7 @@ def test_show_doesn_not_adds_obj_to_curdoc(m) -> None:
     assert curstate().document.roots == []
 
 @pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer()])
-@pytest.mark.unit
+
 def test_show_with_bad_object(obj) -> None:
     with pytest.raises(ValueError):
         bis.show(obj)

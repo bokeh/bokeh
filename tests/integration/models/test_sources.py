@@ -38,7 +38,7 @@ def is_cds_data_streamed(evt):
     return evt['kind'] == 'ColumnsStreamed'
 
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_ColumnDataSource(object):
 

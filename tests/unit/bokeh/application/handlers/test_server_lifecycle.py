@@ -49,7 +49,7 @@ class Test_ServerLifecycleHandler(object):
     # Public methods ----------------------------------------------------------
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_empty_lifecycle(self) -> None:
         doc = Document()
         out = {}
@@ -152,7 +152,7 @@ def on_session_destroyed(a,b):
         assert 'func(a, b)' in handler.error
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_calling_lifecycle_hooks(self) -> None:
         result = {}
         def load(filename):

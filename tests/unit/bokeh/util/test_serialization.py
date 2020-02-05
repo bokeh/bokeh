@@ -121,7 +121,7 @@ def test_convert_datetime_type_pandas_types(pd) -> None:
     assert np.isnan(bus.convert_datetime_type(pd.NaT))
 
 @pytest.mark.parametrize('obj', [[1,2], (1,2), dict(), set(), 10.2, "foo"])
-@pytest.mark.unit
+
 def test_convert_datetime_type_array_ignores_non_array(obj) -> None:
     assert bus.convert_datetime_array(obj) is obj
 
@@ -150,14 +150,14 @@ def test_traverse_data() -> None:
     assert bus.traverse_data(testing) == expected
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
-@pytest.mark.unit
+
 def test_transform_array_force_list_default(dt) -> None:
     a = np.empty(shape=10, dtype=dt)
     out = bus.transform_array(a)
     assert isinstance(out, dict)
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
-@pytest.mark.unit
+
 def test_transform_array_force_list_default_with_buffers(dt) -> None:
     a = np.empty(shape=10, dtype=dt)
     bufs = []
@@ -173,7 +173,7 @@ def test_transform_array_force_list_default_with_buffers(dt) -> None:
     assert '__buffer__' in out
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
-@pytest.mark.unit
+
 def test_transform_array_force_list_true(dt) -> None:
     a = np.empty(shape=10, dtype=dt)
     out = bus.transform_array(a, force_list=True)
@@ -317,14 +317,14 @@ def test_transform_series_force_list_true(pd) -> None:
     assert isinstance(out, list)
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
-@pytest.mark.unit
+
 def test_transform_array_to_list(dt) -> None:
     a = np.empty(shape=10, dtype=dt)
     out = bus.transform_array_to_list(a)
     assert isinstance(out, list)
 
 @pytest.mark.parametrize('values', [(['cat', 'dog']), ([1.2, 'apple'])])
-@pytest.mark.unit
+
 def test_transform_array_with_nans_to_list(pd, values) -> None:
     s = pd.Series([np.nan, values[0], values[1]])
     out = bus.transform_array_to_list(s)
@@ -348,7 +348,7 @@ def test_array_encoding_disabled_by_dtype() -> None:
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
-@pytest.mark.unit
+
 def test_encode_base64_dict(dt, shape) -> None:
     a = np.arange(12, dtype=dt)
     a.reshape(shape)
@@ -367,7 +367,7 @@ def test_encode_base64_dict(dt, shape) -> None:
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
-@pytest.mark.unit
+
 def test_decode_base64_dict(dt, shape) -> None:
     a = np.arange(12, dtype=dt)
     a.reshape(shape)
@@ -389,7 +389,7 @@ def test_decode_base64_dict(dt, shape) -> None:
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
-@pytest.mark.unit
+
 def test_encode_decode_roundtrip(dt, shape) -> None:
     a = np.arange(12, dtype=dt)
     a.reshape(shape)
@@ -400,7 +400,7 @@ def test_encode_decode_roundtrip(dt, shape) -> None:
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
-@pytest.mark.unit
+
 def test_encode_binary_dict(dt, shape) -> None:
     a = np.arange(12, dtype=dt)
     a.reshape(shape)
@@ -421,7 +421,7 @@ def test_encode_binary_dict(dt, shape) -> None:
 @pytest.mark.parametrize('cols', [None, [], ['a'], ['a', 'b'], ['a', 'b', 'c']])
 @pytest.mark.parametrize('dt1', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('dt2', [np.float32, np.float64, np.int64])
-@pytest.mark.unit
+
 def test_transform_column_source_data_with_buffers(pd, cols, dt1, dt2) -> None:
     d = dict(a=[1,2,3], b=np.array([4,5,6], dtype=dt1), c=pd.Series([7,8,9], dtype=dt2))
     bufs = []

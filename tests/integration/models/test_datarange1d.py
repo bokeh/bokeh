@@ -47,7 +47,7 @@ def _make_plot(**kw):
     plot.toolbar_sticky = False
     return plot, glyph
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_DataRange1d(object):
 
