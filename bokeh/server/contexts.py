@@ -210,7 +210,6 @@ class ApplicationContext(object):
             # use the _attribute to set the public property .session_context
             doc._session_context = session_context
 
-
             try:
                 await self._application.on_session_created(session_context)
             except Exception as e:

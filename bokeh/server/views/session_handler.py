@@ -91,6 +91,7 @@ class SessionHandler(AuthMixin, RequestHandler):
                 cookies = self.application.request_cookies
             cookies = {k: v for k, v in self.request.cookies.items() if k in cookies}
             payload = {'headers': headers, 'cookies': cookies}
+            payload.update(self.application_context.application.process_request(self.request))
             token = generate_jwt_token(session_id,
                                        secret_key=self.application.secret_key,
                                        signed=self.application.sign_sessions,

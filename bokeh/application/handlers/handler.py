@@ -174,6 +174,19 @@ class Handler(object):
         '''
         pass
 
+    def process_request(self, request):
+        ''' Processes incoming HTTP request returning a dictionary of
+        additional data to add to the session_context.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            A dictionary of JSON serializable data to be included on
+            the session context.
+        '''
+        return {}
+
     def static_path(self):
         ''' Return a path to app-specific static resources, if applicable.
 
