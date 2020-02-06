@@ -65,7 +65,11 @@ def save(obj, filename=None, resources=None, title=None, template=None, state=No
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
-         state (State, optional) :
+        template (Template, optional) : HTML document template (default: FILE)
+            A Jinja2 Template, see bokeh.core.templates.FILE for the required template
+            parameters
+
+        state (State, optional) :
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
 
