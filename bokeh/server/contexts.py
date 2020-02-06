@@ -198,8 +198,12 @@ class ApplicationContext(object):
                                                   self.server_context,
                                                   doc,
                                                   logout_url=self._logout_url)
+
             # using private attr so users only have access to a read-only property
-            session_context._request = _RequestProxy(request)
+            payload = get_token_payload(token)
+            session_context._request = _RequestProxy(request,
+                                                     cookies=payload.get('cookies'),
+                                                     headers=payload.get('headers'))
             session_context._token = token
 
             # expose the session context to the document
@@ -298,16 +302,26 @@ class ApplicationContext(object):
 #-----------------------------------------------------------------------------
 
 class _RequestProxy(object):
-    def __init__(self, request):
+    def __init__(self, request, cookies=None, headers=None):
         self._request = request
 
         arguments = dict(request.arguments)
         if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
         self._arguments = arguments
+        self._cookies = cookies if cookies else dict(request.cookies)
+        self._headers = headers if headers else dict(request.headers)
 
     @property
     def arguments(self):
         return self._arguments
+
+    @property
+    def cookies(self):
+        return self._cookies
+
+    @property
+    def headers(self):
+        return self._headers
 
     def __getattr__(self, name):
         if not name.startswith("_"):

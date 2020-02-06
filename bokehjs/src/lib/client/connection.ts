@@ -25,7 +25,6 @@ export function parse_token(token: string): Token {
   const mod = payload.length % 4
   if (mod != 0)
     payload = payload + "=".repeat(4-mod)
-  console.log(payload)
   return JSON.parse(atob(payload.replace(/_/g, '/').replace(/-/g, '+')))
 }
 

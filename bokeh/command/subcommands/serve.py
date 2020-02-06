@@ -633,6 +633,22 @@ class Serve(Subcommand):
                       'when this setting is enabled.'
         )),
 
+        ('--request-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to make available in the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--request-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to make available in the session '
+                      'context (by default all cookies are included).'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
@@ -746,6 +762,8 @@ class Serve(Subcommand):
                                                               'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                               'websocket_max_message_size',
+                                                              'request_cookies',
+                                                              'request_headers',
                                                             ]
                           if getattr(args, key, None) is not None }
 
@@ -784,7 +802,7 @@ class Serve(Subcommand):
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev is not None
-
+        
         def find_autoreload_targets(app_path: str) -> None:
             path = os.path.abspath(app_path)
             if not os.path.isdir(path):
