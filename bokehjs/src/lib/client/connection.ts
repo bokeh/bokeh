@@ -21,7 +21,12 @@ export type Token = {
 }
 
 export function parse_token(token: string): Token {
-  return JSON.parse(atob(token.split('.')[0]))
+  let payload = token.split('.')[0]
+  const mod = payload.length % 4
+  if (mod != 0)
+    payload = payload + "=".repeat(4-mod)
+  console.log(payload)
+  return JSON.parse(atob(payload.replace(/_/g, '/').replace(/-/g, '+')))
 }
 
 export class ClientConnection {
