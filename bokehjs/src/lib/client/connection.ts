@@ -238,7 +238,11 @@ export class ClientConnection {
       pr.resolve(message)
     } else if (this.session) {
       this.session.handle(message)
-    } else {
+    } else if (message.msgtype() != 'PATCH-DOC') {
+      // This branch can be executed only before we get the document.
+      // When we get the document, all of the patches will already be incorporated.
+      // In general, it's not possible to apply patches received before the document,
+      // since they may change some models that were removed before serving the document.
       this._pending_messages.push(message)
     }
   }
