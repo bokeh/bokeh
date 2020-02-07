@@ -39,7 +39,6 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-
 @pytest.mark.selenium
 class Test_DataTableCopyPaste(object):
 

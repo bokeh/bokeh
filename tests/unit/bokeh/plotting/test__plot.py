@@ -143,31 +143,26 @@ _RANGES = [Range1d(), DataRange1d(), FactorRange()]
 class Test__get_axis_class(object):
 
     @pytest.mark.parametrize('range', _RANGES)
-
     def test_axis_type_None(self, range) -> None:
         assert(bpp._get_axis_class(None, range, 0)) == (None, {})
         assert(bpp._get_axis_class(None, range, 1)) == (None, {})
 
     @pytest.mark.parametrize('range', _RANGES)
-
     def test_axis_type_linear(self, range) -> None:
         assert(bpp._get_axis_class("linear", range, 0)) == (LinearAxis, {})
         assert(bpp._get_axis_class("linear", range, 1)) == (LinearAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
-
     def test_axis_type_log(self, range) -> None:
         assert(bpp._get_axis_class("log", range, 0)) == (LogAxis, {})
         assert(bpp._get_axis_class("log", range, 1)) == (LogAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
-
     def test_axis_type_datetime(self, range) -> None:
         assert(bpp._get_axis_class("datetime", range, 0)) == (DatetimeAxis, {})
         assert(bpp._get_axis_class("datetime", range, 1)) == (DatetimeAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
-
     def test_axis_type_mercator(self, range) -> None:
         assert(bpp._get_axis_class("mercator", range, 0)) == (MercatorAxis, {'dimension': 'lon'})
         assert(bpp._get_axis_class("mercator", range, 1)) == (MercatorAxis, {'dimension': 'lat'})
@@ -183,7 +178,6 @@ class Test__get_axis_class(object):
         assert(bpp._get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 1)) == (DatetimeAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
-
     def test_axis_type_error(self, range) -> None:
         with pytest.raises(ValueError):
             bpp._get_axis_class("junk", range, 0)

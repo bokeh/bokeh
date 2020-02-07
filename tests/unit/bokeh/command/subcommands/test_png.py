@@ -104,7 +104,6 @@ bokeh png: error: %s
 """ % (too_few)
         assert out == ""
 
-
 @pytest.mark.selenium
 def test_basic_script(capsys) -> None:
     def run(dirname):
@@ -117,7 +116,6 @@ def test_basic_script(capsys) -> None:
         assert set(["scatter.png", "scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
-
 
 @pytest.mark.selenium
 def test_basic_script_with_output_after(capsys) -> None:
@@ -132,7 +130,6 @@ def test_basic_script_with_output_after(capsys) -> None:
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
-
 @pytest.mark.selenium
 def test_basic_script_with_output_before(capsys) -> None:
     def run(dirname):
@@ -145,7 +142,6 @@ def test_basic_script_with_output_before(capsys) -> None:
         assert set(["foo.png", "scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
-
 
 @pytest.mark.selenium
 def test_basic_script_with_output_stdout(capsysbinary) -> None:
@@ -160,7 +156,6 @@ def test_basic_script_with_output_stdout(capsysbinary) -> None:
         assert set(["scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
-
 
 @pytest.mark.selenium
 def test_basic_script_with_multiple_png_plots(capsys) -> None:

@@ -27,7 +27,6 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-
 def test_no_request_host() -> None:
     ''' It is not safe for the Bokeh codebase to use request.host in any way.
     This test ensures "request.host" does not appear in any file.

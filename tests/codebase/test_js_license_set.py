@@ -35,7 +35,6 @@ LICENSES = [
     'WTFPL',
 ]
 
-
 def test_js_license_set() -> None:
     ''' If the current set of JS licenses changes, they should be noted in
     the bokehjs/LICENSE file.

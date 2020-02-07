@@ -105,7 +105,6 @@ bokeh svg: error: %s
 """ % (too_few)
         assert out == ""
 
-
 @pytest.mark.selenium
 def test_basic_script(capsys) -> None:
     def run(dirname):
@@ -118,7 +117,6 @@ def test_basic_script(capsys) -> None:
         assert set(["scatter.svg", "scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
-
 
 @pytest.mark.selenium
 def test_basic_script_with_output_after(capsys) -> None:
@@ -133,7 +131,6 @@ def test_basic_script_with_output_after(capsys) -> None:
 
     with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
-
 @pytest.mark.selenium
 def test_basic_script_with_output_before(capsys) -> None:
     def run(dirname):
@@ -146,7 +143,6 @@ def test_basic_script_with_output_before(capsys) -> None:
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
-
 
 @pytest.mark.selenium
 def test_basic_script_with_output_stdout(capsys) -> None:
@@ -161,7 +157,6 @@ def test_basic_script_with_output_stdout(capsys) -> None:
         assert set(["scatter.py"]) == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
-
 
 @pytest.mark.selenium
 def test_multiple_svg_scripts(capsys) -> None:
@@ -178,7 +173,6 @@ def test_multiple_svg_scripts(capsys) -> None:
                               'scatter2.py' : basic_svg_scatter_script,
                               'scatter3.py' : basic_svg_scatter_script },
                             run)
-
 
 @pytest.mark.selenium
 def test_basic_script_with_multiple_svg_plots(capsys) -> None:

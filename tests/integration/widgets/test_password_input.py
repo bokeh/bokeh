@@ -50,7 +50,6 @@ def modify_doc(doc):
     text_input.on_change('value', cb)
     doc.add_root(column(text_input, plot))
 
-
 @pytest.mark.selenium
 class Test_PasswordInput(object):
 

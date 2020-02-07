@@ -39,7 +39,6 @@ pytest_plugins = (
 LABELS = ["Option 1", "Option 2", "Option 3"]
 
 
-
 @pytest.mark.selenium
 class Test_CheckboxButtonGroup(object):
 

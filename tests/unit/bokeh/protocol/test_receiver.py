@@ -35,7 +35,6 @@ def test_creation() -> None:
     receiver.Receiver(None)
 
 @pytest.mark.asyncio
-
 async def test_validation_success() -> None:
     msg = proto.create('ACK')
     r = receiver.Receiver(proto)
@@ -54,7 +53,6 @@ async def test_validation_success() -> None:
     assert partial.metadata == msg.metadata
 
 @pytest.mark.asyncio
-
 async def test_validation_success_with_one_buffer() -> None:
     r = receiver.Receiver(proto)
 
@@ -79,7 +77,6 @@ async def test_validation_success_with_one_buffer() -> None:
     assert partial.buffers == [('header', b'payload')]
 
 @pytest.mark.asyncio
-
 async def test_multiple_validation_success_with_multiple_buffers() -> None:
     r = receiver.Receiver(proto)
 
@@ -100,7 +97,6 @@ async def test_multiple_validation_success_with_multiple_buffers() -> None:
         assert partial.buffers == [('header%d' % i, b'payload%d' %i) for i in range(N)]
 
 @pytest.mark.asyncio
-
 async def test_binary_header_raises_error() -> None:
     r = receiver.Receiver(proto)
 
@@ -108,7 +104,6 @@ async def test_binary_header_raises_error() -> None:
         await r.consume(b'header')
 
 @pytest.mark.asyncio
-
 async def test_binary_metadata_raises_error() -> None:
     r = receiver.Receiver(proto)
 
@@ -117,7 +112,6 @@ async def test_binary_metadata_raises_error() -> None:
         await r.consume(b'metadata')
 
 @pytest.mark.asyncio
-
 async def test_binary_content_raises_error() -> None:
     r = receiver.Receiver(proto)
 
@@ -127,7 +121,6 @@ async def test_binary_content_raises_error() -> None:
         await r.consume(b'content')
 
 @pytest.mark.asyncio
-
 async def test_binary_payload_header_raises_error() -> None:
     r = receiver.Receiver(proto)
 
@@ -137,7 +130,6 @@ async def test_binary_payload_header_raises_error() -> None:
     with pytest.raises(ValidationError):
         await r.consume(b'buf_header')
 @pytest.mark.asyncio
-
 async def test_text_payload_buffer_raises_error() -> None:
     r = receiver.Receiver(proto)
 

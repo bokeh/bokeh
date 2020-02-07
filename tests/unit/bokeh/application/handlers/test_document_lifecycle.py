@@ -59,7 +59,6 @@ class Test_DocumentLifecycleHandler(object):
             doc.on_session_destroyed(destroy)
 
     @pytest.mark.asyncio
-
     async def test_document_on_session_destroyed(self) -> None:
         doc = Document()
         handler = bahd.DocumentLifecycleHandler()
@@ -76,7 +75,6 @@ class Test_DocumentLifecycleHandler(object):
         assert session_context._document.session_destroyed_callbacks == set()
 
     @pytest.mark.asyncio
-
     async def test_document_on_session_destroyed_calls_multiple(self) -> None:
         doc = Document()
 
@@ -96,7 +94,6 @@ class Test_DocumentLifecycleHandler(object):
         assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'
 
     @pytest.mark.asyncio
-
     async def test_document_on_session_destroyed_exceptions(self, caplog) -> None:
         doc = Document()
 

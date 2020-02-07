@@ -174,7 +174,6 @@ def test_index(ManagedServerLoop) -> None:
         assert server.index == "foo"
 
 @pytest.mark.asyncio
-
 async def test_get_sessions(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -301,7 +300,6 @@ def test_base_server() -> None:
     server.io_loop.close()
 
 @pytest.mark.asyncio
-
 async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
     def modify_doc(doc):
         doc.title = "Hello, world!"
@@ -394,7 +392,6 @@ def test__lifecycle_hooks(ManagedServerLoop) -> None:
     assert server_hook_list.hooks == ["session_created", "modify"]
 
 @pytest.mark.asyncio
-
 async def test__request_in_session_context(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -409,7 +406,6 @@ async def test__request_in_session_context(ManagedServerLoop) -> None:
         assert session_context.request is not None
 
 @pytest.mark.asyncio
-
 async def test__request_in_session_context_has_arguments(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -424,7 +420,6 @@ async def test__request_in_session_context_has_arguments(ManagedServerLoop) -> N
         assert session_context.request.arguments['foo'] == [b'10']
 
 @pytest.mark.asyncio
-
 async def test__no_request_arguments_in_session_context(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -447,7 +442,6 @@ async def test__no_request_arguments_in_session_context(ManagedServerLoop) -> No
 ])
 
 @pytest.mark.asyncio
-
 async def test__resource_files_requested(querystring, requested, ManagedServerLoop) -> None:
     """
     Checks if the loading of resource files is requested by the autoload.js
@@ -459,7 +453,6 @@ async def test__resource_files_requested(querystring, requested, ManagedServerLo
         resource_files_requested(response.body, requested=requested)
 
 @pytest.mark.asyncio
-
 async def test__autocreate_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -475,7 +468,6 @@ async def test__autocreate_session_autoload(ManagedServerLoop) -> None:
         assert sessionid == sessions[0].id
 
 @pytest.mark.asyncio
-
 async def test__no_set_title_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -488,7 +480,6 @@ async def test__no_set_title_autoload(ManagedServerLoop) -> None:
         assert use_for_title == "false"
 
 @pytest.mark.asyncio
-
 async def test__autocreate_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -504,7 +495,6 @@ async def test__autocreate_session_doc(ManagedServerLoop) -> None:
         assert sessionid == sessions[0].id
 
 @pytest.mark.asyncio
-
 async def test__no_autocreate_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -517,7 +507,6 @@ async def test__no_autocreate_session_websocket(ManagedServerLoop) -> None:
         assert 0 == len(sessions)
 
 @pytest.mark.asyncio
-
 async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -535,7 +524,6 @@ async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
         assert expected == sessions[0].id
 
 @pytest.mark.asyncio
-
 async def test__use_provided_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -553,7 +541,6 @@ async def test__use_provided_session_doc(ManagedServerLoop) -> None:
         assert expected == sessions[0].id
 
 @pytest.mark.asyncio
-
 async def test__use_provided_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -569,7 +556,6 @@ async def test__use_provided_session_websocket(ManagedServerLoop) -> None:
         assert expected == sessions[0].id
 
 @pytest.mark.asyncio
-
 async def test__autocreate_signed_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
@@ -587,7 +573,6 @@ async def test__autocreate_signed_session_autoload(ManagedServerLoop) -> None:
         assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
 
 @pytest.mark.asyncio
-
 async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
@@ -605,7 +590,6 @@ async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
         assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
 
 @pytest.mark.asyncio
-
 async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
@@ -621,7 +605,6 @@ async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
         assert 0 == len(sessions)
 
 @pytest.mark.asyncio
-
 async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
@@ -637,7 +620,6 @@ async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
         assert 0 == len(sessions)
 
 @pytest.mark.asyncio
-
 async def test__reject_unsigned_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
@@ -651,7 +633,6 @@ async def test__reject_unsigned_session_websocket(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 @pytest.mark.asyncio
-
 async def test__no_generate_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
@@ -666,7 +647,6 @@ async def test__no_generate_session_autoload(ManagedServerLoop) -> None:
         assert 0 == len(sessions)
 
 @pytest.mark.asyncio
-
 async def test__no_generate_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
@@ -700,7 +680,6 @@ def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, e
             pass
 
 @pytest.mark.asyncio
-
 async def test__actual_port_number(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, port=0) as server:
