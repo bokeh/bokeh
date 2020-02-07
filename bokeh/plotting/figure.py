@@ -1402,7 +1402,7 @@ class FigureOptions(Options):
     """)
 
     y_range = Any(help="""
-    Customize the x-range of the plot.
+    Customize the y-range of the plot.
     """)
 
     x_minor_ticks = Either(Auto, Int, default="auto", help="""
