@@ -226,7 +226,7 @@ class BokehTornado(TornadoApplication):
         self._check_unused_sessions_milliseconds = check_unused_sessions_milliseconds
 
         if unused_session_lifetime_milliseconds <= 0:
-            raise ValueError("check_unused_sessions_milliseconds must be > 0")
+            raise ValueError("unused_session_lifetime_milliseconds must be > 0")
         elif unused_session_lifetime_milliseconds != DEFAULT_UNUSED_LIFETIME_MS:
             log.info("Unused sessions last for %d milliseconds", unused_session_lifetime_milliseconds)
         self._unused_session_lifetime_milliseconds = unused_session_lifetime_milliseconds
