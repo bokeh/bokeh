@@ -4,7 +4,7 @@ Create a Bokeh application that shows how different facets of data in a
 [Pandas](https://pandas.pydata.org) DataFrame can be plotted against one
 another.
 
-<img src="https://docs.bokeh.org/static/crossfilter.png" width="80%"></img>
+<img src="https://static.bokeh.org/crossfilter.png" width="80%"></img>
 
 ## Setting Up
 

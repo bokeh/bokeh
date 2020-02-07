@@ -2,7 +2,7 @@
 
 Create a simple stocks correlation dashboard.
 
-<img src="https://docs.bokeh.org/static/stocks.png" width="80%"></img><
+<img src="https://static.bokeh.org/stocks.png" width="80%"></img><
 
 ## Setting Up
 

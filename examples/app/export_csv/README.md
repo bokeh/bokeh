@@ -3,7 +3,7 @@
 Create an example that shows how data in a Bokeh `ColumnDataSource` can be
 exported to a CSV file that users can download.
 
-<img src="https://docs.bokeh.org/static/export_csv.png" width="80%"></img>
+<img src="https://static.bokeh.org/export_csv.png" width="80%"></img>
 
 ## Setting Up
 

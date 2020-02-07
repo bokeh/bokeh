@@ -3,7 +3,7 @@
 Create an example that reproduces the famous "Gapminder" data visualization from
 [Hans Rosling's TED Talk](https://www.ted.com/talks/hans_rosling_the_best_stats_you_ve_ever_seen).
 
-<img src="https://docs.bokeh.org/static/gapminder.png" width="80%"></img>
+<img src="https://static.bokeh.org/gapminder.png" width="80%"></img>
 
 ## Setting Up
 

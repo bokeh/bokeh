@@ -4,7 +4,7 @@ Create an example that demonstrate the usage of Bokeh custom extensions, by
 wrapping a simple JavaScript library for 3d plotting, and connecting it to
 Python data sources.
 
-<img src="https://docs.bokeh.org/static/surface3d.png" width="80%"></img>
+<img src="https://static.bokeh.org/surface3d.png" width="80%"></img>
 
 ## Setting Up
 

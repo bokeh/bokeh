@@ -2,7 +2,7 @@
 
 Create a simple dashboard based on Bootstrap templates.
 
-<img src="https://docs.bokeh.org/static/dash.png" width="80%">
+<img src="https://static.bokeh.org/dash.png" width="80%">
 
 ## Setting Up
 

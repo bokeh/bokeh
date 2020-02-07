@@ -5,7 +5,7 @@ three cities (Austin, Boston, Seattle) in 2015. The default view includes a
 discrete graph of the temperatures, but a smoothed representation can also be
 chosen.
 
-<img src="https://docs.bokeh.org/static/weather.png" width="80%"></img>
+<img src="https://static.bokeh.org/weather.png" width="80%"></img>
 
 ## Setting Up
 

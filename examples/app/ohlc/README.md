@@ -3,7 +3,7 @@
 Create a streaming, updating [OHLC chart](https://en.wikipedia.org/wiki/Open-high-low-close_chart)
 with [MACD indicator](https://en.wikipedia.org/wiki/MACD) from simulated market data.
 
-<img src="https://docs.bokeh.org/static/ohlc.png" width="80%"></img>
+<img src="https://static.bokeh.org/ohlc.png" width="80%"></img>
 
 ## Setting Up
 

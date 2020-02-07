@@ -4,7 +4,7 @@ Create an interactive query and visualization dashboard for a set of movie data.
 
 *Inspired by the [Shiny Movie Explorer](https://shiny.rstudio.com/gallery/movie-explorer.html).*
 
-<img src="https://docs.bokeh.org/static/movies.png" width="80%"></img>
+<img src="https://static.bokeh.org/movies.png" width="80%"></img>
 
 ## Setting Up
 

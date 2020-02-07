@@ -3,7 +3,7 @@
 Create an example that uses efficient Bokeh streaming to show an updating
 waterfall spectrogram of live audio data.
 
-<img src="https://docs.bokeh.org/static/spectrogram.png" width="80%"></img>
+<img src="https://static.bokeh.org/spectrogram.png" width="80%"></img>
 
 ## Setting Up
 

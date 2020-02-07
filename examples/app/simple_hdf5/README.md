@@ -4,7 +4,7 @@ Create an app that can query and visualize
 [HDF5](https://www.hdfgroup.org/solutions/hdf5/)
 data files.
 
-<img src="https://docs.bokeh.org/static/simple_hdf5.png" width="80%"></img>
+<img src="https://static.bokeh.org/simple_hdf5.png" width="80%"></img>
 
 ## Setting up
 

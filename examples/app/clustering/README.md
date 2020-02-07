@@ -3,7 +3,7 @@
 Create a clustering visualization app with the Bokeh server and
 [scikit-learn](http://scikit-learn.org/stable/).
 
-<img src="https://docs.bokeh.org/static/clustering.png" width="80%"></img>
+<img src="https://static.bokeh.org/clustering.png" width="80%"></img>
 
 ## Setting Up
 
