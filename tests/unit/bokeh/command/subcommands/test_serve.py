@@ -23,7 +23,8 @@ import socket
 import subprocess
 import sys
 from os.path import join, split
-from time import sleep
+from queue import Empty, Queue
+from threading import Thread
 
 # External imports
 import requests
@@ -347,8 +348,6 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
 
 
 
-from threading import Thread
-from queue import Queue, Empty
 
 # http://eyalarubas.com/python-subproc-nonblock.html
 class NBSR(object):
