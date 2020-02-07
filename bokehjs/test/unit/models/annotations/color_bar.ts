@@ -91,7 +91,7 @@ describe("ColorBar module", () => {
         })
         const scale = view._tick_coordinate_scale(100) // length of scale dimension
         expect(scale).to.be.instanceof(LinearScale)
-        expect((scale as any)._compute_state()).to.be.deep.equal([10, 0]) // XXX
+        expect((scale as any)._linear_compute_state()).to.be.deep.equal([10, 0]) // XXX
       })
 
       it("LogColorMapper should yield LogScale instance with correct state", async () => {
@@ -100,7 +100,7 @@ describe("ColorBar module", () => {
         })
         const scale = view._tick_coordinate_scale(100) // length of scale dimension
         expect(scale).to.be.instanceof(LogScale)
-        expect((scale as any)._compute_state()).to.be.deep.equal([100, 0, 2.302585092994046, 0]) // XXX
+        expect((scale as any)._linear_compute_state()).to.be.deep.equal([100, 0, 2.302585092994046, 0]) // XXX
       })
     })
 
