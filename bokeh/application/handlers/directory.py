@@ -57,8 +57,8 @@ from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler
 from .script import ScriptHandler
-from .server_request_handler import ServerRequestHandler
 from .server_lifecycle import ServerLifecycleHandler
+from .server_request_handler import ServerRequestHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants

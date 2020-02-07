@@ -200,7 +200,7 @@ class ApplicationContext(object):
                                                   logout_url=self._logout_url)
 
             # using private attr so users only have access to a read-only property
-            payload = get_token_payload(token)
+            payload = get_token_payload(token) if token else {}
             session_context._request = _RequestProxy(request,
                                                      cookies=payload.get('cookies'),
                                                      headers=payload.get('headers'))

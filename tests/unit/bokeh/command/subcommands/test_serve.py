@@ -238,6 +238,22 @@ def test_args() -> None:
                       'when this setting is enabled.'
         )),
 
+        ('--request-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to make available in the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--request-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to make available in the session '
+                      'context (by default all cookies are included).'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',

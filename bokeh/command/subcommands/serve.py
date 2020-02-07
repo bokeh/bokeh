@@ -802,7 +802,7 @@ class Serve(Subcommand):
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev is not None
-        
+
         def find_autoreload_targets(app_path: str) -> None:
             path = os.path.abspath(app_path)
             if not os.path.isdir(path):
