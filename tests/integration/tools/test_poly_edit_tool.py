@@ -84,7 +84,7 @@ def _make_server_plot(expected):
     return modify_doc
 
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_PolyEditTool(object):
 

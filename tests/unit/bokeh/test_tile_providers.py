@@ -82,7 +82,7 @@ _ESRI_URLS = {
 # Test___all__ = verify_all(bt, ALL)
 
 @pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',])
-@pytest.mark.unit
+
 class Test_StamenProviders(object):
     def test_type(self, name) -> None:
         p = getattr(bt, name)
@@ -108,7 +108,7 @@ class Test_StamenProviders(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA'])
-@pytest.mark.unit
+
 class Test_CartoProviders(object):
     def test_type(self, name) -> None:
         p = getattr(bt, name)
@@ -131,7 +131,7 @@ class Test_CartoProviders(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['OSM'])
-@pytest.mark.unit
+
 class Test_OsmProvider(object):
     def test_type(self, name) -> None:
         p = getattr(bt, name)
@@ -153,7 +153,7 @@ class Test_OsmProvider(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['WIKIMEDIA'])
-@pytest.mark.unit
+
 class Test_WikimediaProvider(object):
     def test_type(self, name) -> None:
         p = getattr(bt, name)
@@ -175,7 +175,7 @@ class Test_WikimediaProvider(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['ESRI_IMAGERY'])
-@pytest.mark.unit
+
 class Test_EsriProvider(object):
     def test_type(self, name) -> None:
         p = getattr(bt, name)
@@ -198,7 +198,7 @@ class Test_EsriProvider(object):
 
 
 
-@pytest.mark.unit
+
 class Test_GetProvider(object):
 
     @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',

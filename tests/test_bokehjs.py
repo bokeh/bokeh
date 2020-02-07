@@ -9,11 +9,7 @@
 import os
 import subprocess
 
-# External imports
-import pytest
 
-
-@pytest.mark.js
 class TestBokehJS(object):
 
     def test_bokehjs(self) -> None:

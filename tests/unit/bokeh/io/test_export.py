@@ -50,7 +50,7 @@ def webdriver(request):
 # Dev API
 #-----------------------------------------------------------------------------
 
-@pytest.mark.unit
+
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
@@ -76,7 +76,7 @@ def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
             data == b"\x2e\xff\x05\xff"*width*height)   # XXX: Chrome on MacOS
 
 
-@pytest.mark.unit
+
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]) -> None:
@@ -111,7 +111,7 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
     expected_count = w*h - 2*b*(w + h) + 4*b**2
     assert count == expected_count
 
-@pytest.mark.unit
+
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
@@ -121,7 +121,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
 
     assert len(png.tobytes()) > 0
 
-@pytest.mark.unit
+
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
@@ -131,7 +131,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
 
     assert len(png.tobytes()) > 0
 
-@pytest.mark.unit
+
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
@@ -142,7 +142,7 @@ def test_get_svgs_no_svg_present() -> None:
 
     assert svgs == []
 
-@pytest.mark.unit
+
 @pytest.mark.selenium
 def test_get_svgs_with_svg_present(webdriver) -> None:
 

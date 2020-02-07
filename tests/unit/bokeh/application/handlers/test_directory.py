@@ -237,7 +237,7 @@ some.foo = 57
         assert another_model.bar == 1
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_directory_with_server_lifecycle(self) -> None:
         doc = Document()
         result = {}

@@ -167,7 +167,7 @@ jobs:
           PARSER_NO_WATCH=true node make lint --emit-error
           popd
 
-          py.test -m codebase --color=yes tests
+          py.test --color=yes tests/codebase
 
       - name: MyPy
         shell: bash
@@ -287,12 +287,13 @@ jobs:
         shell: bash
         run: |
           UPLOAD="`[ -z $AWS_ACCESS_KEY_ID ] && echo '' || echo '--upload'`"
-          py.test -s -v -m examples     \
+          py.test -s -v                 \
             --color=yes                 \
             --tb line                   \
             --diff-ref FETCH_HEAD       \
             --self-contained-html       \
-            --report-path=examples.html $UPLOAD
+            --report-path=examples.html $UPLOAD \
+            tests/test_examples.py
 
 
 
@@ -386,7 +387,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -s -m js --color=yes tests
+          py.test -s --color=yes tests/test_bokehjs.py
 
 
 
@@ -481,7 +482,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -v --tb=short -m integration --driver chrome --color=yes tests
+          py.test -v --tb=short --driver chrome --color=yes tests/integration
 
 
 
@@ -598,7 +599,7 @@ jobs:
           fi
           # verify python being used is the expected one
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          py.test -m unit --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests
+          py.test --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
 
 
@@ -682,7 +683,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -m "unit and not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests
+          py.test -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
 
 

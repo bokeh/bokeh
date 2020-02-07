@@ -104,7 +104,7 @@ class TestApplicationContext(object):
         assert str(e.value).endswith("No such session bax")
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_create_session_if_needed_new(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
@@ -115,7 +115,7 @@ class TestApplicationContext(object):
         assert c.get_session("foo") == s
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_create_session_if_needed_exists(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
@@ -127,7 +127,7 @@ class TestApplicationContext(object):
         assert s1 == s2
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_create_session_if_needed_bad_sessionid(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop")
@@ -140,7 +140,7 @@ class TestApplicationContext(object):
         assert str(e.value).endswith("Session ID must not be empty")
 
     @pytest.mark.asyncio
-    @pytest.mark.unit
+
     async def test_create_session_if_needed_logout_url(self) -> None:
         app = Application()
         c = bsc.ApplicationContext(app, io_loop="ioloop", logout_url="/logout")

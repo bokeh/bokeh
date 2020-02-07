@@ -50,7 +50,7 @@ def _make_plot():
     plot.toolbar_sticky = False
     return plot
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_ResetTool(object):
 

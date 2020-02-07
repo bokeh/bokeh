@@ -41,7 +41,7 @@ pytest_plugins = (
 
 items = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_Dropdown(object):
 

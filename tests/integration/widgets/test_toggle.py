@@ -37,7 +37,7 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.integration
+
 @pytest.mark.selenium
 class Test_Toggle(object):
 

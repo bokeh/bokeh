@@ -26,7 +26,7 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-@pytest.mark.codebase
+
 def test_flake8() -> None:
     ''' Assures that the Python codebase passes configured Flake8 checks
 
