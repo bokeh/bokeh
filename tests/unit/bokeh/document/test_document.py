@@ -58,7 +58,6 @@ import bokeh.document.document as document # isort:skip
 class TestDocumentHold(object):
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
-
     def test_hold(self, policy) -> None:
         d = document.Document()
         assert d._hold == None
@@ -73,7 +72,6 @@ class TestDocumentHold(object):
             d.hold("junk")
 
     @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
-
     def test_rehold(self, first, second, caplog) -> None:
         d = document.Document()
         with caplog.at_level(logging.WARN):
@@ -95,7 +93,6 @@ class TestDocumentHold(object):
             assert len(caplog.records) == 1
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
-
     def test_unhold(self, policy) -> None:
         d = document.Document()
         assert d._hold == None

@@ -28,7 +28,6 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-
 @pytest.mark.selenium
 class Test_CellEditor_Base(object):
 
@@ -39,7 +38,6 @@ class Test_CellEditor_Base(object):
 
         # this is triggered on selection changes
         source.selected.js_on_change('indices', CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")))
-
 
 @pytest.mark.selenium
 class Test_DataTable(object):

@@ -49,7 +49,6 @@ def _make_plot(tool):
     plot.toolbar_sticky = False
     return plot
 
-
 @pytest.mark.selenium
 class Test_BoxZoomTool(object):
 

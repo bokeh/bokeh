@@ -64,7 +64,6 @@ def has_cds_data_patches(msgs):
 
     return False
 
-
 @pytest.mark.selenium
 class Test_DataTableSource(object):
 

@@ -50,7 +50,6 @@ def _make_plot(dimensions="both"):
 
 _css = dict(both='pan', width='xpan', height='ypan')
 
-
 @pytest.mark.selenium
 class Test_PanTool(object):
 

@@ -53,7 +53,6 @@ class Test_Handler(object):
         assert h.on_server_unloaded("context") is None
 
     @pytest.mark.asyncio
-
     async def test_default_sesssion_hooks_return_none(self) -> None:
         h = bahh.Handler()
         assert await h.on_session_created("context") is None

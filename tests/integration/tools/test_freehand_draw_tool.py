@@ -75,7 +75,6 @@ def _make_server_plot(expected, num_objects=0):
     return modify_doc
 
 
-
 @pytest.mark.selenium
 class Test_FreehandDrawTool(object):
 

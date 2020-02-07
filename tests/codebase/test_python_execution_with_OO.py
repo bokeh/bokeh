@@ -29,7 +29,6 @@ from . import TOP_PATH
 
 blacklist = {}
 
-
 def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)
     which can cause problems if docstrings are naively formatted.

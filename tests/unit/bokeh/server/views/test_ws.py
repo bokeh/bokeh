@@ -38,7 +38,6 @@ basicConfig()
 #-----------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-
 async def test_send_message_raises(caplog) -> None:
     class ExcMessage(object):
         def send(self, handler):

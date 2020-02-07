@@ -58,7 +58,6 @@ def enter_value_in_color_picker(driver, el, color):
     driver.execute_script("arguments[0].dispatchEvent(new Event('change'))", el)
 
 
-
 @pytest.mark.selenium
 class Test_ColorPicker(object):
 
