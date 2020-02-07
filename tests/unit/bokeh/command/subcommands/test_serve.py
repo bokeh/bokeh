@@ -289,7 +289,7 @@ def test_args() -> None:
 @contextlib.contextmanager
 def run_bokeh_serve(args):
     cmd = [sys.executable, "-m", "bokeh", "serve"] + args
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
     try:
         yield p
     except Exception as e:
@@ -345,10 +345,48 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
     assert expected in out
     assert '*' in out
 
-@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
+
+
+from threading import Thread
+from queue import Queue, Empty
+
+# http://eyalarubas.com/python-subproc-nonblock.html
+class NBSR(object):
+
+    def __init__(self, stream):
+        '''
+        stream: the stream to read from.
+                Usually a process' stdout or stderr.
+        '''
+
+        self._s = stream
+        self._q = Queue()
+
+        def _populateQueue(stream, queue):
+            '''
+            Collect lines from 'stream' and put them in 'quque'.
+            '''
+
+            while True:
+                line = stream.readline()
+                if line:
+                    queue.put(line)
+                else:
+                    break
+
+        self._t = Thread(target = _populateQueue,
+                args = (self._s, self._q))
+        self._t.daemon = True
+        self._t.start() #start collecting lines from the stream
+
+    def readline(self, timeout = None):
+        try:
+            return self._q.get(block = timeout is not None,
+                    timeout = timeout)
+        except Empty:
+            return None
+
 def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
-    from fcntl import fcntl, F_GETFL, F_SETFL
-    from os import O_NONBLOCK, read
     import os.path
 
     pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
@@ -357,11 +395,15 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
     path = os.path.join(here, 'apps', '*.py')
 
     with run_bokeh_serve(["--port", "0", "--glob", path]) as p:
-        flags = fcntl(p.stdout, F_GETFL)
-        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
-        sleep(2)
-        o = read(p.stdout.fileno(), 100*1024)
-        m = pat.search(o.decode())
+        nbsr = NBSR(p.stdout)
+        m = None
+        for i in range(20):
+            o = nbsr.readline(0.5)
+            if not o:
+                continue
+            m = pat.search(o.decode())
+            if m is not None:
+                break
         if m is None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
@@ -369,18 +411,19 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
         r = requests.get("http://localhost:%d/apply_theme" % (port,))
         assert r.status_code == 200
 
-@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_actual_port_printed_out() -> None:
-    from fcntl import fcntl, F_GETFL, F_SETFL
-    from os import O_NONBLOCK, read
     pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
     m = None
     with run_bokeh_serve(["--port", "0"]) as p:
-        flags = fcntl(p.stdout, F_GETFL)
-        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
-        sleep(2)
-        o = read(p.stdout.fileno(), 100*1024)
-        m = pat.search(o.decode())
+        nbsr = NBSR(p.stdout)
+        m = None
+        for i in range(20):
+            o = nbsr.readline(0.5)
+            if not o:
+                continue
+            m = pat.search(o.decode())
+            if m is not None:
+                break
         if m is None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
@@ -388,63 +431,70 @@ def test_actual_port_printed_out() -> None:
         r = requests.get("http://localhost:%d/" % (port,))
         assert r.status_code == 200
 
-@pytest.mark.skip
 def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:
-        sleep(2)
-    o, e = p.communicate()
-    m = pat.search(o.decode())
-    if m is None:
-        pytest.fail("no matching log line in process output")
+        nbsr = NBSR(p.stdout)
+        m = None
+        for i in range(20):
+            o = nbsr.readline(0.5)
+            if not o:
+                continue
+            m = pat.search(o.decode())
+            if m is not None:
+                break
+        if m is None:
+            pytest.fail("no matching log line in process output")
 
-@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_xsrf_printed_option() -> None:
-    from fcntl import fcntl, F_GETFL, F_SETFL
-    from os import O_NONBLOCK, read
     pat = re.compile(r'XSRF cookie protection enabled')
     m = None
     with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
-        flags = fcntl(p.stdout, F_GETFL)
-        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
-        sleep(2)
-        o = read(p.stdout.fileno(), 100*1024)
-        m = pat.search(o.decode())
-    if m is None:
-        pytest.fail("no matching log line in process output")
+        nbsr = NBSR(p.stdout)
+        m = None
+        for i in range(20):
+            o = nbsr.readline(0.5)
+            if not o:
+                continue
+            m = pat.search(o.decode())
+            if m is not None:
+                break
+        if m is None:
+            pytest.fail("no matching log line in process output")
 
-@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_xsrf_printed_envar() -> None:
-    from fcntl import fcntl, F_GETFL, F_SETFL
-    from os import O_NONBLOCK, read
     pat = re.compile(r'XSRF cookie protection enabled')
     m = None
     os.environ["BOKEH_XSRF_COOKIES"] = "yes"
     with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
-        flags = fcntl(p.stdout, F_GETFL)
-        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
-        sleep(2)
-        o = read(p.stdout.fileno(), 100*1024)
-        m = pat.search(o.decode())
-    if m is None:
-        pytest.fail("no matching log line in process output")
+        nbsr = NBSR(p.stdout)
+        m = None
+        for i in range(20):
+            o = nbsr.readline(0.5)
+            if not o:
+                continue
+            m = pat.search(o.decode())
+            if m is not None:
+                break
+        if m is None:
+            pytest.fail("no matching log line in process output")
     os.environ["BOKEH_XSRF_COOKIES"]
 
-@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_auth_module_printed() -> None:
-    from fcntl import fcntl, F_GETFL, F_SETFL
-    from os import O_NONBLOCK, read
     pat = re.compile(r'User authentication hooks provided \(no default user\)')
     m = None
     with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as p:
-        flags = fcntl(p.stdout, F_GETFL)
-        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
-        sleep(2)
-        o = read(p.stdout.fileno(), 100*1024)
-        print(o.decode())
-        m = pat.search(o.decode())
-    if m is None:
-        pytest.fail("no matching log line in process output")
+        nbsr = NBSR(p.stdout)
+        m = None
+        for i in range(20):
+            o = nbsr.readline(0.5)
+            if not o:
+                continue
+            m = pat.search(o.decode())
+            if m is not None:
+                break
+        if m is None:
+            pytest.fail("no matching log line in process output")
 
 #-----------------------------------------------------------------------------
 # Private API
