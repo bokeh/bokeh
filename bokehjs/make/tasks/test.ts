@@ -114,12 +114,12 @@ function bundle(name: string): void {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
-async function chrome(): Promise<string> {
+function chrome(): string {
   const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
   for (const name of names) {
-    try {
-      return await which(name)
-    } catch {}
+    const path = which.sync(name, {nothrow: true})
+    if (path != null)
+      return path
   }
 
   throw new BuildError("headless", "can't find chromium or chrome executables")
