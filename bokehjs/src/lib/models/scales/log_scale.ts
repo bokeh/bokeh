@@ -1,16 +1,16 @@
-import {Scale} from "./scale"
+import {ContinuousScale} from "./continuous_scale"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace LogScale {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Scale.Props
+  export type Props = ContinuousScale.Props
 }
 
 export interface LogScale extends LogScale.Attrs {}
 
-export class LogScale extends Scale {
+export class LogScale extends ContinuousScale {
   properties: LogScale.Props
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
