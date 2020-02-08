@@ -50,6 +50,7 @@ from bokeh.models import (
     LegendItem,
     Slope,
     Span,
+    SpanSet,
     Title,
     Whisker,
 )
@@ -381,6 +382,28 @@ def test_Span() -> None:
 def test_Span_accepts_datetime_location() -> None:
     obj = Span(location = datetime(2018,8,7,0,0))
     assert obj.location == 1533600000000.0
+
+def test_SpanSet() -> None:
+    span_set = SpanSet()
+    assert span_set.location is None
+    assert span_set.location_units == 'data'
+    assert span_set.dimension == 'width'
+    assert span_set.x_range_name == 'default'
+    assert span_set.y_range_name == 'default'
+    assert span_set.level == 'annotation'
+    assert span_set.render_mode == 'canvas'
+    check_line_properties(span_set, "", 'black', 1.0)
+    check_properties_existence(span_set, [
+        "visible",
+        "location",
+        "location_units",
+        "dimension",
+        "x_range_name",
+        "y_range_name",
+        "level",
+        "render_mode",
+        "source"
+    ], LINE)
 
 def test_Title() -> None:
     title = Title()
