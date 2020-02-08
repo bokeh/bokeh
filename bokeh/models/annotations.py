@@ -1006,7 +1006,7 @@ class SpanSet(Annotation):
     """
 
     location = NumberSpec(help="""
-    The location of the span, along ``dimension``.
+    The location of the spans, along ``dimension``.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
