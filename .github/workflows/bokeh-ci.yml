@@ -300,7 +300,13 @@ jobs:
 
   js-test:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v2-beta
@@ -310,23 +316,55 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
+            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
+            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
         shell: bash
         run: |
-          echo "::add-path::$HOME/miniconda3/bin"
+          echo "$PATH"
+
+          case "${{ runner.os }}" in
+            "Windows")
+              which $HOME/AppData/Local/Google/Chrome/Application/chrome.exe || true
+              which /c/Program\ Files\ \(x86\)/Google/Application/chrome.exe || true
+              which /c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe || true
+              which /c/Program\ Files\ \(x86\)/Google/Chrome/Application/Chrome.exe || true
+              ;;
+            "macOS")
+              which /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
+              which /Applications/Google\ Chrome.app/Contents/MacOS/google\ chrome
+              ;;
+            "Linux")
+              which /usr/bin/google-chrome
+              ;;
+          esac
+
+          if [[ "${{ runner.os }}" = "Windows" ]]; then
+            echo "::add-path::$HOME/miniconda3"
+            echo "::add-path::$HOME/miniconda3/Scripts"
+            echo "::add-path::$HOME/miniconda3/DLLs"
+          else
+            echo "::add-path::$HOME/miniconda3/bin"
+            echo "::add-path::$HOME/miniconda3/envs/test/bin"
+          fi
+
+
+
 
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 jinja2"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -373,11 +411,11 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chromium
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install chromium-browser
+      #- name: Install chromium
+      #  shell: bash
+      #  run: |
+      #    sudo apt update
+      #    sudo apt install chromium-browser
 
       - name: Run tests
         shell: bash
