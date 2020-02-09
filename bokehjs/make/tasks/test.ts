@@ -1,4 +1,5 @@
 import {spawn, ChildProcess} from "child_process"
+import {Socket} from "net"
 import {argv} from "yargs"
 import {join} from "path"
 
@@ -9,6 +10,36 @@ import {Linker} from "@compiler/linker"
 import {default_prelude} from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
+
+async function is_available(port: number): Promise<boolean> {
+  const host = "0.0.0.0"
+  const timeout = 200
+
+  return new Promise((resolve, _reject) => {
+    const socket = new Socket()
+    let available = false
+
+    socket.on("connect", () => {
+      socket.destroy()
+    })
+
+    socket.setTimeout(timeout)
+    socket.on("timeout", () => {
+      socket.destroy()
+    })
+
+    socket.on("error", (error: NodeJS.ErrnoException) => {
+      if (error.code === "ECONNREFUSED")
+        available = true
+    })
+
+    socket.on("close", () => {
+      resolve(available)
+    })
+
+    socket.connect(port, host)
+  })
+}
 
 function mocha(files: string[]): Promise<void> {
   let args = ["node_modules/mocha/bin/_mocha"]
@@ -83,21 +114,20 @@ function bundle(name: string): void {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
-async function chrome(): Promise<string> {
+function chrome(): string {
   const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
   for (const name of names) {
-    try {
-      return await which(name)
-    } catch {}
+    const path = which.sync(name, {nothrow: true})
+    if (path != null)
+      return path
   }
 
   throw new BuildError("headless", "can't find chromium or chrome executables")
 }
 
-async function headless(): Promise<ChildProcess> {
-  const cmd = await chrome()
-  const args = ["--headless", "--hide-scrollbars", "--remote-debugging-port=9222"]
-  const proc = spawn(cmd, args, {stdio: "pipe"})
+async function headless(port: number): Promise<ChildProcess> {
+  const args = ["--headless", "--hide-scrollbars", `--remote-debugging-port=${port}`]
+  const proc = spawn(chrome(), args, {stdio: "pipe"})
 
   process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
@@ -118,8 +148,8 @@ async function headless(): Promise<ChildProcess> {
   })
 }
 
-function server(): Promise<ChildProcess> {
-  const args = ["--no-warnings", "./test/devtools", "server"]
+function server(port: number): Promise<ChildProcess> {
+  const args = ["--no-warnings", "./test/devtools", "server", `--port=${port}`]
 
   if (argv.debug) {
     if (argv.debug === true)
@@ -171,11 +201,21 @@ function devtools(name: string): Promise<void> {
 }
 
 task("test:start:headless", async () => {
-  await headless()
+  const port = 9222
+  if (await is_available(port)) {
+    await headless(port)
+  } else {
+    log(`Reusing chromium browser instance on port ${port}`)
+  }
 })
 
 task("test:start:server", async () => {
-  await server()
+  const port = 5777
+  if (await is_available(port)) {
+    await server(port)
+  } else {
+    log(`Reusing devtools server instance on port ${port}`)
+  }
 })
 
 task("test:start", ["test:start:headless", "test:start:server"])

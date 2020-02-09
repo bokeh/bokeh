@@ -45,6 +45,12 @@ export function log(message: string): void {
   console.log(`[${chalk.gray(now)}] ${message}`)
 }
 
+export function print(message: string): void {
+  for (const line of message.split("\n")) {
+    log(line)
+  }
+}
+
 export type Fn<T> = () => Promise<Result<T> | void>
 
 class Task<T = unknown> {
@@ -134,6 +140,16 @@ export async function run(...names: string[]): Promise<Result> {
         result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed`))
 
       finished.set(task, result)
+
+      if (result.is_Failure()) {
+        const error = result.value
+        if (error instanceof BuildError) {
+          log(`${chalk.red("failed:")} ${error.message}`)
+        } else {
+          print(error.stack ?? error.toString())
+        }
+      }
+
       return result
     }
   }

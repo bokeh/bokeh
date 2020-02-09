@@ -1,4 +1,3 @@
-import chalk from "chalk"
 import yargs = require("yargs")
 
 const {argv} = yargs.help(false)
@@ -22,16 +21,6 @@ async function main(): Promise<void> {
     }
 
     if (result.is_Failure()) {
-      const error = result.value
-      log(`${chalk.red("failed:")} ${error.message}`)
-      if (error.stack != null) {
-        const lines = error.stack.split("\n")
-        for (const line of lines) {
-          if (line.match(/^\s+at\s+/)) {
-            log(line)
-          }
-        }
-      }
       process.exit(1)
     }
   }
