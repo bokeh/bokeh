@@ -35,6 +35,14 @@
         grid-template-columns: auto auto auto;
       }
 
+      .header {
+        background: white;
+        font-weight: bold;
+        font-size: 25px;
+        height: 40px;
+        padding: 5px;
+      }
+
       .description {
         grid-column: 1 / span 3;
         background: white;
@@ -47,6 +55,9 @@
   </head>
   <body>
     <div class="container">
+      <div class="header">Current</div>
+      <div class="header">Diff</div>
+      <div class="header">Reference</div>
     {%- for description, status in tests %}
       {%- if status.failure %}
       <div class="description">{{ description | join(" ⇒ ") }}</div>
