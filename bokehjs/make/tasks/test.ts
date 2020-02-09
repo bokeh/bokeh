@@ -1,7 +1,8 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join} from "path"
+import {join, delimiter} from "path"
+import os from "os"
 
 import which from "which"
 
@@ -114,15 +115,35 @@ function bundle(name: string): void {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
-function chrome(): string {
-  const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
-  for (const name of names) {
-    const path = which.sync(name, {nothrow: true})
-    if (path != null)
-      return path
+function sys_path(): string {
+  const path = [process.env.PATH]
+
+  switch (os.type()) {
+    case "Linux":
+      path.push("/opt/google/chrome/")
+      break
+    case "Darwin":
+      path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
+      break
+    case "Windows_NT":
+      path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
+      break
   }
 
-  throw new BuildError("headless", "can't find chromium or chrome executables")
+  return path.join(delimiter)
+}
+
+function chrome(): string {
+  const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
+  const path = sys_path()
+
+  for (const name of names) {
+    const executable = which.sync(name, {nothrow: true, path})
+    if (executable != null)
+      return executable
+  }
+
+  throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
 }
 
 async function headless(port: number): Promise<ChildProcess> {
