@@ -205,7 +205,7 @@ function opt(name: string, value: unknown): string {
   return value != null ? `--${name}=${value}` : ""
 }
 
-function devtools(name: string): Promise<void> {
+function devtools(port: number, name: string): Promise<void> {
   const args = ["--no-warnings", "./test/devtools", `http://localhost:${port}/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
 
   if (argv.debug) {
@@ -269,14 +269,14 @@ task("test:unit:bundle", ["test:compile"], async () => {
   bundle("unit")
 })
 task("test:unit", ["test:start", "test:unit:bundle"], async () => {
-  await devtools("unit")
+  await devtools(5778, "unit")
 })
 
 task("test:integration:bundle", ["test:compile"], async () => {
   bundle("integration")
 })
 task("test:integration", ["test:start", "test:integration:bundle"], async () => {
-  await devtools("integration")
+  await devtools(5778, "integration")
 })
 
 task("test", ["test:size", "test:unit", "test:integration"])
