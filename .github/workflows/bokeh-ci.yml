@@ -420,7 +420,9 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -s --color=yes tests/test_bokehjs.py
+          pushd bokehjs
+          node make test
+          popd
 
       - name: Collect results
         if: always()
