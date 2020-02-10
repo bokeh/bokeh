@@ -83,8 +83,8 @@ class SessionHandler(AuthMixin, RequestHandler):
                 allowed_headers = list(self.request.headers)
             else:
                 allowed_headers = self.application.include_headers
-            allowed_headers = [header for header in headers if header not in
-                               self.application.exclude_headers]
+            allowed_headers = [header for header in allowed_headers if header
+                               not in (self.application.exclude_headers or [])]
             headers = {k: v for k, v in self.request.headers.items()
                        if k in allowed_headers}
 
@@ -92,8 +92,8 @@ class SessionHandler(AuthMixin, RequestHandler):
                 allowed_cookies = list(self.request.cookies)
             else:
                 allowed_cookies = self.application.include_cookies
-            allowed_cookies = [cookie for cookie in cookies if cookie not in
-                               self.application.exclude_cookies]
+            allowed_cookies = [cookie for cookie in allowed_cookies if cookie not in
+                               (self.application.exclude_cookies or [])]
             cookies = {k: v.value for k, v in self.request.cookies.items()
                        if k in allowed_cookies}
             payload = {'headers': headers, 'cookies': cookies}
@@ -101,6 +101,7 @@ class SessionHandler(AuthMixin, RequestHandler):
             token = generate_jwt_token(session_id,
                                        secret_key=self.application.secret_key,
                                        signed=self.application.sign_sessions,
+                                       expiration=self.application.session_expiration,
                                        extra_payload=payload)
 
         if not check_token_signature(token,

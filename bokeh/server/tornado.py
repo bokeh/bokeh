@@ -296,6 +296,8 @@ class BokehTornado(TornadoApplication):
 
         if session_expiration <= 0:
             raise ValueError("session_expiration must be > 0")
+        else:
+            self._session_expiration = session_expiration
 
         self._exclude_cookies = exclude_cookies
         self._exclude_headers = exclude_headers
@@ -493,6 +495,14 @@ class BokehTornado(TornadoApplication):
         '''
         return self._generate_session_ids
 
+    @property
+    def session_expiration(self):
+        ''' Number of seconds before which a newly created session
+        expires if no Websocket connection has been made.
+
+        '''
+        return self._session_expiration
+
     def resources(self, absolute_url=None):
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where
         Bokeh application sessions should load BokehJS resources from.
@@ -663,6 +673,7 @@ BokehTornado.__doc__ = format_docstring(
     DEFAULT_STATS_LOG_FREQ_MS=DEFAULT_STATS_LOG_FREQ_MS,
     DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+    DEFAULT_SESSION_EXPIRATION=DEFAULT_SESSION_EXPIRATION,
 )
 
 # See https://github.com/bokeh/bokeh/issues/9507
