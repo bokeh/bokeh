@@ -307,8 +307,14 @@ class _RequestProxy(object):
         arguments = dict(request.arguments)
         if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
         self._arguments = arguments
-        self._cookies = cookies if cookies else dict(request.cookies)
-        self._headers = headers if headers else dict(request.headers)
+        if hasattr(request, 'cookies'):
+            self._cookies = cookies if cookies else {k: v.value for k, v in request.cookies.items()}
+        else:
+            self._cookies = {}
+        if hasattr(request, 'headers'):
+            self._headers = headers if headers else dict(request.headers)
+        else:
+            self._headers = {}
 
     @property
     def arguments(self):
