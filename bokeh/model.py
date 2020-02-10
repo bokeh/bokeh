@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from inspect import isclass
 from json import loads
 from operator import itemgetter
 
@@ -557,6 +558,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             None
 
         '''
+        if isclass(selector) and issubclass(selector, Model):
+            selector = dict(type=selector)
         for obj in self.select(selector):
             for key, val in updates.items():
                 setattr(obj, key, val)
