@@ -20,6 +20,8 @@ from bokeh.models import *  # NOQA
 from bokeh.models import CustomJS
 from bokeh.plotting import *  # NOQA
 
+from bokeh.document import document # isort:skip
+
 # Module under test
 from bokeh.model import Model # isort:skip
 
@@ -135,50 +137,53 @@ def test_all_builtin_models_default_constructible() -> None:
         assert bad == []
 
 def test_select() -> None:
-        # we aren't trying to replace test_query here, only test
-        # our wrappers around it, so no need to try every kind of
-        # query
-        root1 = SomeModel(a=42, name='a')
-        root2 = SomeModel(a=43, name='c')
-        root3 = SomeModel(a=44, name='d')
+    # we aren't trying to replace test_query here, only test
+    # our wrappers around it, so no need to try every kind of
+    # query
+    d = document.Document()
+    root1 = SomeModel(a=42, name='a')
+    root2 = SomeModel(a=43, name='c')
+    root3 = SomeModel(a=44, name='d')
+    root4 = SomeModel(a=45, name='d')
+    d.add_root(root1)
+    d.add_root(root2)
+    d.add_root(root3)
+    d.add_root(root4)
 
-        # select()
-        assert set([root1]) == set(root1.select(dict(a=42)))
-        assert set([root1]) == set(root1.select(dict(name='a')))
-        assert set([root2])  == set(root2.select(dict(name='c')))
-        assert set()  == set(root1.select(dict(name='nope')))
+    # select()
+    assert set([root1]) == set(root1.select(dict(a=42)))
+    assert set([root1]) == set(root1.select(dict(name='a')))
+    assert set([root2])  == set(root2.select(dict(name='c')))
+    assert set()  == set(root1.select(dict(name='nope')))
 
-        # select() on object
-        assert set() == set(root3.select(dict(name='a')))
-        assert set([root3]) == set(root3.select(dict(a=44)))
+    # select() on object
+    assert set() == set(root3.select(dict(name='a')))
+    assert set([root3]) == set(root3.select(dict(a=44)))
 
-        # select_one()
-        assert root3 == root3.select_one(dict(name='d'))
-        assert None == root1.select_one(dict(name='nope'))
-        got_error = False
-        try:
-            root1.select_one(dict(name='c'))
-        except ValueError as e:
-            got_error = True
-            assert 'Found more than one' in repr(e)
-        assert got_error == False
+    # select_one()
+    assert root3 == root3.select_one(dict(name='d'))
+    assert None == root1.select_one(dict(name='nope'))
 
-        # select_one() on object
-        assert None == root3.select_one(dict(name='a'))
-        assert None == root3.select_one(dict(name='c'))
+    with pytest.raises(ValueError) as e:
+        d.select_one(dict(name='d'))
+    assert 'Found more than one' in repr(e)
 
-        # set_select()
-        root1.set_select(dict(a=42), dict(name='c', a=44))
-        assert set([root1]) == set(root1.select(dict(name='c')))
-        assert set([root1])  == set(root1.select(dict(a=44)))
+    # select_one() on object
+    assert None == root3.select_one(dict(name='a'))
+    assert None == root3.select_one(dict(name='c'))
 
-        # set_select() on object
-        root3.set_select(dict(name='d'), dict(a=57))
-        assert set([root3]) == set(root3.select(dict(a=57)))
+    # set_select()
+    root1.set_select(dict(a=42), dict(name='c', a=44))
+    assert set([root1]) == set(root1.select(dict(name='c')))
+    assert set([root1])  == set(root1.select(dict(a=44)))
 
-        # set_select() on class
-        root2.set_select(SomeModel, dict(name='new_name'))
-        assert set([root2]) == set(root2.select(dict(name="new_name")))
+    # set_select() on object
+    root3.set_select(dict(name='d'), dict(a=57))
+    assert set([root3]) == set(root3.select(dict(a=57)))
+
+    # set_select() on class
+    root2.set_select(SomeModel, dict(name='new_name'))
+    assert set([root2]) == set(root2.select(dict(name="new_name")))
 
 #-----------------------------------------------------------------------------
 # Dev API
