@@ -80,22 +80,23 @@ class SessionHandler(AuthMixin, RequestHandler):
 
         if token is None:
             if self.application.include_headers is None:
-                allowed_headers = list(self.request.headers)
+                excluded_headers = (self.application.exclude_headers or [])
+                allowed_headers = [header for header in self.request.headers
+                                   if header not in excluded_headers]
             else:
                 allowed_headers = self.application.include_headers
-            allowed_headers = [header for header in allowed_headers if header
-                               not in (self.application.exclude_headers or [])]
             headers = {k: v for k, v in self.request.headers.items()
                        if k in allowed_headers}
 
             if self.application.include_cookies is None:
-                allowed_cookies = list(self.request.cookies)
+                excluded_cookies = (self.application.exclude_cookies or [])
+                allowed_cookies = [cookie for cookie in self.request.cookies
+                                   if cookie not in excluded_cookies]
             else:
                 allowed_cookies = self.application.include_cookies
-            allowed_cookies = [cookie for cookie in allowed_cookies if cookie not in
-                               (self.application.exclude_cookies or [])]
             cookies = {k: v.value for k, v in self.request.cookies.items()
                        if k in allowed_cookies}
+
             payload = {'headers': headers, 'cookies': cookies}
             payload.update(self.application_context.application.process_request(self.request))
             token = generate_jwt_token(session_id,

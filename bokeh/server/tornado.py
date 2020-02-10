@@ -299,9 +299,16 @@ class BokehTornado(TornadoApplication):
         else:
             self._session_expiration = session_expiration
 
+        if exclude_cookies and include_cookies:
+            raise ValueError("Declare either an include or an exclude list"
+                             "for the cookies, not both.")
         self._exclude_cookies = exclude_cookies
-        self._exclude_headers = exclude_headers
         self._include_cookies = include_cookies
+
+        if exclude_headers and include_headers:
+            raise ValueError("Declare either an include or an exclude list"
+                             "for the headers, not both.")
+        self._exclude_headers = exclude_headers
         self._include_headers = include_headers
 
         if extra_websocket_origins is None:
