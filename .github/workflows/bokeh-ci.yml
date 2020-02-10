@@ -428,10 +428,13 @@ jobs:
         shell: bash
         run: |
           SRC="bokehjs/test"
-          DST="integration-report/${{ runner.os }}"
-          mkdir -p $DST/baselines
-          cp $SRC/report.json $DST
-          cp $(git status --short $SRC/baselines | cut -c4-) $DST/baselines
+          DST="integration-report/$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')"
+          if [[ -e $SRC/report.json ]];
+          then
+            mkdir -p $DST
+            cp --parents $SRC/report.json $DST
+            cp --parents $(git status --short $SRC/baselines | cut -c4-) $DST
+          fi
 
       - name: Upload report
         if: always()
