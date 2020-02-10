@@ -14,11 +14,12 @@ import * as paths from "../paths"
 
 async function is_available(port: number): Promise<boolean> {
   const host = "0.0.0.0"
-  const timeout = 200
+  const timeout = 10000
 
-  return new Promise((resolve, _reject) => {
+  return new Promise((resolve, reject) => {
     const socket = new Socket()
     let available = false
+    let failure = false
 
     socket.on("connect", () => {
       socket.destroy()
@@ -26,6 +27,7 @@ async function is_available(port: number): Promise<boolean> {
 
     socket.setTimeout(timeout)
     socket.on("timeout", () => {
+      failure = true
       socket.destroy()
     })
 
@@ -35,7 +37,10 @@ async function is_available(port: number): Promise<boolean> {
     })
 
     socket.on("close", () => {
-      resolve(available)
+      if (!failure)
+        resolve(available)
+      else
+        reject(new Error("timeout when searching for unused port"))
     })
 
     socket.connect(port, host)
@@ -141,7 +146,9 @@ function sys_path(): string {
 }
 
 function chrome(): string {
-  const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
+  const names = ["chrome", "google-chrome", "Google Chrome"]
+  if (os.type() == "Linux")
+    names.unshift("chromium-browser", "chromium")
   const path = sys_path()
 
   for (const name of names) {
@@ -162,21 +169,16 @@ async function headless(port: number): Promise<ChildProcess> {
   process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
   return new Promise((resolve, reject) => {
-    let stderr = ""
     const timer = setTimeout(() => {
-      if (stderr.length != 0)
-        console.log(stderr)
       reject(new Error("timeout"))
-    }, 10000)
+    }, 30000)
     proc.on("error", reject)
     proc.stderr.on("data", (chunk) => {
       const text = `${chunk}`
-      stderr += text
 
       for (const line of text.split("\n")) {
         if (line.match(/DevTools listening/) != null) {
           clearTimeout(timer)
-          console.log(line)
           resolve(proc)
         }
       }
