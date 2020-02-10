@@ -102,7 +102,7 @@ class SessionHandler(AuthMixin, RequestHandler):
             token = generate_jwt_token(session_id,
                                        secret_key=self.application.secret_key,
                                        signed=self.application.sign_sessions,
-                                       expiration=self.application.session_expiration,
+                                       expiration=self.application.session_token_expiration,
                                        extra_payload=payload)
 
         if not check_token_signature(token,

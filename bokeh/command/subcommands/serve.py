@@ -421,7 +421,10 @@ from tornado.autoreload import watch
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.auth_provider import AuthModule, NullAuth
-from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
+from bokeh.server.tornado import (
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+    DEFAULT_SESSION_TOKEN_EXPIRATION
+)
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import format_docstring, nice_join
@@ -698,13 +701,14 @@ class Serve(Subcommand):
             type    = int,
         )),
 
-        ('--session-expiration', dict(
+        ('--session-token-expiration', dict(
             metavar = 'N',
             action  = 'store',
-            help    = "Number of seconds before which a newly created "
-                      "session expires if no Websocket connection has "
-                      "been made (defaults to 300).",
-            default = 300,
+            help    = "Duration in seconds that a new session token "
+                      "is valid for session creation. After the expiry "
+                      "time has elapsed, the token will not be able "
+                      "create a new session (defaults to  seconds).",
+            default = DEFAULT_SESSION_TOKEN_EXPIRATION,
             type    = int,
         )),
 
@@ -792,7 +796,7 @@ class Serve(Subcommand):
                                                               'include_headers',
                                                               'exclude_cookies',
                                                               'exclude_headers',
-                                                              'session_expiration',
+                                                              'session_token_expiration',
                                                             ]
                           if getattr(args, key, None) is not None }
 
