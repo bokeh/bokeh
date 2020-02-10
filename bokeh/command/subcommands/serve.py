@@ -422,8 +422,8 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.tornado import (
+    DEFAULT_SESSION_TOKEN_EXPIRATION,
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
-    DEFAULT_SESSION_TOKEN_EXPIRATION
 )
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
