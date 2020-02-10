@@ -52,6 +52,7 @@ DEFAULT_MEM_LOG_FREQ_MS                  = 0
 DEFAULT_STATS_LOG_FREQ_MS                = 15000
 DEFAULT_UNUSED_LIFETIME_MS               = 15000
 DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
+DEFAULT_SESSION_EXPIRATION               = 300
 
 __all__ = (
     'BokehTornado',
@@ -185,6 +186,11 @@ class BokehTornado(TornadoApplication):
             List of cookies to exclude in session context
             (by default all cookies are included)
 
+        session_expiration (int, optional) :
+            Number of seconds before which a newly created session
+            expires if no Websocket connection has been made.
+            (default: {DEFAULT_SESSION_EXPIRATION})
+
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
@@ -211,6 +217,7 @@ class BokehTornado(TornadoApplication):
                  include_cookies=None,
                  exclude_headers=None,
                  exclude_cookies=None,
+                 session_expiration=DEFAULT_SESSION_EXPIRATION,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -287,7 +294,9 @@ class BokehTornado(TornadoApplication):
         if xsrf_cookies:
             log.info("XSRF cookie protection enabled")
 
-            
+        if session_expiration <= 0:
+            raise ValueError("session_expiration must be > 0")
+
         self._exclude_cookies = exclude_cookies
         self._exclude_headers = exclude_headers
         self._include_cookies = include_cookies

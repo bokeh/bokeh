@@ -633,7 +633,23 @@ class Serve(Subcommand):
                       'when this setting is enabled.'
         )),
 
-        ('--request-headers', dict(
+        ('--exclude-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to exclude from the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--exclude-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to exclude from the session '
+                      'context (by default all cookies are included).'
+        )),
+
+        ('--include-headers', dict(
             action  = 'store',
             default = None,
             nargs='+',
@@ -641,7 +657,7 @@ class Serve(Subcommand):
                       'context (by default all headers are included).'
         )),
 
-        ('--request-cookies', dict(
+        ('--include-cookies', dict(
             action  = 'store',
             default = None,
             nargs='+',
@@ -679,6 +695,16 @@ class Serve(Subcommand):
             help    = "Number of worker processes for an app. Using "
                       "0 will autodetect number of cores (defaults to 1)",
             default = 1,
+            type    = int,
+        )),
+
+        ('--session-expiration', dict(
+            metavar = 'N',
+            action  = 'store',
+            help    = "Number of seconds before which a newly created "
+                      "session expires if no Websocket connection has "
+                      "been made (defaults to 300).",
+            default = 300,
             type    = int,
         )),
 
@@ -762,8 +788,11 @@ class Serve(Subcommand):
                                                               'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                               'websocket_max_message_size',
-                                                              'request_cookies',
-                                                              'request_headers',
+                                                              'include_cookies',
+                                                              'include_headers',
+                                                              'exclude_cookies',
+                                                              'exclude_headers',
+                                                              'session_expiration',
                                                             ]
                           if getattr(args, key, None) is not None }
 
