@@ -42,6 +42,13 @@ async function is_available(port: number): Promise<boolean> {
   })
 }
 
+async function find_port(port: number): Promise<number> {
+  while (!await is_available(port)) {
+    port++
+  }
+  return port
+}
+
 function mocha(files: string[]): Promise<void> {
   let args = ["node_modules/mocha/bin/_mocha"]
 
@@ -246,15 +253,19 @@ task("test:start:headless", async () => {
   const port = 9222
   if (await is_available(port)) {
     await headless(port)
+  } else if (argv.reuse !== true) {
+    await headless(await find_port(port))
   } else {
     log(`Reusing chromium browser instance on port ${port}`)
   }
 })
 
 task("test:start:server", async () => {
-  const port = 5778
+  const port = 5777
   if (await is_available(port)) {
     await server(port)
+  } else if (argv.reuse !== true) {
+    await server(await find_port(port))
   } else {
     log(`Reusing devtools server instance on port ${port}`)
   }
