@@ -155,12 +155,20 @@ async function headless(port: number): Promise<ChildProcess> {
   process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
   return new Promise((resolve, reject) => {
-    setTimeout(() => reject(new Error("timeout")), 5000)
+    let stderr = ""
+    const timer = setTimeout(() => {
+      if (stderr.length != 0)
+        console.log(stderr)
+      reject(new Error("timeout"))
+    }, 10000)
     proc.on("error", reject)
     proc.stderr.on("data", (chunk) => {
       const text = `${chunk}`
+      stderr += text
+
       for (const line of text.split("\n")) {
         if (line.match(/DevTools listening/) != null) {
+          clearTimeout(timer)
           console.log(line)
           resolve(proc)
         }
