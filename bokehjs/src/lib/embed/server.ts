@@ -30,13 +30,14 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
 // map { websocket url to map { session id to promise of ClientSession } }
 const _sessions: {[key: string]: {[key: string]: Promise<ClientSession>}} = {}
 
-function _get_session(websocket_url: string, session_id: string, args_string: string): Promise<ClientSession> {
+function _get_session(websocket_url: string, token: string, args_string: string): Promise<ClientSession> {
+  const session_id = parse_token(token).session_id
   if (!(websocket_url in _sessions))
     _sessions[websocket_url] = {}
 
   const subsessions = _sessions[websocket_url]
   if (!(session_id in subsessions))
-    subsessions[session_id] = pull_session(websocket_url, session_id, args_string)
+    subsessions[session_id] = pull_session(websocket_url, token, args_string)
 
   return subsessions[session_id]
 }

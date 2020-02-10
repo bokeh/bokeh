@@ -61,12 +61,11 @@ export class ClientConnection {
     this._pending_messages = []
 
     try {
-      const token = `${this.token}`
       let versioned_url = `${this.url}`
       if (this.args_string != null && this.args_string.length > 0)
         versioned_url += `&${this.args_string}`
 
-      this.socket = new WebSocket(versioned_url, ["bokeh", token])
+      this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
       return new Promise((resolve, reject) => {
         // "arraybuffer" gives us binary data we can look at;
@@ -265,7 +264,7 @@ export class ClientConnection {
   }
 }
 
-export function pull_session(url?: string, session_id?: string, args_string?: string): Promise<ClientSession> {
-  const connection = new ClientConnection(url, session_id, args_string)
+export function pull_session(url?: string, token?: string, args_string?: string): Promise<ClientSession> {
+  const connection = new ClientConnection(url, token, args_string)
   return connection.connect()
 }
