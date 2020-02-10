@@ -122,7 +122,7 @@ class BokehSessionContext(SessionContext):
         return self._request
 
     @property
-    def token(self):
+    def token_payload(self):
         return get_token_payload(self._token)
 
     @property
