@@ -79,17 +79,23 @@ class SessionHandler(AuthMixin, RequestHandler):
                 raise HTTPError(status_code=403, reason="No bokeh-session-id provided")
 
         if token is None:
-            if self.application.request_headers is None:
-                headers = list(self.request.headers)
+            if self.application.include_headers is None:
+                allowed_headers = list(self.request.headers)
             else:
-                headers = self.application.request_headers
-            headers = {k: v for k, v in self.request.headers.items() if k in headers}
+                allowed_headers = self.application.include_headers
+            allowed_headers = [header for header in headers if header not in
+                               self.application.exclude_headers]
+            headers = {k: v for k, v in self.request.headers.items()
+                       if k in allowed_headers}
 
-            if self.application.request_cookies is None:
-                cookies = list(self.request.cookies)
+            if self.application.include_cookies is None:
+                allowed_cookies = list(self.request.cookies)
             else:
-                cookies = self.application.request_cookies
-            cookies = {k: v.value for k, v in self.request.cookies.items() if k in cookies}
+                allowed_cookies = self.application.include_cookies
+            allowed_cookies = [cookie for cookie in cookies if cookie not in
+                               self.application.exclude_cookies]
+            cookies = {k: v.value for k, v in self.request.cookies.items()
+                       if k in allowed_cookies}
             payload = {'headers': headers, 'cookies': cookies}
             payload.update(self.application_context.application.process_request(self.request))
             token = generate_jwt_token(session_id,

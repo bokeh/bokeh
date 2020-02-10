@@ -169,12 +169,20 @@ class BokehTornado(TornadoApplication):
         auth_provider (AuthProvider, optional):
             An AuthProvider instance
 
-        request_headers (list, optional) :
+        include_headers (list, optional) :
             List of request headers to include in session context
             (by default all headers are included)
 
-        request_cookies (list, optional) :
+        exclude_headers (list, optional) :
+            List of request headers to exclude in session context
+            (by default all headers are included)
+
+        include_cookies (list, optional) :
             List of cookies to include in session context
+            (by default all cookies are included)
+
+        exclude_cookies (list, optional) :
+            List of cookies to exclude in session context
             (by default all cookies are included)
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
@@ -199,8 +207,10 @@ class BokehTornado(TornadoApplication):
                  index=None,
                  auth_provider=NullAuth(),
                  xsrf_cookies=False,
-                 request_headers=None,
-                 request_cookies=None,
+                 include_headers=None,
+                 include_cookies=None,
+                 exclude_headers=None,
+                 exclude_cookies=None,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -277,8 +287,11 @@ class BokehTornado(TornadoApplication):
         if xsrf_cookies:
             log.info("XSRF cookie protection enabled")
 
-        self._request_cookies = request_cookies
-        self._request_headers = request_headers
+            
+        self._exclude_cookies = exclude_cookies
+        self._exclude_headers = exclude_headers
+        self._include_cookies = include_cookies
+        self._include_headers = include_headers
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()
@@ -425,20 +438,34 @@ class BokehTornado(TornadoApplication):
         return self._secret_key
 
     @property
-    def request_cookies(self):
-        ''' A list of request cookies to to make available in the session
+    def include_cookies(self):
+        ''' A list of request cookies to make available in the session
         context.
 
         '''
-        return self._request_cookies
+        return self._include_cookies
 
     @property
-    def request_headers(self):
-        ''' A list of request headers to to make available in the session
+    def include_headers(self):
+        ''' A list of request headers to make available in the session
         context.
 
         '''
-        return self._request_headers
+        return self._include_headers
+
+    @property
+    def exclude_cookies(self):
+        ''' A list of request cookies to exclude in the session context.
+
+        '''
+        return self._exclude_cookies
+
+    @property
+    def exclude_headers(self):
+        ''' A list of request headers to exclude in the session context.
+
+        '''
+        return self._exclude_headers
 
     @property
     def sign_sessions(self):
