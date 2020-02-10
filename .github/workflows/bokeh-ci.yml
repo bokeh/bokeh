@@ -351,15 +351,14 @@ jobs:
 
           if [[ "${{ runner.os }}" = "Windows" ]]; then
             echo "::add-path::$HOME/miniconda3"
-            echo "::add-path::$HOME/miniconda3/Scripts"
             echo "::add-path::$HOME/miniconda3/DLLs"
+            echo "::add-path::$HOME/miniconda3/Scripts"
+            echo "::add-path::$HOME/miniconda3/envs/test/DLLs"
+            echo "::add-path::$HOME/miniconda3/envs/test/Scripts"
           else
             echo "::add-path::$HOME/miniconda3/bin"
             echo "::add-path::$HOME/miniconda3/envs/test/bin"
           fi
-
-
-
 
       - name: Configure conda
         shell: bash
