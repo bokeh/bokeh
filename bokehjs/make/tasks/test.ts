@@ -6,7 +6,7 @@ import os from "os"
 
 import which from "which"
 
-import {task, log, BuildError} from "../task"
+import {task, task2, log, success, BuildError} from "../task"
 import {Linker} from "@compiler/linker"
 import {default_prelude} from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
@@ -220,8 +220,9 @@ function opt(name: string, value: unknown): string {
   return value != null ? `--${name}=${value}` : ""
 }
 
-function devtools(port: number, name: string): Promise<void> {
-  const args = ["--no-warnings", "./test/devtools", `http://localhost:${port}/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
+function devtools(devtools_port: number, server_port: number, name: string): Promise<void> {
+  const url = `http://localhost:${server_port}/${name}`
+  const args = ["--no-warnings", "./test/devtools", url, `--port=${devtools_port}`, opt("k", argv.k), opt("grep", argv.grep)]
 
   if (argv.debug) {
     if (argv.debug === true)
@@ -249,29 +250,35 @@ function devtools(port: number, name: string): Promise<void> {
   })
 }
 
-task("test:start:headless", async () => {
-  const port = 9222
+const start_headless = task("test:start:headless", async () => {
+  let port = 9222
   if (await is_available(port)) {
     await headless(port)
   } else if (argv.reuse !== true) {
-    await headless(await find_port(port))
+    port = await find_port(port)
+    await headless(port)
   } else {
     log(`Reusing chromium browser instance on port ${port}`)
   }
+  return success(port)
 })
 
-task("test:start:server", async () => {
-  const port = 5777
+const start_server = task("test:start:server", async () => {
+  let port = 5777
   if (await is_available(port)) {
     await server(port)
   } else if (argv.reuse !== true) {
-    await server(await find_port(port))
+    port = await find_port(port)
+    await server(port)
   } else {
     log(`Reusing devtools server instance on port ${port}`)
   }
+  return success(port)
 })
 
-task("test:start", ["test:start:headless", "test:start:server"])
+const start = task2("test:start", [start_headless, start_server], async (devtools_port, server_port) => {
+  return success([devtools_port, server_port] as [number, number])
+})
 
 task("test:compile", ["defaults:generate"], async () => {
   const success = compile_typescript("./test/tsconfig.json", {log})
@@ -284,18 +291,20 @@ task("test:bundle", ["test:unit:bundle", "test:integration:bundle"])
 
 task("test:build", ["test:bundle"])
 
-task("test:unit:bundle", ["test:compile"], async () => {
+const unit_bundle = task("test:unit:bundle", ["test:compile"], async () => {
   bundle("unit")
 })
-task("test:unit", ["test:start", "test:unit:bundle"], async () => {
-  await devtools(5778, "unit")
+task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "unit")
+  return success(undefined)
 })
 
-task("test:integration:bundle", ["test:compile"], async () => {
+const integration_bundle = task("test:integration:bundle", ["test:compile"], async () => {
   bundle("integration")
 })
-task("test:integration", ["test:start", "test:integration:bundle"], async () => {
-  await devtools(5778, "integration")
+task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "integration")
+  return success(undefined)
 })
 
 task("test", ["test:size", "test:unit", "test:integration"])

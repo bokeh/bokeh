@@ -11,6 +11,7 @@ import {PNG} from "pngjs"
 import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 
 const url = argv._[0]
+const port = parseInt(argv.port as string | undefined ?? "9222")
 
 interface CallFrame {
   name: string
@@ -163,7 +164,7 @@ async function run_tests(): Promise<void> {
   let exception = false
   let handle_exceptions = true
   try {
-    client = await CDP()
+    client = await CDP({port})
     const {Network, Page, Runtime, Log} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
