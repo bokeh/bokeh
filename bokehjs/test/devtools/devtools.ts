@@ -80,10 +80,11 @@ function rgba2hsla(r: number, g: number, b: number, a: number): [number, number,
     h /= 6
   }
 
-  return [h, s, l, a]
+  const f = Math.round
+  return [f(h*360), f(s*100), f(l*100), a]
 }
 
-function diff_image(existing: Buffer, current: Buffer, treshold: number = 0.05): ImageDiff | null {
+function diff_image(existing: Buffer, current: Buffer): ImageDiff | null {
   const existing_img = PNG.sync.read(existing)
   const current_img = PNG.sync.read(current)
 
@@ -117,12 +118,25 @@ function diff_image(existing: Buffer, current: Buffer, treshold: number = 0.05):
     const b = b32[i]
 
     if (a != b) {
-      const [h0, s0, l0, a0] = rgba2hsla(...decode(a))
-      const [h1, s1, l1, a1] = rgba2hsla(...decode(b))
+      const [r0, g0, b0, a0] = decode(a)
+      const [r1, g1, b1, a1] = decode(b)
 
-      if (h0 != h1 || s0 != s1 || Math.abs(l0 - l1) > treshold || a0 != a1) {
-        pixels++
-        c32[i] = encode(0, 0, 255)
+      const [h0, s0, l0, _a0] = rgba2hsla(r0, g0, b0, a0)
+      const [h1, s1, l1, _a1] = rgba2hsla(r1, g1, b1, a1)
+
+      if (!(h0 == h1 && s0 == s1 && l0 == l1 && _a0 == _a1)) {
+        const d = (a: number, b: number) => Math.abs(a - b)
+
+        // const [x, y] = [i % width, Math.floor(i / width)]
+        // console.log("")
+        // console.log(`existing(${x}, ${y}) = RGBA(${r0}, ${g0}, ${b0}, ${a0}) HSLA(${h0}, ${s0}, ${l0}, ${_a0})`)
+        // console.log(`current(${x}, ${y})  = RGBA(${r1}, ${g1}, ${b1}, ${a1}) HSLA(${h1}, ${s1}, ${l1}, ${_a1})`)
+        // console.log(`d(h0, h1) = ${d(h0, h1)} d(s0, s1) = ${d(s0, s1)} d(l0, l1) = ${d(l0, l1)}`)
+
+        if (!(h0 == h1 && s0 == s1 && d(l0, l1) <= 5 && _a0 == _a1)) {
+          pixels++
+          c32[i] = encode(0, 0, 255)
+        }
       }
     }
   }
