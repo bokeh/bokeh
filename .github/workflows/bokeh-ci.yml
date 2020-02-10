@@ -328,42 +328,27 @@ jobs:
             ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
 
-      - name: Setup paths
+      - name: Setup paths (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "::add-path::$HOME\miniconda3"
+          echo "::add-path::$HOME\miniconda3\DLLs"
+          echo "::add-path::$HOME\miniconda3\Scripts"
+          echo "::add-path::$HOME\miniconda3\Library\bin"
+          echo "::add-path::$HOME\miniconda3\Library\usr\bin"
+          echo "::add-path::$HOME\miniconda3\Library\mingw-w64\bin"
+
+      - name: Setup paths (Linux or macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
-          echo "$PATH"
-
-          case "${{ runner.os }}" in
-            "Windows")
-              which $HOME/AppData/Local/Google/Chrome/Application/chrome.exe || true
-              which /c/Program\ Files\ \(x86\)/Google/Application/chrome.exe || true
-              which /c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe || true
-              which /c/Program\ Files\ \(x86\)/Google/Chrome/Application/Chrome.exe || true
-              ;;
-            "macOS")
-              which /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
-              which /Applications/Google\ Chrome.app/Contents/MacOS/google\ chrome
-              ;;
-            "Linux")
-              which /usr/bin/google-chrome
-              ;;
-          esac
-
-          if [[ "${{ runner.os }}" = "Windows" ]]; then
-            echo "::add-path::$HOME/miniconda3"
-            echo "::add-path::$HOME/miniconda3/DLLs"
-            echo "::add-path::$HOME/miniconda3/Scripts"
-            echo "::add-path::$HOME/miniconda3/envs/test/DLLs"
-            echo "::add-path::$HOME/miniconda3/envs/test/Scripts"
-          else
-            echo "::add-path::$HOME/miniconda3/bin"
-            echo "::add-path::$HOME/miniconda3/envs/test/bin"
-          fi
+          echo "::add-path::$HOME/miniconda3/bin"
 
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.8.1 jinja2"
+          CONDA_REQS: "conda=4.8.1 jinja2 pyyaml"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -393,8 +378,7 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet --use-local python=${{ matrix.python-version }} bokeh "nodejs=12.*"
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -410,18 +394,11 @@ jobs:
           popd
           python setup.py --install-js
 
-      #- name: Install chromium
-      #  shell: bash
-      #  run: |
-      #    sudo apt update
-      #    sudo apt install chromium-browser
-
       - name: Run tests
         shell: bash
+        working-directory: ./bokehjs
         run: |
-          pushd bokehjs
           node make test
-          popd
 
       - name: Collect results
         if: always()
@@ -429,11 +406,16 @@ jobs:
         run: |
           SRC="bokehjs/test"
           DST="integration-report/$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')"
+          mkdir -p $DST
           if [[ -e $SRC/report.json ]];
           then
-            mkdir -p $DST
-            cp --parents $SRC/report.json $DST
-            cp --parents $(git status --short $SRC/baselines | cut -c4-) $DST
+            if [[ "${{ runner.os }}" = "Windows" ]]; then
+              COPY="cp --parents"
+            else
+              COPY="rsync -R"
+            fi
+            CHANGED=$(git status --short $SRC/baselines | cut -c4-)
+            $COPY $SRC/report.json $CHANGED $DST
           fi
 
       - name: Upload report
