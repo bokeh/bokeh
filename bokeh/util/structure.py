@@ -1,42 +1,34 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-'''Functions to create the directed acyclic graph of submodels of a model in networkx format,
+# -----------------------------------------------------------------------------
+"""Functions to create the directed acyclic graph of submodels of a model in networkx format,
    and to draw that DAG using bokeh graph rendering.
-'''
+"""
 
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from itertools import permutations
 
 # External imports
-import pydot
 import networkx as nx
 
 # Bokeh imports
-
-from bokeh.models import HoverTool, Range1d, ColumnDataSource, LabelSet
-from bokeh.plotting import figure, from_networkx
+from bokeh.models import ColumnDataSource, HoverTool, LabelSet, Range1d
 from bokeh.models.glyphs import Circle, MultiLine
+from bokeh.models.graphs import from_networkx
+from bokeh.plotting import figure
+from bokeh.util.string import format_docstring
 
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def make_graph(M):
     """Return a networkx DiGraph() G so that:
@@ -44,7 +36,7 @@ def make_graph(M):
            - "model" giving the class name of of the submodel
            - "id" giving the id of the submodel
            - "in" giving the attribute of the parent model to which this submodel is attached
-       Two nodes are joined by an edge if the head node is a member of (or equal to) an attribute of the tail node. 
+       Two nodes are joined by an edge if the head node is a member of (or equal to) an attribute of the tail node.
 
     Args:
         A bokeh model M
@@ -56,10 +48,7 @@ def make_graph(M):
         T[m.id] = set([y.id for y in m.references()])
 
     G.add_nodes_from(
-        [
-            (x, {"model": M.select_one({"id": x}).__class__.__name__})
-            for x in T
-        ]
+        [(x, {"model": M.select_one({"id": x}).__class__.__name__}) for x in T]
     )
     E = [(y, x) for x, y in permutations(T, 2) if T[x].issubset(T[y])]
     G.add_edges_from(E)
@@ -112,9 +101,8 @@ def draw_model(M):
     plot.add_tools(node_hover_tool)
 
     x, y = zip(*graph_renderer.layout_provider.graph_layout.values())
-    
-    xinterval = max(max(x) - min(x),200)
-    yinterval = max(max(y) - min(y),200)
+    xinterval = max(max(x) - min(x), 200)
+    yinterval = max(max(y) - min(y), 200)
     plot.x_range = Range1d(
         start=min(x) - 0.15 * xinterval, end=max(x) + 0.15 * xinterval
     )
@@ -136,3 +124,9 @@ def draw_model(M):
 
     return plot
 
+
+# -----------------------------------------------------------------------------
+# Code
+# -----------------------------------------------------------------------------
+make_graph.__doc__ = format_docstring(make_graph.__doc__)
+draw_model.__doc__ = format_docstring(draw_model.__doc__)
