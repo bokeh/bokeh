@@ -154,7 +154,8 @@ class WSHandler(WebSocketHandler):
             log.debug("Failed to fully open connection %r", e)
 
     def select_subprotocol(self, subprotocols):
-        log.info('Subprotocol header received')
+        log.debug('Subprotocol header received')
+        log.trace('Supplied subprotocol headers: %r', subprotocols)
 
         if not len(subprotocols) == 2:
             self.close()
