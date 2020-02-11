@@ -122,7 +122,10 @@ class WSHandler(WebSocketHandler):
         log.info('WebSocket connection opened')
         token = self._token
 
-        if token is None:
+        if self.selected_subprotocol != 'bokeh':
+            self.close()
+            raise ProtocolError("Subprotocol header is not 'bokeh'")
+        elif token is None:
             self.close()
             raise ProtocolError("No token received in subprotocol header")
 
@@ -156,17 +159,10 @@ class WSHandler(WebSocketHandler):
     def select_subprotocol(self, subprotocols):
         log.debug('Subprotocol header received')
         log.trace('Supplied subprotocol headers: %r', subprotocols)
-
         if not len(subprotocols) == 2:
-            self.close()
-            raise ProtocolError("Subprotocol header not of expected length")
-        elif subprotocols[0] != "bokeh":
-            self.close()
-            raise ProtocolError("Subprotocol header is not 'bokeh'")
-
+            return None
         self._token = subprotocols[1]
-
-        return "bokeh"
+        return subprotocols[0]
 
     async def _async_open(self, token):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
