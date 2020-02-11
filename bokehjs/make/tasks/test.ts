@@ -161,7 +161,7 @@ function chrome(): string {
 }
 
 async function headless(port: number): Promise<ChildProcess> {
-  const args = ["--headless", `--remote-debugging-port=${port}`, "--hide-scrollbars", "--font-render-hinting=none"]
+  const args = ["--headless", `--remote-debugging-port=${port}`, "--hide-scrollbars", "--font-render-hinting=none", "--force-color-profile=srgb"]
   const proc = spawn(chrome(), args, {stdio: "pipe"})
 
   process.once("exit",    () => proc.kill())
