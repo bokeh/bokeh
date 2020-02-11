@@ -739,9 +739,7 @@ async def test__reject_no_token_websocket(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        response = await http_get(server.io_loop, url(server))
-        html = response.body
-        token = extract_token_from_json(html)
+        await http_get(server.io_loop, url(server))
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
