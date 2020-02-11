@@ -58,6 +58,7 @@ async def websocket_open(io_loop, url, origin=None, subprotocols=[]):
         request.headers['Origin'] = origin
     result = await websocket_connect(request, subprotocols=subprotocols)
     result.close()
+    return result
 
 #-----------------------------------------------------------------------------
 # Private API
