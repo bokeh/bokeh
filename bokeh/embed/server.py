@@ -343,19 +343,6 @@ def _process_resources(resources):
         return "&resources=none"
     return ""
 
-def _process_session_id(session_id):
-    ''' Return a session ID HTML argument to add to a Bokeh server URL
-
-    Args:
-        session_id (str) :
-            The session id to use
-
-    Returns:
-        str
-
-    '''
-    return "&bokeh-session-id=" + session_id
-
 def _src_path(url, elementid):
     ''' Return a base autoload URL for a given element ID
 
