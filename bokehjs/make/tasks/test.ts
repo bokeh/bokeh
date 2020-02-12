@@ -171,7 +171,7 @@ async function headless(port: number): Promise<ChildProcess> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new Error("timeout"))
-    }, 30000)
+    }, 10000)
     proc.on("error", reject)
     proc.stderr.on("data", (chunk) => {
       const text = `${chunk}`
@@ -180,6 +180,9 @@ async function headless(port: number): Promise<ChildProcess> {
         if (line.match(/DevTools listening/) != null) {
           clearTimeout(timer)
           resolve(proc)
+        } else if (line.match(/bind() failed: Address already in use/)) {
+          clearTimeout(timer)
+          reject(new BuildError("headless", `can't start headless browser on port ${port}`))
         }
       }
     })
