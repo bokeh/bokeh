@@ -65,6 +65,12 @@ class SessionHandler(AuthMixin, RequestHandler):
     async def get_session(self):
         token = self.get_argument("bokeh-token", default=None)
         session_id = self.get_argument("bokeh-session-id", default=None)
+        if 'Bokeh-Session-Id' in self.request.headers:
+            if session_id is not None:
+                log.debug("Server received session ID in request argument and header, expected only one")
+                raise HTTPError(status_code=403, reason="session ID was provided as an argument and header")
+            session_id = self.request.headers.get('Bokeh-Session-Id')
+
         if token is not None:
             if session_id is not None:
                 log.debug("Server received both token and session ID, expected only one")
