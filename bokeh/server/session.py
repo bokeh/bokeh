@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import inspect
 import time
 
 # External imports
@@ -64,6 +65,10 @@ def _needs_document_lock(func):
                 self._pending_writes = []
                 try:
                     result = func(self, *args, **kwargs)
+                    if inspect.isawaitable(result):
+                        # Note that this must not be outside of the critical section.
+                        # Otherwise, the async callback will be ran without document locking.
+                        result = await result
                 finally:
                     # we want to be very sure we reset this or we'll
                     # keep hitting the RuntimeError above as soon as
