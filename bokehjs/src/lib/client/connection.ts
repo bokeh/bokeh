@@ -63,7 +63,7 @@ export class ClientConnection {
     try {
       let versioned_url = `${this.url}`
       if (this.args_string != null && this.args_string.length > 0)
-        versioned_url += `&${this.args_string}`
+        versioned_url += `?${this.args_string}`
 
       this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
