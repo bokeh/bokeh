@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from urllib.parse import quote_plus
-
 # External imports
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop
@@ -34,6 +31,7 @@ from tornado.websocket import WebSocketError, websocket_connect
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
+from ..util.string import format_url_query_arguments
 from .states import (
     CONNECTED_AFTER_ACK,
     CONNECTED_BEFORE_ACK,
@@ -236,16 +234,8 @@ class ClientConnection(object):
 
     # Private methods ---------------------------------------------------------
 
-    def _formatted_url(self):
-        formatted_url = self._url
-        if self._arguments is not None:
-            for key, value in self._arguments.items():
-                formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
-        return formatted_url
-
-
     async def _connect_async(self):
-        formatted_url = self._formatted_url()
+        formatted_url = format_url_query_arguments(self._url, self._arguments)
         request = HTTPRequest(formatted_url)
         try:
             socket = await websocket_connect(request, subprotocols=["bokeh", self._session.token])

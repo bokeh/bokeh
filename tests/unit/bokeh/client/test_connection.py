@@ -64,14 +64,6 @@ class Test_ClientConnection(object):
         assert c._server_info is None
         assert c._arguments == dict(foo="bar")
 
-    def test__formatted_url(self) -> None:
-        c = bcc.ClientConnection(FakeSess(), "wsurl")
-        assert c._formatted_url() == "wsurl"
-
-    def test__formatted_url_with_arguments(self) -> None:
-        c = bcc.ClientConnection(FakeSess(), "wsurl", arguments=dict(foo="bar"))
-        assert c._formatted_url() == "wsurl&foo=bar"
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
