@@ -27,9 +27,10 @@ from itertools import permutations
 import networkx as nx
 
 # Bokeh imports
-from bokeh.models import HoverTool, Range1d, ColumnDataSource, LabelSet
-from bokeh.plotting import figure, from_networkx
+from bokeh.models import ColumnDataSource, HoverTool, LabelSet, Range1d
 from bokeh.models.glyphs import Circle, MultiLine
+from bokeh.plotting import figure, from_networkx
+
 
 
 #-----------------------------------------------------------------------------
@@ -42,7 +43,7 @@ def make_graph(M):
            - "model" giving the class name of of the submodel
            - "id" giving the id of the submodel
            - "in" giving the attribute of the parent model to which this submodel is attached
-       Two nodes are joined by an edge if the head node is a member of (or equal to) an attribute of the tail node. 
+       Two nodes are joined by an edge if the head node is a member of (or equal to) an attribute of the tail node.
 
     Args:
         A bokeh model M
@@ -131,4 +132,3 @@ def draw_model(M):
     plot.renderers.append(labels)
 
     return plot
-
