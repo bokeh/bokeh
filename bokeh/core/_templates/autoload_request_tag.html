@@ -31,9 +31,9 @@ ID is not specified, the entire document will be rendered.
   {% for header, value in headers.items() %}
   xhr.setRequestHeader("{{ header }}", "{{ value }}")
   {% endfor %}
-  xhr.onload = function () {
+  xhr.onload = function (event) {
     var script = document.createElement('script'),
-    src = URL.createObjectURL(xhr.response);
+    src = URL.createObjectURL(event.target.response);
     script.src = src;
     document.body.appendChild(script);
   };
