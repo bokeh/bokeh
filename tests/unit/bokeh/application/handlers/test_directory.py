@@ -61,6 +61,8 @@ def process_request(request):
     return request['headers']
 """
 
+script_has_lifecycle_and_request_handlers = script_has_lifecycle_handlers + script_has_request_handler
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -268,6 +270,48 @@ some.foo = 57
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
     @pytest.mark.asyncio
+    async def test_directory_with_app_hooks(self) -> None:
+        doc = Document()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            result['handler'] = handler
+            handler.modify_document(doc)
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
+                                              'AnotherModelInTestDirectoryWithLifecycle'),
+            'app_hooks.py' : script_has_lifecycle_and_request_handlers
+        }, load)
+
+        assert len(doc.roots) == 2
+
+        handler = result['handler']
+
+        assert "on_server_loaded" == handler.on_server_loaded(None)
+        assert "on_server_unloaded" == handler.on_server_unloaded(None)
+        assert "on_session_created" == await handler.on_session_created(None)
+        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
+        assert dict(foo=10) == handler.process_request(dict(headers=dict(foo=10)))
+
+    @pytest.mark.asyncio
+    async def test_directory_with_lifecycle_and_app_hooks_errors(self) -> None:
+        doc = Document()
+        result = {}
+        def load(filename):
+            with pytest.raises(ValueError):
+                bahd.DirectoryHandler(filename=filename)
+
+        with_directory_contents({
+            'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
+                                              'AnotherModelInTestDirectoryWithLifecycle'),
+            'app_hooks.py' : script_has_lifecycle_handlers,
+            'server_lifecycle.py': script_has_request_handler
+        }, load)
+
+    @pytest.mark.asyncio
     async def test_directory_with_request_handler(self) -> None:
         doc = Document()
         result = {}
@@ -281,7 +325,7 @@ some.foo = 57
         with_directory_contents({
             'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
                                               'AnotherModelInTestDirectoryWithLifecycle'),
-            'request_handler.py' : script_has_request_handler
+            'app_hooks.py' : script_has_request_handler
         }, load)
 
         assert len(doc.roots) == 2
@@ -289,7 +333,6 @@ some.foo = 57
         handler = result['handler']
 
         assert dict(foo=10) == handler.process_request(dict(headers=dict(foo=10)))
-
 
     def test_directory_with_static(self) -> None:
         doc = Document()

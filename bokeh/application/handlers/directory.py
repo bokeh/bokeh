@@ -121,17 +121,25 @@ class DirectoryHandler(Handler):
         handler = NotebookHandler if main.endswith('.ipynb') else ScriptHandler
         self._main_handler = handler(filename=self._main, argv=argv, package=self._package)
 
+        hooks = None
+        app_hooks = join(src_path, 'app_hooks.py')
         lifecycle = join(src_path, 'server_lifecycle.py')
-        if exists(lifecycle):
-            self._lifecycle = lifecycle
+        if exists(app_hooks) and exists(lifecycle):
+            raise ValueError("Directory style apps can provide either server_lifecycle.py or app_hooks.py, not both.")
+        elif exists(lifecycle):
+            hooks = lifecycle
+        elif exists(app_hooks):
+            hooks = app_hooks
+
+        if hooks is not None:
+            self._lifecycle = hooks
             self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv, package=self._package)
         else:
             self._lifecycle = None
             self._lifecycle_handler = Handler() # no-op handler
 
-        request_handler = join(src_path, 'request_handler.py')
-        if exists(request_handler):
-            self._request_handler = request_handler
+        if exists(app_hooks):
+            self._request_handler = hooks
             self._request_handler = ServerRequestHandler(filename=self._request_handler, argv=argv, package=self._package)
         else:
             self._request_handler = None
