@@ -1,4 +1,3 @@
-import bokeh
 from bokeh.plotting import figure
 from bokeh.io import show
 from bokeh.util import structure

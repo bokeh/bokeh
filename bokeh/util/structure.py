@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from itertools import permutations
 
 # External imports
-import pydot
 import networkx as nx
 
 # Bokeh imports
