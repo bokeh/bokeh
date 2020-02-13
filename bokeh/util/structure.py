@@ -31,8 +31,6 @@ from bokeh.models import ColumnDataSource, HoverTool, LabelSet, Range1d
 from bokeh.models.glyphs import Circle, MultiLine
 from bokeh.plotting import figure, from_networkx
 
-
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
