@@ -51,7 +51,7 @@ from bokeh.util.token import (
     generate_jwt_token,
     generate_session_id,
     get_session_id,
-    get_token_payload
+    get_token_payload,
 )
 
 #-----------------------------------------------------------------------------
