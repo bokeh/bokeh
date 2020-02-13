@@ -19,7 +19,7 @@ from itertools import permutations
 import networkx as nx
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, HoverTool, LabelSet, Range1d
+from bokeh.models import ColumnDataSource, DataRange1d, HoverTool, LabelSet
 from bokeh.models.glyphs import Circle, MultiLine
 from bokeh.models.graphs import from_networkx
 from bokeh.plotting import figure
@@ -103,12 +103,9 @@ def draw_model(M):
     x, y = zip(*graph_renderer.layout_provider.graph_layout.values())
     xinterval = max(max(x) - min(x), 200)
     yinterval = max(max(y) - min(y), 200)
-    plot.x_range = Range1d(
-        start=min(x) - 0.15 * xinterval, end=max(x) + 0.15 * xinterval
-    )
-    plot.y_range = Range1d(
-        start=min(y) - 0.15 * yinterval, end=max(y) + 0.15 * yinterval
-    )
+    plot.x_range = DataRange1d(range_padding=0.15)
+    plot.y_range = DataRange1d(range_padding=0.15)
+
 
     D = {"x": x, "y": y, "model": list(dict(K.nodes(data="model")).values())}
     labels = LabelSet(
