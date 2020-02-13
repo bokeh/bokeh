@@ -298,8 +298,6 @@ some.foo = 57
 
     @pytest.mark.asyncio
     async def test_directory_with_lifecycle_and_app_hooks_errors(self) -> None:
-        doc = Document()
-        result = {}
         def load(filename):
             with pytest.raises(ValueError):
                 bahd.DirectoryHandler(filename=filename)
