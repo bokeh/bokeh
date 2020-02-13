@@ -142,7 +142,6 @@ def get_user(handler): return 10
 login_url = "/foo"
         """, func, suffix='.py')
 
-    @pytest.mark.asyncio
     async def test_get_user_async(self) -> None:
         async def func(filename):
             am = bsa.AuthModule(filename)
