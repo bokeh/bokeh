@@ -307,12 +307,19 @@ class _RequestProxy(object):
         arguments = dict(request.arguments)
         if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
         self._arguments = arguments
-        if hasattr(request, 'cookies'):
-            self._cookies = cookies if cookies else {k: v.value for k, v in request.cookies.items()}
+        if cookies is not None:
+            self._cookies = cookies
+        elif hasattr(request, 'cookies'):
+            # Django cookies are plain strings, tornado cookies are objects with a value
+            self._cookies = {k: v if isinstance(v, str) else v.value
+                             for k, v in request.cookies.items()}
         else:
             self._cookies = {}
-        if hasattr(request, 'headers'):
-            self._headers = headers if headers else dict(request.headers)
+
+        if headers is not None:
+            self._headers = headers
+        elif hasattr(request, 'headers'):
+            self._headers = dict(request.headers)
         else:
             self._headers = {}
 

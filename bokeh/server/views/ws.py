@@ -140,10 +140,6 @@ class WSHandler(WebSocketHandler):
             log.error("Token for session %r had invalid signature", session_id)
             raise ProtocolError("Invalid token signature")
 
-        if self._token is None:
-            self.close()
-            raise ProtocolError("Token was not provided.")
-
         try:
             self.application.io_loop.spawn_callback(self._async_open, self._token)
         except Exception as e:
