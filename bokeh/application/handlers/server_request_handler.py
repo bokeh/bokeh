@@ -102,7 +102,7 @@ class ServerRequestHandler(RequestHandler):
 
     @property
     def failed(self):
-        ''' ``True`` if the lifecycle callbacks failed to execute
+        ''' ``True`` if the request handler callbacks failed to execute
 
         '''
         return self._runner.failed
