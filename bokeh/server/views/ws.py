@@ -30,11 +30,7 @@ from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.session_id import (
-    check_token_signature,
-    get_session_id,
-    get_token_payload,
-)
+from bokeh.util.token import check_token_signature, get_session_id, get_token_payload
 
 # Bokeh imports
 from ...protocol import Protocol

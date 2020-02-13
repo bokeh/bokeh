@@ -245,7 +245,7 @@ secure session IDs are allowed but anyone can connect to the server.
 In ``external-signed`` mode, the session ID must be signed but the server
 itself won't generate a session ID; the ``?bokeh-session-id=`` parameter will
 be required. To use this mode, an external process (such as another web app)
-would use the function ``bokeh.util.session_id.generate_session_id()`` to
+would use the function ``bokeh.util.token.generate_session_id()`` to
 create valid session IDs. The external process and the Bokeh server must share
 the same ``BOKEH_SECRET_KEY`` environment variable.
 

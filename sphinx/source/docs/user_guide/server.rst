@@ -1409,7 +1409,7 @@ Then in your web application, we explicitly provide (signed) session ids using
 
 .. code-block:: python
 
-    from bokeh.util.session_id import generate_session_id
+    from bokeh.util.token import generate_session_id
 
     script = server_session(url='http://localhost:5006/bkapp',
                             session_id=generate_session_id())

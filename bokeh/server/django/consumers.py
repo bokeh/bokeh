@@ -44,7 +44,7 @@ from bokeh.server.protocol_handler import ProtocolHandler
 from bokeh.server.session import ServerSession
 from bokeh.server.views.static_handler import StaticHandler
 from bokeh.settings import settings
-from bokeh.util.session_id import check_session_id_signature, generate_session_id
+from bokeh.util.token import check_session_id_signature, generate_session_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants

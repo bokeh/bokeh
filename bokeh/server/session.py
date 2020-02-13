@@ -25,7 +25,7 @@ import time
 from tornado import locks
 
 # Bokeh imports
-from ..util.session_id import generate_jwt_token
+from ..util.token import generate_jwt_token
 from .callbacks import _DocumentCallbackGroup
 
 #-----------------------------------------------------------------------------

@@ -24,7 +24,7 @@ import random
 from mock import patch
 
 # Bokeh imports
-from bokeh.util.session_id import (
+from bokeh.util.token import (
     _base64_decode,
     _base64_encode,
     _get_sysrandom,
@@ -38,7 +38,7 @@ from bokeh.util.session_id import (
 )
 
 # Module under test
-import bokeh.util.session_id # isort:skip
+import bokeh.util.token # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -70,14 +70,14 @@ class TestSessionId(object):
         # did NOT reseed
         assert state == random.getstate()
         # monkeypatch
-        saved = bokeh.util.session_id.random
+        saved = bokeh.util.token.random
         try:
-            bokeh.util.session_id.random = random
+            bokeh.util.token.random = random
             _reseed_if_needed(using_sysrandom=False, secret_key="abc")
             # DID reseed
             assert state != random.getstate()
         finally:
-            bokeh.util.session_id.random = saved
+            bokeh.util.token.random = saved
 
     def test_signature(self) -> None:
         sig = _signature("xyz", secret_key="abc")

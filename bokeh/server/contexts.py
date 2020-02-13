@@ -25,7 +25,7 @@ from tornado import gen
 from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
-from ..util.session_id import get_token_payload
+from ..util.token import get_token_payload
 from ..util.tornado import _CallbackGroup
 from .session import ServerSession
 
