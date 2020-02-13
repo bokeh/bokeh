@@ -14,12 +14,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import logging
-
 # Bokeh imports
 from bokeh._testing.util.filesystem import with_file_contents
-from bokeh.application.application import Application
 from bokeh.document import Document
 
 # Module under test
@@ -104,7 +100,6 @@ def process_request(a,b):
 
     @pytest.mark.asyncio
     async def test_empty_request_handler(self) -> None:
-        doc = Document()
         out = {}
         def load(filename):
             handler = basrh.ServerRequestHandler(filename=filename)
