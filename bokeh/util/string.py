@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from typing import Any, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence
+from urllib.parse import quote_plus
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -105,6 +106,25 @@ def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Opt
 
     '''
     return None if docstring is None else docstring.format(*args, **kwargs)
+
+
+def format_url_query_arguments(url: str, arguments: Optional[Dict[str, str]] = None) -> str:
+    ''' Format a base URL with optional query arguments
+
+    Args:
+        url (str) :
+            An base URL to append query arguments to
+        arguments (dict or None, optional) :
+            A mapping of key/value URL query arguments, or None (default: None)
+
+    Returns:
+        str
+
+    '''
+    if arguments is not None:
+        items = (f"{quote_plus(key)}={quote_plus(value)}" for key, value in arguments.items())
+        url += "?" + "&".join(items)
+    return url
 
 #-----------------------------------------------------------------------------
 # Dev API
