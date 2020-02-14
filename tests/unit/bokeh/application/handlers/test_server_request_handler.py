@@ -97,7 +97,6 @@ def process_request(a,b):
         with pytest.raises(ValueError):
             basrh.ServerRequestHandler()
 
-    @pytest.mark.asyncio
     async def test_empty_request_handler(self) -> None:
         out = {}
         def load(filename):
@@ -110,7 +109,6 @@ def process_request(a,b):
             raise RuntimeError(handler.error)
         assert payload == {}
 
-    @pytest.mark.asyncio
     async def test_calling_request_handler(self) -> None:
         result = {}
         def load(filename):

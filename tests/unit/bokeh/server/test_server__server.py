@@ -318,7 +318,6 @@ async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
         session = server.get_sessions('/foo')[0]
         assert session.document.title == "Hello, world!"
 
-@pytest.mark.asyncio
 async def test__include_headers(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, include_headers=['Custom']) as server:
@@ -332,7 +331,6 @@ async def test__include_headers(ManagedServerLoop) -> None:
         assert 'headers' in payload
         assert payload['headers'] == {'Custom': 'Test'}
 
-@pytest.mark.asyncio
 async def test__exclude_headers(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, exclude_headers=['Connection', 'Host']) as server:
@@ -346,7 +344,6 @@ async def test__exclude_headers(ManagedServerLoop) -> None:
         assert 'headers' in payload
         assert payload['headers'] == {'Accept-Encoding': 'gzip'}
 
-@pytest.mark.asyncio
 async def test__include_cookies(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, include_cookies=['custom']) as server:
@@ -360,7 +357,6 @@ async def test__include_cookies(ManagedServerLoop) -> None:
         assert 'cookies' in payload
         assert payload['cookies'] == {'custom': 'test'}
 
-@pytest.mark.asyncio
 async def test__exclude_cookies(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, exclude_cookies=['custom']) as server:
