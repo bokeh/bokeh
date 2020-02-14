@@ -124,14 +124,12 @@ class TestClientServer(object):
             session.close()
             session._loop_until_closed()
 
-    @pytest.mark.asyncio
     async def check_http_gets_fail(self, server):
         with pytest.raises(HTTPError):
             await http_get(server.io_loop, url(server))
         with pytest.raises(HTTPError):
             await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    @pytest.mark.asyncio
     async def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
             subprotocols = ["bokeh", generate_jwt_token("foo")]
@@ -140,12 +138,10 @@ class TestClientServer(object):
                                  origin=origin,
                                  subprotocols=subprotocols)
 
-    @pytest.mark.asyncio
     async def check_http_gets(self, server):
         await http_get(server.io_loop, url(server))
         await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    @pytest.mark.asyncio
     async def check_connect_session(self, server, origin):
         subprotocols = ["bokeh", generate_jwt_token("foo")]
         await websocket_open(server.io_loop,
@@ -153,22 +149,18 @@ class TestClientServer(object):
                              origin=origin,
                              subprotocols=subprotocols)
 
-    @pytest.mark.asyncio
     async def check_http_ok_socket_ok(self, server, origin=None):
         await self.check_http_gets(server)
         await self.check_connect_session(server, origin=origin)
 
-    @pytest.mark.asyncio
     async def check_http_ok_socket_blocked(self, server, origin=None):
         await self.check_http_gets(server)
         await self.check_connect_session_fails(server, origin=origin)
 
-    @pytest.mark.asyncio
     async def check_http_blocked_socket_blocked(self, server, origin=None):
         await self.check_http_gets_fail(server)
         await self.check_connect_session_fails(server, origin=origin)
 
-    @pytest.mark.asyncio
     async def test_allow_websocket_origin(self, ManagedServerLoop) -> None:
         application = Application()
 

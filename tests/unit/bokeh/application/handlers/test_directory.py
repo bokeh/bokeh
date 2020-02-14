@@ -243,7 +243,6 @@ some.foo = 57
         assert some_model.foo == 2
         assert another_model.bar == 1
 
-    @pytest.mark.asyncio
     async def test_directory_with_server_lifecycle(self) -> None:
         doc = Document()
         result = {}
@@ -269,7 +268,6 @@ some.foo = 57
         assert "on_session_created" == await handler.on_session_created(None)
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
-    @pytest.mark.asyncio
     async def test_directory_with_app_hooks(self) -> None:
         doc = Document()
         result = {}
@@ -296,7 +294,6 @@ some.foo = 57
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
         assert dict(foo=10) == handler.process_request(dict(headers=dict(foo=10)))
 
-    @pytest.mark.asyncio
     async def test_directory_with_lifecycle_and_app_hooks_errors(self) -> None:
         def load(filename):
             with pytest.raises(ValueError):
@@ -309,7 +306,6 @@ some.foo = 57
             'server_lifecycle.py': script_has_request_handler
         }, load)
 
-    @pytest.mark.asyncio
     async def test_directory_with_request_handler(self) -> None:
         doc = Document()
         result = {}
