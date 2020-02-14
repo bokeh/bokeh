@@ -42,6 +42,7 @@ from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model
 from bokeh.models import Plot
+from bokeh.util.token import generate_jwt_token
 from server._util_server import http_get, url, websocket_open, ws_url
 
 # Module under test
@@ -131,18 +132,22 @@ class TestClientServer(object):
 
     async def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
+            subprotocols = ["bokeh", generate_jwt_token("foo")]
             await websocket_open(server.io_loop,
-                                 ws_url(server)+"?bokeh-session-id=foo",
-                                 origin=origin)
+                                 ws_url(server),
+                                 origin=origin,
+                                 subprotocols=subprotocols)
 
     async def check_http_gets(self, server):
         await http_get(server.io_loop, url(server))
         await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
     async def check_connect_session(self, server, origin):
+        subprotocols = ["bokeh", generate_jwt_token("foo")]
         await websocket_open(server.io_loop,
-                             ws_url(server)+"?bokeh-session-id=foo",
-                             origin=origin)
+                             ws_url(server),
+                             origin=origin,
+                             subprotocols=subprotocols)
 
     async def check_http_ok_socket_ok(self, server, origin=None):
         await self.check_http_gets(server)

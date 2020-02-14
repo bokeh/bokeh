@@ -65,6 +65,10 @@ class Test_Handler(object):
         h._failed = True
         assert h.static_path() is None
 
+    def test_process_request(self) -> None:
+        h = bahh.Handler()
+        assert h.process_request("request") == {}
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

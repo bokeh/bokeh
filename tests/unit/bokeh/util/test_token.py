@@ -15,8 +15,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import base64
 import codecs
+import json
 import os
 import random
 
@@ -24,37 +24,25 @@ import random
 from mock import patch
 
 # Bokeh imports
-from bokeh.util.session_id import (
+from bokeh.util.token import (
+    _base64_decode,
     _base64_encode,
     _get_sysrandom,
     _reseed_if_needed,
     _signature,
-    check_session_id_signature,
+    check_token_signature,
+    generate_jwt_token,
     generate_secret_key,
     generate_session_id,
+    get_session_id,
 )
 
 # Module under test
-import bokeh.util.session_id # isort:skip
+import bokeh.util.token # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-# decoder for our flavor of base64 that converts to ascii
-# and drops '=' padding
-def _base64_decode(encoded):
-    # put the padding back
-    mod = len(encoded) % 4
-    if mod != 0:
-        encoded = encoded + ("=" * (4 - mod))
-    assert (len(encoded) % 4) == 0
-    # base64 lib both takes and returns bytes, we want to work with strings
-    encoded_as_bytes = codecs.encode(encoded, 'ascii')
-    return base64.urlsafe_b64decode(encoded_as_bytes)
-
-def _base64_decode_utf8(encoded):
-    return codecs.decode(_base64_decode(encoded), 'utf-8')
 
 def _nie():
     def func():
@@ -72,7 +60,7 @@ class TestSessionId(object):
         for s in [ "", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
                    "abcdefgh", "abcdefghi",
                    "abcdefghijklmnopqrstuvwxyz" ]:
-            assert s == _base64_decode_utf8(_base64_encode(s))
+            assert s == _base64_decode(_base64_encode(s), encoding='utf-8')
 
     def test_reseed_if_needed(self) -> None:
         # we have to set a seed in order to be able to get state
@@ -82,14 +70,14 @@ class TestSessionId(object):
         # did NOT reseed
         assert state == random.getstate()
         # monkeypatch
-        saved = bokeh.util.session_id.random
+        saved = bokeh.util.token.random
         try:
-            bokeh.util.session_id.random = random
+            bokeh.util.token.random = random
             _reseed_if_needed(using_sysrandom=False, secret_key="abc")
             # DID reseed
             assert state != random.getstate()
         finally:
-            bokeh.util.session_id.random = saved
+            bokeh.util.token.random = saved
 
     def test_signature(self) -> None:
         sig = _signature("xyz", secret_key="abc")
@@ -99,31 +87,67 @@ class TestSessionId(object):
         assert sig != with_different_key
 
     def test_generate_unsigned(self) -> None:
-        session_id = generate_session_id(signed=False)
-        assert 44 == len(session_id)
-        another_session_id = generate_session_id(signed=False)
-        assert 44 == len(another_session_id)
+        token = generate_jwt_token(generate_session_id(), signed=False)
+        assert '.' not in token
+        assert 123 == len(token)
+        assert "session_id" in json.loads(_base64_decode(token, encoding='utf-8'))
 
-        assert session_id != another_session_id
+        another_token = generate_jwt_token(generate_session_id(), signed=False)
+        assert '.' not in another_token
+        assert 123 == len(another_token)
+        assert "session_id" in json.loads(_base64_decode(another_token, encoding='utf-8'))
+        assert token != another_token
+
+    def test_payload_unsigned(self):
+        token = generate_jwt_token(generate_session_id(), signed=False, extra_payload=dict(foo=10))
+        assert '.' not in token
+        payload = json.loads(_base64_decode(token, encoding='utf-8'))
+        assert payload['foo'] == 10
+
+    def test_payload_error_unsigned(self):
+        session_id = generate_session_id()
+        with pytest.raises(RuntimeError):
+            generate_jwt_token(session_id, extra_payload=dict(session_id=10))
 
     def test_generate_signed(self) -> None:
         session_id = generate_session_id(signed=True, secret_key="abc")
-        assert '-' in session_id
-        assert check_session_id_signature(session_id, secret_key="abc", signed=True)
-        assert not check_session_id_signature(session_id, secret_key="qrs", signed=True)
+        token = generate_jwt_token(session_id, signed=True, secret_key="abc")
+        assert '.' in token
+        decoded = json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
+        assert "session_id" in decoded
+        assert decoded['session_id'] == session_id
+        assert check_token_signature(token, secret_key="abc", signed=True)
+        assert not check_token_signature(token, secret_key="qrs", signed=True)
+
+    def test_payload_signed(self):
+        session_id = generate_session_id(signed=True, secret_key="abc")
+        token = generate_jwt_token(session_id, signed=True, secret_key="abc", extra_payload=dict(foo=10))
+        assert '.' in token
+        decoded = json.loads(_base64_decode(token.split('.')[0], encoding='utf-8'))
+        assert 'session_id' in decoded
+        session_id = get_session_id(token)
+        assert check_token_signature(token, secret_key="abc", signed=True)
+        assert not check_token_signature(token, secret_key="qrs", signed=True)
+        assert decoded['foo'] == 10
+
+    def test_payload_error(self):
+        session_id = generate_session_id()
+        with pytest.raises(RuntimeError):
+            generate_jwt_token(session_id, extra_payload=dict(session_id=10))
 
     def test_check_signature_of_unsigned(self) -> None:
-        session_id = generate_session_id(signed=False, secret_key="abc") # secret shouldn't be used
-        assert not check_session_id_signature(session_id, secret_key="abc", signed=True)
+        # secret shouldn't be used
+        token = generate_jwt_token(generate_session_id(), signed=False, secret_key="abc")
+        assert not check_token_signature(token, secret_key="abc", signed=True)
 
     def test_check_signature_of_empty_string(self) -> None:
-        assert not check_session_id_signature("", secret_key="abc", signed=True)
+        assert not check_token_signature("", secret_key="abc", signed=True)
 
     def test_check_signature_of_junk_with_hyphen_in_it(self) -> None:
-        assert not check_session_id_signature("foo-bar-baz", secret_key="abc", signed=True)
+        assert not check_token_signature("foo-bar-baz", secret_key="abc", signed=True)
 
     def test_check_signature_with_signing_disabled(self) -> None:
-        assert check_session_id_signature("gobbledygook", secret_key="abc", signed=False)
+        assert check_token_signature("gobbledygook", secret_key="abc", signed=False)
 
     def test_generate_secret_key(self) -> None:
         key = generate_secret_key()
@@ -135,8 +159,8 @@ class TestSessionId(object):
     def test_string_encoding_does_not_affect_session_id_check(self) -> None:
         # originates from #6653
         session_id = generate_session_id(signed=True, secret_key="abc")
-        assert check_session_id_signature(session_id, secret_key="abc", signed=True)
-        assert check_session_id_signature(session_id, secret_key="abc", signed=True)
+        token = generate_jwt_token(session_id, signed=True, secret_key="abc")
+        assert check_token_signature(token, secret_key="abc", signed=True)
 
 #-----------------------------------------------------------------------------
 # Dev API

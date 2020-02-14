@@ -92,12 +92,12 @@ functionality.
 .. automodule:: bokeh.util.serialization
   :members:
 
-.. _bokeh.util.session_id:
+.. _bokeh.util.token:
 
-``bokeh.util.session_id``
+``bokeh.util.token``
 -------------------------
 
-.. automodule:: bokeh.util.session_id
+.. automodule:: bokeh.util.token
   :members:
 
 .. _bokeh.util.string:

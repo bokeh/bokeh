@@ -58,6 +58,7 @@ from .handler import Handler
 from .notebook import NotebookHandler
 from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
+from .server_request_handler import ServerRequestHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -120,13 +121,29 @@ class DirectoryHandler(Handler):
         handler = NotebookHandler if main.endswith('.ipynb') else ScriptHandler
         self._main_handler = handler(filename=self._main, argv=argv, package=self._package)
 
+        hooks = None
+        app_hooks = join(src_path, 'app_hooks.py')
         lifecycle = join(src_path, 'server_lifecycle.py')
-        if exists(lifecycle):
-            self._lifecycle = lifecycle
+        if exists(app_hooks) and exists(lifecycle):
+            raise ValueError("Directory style apps can provide either server_lifecycle.py or app_hooks.py, not both.")
+        elif exists(lifecycle):
+            hooks = lifecycle
+        elif exists(app_hooks):
+            hooks = app_hooks
+
+        if hooks is not None:
+            self._lifecycle = hooks
             self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv, package=self._package)
         else:
             self._lifecycle = None
             self._lifecycle_handler = Handler() # no-op handler
+
+        if exists(app_hooks):
+            self._request_handler = hooks
+            self._request_handler = ServerRequestHandler(filename=self._request_handler, argv=argv, package=self._package)
+        else:
+            self._request_handler = None
+            self._request_handler = Handler() # no-op handler
 
         self._theme = None
         themeyaml = join(src_path, 'theme.yaml')
@@ -249,6 +266,19 @@ class DirectoryHandler(Handler):
 
         '''
         return self._lifecycle_handler.on_session_destroyed(session_context)
+
+    def process_request(self, request):
+        ''' Processes incoming HTTP request returning a dictionary of
+        additional data to add to the session_context.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            A dictionary of JSON serializable data to be included on
+            the session context.
+        '''
+        return self._request_handler.process_request(request)
 
     def url_path(self):
         ''' The last path component for the basename of the path to the
