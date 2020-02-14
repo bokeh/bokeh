@@ -16,11 +16,12 @@ from inspect import iscoroutinefunction
 from typing import List
 
 # External imports
-import pytest
 import _pytest
+import pytest
 
 # Bokeh imports
 from bokeh._testing.util.git import version_from_git
+
 
 def pytest_collection_modifyitems(items: List[_pytest.nodes.Item]) -> None:
     for item in items:
