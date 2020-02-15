@@ -2,7 +2,7 @@ import yargs = require("yargs")
 
 const {argv} = yargs.help(false)
 
-import {run, log, task_names, Result, failure} from "./task"
+import {run, log, task_names, Result, failure, show_failure} from "./task"
 import "./tasks"
 
 const {_} = argv
@@ -21,6 +21,7 @@ async function main(): Promise<void> {
     }
 
     if (result.is_Failure()) {
+      show_failure(result)
       process.exit(1)
     }
   }
