@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import * as models_defaults from "./.generated_defaults/models_defaults.json"
-import * as widget_defaults from "./.generated_defaults/widgets_defaults.json"
+import models_defaults from "../.generated_defaults/models_defaults.json"
+import widget_defaults from "../.generated_defaults/widgets_defaults.json"
 
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference, concat} from "@bokehjs/core/util/array"
@@ -185,7 +185,7 @@ describe("Defaults", () => {
       }
     }
     for (const m of missing) {
-      console.log(`'Models.${m}' not found but there's a Python model '${m}'`)
+      console.error(`'Models.${m}' not found but there's a Python model '${m}'`)
     }
     expect(missing.length).to.equal(0)
   })
@@ -198,7 +198,7 @@ describe("Defaults", () => {
       }
     }
     for (const m of missing) {
-      console.log(`'${m}' not found but there's a Python model '${m}'`)
+      console.error(`'${m}' not found but there's a Python model '${m}'`)
     }
     expect(missing.length).to.equal(0)
   })
@@ -216,7 +216,7 @@ describe("Defaults", () => {
       }
     }
     for (const m of missing) {
-      console.log(`'base.locations["${m}"]' not found but there's a Python model '${m}'`)
+      console.error(`'base.locations["${m}"]' not found but there's a Python model '${m}'`)
     }
     expect(missing.length).to.equal(0)
   })
@@ -233,12 +233,12 @@ describe("Defaults", () => {
       const python_defaults = get_defaults(name)
       const bokehjs_defaults = attrs
       if (!check_matching_defaults(name, python_defaults, bokehjs_defaults)) {
-        console.log(name)
-        // console.log('python defaults:')
-        // console.log(python_defaults)
-        // console.log('bokehjs defaults:')
-        // console.log(bokehjs_defaults)
-        console.log(difference(keys(python_defaults), keys(bokehjs_defaults)))
+        console.error(name)
+        // console.error('python defaults:')
+        // console.error(python_defaults)
+        // console.error('bokehjs defaults:')
+        // console.error(bokehjs_defaults)
+        console.error(difference(keys(python_defaults), keys(bokehjs_defaults)))
         fail_count += 1
       }
     }
