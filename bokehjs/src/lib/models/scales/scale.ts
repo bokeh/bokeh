@@ -51,9 +51,8 @@ export abstract class Scale extends Transform {
       return [this.invert(sx0), this.invert(sx1)]
   }
 
-  // These are here on Scale because TypeScript does not support mixins. These
-  // are needed by both LinearScale and CategoricalScale and this is the only
-  // common ancestor.
+  // These are needed by both LinearScale and CategoricalScale and this is the
+  // only common ancestor. TODO: Proper MI/Mixin would be better.
   _linear_compute(x: number): number {
     const [factor, offset] = this._linear_compute_state()
     return factor * x + offset
