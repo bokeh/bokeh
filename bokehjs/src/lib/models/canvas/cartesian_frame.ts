@@ -1,5 +1,5 @@
 import {CategoricalScale} from "../scales/categorical_scale"
-import {LinearScale} from "../scales/linear_scale"
+import {ContinuousScale} from "../scales/continuous_scale"
 import {LogScale} from "../scales/log_scale"
 import {Scale} from "../scales/scale"
 import {Range} from "../ranges/range"
@@ -53,10 +53,7 @@ export class CartesianFrame extends LayoutItem {
       const range = ranges[name]
 
       if (range instanceof DataRange1d || range instanceof Range1d) {
-        if (!(scale instanceof LogScale) && !(scale instanceof LinearScale))
-          throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
-        // XXX: special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-        if (scale instanceof CategoricalScale)
+        if (!(scale instanceof ContinuousScale))
           throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
       }
 
