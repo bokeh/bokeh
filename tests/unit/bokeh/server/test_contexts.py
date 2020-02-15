@@ -14,6 +14,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import asyncio
+
+# External imports
+from tornado.ioloop import IOLoop
+
 # Bokeh imports
 from bokeh.application import Application
 
@@ -131,6 +137,26 @@ class TestApplicationContext(object):
         session = c.get_session("foo")
         assert session == s
         assert c._session_contexts[session.id].logout_url == "/logout"
+
+    async def test_async_next_tick_callback_is_called(self) -> None:
+        app = Application()
+        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+
+        s = await c.create_session_if_needed("foo")
+
+        latch_f = asyncio.Future()
+        result_f = asyncio.Future()
+
+        async def cb():
+            m = await latch_f
+            result_f.set_result(m)
+
+        s.document.add_next_tick_callback(cb)
+
+        message = 'Done'
+        latch_f.set_result(message)
+        result = await asyncio.wait_for(result_f, 1)
+        assert result == message
 
 #-----------------------------------------------------------------------------
 # Dev API
