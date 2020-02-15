@@ -83,6 +83,12 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
     if (name === "Title" && (k === "text_align" || k === "text_baseline"))
       continue
 
+    if (name == "DateSlider" && (k == "start" || k == "end" || k == "value" || k == "value_throttled"))
+      continue
+
+    if (name == "DateRangeSlider" && (k == "start" || k == "end"))
+      continue
+
     if (k === 'id')
       continue
 
