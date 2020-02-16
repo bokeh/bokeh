@@ -11,15 +11,17 @@ import {BOKEH_ROOT} from "./dom"
 export const index: {[key: string]: View} = {}
 
 export async function add_document_standalone(document: Document, element: HTMLElement,
-    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): Promise<View[]> {
+    roots: HTMLElement[] = [], use_for_title: boolean = false): Promise<View[]> {
   // this is a LOCAL index of views used only by this particular rendering
   // call, so we can remove the views we create.
   const views: Map<HasProps, View> = new Map()
 
   async function render_model(model: HasProps): Promise<View> {
     let root_el: HTMLElement
-    if (model.id in roots)
-      root_el = roots[model.id]
+    const root_models = document.roots()
+    const idx = root_models.indexOf((model as any))
+    if ((idx < roots.length) && (roots[idx] !== null))
+      root_el = roots[idx]
     else if (element.classList.contains(BOKEH_ROOT))
       root_el = element
     else {
