@@ -25,7 +25,6 @@ from typing import Callable, Iterator, List, NamedTuple, Optional, Set, Type, Un
 from typing_extensions import Literal
 
 # Bokeh imports
-from ..model import Model
 from ..settings import settings
 from .assets import Bundle, Asset, Script, ScriptLink, StyleLink
 
@@ -64,9 +63,6 @@ class Resources(ABC):
 
             Only valid with ``'relative'`` and ``'relative-dev'`` modes
 
-        minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
-
-
     Once configured, a Resource object exposes the following public attributes:
 
     Attributes:
@@ -87,15 +83,13 @@ class Resources(ABC):
 
     def __init__(self, *,
             dev: Optional[bool] = None,
-            minified: Optional[bool] = None,
             legacy: Optional[bool] = None,
             log_level: Optional[LogLevel] = None) -> None:
-        self.minified = settings.minified(minified)
         self.legacy = settings.legacy(legacy)
         self.log_level = settings.log_level(log_level)
 
-    @abstractmethod
-    def __call__(self, *, dev: Optional[bool] = None, minified: Optional[bool] = None, legacy: Optional[bool] = None) -> Resources:
+    #@abstractmethod
+    def __call__(self, *, dev: Optional[bool] = None, legacy: Optional[bool] = None) -> "Resources":
         pass
 
     @abstractmethod
@@ -104,6 +98,8 @@ class Resources(ABC):
 
     def _resolve_external(self) -> List[Asset]:
         """ Collect external resources set on resource_attr attribute of all models."""
+        from ..model import Model
+
         visited: Set[str] = set()
 
         def resolve_attr(cls: Type[Model], attr: str) -> Iterator[str]:

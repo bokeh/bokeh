@@ -46,12 +46,6 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-collect_artifacts(Model.all_models())
-
-def collect_artifacts(objects: Optional[Union[Sequence[Type[Model]], Sequence[Union[Model, Document]]]]) -> List[Artifact]:
-    for model in models:
-
-
 def bundle_for_objs_and_resources(objs: Optional[Sequence[Union[Model, Document]]], resources: Optional[Resources]):
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects

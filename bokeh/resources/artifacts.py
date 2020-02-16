@@ -21,8 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import List, Optional
 
-# Bokeh imports
-
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------

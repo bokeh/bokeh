@@ -18,12 +18,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from inspect import Signature
+from typing import Any, List, Optional, Tuple, TypeVar
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+T = TypeVar("T")
+
 __all__ = (
     'get_param_info',
+    'or_else',
 )
 
 #-----------------------------------------------------------------------------
@@ -34,6 +41,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+def or_else(this: Optional[T], that: T) -> T:
+    return this if this is not None else that
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
@@ -42,7 +52,7 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-def get_param_info(sig):
+def get_param_info(sig: Signature) -> Tuple[List[str], List[Any]]:
     ''' Find parameters with defaults and return them.
 
     Arguments:

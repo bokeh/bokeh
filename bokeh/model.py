@@ -32,7 +32,6 @@ from .events import Event
 from .resources import artifacts
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
-from .util.compiler import Implementation
 from .util.serialization import make_id
 
 #-----------------------------------------------------------------------------
@@ -185,13 +184,17 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     def artifacts(self) -> List[artifacts.Artifact]:
         return [artifacts.bokeh]
 
+    __javascript__: ClassVar[Optional[List[str]]] = None
+    __css__: ClassVar[Optional[List[str]]] = None
+
     __qualified_model__: ClassVar[str]
 
     @classmethod
     def all_models(cls) -> List[Type["Model"]]:
         return list(_known_models.values())
 
-    __implementation__: ClassVar[Optional[Union[str, Implementation]]] = None
+    __implementation__: ClassVar[Optional[Union[str, "bokeh.util.compiler.Implementation"]]] = None
+    __dependencies__: ClassVar[Optional[Dict[str, str]]] = None
 
     @classmethod
     def is_extension(cls) -> bool:

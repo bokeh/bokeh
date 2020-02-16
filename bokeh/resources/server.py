@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from typing import Callable, List, Optional
 
 # Bokeh imports
-from ..util.session_id import generate_session_id
+from ..util.token import generate_session_id
 from .base import Kind, Resources, Urls
 from .assets import Asset, ScriptLink
 

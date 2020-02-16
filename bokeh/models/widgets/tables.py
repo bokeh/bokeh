@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import typing as tp
+
 # Bokeh imports
 from ...core.enums import (
     DateFormat,
@@ -608,11 +611,11 @@ class TableWidget(Widget):
     '''
 
     @classmethod
-    def class_artifacts(cls) -> List[Artifact]:
-        return super.class_artifacts() + [tables]
+    def class_artifacts(cls) -> tp.List[Artifact]:
+        return super().class_artifacts() + [tables]
 
-    def artifacts(self) -> List[Artifact]:
-        return super.artifacts() + [tables]
+    def artifacts(self) -> tp.List[Artifact]:
+        return super().artifacts() + [tables]
 
     source = Instance(DataSource, help="""
     The source of data for the widget.

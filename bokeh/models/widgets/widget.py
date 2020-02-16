@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import List
+import typing as tp
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -55,11 +55,11 @@ class Widget(LayoutDOM):
     '''
 
     @classmethod
-    def class_artifacts(cls) -> List[Artifact]:
-        return super.class_artifacts() + [widgets]
+    def class_artifacts(cls) -> tp.List[Artifact]:
+        return super().class_artifacts() + [widgets]
 
-    def artifacts(self) -> List[Artifact]:
-        return super.artifacts() + [widgets]
+    def artifacts(self) -> tp.List[Artifact]:
+        return super().artifacts() + [widgets]
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the widget either horizontally (default) or vertically.

@@ -27,8 +27,8 @@ from typing import Dict, Optional
 
 # Bokeh imports
 from .. import __version__
-from .util.paths import ROOT_DIR, bokehjsdir
-from .util.version import is_full_release
+from ..util.paths import ROOT_DIR, bokehjsdir
+from ..util.version import is_full_release
 
 #-----------------------------------------------------------------------------
 # Globals and constants

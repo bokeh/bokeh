@@ -27,6 +27,7 @@ from typing import List, Optional
 from .. import __version__
 from ..settings import settings
 from ..util.version import is_full_release
+from ..util.functions import or_else
 from .assets import Asset, ScriptLink
 from .base import Kind, Resources, Urls, Message
 from .sri import get_sri_hashes_for_version
@@ -46,8 +47,11 @@ __all__ = ()
 class CDNResources(Resources):
     mode = "cdn"
 
-    def __init__(self, *, version: Optional[str] = None, dev: Optional[bool] = None) -> None:
+    def __init__(self, *, version: Optional[str] = None, dev: Optional[bool] = None, legacy: Optional[bool] = None) -> None:
         self.version = settings.version(version)
+
+    def __call__(self, *, version: Optional[str] = None, dev: Optional[bool] = None, legacy: Optional[bool] = None) -> "CDNResources":
+        return self.__class__(version=or_else(version, self.version), dev=or_else(dev, self.dev), legacy=or_else(legacy, self.legacy))
 
     def _resolve(self, kind: Kind) -> List[Asset]:
         cdn = self._cdn_urls()

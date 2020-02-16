@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import typing as tp
 import warnings
 
 # Bokeh imports
@@ -50,8 +51,8 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
     MISSING_RENDERERS,
 )
-from ...resources.artifacts import Artifact, gl
 from ..model import Model, collect_filtered_models
+from ..resources.artifacts import Artifact, gl
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
@@ -82,11 +83,11 @@ class Plot(LayoutDOM):
     '''
 
     @classmethod
-    def class_artifacts(cls) -> List[Artifact]:
-        return super.class_artifacts() + [gl]
+    def class_artifacts(cls) -> tp.List[Artifact]:
+        return super().class_artifacts() + [gl]
 
-    def artifacts(self) -> List[Artifact]:
-        return super.artifacts() + ([gl] if self.output_backend == "webgl" else [])
+    def artifacts(self) -> tp.List[Artifact]:
+        return super().artifacts() + ([gl] if self.output_backend == "webgl" else [])
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
