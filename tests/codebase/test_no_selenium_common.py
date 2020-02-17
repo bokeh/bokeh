@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2020, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -34,7 +34,7 @@ BASIC_IMPORTS = [
 ]
 
 def test_no_tornado_common() -> None:
-    ''' Basic usage of Bokeh should not result in any Tornado code being
+    ''' Basic usage of Bokeh should not result in any Selenium code being
     imported. This test ensures that importing basic modules does not bring in
     Tornado.
 
