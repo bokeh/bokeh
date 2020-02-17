@@ -28,8 +28,10 @@ from ...core.properties import (
     Bool,
     Color,
     Datetime,
+    Either,
     Enum,
     Float,
+    Instance,
     Int,
     Override,
     String,
@@ -37,6 +39,7 @@ from ...core.properties import (
 )
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
+from ..formatters import TickFormatter
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -63,6 +66,7 @@ class AbstractSlider(Widget):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
+
         super().__init__(**kwargs)
 
     title = String(default="", help="""
@@ -73,7 +77,7 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    format = String(help="""
+    format = Either(String, Instance(TickFormatter), help="""
     """)
 
     direction = Enum("ltr", "rtl", help="""
