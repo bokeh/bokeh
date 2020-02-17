@@ -343,11 +343,10 @@ class UnitsSpec(NumberSpec):
     def __init__(self, default, units_type, units_default, help=None):
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
-        # this is a hack because we already constructed units_type
+
+        # TODO (bev) units_type was already constructed, so this really should not be needed
         self._units_type.validate(units_default)
         self._units_type._default = units_default
-        # this is sort of a hack because we don't have a
-        # serialized= kwarg on every Property subtype
         self._units_type._serialized = False
 
     def __str__(self):
@@ -373,9 +372,8 @@ class UnitsSpec(NumberSpec):
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
         '''
-        units_name = base_name + "_units"
-        units_props = self._units_type.make_descriptors(units_name)
-        return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
+        units_props = self._units_type.make_descriptors("unused")
+        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
         d = super().to_serializable(obj, name, val)
@@ -392,12 +390,29 @@ class PropertyUnitsSpec(UnitsSpec):
     provides an associated units property to store units information.
 
     '''
-    def to_serializable(self, obj, name, val):
-        return super().to_serializable(obj, name, val)
-
     def get_units(self, obj, name):
         return getattr(obj, name+"_units")
 
+    def make_descriptors(self, base_name):
+        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        class, in order to delegate attribute access to this property.
+
+        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        descriptors to install. In particular, descriptors for the base
+        property as well as the associated units property are returned.
+
+        Args:
+            name (str) : the name of the property these descriptors are for
+
+        Returns:
+            list[PropertyDescriptor]
+
+        The descriptors returned are collected by the ``MetaHasProps``
+        metaclass and added to ``HasProps`` subclasses during class creation.
+        '''
+        units_name = base_name + "_units"
+        units_props = self._units_type.make_descriptors(units_name)
+        return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
 class AngleSpec(PropertyUnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
@@ -442,29 +457,6 @@ class _FixedUnitsDistanceSpec(UnitsSpec):
         except TypeError:
             pass
         return super().prepare_value(cls, name, value)
-
-    def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
-        class, in order to delegate attribute access to this property.
-
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
-        descriptors to install. In particular, descriptors for the base
-        property as well as the associated units property are returned.
-
-        Args:
-            name (str) : the name of the property these descriptors are for
-
-        Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
-        units_props = self._units_type.make_descriptors("unused")
-        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
-
-    def to_serializable(self, obj, name, val):
-        return super().to_serializable(obj, name, val)
 
 class ScreenDistanceSpec(_FixedUnitsDistanceSpec):
     ''' A |DataSpec| property that accepts numeric fixed values for screen-space
