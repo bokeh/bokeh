@@ -127,6 +127,14 @@ Missing Renderers Warning
 The ``W-1000 (MISSING_RENDERERS)`` validation warning will no longer trigger
 for plots that have added annotations, even if no other glyphs are present.
 
+UnitsSpec hierarchy
+~~~~~~~~~~~~~~~~~~~
+
+The ``UnitsSpec`` class is now a base class and is not useful ln its own. If you
+were using ``UnitsSpec`` in an extension model, you should change to use the new
+``PropertyUnitsSpec`` class, which affords the capability for adding separate
+``*_units`` properties.
+
 API Removals
 ~~~~~~~~~~~~
 
