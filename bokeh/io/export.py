@@ -202,10 +202,13 @@ def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[
         web_driver.maximize_window()
         web_driver.get("file:///" + tmp.path)
         wait_until_render_complete(web_driver, timeout)
-        [width, height] = _maximize_viewport(web_driver)
+        [width, height, dpr] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
-    return Image.open(io.BytesIO(png)).convert("RGBA").crop((0, 0, width, height))
+    return (Image.open(io.BytesIO(png))
+                 .convert("RGBA")
+                 .crop((0, 0, width*dpr, height*dpr))
+                 .resize((width, height)))
 
 def get_svgs(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
@@ -322,19 +325,19 @@ def _log_console(driver: "WebDriver") -> None:
         for message in messages:
             log.warning(message)
 
-def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int]:
+def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int, int]:
     calculate_viewport_size = """\
         const root = document.getElementsByClassName("bk-root")[0]
         const {width, height} = root.children[0].getBoundingClientRect()
-        return [width, height]
+        return [width, height, window.devicePixelRatio]
     """
-    viewport_size: Tuple[int, int] = web_driver.execute_script(calculate_viewport_size)
+    viewport_size: Tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
     calculate_window_size = """\
-        const [width, height] = arguments
+        const [width, height, dpr] = arguments
         return [
             // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
-            Math.max(0, window.outerWidth - window.innerWidth) + width,
-            Math.max(0, window.outerHeight - window.innerHeight) + height,
+            Math.max(0, window.outerWidth - window.innerWidth) + width*dpr,
+            Math.max(0, window.outerHeight - window.innerHeight) + height*dpr,
         ]
     """
     [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)
