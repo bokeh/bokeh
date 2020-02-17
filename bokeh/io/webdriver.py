@@ -14,14 +14,14 @@
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 from ..util.dependencies import import_required # isort:skip
 import_required("selenium.webdriver",
                 "To use bokeh.io image export functions you need selenium "
                 "('conda install selenium' or 'pip install selenium')")
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
 
 # Standard library imports
 import atexit
