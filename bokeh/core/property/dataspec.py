@@ -374,14 +374,17 @@ class UnitsSpec(NumberSpec):
         units_props = self._units_type.make_descriptors(units_name)
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
-    def to_serializable(self, obj, name, val):
+    def to_serializable(self, obj, name, val, units=None):
         d = super().to_serializable(obj, name, val)
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
             # notify_change that should not happen will be triggered
             d = dict(d)
-            d["units"] = getattr(obj, name+"_units")
+            if units:
+                d["units"] = units
+            else:
+                d["units"] = getattr(obj, name+"_units")
         return d
 
 class AngleSpec(UnitsSpec):
@@ -454,14 +457,7 @@ class ScreenDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(obj, name, val) # note super special case
-        if d is not None and 'units' not in d:
-            # d is a PropertyValueDict at this point, we need to convert it to
-            # a plain dict if we are going to modify its value, otherwise a
-            # notify_change that should not happen will be triggered
-            d = dict(d)
-            d["units"] = "screen"
-        return d
+        return super().to_serializable(obj, name, val, "screen")
 
 
 class DataDistanceSpec(UnitsSpec):
@@ -505,14 +501,7 @@ class DataDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(obj, name, val) # note super special case
-        if d is not None and 'units' not in d:
-            # d is a PropertyValueDict at this point, we need to convert it to
-            # a plain dict if we are going to modify its value, otherwise a
-            # notify_change that should not happen will be triggered
-            d = dict(d)
-            d["units"] = "data"
-        return d
+        return super().to_serializable(obj, name, val, "data")
 
 class ColorSpec(DataSpec):
     ''' A |DataSpec| property that accepts |Color| fixed values.
