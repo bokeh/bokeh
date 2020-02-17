@@ -337,7 +337,7 @@ class MarkerSpec(DataSpec):
 
 class UnitsSpec(NumberSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
-    provides an associated units property to store units information.
+    serializes associated units values.
 
     '''
     def __init__(self, default, units_type, units_default, help=None):
@@ -352,6 +352,9 @@ class UnitsSpec(NumberSpec):
 
     def __str__(self):
         return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
+
+    def get_units(self, obj, name):
+        raise NotImplementedError()
 
     def make_descriptors(self, base_name):
         ''' Return a list of ``PropertyDescriptor`` instances to install on a
@@ -374,20 +377,29 @@ class UnitsSpec(NumberSpec):
         units_props = self._units_type.make_descriptors(units_name)
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
-    def to_serializable(self, obj, name, val, units=None):
+    def to_serializable(self, obj, name, val):
         d = super().to_serializable(obj, name, val)
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
             # notify_change that should not happen will be triggered
             d = dict(d)
-            if units:
-                d["units"] = units
-            else:
-                d["units"] = getattr(obj, name+"_units")
+            d["units"] = self.get_units(obj, name)
         return d
 
-class AngleSpec(UnitsSpec):
+class PropertyUnitsSpec(UnitsSpec):
+    ''' A |DataSpec| property that accepts numeric fixed values, and also
+    provides an associated units property to store units information.
+
+    '''
+    def to_serializable(self, obj, name, val):
+        return super().to_serializable(obj, name, val)
+
+    def get_units(self, obj, name):
+        return getattr(obj, name+"_units")
+
+
+class AngleSpec(PropertyUnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store angle units.
 
@@ -397,7 +409,7 @@ class AngleSpec(UnitsSpec):
     def __init__(self, default=None, units_default="rad", help=None):
         super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
-class DistanceSpec(UnitsSpec):
+class DistanceSpec(PropertyUnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values or strings
     that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`,
     and also provides an associated units property to store units information.
@@ -415,18 +427,13 @@ class DistanceSpec(UnitsSpec):
             pass
         return super().prepare_value(cls, name, value)
 
-class ScreenDistanceSpec(UnitsSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values for screen
-    distances, and also provides an associated units property that reports
-    ``"screen"`` as the units.
-
-    .. note::
-        Units are always ``"screen"``.
-
-    '''
+class _FixedUnitsDistanceSpec(UnitsSpec):
 
     def __init__(self, default=None, help=None):
-        super().__init__(default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help)
+        super().__init__(default=default, units_type=Enum(enums.enumeration(self._units)), units_default=self._units, help=help)
+
+    def get_units(self, _obj, _name):
+        return self._units
 
     def prepare_value(self, cls, name, value):
         try:
@@ -457,51 +464,23 @@ class ScreenDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        return super().to_serializable(obj, name, val, "screen")
+        return super().to_serializable(obj, name, val)
 
+class ScreenDistanceSpec(_FixedUnitsDistanceSpec):
+    ''' A |DataSpec| property that accepts numeric fixed values for screen-space
+    distances, and also provides an associated units property that reports
+    ``"screen"`` as the units.
 
-class DataDistanceSpec(UnitsSpec):
+    '''
+    _units = "screen"
+
+class DataDistanceSpec(_FixedUnitsDistanceSpec):
     ''' A |DataSpec| property that accepts numeric fixed values for data-space
     distances, and also provides an associated units property that reports
     ``"data"`` as the units.
 
-    .. note::
-        Units are always ``"data"``.
-
     '''
-    def __init__(self, default=None, help=None):
-        super().__init__(default=default, units_type=Enum(enums.enumeration("data")), units_default="data", help=help)
-
-    def prepare_value(self, cls, name, value):
-        try:
-            if value is not None and value < 0:
-                raise ValueError("Distances must be positive or None!")
-        except TypeError:
-            pass
-        return super().prepare_value(cls, name, value)
-
-    def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
-        class, in order to delegate attribute access to this property.
-
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
-        descriptors to install. In particular, descriptors for the base
-        property as well as the associated units property are returned.
-
-        Args:
-            name (str) : the name of the property these descriptors are for
-
-        Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
-        units_props = self._units_type.make_descriptors("unused")
-        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
-
-    def to_serializable(self, obj, name, val):
-        return super().to_serializable(obj, name, val, "data")
+    _units = "data"
 
 class ColorSpec(DataSpec):
     ''' A |DataSpec| property that accepts |Color| fixed values.
