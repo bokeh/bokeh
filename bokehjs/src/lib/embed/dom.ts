@@ -36,8 +36,8 @@ export function _resolve_element(item: RenderItem): HTMLElement {
 export function _resolve_root_elements(item: RenderItem): HTMLElement[] {
   const roots: HTMLElement[] = []
 
-  if (item.roots != null) {
-    for (const root_id in item.roots)
+  if ((item.root_ids != null) && (item.roots != null)) {
+    for (const root_id of item.root_ids)
       roots.push(_get_element(item.roots[root_id]))
   }
 
