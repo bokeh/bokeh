@@ -32,7 +32,7 @@ export async function embed_item(item: JsonItem, target_id?: string): Promise<Vi
     element.classList.add(BOKEH_ROOT)
 
   const roots: Roots = {[item.root_id]: target_id}
-  const render_item: RenderItem = {roots, docid: doc_id}
+  const render_item: RenderItem = {roots, root_ids: [item.root_id], docid: doc_id}
 
   const [views] = await defer(() => _embed_items(docs_json, [render_item]))
   return views
