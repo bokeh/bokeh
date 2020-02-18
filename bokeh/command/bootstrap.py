@@ -78,15 +78,12 @@ def main(argv: List[str]) -> None:
     The first item in ``argv`` is typically "bokeh", and the second should
     be the name of one of the available subcommands:
 
-    * :ref:`html <bokeh.command.subcommands.html>`
     * :ref:`info <bokeh.command.subcommands.info>`
     * :ref:`json <bokeh.command.subcommands.json>`
-    * :ref:`png <bokeh.command.subcommands.png>`
     * :ref:`sampledata <bokeh.command.subcommands.sampledata>`
     * :ref:`secret <bokeh.command.subcommands.secret>`
     * :ref:`serve <bokeh.command.subcommands.serve>`
     * :ref:`static <bokeh.command.subcommands.static>`
-    * :ref:`svg <bokeh.command.subcommands.svg>`
 
     '''
     if len(argv) == 1:
