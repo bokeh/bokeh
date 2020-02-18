@@ -64,6 +64,7 @@ def create_chromium_webdriver() -> WebDriver:
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
     options.add_argument("--force-device-scale-factor=1")
+    options.add_argument("--force-color-profile=srgb")
     return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
