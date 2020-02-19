@@ -21,7 +21,7 @@ import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-//import /*type*/ {BaseGLGlyph} from "./webgl/base"
+import type {BaseGLGlyph} from "./webgl/base"
 
 export interface GlyphData {}
 
@@ -37,7 +37,7 @@ export abstract class GlyphView extends View {
     return this.parent
   }
 
-  glglyph?: any // BaseGLGlyph
+  glglyph?: BaseGLGlyph
 
   index: SpatialIndex
 
