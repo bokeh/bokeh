@@ -561,7 +561,10 @@ export class Linker {
   }
 
   new_module(file: Path): ModuleInfo {
-    let source = read(file)!
+    let source = read(file)
+    if (source == null) {
+      throw new Error(`'${file} doesn't exist`)
+    }
     const hash = crypto.createHash("sha256").update(source).digest("hex")
     const type = (() => {
       switch (extname(file)) {
