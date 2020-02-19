@@ -2,6 +2,9 @@
 Renders HTML that loads BokehJS JavaScript code and CSS according to the
 configuration in a Resources object.
 
+:param hashes: a map of filenames for to SRI hashes
+:type hases: dict[str, str]
+
 :param js_files: a list of URIs for JS files to include
 :type js_files: list[str]
 
@@ -10,7 +13,9 @@ configuration in a Resources object.
 
 #}
 {%- for file in js_files %}
-<script type="text/javascript" src="{{ file }}"></script>
+<script type="text/javascript" src="{{ file }}"
+{%- if hashes and hashes.get(file) %} integrity="sha384-{{ hashes[file] }}" crossorigin="anonymous"{%- endif -%}
+></script>
 {%- endfor %}
 
 {%- for js in js_raw %}
