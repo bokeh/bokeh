@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import Signature
-from typing import Any, List, Optional, Tuple, TypeVar
+from typing import Any, List, Optional, Tuple, TypeVar, Union, overload
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,8 +41,28 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+def url_join(*parts: str) -> str:
+    if not parts:
+        return ""
+
+    leading = "/" if parts[0].startswith("/") else ""
+    trailing = "/" if parts[-1].endswith("/") else ""
+
+    stripped = [ part.strip("/") for part in parts ]
+    nonempty = [ part for part in stripped if part != "" ]
+
+    return f"{leading}{'/'.join(nonempty)}{trailing}"
+
 def or_else(this: Optional[T], that: T) -> T:
     return this if this is not None else that
+
+@overload
+def list_of(obj: List[T]) -> List[T]: ...
+@overload
+def list_of(obj: T) -> List[T]: ...
+
+def list_of(obj: Union[List[T], T]) -> List[T]:
+    return obj if isinstance(obj, list) else [obj]
 
 #-----------------------------------------------------------------------------
 # Private API

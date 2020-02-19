@@ -22,14 +22,16 @@ log = logging.getLogger(__name__)
 from inspect import isclass
 from json import loads
 from operator import itemgetter
-from typing import ClassVar, Dict, List, Optional, Type, Union
+from typing import Callable, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
 from .core import properties as p
 from .events import Event
-from .resources import artifacts
+from .resources.artifacts import Artifact, bokeh
+from .resources.assets import Asset
+from .resources.base import Resource
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from .util.serialization import make_id
@@ -171,21 +173,20 @@ _HTML_REPR = """
 
 _known_models: Dict[str, Type["Model"]] = {}
 
+T_Model = TypeVar("T_Model", bound="Model")
+
+ResourceCollection = List[Union[Resource, Tuple[Resource, Callable[[T_Model], bool]]]]
+
 @abstract
 class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
 
-    @classmethod
-    def class_artifacts(cls) -> List[artifacts.Artifact]:
-        return [artifacts.bokeh]
+    __resources__: ClassVar[ResourceCollection] = [bokeh]
 
-    def artifacts(self) -> List[artifacts.Artifact]:
-        return [artifacts.bokeh]
-
-    __javascript__: ClassVar[Optional[List[str]]] = None
-    __css__: ClassVar[Optional[List[str]]] = None
+    __javascript__: ClassVar[List[str]] = []
+    __css__: ClassVar[List[str]] = []
 
     __qualified_model__: ClassVar[str]
 

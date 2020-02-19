@@ -23,8 +23,10 @@ log = logging.getLogger(__name__)
 from typing import Callable, List, Optional
 
 # Bokeh imports
+from ..util.functions import url_join
 from ..util.token import generate_session_id
 from .base import Kind, Resources, Urls
+from .artifacts import Artifact
 from .assets import Asset, ScriptLink
 
 # -----------------------------------------------------------------------------
@@ -48,20 +50,14 @@ class ServerResources(Resources):
 
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
-    def __init__(self, *, root_url: Optional[str] = None, path_versioner: Optional[PathVersioner] = None, dev: Optional[bool] = None) -> None:
-
+    def __init__(self, *, root_url: Optional[str] = None, path_versioner: Optional[PathVersioner] = None,
+            dev: Optional[bool] = None, legacy: Optional[bool] = None) -> None:
         """
         root_url (str, optional) : URL and port of Bokeh Server to load resources from
         """
-        if root_url and not root_url.endswith("/"):
-            root_url = root_url + "/"
+        super().__init__(dev=dev, legacy=legacy)
         self._root_url = root_url
         self.path_versioner = path_versioner
-
-    def _resolve(self, kind: Kind) -> List[Asset]:
-        server = self._server_urls()
-        urls = server.urls(self.components(kind), kind)
-        return [ ScriptLink(url) for url in urls ]
 
     @property
     def root_url(self) -> str:
@@ -70,15 +66,15 @@ class ServerResources(Resources):
         else:
             return self._default_root_url
 
-    def _server_urls(self) -> Urls:
-        _minified = ".min" if self.dev or self.minified else ""
-        _legacy = "legacy/" if self.legacy else ""
+    def _server_urls(self, artifact: Artifact) -> Urls:
+        minified = ".min" if self.dev else ""
+        legacy = "legacy" if self.legacy else ""
 
         def mk_url(comp: str, kind: Kind) -> str:
-            path = f"{kind}/{_legacy}{comp}{_minified}.{kind}"
+            path = url_join(kind, legacy, f"{comp}{minified}.{kind}")
             if self.path_versioner is not None:
                 path = self.path_versioner(path)
-            return f"{self.root_url}static/{path}"
+            return url_join(self.root_url, "static", path)
 
         return Urls(lambda components, kind: [ mk_url(component, kind) for component in components ])
 

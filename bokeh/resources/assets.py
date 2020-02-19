@@ -21,10 +21,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from abc import ABC, abstractmethod
 from json import dumps
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional
 
 # Bokeh imports
-from .artifacts import Artifact#, Resolver
+from .artifacts import Artifact
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -146,20 +146,18 @@ class Style(Inline):
 }})
 """
 
-Resolver = Callable[[], Asset]
-
 class Bundle:
 
     _assets: List[Asset]
 
-    def __init__(self, *assets: Asset, resolver: Optional[Resolver] = None) -> None:
+    def __init__(self, *assets: Asset) -> None:
         self._assets = list(assets)
 
     def to_html(self) -> str:
         return "\n".join([ asset.to_html() for asset in self._assets ])
 
-    def add(self, *assets: Union[Asset, Artifact]) -> None:
-        pass
+    def add(self, *assets: Asset) -> None:
+        self._assets.extend(assets)
 
     @property
     def assets(self) -> List[Asset]:

@@ -27,7 +27,8 @@ from typing import List, Optional
 from .. import __version__
 from ..settings import settings
 from ..util.version import is_full_release
-from ..util.functions import or_else
+from ..util.functions import or_else, url_join
+from .artifacts import Artifact
 from .assets import Asset, ScriptLink
 from .base import Kind, Resources, Urls, Message
 from .sri import get_sri_hashes_for_version
@@ -48,20 +49,16 @@ class CDNResources(Resources):
     mode = "cdn"
 
     def __init__(self, *, version: Optional[str] = None, dev: Optional[bool] = None, legacy: Optional[bool] = None) -> None:
+        super().__init__(dev=dev, legacy=legacy)
         self.version = settings.version(version)
 
     def __call__(self, *, version: Optional[str] = None, dev: Optional[bool] = None, legacy: Optional[bool] = None) -> "CDNResources":
         return self.__class__(version=or_else(version, self.version), dev=or_else(dev, self.dev), legacy=or_else(legacy, self.legacy))
 
-    def _resolve(self, kind: Kind) -> List[Asset]:
-        cdn = self._cdn_urls()
-        urls = cdn.urls(self.components(kind), kind)
-        return [ ScriptLink(url) for url in urls ]
-
     def _cdn_base_url(self) -> str:
         return "https://cdn.bokeh.org"
 
-    def _cdn_urls(self) -> Urls:
+    def _resolve(self, artifact: Artifact) -> Urls:
         if self.version is None:
             if settings.docs_cdn():
                 version = settings.docs_cdn()
@@ -70,9 +67,8 @@ class CDNResources(Resources):
         else:
             version = self.version
 
-        # check if we want minified js and css
-        _minified = ".min" if self.minified else ""
-        _legacy = "legacy/" if self.legacy else ""
+        minified = ".min" if self.dev else ""
+        legacy = "legacy" if self.legacy else ""
 
         base_url = self._cdn_base_url()
         dev_container = "bokeh/dev"
@@ -82,10 +78,10 @@ class CDNResources(Resources):
         container = dev_container if _DEV_PAT.match(version) else rel_container
 
         def mk_filename(comp: str, kind: Kind) -> str:
-            return f"{comp}-{version}{_minified}.{kind}"
+            return f"{comp}-{version}{minified}.{kind}"
 
         def mk_url(comp: str, kind: Kind) -> str:
-            return f"{base_url}/{container}/{_legacy}{mk_filename(comp, kind)}"
+            return url_join(base_url, container, legacy, mk_filename(comp, kind))
 
         result = Urls(lambda components, kind: [ mk_url(component, kind) for component in components ])
 
@@ -99,9 +95,17 @@ class CDNResources(Resources):
                 ),
             ))
 
-        if is_full_release():
-            sri_hashes = get_sri_hashes_for_version(version)
             result["hashes"] = lambda components, kind: \
                 { mk_url(component, kind): sri_hashes[mk_filename(component, kind)] for component in components }
 
         return result
+
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+_sri_hashes: Optional[Dict[str, str]]
+if is_full_release():
+    _sri_hashes = get_sri_hashes_for_version(version)
+else:
+    _sri_hashes = None

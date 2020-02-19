@@ -21,12 +21,17 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABC, abstractmethod
-from typing import Callable, Iterator, List, NamedTuple, Optional, Set, Type, Union
+from typing import Callable, Iterator, List, NamedTuple, Optional, Set, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 from typing_extensions import Literal
 
 # Bokeh imports
 from ..settings import settings
+from ..util.functions import list_of
+from .artifacts import Artifact
 from .assets import Bundle, Asset, Script, ScriptLink, StyleLink
+
+if TYPE_CHECKING:
+    from ..model import Model
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -42,6 +47,9 @@ class Message(NamedTuple):
 class Urls(NamedTuple):
     urls: Callable[[List[str], Kind], List[str]]
     messages: List[Message] = []
+
+Resource = Union[Asset, Artifact]
+Resolver = Callable[[], Asset]
 
 __all__ = ()
 
@@ -88,54 +96,91 @@ class Resources(ABC):
         self.legacy = settings.legacy(legacy)
         self.log_level = settings.log_level(log_level)
 
-    #@abstractmethod
+    @abstractmethod
     def __call__(self, *, dev: Optional[bool] = None, legacy: Optional[bool] = None) -> "Resources":
         pass
 
-    @abstractmethod
-    def _resolve(self, kind: Kind) -> List[Asset]:
-        pass
-
-    def _resolve_external(self) -> List[Asset]:
-        """ Collect external resources set on resource_attr attribute of all models."""
+    def collect(self, objs: List[Union["Model", Type["Model"]]]) -> List[Resource]:
         from ..model import Model
 
-        visited: Set[str] = set()
+        Resource = Union[Asset, Artifact]
 
-        def resolve_attr(cls: Type[Model], attr: str) -> Iterator[str]:
-            external: Union[str, List[str]] = getattr(cls, attr, [])
+        visited_types: Set[Type["Model"]] = set()
+        visited: Set[Resource] = set()
+        collected: List[Resource] = []
 
-            if isinstance(external, str):
-                url = external
-                if url not in visited:
-                    visited.add(url)
-                    yield url
+        def push(resource: Resource) -> None:
+            if resource not in visited:
+                visited.add(resource)
+                collected.append(resource)
+
+        for obj in sorted(objs, key=lambda obj: obj.__qualified_model__):
+            obj_type = obj if isinstance(obj, type) else obj.__class__
+            obj_inst = obj if not isinstance(obj, type) else None
+
+            if obj_type not in visited_types:
+                for obj_subtype in reversed(obj_type.mro()):
+                    if issubclass(obj_subtype, Model) and obj_subtype not in visited_types:
+                        visited_types.add(obj_subtype)
+
+                        obj = obj_subtype
+                        for resource in obj.__dict__.get("__resources__", []):
+                            if isinstance(resource, tuple):
+                                (asset, condition) = resource
+                                if obj_inst is None or condition(obj_inst):
+                                    push(asset)
+                            else:
+                                push(resource)
+
+                        for url in list_of(obj.__dict__.get("__css__", [])):
+                            push(StyleLink(url))
+
+                        for url in list_of(obj.__dict__.get("__javascript__", [])):
+                            push(ScriptLink(url))
+
+        return collected
+
+    def expand(self, collection: List[Resource]) -> List[Resource]:
+        expanded: List[Resource] = []
+        visited: Set[Artifact] = set()
+
+        def descend(artifact: Artifact) -> None:
+            if artifact not in visited:
+                for dep in artifact.depends:
+                    descend(dep)
+                expanded.append(artifact)
+
+        for obj in collection:
+            if isinstance(obj, Asset):
+                expanded.append(obj)
             else:
-                for url in external:
-                    if url not in visited:
-                        visited.add(url)
-                        yield url
+                descend(obj)
 
-        assets: List[Asset] = []
+        return expanded
 
-        for cls in sorted(Model.all_models(), key=lambda model: model.__qualified_model__):
-            assets.extend([ StyleLink(url) for url in resolve_attr(cls, "__css__") ])
-            assets.extend([ ScriptLink(url) for url in resolve_attr(cls, "__javascript__") ])
+    def resolve(self, objs: Optional[List[Union["Model", Type["Model"]]]] = None) -> Bundle:
+        from ..model import Model
 
-        return assets
+        models: List[Union["Model", Type["Model"]]] = objs if objs is not None else Model.all_models()
+        collection = self.expand(self.collect(models))
 
-    def resolve(self) -> Bundle:
-        assets: List[Asset] = []
-
-        assets.extend(self._resolve_external())
-        assets.extend(self._resolve("js"))
+        bundle = Bundle()
+        for obj in collection:
+            if isinstance(obj, Asset):
+                bundle.add(obj)
+            else:
+                bundle.add(*self._resolve(obj))
 
         if self.log_level is not None:
-            assets.append(Script(f"Bokeh.set_log_level('{self.log_level}');"))
+            bundle.add(Script(f"Bokeh.set_log_level('{self.log_level}');"))
         if self.dev:
-            assets.append(Script("Bokeh.settings.dev = true"))
+            bundle.add(Script("Bokeh.settings.dev = true;"))
 
-        return Bundle(*assets)
+        return bundle
+
+    @abstractmethod
+    def _resolve(self, artifact: Artifact) -> List[Asset]:
+        pass
 
     @property
     def log_level(self) -> Optional[LogLevel]:
@@ -145,5 +190,5 @@ class Resources(ABC):
     def log_level(self, level: Optional[LogLevel]) -> None:
         valid_levels = ["trace", "debug", "info", "warn", "error", "fatal"]
         if not (level is None or level in valid_levels):
-            raise ValueError("Unknown log level '{}', valid levels are: {}".format(level, str(valid_levels)))
+            raise ValueError(f"Unknown log level '{level}', valid levels are: {','.join(valid_levels)}")
         self._log_level = level
