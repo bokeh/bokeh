@@ -179,7 +179,8 @@ async function _run_test(suites: Suite[], test: Test): Promise<Result> {
   current_test = test
   try {
     await fn()
-    await defer()
+    if (test.el != null)
+      await defer()
   } catch (err) {
     //throw err
     _handle(err)
