@@ -48,7 +48,6 @@ def _make_plot(dimensions="both"):
     plot.toolbar_sticky = False
     return plot
 
-@pytest.mark.integration
 @pytest.mark.selenium
 class Test_WheelZoomTool(object):
 

@@ -58,7 +58,6 @@ import bokeh.document.document as document # isort:skip
 class TestDocumentHold(object):
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
-    @pytest.mark.unit
     def test_hold(self, policy) -> None:
         d = document.Document()
         assert d._hold == None
@@ -73,7 +72,6 @@ class TestDocumentHold(object):
             d.hold("junk")
 
     @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
-    @pytest.mark.unit
     def test_rehold(self, first, second, caplog) -> None:
         d = document.Document()
         with caplog.at_level(logging.WARN):
@@ -95,7 +93,6 @@ class TestDocumentHold(object):
             assert len(caplog.records) == 1
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
-    @pytest.mark.unit
     def test_unhold(self, policy) -> None:
         d = document.Document()
         assert d._hold == None
@@ -308,11 +305,13 @@ class TestDocument(object):
         root2 = SomeModelInTestDocument(foo=44, name='c')
         root3 = SomeModelInTestDocument(foo=44, name='d')
         child3 = SomeModelInTestDocument(foo=45, name='c')
+        root4 = AnotherModelInTestDocument(bar=20, name='A')
         root1.child = child1
         root3.child = child3
         d.add_root(root1)
         d.add_root(root2)
         d.add_root(root3)
+        d.add_root(root4)
 
         # select()
         assert set([root1]) == set(d.select(dict(foo=42)))
@@ -347,6 +346,15 @@ class TestDocument(object):
         root3.set_select(dict(name='c'), dict(foo=57))
         assert set([child3, root3]) == set(d.select(dict(foo=57)))
         assert set([child3, root3]) == set(root3.select(dict(foo=57)))
+
+        # set_select() on class
+        d.set_select(SomeModelInTestDocument, dict(name='new_name'))
+        assert len(d.select(dict(name='new_name'))) == 5
+
+        # set_select() on different class
+        assert len(d.select(dict(name='A'))) == 1
+        d.set_select(AnotherModelInTestDocument, dict(name='B'))
+        assert set([root4]) == set(d.select(dict(name='B')))
 
     def test_is_single_string_selector(self) -> None:
         d = document.Document()

@@ -21,7 +21,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import argparse
 import io
+import sys
 from abc import abstractmethod
+from os.path import splitext
 from typing import Dict, List, Optional, Tuple, Union
 
 # Bokeh imports
@@ -164,13 +166,42 @@ class FileOutputSubcommand(Subcommand):
         '''
 
         '''
+        def write_str(content: str, filename: str) -> None:
+            if filename == "-":
+                print(content)
+            else:
+                with io.open(filename, "w", encoding="utf-8") as file:
+                    file.write(content)
+            self.after_write_file(args, filename, doc)
+
+        def write_bytes(content: bytes, filename: str) -> None:
+            if filename == "-":
+                sys.stdout.buffer.write(content)
+            else:
+                with io.open(filename, "wb") as f:
+                    f.write(content)
+            self.after_write_file(args, filename, doc)
+
         contents = self.file_contents(args, doc)
-        if filename == '-':
-            print(contents)
+
+        if isinstance(contents, str):
+            write_str(contents, filename)
+        elif isinstance(contents, bytes):
+            write_bytes(contents, filename)
         else:
-            with io.open(filename, "w", encoding="utf-8") as file:
-                file.write(contents)
-        self.after_write_file(args, filename, doc)
+            if filename == "-" or len(contents) <= 1:
+                def indexed(i: int) -> str:
+                    return filename
+            else:
+                def indexed(i: int) -> str:
+                    root, ext = splitext(filename)
+                    return f"{root}_{i}{ext}"
+
+            for i, content in enumerate(contents):
+                if isinstance(content, str):
+                    write_str(content, indexed(i))
+                elif isinstance(content, bytes):
+                    write_bytes(content, indexed(i))
 
     # can be overridden optionally
     def after_write_file(self, args: argparse.Namespace, filename: str, doc: Document) -> None:
@@ -180,7 +211,7 @@ class FileOutputSubcommand(Subcommand):
         pass
 
     @abstractmethod
-    def file_contents(self, args: argparse.Namespace, doc: Document) -> Union[str, bytes, None]:
+    def file_contents(self, args: argparse.Namespace, doc: Document) -> Union[str, bytes, List[str], List[bytes]]:
         ''' Subclasses must override this method to return the contents of the output file for the given doc.
         subclassed methods return different types:
         str: html, json
@@ -190,7 +221,7 @@ class FileOutputSubcommand(Subcommand):
             NotImplementedError
 
         '''
-        raise NotImplementedError("file_contents")
+        raise NotImplementedError()
 
 #-----------------------------------------------------------------------------
 # Private API

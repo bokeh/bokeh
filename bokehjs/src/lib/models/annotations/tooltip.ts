@@ -80,7 +80,10 @@ export class TooltipView extends AnnotationView {
 
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
-    let left: number, top: number
+    let top: number
+    let left = 0
+    let right = 0
+
     switch (side) {
       case "right":
         this.el.classList.add(bk_left)
@@ -89,7 +92,7 @@ export class TooltipView extends AnnotationView {
         break
       case "left":
         this.el.classList.add(bk_right)
-        left = sx - this.el.offsetWidth - arrow_size
+        right = (this.plot_view.layout.bbox.width - sx) + arrow_size
         top = sy - this.el.offsetHeight/2
         break
       case "below":
@@ -112,7 +115,8 @@ export class TooltipView extends AnnotationView {
     // be problematic
     if (this.el.childNodes.length > 0) {
       this.el.style.top = `${top}px`
-      this.el.style.left = `${left}px`
+      this.el.style.left = left ? `${left}px` : 'inherit'
+      this.el.style.right = right ? `${right}px` : 'inherit'
     } else
       undisplay(this.el)
   }

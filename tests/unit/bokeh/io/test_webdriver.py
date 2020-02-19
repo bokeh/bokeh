@@ -15,7 +15,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-import selenium.webdriver.phantomjs.webdriver
+import selenium.webdriver.chrome.webdriver
+import selenium.webdriver.firefox.webdriver
 
 # Module under test
 import bokeh.io.webdriver as biw # isort:skip
@@ -32,18 +33,23 @@ import bokeh.io.webdriver as biw # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_create_phantomjs_webdriver() -> None:
-    d = biw.create_phantomjs_webdriver()
-    assert isinstance(d, selenium.webdriver.phantomjs.webdriver.WebDriver)
+def test_create_firefox_webdriver() -> None:
+    d = biw.create_firefox_webdriver()
+    try:
+        assert isinstance(d, selenium.webdriver.firefox.webdriver.WebDriver)
+    finally:
+        d.quit()
 
-def test_terminate_webdriver() -> None:
-    d = biw.create_phantomjs_webdriver()
-    assert d.service.process is not None
-    biw.terminate_webdriver(d)
-    assert d.service.process is None
+def test_create_chromium_webdriver() -> None:
+    d = biw.create_chromium_webdriver()
+    try:
+        assert isinstance(d, selenium.webdriver.chrome.webdriver.WebDriver)
+    finally:
+        d.quit()
 
 _driver_map = {
-    'phantomjs': selenium.webdriver.phantomjs.webdriver.WebDriver,
+    "firefox": selenium.webdriver.firefox.webdriver.WebDriver,
+    "chromium": selenium.webdriver.chrome.webdriver.WebDriver,
 }
 
 class Test_webdriver_control(object):
@@ -52,7 +58,7 @@ class Test_webdriver_control(object):
         # so create a new instance only to check default values
         wc = biw._WebdriverState()
         assert wc.reuse == True
-        assert wc.kind == "phantomjs"
+        assert wc.kind == None
         assert wc.current is None
 
     def test_get_with_reuse(self) -> None:
@@ -83,7 +89,7 @@ class Test_webdriver_control(object):
         biw.webdriver_control.reuse = True
         biw.webdriver_control.reset()
 
-    @pytest.mark.parametrize('kind', ['phantomjs'])
+    @pytest.mark.parametrize('kind', ['firefox', 'chromium'])
     def test_create(self, kind) -> None:
         biw.webdriver_control.kind = kind
         assert biw.webdriver_control.kind == kind

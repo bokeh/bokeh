@@ -14,6 +14,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from urllib.parse import quote_plus
+
 # Module under test
 import bokeh.util.string as bus # isort:skip
 
@@ -43,6 +46,21 @@ class Test_format_doctring(object):
         assert bus.format_docstring(doc__, 'hello ', as_parameter='world') == "-- hello world --"
         doc__ = None
         assert bus.format_docstring(doc__, 'hello ', as_parameter='world') == None
+
+class Test_format_url_query_arguments(object):
+    def test_no_arguments(self) -> None:
+        assert bus.format_url_query_arguments("url") == "url"
+
+    @pytest.mark.parametrize('value', ["10", "10.2", "bar", "a b", "a&b", "'ab'", "a\"b", "a@b", "a?b", "a:b", "a/b", "a=b"])
+    def test_one_argument(self, value: str) -> None:
+        assert bus.format_url_query_arguments("url", dict(foo=value)) == f"url?foo={quote_plus(value)}"
+
+    def test_two_arguments(self) -> None:
+        assert bus.format_url_query_arguments("url", dict(foo="10", bar="a b")) == "url?foo=10&bar=a+b"
+
+    def test_several_arguments(self) -> None:
+        args = dict(foo="10.2", bar="a=b", baz="a?b", quux="a@@ b")
+        assert bus.format_url_query_arguments("url", args) == "url?foo=10.2&bar=a%3Db&baz=a%3Fb&quux=a%40%40+b"
 
 class Test_indent(object):
     TEXT = "some text\nto indent\n  goes here"

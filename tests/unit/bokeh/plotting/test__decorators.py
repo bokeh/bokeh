@@ -51,7 +51,6 @@ _renderer_args_values = {
     'muted': [None, False, True]
 }
 @pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg]) for arg in RENDERER_ARGS])
-@pytest.mark.unit
 def test__glyph_receives_renderer_arg(arg, values) -> None:
     for value in values:
         with mock.patch('bokeh.plotting._renderer.GlyphRenderer', autospec=True) as gr_mock:

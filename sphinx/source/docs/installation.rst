@@ -31,13 +31,14 @@ For basic usage, have the following libraries installed:
 
 .. code::
 
-    Jinja2 >=2.7
-    numpy >=1.7.1
-    packaging >=16.8
-    pillow >=4.0
-    python-dateutil >=2.1
-    PyYAML >=3.10
-    tornado >=5
+    PyYAML>=3.10
+    python-dateutil>=2.1
+    Jinja2>=2.7
+    numpy>=1.11.3
+    pillow>=4.0
+    packaging>=16.8
+    tornado>=5
+    typing_extensions >=3.7.4
 
 .. _install_optional:
 
@@ -47,23 +48,29 @@ Optional Dependencies
 In addition to the required dependencies above, some additional packages are
 necessary for certain optional features:
 
+Jupyter
+    Bokeh can display content in classic Jupyter notebooks as well as in
+    JupyterLab. Depending on your setup, there may be additional packages or
+    Jupyter extensions to install. See :ref:`userguide_jupyter` for full
+    details.
+
 NodeJS
     Necessary for :ref:`userguide_extensions` or for defining
     ``CustomJS`` implementations in TypeScript.
 
+NetworkX
+    Necessary to use the ``from_networkx`` function to generate Bokeh graph
+    renderers directly from NetworkX data.
+
 Pandas
-    Necessary for the `hexbin` function. Additionally, some usage is
+    Necessary for the ``hexbin`` function. Additionally, some usage is
     simplified by using Pandas e.g. Pandas DataFrames will be converted
     automatically to Bokeh data sources by glyph functions.
 
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.
 
-NetworkX
-    Necessary to use the `from_networkx` function to generate Bokeh graph
-    renderers directly from NetworkX data.
-
-Selenium, PhantomJS
+Selenium, GeckoDriver, Firefox
     Necessary for :ref:`userguide_export` to PNG and SVG images.
 
 Sphinx

@@ -179,7 +179,6 @@ def test__all__() -> None:
     assert len(bcn.__all__) == 147
 
 @pytest.mark.parametrize('name,R,G,B', COLORS)
-@pytest.mark.unit
 def test_color(name, R, G, B) -> None:
     assert name in bcn.__all__
     c = getattr(bcn, name)

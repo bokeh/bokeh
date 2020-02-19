@@ -6,21 +6,18 @@ Exporting Plots
 Additional dependencies
 -----------------------
 
-In order to use the |export| functions, users have to install some
-additional dependencies. These dependencies can be installed via conda:
+In order to use the |export| functions, users may have to install additional
+dependencies. These dependencies can be installed via conda:
 
 .. code-block:: sh
 
-    conda install selenium phantomjs
+    conda install selenium geckodriver firefox
 
-Alternatively, you can install phantomjs from npm via
-
-.. code-block:: sh
-
-    npm install -g phantomjs-prebuilt
-
-Note that the minimum compatible version of PhantomJS is 2.1, regardless of
-how it is installed.
+Alternatively one can use ``chromedriver`` and ``chromium`` browser (or one of
+its variants). Typically at least one compatible browser will be available on
+modern systems, thus installing a web browser may not be necessary. Bokeh will
+search for available browsers (and drivers) and use what's available, unless
+configured otherwise.
 
 .. _userguide_export_png:
 

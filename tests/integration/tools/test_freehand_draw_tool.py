@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 import time
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
@@ -72,7 +75,6 @@ def _make_server_plot(expected, num_objects=0):
     return modify_doc
 
 
-@pytest.mark.integration
 @pytest.mark.selenium
 class Test_FreehandDrawTool(object):
 
@@ -138,6 +140,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_freehand_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {'xs': [[1.6216216216216217, 2.027027027027027, 2.027027027027027, 2.027027027027027]],
                     'ys': [[1.5, 1.125, 1.125, 1.125]]}
@@ -149,6 +152,7 @@ class Test_FreehandDrawTool(object):
 
         assert page.results == {"matches": "True"}
 
+    @flaky(max_runs=10)
     def test_line_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {'xs': [], 'ys': []}
 

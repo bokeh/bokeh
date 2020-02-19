@@ -59,7 +59,6 @@ def modify_doc(doc):
     doc.add_root(column(text_input, plot))
 
 
-@pytest.mark.integration
 @pytest.mark.selenium
 class Test_TextInput(object):
 

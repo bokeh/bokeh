@@ -122,6 +122,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
@@ -166,7 +167,7 @@ jobs:
           PARSER_NO_WATCH=true node make lint --emit-error
           popd
 
-          py.test -m codebase --color=yes tests
+          py.test --color=yes tests/codebase
 
       - name: MyPy
         shell: bash
@@ -210,6 +211,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
@@ -285,12 +287,13 @@ jobs:
         shell: bash
         run: |
           UPLOAD="`[ -z $AWS_ACCESS_KEY_ID ] && echo '' || echo '--upload'`"
-          py.test -s -v -m examples     \
+          py.test -s -v                 \
             --color=yes                 \
             --tb line                   \
             --diff-ref FETCH_HEAD       \
             --self-contained-html       \
-            --report-path=examples.html $UPLOAD
+            --report-path=examples.html $UPLOAD \
+            tests/test_examples.py
 
 
 
@@ -329,6 +332,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
@@ -383,7 +387,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -s -m js --color=yes tests
+          py.test -s --color=yes tests/test_bokehjs.py
 
 
 
@@ -420,6 +424,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
@@ -477,7 +482,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          py.test -v --tb=short -m integration --driver chrome --color=yes tests
+          py.test -v --tb=short --driver chrome --color=yes tests/integration
 
 
 
@@ -487,6 +492,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -570,7 +576,6 @@ jobs:
         run: |
           pushd bokehjs
           npm install -g npm
-          npm install -g phantomjs-prebuilt
           npm ci --no-progress
           popd
           python setup.py --install-js
@@ -594,7 +599,6 @@ jobs:
           fi
           # verify python being used is the expected one
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          # don't use -m unit, implicit mark is unreliable
           py.test --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
 
@@ -632,6 +636,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
@@ -720,6 +725,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 
@@ -818,6 +824,7 @@ jobs:
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
+          conda config --append channels conda-forge
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
 

@@ -47,7 +47,6 @@ def modify_doc(doc):
     select.on_change('value', cb)
     doc.add_root(column(select, plot))
 
-@pytest.mark.integration
 @pytest.mark.selenium
 class Test_Select(object):
 

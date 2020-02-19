@@ -271,6 +271,7 @@ The full set of files that Bokeh server knows about is:
        |
        +---__init__.py
        +---main.py
+       +---request_handler.py
        +---server_lifecycle.py
        +---static
        +---theme.yaml
@@ -280,6 +281,8 @@ The full set of files that Bokeh server knows about is:
 The optional components are
 
 * An ``__init__.py`` file that marks this direcory as a package. Package relative imports, e.g. ``from . import mymod`` and ``from .mymod import func`` will be possible.
+
+* A ``request_handler.py`` file that allows declaring an optional function which processes the HTTP request and returns a dictionary of items to be included in the session token, as described in :ref:`userguide_server_request_handler`.
 
 * A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as described in :ref:`userguide_server_applications_lifecycle`.
 
@@ -315,6 +318,7 @@ An example might be:
        |---models
        |    +---custom.js
        |
+       +---request_handler.py
        +---server_lifecycle.py
        +---static
        |    +---css
@@ -422,8 +426,15 @@ When a session is created for a Bokeh application, the session context is made
 available as ``curdoc().session_context``. The most useful function of the
 session context is to make the Tornado HTTP request object available to the
 application as ``session_context.request``. Due to an incompatibility issue with
-the usage of ``--num-procs`` only the ``arguments`` attribute can be accessed.
-Attempting to access any other attribute on ``request`` will result in an error.
+the usage of ``--num-procs`` the HTTP request is not made available directly.
+Instead only the ``arguments`` attribute is available in full and and only the
+subset of ``cookies`` and ``headers`` which are allowed by the ``--include-headers``,
+``--exclude-headers``, ``--include-cookies`` and ``--exclude-cookies`` are
+made available. Attempting to access any other attribute on ``request`` will
+result in an error.
+
+Any additional attributes on the request can be made accessible as described in
+:ref:`userguide_server_request_handler`.
 
 As an example, the following code will access the request ``arguments`` to set
 a value for a variable ``N`` (perhaps controlling the number of points in a
@@ -446,6 +457,33 @@ plot):
   easily inspected. Calling any of the Tornado methods such as ``finish()`` or
   writing directly to ``request.connection`` is unsupported and will result in
   undefined behavior.
+
+
+.. _userguide_server_request_handler:
+
+Request Handler Hooks
+~~~~~~~~~~~~~~~~~~~~~
+
+Since the full tornado HTTP request is not guaranteed to be available on the
+process serving the session, a custom handler can be defined to make additional
+information available.
+
+To define such a hook, you must create your application in
+:ref:`userguide_server_applications_directory`, and include a designated file
+called ``request_handler.py`` in the directory. In this file you must include
+a conventionally named ``process_request`` function:
+
+.. code-block:: python
+
+    def process_request(request):
+        ''' If present this function is called when the HTTP request arrives. '''
+        return {}
+
+The handler is given the Tornado HTTP request and can process the request
+and return a dictionary which will be made available on
+``curdoc().session_context.token_payload``. In this way additional information
+can be made available to work around some of the issues when ``--num-procs``
+is used.
 
 .. _userguide_server_applications_callbacks:
 
@@ -1371,7 +1409,7 @@ Then in your web application, we explicitly provide (signed) session ids using
 
 .. code-block:: python
 
-    from bokeh.util.session_id import generate_session_id
+    from bokeh.util.token import generate_session_id
 
     script = server_session(url='http://localhost:5006/bkapp',
                             session_id=generate_session_id())

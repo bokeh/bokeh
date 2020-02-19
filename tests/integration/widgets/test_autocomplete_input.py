@@ -54,7 +54,6 @@ def modify_doc(doc):
     input_box.on_change('value', cb)
     doc.add_root(column(input_box, plot))
 
-@pytest.mark.integration
 @pytest.mark.selenium
 class Test_AutocompleteInput(object):
 

@@ -353,7 +353,8 @@ class PropertyValueColumnData(PropertyValueDict):
     def update(self, *args, **kwargs):
         old = self._saved_copy()
 
-        result = super(PropertyValueDict, self).update(*args, **kwargs) # note super special case
+        # call dict.update directly, bypass wrapped version on base class
+        result = dict.update(self, *args, **kwargs)
 
         from ...document.events import ColumnDataChangedEvent
 
@@ -415,7 +416,8 @@ class PropertyValueColumnData(PropertyValueDict):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
                     data = data[-rollover:]
-                super(PropertyValueDict, self).__setitem__(k, data) # note super special case
+                # call dict.__setitem__ directly, bypass wrapped version on base class
+                dict.__setitem__(self, k, data)
             else:
                 L = self[k]
                 L.extend(new_data[k])

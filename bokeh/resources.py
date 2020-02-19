@@ -43,7 +43,7 @@ from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import settings
 from .util.paths import ROOT_DIR, bokehjsdir
-from .util.session_id import generate_session_id
+from .util.token import generate_session_id
 from .util.version import is_full_release
 
 # -----------------------------------------------------------------------------

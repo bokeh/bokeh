@@ -35,20 +35,20 @@ level of the repository:
 
 .. code-block:: sh
 
-    py.test -m unit
+    py.test tests/unit
 
 Note that this includes unit tests that require Selenium to be installed. To
 exclude those unit tests, you can run the command:
 
 .. code-block:: sh
 
-    py.test -m "unit and not selenium"
+    py.test -m "not selenium" tests/unit
 
 To run just the BokehJS unit tests, execute:
 
 .. code-block:: sh
 
-    py.test -m js
+    py.test tests/test_bokehjs.py
 
 Alternatively, you can also navigate to the `bokehjs` subdirectory of the
 source checkout and execute:
@@ -68,13 +68,8 @@ To learn more about marking test functions and selecting/deselecting them for
 a run, please consult the pytest documentation for `custom markers`_. The list
 of currently defined test markers is below:
 
-* ``codebase``: a test for codebase quality or policy
-* ``examples``: an examples image-diff test
-* ``integration``: an integration test
-* ``js``: a javascript test
-* ``sampledata``: a test for ``bokeh.sampledata``
+* ``sampledata``: a test for requiring ``bokeh.sampledata`` be downloaded
 * ``selenium``: a test requiring selenium
-* ``unit``: a python unit test
 
 Code Coverage
 ~~~~~~~~~~~~~
@@ -114,27 +109,23 @@ To run just the examples tests, run the command:
 
 .. code-block:: sh
 
-    py.test -m examples --report-path=examples.html
+    py.test --report-path=examples.html test_examples.py
 
 After the tests have run, you will be able to see the test report at
 ``examples.html``. Running locally, you can name the test report whatever
-you want. On TravisCI, the examples report is always ``examples.html``.
+you want.
 
 The examples tests can run slowly, to speed them up, you can parallelize them:
 
 .. code-block:: sh
 
-    py.test -m examples --report-path=examples.html -n 5
+    py.test --report-path=examples.html -n 5 test_examples.py
 
 Where ``n`` is the number is the number of cores you want to use.
 
 In addition, the examples tests generate a log file, examples.log which you
 can view at ``examples.log`` in the same directory that you the tests
 were run from.
-
-.. warning::
-    Server examples do get run, but phantomJS cannot currently capture
-    the output, so they are always blank in the test results
 
 Integration tests
 ~~~~~~~~~~~~~~~~~
@@ -162,18 +153,6 @@ absolute imports
     * **GOOD**: ``import bokeh.models.transforms as bmt``
     * **GOOD**: ``from bokeh.embed import components``
     * **BAD**: ``from ..document import Document``
-
-markers
-    By default any unmarked test is considered part of the ``unit`` group. If
-    a unit test needs an additional mark (e.g. ``selenium``) then the ``unit``
-    marker must be supplied explicitly:
-
-    .. code-block:: python
-
-        @pytest.mark.unit
-        @pytest.mark.selenium
-        def test_basic_script(capsys):
-            # test code here
 
 pytest
     All new tests should use and assume `pytest`_ for test running, fixtures,
@@ -211,33 +190,16 @@ Continuous Integration
 ----------------------
 
 Every push to the `master` branch or any Pull Request branch on GitHub
-automatically triggers a full test build on the `TravisCI`_ continuous
-integration service. This is most often useful for running the full Bokeh
-test suite continuously, but also triggers automated scripts for publishing
-releases when a tagged branch is pushed.
+automatically triggers a full test build on the `GithubCI`_ continuous
+integration service.
 
 You can see the list of all current and previous builds at this URL:
-https://travis-ci.org/bokeh/bokeh
-
-From there you can navigate to the build page for any specific build (e.g.
-for the latest merge to master, or a particular Pull Request). A typical
-build page looks like the image below:
-
-.. figure:: /_images/travisci.png
-    :align: center
-    :width: 85%
-
-As seen, the status of all build stages and jobs can be quickly inspected.
-When everything is running smoothly, all jobs will have a green check mark.
+https://github.com/bokeh/bokeh/actions
 
 Configuration
 ~~~~~~~~~~~~~
 
 There are a number of files that affect the build configuration:
-
-* :bokeh-tree:`.travis.yml`
-    Defines the build matrix and global configurations for the stages
-    described below.
 
 * :bokeh-tree:`conda.recipe/meta.yaml`
     Instructions for building a conda noarch package for Bokeh. This
@@ -252,83 +214,15 @@ There are a number of files that affect the build configuration:
     Contains some global configuration for build and test tools such as
     ``versioneer`` and ``pytest``.
 
-Build Stages
-~~~~~~~~~~~~
-
-Build
-'''''
-
-The ``Build`` stage has a single job that is responsible for creating a
-``noarch`` conda package for Bokeh. This ensures both that the BokehJS can
-be built correctly, and that important release packaging machinery is
-always functional. Additionally artifacts from this build, such as the conda
-package, and the BokehJS build directory, are saved to be re-used by future
-jobs, speeding up the entire build.
-
-The controlling script is :bokeh-tree:`scripts/ci/build`
-
-Test
-''''
-
-The ``Test`` stage is comprised of several jobs that run all the various
-Bokeh tests.
-
-The controlling script is :bokeh-tree:`scripts/ci/test`, which calls a
-separate ``test:<GROUP>`` script for each of the following test groups:
-
-``examples``
-    This job executes a large portion of the Bokeh examples to ensure that
-    they run without any Python or JavaScript errors. Additionally, the job
-    for ``PYTHON=3.7`` generates images for the examples and a report that
-    compares the images to previous versions.
-
-``integration``
-    This job executes an integration test, e.g. a Selenium browser test.
-
-``js``
-    This job runs all the JavaScript unit tests (i.e. ``node make test``)
-
-``unit``
-    This job runs all the Python unit tests (i.e. ``py.test -m unit``). The
-    tests are run on different jobs for Python versions 3.6+.
-
-``docs``
-    This job runs the documentation build. For more information about building
-    or contributing documentation see the :ref:`devguide_documentation` section
-    of the Developer's guide.
-
-``codebase``
-    This job runs tests that maintain code quality and package integrity.
-
-Deploy
-''''''
-
-The ``Deploy`` stage has a single job that is responsible for executing all
-the work necessary to complete a Bokeh release. This includes tasks such as:
-
-* Building and publishing conda and sdist packages
-* Making BokehJS assets available on CDN
-* Building and deploying the Bokeh documentation site
-* Generating and uploading Bokeh examples tarballs
-* Publishing BokehJS NPM packages
-
-All of these steps are performed for full releases, however some may be omitted
-for dev builds and release candidates.
-
-The controlling script is :bokeh-tree:`scripts/ci/deploy`
-
 Etiquette
 ~~~~~~~~~
 
-TravisCI provides five free build workers to Open Source projects. A few
+CI services provide finite free build workers to Open Source projects. A few
 considerations will help you be considerate of others needing these limited
 resources:
 
 * Group commits into meaningful chunks of work before pushing to GitHub (i.e.
   don't push on every commit).
-
-* If you must make multiple commits in succession, navigate to TravisCI and
-  cancel all but the last build, in order to free up build workers.
 
 * If expensive ``examples`` tests are not needed (e.g. for a docs-only Pull
   Request), they may be disabled by adding the text
@@ -343,4 +237,4 @@ resources:
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest: https://docs.pytest.org
 .. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp
-.. _TravisCI: https://travis-ci.org/
+.. _GithubCI: https://github.com/bokeh/bokeh/actions

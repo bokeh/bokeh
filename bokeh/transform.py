@@ -74,7 +74,7 @@ def cumsum(field, include_zero=False):
     return expr(CumSum(field=field, include_zero=include_zero))
 
 def dodge(field_name, value, range=None):
-    ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
+    ''' Create a ``DataSpec`` dict that applies a client-side ``Dodge``
     transformation to a ``ColumnDataSource`` column.
 
     Args:

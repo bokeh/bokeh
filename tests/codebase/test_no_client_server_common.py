@@ -34,7 +34,6 @@ BASIC_IMPORTS = [
 # Tests
 #-----------------------------------------------------------------------------
 
-@pytest.mark.codebase
 def test_no_client_server_common() -> None:
     ''' Basic usage of Bokeh should not result in any client/server code being
     imported. This test ensures that importing basic modules does not bring in

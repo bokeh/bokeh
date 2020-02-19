@@ -45,6 +45,21 @@ export function log(message: string): void {
   console.log(`[${chalk.gray(now)}] ${message}`)
 }
 
+export function print(message: string): void {
+  for (const line of message.split("\n")) {
+    log(line)
+  }
+}
+
+export function show_failure(failure: Failure<unknown>): void {
+  const error = failure.value
+  if (error instanceof BuildError) {
+    log(`${chalk.red("failed:")} ${error.message}`)
+  } else {
+    print(error.stack ?? error.toString())
+  }
+}
+
 export type Fn<T> = () => Promise<Result<T> | void>
 
 class Task<T = unknown> {
@@ -84,7 +99,7 @@ function* resolve_task(name: string, parent?: Task): Iterable<Task> {
     let message = `unknown task '${chalk.cyan(name)}'`
     if (parent != null)
       message += ` referenced from '${chalk.cyan(parent.name)}'`
-    throw new Error(message)
+    throw new BuildError("build", message)
   }
 }
 
@@ -134,6 +149,11 @@ export async function run(...names: string[]): Promise<Result> {
         result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed`))
 
       finished.set(task, result)
+
+      if (result.is_Failure()) {
+        show_failure(result)
+      }
+
       return result
     }
   }

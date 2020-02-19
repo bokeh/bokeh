@@ -1,49 +1,20 @@
+# Stocks Example
+
 Create a simple stocks correlation dashboard.
 
-Sample Data
-===========
+<img src="https://static.bokeh.org/stocks.png" width="80%"></img><
 
-To run the stocks applet example, you first need to download a sample data
-file. A python script is included in the applet's directory to collect and
-extract the data, which can be run directly from the directory:
+## Setting Up
+
+To run the stocks example, you first need to download a sample data file.
+Execute the following command in this directory:
 
     python download_sample_data.py
 
-This should be all that is necessary.
+## Running
 
-In case the above script does not work, the file can be downloaded
-manually from this location:
+To view the app directly from a Bokeh server, navigate to the parent directory
+[`examples/app`](https://github.com/bokeh/bokeh/tree/master/examples/app),
+and execute the command:
 
-    http://quantquote.com/files/quantquote_daily_sp500_83986.zip
-
-Once the file is downloaded, move it to this directory and unzip it. Unzip
-the file by clicking on it (in Windows), or by executing this command from
-the command line:
-
-    unzip quantquote_daily_sp500_83986.zip
-
-This will leave a 'quantquote_daily_sp500_83986' subdirectory in this
-directory. Finally, move the 'daily' directory by executing this command
-from the command line:
-
-    mv quantquote_daily_sp500_83986/daily .
-
-Running
-=======
-
-Bokeh Server
-------------
-
-To view this applet directly from a bokeh server, you simply need to run a
-bokeh server and point it at the stock example directory. For example, from
-this directory, you can run:
-
-    bokeh serve .
-
-Or from one directory level up, you can run:
-
-    bokeh serve stocks
-
-Now navigate to the following URL in a browser:
-
-    http://localhost:5006/stocks
+    bokeh serve --show stocks

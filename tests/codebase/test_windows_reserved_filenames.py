@@ -23,7 +23,6 @@ from os.path import join, splitext
 # Tests
 #-----------------------------------------------------------------------------
 
-@pytest.mark.codebase
 def test_windows_reserved_filenames() -> None:
     ''' Certain seemingly innocuous filenames like "aux.js" will cause
     Windows packages to fail spectacularly. This test ensures those reserved

@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 from urllib.parse import quote_plus, urlparse
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_TAG, FILE
+from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
 from ..util.string import format_docstring
@@ -44,7 +44,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def server_document(url="default", relative_urls=False, resources="default", arguments=None):
+def server_document(url="default", relative_urls=False, resources="default", arguments=None, headers=None):
     ''' Return a script tag that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
@@ -81,6 +81,10 @@ def server_document(url="default", relative_urls=False, resources="default", arg
             A dictionary of key/values to be passed as HTTP request arguments
             to Bokeh application code (default: None)
 
+       headers (dict[str, str], optional) :
+            A dictionary of key/values to be passed as HTTP Headers
+            to Bokeh application code (default: None)
+
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
@@ -97,15 +101,18 @@ def server_document(url="default", relative_urls=False, resources="default", arg
     src_path += _process_resources(resources)
     src_path += _process_arguments(arguments)
 
-    tag = AUTOLOAD_TAG.render(
+    headers = headers or {}
+
+    tag = AUTOLOAD_REQUEST_TAG.render(
         src_path  = src_path,
         app_path  = app_path,
         elementid = elementid,
+        headers   = headers,
     )
 
     return tag
 
-def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default"):
+def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default", headers={}):
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -154,6 +161,10 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
+       headers (dict[str, str], optional) :
+            A dictionary of key/values to be passed as HTTP Headers
+            to Bokeh application code (default: None)
+
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
@@ -177,14 +188,17 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
 
     src_path += _process_app_path(app_path)
     src_path += _process_relative_urls(relative_urls, url)
-    src_path += _process_session_id(session_id)
     src_path += _process_resources(resources)
 
-    tag = AUTOLOAD_TAG.render(
+    headers = dict(headers) if headers else {}
+    headers['Bokeh-Session-Id'] = session_id
+
+    tag = AUTOLOAD_REQUEST_TAG.render(
         src_path  = src_path,
         app_path  = app_path,
         elementid = elementid,
         modelid   = modelid,
+        headers   = headers,
     )
 
     return tag
@@ -212,7 +226,7 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
 
     '''
     render_item = RenderItem(
-        sessionid = session.id,
+        token = session.token,
         roots = session.document.roots,
         use_for_title = True,
     )
@@ -328,19 +342,6 @@ def _process_resources(resources):
     if resources is None:
         return "&resources=none"
     return ""
-
-def _process_session_id(session_id):
-    ''' Return a session ID HTML argument to add to a Bokeh server URL
-
-    Args:
-        session_id (str) :
-            The session id to use
-
-    Returns:
-        str
-
-    '''
-    return "&bokeh-session-id=" + session_id
 
 def _src_path(url, elementid):
     ''' Return a base autoload URL for a given element ID

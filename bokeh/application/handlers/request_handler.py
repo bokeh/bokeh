@@ -4,7 +4,8 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Define a Pytest plugin to make all unmarked tests have an implicit mark.
+''' Bokeh Application Handler to look for Bokeh server request callbacks
+in a specified Python module.
 
 '''
 
@@ -18,53 +19,56 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from _pytest.mark import matchmark  # TODO (bev) non-private API?
+# Bokeh imports
+from .handler import Handler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'pytest_addoption',
-    'pytest_collection_modifyitems',
+    'RequestHandler',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def pytest_addoption(parser):
-    parser.addini("implicit_marker",
-                  "An implicit marker to assign to any test otherwise unmarked")
-
-def pytest_collection_modifyitems(items, config):
-    implicit_marker = config.getini("implicit_marker")
-    if not implicit_marker:
-        return
-
-    markers = []
-    for line in config.getini("markers"):
-        mark, rest = line.split(":", 1)
-        if '(' in mark:
-            mark, rest = mark.split("(", 1)
-        markers.append(mark)
-
-    all_markers = ' or '.join(markers)
-    if not all_markers:
-        return
-
-    for item in items:
-        if not matchmark(item, all_markers):
-            item.add_marker(implicit_marker)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
+class RequestHandler(Handler):
+    ''' Load a script which contains server request handler callbacks.
+
+    '''
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._process_request = _return_empty
+        self.safe_to_fork = True
+
+    # Public methods ----------------------------------------------------------
+
+    def process_request(self, request):
+        ''' Processes incoming HTTP request returning a dictionary of
+        additional data to add to the session_context.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            A dictionary of JSON serializable data to be included on
+            the session context.
+        '''
+        return self._process_request(request)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _return_empty(request):
+    return {}
 
 #-----------------------------------------------------------------------------
 # Code

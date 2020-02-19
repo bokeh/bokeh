@@ -68,7 +68,6 @@ def get_bar_color(driver, css_class):
     bar = el.find_element_by_css_selector('.bk-noUi-connect')
     return bar.value_of_css_property('background-color')
 
-@pytest.mark.integration
 @pytest.mark.selenium
 class Test_Slider(object):
 

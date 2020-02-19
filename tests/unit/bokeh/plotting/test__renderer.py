@@ -98,7 +98,6 @@ class Test__pop_visuals(object):
 #     'muted': [None, False, True]
 # }
 # @pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg]) for arg in bpr.RENDERER_ARGS])
-# @pytest.mark.unit
 # def test__glyph_receives_renderer_arg(arg, values) -> None:
 #     for value in values:
 #         with mock.patch('bokeh.plotting.helpers.GlyphRenderer', autospec=True) as gr_mock:

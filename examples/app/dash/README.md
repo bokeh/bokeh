@@ -1,14 +1,22 @@
+# Dashboard Example
+
 Create a simple dashboard based on Bootstrap templates.
 
-This is a bokeh directory application. To run it, enter the following command at a Bash or Windows command prompt:
+<img src="https://static.bokeh.org/dash.png" width="80%">
 
-```{bash}
-bokeh serve --show dash
-```
+## Setting Up
 
-See also the [users guide on bokeh directory applications](https://docs.bokeh.org/en/latest/docs/user_guide/server.html#directory-format), for more detail.
+No additional packages or steps are required to run this example.
 
-# Licences
+## Running
+
+To view the app directly from a Bokeh server, navigate to the parent directory
+[`examples/app`](https://github.com/bokeh/bokeh/tree/master/examples/app),
+and execute the command
+
+    bokeh serve --show dash
+
+## Licences
 
 This example uses vendored code from the following projects:
 
