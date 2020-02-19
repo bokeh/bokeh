@@ -1,5 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
+import type {LineGLGlyph} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import {Arrayable, Rect} from "core/types"
@@ -16,6 +17,8 @@ export interface LineView extends LineData {}
 export class LineView extends XYGlyphView {
   model: Line
   visuals: Line.Visuals
+
+  glglyph?: LineGLGlyph
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {
     let drawing = false

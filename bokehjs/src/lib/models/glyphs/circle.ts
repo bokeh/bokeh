@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
+import type {MarkerGLGlyph} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
@@ -27,6 +28,8 @@ export interface CircleView extends CircleData {}
 export class CircleView extends XYGlyphView {
   model: Circle
   visuals: Circle.Visuals
+
+  glglyph?: MarkerGLGlyph
 
   protected _map_data(): void {
     // XXX: Order is important here: size is always present (at least
