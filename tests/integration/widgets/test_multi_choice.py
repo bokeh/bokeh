@@ -20,7 +20,7 @@ from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
-from bokeh._testing.util.selenium import RECORD, enter_text_in_element, hover_element
+from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import row
 from bokeh.models import (
     Circle,
@@ -96,21 +96,21 @@ class Test_MultiChoice(object):
         inp.send_keys(Keys.ENTER)
 
         selected = page.driver.find_element_by_css_selector('.foo .choices__list--multiple')
-        items = selected.find_elements_by_css_selector("div") 
+        items = selected.find_elements_by_css_selector("div")
         assert len(items) == 1
 
         item = page.driver.find_element_by_css_selector('.foo .choices__list--multiple div.choices__item')
         assert '100001' == item.get_attribute('data-value')
-        
+
         delete_button = page.driver.find_element_by_css_selector('.foo .choices__item button')
         assert "Remove item: '100001'" == delete_button.get_attribute('aria-label')
 
         delete_button.click()
 
         selected = page.driver.find_element_by_css_selector('.foo .choices__list--multiple')
-        items = selected.find_elements_by_css_selector("div") 
+        items = selected.find_elements_by_css_selector("div")
         assert len(items) == 0
-        
+
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
