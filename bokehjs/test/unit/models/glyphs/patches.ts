@@ -3,6 +3,7 @@ import {expect} from "chai"
 import {create_glyph_view, set_scales} from "./glyph_utils"
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Geometry} from "@bokehjs/core/geometry"
+import {assert} from "@bokehjs/core/util/assert"
 
 describe("Glyph (using  as a concrete Glyph)", () => {
 
@@ -11,7 +12,7 @@ describe("Glyph (using  as a concrete Glyph)", () => {
       const data = {xs: [[0, 10, 5], [5, 10, 10, 5]], ys: [[0, 0, 10], [10, 10, 20, 20]]}
       const glyph = new Patches({
         xs: {field: "xs"},
-        ys: {field: "ys"}
+        ys: {field: "ys"},
       })
 
       const glyph_view = (await create_glyph_view(glyph, data) as PatchesView)
@@ -25,18 +26,24 @@ describe("Glyph (using  as a concrete Glyph)", () => {
       const geometry5: Geometry = { type: "rect", sx0: 5,  sy0: 190, sx1: 15, sy1: 170}
       const geometry6: Geometry = { type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 159}
 
-      const result1 = glyph_view.hit_test(geometry1)!
-      const result2 = glyph_view.hit_test(geometry2)!
-      const result3 = glyph_view.hit_test(geometry3)!
-      const result4 = glyph_view.hit_test(geometry4)!
-      const result5 = glyph_view.hit_test(geometry5)!
-      const result6 = glyph_view.hit_test(geometry6)!
+      const result1 = glyph_view.hit_test(geometry1)
+      const result2 = glyph_view.hit_test(geometry2)
+      const result3 = glyph_view.hit_test(geometry3)
+      const result4 = glyph_view.hit_test(geometry4)
+      const result5 = glyph_view.hit_test(geometry5)
+      const result6 = glyph_view.hit_test(geometry6)
 
+      assert(result1 != null)
       expect(result1.indices).to.be.deep.equal([0])
+      assert(result2 != null)
       expect(result2.indices).to.be.deep.equal([])
+      assert(result3 != null)
       expect(result3.indices).to.be.deep.equal([1])
+      assert(result4 != null)
       expect(result4.indices).to.be.deep.equal([])
+      assert(result5 != null)
       expect(result5.indices).to.be.deep.equal([])
+      assert(result6 != null)
       expect(result6.indices).to.be.deep.equal([0, 1])
     })
   })
