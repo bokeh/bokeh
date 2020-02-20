@@ -146,6 +146,8 @@ export class PatchesView extends GlyphView {
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
+    const xs = [sx0, sx1, sx1, sx0]
+    const ys = [sy0, sy0, sy1, sy1]
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     const candidates = this.index.indices({x0, x1, y0, y1})
@@ -158,7 +160,7 @@ export class PatchesView extends GlyphView {
       for (let j = 0, endj = sxss.length; j < endj; j++) {
         const sx = sxss[j]
         const sy = syss[j]
-        if (!hittest.point_in_poly(sx, sy, [sx0, sx1, sx1, sx0], [sy0, sy0, sy1, sy1])) {
+        if (!hittest.point_in_poly(sx, sy, xs, ys)) {
           hit = false
           break
         }
