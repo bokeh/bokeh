@@ -1,0 +1,43 @@
+import {expect} from "chai"
+
+import {create_glyph_view, set_scales} from "./glyph_utils"
+import {MultiPolygons, MultiPolygonsView} from "@bokehjs/models/glyphs/multi_polygons"
+import {Geometry} from "@bokehjs/core/geometry"
+
+describe("Glyph (using  as a concrete Glyph)", () => {
+
+  describe("GlyphView", () => {
+    it("should hit test rects for containment", async () => {
+      const data = {xs: [[[[0, 10, 5]]], [[[5, 10, 10, 5]]]], ys: [[[[0, 0, 10]]], [[[10, 10, 20, 20]]]]}
+      const glyph = new MultiPolygons({
+        xs: {field: "xs"},
+        ys: {field: "ys"}
+      })
+
+      const glyph_view = (await create_glyph_view(glyph, data) as MultiPolygonsView)
+      set_scales(glyph_view, "linear")
+      glyph_view.map_data()
+
+      const geometry1: Geometry = { type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 179}
+      const geometry2: Geometry = { type: "rect", sx0: 1,  sy0: 200, sx1: 20, sy1: 180}
+      const geometry3: Geometry = { type: "rect", sx0: 9,  sy0: 181, sx1: 21, sy1: 159}
+      const geometry4: Geometry = { type: "rect", sx0: 10, sy0: 180, sx1: 19, sy1: 165}
+      const geometry5: Geometry = { type: "rect", sx0: 5,  sy0: 190, sx1: 15, sy1: 170}
+      const geometry6: Geometry = { type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 159}
+
+      const result1 = glyph_view.hit_test(geometry1)!
+      const result2 = glyph_view.hit_test(geometry2)!
+      const result3 = glyph_view.hit_test(geometry3)!
+      const result4 = glyph_view.hit_test(geometry4)!
+      const result5 = glyph_view.hit_test(geometry5)!
+      const result6 = glyph_view.hit_test(geometry6)!
+
+      expect(result1.indices).to.be.deep.equal([0])
+      expect(result2.indices).to.be.deep.equal([])
+      expect(result3.indices).to.be.deep.equal([1])
+      expect(result4.indices).to.be.deep.equal([])
+      expect(result5.indices).to.be.deep.equal([])
+      expect(result6.indices).to.be.deep.equal([0, 1])
+    })
+  })
+})
