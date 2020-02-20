@@ -4,7 +4,7 @@ import {generic_area_legend} from "./utils"
 import {min, max} from "core/util/array"
 import {sum} from "core/util/arrayable"
 import {Arrayable, Rect} from "core/types"
-import {PointGeometry} from "core/geometry"
+import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Line, Fill, Hatch} from "core/visuals"
@@ -126,6 +126,37 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
     }
+  }
+
+  protected _hit_rect(geometry: RectGeometry): Selection {
+    const {sx0, sx1, sy0, sy1} = geometry
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const candidates = this.index.indices({x0, x1, y0, y1})
+    const hits = []
+    for (let i = 0, end = candidates.length; i < end; i++) {
+      const idx = candidates[i]
+      const sxss = this.sxs[idx]
+      const syss = this.sys[idx]
+      let hit = true;
+      for (let j = 0, endj = sxss.length; j < endj; j++) {
+        for (let k = 0, endk = sxss[j][0].length; k < endk; k++) {
+          const sx = sxss[j][0][k]
+          const sy = syss[j][0][k]
+          if (!hittest.point_in_poly(sx, sy, [sx0, sx1, sx1, sx0], [sy0, sy0, sy1, sy1])) {
+            hit = false
+            break
+          }
+        }
+        if (!hit)
+          break
+      }
+      if (hit)
+        hits.push(idx)
+    }
+    const result = hittest.create_empty_hit_test_result()
+    result.indices = hits
+    return result
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
