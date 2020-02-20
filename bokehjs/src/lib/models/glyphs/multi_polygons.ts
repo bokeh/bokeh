@@ -138,7 +138,7 @@ export class MultiPolygonsView extends GlyphView {
       const idx = candidates[i]
       const sxss = this.sxs[idx]
       const syss = this.sys[idx]
-      let hit = true;
+      let hit = true
       for (let j = 0, endj = sxss.length; j < endj; j++) {
         for (let k = 0, endk = sxss[j][0].length; k < endk; k++) {
           const sx = sxss[j][0][k]

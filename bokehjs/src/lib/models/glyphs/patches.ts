@@ -154,7 +154,7 @@ export class PatchesView extends GlyphView {
       const idx = candidates[i]
       const sxss = this.sxs[idx]
       const syss = this.sys[idx]
-      let hit = true;
+      let hit = true
       for (let j = 0, endj = sxss.length; j < endj; j++) {
         const sx = sxss[j]
         const sy = syss[j]
