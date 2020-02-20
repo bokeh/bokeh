@@ -22,6 +22,13 @@ app.get("/integration", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js"})
 })
 
+app.get("/unit/run", (_req, res) => {
+  res.render("template.html", {title: "Unit Tests", main: "unit.js", run: true})
+})
+app.get("/integration/run", (_req, res) => {
+  res.render("template.html", {title: "Integration Tests", main: "integration.js", run: true})
+})
+
 app.get("/integration/report", async (_req, res) => {
   const json = await fs.promises.readFile(join("test", "report.json"), {encoding: "utf-8"})
   res.render("report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})

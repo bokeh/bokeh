@@ -38,5 +38,10 @@
   </head>
   <body>
     <script type="text/javascript" src="/static/test/{{ main }}"></script>
+    {%- if run %}
+    <script>
+      Tests.run_all()
+    </script>
+    {% endif -%}
   </body>
 </html>
