@@ -1,4 +1,4 @@
-import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool} from "./models"
+import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool, Toolbar} from "./models"
 import {SizingMode, Location} from "../core/enums"
 
 export interface GridPlotOpts {
@@ -21,7 +21,7 @@ export function gridplot(children: (LayoutDOM | null)[][], opts: GridPlotOpts = 
   const merge_tools      = or_else(opts.merge_tools, true)
   const sizing_mode      = or_else(opts.sizing_mode, null)
 
-  const tools: Tool[] = []
+  const toolbars: Toolbar[] = []
   const items: [LayoutDOM, number, number][] = []
 
   for (let y = 0; y < children.length; y++) {
@@ -35,7 +35,7 @@ export function gridplot(children: (LayoutDOM | null)[][], opts: GridPlotOpts = 
       else {
         if (item instanceof Plot) { // XXX: semantics differ
           if (merge_tools) {
-            tools.push(...item.toolbar.tools)
+            toolbars.push(item.toolbar)
             item.toolbar_location = null
           }
 
@@ -55,8 +55,12 @@ export function gridplot(children: (LayoutDOM | null)[][], opts: GridPlotOpts = 
 
   const grid = new GridBox({children: items, sizing_mode})
 
+  const tools: Tool[] = []
+  for (const toolbar of toolbars) {
+    tools.push(...toolbar.tools)
+  }
   const toolbar = new ToolbarBox({
-    toolbar: new ProxyToolbar({tools}),
+    toolbar: new ProxyToolbar({toolbars, tools}),
     toolbar_location,
   })
 
