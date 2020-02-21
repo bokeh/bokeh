@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
@@ -65,6 +68,7 @@ class Test_Dropdown(object):
         button = page.driver.find_element_by_css_selector('.foo button')
         assert typ in button.get_attribute('class')
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))

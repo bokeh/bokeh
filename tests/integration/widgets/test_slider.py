@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 from time import sleep
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import (
     RECORD,
@@ -154,6 +157,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
@@ -206,6 +210,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_callback_value_vs_value_throttled(self, bokeh_server_page) -> None:
         junk = dict(v=0, vt=0)
 
@@ -240,6 +245,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_bar_color_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
@@ -263,6 +269,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_title_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):

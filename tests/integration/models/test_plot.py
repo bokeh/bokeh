@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 import time
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import Button, Plot, Range1d
@@ -33,6 +36,7 @@ pytest_plugins = (
 @pytest.mark.selenium
 class Test_Plot(object):
 
+    @flaky(max_runs=10)
     def test_inner_dims_trigger_on_dynamic_add(self, bokeh_server_page) -> None:
 
         data = {}

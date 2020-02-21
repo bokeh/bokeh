@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, ActionChains, Keys
 from bokeh.layouts import column
@@ -103,6 +106,7 @@ class Test_Spinner(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
