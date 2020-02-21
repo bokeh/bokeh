@@ -153,7 +153,7 @@ class Test_js_link(object):
         cb = cbs[0]
         assert isinstance(cb, CustomJS)
         assert cb.args == dict(other=m2)
-        assert cb.code == "other.b = this.a[\"test\"]"
+        assert cb.code == "other.b = this.a['test']"
 
 def test_all_builtin_models_default_constructible() -> None:
     bad = []

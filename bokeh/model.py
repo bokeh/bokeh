@@ -395,6 +395,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             other_attr (str) :
                 The property on ``other`` to link together
 
+            attr_selector (Union[int, str]) :
+                The index to link an item in a subscriptable ``attr``
+
         Added in version 1.1
 
         Raises:
@@ -420,6 +423,23 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                     )
                 )
 
+            Additionally, to use attr_selector to attach the left side of a range slider to a plot's x_range:
+
+            .. code :: python
+
+                range_slider.js_link('value', plot.x_range, 'start', attr_selector=0)
+
+            which is equivalent to:
+
+            .. code :: python
+
+                from bokeh.models import CustomJS
+                range_slider.js_on_change('value',
+                    CustomJS(args=dict(other=plot.x_range),
+                             code="other.start = this.value[0]"
+                    )
+                )
+
         '''
         if attr not in self.properties():
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
@@ -432,14 +452,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         from bokeh.models import CustomJS
 
-        if attr_selector is None:
-            cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
-        else:
-            if type(attr_selector) is str:
-                attr_selector = "\"%s\"" % attr_selector
-            else:
-                attr_selector = str(attr_selector)
-            cb = CustomJS(args=dict(other=other), code="other.%s = this.%s[%s]" % (other_attr, attr, attr_selector))
+        selector = f"[{attr_selector!r}]" if attr_selector else ""
+        cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
 
         self.js_on_change(attr, cb)
 
