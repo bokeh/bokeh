@@ -1,5 +1,3 @@
-import {OutputBackend} from "../enums"
-
 export type Context2d = {
   setLineDashOffset(offset: number): void
   getLineDashOffset(): number
@@ -98,19 +96,4 @@ export function fixup_ctx(ctx: any): void {
   fixup_image_smoothing(ctx)
   fixup_measure_text(ctx)
   fixup_ellipse(ctx)
-}
-
-export function get_scale_ratio(ctx: any, hidpi: boolean, backend: OutputBackend): number {
-  if (backend == "svg")
-    return 1
-  else if (hidpi) {
-    const devicePixelRatio = window.devicePixelRatio || 1
-    const backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                              ctx.mozBackingStorePixelRatio    ||
-                              ctx.msBackingStorePixelRatio     ||
-                              ctx.oBackingStorePixelRatio      ||
-                              ctx.backingStorePixelRatio       || 1
-    return devicePixelRatio / backingStoreRatio
-  } else
-    return 1
 }
