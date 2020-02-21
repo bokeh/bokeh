@@ -113,7 +113,6 @@ def test_js_resources_hashes_mock_full(monkeypatch) -> None:
     assert set(r.hashes.values()) == min_hashes
 
 @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
-@pytest.mark.unit
 def test_js_resources_hashes_mock_non_full(v, monkeypatch) -> None:
     monkeypatch.setattr(buv, "__version__", v)
     monkeypatch.setattr(resources, "__version__", v)
