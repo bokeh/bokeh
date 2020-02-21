@@ -127,6 +127,34 @@ class Test_js_link(object):
         assert cb.args == dict(other=m2)
         assert cb.code == "other.b = this.a"
 
+    def test_attr_selector_creates_customjs_int(self) -> None:
+        m1 = SomeModel()
+        m2 = SomeModel()
+        assert len(m1.js_property_callbacks) == 0
+        m1.js_link('a', m2, 'b', 1)
+        assert len(m1.js_property_callbacks) == 1
+        assert "change:a" in m1.js_property_callbacks
+        cbs = m1.js_property_callbacks["change:a"]
+        assert len(cbs) == 1
+        cb = cbs[0]
+        assert isinstance(cb, CustomJS)
+        assert cb.args == dict(other=m2)
+        assert cb.code == "other.b = this.a[1]"
+
+    def test_attr_selector_creates_customjs_str(self) -> None:
+        m1 = SomeModel()
+        m2 = SomeModel()
+        assert len(m1.js_property_callbacks) == 0
+        m1.js_link('a', m2, 'b', "test")
+        assert len(m1.js_property_callbacks) == 1
+        assert "change:a" in m1.js_property_callbacks
+        cbs = m1.js_property_callbacks["change:a"]
+        assert len(cbs) == 1
+        cb = cbs[0]
+        assert isinstance(cb, CustomJS)
+        assert cb.args == dict(other=m2)
+        assert cb.code == "other.b = this.a[\"test\"]"
+
 def test_all_builtin_models_default_constructible() -> None:
     bad = []
     for name, cls in Model.model_class_reverse_map.items():

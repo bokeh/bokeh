@@ -378,7 +378,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             self.js_event_callbacks[event].append(callback)
 
 
-    def js_link(self, attr, other, other_attr):
+    def js_link(self, attr, other, other_attr, attr_selector=None):
         ''' Link two Bokeh model properties using JavaScript.
 
         This is a convenience method that simplifies adding a CustomJS callback
@@ -431,7 +431,15 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
         from bokeh.models import CustomJS
-        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+
+        if attr_selector is None:
+            cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+        else:
+            if type(attr_selector) is str:
+                attr_selector = "\"%s\"" % attr_selector
+            else:
+                attr_selector = str(attr_selector)
+            cb = CustomJS(args=dict(other=other), code="other.%s = this.%s[%s]" % (other_attr, attr, attr_selector))
 
         self.js_on_change(attr, cb)
 
