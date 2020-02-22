@@ -7,8 +7,8 @@
 
 from bokeh.layouts import layout
 from bokeh.models.widgets import Div
-from bokeh.plotting import figure, show, output_file
-from bokeh.tile_providers import get_provider, Vendors
+from bokeh.plotting import figure, output_file, show
+from bokeh.tile_providers Vendors, import get_provider
 
 output_file("foo.html")
 
