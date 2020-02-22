@@ -5,10 +5,10 @@
 #   python3 bokeh_tile_demo.py
 
 
+from bokeh.layouts import layout
+from bokeh.models.widgets import Div
 from bokeh.plotting import figure, show, output_file
 from bokeh.tile_providers import get_provider, Vendors
-from bokeh.models.widgets import Div
-from bokeh.layouts import column, layout
 
 output_file("foo.html")
 
