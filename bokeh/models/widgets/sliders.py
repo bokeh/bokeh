@@ -152,6 +152,35 @@ class RangeSlider(AbstractSlider):
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
 
+    @property
+    def value_as_datetime(self):
+        ''' Convenience property to retrieve the value as a datetime object.
+
+        Added in version 2.0
+        '''
+        if self.value is None:
+            return None
+
+        if isinstance(self.value, numbers.Number):
+            return datetime.utcfromtimestamp(self.value / 1000)
+
+        return self.value
+
+    @property
+    def value_as_date(self):
+        ''' Convenience property to retrieve the value as a date object.
+
+        Added in version 2.0
+        '''
+        if self.value is None:
+            return None
+
+        if isinstance(self.value, numbers.Number):
+            dt = datetime.utcfromtimestamp(self.value / 1000)
+            return date(*dt.timetuple()[:3])
+
+        return self.value
+
     value = Datetime(help="""
     Initial or selected value.
     """)
@@ -182,6 +211,7 @@ class DateRangeSlider(AbstractSlider):
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
 
+        Added in version 1.1
         '''
         if self.value is None:
             return None
@@ -194,7 +224,7 @@ class DateRangeSlider(AbstractSlider):
             d2 = datetime.utcfromtimestamp(v2 / 1000)
         else:
             d2 = v2
-        return d1, d2    \
+        return d1, d2
 
     @property
     def value_as_date(self):
