@@ -299,8 +299,28 @@ class Tuple(ContainerProperty):
                 msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
+    def transform(self, value):
+        ''' Change the value into a JSON serializable format.
+
+        '''
+        if value is None:
+            return None
+
+        return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
+
+    def serialize_value(self, value):
+        ''' Change the value into a JSON serializable format.
+
+        '''
+        if value is None:
+            return None
+
+        return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
+
     def _sphinx_type(self):
         return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
+
+
 
 class RelativeDelta(Dict):
     ''' Accept RelativeDelta dicts for time delta values.
