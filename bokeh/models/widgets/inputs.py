@@ -30,6 +30,7 @@ from ...core.properties import (
     Enum,
     Float,
     Int,
+    Interval,
     List,
     PositiveInt,
     String,
@@ -340,7 +341,7 @@ class Spinner(InputWidget):
     The initial value of the spinner
     """)
 
-    step = Float(default=1, help="""
+    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
     The step added or subtracted to the current value
     """)
 
