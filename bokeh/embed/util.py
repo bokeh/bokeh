@@ -193,6 +193,7 @@ class RenderItem(object):
 
         if self.roots:
             json["roots"] = self.roots.to_json()
+            json["root_ids"] = [root.id for root in self.roots]
 
         if self.use_for_title is not None:
             json["use_for_title"] = self.use_for_title
