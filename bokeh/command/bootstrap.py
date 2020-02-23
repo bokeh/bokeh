@@ -93,9 +93,6 @@ def main(argv: List[str]) -> None:
         prog=argv[0],
         epilog="See '<command> --help' to read about a specific subcommand.")
 
-    # we don't use settings.version() because the point of this option
-    # is to report the actual version of Bokeh, while settings.version()
-    # lets people change the version used for CDN for example.
     parser.add_argument('-v', '--version', action='version', version=__version__)
 
     subs = parser.add_subparsers(help="Sub-commands")
