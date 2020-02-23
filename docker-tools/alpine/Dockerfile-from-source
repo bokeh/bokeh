@@ -64,6 +64,6 @@ RUN python3 -c "import tornado; print('tornado version=' + tornado.version)"
 RUN bokeh info
 
 # Add some bokeh examples to be run
-ENV BOKEH_EXAMPLE_DIR /root/bokeh_examples
+ENV BOKEH_EXAMPLE_DIR /bokeh_examples
 COPY examples/models $BOKEH_EXAMPLE_DIR/models
 COPY examples/app $BOKEH_EXAMPLE_DIR/app
