@@ -82,12 +82,12 @@ class Theme(object):
         values that specify the new property defaults for that type.
 
         Take note of the fact that YAML interprets the value `None` as
-        a string, which is not usually what you want. To give `None` as a 
+        a string, which is not usually what you want. To give `None` as a
         value in YAML, use `!!null`. To give 'None' as a value in json,
         use `null`.
-        
-        Here is an example theme in YAML format that sets various visual
-        properties for all figures, grids, and titles:
+
+       Here is an example theme in YAML format that sets various visual
+       properties for all figures, grids, and titles:
 
         .. code-block:: yaml
 
@@ -116,7 +116,7 @@ class Theme(object):
                     'outline_line_color': '#444444',
                 },
                 'Axis': {
-                    'axis_line_color': null, 
+                    'axis_line_color': null,
                 },
                 'Grid': {
                     'grid_line_dash': [6, 4]',
