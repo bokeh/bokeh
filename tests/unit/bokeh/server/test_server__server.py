@@ -25,6 +25,7 @@ from datetime import timedelta
 
 # External imports
 import mock
+from flaky import flaky
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -380,6 +381,7 @@ async def test__exclude_cookies(ManagedServerLoop) -> None:
 
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="Lifecycle hooks order different on Windows (TODO open issue)")
+@flaky(max_runs=10)
 def test__lifecycle_hooks(ManagedServerLoop) -> None:
     application = Application()
     handler = HookTestHandler()
