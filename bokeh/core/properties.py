@@ -125,6 +125,7 @@ DataSpec Properties
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
+.. autoclass:: PropertyUnitsSpec
 .. autoclass:: ScreenDistanceSpec
 .. autoclass:: StringSpec
 .. autoclass:: UnitsSpec
@@ -222,6 +223,7 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
+    'PropertyUnitsSpec',
     'RGB',
     'Regex',
     'RelativeDelta',
@@ -273,6 +275,7 @@ from .property.dataspec import FontSizeSpec; FontSizeSpec
 from .property.dataspec import HatchPatternSpec; HatchPatternSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NumberSpec; NumberSpec
+from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import UnitsSpec; UnitsSpec

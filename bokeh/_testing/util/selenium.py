@@ -37,12 +37,17 @@ __all__ = (
     'ButtonWrapper',
     'copy_table_rows',
     'COUNT',
+    'drag_range_slider',
+    'drag_slider',
     'element_to_finish_resizing',
     'element_to_start_resizing',
     'enter_text_in_cell',
     'enter_text_in_cell_with_click_enter',
     'enter_text_in_element',
     'get_page_element',
+    'get_slider_bar_color',
+    'get_slider_title_text',
+    'get_slider_title_value',
     'get_table_cell',
     'get_table_column_cells',
     'get_table_header',
@@ -259,6 +264,40 @@ def wait_for_canvas_resize(canvas, test_driver):
         # Put the waits in to give some time, but allow test to
         # try and process.
         pass
+
+def drag_slider(driver, css_class, distance, release=True):
+    el = driver.find_element_by_css_selector(css_class)
+    handle = el.find_element_by_css_selector('.bk-noUi-handle')
+    actions = ActionChains(driver)
+    actions.move_to_element(handle)
+    actions.click_and_hold()
+    actions.move_by_offset(distance, 0)
+    if release:
+        actions.release()
+    actions.perform()
+
+def drag_range_slider(driver, css_class, location, distance):
+    el = driver.find_element_by_css_selector(css_class)
+    handle = el.find_element_by_css_selector('.bk-noUi-handle-' + location)
+    actions = ActionChains(driver)
+    actions.move_to_element(handle)
+    actions.click_and_hold()
+    actions.move_by_offset(distance, 0)
+    actions.release()
+    actions.perform()
+
+def get_slider_title_text(driver, css_class):
+    el = driver.find_element_by_css_selector(css_class)
+    return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
+
+def get_slider_title_value(driver, css_class):
+    el = driver.find_element_by_css_selector(css_class)
+    return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
+
+def get_slider_bar_color(driver, css_class):
+    el = driver.find_element_by_css_selector(css_class)
+    bar = el.find_element_by_css_selector('.bk-noUi-connect')
+    return bar.value_of_css_property('background-color')
 
 #-----------------------------------------------------------------------------
 # Dev API

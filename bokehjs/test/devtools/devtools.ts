@@ -10,7 +10,6 @@ import {Bar, Presets} from "cli-progress"
 import {State, create_baseline, load_baseline, diff_baseline} from "./baselines"
 
 const url = argv._[0]
-const verbose = argv.verbose ?? false
 
 interface CallFrame {
   name: string
@@ -90,16 +89,21 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      Runtime.consoleAPICalled(({args}) => {
-        if (verbose) {
+      type LogEntry = {level: "warning" | "error", text: string}
+
+      let entries: LogEntry[] = []
+      Runtime.consoleAPICalled(({type, args}) => {
+        if (type == "warning" || type == "error") {
           const text = args.map(({value}) => value ? value.toString() : "").join(" ")
-          console.log(text)
+          entries.push({level: type, text})
         }
       })
 
       Log.entryAdded(({entry}) => {
-        if (verbose)
-          console.log(entry.text)
+        const {level, text} = entry
+        if (level == "warning" || level == "error") {
+          entries.push({level, text})
+        }
       })
 
       Runtime.exceptionThrown(({exceptionDetails}) => {
@@ -286,11 +290,19 @@ async function run_tests(): Promise<void> {
       progress.start(test_suite.length, 0, state())
 
       for (const [suites, test, status] of test_suite) {
+        entries = []
+
         if (test.skip) {
           status.skipped = true
         } else {
           const [seq, i] = to_seq(suites, test)
           const output = await evaluate<string>(`Tests.run_test(${JSON.stringify(seq)}, ${JSON.stringify(i)})`)
+
+          const errors = entries.filter((entry) => entry.level == "error")
+          if (errors.length != 0) {
+            status.errors.push(...errors.map((entry) => entry.text))
+            // status.failure = true // XXX: too chatty right now
+          }
 
           if (output instanceof Failure) {
             status.errors.push(output.text)

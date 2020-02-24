@@ -91,6 +91,7 @@
     "nouislider": "^10.0.0",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "proj4": "^2.6.0",
+    "choices.js": "^9.0.1",
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#8e993bf",
     "sprintf-js": "^1.1.2",
     "timezone": "https://github.com/bokeh/timezone.git#7042749",

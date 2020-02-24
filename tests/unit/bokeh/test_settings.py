@@ -44,6 +44,7 @@ _expected_settings = (
     'allowed_ws_origin',
     'auth_module',
     'browser',
+    'cdn_version',
     'cookie_secret',
     'docs_cdn',
     'docs_version',
@@ -64,7 +65,6 @@ _expected_settings = (
     'ssl_keyfile',
     'ssl_password',
     'strict',
-    'version',
     'xsrf_cookies',
 )
 
