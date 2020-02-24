@@ -116,7 +116,7 @@ class Theme(object):
                     'outline_line_color': '#444444',
                 },
                 'Axis': {
-                    'axis_line_color': null
+                    'axis_line_color': null,
                 },
                 'Grid': {
                     'grid_line_dash': [6, 4]',
