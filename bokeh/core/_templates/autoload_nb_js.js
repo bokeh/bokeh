@@ -160,11 +160,10 @@
       if (el != null) {
         el.textContent = "BokehJS " + root.Bokeh.version + " successfully loaded.";
       }
-    }
-    else if (Date.now() < root._bokeh_timeout) {
+    } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(display_loaded, 100)
     } else {
-    	el.textContent = "Failed to load BokehJS!"
+      el.textContent = "Failed to load BokehJS!";
     }
   }
 {% endblock %}
