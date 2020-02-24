@@ -1,4 +1,5 @@
 import "./setup"
+import defer from "./defer"
 
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
@@ -68,14 +69,6 @@ _globalThis.describe = describe
 _globalThis.it = it
 _globalThis.before_each = before_each
 _globalThis.after_each = after_each
-
-const _defer = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setImmediate
-
-function defer(): Promise<void> {
-  return new Promise((resolve) => {
-    _defer(() => resolve())
-  })
-}
 
 function* iter_from({suites, tests}: Suite, parents: Suite[] = []): Iterable<[Suite[], Test]> {
   for (const suite of suites) {
@@ -179,8 +172,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<Result> {
   current_test = test
   try {
     await fn()
-    if (test.el != null)
-      await defer()
+    await defer()
   } catch (err) {
     //throw err
     _handle(err)
