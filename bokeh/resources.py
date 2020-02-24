@@ -227,7 +227,7 @@ class BaseResources(object):
         del mode
         self.root_dir = settings.rootdir(root_dir)
         del root_dir
-        self.version = settings.version(version)
+        self.version = settings.cdn_version(version)
         del version
         self.minified = settings.minified(minified)
         del minified

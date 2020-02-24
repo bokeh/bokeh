@@ -86,7 +86,7 @@ class Datetime(Property):
 
     '''
 
-    def __init__(self, default=datetime.date.today(), help=None):
+    def __init__(self, default=None, help=None):
         super().__init__(default=default, help=help)
 
     def transform(self, value):
@@ -94,9 +94,6 @@ class Datetime(Property):
 
         if isinstance(value, str):
             value = dateutil.parser.parse(value)
-
-        elif Datetime.is_timestamp(value):
-            value = datetime.date.fromtimestamp(value)
 
         # Handled by serialization in protocol.py for now, except for Date
         if isinstance(value, datetime.date):
@@ -106,6 +103,9 @@ class Datetime(Property):
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
+
+        if value is None:
+            return
 
         if is_datetime_type(value):
             return
@@ -125,6 +125,14 @@ class Datetime(Property):
 
         msg = "" if not detail else f"Expected a date, datetime object, or timestamp, got {value!r}"
         raise ValueError(msg)
+
+    def serialize_value(self, value):
+        ''' Change the value into a JSON serializable format.
+
+        '''
+        if isinstance(value, datetime.date):
+            value = convert_date_to_datetime(value)
+        return value
 
     @staticmethod
     def is_timestamp(value):

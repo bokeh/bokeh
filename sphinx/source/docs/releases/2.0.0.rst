@@ -143,6 +143,13 @@ early experimental tools that were never widely promoted. It was recently
 discovered that they have been broken since version 1.0, indicating that they
 are completely unused. To reduce codebase cruft, they have been removed.
 
+BOKEH_VERSION
+~~~~~~~~~~~~~
+
+The previous environment variable BOKEH_VERSION that could be use to specify
+which version of BokehJS should be loaded from CDN, has been renamed to
+BOKEH_CDN_VERSION.
+
 API Removals
 ~~~~~~~~~~~~
 

@@ -7,6 +7,7 @@ export interface RenderItem {
   token?: string
   elementid?: string
   roots?: {[key: string]: string}
+  root_ids?: string[]
   use_for_title?: boolean
   notebook_comms_target?: any
 }
