@@ -1,7 +1,12 @@
+# Tests
+graft tests/unit
+
 # Things to always exclude
 global-exclude .git*
 global-exclude .ipynb_checkpoints
 global-exclude *.py[co]
+global-exclude *.js.map
+global-exclude __pycache__/**
 
 # Top-level Config
 include CHANGELOG
@@ -12,16 +17,7 @@ include setup.cfg
 include versioneer.py
 include _setup_support.py
 
-# Tests
-recursive-include tests *.py *.ipynb *.jinja *.js *.md *.png
-
-# Docs
-graft sphinx
-prune sphinx/_build
-
-# Examples
-recursive-include examples *.html *.py *.ipynb *.md *.yaml
-prune examples/embed/*.html
-prune examples/models/file/*.html
-prune examples/plotting/file/*.html
-prune examples/webgl/*.html
+# Static assets
+exclude bokeh/server/static/js/bokeh.json
+exclude bokeh/server/static/js/compiler.json
+exclude bokeh/server/static/js/legacy/bokeh.json
