@@ -144,7 +144,7 @@ def _save_helper(obj, filename, resources, title, template):
 
     '''
     from ..embed import file_html
-    html = file_html(obj, resources, title=title, template=template)
+    html = file_html(obj, resources, title=title, template=template, theme=curstate().document.theme)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)

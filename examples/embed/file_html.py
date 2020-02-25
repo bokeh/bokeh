@@ -121,7 +121,7 @@ if __name__ == "__main__":
     from bokeh.util.browser import view
 
     doc.validate()
-    filename = "sprint.html"
+    filename = "file_html.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, plot.title.text))
     print("Wrote %s" % filename)
