@@ -279,7 +279,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
             Applies the specified theme to the created html. If ``None``, or
             not specified, and the function is passed a document or the full set
             of roots of a document, applies the theme of that document.  Otherwise
-            applies the default theme. 
+            applies the default theme.
 
         suppress_callback_warning (bool, optional) :
             Normally generating standalone HTML from a Bokeh Document that has
