@@ -4,11 +4,11 @@ from flask import Flask
 from jinja2 import Template
 
 from bokeh.embed import json_item
+from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.sampledata.iris import flowers
 from bokeh.themes import Theme
-from bokeh.io import curdoc
 
 app = Flask(__name__)
 
