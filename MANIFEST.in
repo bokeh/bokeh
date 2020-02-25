@@ -20,3 +20,4 @@ include _setup_support.py
 # Static assets
 exclude bokeh/server/static/js/bokeh.json
 exclude bokeh/server/static/js/compiler.json
+exclude bokeh/server/static/js/legacy/bokeh.json
