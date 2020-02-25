@@ -452,7 +452,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         from bokeh.models import CustomJS
 
-        selector = f"[{attr_selector!r}]" if attr_selector else ""
+        selector = f"[{attr_selector!r}]" if attr_selector is not None else ""
         cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
 
         self.js_on_change(attr, cb)
