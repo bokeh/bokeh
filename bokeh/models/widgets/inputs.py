@@ -30,7 +30,6 @@ from ...core.properties import (
     Enum,
     Float,
     Int,
-    Interval,
     List,
     PositiveInt,
     String,
@@ -48,7 +47,6 @@ __all__ = (
     'DatePicker',
     'FileInput',
     'InputWidget',
-    'MultiChoice',
     'MultiSelect',
     'PasswordInput',
     'Select',
@@ -89,26 +87,25 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 
 class FileInput(Widget):
-    ''' Present a file-chooser dialog to users and return the contents of a
-    selected file.
+    ''' Present a file-chooser dialog to users and return the contents of the 
+    selected files 
 
     '''
+    
+    value = Either(String, List(String),default='', readonly=True, help='''
+    if multiple = 'False' or ommitted, base64-encoded string of the contents of the selected file,
+    if multiple = 'True' or 'Multiple' a list of base64 encoded strings of the contents of selected files in the order given by filename
+    ''')
 
-    value = String(default="", readonly=True, help="""
-    A base64-encoded string of the contents of the selected file.
-    """)
+    mime_type = Either(String, List(String),default='', readonly=True, help='''
+    if multiple = 'False' or ommitted, string with the mime-type of the selected file,
+    if multiple = 'True' or 'Multiple' a list of strings with the mime-types of the selected files in the order given by filename
+    ''')
 
-    mime_type = String(default="", readonly=True, help="""
-    The mime type of the selected file.
-    """)
-
-    filename = String(default="", readonly=True, help="""
-    The filename of the selected file.
-
-    .. note::
-        The full file path is not included since browsers will not provide
-        access to that information for security reasons.
-    """)
+    filename = Either(String, List(String),default='', readonly=True, help='''
+    if multiple = 'False' or ommitted, the filename of the selected file as string,
+    if multiple = 'True' or 'Multiple' a list of strings giving the filenames of the selected files 
+    ''')
 
     accept = String(default="", help="""
     Comma-separated list of standard HTML file input filters that restrict what
@@ -130,6 +127,11 @@ class FileInput(Widget):
         A valid `IANA Media Type`_, with no parameters.
 
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+    """)
+        
+    multiple = String(default="False", help="""
+    set to "multiple" or "True" if selection of more than one file at a time
+    should be supported.
     """)
 
 
@@ -242,42 +244,6 @@ class MultiSelect(InputWidget):
     """)
 
 
-class MultiChoice(InputWidget):
-    ''' MultiChoice widget.
-
-    '''
-
-    options = List(Either(String, Tuple(String, String)), help="""
-    Available selection options. Options may be provided either as a list of
-    possible string values, or as a list of tuples, each of the form
-    ``(value, label)``. In the latter case, the visible widget text for each
-    value will be corresponding given label.
-    """)
-
-    value = List(String, help="""
-    Initial or selected values.
-    """)
-
-    delete_button = Bool(default=True, help="""
-    Whether to add a button to remove a selected option.
-    """)
-
-    max_items = Int(default=None, help="""
-    The maximum number of items that can be selected.
-    """)
-
-    option_limit = Int(default=None, help="""
-    The number of choices that will be rendered in the dropdown.
-    """)
-
-    placeholder = String(default=None, help="""
-    A string that is displayed if not item is added.
-    """)
-
-    solid = Bool(default=True, help="""
-    Specify whether the choices should be solidly filled.""")
-
-
 class DatePicker(InputWidget):
     ''' Calendar-based date picker widget.
 
@@ -341,7 +307,7 @@ class Spinner(InputWidget):
     The initial value of the spinner
     """)
 
-    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
+    step = Float(default=1, help="""
     The step added or subtracted to the current value
     """)
 
