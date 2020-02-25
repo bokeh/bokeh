@@ -85,3 +85,4 @@ CMD bokeh serve --port 8080 \
     ./examples/app/stocks \
     ./examples/app/taylor.py \
     ./examples/app/weather
+    

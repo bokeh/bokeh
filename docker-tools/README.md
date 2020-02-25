@@ -86,6 +86,6 @@ cd docker-tools/debian
 gcloud app deploy
 ```
 
-Note this is just a bare-bones deployment, using the default `Dockerfile` with no SSL or any security measures. Using a load-balancer is recommended as described in the GAE documentation. 
+Note this is just a bare-bones deployment, using the default `Dockerfile` with no SSL or any security measures. Using a load-balancer is recommended as described in the GAE documentation.
 
 TO DO: add more details on how to configure GAE more robustly.
