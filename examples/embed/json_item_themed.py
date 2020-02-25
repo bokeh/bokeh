@@ -4,7 +4,6 @@ from flask import Flask
 from jinja2 import Template
 
 from bokeh.embed import json_item
-from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.sampledata.iris import flowers
@@ -39,9 +38,6 @@ colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 colors = [colormap[x] for x in flowers['species']]
 
 gray_theme = Theme(json={'attrs':{'Plot':{'background_fill_color':'#eeeeee'}}})
-blue_theme = Theme(json={'attrs':{'Plot':{'background_fill_color':'#ccccff'}}})
-
-curdoc().theme = gray_theme
 
 def make_plot(x, y):
     p = figure(title = "Iris Morphology", sizing_mode="fixed", plot_width=400, plot_height=400)
@@ -57,12 +53,12 @@ def root():
 @app.route('/plot')
 def plot():
     p = make_plot('petal_width', 'petal_length')
-    return json.dumps(json_item(p, "myplot")) # curdoc theme (gray) applied
+    return json.dumps(json_item(p, "myplot")) # default theme applied
 
 @app.route('/plot2')
 def plot2():
     p = make_plot('sepal_width', 'sepal_length')
-    return json.dumps(json_item(p, theme=blue_theme)) # specific theme (blue) applied
+    return json.dumps(json_item(p, theme=gray_theme)) # specific theme (gray) applied
 
 if __name__ == '__main__':
     app.run()

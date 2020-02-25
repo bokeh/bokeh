@@ -59,7 +59,7 @@ ModelLikeCollection = Union[Sequence[ModelLike], Dict[str, ModelLike]]
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike = Union[Theme, Type[FromCurdoc]]
+ThemeLike = Union[None, Theme, Type[FromCurdoc]]
 
 def autoload_static(model: Union[Model, Document], resources: Resources, script_path: str) -> Tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed
@@ -307,7 +307,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 
-def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc) -> Any: # TODO: TypedDict?
+def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = None) -> Any: # TODO: TypedDict?
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -319,10 +319,10 @@ def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = Fro
             be supplied in the JavaScript call.
 
         theme (Theme, optional) :
-            Applies the specified theme to the components. If not specified,
-            applies curdoc().theme to the components.  If ``None``,
-            and the supplied model is the sole root of a themed document,
-            applies the theme of that document, otherwise applies the default theme.
+            Applies the specified theme to the created html. If ``None``, or
+            not specified, and the function is passed a document or the full set
+            of roots of a document, applies the theme of that document.  Otherwise
+            applies the default theme.
 
     Returns:
         JSON-like
