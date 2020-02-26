@@ -22,7 +22,7 @@ export class FileInputView extends WidgetView {
     }
     if (this.model.accept != null && this.model.accept != '')
       this.dialogEl.accept = this.model.accept
-    
+
     this.dialogEl.style.width = `{this.model.width}px`
     this.dialogEl.disabled = this.model.disabled
   }
