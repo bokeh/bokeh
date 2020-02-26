@@ -94,18 +94,22 @@ class FileInput(Widget):
     '''
     
     value = Either(String, List(String), default='', readonly=True, help='''
-    if multiple = 'False' or ommitted, base64-encoded string of the contents of the selected file,
-    if multiple = 'True' or 'Multiple' a list of base64 encoded strings of the contents of selected files in the order given by filename
+    if multiple=False or ommitted, base64-encoded string of the contents of the 
+    selected file,
+    if multiple=True or 'Multiple' a list of base64 encoded strings of the contents 
+    of selected files in the order given by filename
     ''')
 
     mime_type = Either(String, List(String), default='', readonly=True, help='''
-    if multiple = 'False' or ommitted, string with the mime-type of the selected file,
-    if multiple = 'True' or 'Multiple' a list of strings with the mime-types of the selected files in the order given by filename
+    if multiple=False or ommitted, string with the mime-type of the selected file,
+    if multiple=True or 'Multiple' a list of strings with the mime-types of the 
+    selected files in the order given by filename
     ''')
 
     filename = Either(String, List(String), default='', readonly=True, help='''
-    if multiple = 'False' or ommitted, the filename of the selected file as string,
-    if multiple = 'True' or 'Multiple' a list of strings giving the filenames of the selected files 
+    if multiple=False or ommitted, the filename of the selected file as string,
+    if multiple=True or 'Multiple' a list of strings giving the filenames of the 
+    selected files 
     ''')
 
     accept = String(default="", help="""
@@ -124,9 +128,9 @@ class FileInput(Widget):
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
     """)
         
-    multiple = String(default="False", help="""
-    set to "multiple" or "True" if selection of more than one file at a time
-    should be supported.
+    multiple = Bool(default=False, help="""
+    set multiple=False (default) for single file selection, set multiple=True if 
+    selection of more than one file at a time should be possible.
     """)
 
 
