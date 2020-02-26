@@ -40,7 +40,6 @@ export class FileInputView extends WidgetView {
       const file_arr = content.split(",")
       value.push(file_arr[1])
       mime_type.push(file_arr[0].split(":")[1].split(";")[0])
-      //console.log(content);
     }
     if (this.model.multiple) {
       this.model.filename = filename
@@ -51,9 +50,6 @@ export class FileInputView extends WidgetView {
       this.model.mime_type= mime_type[0]
       this.model.value = value[0]
     }
-    //console.log('load_files:')
-    //console.log(this.model.filename)
-    //console.log(this.model.value)
   }
   
   readfile(file: any): Promise<string> {
