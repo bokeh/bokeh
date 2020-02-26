@@ -184,7 +184,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  transpile?: "ES2017" | "ES5"
+  transpile?: "ES2020" | "ES2017" | "ES5"
   minify?: boolean
   plugin?: boolean
   exports?: string[]
@@ -203,7 +203,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly transpile: "ES2017" | "ES5" | null
+  readonly transpile: "ES2020" | "ES2017" | "ES5" | null
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
@@ -632,8 +632,8 @@ export class Linker {
       let collected: string[] | null = null
       if (type == "js") {
         if (this.transpile != null && resolution == "ESM") {
-          const {ES2017, ES5} = ts.ScriptTarget
-          const target = this.transpile == "ES2017" ? ES2017 : ES5
+          const {ES2020, ES2017, ES5} = ts.ScriptTarget
+          const target = this.transpile == "ES2020" ? ES2020 : (this.transpile == "ES2017" ? ES2017 : ES5)
           const imports = new Set<string>(["tslib"])
           const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
           const {output, error} = transpile(file, source, target, transform)

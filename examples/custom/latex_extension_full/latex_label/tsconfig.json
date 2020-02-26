@@ -16,7 +16,7 @@
     "sourceMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "module": "esnext",
+    "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
