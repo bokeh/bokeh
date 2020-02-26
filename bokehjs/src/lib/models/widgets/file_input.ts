@@ -16,43 +16,63 @@ export class FileInputView extends WidgetView {
     if (this.dialogEl == null) {
       this.dialogEl = document.createElement('input')
       this.dialogEl.type = "file"
-      this.dialogEl.multiple = false
-      this.dialogEl.onchange = (e) => this.load_file(e)
+      this.dialogEl.multiple = this.model.multiple
+      this.dialogEl.onchange = async (e) => await this.load_files(e)
       this.el.appendChild(this.dialogEl)
     }
     if (this.model.accept != null && this.model.accept != '')
       this.dialogEl.accept = this.model.accept
+    
     this.dialogEl.style.width = `{this.model.width}px`
     this.dialogEl.disabled = this.model.disabled
   }
 
-  load_file(e: any): void {
-    const reader = new FileReader()
-    this.model.filename = e.target.files[0].name
-    reader.onload = (e) => this.file(e)
-    reader.readAsDataURL(e.target.files[0])
+  async load_files(e: any): Promise<void> {
+    const files = e.target.files
+    var i: number
+    var value: string[] = []
+    var filename: string[] = []
+    var mime_type: string[] = []
+
+    for (i=0; i<files.length; i++){
+      filename.push(files[i].name)
+      let content = await this.readfile(files[i])
+      const file_arr = content.split(",")
+      value.push(file_arr[1])
+      mime_type.push(file_arr[0].split(":")[1].split(";")[0])
+      //console.log(content);
+    }
+    if (this.model.multiple) {
+      this.model.filename = filename
+      this.model.mime_type= mime_type
+      this.model.value = value
+    } else {
+      this.model.filename = filename[0]
+      this.model.mime_type= mime_type[0]
+      this.model.value = value[0]
+    }
+    //console.log('load_files:')
+    //console.log(this.model.filename)
+    //console.log(this.model.value)
   }
-
-  file(e: any): void {
-    const file = e.target.result
-    const file_arr = file.split(",")
-
-    const content = file_arr[1]
-    const header = file_arr[0].split(":")[1].split(";")[0]
-
-    this.model.value = content
-    this.model.mime_type = header
-
+  
+  readfile(file: any): Promise<string> {
+    return new Promise<any>((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => resolve(e.target ? e.target.result : "")
+      reader.readAsDataURL(file)
+    })
   }
 }
 
 export namespace FileInput {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Widget.Props & {
-    value: p.Property<string>
-    mime_type: p.Property<string>
-    filename: p.Property<string>
+    value: p.Property<string|string[]>
+    mime_type: p.Property<string|string[]>
+    filename: p.Property<string|string[]>
     accept: p.Property<string>
+    multiple: p.Property<boolean>
   }
 }
 
@@ -70,10 +90,11 @@ export abstract class FileInput extends Widget {
     this.prototype.default_view = FileInputView
 
     this.define<FileInput.Props>({
-      value:     [ p.String, '' ],
-      mime_type: [ p.String, '' ],
-      filename:  [ p.String, '' ],
+      value:     [ p.Any, '' ],
+      mime_type: [ p.Any, '' ],
+      filename:  [ p.Any, '' ],
       accept:    [ p.String, '' ],
+      multiple:  [ p.Boolean, false ],
     })
   }
 }
