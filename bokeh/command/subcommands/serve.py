@@ -203,7 +203,7 @@ variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
 setting the ``--ssl-keyfile`` command line argument, or by setting the
-``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+``BOKEH_SSL_KEYFILE`` environment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
 

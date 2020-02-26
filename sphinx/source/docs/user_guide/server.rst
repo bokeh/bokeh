@@ -280,7 +280,7 @@ The full set of files that Bokeh server knows about is:
 
 The optional components are
 
-* An ``__init__.py`` file that marks this direcory as a package. Package relative imports, e.g. ``from . import mymod`` and ``from .mymod import func`` will be possible.
+* An ``__init__.py`` file that marks this directory as a package. Package relative imports, e.g. ``from . import mymod`` and ``from .mymod import func`` will be possible.
 
 * A ``request_handler.py`` file that allows declaring an optional function which processes the HTTP request and returns a dictionary of items to be included in the session token, as described in :ref:`userguide_server_request_handler`.
 
@@ -299,7 +299,7 @@ however you like.
 
 Additionally, the application directory is also added to ``sys.path`` so that
 Python modules in the application directory may be easily imported. However, if
-an ``__init__.py`` is present in the direcory then the app is usable as a
+an ``__init__.py`` is present in the directory then the app is usable as a
 package, and standard package-relative imports will also work.
 
 An example might be:
@@ -427,7 +427,7 @@ available as ``curdoc().session_context``. The most useful function of the
 session context is to make the Tornado HTTP request object available to the
 application as ``session_context.request``. Due to an incompatibility issue with
 the usage of ``--num-procs`` the HTTP request is not made available directly.
-Instead only the ``arguments`` attribute is available in full and and only the
+Instead only the ``arguments`` attribute is available in full and only the
 subset of ``cookies`` and ``headers`` which are allowed by the ``--include-headers``,
 ``--exclude-headers``, ``--include-cookies`` and ``--exclude-cookies`` are
 made available. Attempting to access any other attribute on ``request`` will
@@ -939,11 +939,11 @@ variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
 setting the ``--ssl-keyfile`` command line argument, or by setting the
-``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+``BOKEH_SSL_KEYFILE`` environment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
 
-Alternativey, you may wish to run a Boekh server behind a proxy, and have the
+Alternatively, you may wish to run a Bokeh server behind a proxy, and have the
 proxy terminate SSL. That scenario is described in the next section.
 
 .. _userguide_server_deplyoment_proxy:
@@ -985,7 +985,7 @@ server configuration block is shown below:
 
     }
 
-The above ``server`` block sets up Nginx to to proxy incoming connections
+The above ``server`` block sets up Nginx to proxy incoming connections
 to ``127.0.0.1`` on port 80 to ``127.0.0.1:5100`` internally. To work in this
 configuration, we will need to use some of the command line options to
 configure the Bokeh Server. In particular we need to use ``--port`` to specify
@@ -1346,8 +1346,8 @@ Now, consider when a Bokeh server is embedded inside another web page, using
 for the request to the Bokeh server is the URL of page that has the Bokeh
 content embedded it. For example, if a user navigates to our page at
 ``https://acme.com/products``, which has a Bokeh application embedded in it,
-then the origin header reported by the broweer will be ``acme.com``. In this
-instance, we typically want to restict the Bokeh server to honoring *only*
+then the origin header reported by the browser will be ``acme.com``. In this
+instance, we typically want to restrict the Bokeh server to honoring *only*
 requests that originate from our ``acme.com`` page, so that other pages cannot
 embed our Bokeh app without our knowledge.
 

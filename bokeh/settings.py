@@ -588,7 +588,7 @@ class Settings(object):
     Whether Bokeh should use simple integers for model IDs (starting at 1000).
 
     If False, Bokeh will use UUIDs for object identifiers. This might be needed,
-    e.g., if mulitple processes are contributing to a single Bokeh Document.
+    e.g., if multiple processes are contributing to a single Bokeh Document.
     """)
 
     ssl_certfile = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""

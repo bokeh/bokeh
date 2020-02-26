@@ -155,7 +155,7 @@ how a single plot responds to different modes:
     If the enclosing DOM element does not define any specific height to fill,
     sizing modes that scale or stretch to height may shrink to a minimum size.
 
-Mulitple Objects
+Multiple Objects
 ~~~~~~~~~~~~~~~~
 
 Below is a more sophisticated (but fairly typical) example of a nested layout
@@ -165,7 +165,7 @@ with different sizing modes:
     :source-position: none
 
 In the example above, the layout nests different subcomponents with various
-differnet sizing modes:
+different sizing modes:
 
 .. code-block:: python
 
@@ -193,7 +193,7 @@ The Bokeh layout system is not a completely generic, general purpose layout
 engine. It intentionally sacrifices some capability in order to make common
 use cases and scenarios simple to express. Extremely nested layouts with
 many different sizing modes may yield undesirable results, either in terms of
-perfomance, or visual appearance. For such cases it is recommended to use the
+performance, or visual appearance. For such cases it is recommended to use the
 methods in :ref:`userguide_embed` along with your own custom HTML templates in
 order to take advantage of more sophisticated CSS layout possibilities.
 
