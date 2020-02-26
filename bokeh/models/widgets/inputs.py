@@ -89,47 +89,44 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 
 class FileInput(Widget):
-    ''' Present a file-chooser dialog to users and return the contents of a
-    selected file.
-
+    ''' Present a file-chooser dialog to users and return the contents of the 
+    selected files 
     '''
+    
+    value = Either(String, List(String), default='', readonly=True, help='''
+    if multiple = 'False' or ommitted, base64-encoded string of the contents of the selected file,
+    if multiple = 'True' or 'Multiple' a list of base64 encoded strings of the contents of selected files in the order given by filename
+    ''')
 
-    value = String(default="", readonly=True, help="""
-    A base64-encoded string of the contents of the selected file.
-    """)
+    mime_type = Either(String, List(String), default='', readonly=True, help='''
+    if multiple = 'False' or ommitted, string with the mime-type of the selected file,
+    if multiple = 'True' or 'Multiple' a list of strings with the mime-types of the selected files in the order given by filename
+    ''')
 
-    mime_type = String(default="", readonly=True, help="""
-    The mime type of the selected file.
-    """)
-
-    filename = String(default="", readonly=True, help="""
-    The filename of the selected file.
-
-    .. note::
-        The full file path is not included since browsers will not provide
-        access to that information for security reasons.
-    """)
+    filename = Either(String, List(String), default='', readonly=True, help='''
+    if multiple = 'False' or ommitted, the filename of the selected file as string,
+    if multiple = 'True' or 'Multiple' a list of strings giving the filenames of the selected files 
+    ''')
 
     accept = String(default="", help="""
     Comma-separated list of standard HTML file input filters that restrict what
     files the user can pick from. Values can be:
-
     `<file extension>`:
         Specific file extension(s) (e.g: .gif, .jpg, .png, .doc) are pickable
-
     `audio/*`:
         all sound files are pickable
-
     `video/*`:
         all video files are pickable
-
     `image/*`:
         all image files are pickable
-
     `<media type>`:
         A valid `IANA Media Type`_, with no parameters.
-
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+    """)
+        
+    multiple = String(default="False", help="""
+    set to "multiple" or "True" if selection of more than one file at a time
+    should be supported.
     """)
 
 
