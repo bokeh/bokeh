@@ -270,9 +270,9 @@ The full set of files that Bokeh server knows about is:
     myapp
        |
        +---__init__.py
+       +---app_hooks.py
        +---main.py
        +---request_handler.py
-       +---server_lifecycle.py
        +---static
        +---theme.yaml
        +---templates
@@ -284,7 +284,7 @@ The optional components are
 
 * A ``request_handler.py`` file that allows declaring an optional function which processes the HTTP request and returns a dictionary of items to be included in the session token, as described in :ref:`userguide_server_request_handler`.
 
-* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as described in :ref:`userguide_server_applications_lifecycle`.
+* A ``app_hooks.py`` file that allows optional callbacks to be triggered at different stages of application execution, as described in :ref:`userguide_server_applications_hooks` and :ref:`userguide_server_request_handler`.
 
 * A ``static`` subdirectory that can be used to serve static resources associated with this application.
 
@@ -310,6 +310,7 @@ An example might be:
        |
        +---__init__.py
        |
+       +---app_hooks.py
        +---data
        |    +---things.csv
        |
@@ -319,7 +320,6 @@ An example might be:
        |    +---custom.js
        |
        +---request_handler.py
-       +---server_lifecycle.py
        +---static
        |    +---css
        |    |    +---special.css
@@ -674,7 +674,7 @@ locked session callback on a different update rate.
 As before, you can run this example by saving to a python file and running
 ``bokeh serve`` on it.
 
-.. _userguide_server_applications_lifecycle:
+.. _userguide_server_applications_hooks:
 
 Lifecycle Hooks
 ~~~~~~~~~~~~~~~
@@ -688,7 +688,7 @@ application code.
 Bokeh provides this capability through a set of *Lifecycle Hooks*. To use
 these hooks, you must create your application in
 :ref:`userguide_server_applications_directory`, and include a designated file
-called ``server_lifecycle.py`` in the directory. In this file you can include
+called ``app_hooks.py`` in the directory. In this file you can include
 any or all of the following conventionally named functions:
 
 .. code-block:: python
@@ -725,6 +725,11 @@ it with the ``Document.on_session_destroyed`` method:
         pass
 
     doc.on_session_destroyed(cleanup_session)
+
+Besides the "lifecycle" hooks above, you may also define a "request hooks" for
+accessing the HTTP request users made. See :ref:`userguide_server_request_handler`
+for full details.
+
 
 .. _userguide_server_embedding:
 
