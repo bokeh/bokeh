@@ -22,7 +22,7 @@ appropriate attribution which can be added to a plot using the
     :source-position: below
 
 Notice also that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``
-to ``figure`` generate axes with latitude and longitute labels, instead of raw Web
+to ``figure`` generate axes with latitude and longitude labels, instead of raw Web
 Mercator coordinates.
 
 .. _userguide_geo_google_maps:
