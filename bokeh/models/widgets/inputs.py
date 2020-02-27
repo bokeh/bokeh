@@ -89,8 +89,8 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 
 class FileInput(Widget):
-    ''' Present a file-chooser dialog to users and return the contents of the 
-    selected files 
+    ''' Present a file-chooser dialog to users and return the contents of the
+    selected files.
     '''
     
     value = Either(String, List(String), default='', readonly=True, help='''
@@ -99,8 +99,8 @@ class FileInput(Widget):
     If `mulitiple` is set to False (default), this value is a single string with the contents
     of the single file that was chosen.
 
-    If `multiple` is True, this value is a list of strings, each containing the contents of 
-    one of the multiple files that were chosen. 
+    If `multiple` is True, this value is a list of strings, each containing the contents of
+    one of the multiple files that were chosen.
 
     The sequence of files is given by the list of filenames (see below)
     ''')
@@ -108,11 +108,11 @@ class FileInput(Widget):
     mime_type = Either(String, List(String), default='', readonly=True, help='''
     The mime-type of the file or files that were loaded.
 
-    If `mulitiple` is set to False (default), this value is a single string with the 
+    If `mulitiple` is set to False (default), this value is a single string with the
     mime-type of the single file that was chosen.
 
-    If `multiple` is True, this value is a list of strings, each containing the 
-    mime-type of one of the multiple files that were chosen. 
+    If `multiple` is True, this value is a list of strings, each containing the
+    mime-type of one of the multiple files that were chosen.
 
     The sequence of files is given by the list of filename (see below)
     ''')
@@ -120,17 +120,17 @@ class FileInput(Widget):
     filename = Either(String, List(String), default='', readonly=True, help='''
     The name(s) of the file or files that were loaded.
 
-    If `mulitiple` is set to False (default), this value is a single string with the 
+    If `mulitiple` is set to False (default), this value is a single string with the
     name of the single file that was chosen.
 
-    If `multiple` is True, this value is a list of strings, each containing the 
-    name of one of the multiple files that were chosen. 
+    If `multiple` is True, this value is a list of strings, each containing the
+    name of one of the multiple files that were chosen.
 
     This list provides the sequence of files for the respective lists in value and mime-type
    
     .. note::
         The full file path is not included since browsers will not provide
-        access to that information for security reasons.   
+        access to that information for security reasons.
     ''')
 
     accept = String(default="", help="""
@@ -154,9 +154,9 @@ class FileInput(Widget):
 
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
     """)
-       
+
     multiple = Bool(default=False, help="""
-    set multiple=False (default) for single file selection, set multiple=True if 
+    set multiple=False (default) for single file selection, set multiple=True if
     selection of more than one file at a time should be possible.
     """)
 
