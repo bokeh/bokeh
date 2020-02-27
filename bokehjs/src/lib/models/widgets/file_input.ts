@@ -29,10 +29,10 @@ export class FileInputView extends WidgetView {
 
   async load_files(e: any): Promise<void> {
     const files = e.target.files
-    var i: number
-    var value: string[] = []
-    var filename: string[] = []
-    var mime_type: string[] = []
+    const value: string[] = []
+    const filename: string[] = []
+    const mime_type: string[] = []
+    let i: number
 
     for (i=0; i<files.length; i++){
       filename.push(files[i].name)
