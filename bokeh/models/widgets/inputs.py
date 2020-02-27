@@ -92,7 +92,7 @@ class FileInput(Widget):
     ''' Present a file-chooser dialog to users and return the contents of the
     selected files.
     '''
-    
+
     value = Either(String, List(String), default='', readonly=True, help='''
     The base64-enconded contents of the file or files that were loaded.
 
@@ -127,7 +127,7 @@ class FileInput(Widget):
     name of one of the multiple files that were chosen.
 
     This list provides the sequence of files for the respective lists in value and mime-type
-   
+
     .. note::
         The full file path is not included since browsers will not provide
         access to that information for security reasons.
