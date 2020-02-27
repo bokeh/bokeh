@@ -36,7 +36,7 @@ export class FileInputView extends WidgetView {
 
     for (i=0; i<files.length; i++){
       filename.push(files[i].name)
-      let content = await this.readfile(files[i])
+      const content = await this.readfile(files[i])
       const file_arr = content.split(",")
       value.push(file_arr[1])
       mime_type.push(file_arr[0].split(":")[1].split(";")[0])
