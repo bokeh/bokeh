@@ -34,20 +34,20 @@ export class FileInputView extends WidgetView {
     const mime_type: string[] = []
     let i: number
 
-    for (i=0; i<files.length; i++){
+    for (i = 0; i < files.length; i++){
       filename.push(files[i].name)
-      const content = await this.readfile(files[i])
-      const file_arr = content.split(",")
-      value.push(file_arr[1])
-      mime_type.push(file_arr[0].split(":")[1].split(";")[0])
+      const data_url = await this.readfile(files[i])
+      const [, mime, , data] = data_url.split(/[:;,]/, 4)
+      value.push(data)
+      mime_type.push(mime)
     }
     if (this.model.multiple) {
       this.model.filename = filename
-      this.model.mime_type= mime_type
+      this.model.mime_type = mime_type
       this.model.value = value
     } else {
       this.model.filename = filename[0]
-      this.model.mime_type= mime_type[0]
+      this.model.mime_type = mime_type[0]
       this.model.value = value[0]
     }
   }
