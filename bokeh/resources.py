@@ -225,6 +225,16 @@ class BaseResources(object):
 
         self.mode = settings.resources(mode)
         del mode
+
+        if root_dir and not self.mode.startswith("relative"):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
+
+        if version and not self.mode.startswith("cdn"):
+            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
+
+        if root_url and not self.mode.startswith("server"):
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+
         self.root_dir = settings.rootdir(root_dir)
         del root_dir
         self.version = settings.cdn_version(version)
@@ -256,15 +266,6 @@ class BaseResources(object):
                 "wrong value for 'mode' parameter, expected "
                 "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode
             )
-
-        if self.root_dir and not self.mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
-
-        if self.version and not self.mode.startswith("cdn"):
-            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
-
-        if root_url and not self.mode.startswith("server"):
-            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
 
         self.dev = self.mode.endswith("-dev")
         if self.dev:

@@ -17,6 +17,8 @@ import pytest  # noqa isort:skip
 # Standard library imports
 import os
 import re
+import subprocess
+import sys
 
 # External imports
 from packaging.version import Version as V
@@ -315,6 +317,15 @@ class TestResources(object):
         for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_url="foo")
+
+    @pytest.mark.parametrize('env', ["BOKEH_CDN_VERSION", "BOKEH_ROOTDIR"])
+    def test_builtin_importable_with_env(self, monkeypatch, env) -> None:
+        cmd = [sys.executable, "-c", "import bokeh.resources"]
+        monkeypatch.setenv(env, "foo")
+        try:
+            subprocess.check_call(cmd, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError:
+            pytest.fail(f"resources import failed with {env} set")
 
 
 ## Test external resources
