@@ -129,8 +129,8 @@ class GMapPlot(MapPlot):
     e.g. ``(37.123, -122.404)``. It will be automatically converted into the
     web mercator projection to display properly over google maps tiles.
 
-    A Google API key must be passed for the Maps to function properly,
-    which is then stored for further functioning.
+    The ``api_key`` property must be configured with a Google API Key in order for ``GMapPlot`` to 
+    function. The key will be stored in the Bokeh Document JSON.
 
     Note that Google Maps exert explicit control over aspect ratios at all
     times, which imposes some limitations on ``GMapPlot``:

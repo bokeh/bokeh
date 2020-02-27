@@ -31,10 +31,9 @@ Google Maps
 -----------
 
 Bokeh can also plot glyphs over a Google Map using the :func:`~bokeh.plotting.gmap.gmap`
-function. You must pass this function `Google API Key`_ in order for it to work, as
+function. You must pass this function a `Google API Key`_ in order for it to work, as
 well as any :class:`~bokeh.models.map_plots.GMapOptions` to configure the Google Map
-underlay. Though not revealed, the Google API Key passed above is stored as a JSON
-object for further functioning.
+underlay. The Google API Key will be stored in the Bokeh Document JSON.
 
 .. bokeh-plot:: docs/user_guide/examples/geo_gmap.py
     :source-position: below
