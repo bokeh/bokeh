@@ -129,6 +129,9 @@ class GMapPlot(MapPlot):
     e.g. ``(37.123, -122.404)``. It will be automatically converted into the
     web mercator projection to display properly over google maps tiles.
 
+    A Google API key must be passed for the Maps to function properly,
+    which is then stored for further functioning.
+
     Note that Google Maps exert explicit control over aspect ratios at all
     times, which imposes some limitations on ``GMapPlot``:
 

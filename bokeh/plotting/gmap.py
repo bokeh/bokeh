@@ -229,6 +229,8 @@ def gmap(google_api_key, map_options, **kwargs):
     Returns:
        GMap
 
+    Note: The Google API key provided will be stored for the function to work.
+
     '''
 
     return GMap(api_key=google_api_key, map_options=map_options, **kwargs)
