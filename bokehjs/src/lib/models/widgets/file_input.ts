@@ -51,7 +51,7 @@ export class FileInputView extends WidgetView {
       this.model.value = value[0]
     }
   }
-  
+
   readfile(file: any): Promise<string> {
     return new Promise<any>((resolve) => {
       const reader = new FileReader()
