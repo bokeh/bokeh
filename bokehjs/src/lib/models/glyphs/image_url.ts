@@ -193,9 +193,18 @@ export class ImageURLView extends XYGlyphView {
 
     if (angle[i]) {
       ctx.translate(sxi, syi)
+      
+      //rotation about center of image
+      ctx.translate(sw[i]/2, sh[i]/2)
       ctx.rotate(angle[i])
+      ctx.translate(-sw[i]/2, -sh[i]/2)
+
       ctx.drawImage(image, 0, 0, sw[i], sh[i])
+      
+      ctx.translate(sw[i]/2, sh[i]/2)
       ctx.rotate(-angle[i])
+      ctx.translate(-sw[i]/2, -sh[i]/2)      
+      
       ctx.translate(-sxi, -syi)
     } else
       ctx.drawImage(image, sxi, syi, sw[i], sh[i])
