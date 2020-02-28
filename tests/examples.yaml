@@ -14,9 +14,6 @@
   no_js: ["gmap.py"]
   skip: ["dynamic_map.py"]
 
-- path: "examples/plotting/notebook"
-  skip: all
-
 - path: "examples/howto/layouts"
 
 - path: "examples/embed"
