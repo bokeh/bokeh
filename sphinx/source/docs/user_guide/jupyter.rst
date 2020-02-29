@@ -49,8 +49,14 @@ JupyterLab
 ++++++++++
 
 In order to embed Bokeh plots inside of JupyterLab, you need to install
-the "jupyter_bokeh" JupyterLab extension. This can be done by running
+the two JupyterLab extensions. First install *jupyterlab-manager* by running
 the following command:
+
+.. code:: sh
+
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+
+And then similarly install the *jupyter_bokeh* extension:
 
 .. code:: sh
 
