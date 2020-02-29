@@ -1,5 +1,5 @@
 import {Arrayable, TypedArray, Data} from "../types"
-import {isTypedArray, isArray, isObject} from "./types"
+import {isTypedArray, isArray, isPlainObject} from "./types"
 import {is_little_endian} from "./compat"
 
 export const ARRAY_TYPES = {
@@ -92,23 +92,27 @@ export function swap64(a: Float64Array): void {
 
 export type Shape = number[]
 
-export interface BufferSpec {
+export type BufferSpec = {
   __buffer__: string
   order: ByteOrder
   dtype: DType
   shape: Shape
 }
 
-export function process_buffer(specification: BufferSpec, buffers: [any, any][]): [TypedArray, Shape] {
+export type NDArray = {
+  __ndarray__: string
+  shape?: Shape
+  dtype: DType
+}
+
+export type Buffers = Map<string, ArrayBuffer>
+
+export function process_buffer(specification: BufferSpec, buffers: Buffers): [TypedArray, Shape] {
   const need_swap = specification.order !== BYTE_ORDER
   const {shape} = specification
-  let bytes = null
-  for (const buf of buffers) {
-    const header = JSON.parse(buf[0])
-    if (header.id === specification.__buffer__) {
-      bytes = buf[1]
-      break
-    }
+  const bytes = buffers.get(specification.__buffer__)
+  if (bytes == null) {
+    throw new Error(`buffer for ${specification.__buffer__} not found`)
   }
   const arr = new (ARRAY_TYPES[specification.dtype])(bytes)
   if (need_swap) {
@@ -123,10 +127,10 @@ export function process_buffer(specification: BufferSpec, buffers: [any, any][])
   return [arr, shape]
 }
 
-export function process_array(obj: NDArray | BufferSpec | Arrayable, buffers: [any, any][]): [Arrayable, number[]] {
-  if (isObject(obj) && '__ndarray__' in obj)
+export function process_array(obj: NDArray | BufferSpec | Arrayable, buffers: Buffers): [Arrayable, number[]] {
+  if (isPlainObject(obj) && '__ndarray__' in obj)
     return decode_base64(obj)
-  else if (isObject(obj) && '__buffer__' in obj)
+  else if (isPlainObject(obj) && '__buffer__' in obj)
     return process_buffer(obj, buffers)
   else if (isArray(obj) || isTypedArray(obj))
     return [obj, []]
@@ -148,12 +152,6 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
     bytes[i] = binary_string.charCodeAt(i)
   }
   return bytes.buffer
-}
-
-export interface NDArray {
-  __ndarray__: string
-  shape?: Shape
-  dtype: DType
 }
 
 export function decode_base64(input: NDArray): [TypedArray, Shape] {
@@ -192,9 +190,9 @@ export type Shapes = {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
 
 export type EncodedData = {[key: string]: NDArray | Arrayable}
 
-function decode_traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
+function decode_traverse_data(v: unknown[], buffers: Buffers): [Arrayable, any] {
   // v is just a regular array of scalars
-  if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {
+  if (v.length == 0 || !(isPlainObject(v[0]) || isArray(v[0]))) {
     return [v, []]
   }
 
@@ -212,7 +210,7 @@ function decode_traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
   return [arrays, filtered_shapes]
 }
 
-export function decode_column_data(data: EncodedData, buffers: [any, any][] = []): [Data, Shapes] {
+export function decode_column_data(data: EncodedData, buffers: Buffers = new Map()): [Data, Shapes] {
   const new_data: Data = {}
   const new_shapes: Shapes = {}
 
@@ -222,7 +220,7 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
     const v = data[k]
     if (isArray(v)) {
       // v is just a regular array of scalars
-      if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {
+      if (v.length == 0 || !(isPlainObject(v[0]) || isArray(v[0]))) {
         new_data[k] = v
         continue
       }
@@ -242,7 +240,7 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
   return [new_data, new_shapes]
 }
 
-function encode_traverse_data(v: any, shapes?: any) {
+function encode_traverse_data(v: unknown[], shapes?: any) {
   const new_array: any[] = []
   for (let i = 0, end = v.length; i < end; i++) {
     const item = v[i]
