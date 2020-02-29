@@ -17,7 +17,12 @@ export class FileInputView extends WidgetView {
       this.dialogEl = document.createElement('input')
       this.dialogEl.type = "file"
       this.dialogEl.multiple = this.model.multiple
-      this.dialogEl.onchange = async (e) => await this.load_files(e)
+      this.dialogEl.onchange = () => {
+        const {files} = this.dialogEl
+        if (files != null) {
+          this.load_files(files)
+        }
+      }        
       this.el.appendChild(this.dialogEl)
     }
     if (this.model.accept != null && this.model.accept != '')
@@ -27,8 +32,7 @@ export class FileInputView extends WidgetView {
     this.dialogEl.disabled = this.model.disabled
   }
 
-  async load_files(e: any): Promise<void> {
-    const files = e.target.files
+  async load_files(files: FileList): Promise<void> {
     const value: string[] = []
     const filename: string[] = []
     const mime_type: string[] = []
@@ -52,10 +56,15 @@ export class FileInputView extends WidgetView {
     }
   }
 
-  readfile(file: any): Promise<string> {
-    return new Promise<any>((resolve) => {
+  readfile(file: File): Promise<string> {
+    return new Promise<string>((resolve) => {
       const reader = new FileReader()
-      reader.onload = (e) => resolve(e.target ? e.target.result : "")
+      reader.onload = (e) => {
+        if (e.target) {
+            resolve(e.target.result ? String(e.target.result) : "")
+        }
+        else {resolve("")}
+      }
       reader.readAsDataURL(file)
     })
   }
