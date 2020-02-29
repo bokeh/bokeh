@@ -460,6 +460,12 @@ class Settings(object):
     .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
     """)
 
+    cdn_version = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
+    What version of BokehJS to use with CDN resources.
+
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    """)
+
     cookie_secret = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
     Configure the ``cookie_secret`` setting in Tornado. This value is required
     if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
@@ -582,7 +588,7 @@ class Settings(object):
     Whether Bokeh should use simple integers for model IDs (starting at 1000).
 
     If False, Bokeh will use UUIDs for object identifiers. This might be needed,
-    e.g., if mulitple processes are contributing to a single Bokeh Document.
+    e.g., if multiple processes are contributing to a single Bokeh Document.
     """)
 
     ssl_certfile = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
@@ -599,12 +605,6 @@ class Settings(object):
 
     strict = PrioritizedSetting("strict", "BOKEH_STRICT", convert=convert_bool, help="""
     Whether validation checks should be strict (i.e. raise errors).
-    """)
-
-    version = PrioritizedSetting("version", "BOKEH_VERSION", default=None, help="""
-    What version of BokehJS to use with CDN resources.
-
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
     xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""

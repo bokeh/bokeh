@@ -94,7 +94,7 @@ passing the ``legend_group`` keyword argument to a glyph method:
 
 When this method is used, the grouping is performed immediately in Python, and
 subsequent Python code will be able to see the individual legend items in
-``Legend.items`` property. If desired, these ite can be re-arranged or modified.
+``Legend.items`` property. If desired, these items can be re-arranged or modified.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_group.py
     :source-position: above

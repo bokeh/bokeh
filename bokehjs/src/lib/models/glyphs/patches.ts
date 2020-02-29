@@ -5,7 +5,7 @@ import {min, max, copy, find_last_index} from "core/util/array"
 import {sum} from "core/util/arrayable"
 import {isStrictNaN} from "core/util/types"
 import {Arrayable, Rect} from "core/types"
-import {PointGeometry} from "core/geometry"
+import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Line, Fill, Hatch} from "core/visuals"
@@ -142,6 +142,35 @@ export class PatchesView extends GlyphView {
         this._inner_loop(ctx, sx, sy, ctx.stroke)
       }
     }
+  }
+
+  protected _hit_rect(geometry: RectGeometry): Selection {
+    const {sx0, sx1, sy0, sy1} = geometry
+    const xs = [sx0, sx1, sx1, sx0]
+    const ys = [sy0, sy0, sy1, sy1]
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const candidates = this.index.indices({x0, x1, y0, y1})
+    const hits = []
+    for (let i = 0, end = candidates.length; i < end; i++) {
+      const idx = candidates[i]
+      const sxss = this.sxs[idx]
+      const syss = this.sys[idx]
+      let hit = true
+      for (let j = 0, endj = sxss.length; j < endj; j++) {
+        const sx = sxss[j]
+        const sy = syss[j]
+        if (!hittest.point_in_poly(sx, sy, xs, ys)) {
+          hit = false
+          break
+        }
+      }
+      if (hit)
+        hits.push(idx)
+    }
+    const result = hittest.create_empty_hit_test_result()
+    result.indices = hits
+    return result
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

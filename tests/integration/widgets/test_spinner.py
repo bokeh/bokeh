@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD, ActionChains, Keys
 from bokeh.layouts import column
@@ -103,6 +106,25 @@ class Test_Spinner(object):
 
         assert page.has_no_console_errors()
 
+    def test_input_smallest_step(self, bokeh_model_page) -> None:
+        spinner = Spinner(value=0, low=0, high=1, step=1e-16, css_classes=["foo"])
+        spinner.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+
+        page = bokeh_model_page(spinner)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+
+        enter_value_in_spinner(page.driver, el, 1e-16)
+        results = page.results
+        assert float(results['value']) == 1e-16
+
+        enter_value_in_spinner(page.driver, el, 0.43654644333534)
+        results = page.results
+        assert float(results['value']) == 0.43654644333534
+
+        assert page.has_no_console_errors()
+
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 

@@ -60,14 +60,14 @@ def driver(pytestconfig):
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--window-size=1920x1080")
-        driver = webdriver.Chrome(chrome_options=options)
+        driver = webdriver.Chrome(options=options)
 
     elif driver_name == "firefox":
         from selenium.webdriver.firefox.options import Options
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--window-size=1920x1080")
-        driver = webdriver.Firefox(firefox_options=options)
+        driver = webdriver.Firefox(options=options)
 
     elif driver_name == "safari":
         driver = webdriver.Safari()

@@ -8,7 +8,7 @@ Using with Jupyter
 Working in Notebooks
 --------------------
 
-`Jupyter`_ notebooks are computible documents often used for exploratory work,
+`Jupyter`_ notebooks are computable documents often used for exploratory work,
 data analysis, teaching, and demonstration. A notebook is a series of *input
 cells* that can be individually executed to display their output immediately
 after the cell. In addition to  *Classic Notebooks* there are also notebooks for
@@ -22,7 +22,7 @@ content with either.
 Standalone output
 ~~~~~~~~~~~~~~~~~
 
-Standalone Bokeh content (i.e. that does not ue a Bokeh server) can be embedded
+Standalone Bokeh content (i.e. that does not use a Bokeh server) can be embedded
 directly in classic Jupyter notebooks as well as in JupyterLab.
 
 Classic Notebook
@@ -49,8 +49,14 @@ JupyterLab
 ++++++++++
 
 In order to embed Bokeh plots inside of JupyterLab, you need to install
-the "jupyter_bokeh" JupyterLab extension. This can be done by running
+the two JupyterLab extensions. First install *jupyterlab-manager* by running
 the following command:
+
+.. code:: sh
+
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
+
+And then similarly install the *jupyter_bokeh* extension:
 
 .. code:: sh
 
@@ -68,7 +74,7 @@ Bokeh Server Applications
 It is also possible to embed full Bokeh server applications, that can connect
 plot events, and Bokeh's built-in widgets, directly to Python callback code.
 See :ref:`userguide_server` for general information about Bokeh server
-applications, and the follwoing notebook for a complete example of a Bokeh
+applications, and the following notebook for a complete example of a Bokeh
 application embedded in a Jupyter notebook:
 
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
@@ -355,7 +361,7 @@ Then we add the wrapper to a Bokeh document:
     doc = curdoc()
     doc.add_root(ipywidget)
 
-To to run this, assuming the code is saved under ``ipy_slider.py``, we issue
+To run this, assuming the code is saved under ``ipy_slider.py``, we issue
 ``bokeh serve ipy_slider.py`` (see :ref:`userguide_server` for details). The
 application is available at http://localhost:5006/ipy_slider.
 

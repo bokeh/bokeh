@@ -270,8 +270,9 @@ The full set of files that Bokeh server knows about is:
     myapp
        |
        +---__init__.py
+       +---app_hooks.py
        +---main.py
-       +---server_lifecycle.py
+       +---request_handler.py
        +---static
        +---theme.yaml
        +---templates
@@ -279,9 +280,11 @@ The full set of files that Bokeh server knows about is:
 
 The optional components are
 
-* An ``__init__.py`` file that marks this direcory as a package. Package relative imports, e.g. ``from . import mymod`` and ``from .mymod import func`` will be possible.
+* An ``__init__.py`` file that marks this directory as a package. Package relative imports, e.g. ``from . import mymod`` and ``from .mymod import func`` will be possible.
 
-* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as described in :ref:`userguide_server_applications_lifecycle`.
+* A ``request_handler.py`` file that allows declaring an optional function which processes the HTTP request and returns a dictionary of items to be included in the session token, as described in :ref:`userguide_server_request_handler`.
+
+* A ``app_hooks.py`` file that allows optional callbacks to be triggered at different stages of application execution, as described in :ref:`userguide_server_applications_hooks` and :ref:`userguide_server_request_handler`.
 
 * A ``static`` subdirectory that can be used to serve static resources associated with this application.
 
@@ -296,7 +299,7 @@ however you like.
 
 Additionally, the application directory is also added to ``sys.path`` so that
 Python modules in the application directory may be easily imported. However, if
-an ``__init__.py`` is present in the direcory then the app is usable as a
+an ``__init__.py`` is present in the directory then the app is usable as a
 package, and standard package-relative imports will also work.
 
 An example might be:
@@ -307,6 +310,7 @@ An example might be:
        |
        +---__init__.py
        |
+       +---app_hooks.py
        +---data
        |    +---things.csv
        |
@@ -315,7 +319,7 @@ An example might be:
        |---models
        |    +---custom.js
        |
-       +---server_lifecycle.py
+       +---request_handler.py
        +---static
        |    +---css
        |    |    +---special.css
@@ -422,8 +426,15 @@ When a session is created for a Bokeh application, the session context is made
 available as ``curdoc().session_context``. The most useful function of the
 session context is to make the Tornado HTTP request object available to the
 application as ``session_context.request``. Due to an incompatibility issue with
-the usage of ``--num-procs`` only the ``arguments`` attribute can be accessed.
-Attempting to access any other attribute on ``request`` will result in an error.
+the usage of ``--num-procs`` the HTTP request is not made available directly.
+Instead only the ``arguments`` attribute is available in full and only the
+subset of ``cookies`` and ``headers`` which are allowed by the ``--include-headers``,
+``--exclude-headers``, ``--include-cookies`` and ``--exclude-cookies`` are
+made available. Attempting to access any other attribute on ``request`` will
+result in an error.
+
+Any additional attributes on the request can be made accessible as described in
+:ref:`userguide_server_request_handler`.
 
 As an example, the following code will access the request ``arguments`` to set
 a value for a variable ``N`` (perhaps controlling the number of points in a
@@ -446,6 +457,33 @@ plot):
   easily inspected. Calling any of the Tornado methods such as ``finish()`` or
   writing directly to ``request.connection`` is unsupported and will result in
   undefined behavior.
+
+
+.. _userguide_server_request_handler:
+
+Request Handler Hooks
+~~~~~~~~~~~~~~~~~~~~~
+
+Since the full tornado HTTP request is not guaranteed to be available on the
+process serving the session, a custom handler can be defined to make additional
+information available.
+
+To define such a hook, you must create your application in
+:ref:`userguide_server_applications_directory`, and include a designated file
+called ``request_handler.py`` in the directory. In this file you must include
+a conventionally named ``process_request`` function:
+
+.. code-block:: python
+
+    def process_request(request):
+        ''' If present this function is called when the HTTP request arrives. '''
+        return {}
+
+The handler is given the Tornado HTTP request and can process the request
+and return a dictionary which will be made available on
+``curdoc().session_context.token_payload``. In this way additional information
+can be made available to work around some of the issues when ``--num-procs``
+is used.
 
 .. _userguide_server_applications_callbacks:
 
@@ -636,7 +674,7 @@ locked session callback on a different update rate.
 As before, you can run this example by saving to a python file and running
 ``bokeh serve`` on it.
 
-.. _userguide_server_applications_lifecycle:
+.. _userguide_server_applications_hooks:
 
 Lifecycle Hooks
 ~~~~~~~~~~~~~~~
@@ -650,7 +688,7 @@ application code.
 Bokeh provides this capability through a set of *Lifecycle Hooks*. To use
 these hooks, you must create your application in
 :ref:`userguide_server_applications_directory`, and include a designated file
-called ``server_lifecycle.py`` in the directory. In this file you can include
+called ``app_hooks.py`` in the directory. In this file you can include
 any or all of the following conventionally named functions:
 
 .. code-block:: python
@@ -687,6 +725,11 @@ it with the ``Document.on_session_destroyed`` method:
         pass
 
     doc.on_session_destroyed(cleanup_session)
+
+Besides the "lifecycle" hooks above, you may also define a "request hooks" for
+accessing the HTTP request users made. See :ref:`userguide_server_request_handler`
+for full details.
+
 
 .. _userguide_server_embedding:
 
@@ -901,11 +944,11 @@ variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
 setting the ``--ssl-keyfile`` command line argument, or by setting the
-``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+``BOKEH_SSL_KEYFILE`` environment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
 
-Alternativey, you may wish to run a Boekh server behind a proxy, and have the
+Alternatively, you may wish to run a Bokeh server behind a proxy, and have the
 proxy terminate SSL. That scenario is described in the next section.
 
 .. _userguide_server_deplyoment_proxy:
@@ -947,7 +990,7 @@ server configuration block is shown below:
 
     }
 
-The above ``server`` block sets up Nginx to to proxy incoming connections
+The above ``server`` block sets up Nginx to proxy incoming connections
 to ``127.0.0.1`` on port 80 to ``127.0.0.1:5100`` internally. To work in this
 configuration, we will need to use some of the command line options to
 configure the Bokeh Server. In particular we need to use ``--port`` to specify
@@ -1308,8 +1351,8 @@ Now, consider when a Bokeh server is embedded inside another web page, using
 for the request to the Bokeh server is the URL of page that has the Bokeh
 content embedded it. For example, if a user navigates to our page at
 ``https://acme.com/products``, which has a Bokeh application embedded in it,
-then the origin header reported by the broweer will be ``acme.com``. In this
-instance, we typically want to restict the Bokeh server to honoring *only*
+then the origin header reported by the browser will be ``acme.com``. In this
+instance, we typically want to restrict the Bokeh server to honoring *only*
 requests that originate from our ``acme.com`` page, so that other pages cannot
 embed our Bokeh app without our knowledge.
 
@@ -1371,7 +1414,7 @@ Then in your web application, we explicitly provide (signed) session ids using
 
 .. code-block:: python
 
-    from bokeh.util.session_id import generate_session_id
+    from bokeh.util.token import generate_session_id
 
     script = server_session(url='http://localhost:5006/bkapp',
                             session_id=generate_session_id())

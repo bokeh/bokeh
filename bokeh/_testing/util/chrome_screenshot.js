@@ -86,7 +86,7 @@ CDP(async function(client) {
   Runtime.consoleAPICalled(({type, args, stackTrace, executionContextId}) => {
     if (executionContextId !== context_id)
       return
-    const text = args.map(({value}) => value.toString()).join(" ")
+    const text = args.map(({value}) => value ? value.toString() : "").join(" ")
     const trace = collect_trace(stackTrace)
     const {url, line, col} = trace[0]
     messages.push({level: type, text, url, line, col, trace})

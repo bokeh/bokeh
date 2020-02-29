@@ -45,31 +45,26 @@ class MockMessage(object):
 #-----------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio
 async def test_NOT_YET_CONNECTED() -> None:
     s = bcs.NOT_YET_CONNECTED()
     r = await s.run(MockConnection())
     assert r == "_connect_async"
 
-@pytest.mark.asyncio
 async def test_CONNECTED_BEFORE_ACK() -> None:
     s = bcs.CONNECTED_BEFORE_ACK()
     r = await s.run(MockConnection())
     assert r == "_wait_for_ack"
 
-@pytest.mark.asyncio
 async def test_CONNECTED_AFTER_ACK() -> None:
     s = bcs.CONNECTED_AFTER_ACK()
     r = await s.run(MockConnection())
     assert r == "_handle_messages"
 
-@pytest.mark.asyncio
 async def test_DISCONNECTED() -> None:
     s = bcs.DISCONNECTED()
     r = await s.run(MockConnection())
     assert r is None
 
-@pytest.mark.asyncio
 async def test_WAITING_FOR_REPLY() -> None:
     s = bcs.WAITING_FOR_REPLY("reqid")
     assert s.reply == None

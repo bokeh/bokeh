@@ -48,7 +48,6 @@ class Test_ServerLifecycleHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    @pytest.mark.asyncio
     async def test_empty_lifecycle(self) -> None:
         doc = Document()
         out = {}
@@ -150,7 +149,6 @@ def on_session_destroyed(a,b):
         assert 'on_session_destroyed must have signature func(session_context)' in handler.error
         assert 'func(a, b)' in handler.error
 
-    @pytest.mark.asyncio
     async def test_calling_lifecycle_hooks(self) -> None:
         result = {}
         def load(filename):
