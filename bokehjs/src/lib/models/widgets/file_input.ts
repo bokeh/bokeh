@@ -22,7 +22,7 @@ export class FileInputView extends WidgetView {
         if (files != null) {
           this.load_files(files)
         }
-      }        
+      }
       this.el.appendChild(this.dialogEl)
     }
     if (this.model.accept != null && this.model.accept != '')
@@ -61,9 +61,10 @@ export class FileInputView extends WidgetView {
       const reader = new FileReader()
       reader.onload = (e) => {
         if (e.target) {
-            resolve(e.target.result ? String(e.target.result) : "")
+          resolve(e.target.result ? String(e.target.result) : "")
+        } else {
+          resolve("")
         }
-        else {resolve("")}
       }
       reader.readAsDataURL(file)
     })
