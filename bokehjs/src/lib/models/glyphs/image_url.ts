@@ -190,20 +190,22 @@ export class ImageURLView extends XYGlyphView {
 
     ctx.save()
     ctx.globalAlpha = this.model.global_alpha
+    const sw2 = sw[i]/2
+    const sh2 = sh[i]/2
 
     if (angle[i]) {
       ctx.translate(sxi, syi)
 
       //rotation about center of image
-      ctx.translate(sw[i]/2, sh[i]/2)
+      ctx.translate(sw2, sh2)
       ctx.rotate(angle[i])
-      ctx.translate(-sw[i]/2, -sh[i]/2)
+      ctx.translate(-sw2, -sh2)
 
       ctx.drawImage(image, 0, 0, sw[i], sh[i])
 
-      ctx.translate(sw[i]/2, sh[i]/2)
+      ctx.translate(sw2, sh2)
       ctx.rotate(-angle[i])
-      ctx.translate(-sw[i]/2, -sh[i]/2)
+      ctx.translate(-sw2, -sh2)
 
       ctx.translate(-sxi, -syi)
     } else
