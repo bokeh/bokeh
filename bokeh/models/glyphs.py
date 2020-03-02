@@ -1004,7 +1004,12 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
     different in that the vector of values is not a vector of scalars.
     Rather, it is a "list of lists of lists of lists".
-    """
+
+    During box selection only multi-polygons entirely contained in the
+    selection box will be included.
+
+    '''
+
 
     __example__ = "examples/reference/models/MultiPolygons.py"
 
@@ -1189,7 +1194,10 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
     The data for the ``Patches`` glyph is different in that the vector of
     values is not a vector of scalars. Rather, it is a "list of lists".
 
-    """
+    During box selection only patches entirely contained in the
+    selection box will be included.
+
+    '''
 
     __example__ = "examples/reference/models/Patches.py"
 

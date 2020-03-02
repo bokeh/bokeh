@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import * as models_defaults from "./.generated_defaults/models_defaults.json"
-import * as widget_defaults from "./.generated_defaults/widgets_defaults.json"
+import models_defaults from "../.generated_defaults/models_defaults.json"
+import widget_defaults from "../.generated_defaults/widgets_defaults.json"
 
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference, concat} from "@bokehjs/core/util/array"
@@ -34,20 +34,20 @@ function safe_stringify(v: any): string {
   }
 }
 
-function deep_value_to_json(_key: string, value: any, _optional_parent_object: any): any {
+function deep_value_to_serializable(_key: string, value: any, _optional_parent_object: any): any {
   if (value instanceof HasProps) {
     return {type: value.type, attributes: value.attributes_as_json()}
   } else if (isArray(value)) {
     const ref_array: any[] = []
     for (let i = 0; i < value.length; i++) {
-      ref_array.push(deep_value_to_json(i.toString(), value[i], value))
+      ref_array.push(deep_value_to_serializable(i.toString(), value[i], value))
     }
     return ref_array
   } else if (isPlainObject(value)) {
     const ref_obj: {[key: string]: any} = {}
     for (const subkey in value) {
       if (value.hasOwnProperty(subkey))
-        ref_obj[subkey] = deep_value_to_json(subkey, value[subkey], value)
+        ref_obj[subkey] = deep_value_to_serializable(subkey, value[subkey], value)
     }
     return ref_obj
   } else
@@ -81,6 +81,12 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
 
     // special case for Title derived text properties
     if (name === "Title" && (k === "text_align" || k === "text_baseline"))
+      continue
+
+    if (name == "DateSlider" && (k == "start" || k == "end" || k == "value" || k == "value_throttled"))
+      continue
+
+    if (name == "DateRangeSlider" && (k == "start" || k == "end"))
       continue
 
     if (k === 'id')
@@ -185,7 +191,7 @@ describe("Defaults", () => {
       }
     }
     for (const m of missing) {
-      console.log(`'Models.${m}' not found but there's a Python model '${m}'`)
+      console.error(`'Models.${m}' not found but there's a Python model '${m}'`)
     }
     expect(missing.length).to.equal(0)
   })
@@ -198,7 +204,7 @@ describe("Defaults", () => {
       }
     }
     for (const m of missing) {
-      console.log(`'${m}' not found but there's a Python model '${m}'`)
+      console.error(`'${m}' not found but there's a Python model '${m}'`)
     }
     expect(missing.length).to.equal(0)
   })
@@ -216,7 +222,7 @@ describe("Defaults", () => {
       }
     }
     for (const m of missing) {
-      console.log(`'base.locations["${m}"]' not found but there's a Python model '${m}'`)
+      console.error(`'base.locations["${m}"]' not found but there's a Python model '${m}'`)
     }
     expect(missing.length).to.equal(0)
   })
@@ -226,19 +232,19 @@ describe("Defaults", () => {
     const all_view_model_names = concat([keys(models_defaults), keys(widget_defaults)])
     for (const name of all_view_model_names) {
       const model = Models(name)
-      const instance = new (model as any)({__deferred__: true})
-      const attrs = instance.attributes_as_json(true, deep_value_to_json)
-      strip_ids(attrs)
+      const attrs: {[key: string]: unknown} = {}
+      for (const [attr, prop] of Object.entries(model.prototype.props)) {
+        if (!prop.internal) {
+          const value = prop.default_value != null ? prop.default_value() : null // XXX: non-nullable properties
+          attrs[attr] = deep_value_to_serializable(attr, value, undefined)
+        }
+      }
 
       const python_defaults = get_defaults(name)
       const bokehjs_defaults = attrs
       if (!check_matching_defaults(name, python_defaults, bokehjs_defaults)) {
-        console.log(name)
-        // console.log('python defaults:')
-        // console.log(python_defaults)
-        // console.log('bokehjs defaults:')
-        // console.log(bokehjs_defaults)
-        console.log(difference(keys(python_defaults), keys(bokehjs_defaults)))
+        console.error(name)
+        console.error(difference(keys(python_defaults), keys(bokehjs_defaults)))
         fail_count += 1
       }
     }

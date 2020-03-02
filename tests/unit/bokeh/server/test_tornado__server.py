@@ -179,7 +179,6 @@ def test_log_stats(ManagedServerLoop) -> None:
         session2.close()
         server._tornado._log_stats()
 
-@pytest.mark.asyncio
 async def test_metadata(ManagedServerLoop) -> None:
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:

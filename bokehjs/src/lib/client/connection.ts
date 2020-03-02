@@ -5,7 +5,7 @@ import {Receiver} from "protocol/receiver"
 import {ClientSession} from "./session"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
-export const DEFAULT_SESSION_ID = "default"
+export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"
 
 let _connection_count: number = 0
 
@@ -13,6 +13,20 @@ export type Rejecter = (error: Error | string) => void
 export type SessionResolver = (s: ClientSession) => void
 export type MessageResolver = (m: Message) => void
 export type PendingReply = {resolve: MessageResolver, reject: Rejecter}
+
+export type Token = {
+  session_expiry: number
+  session_id: string
+  [key: string]: unknown
+}
+
+export function parse_token(token: string): Token {
+  let payload = token.split('.')[0]
+  const mod = payload.length % 4
+  if (mod != 0)
+    payload = payload + "=".repeat(4-mod)
+  return JSON.parse(atob(payload.replace(/_/g, '/').replace(/-/g, '+')))
+}
 
 export class ClientConnection {
 
@@ -22,6 +36,7 @@ export class ClientConnection {
   session: ClientSession | null = null
 
   closed_permanently: boolean = false
+  id: string
 
   protected _current_handler: ((message: Message) => void) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
@@ -29,8 +44,9 @@ export class ClientConnection {
   protected readonly _receiver: Receiver = new Receiver()
 
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
-              readonly id: string = DEFAULT_SESSION_ID,
+              readonly token: string = DEFAULT_TOKEN,
               readonly args_string: string | null = null) {
+    this.id = parse_token(token).session_id.split('.')[0]
     logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
   }
 
@@ -45,11 +61,11 @@ export class ClientConnection {
     this._pending_messages = []
 
     try {
-      let versioned_url = `${this.url}?bokeh-session-id=${this.id}`
+      let versioned_url = `${this.url}`
       if (this.args_string != null && this.args_string.length > 0)
-        versioned_url += `&${this.args_string}`
+        versioned_url += `?${this.args_string}`
 
-      this.socket = new WebSocket(versioned_url)
+      this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
       return new Promise((resolve, reject) => {
         // "arraybuffer" gives us binary data we can look at;
@@ -248,7 +264,7 @@ export class ClientConnection {
   }
 }
 
-export function pull_session(url?: string, session_id?: string, args_string?: string): Promise<ClientSession> {
-  const connection = new ClientConnection(url, session_id, args_string)
+export function pull_session(url?: string, token?: string, args_string?: string): Promise<ClientSession> {
+  const connection = new ClientConnection(url, token, args_string)
   return connection.connect()
 }

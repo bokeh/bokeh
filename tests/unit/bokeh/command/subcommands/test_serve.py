@@ -238,6 +238,38 @@ def test_args() -> None:
                       'when this setting is enabled.'
         )),
 
+        ('--exclude-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to exclude from the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--exclude-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to exclude from the session '
+                      'context (by default all cookies are included).'
+        )),
+
+        ('--include-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to make available in the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--include-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to make available in the session '
+                      'context (by default all cookies are included).'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
@@ -270,6 +302,17 @@ def test_args() -> None:
              default = 1,
              type    =int,
          )),
+
+        ('--session-token-expiration', dict(
+            metavar = 'N',
+            action  = 'store',
+            help    = "Duration in seconds that a new session token "
+                      "is valid for session creation. After the expiry "
+                      "time has elapsed, the token will not be able "
+                      "create a new session (defaults to  seconds).",
+            default = 300,
+            type    = int,
+        )),
 
          ('--websocket-max-message-size', dict(
             metavar = 'BYTES',

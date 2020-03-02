@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import calendar
 import codecs
+import datetime as dt
 from urllib.parse import urlparse
 
 # External imports
@@ -28,7 +30,7 @@ from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.session_id import check_session_id_signature
+from bokeh.util.token import check_token_signature, get_session_id, get_token_payload
 
 # Bokeh imports
 from ...protocol import Protocol
@@ -66,6 +68,8 @@ class WSHandler(WebSocketHandler):
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
         self.write_lock = locks.Lock()
+
+        self._token = None
 
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
@@ -112,27 +116,47 @@ class WSHandler(WebSocketHandler):
 
         '''
         log.info('WebSocket connection opened')
+        token = self._token
 
-        session_id = self.get_argument("bokeh-session-id", default=None)
-        if session_id is None:
+        if self.selected_subprotocol != 'bokeh':
             self.close()
-            raise ProtocolError("No bokeh-session-id specified")
+            raise ProtocolError("Subprotocol header is not 'bokeh'")
+        elif token is None:
+            self.close()
+            raise ProtocolError("No token received in subprotocol header")
 
-        if not check_session_id_signature(session_id,
-                                          signed=self.application.sign_sessions,
-                                          secret_key=self.application.secret_key):
-            log.error("Session id had invalid signature: %r", session_id)
-            raise ProtocolError("Invalid session ID")
+        now = calendar.timegm(dt.datetime.now().utctimetuple())
+        payload = get_token_payload(token)
+        if 'session_expiry' not in payload:
+            self.close()
+            raise ProtocolError("Session expiry has not been provided")
+        elif now >= payload['session_expiry']:
+            self.close()
+            raise ProtocolError("Token is expired.")
+        elif not check_token_signature(token,
+                                       signed=self.application.sign_sessions,
+                                       secret_key=self.application.secret_key):
+            session_id = get_session_id(token)
+            log.error("Token for session %r had invalid signature", session_id)
+            raise ProtocolError("Invalid token signature")
 
         try:
-            self.application.io_loop.spawn_callback(self._async_open, session_id)
+            self.application.io_loop.spawn_callback(self._async_open, self._token)
         except Exception as e:
             # this isn't really an error (unless we have a
             # bug), it just means a client disconnected
             # immediately, most likely.
             log.debug("Failed to fully open connection %r", e)
 
-    async def _async_open(self, session_id):
+    def select_subprotocol(self, subprotocols):
+        log.debug('Subprotocol header received')
+        log.trace('Supplied subprotocol headers: %r', subprotocols)
+        if not len(subprotocols) == 2:
+            return None
+        self._token = subprotocols[1]
+        return subprotocols[0]
+
+    async def _async_open(self, token):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
@@ -152,7 +176,8 @@ class WSHandler(WebSocketHandler):
 
         '''
         try:
-            await self.application_context.create_session_if_needed(session_id, self.request)
+            session_id = get_session_id(token)
+            await self.application_context.create_session_if_needed(session_id, self.request, token)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()
@@ -291,6 +316,7 @@ class WSHandler(WebSocketHandler):
     def _protocol_error(self, message):
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

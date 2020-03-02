@@ -85,6 +85,7 @@ ALL = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
+    'PropertyUnitsSpec',
     'RGB',
     'Regex',
     'RelativeDelta',

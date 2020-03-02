@@ -76,8 +76,8 @@ export abstract class HasProps extends Signalable() {
   // {{{ prototype
   default_view: Class<View, [View.Options]>
   props: {[key: string]: {
-    type: Class<Property<any>>,  // T
-    default_value: any,          // T
+    type: Class<Property<unknown>>,  // T
+    default_value?: () => unknown,   // T
     internal: boolean,
   }}
   mixins: string[]

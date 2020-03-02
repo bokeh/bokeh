@@ -17,11 +17,14 @@ import pytest  # noqa isort:skip
 # Standard library imports
 import os
 import re
+import subprocess
+import sys
 
 # External imports
 from packaging.version import Version as V
 
 # Bokeh imports
+import bokeh.util.version as buv
 from bokeh import __version__
 from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
@@ -103,6 +106,21 @@ def test_js_resources_inline_has_no_css_resources() -> None:
     assert hasattr(r, "css_raw") is False
     assert r.messages == []
 
+def test_js_resources_hashes_mock_full(monkeypatch) -> None:
+    monkeypatch.setattr(buv, "__version__", "1.4.0")
+    monkeypatch.setattr(resources, "__version__", "1.4.0")
+    r = resources.JSResources()
+    assert r.mode == "cdn"
+    min_hashes = set(v for k, v in resources.get_sri_hashes_for_version("1.4.0").items() if k.endswith(".min.js") and "api" not in k)
+    assert set(r.hashes.values()) == min_hashes
+
+@pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
+def test_js_resources_hashes_mock_non_full(v, monkeypatch) -> None:
+    monkeypatch.setattr(buv, "__version__", v)
+    monkeypatch.setattr(resources, "__version__", v)
+    r = resources.JSResources()
+    assert r.mode == "cdn"
+    assert r.hashes == None
 
 ## Test CSSResources
 
@@ -299,6 +317,15 @@ class TestResources(object):
         for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_url="foo")
+
+    @pytest.mark.parametrize('env', ["BOKEH_CDN_VERSION", "BOKEH_ROOTDIR"])
+    def test_builtin_importable_with_env(self, monkeypatch, env) -> None:
+        cmd = [sys.executable, "-c", "import bokeh.resources"]
+        monkeypatch.setenv(env, "foo")
+        try:
+            subprocess.check_call(cmd, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError:
+            pytest.fail(f"resources import failed with {env} set")
 
 
 ## Test external resources

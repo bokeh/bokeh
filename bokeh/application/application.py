@@ -227,6 +227,23 @@ class Application(object):
             await h.on_session_destroyed(session_context)
         return None
 
+    def process_request(self, request):
+        ''' Processes incoming HTTP request returning a dictionary of
+        additional data to add to the session_context.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            A dictionary of JSON serializable data to be included on
+            the session context.
+        '''
+        request_data = {}
+        for h in self._handlers:
+            request_data.update(h.process_request(request))
+        return request_data
+
+
 class ServerContext(metaclass=ABCMeta):
     ''' A harness for server-specific information and tasks related to
     collections of Bokeh sessions.

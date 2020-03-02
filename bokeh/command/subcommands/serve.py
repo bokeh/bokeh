@@ -203,7 +203,7 @@ variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
 setting the ``--ssl-keyfile`` command line argument, or by setting the
-``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+``BOKEH_SSL_KEYFILE`` environment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
 
@@ -245,7 +245,7 @@ secure session IDs are allowed but anyone can connect to the server.
 In ``external-signed`` mode, the session ID must be signed but the server
 itself won't generate a session ID; the ``?bokeh-session-id=`` parameter will
 be required. To use this mode, an external process (such as another web app)
-would use the function ``bokeh.util.session_id.generate_session_id()`` to
+would use the function ``bokeh.util.token.generate_session_id()`` to
 create valid session IDs. The external process and the Bokeh server must share
 the same ``BOKEH_SECRET_KEY`` environment variable.
 
@@ -421,7 +421,10 @@ from tornado.autoreload import watch
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.auth_provider import AuthModule, NullAuth
-from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
+from bokeh.server.tornado import (
+    DEFAULT_SESSION_TOKEN_EXPIRATION,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+)
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import format_docstring, nice_join
@@ -633,6 +636,38 @@ class Serve(Subcommand):
                       'when this setting is enabled.'
         )),
 
+        ('--exclude-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to exclude from the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--exclude-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to exclude from the session '
+                      'context (by default all cookies are included).'
+        )),
+
+        ('--include-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to make available in the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--include-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to make available in the session '
+                      'context (by default all cookies are included).'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
@@ -663,6 +698,17 @@ class Serve(Subcommand):
             help    = "Number of worker processes for an app. Using "
                       "0 will autodetect number of cores (defaults to 1)",
             default = 1,
+            type    = int,
+        )),
+
+        ('--session-token-expiration', dict(
+            metavar = 'N',
+            action  = 'store',
+            help    = "Duration in seconds that a new session token "
+                      "is valid for session creation. After the expiry "
+                      "time has elapsed, the token will not be able "
+                      "create a new session (defaults to  seconds).",
+            default = DEFAULT_SESSION_TOKEN_EXPIRATION,
             type    = int,
         )),
 
@@ -746,6 +792,11 @@ class Serve(Subcommand):
                                                               'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                               'websocket_max_message_size',
+                                                              'include_cookies',
+                                                              'include_headers',
+                                                              'exclude_cookies',
+                                                              'exclude_headers',
+                                                              'session_token_expiration',
                                                             ]
                           if getattr(args, key, None) is not None }
 

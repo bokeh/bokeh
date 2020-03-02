@@ -32,7 +32,7 @@ export async function embed_item(item: JsonItem, target_id?: string): Promise<Vi
     element.classList.add(BOKEH_ROOT)
 
   const roots: Roots = {[item.root_id]: target_id}
-  const render_item: RenderItem = {roots, docid: doc_id}
+  const render_item: RenderItem = {roots, root_ids: [item.root_id], docid: doc_id}
 
   const [views] = await defer(() => _embed_items(docs_json, [render_item]))
   return views
@@ -63,18 +63,18 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
 
     if (item.docid != null) {
       views.push(await add_document_standalone(docs[item.docid], element, roots, item.use_for_title))
-    } else if (item.sessionid != null) {
+    } else if (item.token != null) {
       const websocket_url = _get_ws_url(app_path, absolute_url)
       logger.debug(`embed: computed ws url: ${websocket_url}`)
 
       try {
-        views.push(await add_document_from_session(websocket_url, item.sessionid, element, roots, item.use_for_title))
+        views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
       } catch (error) {
         console.log("Error rendering Bokeh items:", error)
       }
     } else
-      throw new Error(`Error rendering Bokeh items: either 'docid' or 'sessionid' was expected.`)
+      throw new Error(`Error rendering Bokeh items: either 'docid' or 'token' was expected.`)
   }
 
   return views
