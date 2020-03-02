@@ -1008,7 +1008,7 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     During box selection only multi-polygons entirely contained in the
     selection box will be included.
 
-    '''
+    """
 
 
     __example__ = "examples/reference/models/MultiPolygons.py"
@@ -1197,7 +1197,7 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
     During box selection only patches entirely contained in the
     selection box will be included.
 
-    '''
+    """
 
     __example__ = "examples/reference/models/Patches.py"
 
