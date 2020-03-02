@@ -1,5 +1,9 @@
 # Tests
+prune tests
 graft tests/unit
+
+# sphinx
+prune sphinx
 
 # Things to always exclude
 global-exclude .git*
@@ -18,6 +22,4 @@ include versioneer.py
 include _setup_support.py
 
 # Static assets
-exclude bokeh/server/static/js/bokeh.json
-exclude bokeh/server/static/js/compiler.json
-exclude bokeh/server/static/js/legacy/bokeh.json
+exclude bokeh/server/static/js/*.json
