@@ -60,7 +60,7 @@ from ..core.properties import (
     ScreenDistanceSpec,
 )
 from ..core.property_mixins import FillProps, LineProps
-from .glyph import XYGlyph
+from .glyph import XYGlyph, LineGlyph, FillGlyph
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -91,7 +91,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class Marker(XYGlyph):
+class Marker(LineGlyph, FillGlyph):
     ''' Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified
     size.
