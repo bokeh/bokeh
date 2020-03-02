@@ -83,7 +83,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     * If passed a subset of Document.roots, then OutputDocumentFor temporarily "re-homes"
       the models in a new bare Document that is only available inside the context manager.
 
-    * If passed a list of models that have differnet documents, then OutputDocumentFor
+    * If passed a list of models that have different documents, then OutputDocumentFor
       temporarily "re-homes" the models in a new bare Document that is only available
       inside the context manager.
 
