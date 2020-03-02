@@ -59,7 +59,7 @@ ModelLikeCollection = Union[Sequence[ModelLike], Dict[str, ModelLike]]
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike = Union[Theme, Type[FromCurdoc]]
+ThemeLike = Union[None, Theme, Type[FromCurdoc]]
 
 def autoload_static(model: Union[Model, Document], resources: Resources, script_path: str) -> Tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed
@@ -112,7 +112,7 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
     return js, tag
 
 def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool = True,
-               wrap_plot_info: bool = True, theme: ThemeLike = FromCurdoc) -> Tuple[str, Any]:
+               wrap_plot_info: bool = True, theme: ThemeLike = None) -> Tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -155,10 +155,10 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
                 }
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
-            Setting this to ``None`` uses the default theme or the theme
-            already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            Applies the specified theme when creating the components. If None,
+            or not specified, and the supplied models constitute the full set of
+            roots of a document, applies the theme of that document to the components.
+            Otherwise applies the default theme.
 
     Returns:
         UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
@@ -245,7 +245,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
               title: Optional[str] = None,
               template: Union[Template, str] = FILE,
               template_variables: Dict[str, Any] = {},
-              theme: ThemeLike = FromCurdoc,
+              theme: ThemeLike = None,
               suppress_callback_warning: bool = False,
               _always_new: bool = False) -> str:
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
@@ -276,10 +276,10 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
             title, bokeh_js, bokeh_css, plot_script, plot_div
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
-            Setting this to ``None`` uses the default theme or the theme
-            already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            Applies the specified theme to the created html. If ``None``, or
+            not specified, and the function is passed a document or the full set
+            of roots of a document, applies the theme of that document.  Otherwise
+            applies the default theme.
 
         suppress_callback_warning (bool, optional) :
             Normally generating standalone HTML from a Bokeh Document that has
@@ -307,7 +307,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 
-def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc) -> Any: # TODO: TypedDict?
+def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = None) -> Any: # TODO: TypedDict?
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -319,10 +319,10 @@ def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = Fro
             be supplied in the JavaScript call.
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
-            Setting this to ``None`` uses the default theme or the theme
-            already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            Applies the specified theme to the created html. If ``None``, or
+            not specified, and the function is passed a document or the full set
+            of roots of a document, applies the theme of that document.  Otherwise
+            applies the default theme.
 
     Returns:
         JSON-like

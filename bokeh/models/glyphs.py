@@ -132,10 +132,9 @@ __all__ = (
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
-
-
 class AnnularWedge(LineGlyph, FillGlyph):
     """ Render annular wedges.
+
 
     """
 
@@ -213,9 +212,9 @@ class AnnularWedge(LineGlyph, FillGlyph):
     """,
     )
 
-
 class Annulus(LineGlyph, FillGlyph):
     """ Render annuli.
+
 
     """
 
@@ -566,6 +565,7 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
 
 class HexTile(LineGlyph, FillGlyph):
     """ Render horizontal tiles on a regular hexagonal grid.
+
 
     """
 
@@ -1011,6 +1011,7 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     """
 
 
+
     __example__ = "examples/reference/models/MultiPolygons.py"
 
     # a canonical order for positional args that can be used for any
@@ -1062,6 +1063,7 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the patches.
     """,
     )
+
 
 
 class Oval(LineGlyph, FillGlyph):
@@ -1188,6 +1190,7 @@ class Patch(LineGlyph, FillGlyph, HatchGlyph):
     )
 
 
+
 class Patches(LineGlyph, FillGlyph, HatchGlyph):
     """ Render several patches.
 
@@ -1312,8 +1315,10 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
     )
 
 
+
 class Quadratic(LineGlyph):
     """ Render parabolas.
+
 
     """
 
@@ -1413,8 +1418,10 @@ class Ray(LineGlyph):
     )
 
 
+
 class Rect(LineGlyph, FillGlyph):
     """ Render rectangles.
+
 
     """
 
@@ -1755,6 +1762,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
 
 class Wedge(LineGlyph, FillGlyph):
     """ Render wedges.
+
 
     """
 
