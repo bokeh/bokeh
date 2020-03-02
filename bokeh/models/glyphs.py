@@ -83,12 +83,12 @@ from ..core.property_mixins import (
 )
 from .glyph import (
     ConnectedXYGlyph,
-    Glyph,
-    XYGlyph,
-    LineGlyph,
     FillGlyph,
-    TextGlyph,
+    Glyph,
     HatchGlyph,
+    LineGlyph,
+    TextGlyph,
+    XYGlyph,
 )
 from .mappers import ColorMapper, LinearColorMapper
 
