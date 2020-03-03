@@ -57,13 +57,14 @@ export class FileInputView extends WidgetView {
   }
 
   readfile(file: File): Promise<string> {
-    return new Promise<string>((resolve) => {
+    return new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
-      reader.onload = (e) => {
-        if (e.target) {
-          resolve(e.target.result ? String(e.target.result) : "")
+      reader.onload = () => {
+        const {result} = reader
+        if (result != null) {
+          resolve(result as string)
         } else {
-          resolve("")
+          reject(reader.error ?? new Error(`unable to read '${file.name}'`))
         }
       }
       reader.readAsDataURL(file)
