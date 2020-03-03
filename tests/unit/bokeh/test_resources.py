@@ -114,8 +114,8 @@ def test_js_resources_hashes_mock_full(monkeypatch) -> None:
     min_hashes = set(v for k, v in resources.get_sri_hashes_for_version("1.4.0").items() if k.endswith(".min.js") and "api" not in k)
     assert set(r.hashes.values()) == min_hashes
 
-@pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
-def test_js_resources_hashes_mock_non_full(v, monkeypatch) -> None:
+@pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0dev6-50-foo"])
+def test_js_resources_hashes_mock_non_full_or_candidate(v, monkeypatch) -> None:
     monkeypatch.setattr(buv, "__version__", v)
     monkeypatch.setattr(resources, "__version__", v)
     r = resources.JSResources()
