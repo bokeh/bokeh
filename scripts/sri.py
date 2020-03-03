@@ -9,7 +9,7 @@ from subprocess import PIPE, Popen
 
 TOP = abspath(join(dirname(__file__), ".."))
 
-VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
+VERSION = re.compile(r"^(\d+\.\d+\.\d+)((?:rc).*)?$")
 
 
 def compute_single_hash(path):
