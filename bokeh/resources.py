@@ -44,7 +44,7 @@ from .model import Model
 from .settings import settings
 from .util.paths import ROOT_DIR, bokehjsdir
 from .util.token import generate_session_id
-from .util.version import is_full_release
+from .util.version import is_release_or_candidate
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -173,8 +173,8 @@ def verify_sri_hashes():
             If there are missing, extra, or mismatched files
 
     """
-    if not is_full_release():
-        raise ValueError("verify_sri_hashes() can only be used with full releases")
+    if not is_release_or_candidate():
+        raise ValueError("verify_sri_hashes() can only be used with full releases or release candidates")
 
     from glob import glob
     paths = glob(join(bokehjsdir(), "js/bokeh*.js"))
@@ -676,7 +676,7 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
             }
         )
 
-    if is_full_release():
+    if is_release_or_candidate():
         sri_hashes = get_sri_hashes_for_version(version)
         result['hashes'] = lambda components, kind: {mk_url(component, kind): sri_hashes[mk_filename(component, kind)] for component in components}
 

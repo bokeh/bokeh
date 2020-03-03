@@ -20,8 +20,9 @@ Functions:
         Return the base version string, without any "dev", "rc" or local build
         information appended.
 
-    is_full_release:
-        Return whether the current installed version is a full release.
+    is_release_or_candidate:
+        Return whether the current installed version is a full release, or a
+        release candidate.
 
 .. _versioneer: https://github.com/warner/python-versioneer
 
@@ -46,7 +47,7 @@ from .._version import get_versions
 
 __all__ = (
     'base_version',
-    'is_full_release',
+    'is_release_or_candidate',
 )
 
 #-----------------------------------------------------------------------------
@@ -56,9 +57,9 @@ __all__ = (
 def base_version() -> str:
     return _base_version_helper(__version__)
 
-def is_full_release() -> bool:
+def is_release_or_candidate() -> bool:
     import re
-    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:rc).*)?$")
     return bool(VERSION_PAT.match(__version__))
 
 #-----------------------------------------------------------------------------

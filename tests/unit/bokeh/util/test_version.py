@@ -30,7 +30,7 @@ import bokeh.util.version as buv # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
+VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:rc).*)?$")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -49,19 +49,23 @@ class Test_base_version(object):
             buv.base_version()
             assert helper.called
 
-class Test_is_full_release(object):
+class Test_is_release_or_candidate(object):
 
     def test_actual(self) -> None:
-        assert buv.is_full_release() == bool(VERSION_PAT.match(buv.__version__))
+        assert buv.is_release_or_candidate() == bool(VERSION_PAT.match(buv.__version__))
 
     def test_mock_full(self, monkeypatch) -> None:
         monkeypatch.setattr(buv, '__version__', "1.5.0")
-        assert buv.is_full_release()
+        assert buv.is_release_or_candidate()
 
-    @pytest.mark.parametrize('v', ("1.2.3dev2", "1.4.5rc3", "junk"))
+    def test_mock_candidate(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, '__version__', "1.5.0rc3")
+        assert buv.is_release_or_candidate()
+
+    @pytest.mark.parametrize('v', ("1.2.3dev2", "junk"))
     def test_mock_not_full(self, monkeypatch, v) -> None:
         monkeypatch.setattr(buv, '__version__', v)
-        assert not buv.is_full_release()
+        assert not buv.is_release_or_candidate()
 
 #-----------------------------------------------------------------------------
 # Dev API
