@@ -80,7 +80,15 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
-from .glyph import ConnectedXYGlyph, FillGlyph, Glyph, HatchGlyph, LineGlyph, TextGlyph, XYGlyph
+from .glyph import (
+    ConnectedXYGlyph,
+    FillGlyph,
+    Glyph,
+    HatchGlyph,
+    LineGlyph,
+    TextGlyph,
+    XYGlyph,
+)
 from .mappers import ColorMapper, LinearColorMapper
 
 #-----------------------------------------------------------------------------
