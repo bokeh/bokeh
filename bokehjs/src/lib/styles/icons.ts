@@ -1,6 +1,3 @@
-import "./root"
-import "icons.css"
-
 export const bk_tool_icon_box_select = "bk-tool-icon-box-select"
 export const bk_tool_icon_box_zoom = "bk-tool-icon-box-zoom"
 export const bk_tool_icon_zoom_in = "bk-tool-icon-zoom-in"

@@ -1,8 +1,8 @@
-import {join} from "path"
+import {join, relative} from "path"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {rename, write} from "@compiler/sys"
+import {rename, read, write, scan} from "@compiler/sys"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
@@ -12,17 +12,39 @@ import pkg from "../../package.json"
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
-  write(join(paths.build_dir.lib, "version.js"), js)
-
   const dts = `export declare const version: string;\n`
+
+  write(join(paths.build_dir.lib, "version.js"), js)
   write(join(paths.build_dir.types, "version.d.ts"), dts)
 })
 
-task("scripts:compile", ["styles:compile", "scripts:version"], async () => {
+task("scripts:styles", ["styles:compile"], async () => {
+  const css_base = paths.build_dir.css
+
+  const js_base = join(paths.build_dir.lib, "styles")
+  const dts_base = join(paths.build_dir.types, "styles")
+
+  for (const css_path of scan(css_base, [".css"])) {
+    const sub_path = relative(css_base, css_path)
+
+    const js = `\
+const css = \`\n${read(css_path)}\`;
+export default css;
+`
+    const dts = `\
+declare const css: string;
+export default css;
+`
+
+    write(rename(join(js_base, sub_path), {ext: ".css.js"}), js)
+    write(rename(join(dts_base, sub_path), {ext: ".css.dts"}), dts)
+  }
+})
+
+task("scripts:compile", ["scripts:styles", "scripts:version"], async () => {
   const success = compile_typescript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
     out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
-    css_dir: paths.build_dir.css,
   })
 
   if (argv.emitError && !success)

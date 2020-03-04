@@ -16,9 +16,13 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
+
 import {bk_toolbar, bk_toolbar_hidden, bk_button_bar} from "styles/toolbar"
 import {bk_logo, bk_logo_small, bk_grey} from "styles/logo"
 import {bk_side} from "styles/mixins"
+
+import toolbar_css from "styles/toolbar.css"
+import logo_css from "styles/logo.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -77,6 +81,10 @@ export class ToolbarBaseView extends DOMView {
       this._on_visible_change()
     })
     this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), toolbar_css, logo_css]
   }
 
   remove(): void {

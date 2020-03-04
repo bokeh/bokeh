@@ -4,8 +4,9 @@ import {Choices as ChoicesNS} from "choices.js"
 import {select, option} from "core/dom"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
+
 import {bk_input} from "styles/widgets/inputs"
-import "styles/widgets/choices"
+import choices_css from "styles/widgets/choices.css"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -26,6 +27,10 @@ export class MultiChoiceView extends InputWidgetView {
     this.connect(this.model.properties.options.change, () => this.render())
     this.connect(this.model.properties.name.change, () => this.render())
     this.connect(this.model.properties.title.change, () => this.render())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), choices_css]
   }
 
   render(): void {

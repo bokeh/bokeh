@@ -3,6 +3,7 @@ import {Control, ControlView} from "./control"
 import {div, label} from "core/dom"
 import * as p from "core/properties"
 
+import inputs_css from "styles/widgets/inputs.css"
 import {bk_input_group} from "styles/widgets/inputs"
 
 export abstract class InputWidgetView extends ControlView {
@@ -18,6 +19,10 @@ export abstract class InputWidgetView extends ControlView {
     })
   }
 
+  styles(): string[] {
+    return [...super.styles(), inputs_css]
+  }
+
   render(): void {
     super.render()
 
@@ -28,7 +33,7 @@ export abstract class InputWidgetView extends ControlView {
     this.el.appendChild(this.group_el)
   }
 
-  change_input(): void { }
+  change_input(): void {}
 }
 
 export namespace InputWidget {

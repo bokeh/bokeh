@@ -15,7 +15,9 @@ import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {SelectionManager} from "core/selection_manager"
 import {ColumnDataSource} from "../sources/column_data_source"
+
 import {bk_tile_attribution} from "styles/tiles"
+import tiles_css from "styles/tiles.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -51,6 +53,10 @@ export class TileRendererView extends DataRendererView {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.tile_source.change, () => this.request_render())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), tiles_css]
   }
 
   get_extent(): Extent {

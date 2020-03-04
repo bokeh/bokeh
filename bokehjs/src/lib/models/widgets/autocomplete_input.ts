@@ -7,6 +7,8 @@ import {clamp} from "core/util/math"
 import {bk_below, bk_active} from "styles/mixins"
 import {bk_menu} from "styles/menus"
 
+import menus_css from "styles/menus.css"
+
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
@@ -17,6 +19,10 @@ export class AutocompleteInputView extends TextInputView {
   protected _hover_index: number = 0
 
   protected menu: HTMLElement
+
+  styles(): string[] {
+    return [...super.styles(), menus_css]
+  }
 
   render(): void {
     super.render()

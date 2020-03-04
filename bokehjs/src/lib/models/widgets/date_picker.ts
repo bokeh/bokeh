@@ -5,8 +5,9 @@ import {input} from "core/dom"
 import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
 import {isString, isArray} from "core/util/types"
+
 import {bk_input} from "styles/widgets/inputs"
-import "styles/widgets/flatpickr"
+import flatpickr_css from "styles/widgets/flatpickr.css"
 
 type Date = string
 type DatesList = (Date | [Date, Date])[]
@@ -41,6 +42,10 @@ export class DatePickerView extends InputWidgetView {
     this.connect(position.change, () => this._picker?.set("position", position.value()))
     this.connect(inline.change, () => this._picker?.set("inline", inline.value()))
 
+  }
+
+  styles(): string[] {
+    return [...super.styles(), flatpickr_css]
   }
 
   render(): void {

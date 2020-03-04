@@ -2,8 +2,11 @@ import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment, Side} from "core/enums"
 import {div, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
+
 import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
 import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
+
+import tooltips_css from "styles/tooltips.css"
 
 export function compute_side(attachment: TooltipAttachment, sx: number, sy: number, hcenter: number, vcenter: number): Side {
   switch (attachment) {
@@ -29,6 +32,10 @@ export class TooltipView extends AnnotationView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.data.change, () => this._draw_tips())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), tooltips_css]
   }
 
   css_classes(): string[] {

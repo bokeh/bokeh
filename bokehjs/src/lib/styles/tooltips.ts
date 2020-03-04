@@ -1,6 +1,3 @@
-import "./root"
-import "tooltips.css"
-
 export const bk_tooltip = "bk-tooltip"
 export const bk_tooltip_arrow = "bk-tooltip-arrow"
 export const bk_tooltip_custom = "bk-tooltip-custom"

@@ -288,31 +288,14 @@ export class Linker {
     const transformers = (module: ModuleInfo): Transformers => {
       const transformers = []
 
-      switch (module.type) {
-        case "js": {
-          const remove_use_strict = transforms.remove_use_strict()
-          transformers.push(remove_use_strict)
+      const remove_use_strict = transforms.remove_use_strict()
+      transformers.push(remove_use_strict)
 
-          // TODO: don't remove __esModule, just make it more space efficient
-          // const remove_esmodule = transforms.remove_esmodule()
-          // transformers.push(remove_esmodule)
-
-          const rewrite_deps = transforms.rewrite_deps((dep) => {
-            const module_dep = module.dependencies.get(dep)
-            return module_dep != null ? module_dep.id : undefined
-          })
-          transformers.push(rewrite_deps)
-          break
-        }
-        case "json": {
-          transformers.push(transforms.add_json_export())
-          break
-        }
-        case "css": {
-          // ???
-          break
-        }
-      }
+      const rewrite_deps = transforms.rewrite_deps((dep) => {
+        const module_dep = module.dependencies.get(dep)
+        return module_dep != null ? module_dep.id : undefined
+      })
+      transformers.push(rewrite_deps)
 
       transformers.push(transforms.wrap_in_function(module.base_path))
       return transformers
@@ -556,9 +539,8 @@ export class Linker {
       return this.resolve_absolute(dep, parent)
   }
 
-  private parse_module({file, source, type}: {file: Path, source: string, type: ModuleType}): ts.SourceFile {
-    const {ES2017, JSON} = ts.ScriptTarget
-    return transforms.parse_es(file, source, type == "json" ? JSON : ES2017)
+  private parse_module({file, source}: {file: Path, source: string}): ts.SourceFile {
+    return transforms.parse_es(file, source)
   }
 
   new_module(file: Path): ModuleInfo {
@@ -577,6 +559,22 @@ export class Linker {
           throw new Error(`unsupported extension of ${file}`)
       }
     })()
+
+    switch (type) {
+      case "json":
+        source = `\
+const json = ${source};
+export default json;
+`
+        break
+      case "css":
+        source = `\
+const css = \`${source}\`;
+export default css;
+`
+        break
+    }
+
     const [base, base_path, canonical, resolution] = ((): [string, string, string | undefined, ResoType] => {
       const [primary, ...secondary] = this.bases
 
@@ -608,13 +606,17 @@ export class Linker {
       for (const base of secondary) {
         const path = relative(base, file)
         if (!path.startsWith("..")) {
-          const {dir, pkg} = get_package(base, path)
-          const reso =  pkg.module != null ? "ESM" : "CJS"
-          const entry = pkg.module ?? pkg.name
-          const primary = join(dir, entry) == join(base, path)
-          const name = canonicalize(primary ? basename(dir) : path)
-          const exported = this.exports.has(name)
-          return [base, path, exported ? name : undefined, reso]
+          if (type == "js") {
+            const {dir, pkg} = get_package(base, path)
+            const reso = pkg.module != null ? "ESM" : "CJS"
+            const entry = pkg.module ?? pkg.name
+            const primary = join(dir, entry) == join(base, path)
+            const name = canonicalize(primary ? basename(dir) : path)
+            const exported = this.exports.has(name)
+            return [base, path, exported ? name : undefined, reso]
+          } else {
+            return [base, path, undefined, "ESM"]
+          }
         }
       }
 
@@ -631,23 +633,22 @@ export class Linker {
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       let collected: string[] | null = null
-      if (type == "js") {
-        if (this.target != null && resolution == "ESM") {
-          const {ES2020, ES2017, ES5} = ts.ScriptTarget
-          const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
-          const imports = new Set<string>(["tslib"])
-          const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
-          const {output, error} = transpile(file, source, target, transform)
-          if (error)
-            throw new Error(error)
-          else {
-            source = output
-            collected = [...imports]
-          }
+      if (this.target != null && resolution == "ESM") {
+        const {ES2020, ES2017, ES5} = ts.ScriptTarget
+        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
+        const imports = new Set<string>(["tslib"])
+        const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
+        // XXX: .json extension will cause an internal error
+        const {output, error} = transpile(type == "json" ? `${file}.js` : file, source, target, transform)
+        if (error)
+          throw new Error(error)
+        else {
+          source = output
+          collected = [...imports]
         }
       }
 
-      ast = this.parse_module({file, source, type})
+      ast = this.parse_module({file, source})
 
       if (collected == null)
         collected = transforms.collect_deps(ast)

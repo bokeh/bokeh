@@ -5,7 +5,11 @@ import {empty} from "core/dom"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
+
 import {bk_toolbar_button} from "styles/toolbar"
+
+import toolbar_css from "styles/toolbar.css"
+import icons_css from "styles/icons.css"
 
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
@@ -15,6 +19,10 @@ export abstract class ButtonToolButtonView extends DOMView {
     this.connect(this.model.change, () => this.render())
     this.el.addEventListener("click", () => this._clicked())
     this.render() // XXX: this isn't governed by layout, for now
+  }
+
+  styles(): string[] {
+    return [...super.styles(), toolbar_css, icons_css]
   }
 
   css_classes(): string[] {

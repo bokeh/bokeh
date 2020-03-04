@@ -3,7 +3,9 @@ import {div} from "core/dom"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+
 import {bk_clearfix} from "styles/clearfix"
+import clearfix_css from "styles/clearfix.css"
 
 export abstract class MarkupView extends WidgetView {
   model: Markup
@@ -16,6 +18,10 @@ export abstract class MarkupView extends WidgetView {
       this.render()
       this.root.compute_layout() // XXX: invalidate_layout?
     })
+  }
+
+  styles(): string[] {
+    return [...super.styles(), clearfix_css]
   }
 
   _update_layout(): void {
