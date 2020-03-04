@@ -35,7 +35,7 @@
     "mocha": "^7.0.1",
     "sinon": "^9.0.0",
     "yargs": "^15.1.0",
-    "typescript": "^3.7.5",
+    "typescript": "~3.7.5",
     "tslint": "^6.0.0",
     "tsconfig-paths": "^3.8.0",
     "less": "^3.9.0",
