@@ -1,5 +1,5 @@
 // This module implements the Base GL Glyph and some utilities
-import {Program, VertexBuffer} from "gloo2"
+import {Program, VertexBuffer} from "@bokeh/gloo2"
 import {Arrayable} from "core/types"
 import {color2rgba} from "core/util/color"
 import {Context2d} from "core/util/canvas"

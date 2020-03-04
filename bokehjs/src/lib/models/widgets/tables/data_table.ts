@@ -1,8 +1,8 @@
-import {RowSelectionModel} from "slickgrid/plugins/slick.rowselectionmodel"
-import {CheckboxSelectColumn} from "slickgrid/plugins/slick.checkboxselectcolumn"
-import {CellExternalCopyManager} from "slickgrid/plugins/slick.cellexternalcopymanager"
+import {RowSelectionModel} from "@bokeh/slickgrid/plugins/slick.rowselectionmodel"
+import {CheckboxSelectColumn} from "@bokeh/slickgrid/plugins/slick.checkboxselectcolumn"
+import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellexternalcopymanager"
 
-import {Grid as SlickGrid, DataProvider} from "slickgrid"
+import {Grid as SlickGrid, DataProvider} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
