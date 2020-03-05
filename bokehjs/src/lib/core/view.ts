@@ -1,6 +1,6 @@
 import /*type*/ {HasProps} from "./has_props"
 import {Property} from "./properties"
-import {Signal0, Signal, Slot, ISignalable} from "./signaling"
+import {Signal, Slot, ISignalable} from "./signaling"
 import {isArray} from "./util/types"
 import {uniqueId} from "./util/string"
 
@@ -16,7 +16,7 @@ export namespace View {
 
 export class View implements ISignalable {
 
-  readonly removed = new Signal0<this>(this, "removed")
+  readonly removed = new Signal<this>(this, "removed")
 
   readonly id: string
 
@@ -29,16 +29,16 @@ export class View implements ISignalable {
     return this._ready
   }
 
-  connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    const new_slot = (args: Args, sender: Sender): void => {
-      const promise = Promise.resolve(slot.call(this, args, sender))
+  connect<Sender extends object, Args extends unknown[]>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean {
+    const new_slot = (...args: unknown[]): void => {
+      const promise = Promise.resolve(slot.apply(this, args))
       this._ready = this._ready.then(() => promise)
     }
 
     return signal.connect(new_slot, this)
   }
 
-  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+  disconnect<Sender extends object, Args extends unknown[]>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean {
     return signal.disconnect(slot, this)
   }
 

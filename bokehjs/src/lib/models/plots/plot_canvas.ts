@@ -15,7 +15,7 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
 import {Arrayable, Rect, Interval} from "core/types"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
@@ -129,8 +129,8 @@ export class PlotView extends LayoutDOMView {
   protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
 
-  force_paint: Signal0<this>
-  state_changed: Signal0<this>
+  force_paint: Signal<this>
+  state_changed: Signal<this>
   visibility_callbacks: ((visible: boolean) => void)[]
 
   protected _is_paused?: number
@@ -222,8 +222,8 @@ export class PlotView extends LayoutDOMView {
 
     super.initialize()
 
-    this.force_paint = new Signal0(this, "force_paint")
-    this.state_changed = new Signal0(this, "state_changed")
+    this.force_paint = new Signal(this, "force_paint")
+    this.state_changed = new Signal(this, "state_changed")
 
     this.lod_started = false
     this.visuals = new Visuals(this.model) as any // XXX

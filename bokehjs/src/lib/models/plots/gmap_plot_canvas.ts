@@ -1,4 +1,4 @@
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-const gmaps_ready = new Signal0({}, "gmaps_ready")
+const gmaps_ready = new Signal({}, "gmaps_ready")
 
 const load_google_api = function(api_key: string): void {
   window._bokeh_gmaps_callback = () => gmaps_ready.emit()

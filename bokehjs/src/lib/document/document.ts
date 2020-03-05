@@ -4,7 +4,7 @@ import {logger} from "../core/logging"
 import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Attrs} from "core/types"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data} from "core/util/serialization"
 import {MultiDict, Set as OurSet} from "core/util/data_structures"
@@ -73,7 +73,7 @@ export const DEFAULT_TITLE = "Bokeh Application"
 export class Document {
 
   readonly event_manager: EventManager
-  readonly idle: Signal0<this>
+  readonly idle: Signal<this>
 
   protected readonly _init_timestamp: number
   protected _title: string
@@ -98,7 +98,7 @@ export class Document {
     this._callbacks = []
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
-    this.idle = new Signal0(this, "idle")
+    this.idle = new Signal(this, "idle")
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
     this._interactive_timestamp = null
     this._interactive_plot = null

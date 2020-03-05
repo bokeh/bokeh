@@ -5,13 +5,13 @@ import {Set} from "./util/data_structures"
 import {defer} from "./util/callback"
 import {find, remove_by} from "./util/array"
 
-export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
+export type Slot<_Sender extends object, Args extends unknown[]> = /*((...args: [...Args, Sender]) => void) |*/ ((...args: Args) => void)
 
-export class Signal<Args, Sender extends object> {
+export class Signal<Sender extends object, Args extends unknown[] = []> {
 
   constructor(readonly sender: Sender, readonly name: string) {}
 
-  connect(slot: Slot<Args, Sender>, context: object | null = null): boolean {
+  connect(slot: Slot<Sender, Args>, context: object | null = null): boolean {
     if (!receiversForSender.has(this.sender)) {
       receiversForSender.set(this.sender, [])
     }
@@ -30,14 +30,14 @@ export class Signal<Args, Sender extends object> {
 
     const senders = sendersForReceiver.get(receiver)!
 
-    const connection = {signal: this, slot, context}
+    const connection: Connection = {signal: this, slot, context}
     receivers.push(connection)
     senders.push(connection)
 
     return true
   }
 
-  disconnect(slot: Slot<Args, Sender>, context: object | null = null): boolean {
+  disconnect(slot: Slot<Sender, Args>, context: object | null = null): boolean {
     const receivers = receiversForSender.get(this.sender)
     if (receivers == null || receivers.length === 0) {
       return false
@@ -58,20 +58,14 @@ export class Signal<Args, Sender extends object> {
     return true
   }
 
-  emit(args: Args): void {
+  emit(...args: Args): void {
     const receivers = receiversForSender.get(this.sender) || []
 
     for (const {signal, slot, context} of receivers) {
       if (signal === this) {
-        slot.call(context, args, this.sender)
+        slot.apply(context, [...args, this.sender])
       }
     }
-  }
-}
-
-export class Signal0<Sender extends object> extends Signal<void, Sender> {
-  emit(): void {
-    super.emit(undefined)
   }
 }
 
@@ -151,7 +145,7 @@ export namespace Signal {
 }
 
 export interface ISignalable {
-  connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
+  connect<Args extends unknown[], Sender extends object>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean
 }
 
 export function Signalable<C extends Constructor>(Base?: C) {
@@ -159,19 +153,19 @@ export function Signalable<C extends Constructor>(Base?: C) {
   // we have to do this to allow signalable classes without an explict base class.
   if (Base != null) {
     return class extends Base implements ISignalable {
-      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      connect<Args extends unknown[], Sender extends object>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean {
         return signal.connect(slot, this)
       }
-      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      disconnect<Args extends unknown[], Sender extends object>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean {
         return signal.disconnect(slot, this)
       }
     }
   } else {
     return class implements ISignalable {
-      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      connect<Args extends unknown[], Sender extends object>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean {
         return signal.connect(slot, this)
       }
-      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      disconnect<Args extends unknown[], Sender extends object>(signal: Signal<Sender, Args>, slot: Slot<Sender, Args>): boolean {
         return signal.disconnect(slot, this)
       }
     }
@@ -179,8 +173,8 @@ export function Signalable<C extends Constructor>(Base?: C) {
 }
 
 interface Connection {
-  signal: Signal<any, object> | null
-  readonly slot: Slot<any, object>
+  signal: Signal<object, any> | null
+  readonly slot: Slot<object, any>
   readonly context: object | null
 }
 

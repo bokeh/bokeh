@@ -2,7 +2,7 @@ import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Class} from "core/class"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {Place, Location, OutputBackend, ResetPolicy} from "core/enums"
 import {remove_by, concat} from "core/util/array"
 import {values} from "core/util/object"
@@ -105,7 +105,7 @@ export class Plot extends LayoutDOM {
 
   use_map?: boolean
 
-  reset: Signal0<this>
+  reset: Signal<this>
 
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)
@@ -197,7 +197,7 @@ export class Plot extends LayoutDOM {
   initialize(): void {
     super.initialize()
 
-    this.reset = new Signal0(this, "reset")
+    this.reset = new Signal(this, "reset")
 
     for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
       let plots = xr.plots

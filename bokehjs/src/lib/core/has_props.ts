@@ -2,7 +2,7 @@
 import {View} from "./view"
 import {Class} from "./class"
 import {Attrs} from "./types"
-import {Signal0, Signal, Signalable} from "./signaling"
+import {Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
@@ -177,9 +177,9 @@ export abstract class HasProps extends Signalable() {
 
   document: Document | null = null
 
-  readonly destroyed       = new Signal0<this>(this, "destroyed")
-  readonly change          = new Signal0<this>(this, "change")
-  readonly transformchange = new Signal0<this>(this, "transformchange")
+  readonly destroyed       = new Signal<this>(this, "destroyed")
+  readonly change          = new Signal<this>(this, "change")
+  readonly transformchange = new Signal<this>(this, "transformchange")
 
   readonly attributes: {[key: string]: any} = {}
   readonly properties: {[key: string]: any} = {}

@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {LineScalar, FillScalar} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
@@ -218,11 +218,11 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  data_update: Signal0<this>
+  data_update: Signal<this>
 
   initialize(): void {
     super.initialize()
-    this.data_update = new Signal0(this, "data_update")
+    this.data_update = new Signal(this, "data_update")
   }
 
   update({left, right, top, bottom}: {left: number | null, right: number | null, top: number | null, bottom: number | null}): void {

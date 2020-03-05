@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {EventType} from "core/ui_events"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
@@ -33,7 +33,7 @@ export class ToolProxy extends Model {
     })
   }
 
-  do: Signal0<this>
+  do: Signal<this>
 
   // Operates all the tools given only one button
 
@@ -68,7 +68,7 @@ export class ToolProxy extends Model {
 
   initialize(): void {
     super.initialize()
-    this.do = new Signal0(this, "do")
+    this.do = new Signal(this, "do")
   }
 
   connect_signals(): void {

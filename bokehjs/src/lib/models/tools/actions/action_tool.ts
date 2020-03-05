@@ -1,5 +1,5 @@
 import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export class ActionToolButtonView extends ButtonToolButtonView {
@@ -38,5 +38,5 @@ export abstract class ActionTool extends ButtonTool {
 
   button_view = ActionToolButtonView
 
-  do = new Signal0<this>(this, "do")
+  do = new Signal<this>(this, "do")
 }

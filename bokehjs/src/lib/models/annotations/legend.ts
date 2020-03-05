@@ -5,7 +5,7 @@ import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import {Class} from "core/class"
 import {Size} from "core/layout"
 import {measure_font} from "core/util/text"
@@ -354,7 +354,7 @@ export class Legend extends Annotation {
   properties: Legend.Props
   default_view: Class<LegendView>
 
-  item_change: Signal0<this>
+  item_change: Signal<this>
 
   constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)
@@ -362,7 +362,7 @@ export class Legend extends Annotation {
 
   initialize(): void {
     super.initialize()
-    this.item_change = new Signal0(this, "item_change")
+    this.item_change = new Signal(this, "item_change")
   }
 
   static init_Legend(): void {

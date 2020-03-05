@@ -1,4 +1,4 @@
-import {Signal0, Signal, Signalable} from "./signaling"
+import {Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"  // XXX: only for type purpose
 import * as enums from "./enums"
 import {Arrayable, Color as ColorType} from "./types"
@@ -58,13 +58,13 @@ export abstract class Property<T> extends Signalable() {
 
   optional: boolean = false
 
-  readonly change: Signal0<HasProps>
+  readonly change: Signal<HasProps>
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly default_value?: (obj: HasProps) => T) {
     super()
-    this.change = new Signal0(this.obj, "change")
+    this.change = new Signal(this.obj, "change")
     this._init()
     this.connect(this.change, () => this._init())
   }

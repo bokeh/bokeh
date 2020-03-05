@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {LineScalar, FillScalar} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
@@ -88,7 +88,7 @@ export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 export class PolyAnnotation extends Annotation {
   properties: PolyAnnotation.Props
 
-  data_update: Signal0<this>
+  data_update: Signal<this>
 
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)
@@ -122,7 +122,7 @@ export class PolyAnnotation extends Annotation {
 
   initialize(): void {
     super.initialize()
-    this.data_update = new Signal0(this, "data_update")
+    this.data_update = new Signal(this, "data_update")
   }
 
   update({xs, ys}: {xs: number[], ys: number[]}): void {

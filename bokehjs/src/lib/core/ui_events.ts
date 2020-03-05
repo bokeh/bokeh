@@ -75,7 +75,7 @@ export type KeyEvent = {
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "pressup" | "scroll"
 
-export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
+export type UISignal<E> = Signal<UIEvents, [{id: string | null, e: E}]>
 
 export class UIEvents implements EventListenerObject {
 
