@@ -1,4 +1,4 @@
-import {Program, VertexBuffer, IndexBuffer, Texture2D} from "gloo2"
+import {Program, VertexBuffer, IndexBuffer, Texture2D} from "@bokeh/gloo2"
 import {BaseGLGlyph, Transform} from "./base"
 import {vertex_shader} from "./line.vert"
 import {fragment_shader} from "./line.frag"
