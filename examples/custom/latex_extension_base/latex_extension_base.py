@@ -31,7 +31,7 @@ J_\nu = \sum_{m=0}^{\infty}\frac{(-1)^m}{m!\ \Gamma(m+\nu+1)}
 
 latex = LatexLabel(text=text, x=4.5, y=250,
                    x_units='data', y_units='screen',
-                   render_mode='css', text_font_size='8pt',
+                   render_mode='css', text_font_size='11px',
                    background_fill_color="white", border_line_color="lightgrey")
 p.add_layout(latex)
 

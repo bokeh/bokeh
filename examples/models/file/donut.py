@@ -75,7 +75,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
 
     text_source = ColumnDataSource(dict(text=text, x=x, y=y, angle=text_angle))
     glyph = Text(x="x", y="y", text="text", angle="angle",
-        text_align="center", text_baseline="middle", text_font_size="8pt")
+        text_align="center", text_baseline="middle", text_font_size="11px")
     plot.add_glyph(text_source, glyph)
 
 

@@ -2,7 +2,7 @@
     font name, e.g., ``'times'``, ``'helvetica'``
 
 ``text_font_size``
-    font size in *px*, *em*, or *pt*, e.g., ``'12pt'``, ``'1.5em'``
+    font size in *px*, *em*, or *pt*, e.g., ``'16px'``, ``'1.5em'``
 
 ``text_font_style``
     font style to use

@@ -32,7 +32,7 @@ plot.xaxis.axis_label = "Children per woman (total fertility)"
 plot.yaxis.ticker = SingleIntervalTicker(interval=20)
 plot.yaxis.axis_label = "Life expectancy at birth (years)"
 
-label = Label(x=1.1, y=18, text=str(years[0]), text_font_size='70pt', text_color='#eeeeee')
+label = Label(x=1.1, y=18, text=str(years[0]), text_font_size='93px', text_color='#eeeeee')
 plot.add_layout(label)
 
 color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions_list)

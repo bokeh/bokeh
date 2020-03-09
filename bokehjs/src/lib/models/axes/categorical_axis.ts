@@ -198,10 +198,10 @@ export class CategoricalAxis extends Axis {
       separator_line_color: "lightgrey",
       separator_line_width: 2,
       group_text_font_style: "bold",
-      group_text_font_size: "8pt",
+      group_text_font_size: "11px",
       group_text_color: "grey",
       subgroup_text_font_style: "bold",
-      subgroup_text_font_size: "8pt",
+      subgroup_text_font_size: "11px",
     })
   }
 }
