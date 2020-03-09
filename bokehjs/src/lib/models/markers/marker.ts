@@ -24,6 +24,7 @@ export abstract class MarkerView extends XYGlyphView {
   model: Marker
   visuals: Marker.Visuals
 
+  /** @internal */
   glglyph?: MarkerGLGlyph
 
   protected _render_one: RenderOne

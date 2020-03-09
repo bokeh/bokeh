@@ -37,7 +37,12 @@ export abstract class GlyphView extends View {
     return this.parent
   }
 
+  /** @internal */
   glglyph?: BaseGLGlyph
+
+  get has_webgl(): boolean {
+    return this.glglyph != null
+  }
 
   index: SpatialIndex
 

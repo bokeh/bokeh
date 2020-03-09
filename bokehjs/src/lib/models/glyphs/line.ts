@@ -18,6 +18,7 @@ export class LineView extends XYGlyphView {
   model: Line
   visuals: Line.Visuals
 
+  /** @internal */
   glglyph?: LineGLGlyph
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {

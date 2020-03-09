@@ -29,6 +29,7 @@ export class CircleView extends XYGlyphView {
   model: Circle
   visuals: Circle.Visuals
 
+  /** @internal */
   glglyph?: MarkerGLGlyph
 
   protected _map_data(): void {
