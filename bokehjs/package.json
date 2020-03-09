@@ -73,8 +73,8 @@
     "@types/eslint": "^6.1.8",
     "eslint": "^6.8.0",
     "acorn": "^7.1.0",
-    "@typescript-eslint/eslint-plugin": "^2.19.0",
-    "@typescript-eslint/parser": "^2.19.0"
+    "@typescript-eslint/eslint-plugin": "^2.22.1-alpha",
+    "@typescript-eslint/parser": "^2.22.1-alpha"
   },
   "dependencies": {
     "tslib": "^1.10.0",
