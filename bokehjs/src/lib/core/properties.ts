@@ -1,5 +1,5 @@
 import {Signal0, Signal, Signalable} from "./signaling"
-import {HasProps} from "./has_props"  // XXX: only for type purpose
+import type {HasProps} from "./has_props"
 import * as enums from "./enums"
 import {Arrayable, Color as ColorType} from "./types"
 import {includes, repeat} from "./util/array"

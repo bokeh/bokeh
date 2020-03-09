@@ -56,7 +56,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
 
   draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
-    const mainGlGlyph = mainGlyph.glglyph
+    const mainGlGlyph = mainGlyph.glglyph!
     const {nvertices} = mainGlGlyph
 
     // Upload data if we must. Only happens for main glyph.

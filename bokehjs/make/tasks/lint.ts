@@ -14,6 +14,7 @@ async function eslint(dir: string): Promise<void> {
     configFile: "./eslint.json",
     extensions: [".ts"],
     fix: argv.fix === true,
+    ignorePattern: ["src/lib/index.ts"], // XXX: remove when https://github.com/typescript-eslint/typescript-eslint/issues/1436 is resolved
   })
 
   const {include} = await import(join(dir, "tsconfig.json")) as {include: string[]}

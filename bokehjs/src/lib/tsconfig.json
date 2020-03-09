@@ -12,6 +12,7 @@
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
+    "stripInternal": true,
     "declaration": true,
     "sourceMap": true,
     "importHelpers": false,

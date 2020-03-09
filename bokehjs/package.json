@@ -35,7 +35,7 @@
     "mocha": "^7.0.1",
     "sinon": "^9.0.0",
     "yargs": "^15.1.0",
-    "typescript": "~3.7.5",
+    "typescript": "~3.8.3",
     "tslint": "^6.0.0",
     "tsconfig-paths": "^3.8.0",
     "less": "^3.9.0",
@@ -77,7 +77,7 @@
     "@typescript-eslint/parser": "^2.22.1-alpha"
   },
   "dependencies": {
-    "tslib": "^1.10.0",
+    "tslib": "^1.11.0",
     "@bokeh/canvas2svg": "^1.0.22",
     "es5-ext": "^0.10.53",
     "es6-promise": "4.2.8",
