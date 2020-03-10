@@ -1067,7 +1067,7 @@ class HoverTool(Inspection):
 
     .. code-block:: python
 
-        tool.formatters = dict(date="datetime")
+        tool.formatters = {"@date": "datetime"}
 
     will cause format specifications for the "date" column to be interpreted
     according to the "datetime" formatting scheme. The following schemes are
