@@ -21,6 +21,7 @@ import subprocess
 import sys
 
 # External imports
+import bs4
 from packaging.version import Version as V
 
 # Bokeh imports
@@ -43,6 +44,9 @@ if os.environ.get("BOKEH_RESOURCES"):
 LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
+
+def teardown_module() -> None :
+    Model._clear_extensions()
 
 # -----------------------------------------------------------------------------
 # General API
@@ -87,57 +91,58 @@ class TestSRIHashes(object):
             h = resources.get_sri_hashes_for_version(key)
             assert h == all_hashes[key]
 
+    def test_get_sri_hashes_for_version_bad(self) -> None:
+        with pytest.raises(KeyError):
+            resources.get_sri_hashes_for_version("junk")
 
-## Test JSResources
+class TestJSResources(object):
 
-
-def test_js_resources_default_mode_is_cdn() -> None:
-    r = resources.JSResources()
-    assert r.mode == "cdn"
-
-
-def test_js_resources_inline_has_no_css_resources() -> None:
-    r = resources.JSResources(mode="inline")
-    assert r.mode == "inline"
-    assert r.dev is False
-
-    assert len(r.js_raw) == 5
-    assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
-    assert hasattr(r, "css_raw") is False
-    assert r.messages == []
-
-def test_js_resources_hashes_mock_full(monkeypatch) -> None:
-    monkeypatch.setattr(buv, "__version__", "1.4.0")
-    monkeypatch.setattr(resources, "__version__", "1.4.0")
-    r = resources.JSResources()
-    assert r.mode == "cdn"
-    min_hashes = set(v for k, v in resources.get_sri_hashes_for_version("1.4.0").items() if k.endswith(".min.js") and "api" not in k)
-    assert set(r.hashes.values()) == min_hashes
-
-@pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
-def test_js_resources_hashes_mock_non_full(v, monkeypatch) -> None:
-    monkeypatch.setattr(buv, "__version__", v)
-    monkeypatch.setattr(resources, "__version__", v)
-    r = resources.JSResources()
-    assert r.mode == "cdn"
-    assert r.hashes == None
-
-## Test CSSResources
+    def test_js_resources_default_mode_is_cdn(self) -> None:
+        r = resources.JSResources()
+        assert r.mode == "cdn"
 
 
-def test_css_resources_default_mode_is_cdn() -> None:
-    r = resources.CSSResources()
-    assert r.mode == "cdn"
+    def test_js_resources_inline_has_no_css_resources(self) -> None:
+        r = resources.JSResources(mode="inline")
+        assert r.mode == "inline"
+        assert r.dev is False
+
+        assert len(r.js_raw) == 5
+        assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
+        assert hasattr(r, "css_raw") is False
+        assert r.messages == []
+
+    def test_js_resources_hashes_mock_full(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "1.4.0")
+        monkeypatch.setattr(resources, "__version__", "1.4.0")
+        r = resources.JSResources()
+        assert r.mode == "cdn"
+        min_hashes = set(v for k, v in resources.get_sri_hashes_for_version("1.4.0").items() if k.endswith(".min.js") and "api" not in k)
+        assert set(r.hashes.values()) == min_hashes
+
+    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
+    def test_js_resources_hashes_mock_non_full(self, v, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", v)
+        monkeypatch.setattr(resources, "__version__", v)
+        r = resources.JSResources()
+        assert r.mode == "cdn"
+        assert r.hashes == None
 
 
-def test_inline_css_resources() -> None:
-    r = resources.CSSResources(mode="inline")
-    assert r.mode == "inline"
-    assert r.dev is False
+class TestCSSResources(object):
+    def test_css_resources_default_mode_is_cdn(self) -> None:
+        r = resources.CSSResources()
+        assert r.mode == "cdn"
 
-    assert len(r.css_raw) == 0
-    assert hasattr(r, "js_raw") is False
-    assert r.messages == []
+
+    def test_inline_css_resources(self) -> None:
+        r = resources.CSSResources(mode="inline")
+        assert r.mode == "inline"
+        assert r.dev is False
+
+        assert len(r.css_raw) == 0
+        assert hasattr(r, "js_raw") is False
+        assert r.messages == []
 
 
 class TestResources(object):
@@ -175,8 +180,8 @@ class TestResources(object):
         url = result["urls"](["bokeh"], "js")[0]
         assert "bokeh/dev" in url
 
-    def test_cdn(self) -> None:
-        resources.__version__ = "1.0"
+    def test_cdn(self, monkeypatch) -> None:
+        monkeypatch.setattr(resources, "__version__", "1.0")
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.mode == "cdn"
         assert r.dev == False
@@ -327,6 +332,52 @@ class TestResources(object):
         except subprocess.CalledProcessError:
             pytest.fail(f"resources import failed with {env} set")
 
+    def test_render_js_cdn_release(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0")
+        monkeypatch.setattr(resources, "__version__", "2.0.0")
+        out = resources.CDN.render_js()
+        html = bs4.BeautifulSoup(out, "lxml")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            if "set_log_level" in script.text:
+                continue
+            assert script.attrs['crossorigin'] == "anonymous"
+            assert script.attrs['integrity'].startswith("sha384-")
+
+    @pytest.mark.parametrize('v', ["1.8.0rc1", "1.8.0dev6"])
+    def test_render_js_cdn_dev_release(self, v, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", v)
+        monkeypatch.setattr(resources, "__version__", v)
+        out = resources.CDN.render_js()
+        html = bs4.BeautifulSoup(out, "lxml")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
+
+    def test_render_js_cdn_dev_local(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
+        monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
+        out = resources.CDN.render_js()
+        html = bs4.BeautifulSoup(out, "lxml")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            if "set_log_level" in script.text:
+                continue
+            assert script.attrs['crossorigin'] == "anonymous"
+            assert script.attrs['integrity'].startswith("sha384-")
+
+    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
+    def test_render_js_inline(self, v, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", v)
+        monkeypatch.setattr(resources, "__version__", v)
+        out = resources.INLINE.render_js()
+        html = bs4.BeautifulSoup(out, "lxml")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
+
 
 ## Test external resources
 
@@ -382,6 +433,7 @@ def test_external_js_and_css_resource_ordering() -> None:
     # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
+
 
 
 # -----------------------------------------------------------------------------

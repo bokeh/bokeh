@@ -88,6 +88,8 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
+    const hashes = {{ hashes }};
+
     for (var i = 0; i < js_urls.length; i++) {
       var url = js_urls[i];
       var element = document.createElement('script');
@@ -95,10 +97,10 @@ calls it with the rendered model.
       element.onerror = on_error;
       element.async = false;
       element.src = url;
-      {% if hashes and hashes.get(url) %}
-      element.integrity="sha384-{{ hashes[url] }}"
-      element.crossorigin="anonymous"
-      {% endif %}
+      if (url in hashes) {
+        element.crossOrigin="anonymous";
+        element.integrity="sha384-" + hashes[url];
+      }
       console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
       document.head.appendChild(element);
     }

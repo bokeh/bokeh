@@ -54,7 +54,7 @@ The returned HTML text can be saved to a file using standard python file
 operations. You can also provide your own template and pass in custom, or
 additional, template variables. See the |file_html| documentation for more
 details.
-
+G
 This is a fairly low-level, explicit way to generate an HTML file, which
 may be useful for use from a web application, e.g. a Flask app. When using
 the |bokeh.plotting| interface in a script or Jupyter notebook, users will
