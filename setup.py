@@ -70,7 +70,7 @@ if sys.version_info[:2] < (3, 6):
 from setuptools import find_packages, setup
 
 from _setup_support import (
-    build_or_install_bokehjs, conda_rendering, fixup_building_sdist,
+    build_or_install_bokehjs, check_building_sdist, conda_rendering,
     fixup_for_packaged, get_cmdclass, get_package_data, get_version,
     install_js, package_files, package_path, ROOT, SERVER, show_bokehjs,
     show_help
@@ -100,7 +100,7 @@ REQUIRES = [
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
     fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
-    fixup_building_sdist() # must build BokehJS when MAKING sdists
+    check_building_sdist() # must build or install BokehJS when MAKING sdists
 
     bokehjs_action = build_or_install_bokehjs()
 

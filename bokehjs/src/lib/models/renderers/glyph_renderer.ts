@@ -203,7 +203,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   get has_webgl(): boolean {
-    return this.glyph.glglyph != null
+    return this.glyph.has_webgl
   }
 
   render(): void {

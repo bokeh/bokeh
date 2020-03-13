@@ -1,4 +1,4 @@
-import * as numbro from "numbro"
+import * as numbro from "@bokeh/numbro"
 
 import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
 import * as p from "core/properties"

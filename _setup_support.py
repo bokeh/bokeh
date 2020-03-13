@@ -160,24 +160,22 @@ def conda_rendering():
     return os.getenv("CONDA_BUILD_STATE" ,"junk") == "RENDER"
 
 
-def fixup_building_sdist():
-    ''' Check for 'sdist' and ensure we always build BokehJS when packaging
+def check_building_sdist():
+    ''' Check for 'sdist' and ensure we always build or install BokehJS when
+    packaging
 
     Source distributions do not ship with BokehJS source code, but must ship
-    with a pre-built BokehJS library. This function modifies ``sys.argv`` as
-    necessary so that ``--build-js`` IS present, and ``--install-js` is NOT.
+    with a pre-built BokehJS library. This function checks ``sys.argv`` to
+    ensure that ``--build-js`` or ``--install-js` is present.
 
     Returns:
         None
 
     '''
     if "sdist" in sys.argv:
-        if "--install-js" in sys.argv:
-            print("Removing '--install-js' incompatible with 'sdist'")
-            sys.argv.remove('--install-js')
-        if "--build-js" not in sys.argv:
-            print("Adding '--build-js' required for 'sdist'")
-            sys.argv.append('--build-js')
+        if "--install-js" not in sys.argv and "--build-js" not in sys.argv:
+            print("Error: Option '--build-js' or '--install-js' must be present with 'sdist', exiting.")
+            sys.exit(1)
 
 def fixup_for_packaged():
     ''' If we are installing FROM an sdist, then a pre-built BokehJS is

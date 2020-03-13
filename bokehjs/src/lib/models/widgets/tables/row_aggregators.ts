@@ -1,4 +1,4 @@
-import {Data, GroupTotals} from "slickgrid"
+import {Data, GroupTotals} from "@bokeh/slickgrid"
 const {Avg, Min, Max, Sum} = Data.Aggregators
 
 import * as p from 'core/properties'

@@ -36,7 +36,7 @@ export function relativize_modules(relativize: (file: string, module_path: strin
         const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
         if (moduleSpecifier != null) {
           const {decorators, modifiers, exportClause} = node
-          return ts.updateExportDeclaration(node, decorators, modifiers, exportClause, moduleSpecifier)
+          return ts.updateExportDeclaration(node, decorators, modifiers, exportClause, moduleSpecifier, false)
         }
       }
       if (is_require(node)) {

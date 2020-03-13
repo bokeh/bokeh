@@ -11,8 +11,8 @@
   <td>Latest Release</td>
   <td>
     <img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="Latest release version" />
-    <a href="https://badge.fury.io/js/bokehjs">
-      <img src="https://badge.fury.io/js/bokehjs.svg" alt="npm version">
+    <a href="https://badge.fury.io/js/%40bokeh%2Fbokehjs">
+      <img src="https://badge.fury.io/js/%40bokeh%2Fbokehjs.svg" alt="npm version">
     </a>
   </td>
 

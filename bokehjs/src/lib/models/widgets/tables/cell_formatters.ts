@@ -1,5 +1,5 @@
 import tz from "timezone"
-import * as Numbro from "numbro"
+import * as Numbro from "@bokeh/numbro"
 import {_} from "underscore.template"
 
 import * as p from "core/properties"
