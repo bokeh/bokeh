@@ -678,6 +678,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         Model.model_class_reverse_map = {
             k: v for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
+                and getattr(v, "__javascript__", None) is None
+                and getattr(v, "__css__", None) is None
         }
 
     def _detach_document(self):
