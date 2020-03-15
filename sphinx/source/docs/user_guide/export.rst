@@ -7,11 +7,11 @@ Additional dependencies
 -----------------------
 
 In order to use the |export| functions, users may have to install additional
-dependencies. These dependencies can be installed via conda:
+dependencies. One option is to install them via conda:
 
 .. code-block:: sh
 
-    conda install selenium geckodriver firefox
+    conda install selenium geckodriver firefox -c conda-forge
 
 Alternatively one can use ``chromedriver`` and ``chromium`` browser (or one of
 its variants). Typically at least one compatible browser will be available on
