@@ -141,7 +141,7 @@ def _get_save_title(state, title, suppress_warning):
 
     return DEFAULT_TITLE
 
-def _save_helper(obj, filename, resources, title, template, theme):
+def _save_helper(obj, filename, resources, title, template, theme=None):
     '''
 
     '''
