@@ -56,10 +56,11 @@ __all__ = (
 def base_version() -> str:
     return _base_version_helper(__version__)
 
-def is_full_release() -> bool:
+def is_full_release(version: str = None) -> bool:
     import re
+    version = version or __version__
     VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
-    return bool(VERSION_PAT.match(__version__))
+    return bool(VERSION_PAT.match(version))
 
 #-----------------------------------------------------------------------------
 # Dev API

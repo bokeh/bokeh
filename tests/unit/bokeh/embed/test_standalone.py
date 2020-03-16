@@ -23,6 +23,8 @@ from jinja2 import Template
 from mock import patch
 
 # Bokeh imports
+import bokeh.resources as resources
+import bokeh.util.version as buv
 from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
@@ -36,6 +38,11 @@ import bokeh.embed.standalone as bes # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+pytest_plugins = (
+    "bokeh._testing.plugins.project",
+    "bokeh._testing.plugins.selenium",
+)
+
 def stable_id():
     return 'ID'
 
@@ -45,6 +52,20 @@ def test_plot() -> None:
     test_plot = figure()
     test_plot.circle([1, 2], [2, 3])
     return test_plot
+
+PAGE = Template("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+
+<body>
+  <script>
+  {{js}}
+  </script>
+  {{tag}}
+</body>
+""")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -65,6 +86,90 @@ class Test_autoload_static(object):
         assert set(attrs) == set(['src', 'id'])
         assert attrs['src'] == 'some/path'
 
+    @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
+    @pytest.mark.selenium
+    def test_js_dev_cdn(self, version, monkeypatch, driver, test_file_path_and_url, test_plot) -> None:
+        monkeypatch.setattr(buv, "__version__", "1.4.0rc1")
+        monkeypatch.setattr(resources, "__version__", "1.4.0rc1")
+        js, tag = bes.autoload_static(test_plot, CDN, "some/path")
+
+        page = PAGE.render(js=js, tag=tag)
+
+        path, url = test_file_path_and_url
+        with open(path, "w") as f:
+            f.write(page)
+
+        driver.get(url)
+
+        scripts = driver.find_elements_by_css_selector('head script')
+        assert len(scripts) == 4
+        for script in scripts:
+            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("integrity") == ""
+
+    @pytest.mark.selenium
+    def test_js_release_cdn(self, monkeypatch, driver, test_file_path_and_url, test_plot) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0")
+        monkeypatch.setattr(resources, "__version__", "2.0.0")
+        js, tag = bes.autoload_static(test_plot, CDN, "some/path")
+
+        page = PAGE.render(js=js, tag=tag)
+
+        path, url = test_file_path_and_url
+        with open(path, "w") as f:
+            f.write(page)
+
+        driver.get(url)
+
+        scripts = driver.find_elements_by_css_selector('head script')
+        for x in scripts:
+            print(x.get_attribute("src"))
+        assert len(scripts) == 4
+        for script in scripts:
+            assert script.get_attribute("crossorigin") == "anonymous"
+            assert script.get_attribute("integrity").startswith("sha384-")
+
+    @pytest.mark.selenium
+    def test_js_release_dev_cdn(self, monkeypatch, driver, test_file_path_and_url, test_plot) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
+        monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
+        js, tag = bes.autoload_static(test_plot, CDN, "some/path")
+
+        page = PAGE.render(js=js, tag=tag)
+
+        path, url = test_file_path_and_url
+        with open(path, "w") as f:
+            f.write(page)
+
+        driver.get(url)
+
+        scripts = driver.find_elements_by_css_selector('head script')
+        for x in scripts:
+            print(x.get_attribute("src"))
+        assert len(scripts) == 4
+        for script in scripts:
+            assert script.get_attribute("crossorigin") == "anonymous"
+            assert script.get_attribute("integrity").startswith("sha384-")
+
+    @pytest.mark.selenium
+    def test_js_release_server(self, monkeypatch, driver, test_file_path_and_url, test_plot) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0")
+        monkeypatch.setattr(resources, "__version__", "2.0.0")
+        js, tag = bes.autoload_static(test_plot, resources.Resources(mode="server"), "some/path")
+
+        page = PAGE.render(js=js, tag=tag)
+
+        path, url = test_file_path_and_url
+        with open(path, "w") as f:
+            f.write(page)
+
+        driver.get(url)
+
+        scripts = driver.find_elements_by_css_selector('head script')
+        assert len(scripts) == 4
+        for script in scripts:
+            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("integrity") == ""
 
 class Test_components(object):
 
