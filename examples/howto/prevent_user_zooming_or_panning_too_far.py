@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 
 import numpy as np
 
@@ -91,8 +91,8 @@ google_y = GOOG['adj_close'][0:1000]
 
 ###### -- ranges set here -- ########
 x_range = Range1d(
-    start=date(2000, 1, 1), end=date(2004, 12, 31),
-    bounds=(date(2000, 1, 1), date(2006, 12, 31)),
+    start=datetime(2000, 1, 1), end=datetime(2004, 12, 31),
+    bounds=(datetime(2000, 1, 1), datetime(2006, 12, 31)),
     min_interval=timedelta(100),
 )
 y_range = Range1d(start=0, end=40, bounds=(0, 60))

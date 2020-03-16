@@ -254,6 +254,7 @@ class Test_AutocompleteInput(object):
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip_full_entry(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
@@ -285,6 +286,7 @@ class Test_AutocompleteInput(object):
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 
@@ -316,6 +318,7 @@ class Test_AutocompleteInput(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 

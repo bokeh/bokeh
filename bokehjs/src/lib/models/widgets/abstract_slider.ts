@@ -8,6 +8,7 @@ import {repeat} from "core/util/array"
 import {Control, ControlView} from "./control"
 
 import {bk_slider_value, bk_slider_title, bk_input_group} from "styles/widgets/sliders"
+import {TickFormatter} from "../formatters/tick_formatter"
 
 const prefix = 'bk-noUi-'
 
@@ -260,7 +261,7 @@ export namespace AbstractSlider {
     value: p.Property<any> // XXX
     value_throttled: p.Property<any> // XXX
     step: p.Property<number>
-    format: p.Property<string>
+    format: p.Property<string | TickFormatter>
     direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
     bar_color: p.Property<Color>
@@ -285,7 +286,7 @@ export abstract class AbstractSlider extends Control {
       value:             [ p.Any                                ],
       value_throttled:   [ p.Any                                ],
       step:              [ p.Number,               1            ],
-      format:            [ p.String                             ],
+      format:            [ p.Any                                ],
       direction:         [ p.Any,                  "ltr"        ],
       tooltips:          [ p.Boolean,              true         ],
       bar_color:         [ p.Color,                "#e6e6e6"    ],
@@ -295,7 +296,7 @@ export abstract class AbstractSlider extends Control {
   behaviour: "drag" | "tap"
   connected: false | boolean[] = false
 
-  protected _formatter(value: number, _format: string): string {
+  protected _formatter(value: number, _format: string | TickFormatter): string {
     return `${value}`
   }
 

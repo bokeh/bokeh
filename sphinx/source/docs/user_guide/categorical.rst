@@ -126,7 +126,7 @@ fruit type stacked instead of grouped:
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked.py
     :source-position: above
 
-Note that behing the scenes, these functions work by stacking up the
+Note that behind the scenes, these functions work by stacking up the
 successive columns in separate calls to ``vbar`` or ``hbar``. This kind of
 operation is akin the to dodge example above (i.e. the data in this case is
 *not* in a "tidy" data format).
@@ -188,7 +188,7 @@ Grouped
 When creating bar charts, it is often desirable to visually display the
 data according to sub-groups. There are two basic methods that can be used,
 depending on your use case: using nested categorical coordinates, or
-applying vidual dodges.
+applying visual dodges.
 
 .. _userguide_categorical_bars_grouped_nested:
 
@@ -303,7 +303,7 @@ to make life easier when you do.
 Below is a plot that demonstrates some advantages when using Pandas with
 Bokeh:
 
-* Pandas ``GroupBy`` objects can be used to initialize a ``CoumnDataSource``,
+* Pandas ``GroupBy`` objects can be used to initialize a ``ColumnDataSource``,
   automatically creating columns for many statistical measures such as the
   group mean or count
 

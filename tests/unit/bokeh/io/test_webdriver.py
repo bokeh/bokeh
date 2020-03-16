@@ -35,15 +35,21 @@ import bokeh.io.webdriver as biw # isort:skip
 
 def test_create_firefox_webdriver() -> None:
     d = biw.create_firefox_webdriver()
-    assert isinstance(d, selenium.webdriver.firefox.webdriver.WebDriver)
+    try:
+        assert isinstance(d, selenium.webdriver.firefox.webdriver.WebDriver)
+    finally:
+        d.quit()
 
 def test_create_chromium_webdriver() -> None:
     d = biw.create_chromium_webdriver()
-    assert isinstance(d, selenium.webdriver.chrome.webdriver.WebDriver)
+    try:
+        assert isinstance(d, selenium.webdriver.chrome.webdriver.WebDriver)
+    finally:
+        d.quit()
 
 _driver_map = {
-    'firefox': selenium.webdriver.firefox.webdriver.WebDriver,
-    'chromium': selenium.webdriver.chrome.webdriver.WebDriver,
+    "firefox": selenium.webdriver.firefox.webdriver.WebDriver,
+    "chromium": selenium.webdriver.chrome.webdriver.WebDriver,
 }
 
 class Test_webdriver_control(object):
@@ -52,7 +58,7 @@ class Test_webdriver_control(object):
         # so create a new instance only to check default values
         wc = biw._WebdriverState()
         assert wc.reuse == True
-        assert wc.kind == "chromium"
+        assert wc.kind == None
         assert wc.current is None
 
     def test_get_with_reuse(self) -> None:

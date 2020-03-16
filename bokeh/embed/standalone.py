@@ -102,7 +102,7 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
 
     (_, elementid) = list(render_item.roots.to_json().items())[0]
 
-    js = wrap_in_onload(AUTOLOAD_JS.render(bundle=bundle, elementid=elementid))
+    js = wrap_in_onload(AUTOLOAD_JS.render(bundle=bundle, elementid=elementid, hashes=bundle.hashes or {}))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,

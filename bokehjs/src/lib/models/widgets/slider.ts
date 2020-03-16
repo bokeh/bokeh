@@ -1,7 +1,9 @@
-import * as numbro from "numbro"
+import * as numbro from "@bokeh/numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 import * as p from "core/properties"
+import {isString} from "core/util/types"
+import {TickFormatter} from "../formatters/tick_formatter"
 
 export class SliderView extends AbstractSliderView {
   model: Slider
@@ -33,7 +35,11 @@ export class Slider extends AbstractSlider {
   behaviour = "tap" as "tap"
   connected = [true, false]
 
-  protected _formatter(value: number, format: string): string {
-    return numbro.format(value, format)
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format)){
+      return numbro.format(value, format)
+    } else {
+      return format.doFormat([value], {loc: 0})[0]
+    }
   }
 }

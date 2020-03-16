@@ -241,6 +241,9 @@ class ProxyToolbar(ToolbarBase):
 
     '''
 
+    toolbars = List(Instance(Toolbar), help="""
+    """)
+
 class ToolbarBox(LayoutDOM):
     ''' A layoutable toolbar that can accept the tools of multiple plots, and
     can merge the tools into a single button for convenience.
@@ -1064,7 +1067,7 @@ class HoverTool(Inspection):
 
     .. code-block:: python
 
-        tool.formatters = dict(date="datetime")
+        tool.formatters = {"@date": "datetime"}
 
     will cause format specifications for the "date" column to be interpreted
     according to the "datetime" formatting scheme. The following schemes are

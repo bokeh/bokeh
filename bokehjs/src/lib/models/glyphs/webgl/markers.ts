@@ -1,4 +1,4 @@
-import {Program, VertexBuffer, IndexBuffer} from "gloo2"
+import {Program, VertexBuffer, IndexBuffer} from "@bokeh/gloo2"
 import {BaseGLGlyph, Transform, attach_float, attach_color} from "./base"
 import {vertex_shader} from "./markers.vert"
 import {fragment_shader} from "./markers.frag"
@@ -56,7 +56,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
 
   draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
-    const mainGlGlyph = mainGlyph.glglyph
+    const mainGlGlyph = mainGlyph.glglyph!
     const {nvertices} = mainGlGlyph
 
     // Upload data if we must. Only happens for main glyph.

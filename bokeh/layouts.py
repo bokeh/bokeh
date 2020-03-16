@@ -272,7 +272,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         children = []
 
     # Make the grid
-    tools = []
+    toolbars = []
     items = []
 
     for y, row in enumerate(children):
@@ -282,7 +282,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             elif isinstance(item, LayoutDOM):
                 if merge_tools:
                     for plot in item.select(dict(type=Plot)):
-                        tools += plot.toolbar.tools
+                        toolbars.append(plot.toolbar)
                         plot.toolbar_location = None
 
                 if isinstance(item, Plot):
@@ -302,7 +302,8 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         return GridBox(children=items, sizing_mode=sizing_mode)
 
     grid = GridBox(children=items)
-    proxy = ProxyToolbar(tools=tools, **toolbar_options)
+    tools = sum([ toolbar.tools for toolbar in toolbars ], [])
+    proxy = ProxyToolbar(toolbars=toolbars, tools=tools, **toolbar_options)
     toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
 
     if toolbar_location == 'above':

@@ -378,7 +378,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             self.js_event_callbacks[event].append(callback)
 
 
-    def js_link(self, attr, other, other_attr):
+    def js_link(self, attr, other, other_attr, attr_selector=None):
         ''' Link two Bokeh model properties using JavaScript.
 
         This is a convenience method that simplifies adding a CustomJS callback
@@ -394,6 +394,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
             other_attr (str) :
                 The property on ``other`` to link together
+
+            attr_selector (Union[int, str]) :
+                The index to link an item in a subscriptable ``attr``
 
         Added in version 1.1
 
@@ -420,6 +423,23 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                     )
                 )
 
+            Additionally, to use attr_selector to attach the left side of a range slider to a plot's x_range:
+
+            .. code :: python
+
+                range_slider.js_link('value', plot.x_range, 'start', attr_selector=0)
+
+            which is equivalent to:
+
+            .. code :: python
+
+                from bokeh.models import CustomJS
+                range_slider.js_on_change('value',
+                    CustomJS(args=dict(other=plot.x_range),
+                             code="other.start = this.value[0]"
+                    )
+                )
+
         '''
         if attr not in self.properties():
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
@@ -431,7 +451,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
         from bokeh.models import CustomJS
-        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+
+        selector = f"[{attr_selector!r}]" if attr_selector is not None else ""
+        cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
 
         self.js_on_change(attr, cb)
 
@@ -656,6 +678,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         Model.model_class_reverse_map = {
             k: v for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
+                and getattr(v, "__javascript__", None) is None
+                and getattr(v, "__css__", None) is None
         }
 
     def _detach_document(self):

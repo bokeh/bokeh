@@ -8,7 +8,7 @@ const {floor, max, min} = Math
 
 function _get_sig_dig(num: number): number { // get number of digits
   if (floor(num) !== num)
-    return num.toString().replace(/0+$/, '').split(".")[1].length
+    return num.toFixed(16).replace(/0+$/, '').split(".")[1].length
   return 0
 }
 

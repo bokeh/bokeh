@@ -52,12 +52,13 @@ async def http_get(io_loop, url, headers=None):
         headers = dict()
     return await http_client.fetch(url, headers=headers)
 
-async def websocket_open(io_loop, url, origin=None):
+async def websocket_open(io_loop, url, origin=None, subprotocols=[]):
     request = HTTPRequest(url)
     if origin is not None:
         request.headers['Origin'] = origin
-    result = await websocket_connect(request)
+    result = await websocket_connect(request, subprotocols=subprotocols)
     result.close()
+    return result
 
 #-----------------------------------------------------------------------------
 # Private API

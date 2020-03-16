@@ -5,7 +5,7 @@ import * as p from "core/properties"
 import {div, canvas, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {BBox} from "core/util/bbox"
-import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
+import {Context2d, fixup_ctx} from "core/util/canvas"
 import {bk_canvas, bk_canvas_underlays, bk_canvas_overlays, bk_canvas_events} from "styles/canvas"
 
 // Notes on WebGL support:
@@ -40,7 +40,7 @@ const global_webgl: WebGLState | undefined = (() => {
   }
 })()
 
-import canvas2svg, {SVGRenderingContext2D} from "canvas2svg"
+import canvas2svg, {SVGRenderingContext2D} from "@bokeh/canvas2svg"
 
 export class CanvasView extends DOMView {
   model: Canvas
@@ -114,13 +114,13 @@ export class CanvasView extends DOMView {
   }
 
   prepare_canvas(width: number, height: number): void {
-    // Ensure canvas has the correct size, taking HIDPI into account
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
     this.el.style.width = `${width}px`
     this.el.style.height = `${height}px`
 
-    const pixel_ratio = get_scale_ratio(this.ctx, this.model.use_hidpi, this.model.output_backend)
+    const {use_hidpi, output_backend} = this.model
+    const pixel_ratio = use_hidpi && output_backend != "svg" ? devicePixelRatio : 1
     this.model.pixel_ratio = pixel_ratio
 
     this.canvas_el.style.width = `${width}px`

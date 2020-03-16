@@ -52,6 +52,7 @@ DEFAULT_MEM_LOG_FREQ_MS                  = 0
 DEFAULT_STATS_LOG_FREQ_MS                = 15000
 DEFAULT_UNUSED_LIFETIME_MS               = 15000
 DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
+DEFAULT_SESSION_TOKEN_EXPIRATION         = 300
 
 __all__ = (
     'BokehTornado',
@@ -169,6 +170,28 @@ class BokehTornado(TornadoApplication):
         auth_provider (AuthProvider, optional):
             An AuthProvider instance
 
+        include_headers (list, optional) :
+            List of request headers to include in session context
+            (by default all headers are included)
+
+        exclude_headers (list, optional) :
+            List of request headers to exclude in session context
+            (by default all headers are included)
+
+        include_cookies (list, optional) :
+            List of cookies to include in session context
+            (by default all cookies are included)
+
+        exclude_cookies (list, optional) :
+            List of cookies to exclude in session context
+            (by default all cookies are included)
+
+        session_token_expiration (int, optional) :
+            Duration in seconds that a new session token is valid
+            for session creation. After the expiry time has elapsed,
+            the token will not be able create a new session
+            (default: {DEFAULT_SESSION_TOKEN_EXPIRATION})
+
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
@@ -191,6 +214,11 @@ class BokehTornado(TornadoApplication):
                  index=None,
                  auth_provider=NullAuth(),
                  xsrf_cookies=False,
+                 include_headers=None,
+                 include_cookies=None,
+                 exclude_headers=None,
+                 exclude_cookies=None,
+                 session_token_expiration=DEFAULT_SESSION_TOKEN_EXPIRATION,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -266,6 +294,23 @@ class BokehTornado(TornadoApplication):
         kwargs['xsrf_cookies'] = xsrf_cookies
         if xsrf_cookies:
             log.info("XSRF cookie protection enabled")
+
+        if session_token_expiration <= 0:
+            raise ValueError("session_token_expiration must be > 0")
+        else:
+            self._session_token_expiration = session_token_expiration
+
+        if exclude_cookies and include_cookies:
+            raise ValueError("Declare either an include or an exclude list"
+                             "for the cookies, not both.")
+        self._exclude_cookies = exclude_cookies
+        self._include_cookies = include_cookies
+
+        if exclude_headers and include_headers:
+            raise ValueError("Declare either an include or an exclude list"
+                             "for the headers, not both.")
+        self._exclude_headers = exclude_headers
+        self._include_headers = include_headers
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()
@@ -412,6 +457,36 @@ class BokehTornado(TornadoApplication):
         return self._secret_key
 
     @property
+    def include_cookies(self):
+        ''' A list of request cookies to make available in the session
+        context.
+
+        '''
+        return self._include_cookies
+
+    @property
+    def include_headers(self):
+        ''' A list of request headers to make available in the session
+        context.
+
+        '''
+        return self._include_headers
+
+    @property
+    def exclude_cookies(self):
+        ''' A list of request cookies to exclude in the session context.
+
+        '''
+        return self._exclude_cookies
+
+    @property
+    def exclude_headers(self):
+        ''' A list of request headers to exclude in the session context.
+
+        '''
+        return self._exclude_headers
+
+    @property
     def sign_sessions(self):
         ''' Whether this Bokeh Server Tornado Application has been configured
         to cryptographically sign session IDs
@@ -427,6 +502,16 @@ class BokehTornado(TornadoApplication):
 
         '''
         return self._generate_session_ids
+
+    @property
+    def session_token_expiration(self):
+        ''' Duration in seconds that a new session token is valid for
+        session creation.
+
+        After the expiry time has elapsed, the token will not be able
+        create a new session.
+        '''
+        return self._session_token_expiration
 
     def resources(self, absolute_url=None):
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where
@@ -598,9 +683,13 @@ BokehTornado.__doc__ = format_docstring(
     DEFAULT_STATS_LOG_FREQ_MS=DEFAULT_STATS_LOG_FREQ_MS,
     DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+    DEFAULT_SESSION_TOKEN_EXPIRATION=DEFAULT_SESSION_TOKEN_EXPIRATION,
 )
 
 # See https://github.com/bokeh/bokeh/issues/9507
 if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
     import asyncio
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    if type(asyncio.get_event_loop_policy()) is asyncio.WindowsProactorEventLoopPolicy:
+        # WindowsProactorEventLoopPolicy is not compatible with tornado 6
+        # fallback to the pre-3.8 default of WindowsSelectorEventLoopPolicy
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

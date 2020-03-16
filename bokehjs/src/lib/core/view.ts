@@ -1,4 +1,4 @@
-import /*type*/ {HasProps} from "./has_props"
+import type {HasProps} from "./has_props"
 import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {isArray} from "./util/types"
