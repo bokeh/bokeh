@@ -111,6 +111,8 @@ export class LassoSelectTool extends SelectTool {
       select_every_mousemove: [ p.Boolean, true                  ],
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
+
+    this.register_alias("lasso_select", () => new LassoSelectTool())
   }
 
   tool_name = "Lasso Select"

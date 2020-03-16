@@ -113,6 +113,10 @@ export class BoxSelectTool extends SelectTool {
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
       origin:                 [ p.BoxOrigin,  "corner"            ],
     })
+
+    this.register_alias("box_select", () => new BoxSelectTool())
+    this.register_alias("xbox_select", () => new BoxSelectTool({dimensions: 'width'}))
+    this.register_alias("ybox_select", () => new BoxSelectTool({dimensions: 'height'}))
   }
 
   tool_name = "Box Select"

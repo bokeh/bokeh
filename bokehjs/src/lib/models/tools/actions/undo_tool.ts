@@ -36,6 +36,8 @@ export class UndoTool extends ActionTool {
     this.override({
       disabled: true,
     })
+
+    this.register_alias("undo", () => new UndoTool())
   }
 
   tool_name = "Undo"
