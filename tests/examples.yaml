@@ -17,7 +17,7 @@
 - path: "examples/howto/layouts"
 
 - path: "examples/embed"
-  skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "server_session", "simple"]
+  skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "json_item_themed.py", "server_session", "simple"]
 
 - path: "examples/app"
   type: server
