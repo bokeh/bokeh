@@ -1,17 +1,19 @@
-export interface PointGeometry {
+import {Arrayable} from "./types"
+
+export type PointGeometry = {
   type: "point"
   sx: number
   sy: number
 }
 
-export interface SpanGeometry {
+export type SpanGeometry = {
   type: "span"
   direction: "h" | "v"
   sx: number
   sy: number
 }
 
-export interface RectGeometry {
+export type RectGeometry = {
   type: "rect"
   sx0: number
   sx1: number
@@ -19,10 +21,34 @@ export interface RectGeometry {
   sy1: number
 }
 
-export interface PolyGeometry {
+export type PolyGeometry = {
   type: "poly"
-  sx: number[]
-  sy: number[]
+  sx: Arrayable<number>
+  sy: Arrayable<number>
 }
 
 export type Geometry = PointGeometry | SpanGeometry | RectGeometry | PolyGeometry
+
+export type PointGeometryData = PointGeometry & {
+  x: number
+  y: number
+}
+
+export type SpanGeometryData = SpanGeometry & {
+  x: number
+  y: number
+}
+
+export type RectGeometryData = RectGeometry & {
+  x0: number
+  x1: number
+  y0: number
+  y1: number
+}
+
+export type PolyGeometryData = PolyGeometry & {
+  x: Arrayable<number>
+  y: Arrayable<number>
+}
+
+export type GeometryData = PointGeometryData | SpanGeometryData | RectGeometryData | PolyGeometryData
