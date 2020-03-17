@@ -35,6 +35,8 @@ export class HelpTool extends ActionTool {
       help_tooltip: [ p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
       redirect:     [ p.String, 'https://docs.bokeh.org/en/latest/docs/user_guide/tools.html'],
     })
+
+    this.register_alias("help", () => new HelpTool())
   }
 
   tool_name = "Help"

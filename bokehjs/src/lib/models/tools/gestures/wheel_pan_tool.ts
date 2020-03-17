@@ -110,6 +110,9 @@ export class WheelPanTool extends GestureTool {
     this.internal({
       speed: [ p.Number, 1/1000 ],
     })
+
+    this.register_alias("xwheel_pan", () => new WheelPanTool({dimension: "width"}))
+    this.register_alias("ywheel_pan", () => new WheelPanTool({dimension: "height"}))
   }
 
   tool_name = "Wheel Pan"

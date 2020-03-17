@@ -89,6 +89,9 @@ export class TapTool extends SelectTool {
       behavior: [ p.TapBehavior, "select" ],
       callback: [ p.Any                   ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
+
+    this.register_alias("click", () => new TapTool({behavior: "inspect"}))
+    this.register_alias("tap", () => new TapTool())
   }
 
   tool_name = "Tap"

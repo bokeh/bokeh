@@ -467,6 +467,8 @@ export class HoverTool extends InspectTool {
       attachment:   [ p.TooltipAttachment, 'horizontal'   ],
       callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
+
+    this.register_alias("hover", () => new HoverTool())
   }
 
   tool_name = "Hover"
