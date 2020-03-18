@@ -169,7 +169,7 @@ export class DataRange1d extends DataRange {
 
     let start, end: number
 
-	if (this._initial_start != null)
+    if (this._initial_start != null)
       min = this._initial_start
 
     if (this._initial_end != null)
