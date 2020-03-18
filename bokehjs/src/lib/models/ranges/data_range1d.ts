@@ -168,6 +168,12 @@ export class DataRange1d extends DataRange {
     const range_padding = this.range_padding // XXX: ? 0
 
     let start, end: number
+
+	if (this._initial_start != null)
+      min = this._initial_start
+
+    if (this._initial_end != null)
+      max = this._initial_end
     if (this.scale_hint == "log") {
       if (isNaN(min) || !isFinite(min) || min <= 0) {
         if (isNaN(max) || !isFinite(max) || max <= 0)
