@@ -412,7 +412,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 # External imports
 from tornado.autoreload import watch
@@ -727,10 +727,11 @@ class Serve(Subcommand):
         )),
     )
 
-    def _update_server_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> None:
+    def customize_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        '''Allows subclasses to return kwargs to be merged with server_kwargs.
+
         '''
-        Allows subclasses of the Subcommand to modify server_kwargs.
-        '''
+        return {}
 
     def invoke(self, args: argparse.Namespace) -> None:
         '''
@@ -872,7 +873,7 @@ class Serve(Subcommand):
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
 
-        self._update_server_kwargs(args, server_kwargs)
+        server_kwargs.update(self.customize_kwargs(args, server_kwargs))
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
