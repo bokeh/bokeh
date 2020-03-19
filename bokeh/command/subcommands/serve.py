@@ -728,10 +728,11 @@ class Serve(Subcommand):
     )
 
     def customize_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        '''Allows subclasses to return kwargs to be merged with server_kwargs.
+        '''Allows subclasses to customize ``server_kwargs``.
 
+        Should modify and return a copy of the ``server_kwargs`` dictionary.
         '''
-        return {}
+        return dict(server_kwargs)
 
     def invoke(self, args: argparse.Namespace) -> None:
         '''
@@ -873,7 +874,7 @@ class Serve(Subcommand):
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
 
-        server_kwargs.update(self.customize_kwargs(args, server_kwargs))
+        server_kwargs = self.customize_kwargs(args, server_kwargs)
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
