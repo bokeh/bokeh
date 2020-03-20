@@ -452,7 +452,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         from bokeh.models import CustomJS
 
-        selector = f"[{attr_selector!r}]" if attr_selector else ""
+        selector = f"[{attr_selector!r}]" if attr_selector is not None else ""
         cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
 
         self.js_on_change(attr, cb)
@@ -678,6 +678,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         Model.model_class_reverse_map = {
             k: v for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
+                and getattr(v, "__javascript__", None) is None
+                and getattr(v, "__css__", None) is None
         }
 
     def _detach_document(self):

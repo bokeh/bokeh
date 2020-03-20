@@ -54,7 +54,7 @@ The returned HTML text can be saved to a file using standard python file
 operations. You can also provide your own template and pass in custom, or
 additional, template variables. See the |file_html| documentation for more
 details.
-
+G
 This is a fairly low-level, explicit way to generate an HTML file, which
 may be useful for use from a web application, e.g. a Flask app. When using
 the |bokeh.plotting| interface in a script or Jupyter notebook, users will
@@ -202,9 +202,12 @@ appropriate version replacing ``x.y.z``:
 
 .. code-block:: html
 
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"
+            crossorigin="anonymous"></script>
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
 Similarly, the ``"-tables"`` files are only necessary if you are using Bokeh data tables in
@@ -214,13 +217,45 @@ For example, to use version ``1.4.0``, including widgets and tables support:
 
 .. code-block:: html
 
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.4.0.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.4.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js"
+            crossorigin="anonymous"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
-    browsers and the page will typically not render without it.
+    browsers and the page will typically not render without it. You should also
+    always include the `crossorigin="anonymous"` attribute on the script.
+
+If you would like to include `Subresource Integrity`_ hashes to your explicit
+script tags by setting the `integrity` attribute, the necesary hashes can be
+obtained by calling :func:`~bokeh.resources.get_sri_hashes_for_version` e.g.
+
+.. code-block:: python
+
+    In [1]: import bokeh.resources
+
+    In [2]: bokeh.resources.get_sri_hashes_for_version("2.0.0")
+    Out[2]:
+    {'bokeh-2.0.0.js': 'TQAjsk2/lDn1NHjYoe8HIascd3/Cw4EWdk6GNtYXVVyAiUkbEZiuP7fEgbSwM37Y',
+
+    ...
+
+    'bokeh-widgets-2.0.0.min.js': '2ltAd1cQhavmLeBEZXGgnna8fjbw+FjvDq9m2dig4+8KVS8JcYFUQaALvLT//qHE'}
+
+These are the bare hashes, and must be prefixed with `sha384-` to use. For
+example:
+
+.. code-block:: html
+
+     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.0.min.js"
+             integrity="sha384-5Y+xuMRAbgBj/2WKUiL8yzV4fBFic1HJPo2hT3pq2IsEzbsJjj8kT2i0b1lZ7C2N"
+             crossorigin="anonymous"></script>
+
+SRI hashes are only produced for full release versiones (i.e. not for dev builds
+or release candidates).
 
 In addition to a single Bokeh model (e.g. a plot), the |components| function
 also accepts a list or tuple of models, or a dictionary of keys and models.
@@ -572,3 +607,5 @@ The full template, with all the sections that can be overridden, is given here:
 .. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`
 .. |server_session|  replace:: :func:`~bokeh.embed.server_session`
+
+.. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity

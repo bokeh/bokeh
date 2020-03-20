@@ -40,7 +40,7 @@ const global_webgl: WebGLState | undefined = (() => {
   }
 })()
 
-import canvas2svg, {SVGRenderingContext2D} from "canvas2svg"
+import canvas2svg, {SVGRenderingContext2D} from "@bokeh/canvas2svg"
 
 export class CanvasView extends DOMView {
   model: Canvas

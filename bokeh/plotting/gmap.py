@@ -216,6 +216,8 @@ def gmap(google_api_key, map_options, **kwargs):
 
             https://developers.google.com/maps/documentation/javascript/get-api-key
 
+            The Google API key will be stored in the Bokeh Document JSON.
+
         map_options: (GMapOptions)
             Configuration specific to a Google Map
 

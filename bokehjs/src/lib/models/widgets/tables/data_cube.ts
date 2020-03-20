@@ -1,6 +1,6 @@
 import * as p from 'core/properties'
 import {span} from 'core/dom'
-import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from 'slickgrid'
+import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from '@bokeh/slickgrid'
 import {TableDataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
 import {Item} from "./table_column"
 import {ColumnDataSource} from '../../sources/column_data_source'

@@ -126,6 +126,9 @@ def get_sri_hashes_for_version(version):
     Returns:
         dict
 
+    Raises:
+        KeyError: if the specified version does not exist
+
     Example:
 
         The returned dict for a single version will map filenames for that
@@ -225,6 +228,16 @@ class BaseResources(object):
 
         self.mode = settings.resources(mode)
         del mode
+
+        if root_dir and not self.mode.startswith("relative"):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
+
+        if version and not self.mode.startswith("cdn"):
+            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
+
+        if root_url and not self.mode.startswith("server"):
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+
         self.root_dir = settings.rootdir(root_dir)
         del root_dir
         self.version = settings.cdn_version(version)
@@ -256,15 +269,6 @@ class BaseResources(object):
                 "wrong value for 'mode' parameter, expected "
                 "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode
             )
-
-        if self.root_dir and not self.mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
-
-        if self.version and not self.mode.startswith("cdn"):
-            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
-
-        if root_url and not self.mode.startswith("server"):
-            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
 
         self.dev = self.mode.endswith("-dev")
         if self.dev:
@@ -311,9 +315,8 @@ class BaseResources(object):
 
     def _file_paths(self, kind):
         minified = ".min" if not self.dev and self.minified else ""
-        legacy = "legacy" if self.legacy else ""
         files = ["%s%s.%s" % (component, minified, kind) for component in self.components(kind)]
-        paths = [join(self.base_dir, kind, legacy, file) for file in files]
+        paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
     def _collect_external_resources(self, resource_attr):
@@ -643,7 +646,7 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
 
     # check if we want minified js and css
     _minified = ".min" if minified else ""
-    _legacy = "legacy/" if legacy else ""
+    _legacy = ".legacy" if legacy else ""
 
     base_url = _cdn_base_url()
     dev_container = "bokeh/dev"
@@ -653,10 +656,10 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     container = dev_container if _DEV_PAT.match(version) else rel_container
 
     def mk_filename(comp, kind):
-        return f"{comp}-{version}{_minified}.{kind}"
+        return f"{comp}-{version}{_legacy}{_minified}.{kind}"
 
     def mk_url(comp, kind):
-        return f"{base_url}/{container}/{_legacy}" + mk_filename(comp, kind)
+        return f"{base_url}/{container}/" + mk_filename(comp, kind)
 
     result = {
         "urls": lambda components, kind: [mk_url(component, kind) for component in components],
@@ -676,7 +679,7 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
             }
         )
 
-    if is_full_release():
+    if is_full_release(version):
         sri_hashes = get_sri_hashes_for_version(version)
         result['hashes'] = lambda components, kind: {mk_url(component, kind): sri_hashes[mk_filename(component, kind)] for component in components}
 
@@ -685,10 +688,10 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
 
 def _get_server_urls(root_url, minified=True, legacy=False, path_versioner=None):
     _minified = ".min" if minified else ""
-    _legacy = "legacy/" if legacy else ""
+    _legacy = ".legacy" if legacy else ""
 
     def mk_url(comp, kind):
-        path = f"{kind}/{_legacy}{comp}{_minified}.{kind}"
+        path = f"{kind}/{comp}{_legacy}{_minified}.{kind}"
         if path_versioner is not None:
             path = path_versioner(path)
         return f"{root_url}static/{path}"

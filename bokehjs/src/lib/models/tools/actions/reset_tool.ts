@@ -27,6 +27,8 @@ export class ResetTool extends ActionTool {
 
   static init_ResetTool(): void {
     this.prototype.default_view = ResetToolView
+
+    this.register_alias("reset", () => new ResetTool())
   }
 
   tool_name = "Reset"

@@ -1,4 +1,4 @@
-import * as Numbro from "numbro"
+import * as Numbro from "@bokeh/numbro"
 
 import {TickFormatter} from "./tick_formatter"
 import {RoundingFunction} from "core/enums"

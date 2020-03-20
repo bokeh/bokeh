@@ -57,7 +57,7 @@ task("scripts:bundle-legacy", ["scripts:compile"], async () => {
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.legacy, "bokeh.json") : undefined,
+    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.legacy.json") : undefined,
     transpile: "ES5",
   })
 

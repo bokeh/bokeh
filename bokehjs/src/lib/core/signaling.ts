@@ -1,6 +1,5 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import {Constructor} from "./class"
 import {Set} from "./util/data_structures"
 import {defer} from "./util/callback"
 import {find, remove_by} from "./util/array"
@@ -152,28 +151,16 @@ export namespace Signal {
 
 export interface ISignalable {
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
+  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
 }
 
-export function Signalable<C extends Constructor>(Base?: C) {
-  // XXX: `class Foo extends Signalable(Object)` doesn't work (compiles, but fails at runtime), so
-  // we have to do this to allow signalable classes without an explict base class.
-  if (Base != null) {
-    return class extends Base implements ISignalable {
-      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.connect(slot, this)
-      }
-      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.disconnect(slot, this)
-      }
+export function Signalable() {
+  return class implements ISignalable {
+    connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      return signal.connect(slot, this)
     }
-  } else {
-    return class implements ISignalable {
-      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.connect(slot, this)
-      }
-      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.disconnect(slot, this)
-      }
+    disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      return signal.disconnect(slot, this)
     }
   }
 }

@@ -203,7 +203,7 @@ variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
 setting the ``--ssl-keyfile`` command line argument, or by setting the
-``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+``BOKEH_SSL_KEYFILE`` environment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
 
@@ -412,7 +412,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import List
+from typing import Any, Dict, List
 
 # External imports
 from tornado.autoreload import watch
@@ -727,6 +727,13 @@ class Serve(Subcommand):
         )),
     )
 
+    def customize_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        '''Allows subclasses to customize ``server_kwargs``.
+
+        Should modify and return a copy of the ``server_kwargs`` dictionary.
+        '''
+        return dict(server_kwargs)
+
     def invoke(self, args: argparse.Namespace) -> None:
         '''
 
@@ -866,6 +873,8 @@ class Serve(Subcommand):
 
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
+
+        server_kwargs = self.customize_kwargs(args, server_kwargs)
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
