@@ -587,8 +587,7 @@ export class Figure extends Plot {
       if (fta.length==2) { return fta } else { return fta.concat(['']) }
     }
     const _is_visual = function(ft: string): boolean {
-      let feature, trait
-      [feature, trait] = _split_feature_trait(ft)
+      const [feature, trait] = _split_feature_trait(ft)
       return includes(['line', 'fill', 'text', 'global'], feature) && (trait!=='')
     }
 
@@ -911,7 +910,7 @@ export function figure(attributes?: Partial<FigureAttrs>): Figure {
   return new Figure(attributes)
 }
 
-declare var $: any
+declare const $: any
 
 export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>>
 export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>[]>

@@ -21,7 +21,7 @@ import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "sty
 
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
-declare var $: any
+declare const $: any
 
 export class TableDataProvider implements DataProvider<Item> {
 
