@@ -53,9 +53,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..embed.bundle import extension_dirs
 from .views.autoload_js_handler import AutoloadJsHandler
 from .views.doc_handler import DocHandler
 from .views.metadata_handler import MetadataHandler
+from .views.multi_root_static_handler import MultiRootStaticHandler
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 from .views.ws import WSHandler
@@ -79,6 +81,7 @@ __all__ = (
 
 toplevel_patterns = [
     (r'/?', RootHandler),
+    (r'/static/extensions/(.*)', MultiRootStaticHandler, dict(root=extension_dirs)),
     (r'/static/(.*)', StaticHandler),
 ]
 
