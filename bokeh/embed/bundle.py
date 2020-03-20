@@ -80,7 +80,7 @@ class Bundle(object):
         self.js_raw = kwargs.get("js_raw", [])
         self.css_files = kwargs.get("css_files", [])
         self.css_raw = kwargs.get("css_raw", [])
-        self.hashes = kwargs.get("hashes", None)
+        self.hashes = kwargs.get("hashes", {})
 
     def __iter__(self):
         yield self._render_js()
@@ -183,7 +183,7 @@ def bundle_for_objs_and_resources(objs, resources):
     if ext is not None:
         js_raw.append(ext)
 
-    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else None)
+    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else {})
 
 #-----------------------------------------------------------------------------
 # Private API
