@@ -60,7 +60,7 @@ export class ClientSession {
       return
 
     // Filter out changes to attributes that aren't server-visible
-    if (event instanceof ModelChangedEvent && !(event.attr in event.model.serializable_attributes()))
+    if (event instanceof ModelChangedEvent && !event.model.property(event.attr).syncable)
       return
 
     // TODO (havocp) the connection may be closed here, which will

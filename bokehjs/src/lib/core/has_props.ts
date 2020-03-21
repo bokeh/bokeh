@@ -42,6 +42,8 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
+export type PropertyGenerator = Generator<[string, Property<unknown>], void>
+
 export abstract class HasProps extends Signalable() {
   __view_type__: View
 
@@ -179,23 +181,33 @@ export abstract class HasProps extends Signalable() {
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
-  readonly properties: {[key: string]: Property<unknown>} = {}
+  readonly properties: {[key: string]: Property<unknown>} = {} // Object.create(null)
+
+  property(name: string): Property<unknown> {
+    const prop = this.properties[name]
+    if (prop != null)
+      return prop
+    else
+      throw new Error(`unknown property ${name}`)
+  }
 
   get attributes(): Attrs {
-    const attrs: Attrs = {}
-    for (const key in this.properties) {
-      attrs[key] = this.properties[key].get_value()
+    const attrs: Attrs = {} // Object.create(null)
+    for (const [name, prop] of this) {
+      attrs[name] = prop.get_value()
     }
     return attrs
   }
 
-  constructor(attrs: Attrs = {}) {
+  constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
+
+    const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
 
     for (const name in this._props) {
       const {type, default_value, options} = this._props[name]
       if (type != null)
-        this.properties[name] = new type(this, name, default_value, attrs[name], options)
+        this.properties[name] = new type(this, name, default_value, get(name), options)
       else
         throw new Error(`undefined property type for ${this.type}.${name}`)
     }
@@ -203,7 +215,7 @@ export abstract class HasProps extends Signalable() {
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
-    if (!(attrs.__deferred__ ?? false))
+    if (!(get("__deferred__") ?? false))
       this.finalize()
   }
 
@@ -337,27 +349,19 @@ export abstract class HasProps extends Signalable() {
     this._subtype = subtype
   }
 
-  attribute_is_serializable(attr: string): boolean {
-    const prop = this.properties[attr]
-    if (prop == null)
-      throw new Error(`${this.type}.attribute_is_serializable('${attr}'): ${attr} wasn't declared`)
-    else
-      return !prop.internal
+  *[Symbol.iterator](): PropertyGenerator {
+    for (const name in this.properties) {
+      yield [name, this.properties[name]]
+    }
   }
 
-  // dict of attributes that should be serialized to the server. We
-  // sometimes stick things in attributes that aren't part of the
-  // Document's models, subtypes that do that have to remove their
-  // extra attributes here.
-  serializable_attributes(): Attrs {
-    const {attributes} = this
-
-    for (const name in attributes) {
-      if (!this.attribute_is_serializable(name))
-        delete attributes[name]
+  *syncable_properties(): PropertyGenerator {
+    for (const entry of this) {
+      const [, prop] = entry
+      if (prop.syncable) {
+        yield entry
+      }
     }
-
-    return attributes
   }
 
   static _value_to_json(_key: string, value: any, _optional_parent_object: any): any {
@@ -384,36 +388,32 @@ export abstract class HasProps extends Signalable() {
   // Convert attributes to "shallow" JSON (values which are themselves models
   // are included as just references)
   attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): any {
-    const serializable = this.serializable_attributes()
-    const attrs: Attrs = {}
-    for (const key in serializable) {
-      if (serializable.hasOwnProperty(key)) {
-        if (include_defaults || this.properties[key].dirty) {
-          const value = serializable[key]
-          attrs[key] = value
-        }
+    const attributes: Attrs = {} // Object.create(null)
+    for (const [name, prop] of this) {
+      if (prop.syncable && (include_defaults || prop.dirty)) {
+        attributes[name] = prop.get_value()
       }
     }
-    return value_to_json("attributes", attrs, this)
+    return value_to_json("attributes", attributes, this)
   }
 
   // this is like _value_record_references but expects to find refs
   // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, recurse: boolean): void {
-    if (v == null) {
-    } else if (is_ref(v)) {
+  static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, options: {recursive: boolean}): void {
+    const {recursive} = options
+    if (is_ref(v)) {
       if (!(v.id in result)) {
         const model = doc.get_model_by_id(v.id)
-        HasProps._value_record_references(model, result, recurse)
+        HasProps._value_record_references(model, result, {recursive})
       }
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._json_record_references(doc, elem, result, recurse)
+        HasProps._json_record_references(doc, elem, result, {recursive})
     } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
-          HasProps._json_record_references(doc, elem, result, recurse)
+          HasProps._json_record_references(doc, elem, result, {recursive})
         }
       }
     }
@@ -422,24 +422,25 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, result: Attrs, recurse: boolean): void {
+  static _value_record_references(v: any, result: Attrs, options: {recursive: boolean}): void {
+    const {recursive} = options
     if (v instanceof HasProps) {
       if (!(v.id in result)) {
         result[v.id] = v
-        if (recurse) {
+        if (recursive) {
           const immediate = v._immediate_references()
           for (const obj of immediate)
-            HasProps._value_record_references(obj, result, true) // true=recurse
+            HasProps._value_record_references(obj, result, {recursive: true})
         }
       }
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._value_record_references(elem, result, recurse)
+        HasProps._value_record_references(elem, result, {recursive})
     } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
-          HasProps._value_record_references(elem, result, recurse)
+          HasProps._value_record_references(elem, result, {recursive})
         }
       }
     }
@@ -449,18 +450,16 @@ export abstract class HasProps extends Signalable() {
   // (do not recurse, do not include ourselves)
   protected _immediate_references(): HasProps[] {
     const result = {}
-    const attrs = this.serializable_attributes()
-    for (const key in attrs) {
-      const value = attrs[key]
-      HasProps._value_record_references(value, result, false) // false = no recurse
+    for (const [, prop] of this.syncable_properties()) {
+      const value = prop.get_value()
+      HasProps._value_record_references(value, result, {recursive: false})
     }
-
     return values(result)
   }
 
   references(): HasProps[] {
     const references = {}
-    HasProps._value_record_references(this, references, true)
+    HasProps._value_record_references(this, references, {recursive: true})
     return values(references)
   }
 
@@ -481,15 +480,15 @@ export abstract class HasProps extends Signalable() {
   }
 
   protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string}): void {
-    if (!this.attribute_is_serializable(attr))
+    if (!this.properties[attr].syncable)
       return
 
     if (this.document != null) {
       const new_refs: {[key: string]: HasProps} = {}
-      HasProps._value_record_references(new_, new_refs, false)
+      HasProps._value_record_references(new_, new_refs, {recursive: false})
 
       const old_refs: {[key: string]: HasProps} = {}
-      HasProps._value_record_references(old, old_refs, false)
+      HasProps._value_record_references(old, old_refs, {recursive: false})
 
       let need_invalidate = false
       for (const new_id in new_refs) {
@@ -518,8 +517,7 @@ export abstract class HasProps extends Signalable() {
   materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
     // Note: this should be moved to a function separate from HasProps
     const data: {[key: string]: unknown[] | number} = {}
-    for (const name in this.properties) {
-      const prop = this.properties[name]
+    for (const [name, prop] of this) {
       if (!(prop instanceof p.VectorSpec))
         continue
       // this skips optional properties like radius for circles

@@ -50,6 +50,10 @@ export interface PropertyConstructor<T> {
 export abstract class Property<T> {
   __value__: T
 
+  get syncable(): boolean {
+    return !this.internal
+  }
+
   /*protected*/ spec: { // XXX: too many failures for now
     readonly value?: any
     readonly field?: string
