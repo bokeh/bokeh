@@ -52,5 +52,4 @@ and bugfixes should generally go through the process outlined there.
     Information specific to developing BokehJS.
 
 .. _Bokeh Enhancement Proposal 1: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
-.. _Bokeh Enhancement Proposal 2: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
 .. _contact the developers: https://discourse.bokeh.org/c/development
