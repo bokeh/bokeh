@@ -123,10 +123,10 @@ const _line_mixin = {
   line_color:       [ p.ColorSpec,  'black'   ],
   line_width:       [ p.NumberSpec, 1         ],
   line_alpha:       [ p.NumberSpec, 1.0       ],
-  line_join:        [ p.LineJoin,   'bevel'   ],
-  line_cap:         [ p.LineCap,    'butt'    ],
-  line_dash:        [ p.Array,      []        ],
-  line_dash_offset: [ p.Number,     0         ],
+  line_join:        [ p.ScalarSpec /*p.LineJoin*/,   'bevel'   ],
+  line_cap:         [ p.ScalarSpec /*p.LineCap*/,    'butt'    ],
+  line_dash:        [ p.ScalarSpec /*p.Array*/,      []        ],
+  line_dash_offset: [ p.ScalarSpec /*p.Number*/,     0         ],
 }
 
 export const line = (prefix: string = "") => _gen_mixin(_line_mixin, prefix)
@@ -144,7 +144,7 @@ const _hatch_mixin = {
   hatch_scale:   [ p.NumberSpec, 12.0    ],
   hatch_pattern: [ p.StringSpec, null    ],
   hatch_weight:  [ p.NumberSpec, 1.0     ],
-  hatch_extra:   [ p.Any,        {}      ],
+  hatch_extra:   [ p.ScalarSpec /*p.Any*/,        {}      ],
 }
 
 export const hatch = (prefix: string = "") => _gen_mixin(_hatch_mixin, prefix)
@@ -152,12 +152,12 @@ export const hatch = (prefix: string = "") => _gen_mixin(_hatch_mixin, prefix)
 const _text_mixin = {
   text_font:        [ p.Font,         'helvetica' ],
   text_font_size:   [ p.FontSizeSpec, '12pt'      ],
-  text_font_style:  [ p.FontStyle,    'normal'    ],
+  text_font_style:  [ p.ScalarSpec /*p.FontStyle*/,    'normal'    ],
   text_color:       [ p.ColorSpec,    '#444444'   ],
   text_alpha:       [ p.NumberSpec,   1.0         ],
-  text_align:       [ p.TextAlign,    'left'      ],
-  text_baseline:    [ p.TextBaseline, 'bottom'    ],
-  text_line_height: [ p.Number,       1.2         ],
+  text_align:       [ p.ScalarSpec /*p.TextAlign*/,    'left'      ],
+  text_baseline:    [ p.ScalarSpec /*p.TextBaseline*/, 'bottom'    ],
+  text_line_height: [ p.ScalarSpec /*p.Number*/,       1.2         ],
 }
 
 export const text = (prefix: string = "") => _gen_mixin(_text_mixin, prefix)

@@ -290,7 +290,7 @@ export const VerticalAlign = Enum(enums.VerticalAlign)
 // DataSpec properties
 //
 
-export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
+export /*abstract*/ class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
   __value__: T
   __scalar__: S
 
