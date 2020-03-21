@@ -17,10 +17,10 @@ import pytest ; pytest
 
 # Standard library imports
 from os import chdir
-from subprocess import PIPE, Popen
+from subprocess import run
 
 # Bokeh imports
-from . import TOP_PATH
+from . import TOP_PATH, ls_files
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -31,9 +31,8 @@ def test_isort() -> None:
 
     '''
     chdir(TOP_PATH)
-    proc = Popen(["isort", "-df", "-rc", "-c", "."], stdout=PIPE, stderr=PIPE)
-    out, _ = proc.communicate()
-    assert proc.returncode == 0, "isort issues:\n%s" % out.decode("utf-8")
+    proc = run(["isort", "-df", "-rc", "-c", *ls_files("*.py")], capture_output=True)
+    assert proc.returncode == 0, f"isort issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------
 # Support
