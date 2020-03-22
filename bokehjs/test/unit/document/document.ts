@@ -920,7 +920,7 @@ describe("Document", () => {
     // document should have the values we set above
     for (const key in serialized_values) {
       const value = (serialized_values as any)[key] // XXX: own
-      expect(root1.getv(key)).to.deep.equal(value)
+      expect(root1.property(key).get_value()).to.deep.equal(value)
     }
 
     expect(root1.list_prop[0].bar).to.equal(42)

@@ -114,7 +114,7 @@ export abstract class HasProps extends Signalable() {
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
         get(this: HasProps): any {
-          const value = this.getv(name)
+          const value = this.properties[name].get_value()
           return value
         },
         set(this: HasProps, value: any): HasProps {
@@ -309,22 +309,15 @@ export abstract class HasProps extends Signalable() {
     if (!isEmpty(attrs)) {
       const old: typeof attrs = {}
       for (const key in attrs)
-        old[key] = this.getv(key)
+        old[key] = this.properties[key].get_value()
       this._setv(attrs, options)
 
       const silent = options.silent
       if (silent == null || !silent) {
         for (const key in attrs)
-          this._tell_document_about_change(key, old[key], this.getv(key), options)
+          this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
       }
     }
-  }
-
-  getv(name: string): any {
-    if (this.properties[name] != null)
-      return this.properties[name].get_value()
-    else
-      throw new Error(`property ${this.type}.${name} wasn't declared`)
   }
 
   ref(): Ref {
