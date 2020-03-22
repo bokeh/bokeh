@@ -185,6 +185,7 @@ __all__ = (
     'AnyRef',
     'Array',
     'Auto',
+    'Base64String',
     'Bool',
     'Byte',
     'Color',
@@ -302,6 +303,7 @@ from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
 from .property.numeric import PositiveInt; PositiveInt
 from .property.numeric import Size; Size
+from .property.numeric import Base64String; Base64String
 
 from .property.override import Override ; Override
 

@@ -569,6 +569,18 @@ def decode_base64_dict(data):
         array = array.reshape(data['shape'])
     return array
 
+def encode_base64_string(str):
+    ''' Encode a ascii string using Base64.
+
+    Args:
+        str : a string to encode
+
+    Returns:
+        string
+
+    '''
+    b64_string = base64.b64encode(self.encode("ascii"))
+    return b64_string
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
