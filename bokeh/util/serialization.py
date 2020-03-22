@@ -90,6 +90,7 @@ __all__ = (
     'decode_base64_dict',
     'encode_binary_dict',
     'encode_base64_dict',
+    'encode_base64_string',
     'is_datetime_type',
     'is_timedelta_type',
     'make_globally_unique_id',
