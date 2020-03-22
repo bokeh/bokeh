@@ -24,7 +24,7 @@ describe("protocol/message module", () => {
         expect(m.header).to.be.deep.equal({msgid: '10', msgtype: 'FOO'})
         expect(m.metadata).to.be.deep.equal({bar:2})
         expect(m.content).to.be.deep.equal({baz:3})
-        expect(m.buffers).to.be.deep.equal([])
+        expect(m.buffers).to.be.deep.equal(new Map())
       })
     })
 
@@ -33,14 +33,18 @@ describe("protocol/message module", () => {
       m.header.num_buffers = 2
 
       it("should append a new buffer", () => {
-        m.assemble_buffer({msgid: "1"}, 2)
-        expect(m.buffers).to.be.deep.equal([[{msgid: "1"}, 2]])
-        m.assemble_buffer({msgid: "3"}, 4)
-        expect(m.buffers).to.be.deep.equal([[{msgid: "1"}, 2], [{msgid: "3"}, 4]])
+        const buf0 = new ArrayBuffer(0)
+        const buf1 = new ArrayBuffer(1)
+
+        m.assemble_buffer('{"id": "1"}', buf0)
+        expect([...m.buffers.entries()]).to.be.deep.equal([["1", buf0]])
+
+        m.assemble_buffer('{"id": "3"}', buf1)
+        expect([...m.buffers.entries()]).to.be.deep.equal([["1", buf0], ["3", buf1]])
       })
 
       it("should raise an error if num_buffers is exceeded", () => {
-        expect(() => m.assemble_buffer({msgid: "5"}, 6)).to.throw(Error)
+        expect(() => m.assemble_buffer('{"id": "5"}', new ArrayBuffer(2))).to.throw(Error)
       })
     })
 
@@ -65,7 +69,7 @@ describe("protocol/message module", () => {
       })
 
       it("and no buffers", () => {
-        expect(m.buffers).to.be.deep.equal([])
+        expect(m.buffers).to.be.deep.equal(new Map())
       })
     })
 
@@ -107,7 +111,7 @@ describe("protocol/message module", () => {
         expect(m0.complete()).to.be.true
 
         const m1 = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"bar":2}', '{"baz":3}')
-        m1.assemble_buffer({msgid: "11"}, 2)
+        m1.assemble_buffer('{"id": "11"}', new ArrayBuffer(0))
         expect(m1.complete()).to.be.true
       })
 

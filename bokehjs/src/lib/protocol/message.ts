@@ -4,7 +4,7 @@ export type Socket = {
   send(data: unknown): void
 }
 
-export interface Header {
+export type Header = {
   msgid?: string
   msgtype?: string
   reqid?: string
@@ -13,7 +13,7 @@ export interface Header {
 
 export class Message {
 
-  readonly buffers: [Header, any][] = []
+  readonly buffers: Map<string, ArrayBuffer> = new Map()
 
   private constructor(readonly header: Header, readonly metadata: any, readonly content: any) {}
 
@@ -24,11 +24,12 @@ export class Message {
     return new Message(header, metadata, content)
   }
 
-  assemble_buffer(buf_header: Header, buf_payload: any): void {
+  assemble_buffer(buf_header: string, buf_payload: ArrayBuffer): void {
     const nb = this.header.num_buffers != null ? this.header.num_buffers : 0
-    if (nb <= this.buffers.length)
-      throw new Error("too many buffers received, expecting #{nb}")
-    this.buffers.push([buf_header, buf_payload])
+    if (nb <= this.buffers.size)
+      throw new Error(`too many buffers received, expecting ${nb}`)
+    const {id} = JSON.parse(buf_header)
+    this.buffers.set(id, buf_payload)
   }
 
   // not defined for BokehJS, only *receiving* buffers is supported
@@ -49,8 +50,8 @@ export class Message {
 
   complete(): boolean {
     if (this.header != null && this.metadata != null && this.content != null) {
-      if ('num_buffers' in this.header)
-        return this.buffers.length === this.header.num_buffers
+      if (this.header.num_buffers != undefined)
+        return this.buffers.size == this.header.num_buffers
       else
         return true
     } else

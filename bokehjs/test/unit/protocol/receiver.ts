@@ -121,7 +121,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should should leave message null", () => {
-          const res = r.consume('foo')
+          const res = r.consume('{"id": "1"}')
           expect(res).to.be.undefined
           expect(r.message).to.be.null
         })
@@ -147,7 +147,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should should leave message null", () => {
-          const res = r.consume('bar')
+          const res = r.consume('{"id": "2"}')
           expect(res).to.be.undefined
           expect(r.message).to.be.null
         })
@@ -164,13 +164,13 @@ describe("protocol/receiver module", () => {
           expect(res).to.be.undefined
           expect(r.message).to.be.instanceof(Message)
           expect(r.message!.complete()).to.be.true
-          expect(r.message!.buffers.length).to.be.equal(2)
-          expect(r.message!.buffers[0].length).to.be.equal(2)
-          expect(r.message!.buffers[1].length).to.be.equal(2)
-          expect(r.message!.buffers[0][0]).to.be.equal('foo')
-          expect(r.message!.buffers[0][1]).to.be.instanceof(ArrayBuffer)
-          expect(r.message!.buffers[1][0]).to.be.equal('bar')
-          expect(r.message!.buffers[1][1]).to.be.instanceof(ArrayBuffer)
+          const {buffers} = r.message!
+          expect(buffers.size).to.be.equal(2)
+          const entries = [...buffers.entries()]
+          expect(entries[0][0]).to.be.equal("1")
+          expect(entries[0][1]).to.be.instanceof(ArrayBuffer)
+          expect(entries[1][0]).to.be.equal("2")
+          expect(entries[1][1]).to.be.instanceof(ArrayBuffer)
         })
       })
 
