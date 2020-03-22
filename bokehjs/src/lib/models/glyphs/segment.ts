@@ -117,7 +117,7 @@ export class SegmentView extends GlyphView {
       if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i]))
         hits.push(i)
 
-      const threshold = 2.5 // Maximum pixel difference to detect hit
+      const threshold = 1.5 + (this.visuals.line.cache_select('line_width', i) / 2)// Maximum pixel difference to detect hit
 
       if (v0[i] == v1[i]) {
         if (geometry.direction == 'h') {
