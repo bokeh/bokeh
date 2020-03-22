@@ -6,7 +6,7 @@ import {HasProps} from "core/has_props"
 import {Attrs} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
-import {decode_column_data} from "core/util/serialization"
+import {decode_column_data, Buffers} from "core/util/serialization"
 import {MultiDict, Set as OurSet} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values} from "core/util/object"
@@ -662,7 +662,7 @@ export class Document {
     }
   }
 
-  apply_json_patch(patch: Patch, buffers: [any, any][] = [], setter_id?: string): void {
+  apply_json_patch(patch: Patch, buffers: Buffers = new Map(), setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
     const references = Document._instantiate_references_json(references_json, this._all_models)
@@ -706,7 +706,7 @@ export class Document {
           const {msg_type, msg_data} = event_json
           let data: unknown
           if (msg_data === undefined) {
-            if (buffers.length == 1) {
+            if (buffers.size == 1) {
               const [[, buffer]] = buffers
               data = buffer
             } else {
