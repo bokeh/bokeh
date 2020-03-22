@@ -569,7 +569,7 @@ def decode_base64_dict(data):
         array = array.reshape(data['shape'])
     return array
 
-def encode_base64_string(str):
+def encode_base64_string(str, value):
     ''' Encode a ascii string using Base64.
 
     Args:
@@ -579,7 +579,7 @@ def encode_base64_string(str):
         string
 
     '''
-    b64_string = base64.b64encode(str.encode("ascii"))
+    b64_string = base64.b64encode(value.encode("ascii"))
     return b64_string
 #-----------------------------------------------------------------------------
 # Dev API
