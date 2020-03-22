@@ -1,4 +1,4 @@
-import {Document, References} from "./document"
+import {Document} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
@@ -59,7 +59,7 @@ export type DocumentChanged =
 export abstract class DocumentChangedEvent {
   constructor(readonly document: Document) {}
 
-  abstract json(references: References): DocumentChanged
+  abstract json(references: Set<HasProps>): DocumentChanged
 }
 
 export class MessageSentEvent extends DocumentChangedEvent {
@@ -67,10 +67,10 @@ export class MessageSentEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): DocumentChanged {
+  json(_references: Set<HasProps>): DocumentChanged {
     const value = this.msg_data
     const value_json = HasProps._value_to_json("", value, null)
-    const value_refs: {[key: string]: HasProps} = {}
+    const value_refs = new Set<HasProps>()
     HasProps._value_record_references(value, value_refs, {recursive: true})
     /* XXX: this will cause all referenced models to be reinitialized
     for (const id in value_refs) {
@@ -97,7 +97,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(references: References): DocumentChanged {
+  json(references: Set<HasProps>): DocumentChanged {
     if (this.attr === "id") {
       throw new Error("'id' field should never change, whatever code just set it is wrong")
     }
@@ -107,15 +107,15 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 
     const value = this.new_
     const value_json = HasProps._value_to_json(this.attr, value, this.model)
-    const value_refs: {[key: string]: HasProps} = {}
+    const value_refs = new Set<HasProps>()
     HasProps._value_record_references(value, value_refs, {recursive: true})
-    if (this.model.id in value_refs && this.model !== value) {
+    if (value_refs.has(this.model) && this.model !== value) {
       // we know we don't want a whole new copy of the obj we're
       // patching unless it's also the value itself
-      delete value_refs[this.model.id]
+      value_refs.delete(this.model)
     }
-    for (const id in value_refs) {
-      references[id] = value_refs[id]
+    for (const ref of value_refs) {
+      references.add(ref)
     }
     return {
       kind: "ModelChanged",
@@ -134,7 +134,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): ColumnsPatched {
+  json(_references: Set<HasProps>): ColumnsPatched {
     return {
       kind: "ColumnsPatched",
       column_source: this.column_source,
@@ -152,7 +152,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): ColumnsStreamed {
+  json(_references: Set<HasProps>): ColumnsStreamed {
     return {
       kind: "ColumnsStreamed",
       column_source: this.column_source,
@@ -168,7 +168,7 @@ export class TitleChangedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): TitleChanged {
+  json(_references: Set<HasProps>): TitleChanged {
     return {
       kind: "TitleChanged",
       title: this.title,
@@ -182,7 +182,7 @@ export class RootAddedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(references: References): RootAdded {
+  json(references: Set<HasProps>): RootAdded {
     HasProps._value_record_references(this.model, references, {recursive: true})
     return {
       kind: "RootAdded",
@@ -197,7 +197,7 @@ export class RootRemovedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): RootRemoved {
+  json(_references: Set<HasProps>): RootRemoved {
     return {
       kind: "RootRemoved",
       model: this.model.ref(),

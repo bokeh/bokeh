@@ -63,7 +63,7 @@ export class Set<T> {
     return copy(this._values).sort()
   }
 
-  constructor(obj?: T[] | Set<T>) {
+  constructor(obj?: Iterable<T> | Set<T>) {
     if (obj == null)
       this._values = []
     else if (obj instanceof Set)
