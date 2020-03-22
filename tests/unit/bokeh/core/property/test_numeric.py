@@ -28,6 +28,7 @@ import bokeh.core.property.numeric as bcpn # isort:skip
 
 ALL = (
     'Angle',
+    'Base64String',
     'Byte',
     'Interval',
     'NonNegativeInt',

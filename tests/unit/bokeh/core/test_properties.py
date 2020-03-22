@@ -47,6 +47,7 @@ ALL = (
     'AnyRef',
     'Array',
     'Auto',
+    'Base64String',
     'Bool',
     'Byte',
     'Color',
