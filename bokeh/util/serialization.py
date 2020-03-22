@@ -579,7 +579,7 @@ def encode_base64_string(str):
         string
 
     '''
-    b64_string = base64.b64encode(self.encode("ascii"))
+    b64_string = base64.b64encode(str.encode("ascii"))
     return b64_string
 #-----------------------------------------------------------------------------
 # Dev API
