@@ -9,16 +9,14 @@ import {svg_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
 import {Expression} from  "@bokehjs/models/expressions/expression"
 
-class MyProperty extends p.Property<unknown> {}
-
 class TestTransform extends Transform {
   compute(x: number): number {
     return x+1
   }
   v_compute(xs: number[]): number[] {
     const ret =  []
-    for (let i=0; i<xs.length; i++)
-      ret.push(xs[i]+i)
+    for (let i = 0; i < xs.length; i++)
+      ret.push(xs[i] + i)
     return ret
   }
 }
@@ -26,61 +24,98 @@ class TestTransform extends Transform {
 class TestExpression extends Expression {
   _v_compute(source: ColumnDataSource): number[] {
     const ret = []
-    for (let i=0; i<source.get_length()!; i++)
+    for (let i = 0; i < source.get_length()!; i++) {
       ret.push(i)
+    }
     return ret
   }
 }
 
-class SomeHasProps extends HasProps {
-  a: any
-  b: any
-}
-SomeHasProps.define<any>({
-  a: [ p.Any ],
-  b: [ p.Any ],
-})
+namespace Some {
+  export type Attrs = p.AttrsOf<Props>
 
-class SomeSpecHasProps extends HasProps {
-  a: any
-  b: any
+  export type Props = HasProps.Props & {
+    anchor: p.Property<enums.Anchor>
+    any: p.Property<any>
+    array: p.Property<number[]>
+    boolean: p.Property<boolean>
+    color: p.Property<string>
+    instance: p.Property<HasProps>
+    number: p.Property<number>
+    int: p.Property<number>
+    angle: p.Property<number>
+    percent: p.Property<number>
+    string: p.Property<string>
+    font_size: p.Property<string>
+    font: p.Property<string>
+    direction: p.Property<enums.Direction>
+    angle_spec: p.AngleSpec
+    boolean_spec: p.BooleanSpec
+    color_spec: p.ColorSpec
+    coordinate_spec: p.CoordinateSpec
+    coordinate_seq_spec: p.CoordinateSeqSpec
+    distance_spec: p.DistanceSpec
+    font_size_spec: p.FontSizeSpec
+    marker_spec: p.MarkerSpec
+    number_spec: p.NumberSpec
+    string_spec: p.StringSpec
+    null_string_spec: p.NullStringSpec
+  }
 }
-SomeSpecHasProps.define<any>({
-  a: [ p.NumberSpec ],
-  b: [ p.Any ],
-})
 
-class DataSpecProperty extends p.DataSpec<number> {}
+interface Some extends Some.Attrs {}
+
+class Some extends HasProps {
+  properties: Some.Props
+
+  constructor(attrs?: Partial<Some.Attrs>) {
+    super(attrs)
+  }
+
+  static init_Some(): void {
+    this.define<Some.Props>({
+      anchor: [ p.Anchor ],
+      any: [ p.Any ],
+      array: [ p.Array ],
+      boolean: [ p.Boolean ],
+      color: [ p.Color ],
+      instance: [ p.Instance ],
+      number: [ p.Number ],
+      int: [ p.Int ],
+      angle: [ p.Angle ],
+      percent: [ p.Percent ],
+      string: [ p.String ],
+      font_size: [ p.FontSize ],
+      font: [ p.Font ],
+      direction: [ p.Direction ],
+      angle_spec: [ p.AngleSpec ],
+      boolean_spec: [ p.BooleanSpec ],
+      color_spec: [ p.ColorSpec ],
+      coordinate_spec: [ p.CoordinateSpec ],
+      coordinate_seq_spec: [ p.CoordinateSeqSpec ],
+      distance_spec: [ p.DistanceSpec ],
+      font_size_spec: [ p.FontSizeSpec ],
+      marker_spec: [ p.MarkerSpec ],
+      number_spec: [ p.NumberSpec ],
+      string_spec: [ p.StringSpec ],
+      null_string_spec: [ p.NullStringSpec ],
+    })
+  }
+}
 
 describe("properties module", () => {
 
-  function validation_error(prop: any, x: any): void {
-    function fn(): void {
-      prop.validate(x)
-    }
-    expect(fn).to.throw(Error, /given invalid value/)
+  function enum_validation_errors(prop: p.Property<unknown>): void {
+    expect(prop.valid(true)).to.be.false
+    expect(prop.valid(10)).to.be.false
+    expect(prop.valid(10.2)).to.be.false
+    expect(prop.valid("foo")).to.be.false
+    expect(prop.valid({})).to.be.false
+    expect(prop.valid([])).to.be.false
+    expect(prop.valid(null)).to.be.false
+    expect(prop.valid(undefined)).to.be.false
+    expect(prop.valid(new Some())).to.be.false
   }
-
-  function enum_validation_errors(prop: any): void {
-    validation_error(prop, true)
-    validation_error(prop, 10)
-    validation_error(prop, 10.2)
-    validation_error(prop, "foo")
-    validation_error(prop, {})
-    validation_error(prop, [])
-    validation_error(prop, null)
-    validation_error(prop, undefined)
-    validation_error(prop, new SomeHasProps())
-  }
-
-  const fixed            = {a: 1}
-  const spec_expr        = {a: {expr: new TestExpression()}}
-  const spec_field       = {a: {field: 'foo'}, b: 30}
-  const spec_field_only  = {a: {field: 'foo'}}
-  const spec_field_trans = {a: {field: 'foo', transform: new TestTransform()}}
-  const spec_value       = {a: {value: 2}}
-  const spec_value_trans = {a: {value: 2, transform: new TestTransform()}}
-  const spec_value_null  = {a: {value: null}}
 
   describe("isSpec", () => {
 
@@ -114,36 +149,35 @@ describe("properties module", () => {
   })
 
   describe("Property", () => {
-
     describe("construction", () => {
 
+      /*
       it("should set undefined property attr value to null if no default is given", () => {
-        const obj = new SomeHasProps({a: {}})
+        const obj = new Some({a: {}})
         new MyProperty(obj, 'b')
         expect(obj.b).to.be.null
       })
 
       // it("should set undefined property attr value if a default is given", () => {
-      //   const obj = new SomeHasProps({a: {}})
+      //   const obj = new Some({a: {}})
       //   new MyProperty(obj, 'b', function(): number { return 10 } )
       //   expect(obj.b).to.be.equal(10)
       // })
 
       // it("should throw an Error for missing specifications", () => {
       //   function fn(): void {
-      //     new MyProperty(new SomeHasProps({a: {}}), 'a')
+      //     new MyProperty(new Some({a: {}}), 'a')
       //   }
       //   expect(fn).to.throw(Error, /^Invalid property specifier .*, must have exactly one of/)
       // })
 
       // it("should throw an Error for too many specifications", () => {
       //   function fn(): void {
-      //     new MyProperty(new SomeHasProps({a: {field: "foo", value:"bar"}}), 'a')
+      //     new MyProperty(new Some({a: {field: "foo", value:"bar"}}), 'a')
       //   }
       //   expect(fn).to.throw(Error, /^Invalid property specifier .*, must have exactly one of/)
       // })
 
-      /*
       it("should throw an Error if a field spec is not a string", () => {
         function fn(): void {
           new MyProperty(new SomeSpecHasProps({a: {field: 10}}), 'a')
@@ -153,113 +187,102 @@ describe("properties module", () => {
       */
 
       it("should set a spec for object attr values", () => {
-        const p1 = new MyProperty(new SomeHasProps({a: {field: "foo"}}), 'a')
-        expect(p1.spec).to.be.deep.equal({field: "foo"})
-        const p2 = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
-        expect(p2.spec).to.be.deep.equal({value: "foo"})
+        const obj0 = new Some({number_spec: {value: 0}})
+        expect(obj0.number_spec).to.be.deep.equal({value: 0})
+
+        const obj1 = new Some({number_spec: {field: "some_field"}})
+        expect(obj1.number_spec).to.be.deep.equal({field: "some_field"})
+
+        const expr = new TestExpression()
+        const obj2 = new Some({number_spec: {expr}})
+        expect(obj2.number_spec).to.be.deep.equal({expr})
       })
 
+      /*
       it("should set a value spec for non-object attr values", () => {
-        const prop = new MyProperty(new SomeHasProps({a: 10}), 'a')
+        const obj = new Some({a: 10})
+        const prop = new MyProperty(, 'a')
         expect(prop.spec).to.be.deep.equal({value: 10})
       })
+      */
     })
 
     describe("value", () => {
+      /*
       it("should return a value if there is a value spec", () => {
-        const p1 = new MyProperty(new SomeHasProps(fixed), 'a')
+        const p1 = new MyProperty(new Some(fixed), 'a')
         expect(p1.value()).to.be.equal(1)
-        const p2 = new MyProperty(new SomeHasProps(spec_value), 'a')
+        const p2 = new MyProperty(new Some(spec_value), 'a')
         expect(p2.value()).to.be.equal(2)
       })
 
       it("should return a transformed value if there is a value spec with transform", () => {
-        const prop = new MyProperty(new SomeHasProps(spec_value_trans), 'a')
+        const obj = new Some(spec_value_trans)
+        const prop = new MyProperty(, 'a')
         expect(prop.value()).to.be.equal(3)
       })
 
       it("should allow a fixed null value", () => {
-        const prop = new MyProperty(new SomeHasProps(spec_value_null), 'a')
+        const obj = new Some(spec_value_null)
+        const prop = new MyProperty(, 'a')
         expect(prop.value()).to.be.null
       })
 
       it("should throw an Error otherwise", () => {
         function fn(): void {
-          const prop = new MyProperty(new SomeHasProps(spec_field_only), 'a')
+          const obj = new Some(spec_field_only)
+          const prop = new MyProperty(, 'a')
           prop.value()
         }
         expect(fn).to.throw(Error, "attempted to retrieve property value for property without value specification")
       })
+      */
     })
 
     describe("array", () => {
 
       it("should return an array if there is a value spec", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const p1 = new DataSpecProperty(new SomeSpecHasProps(fixed), 'a')
+        const obj1 = new Some({number_spec: 1})
+        const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
-        expect(arr1).to.be.instanceof(Array)
-        expect(arr1.length).to.be.equal(5)
-        expect(arr1[0]).to.be.equal(1)
-        expect(arr1[1]).to.be.equal(1)
-        expect(arr1[2]).to.be.equal(1)
-        expect(arr1[3]).to.be.equal(1)
-        expect(arr1[4]).to.be.equal(1)
+        expect(arr1).to.be.deep.equal([1, 1, 1, 1, 1])
 
-        const p2 = new DataSpecProperty(new SomeSpecHasProps(spec_value), 'a')
+        const obj2 = new Some({number_spec: {value: 2}})
+        const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
-        expect(arr2).to.be.instanceof(Array)
-        expect(arr2.length).to.be.equal(5)
-        expect(arr2[0]).to.be.equal(2)
-        expect(arr2[1]).to.be.equal(2)
-        expect(arr2[2]).to.be.equal(2)
-        expect(arr2[3]).to.be.equal(2)
-        expect(arr2[4]).to.be.equal(2)
+        expect(arr2).to.be.deep.equal([2, 2, 2, 2, 2])
       })
 
       it("should return an array if there is a valid expr spec", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const prop = new DataSpecProperty(new SomeSpecHasProps(spec_expr), 'a')
+        const obj = new Some({number_spec: {expr: new TestExpression()}})
+        const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.instanceof(Array)
-        expect(arr.length).to.be.equal(5)
-        expect(arr[0]).to.be.equal(0)
-        expect(arr[1]).to.be.equal(1)
-        expect(arr[2]).to.be.equal(2)
-        expect(arr[3]).to.be.equal(3)
-        expect(arr[4]).to.be.equal(4)
+        expect(arr).to.be.deep.equal([0, 1, 2, 3, 4])
       })
 
       it("should return an array if there is a valid field spec", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const prop = new DataSpecProperty(new SomeSpecHasProps(spec_field), 'a')
+        const obj = new Some({number_spec: {field: "foo"}})
+        const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.instanceof(Array)
-        expect(arr.length).to.be.equal(5)
-        expect(arr[0]).to.be.equal(0)
-        expect(arr[1]).to.be.equal(1)
-        expect(arr[2]).to.be.equal(2)
-        expect(arr[3]).to.be.equal(3)
-        expect(arr[4]).to.be.equal(10)
+        expect(arr).to.be.deep.equal([0, 1, 2, 3, 10])
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
         const source = new ColumnDataSource({data: {field: [0, 1, 2, 3, 10]}})
-        const prop = new DataSpecProperty(new SomeSpecHasProps({a: {field: 'field'}, b: 30}), 'a')
+        const obj = new Some({number_spec: {field: "field"}})
+        const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.instanceof(Array)
-        expect(arr.length).to.be.equal(5)
-        expect(arr[0]).to.be.equal(0)
-        expect(arr[1]).to.be.equal(1)
-        expect(arr[2]).to.be.equal(2)
-        expect(arr[3]).to.be.equal(3)
-        expect(arr[4]).to.be.equal(10)
+        expect(arr).to.be.deep.equal([0, 1, 2, 3, 10])
       })
 
       it("should throw an Error otherwise", () => {
         function fn(): void {
           const source = new ColumnDataSource({data: {}})
-          const prop = new DataSpecProperty(new SomeSpecHasProps(spec_field), 'a')
+          const obj = new Some({number_spec: {field: "foo"}})
+          const prop = obj.properties.number_spec
           prop.array(source)
         }
         expect(fn).to.throw(Error, /attempted to retrieve property array for nonexistent field 'foo'/)
@@ -267,127 +290,65 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a field", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const prop = new DataSpecProperty(new SomeSpecHasProps(spec_field_trans), 'a')
+        const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
+        const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.instanceof(Array)
-        expect(arr.length).to.be.equal(5)
-        expect(arr[0]).to.be.equal(0)
-        expect(arr[1]).to.be.equal(2)
-        expect(arr[2]).to.be.equal(4)
-        expect(arr[3]).to.be.equal(6)
-        expect(arr[4]).to.be.equal(14)
+        expect(arr).to.be.deep.equal([0, 2, 4, 6, 14])
       })
 
       it("should apply a spec transform to a value array", () => {
         const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
-        const prop = new DataSpecProperty(new SomeSpecHasProps(spec_value_trans), 'a')
+        const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
+        const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.instanceof(Array)
-        expect(arr.length).to.be.equal(5)
-        expect(arr[0]).to.be.equal(2)
-        expect(arr[1]).to.be.equal(3)
-        expect(arr[2]).to.be.equal(4)
-        expect(arr[3]).to.be.equal(5)
-        expect(arr[4]).to.be.equal(6)
-      })
-
-      describe("normalize", () => {
-        it("should be the identity", () => {
-          expect(p.Property.prototype.normalize(10)).to.be.equal(10)
-          expect(p.Property.prototype.normalize("foo")).to.be.equal("foo")
-          expect(p.Property.prototype.normalize(null)).to.be.null
-        })
-
-        it("should return the same type as passed", () => {
-          const r1 = p.Number.prototype.normalize([10, 20, 30])
-          expect(r1).to.be.deep.equal([10, 20, 30])
-          const r2 = p.Number.prototype.normalize(new Float64Array([10, 20, 30]))
-          expect(r2).to.be.deep.equal(new Float64Array([10, 20, 30]))
-        })
-      })
-
-      describe("validate", () => {
-        it("should return nothing by default", () => {
-          const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
-          expect(prop.validate(undefined)).to.be.undefined
-          expect(prop.validate(10)).to.be.undefined
-          expect(prop.validate("foo")).to.be.undefined
-          expect(prop.validate(null)).to.be.undefined
-        })
+        expect(arr).to.be.deep.equal([2, 3, 4, 5, 6])
       })
 
       describe("changing the property attribute value", () => {
         it("should trigger change on the property", () => {
-          const obj = new SomeHasProps({a: {value: "foo"}})
-          const prop = obj.properties.a
+          const obj = new Some({string_spec: {value: "foo"}})
+          const prop = obj.properties.string_spec
           const stuff = {called: false}
-          prop.change.connect(function fn(): void { stuff.called = true})
-          obj.a = {value: "bar"}
+          prop.change.connect(() => stuff.called = true)
+          obj.string_spec = {value: "bar"}
           expect(stuff.called).to.be.true
         })
       })
 
       it("should update the spec", () => {
-        const obj = new SomeHasProps({a: {value: "foo"}})
-        const prop = obj.properties.a
-        obj.a = {value: "bar"}
+        const obj = new Some({string_spec: {value: "foo"}})
+        const prop = obj.properties.string_spec
+        obj.string_spec = {value: "bar"}
         expect(prop.spec).to.be.deep.equal({value: "bar"})
       })
     })
   })
 
   describe("Anchor", () => {
-    const prop = new p.Anchor(new SomeHasProps({a: {value: "top_left"}}), 'a')
+    const obj = new Some({anchor: "top_left"})
+    const prop = obj.properties.anchor
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on anchor input", () => {
-        for (const x of enums.LegendLocation)
-          expect(prop.validate(x)).to.be.undefined
+        for (const x of enums.Anchor)
+          expect(prop.valid(x)).to.be.true
       })
 
       it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
   })
 
   describe("Any", () => {
-    const prop = new p.Any(new SomeHasProps({a: {value: "top_left"}}), 'a')
+    class X {}
+    const obj = new Some({any: new X()})
+    const prop = obj.properties.any
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on any input", () => {
-        for (const x of [true, null, undefined, 10, 10.2, "foo", [1, 2, 3], {}, new SomeHasProps()])
-          expect(prop.validate(x)).to.be.undefined
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("Angle", () => {
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        const prop = new p.Angle(new SomeHasProps({a: {value: 10}}), 'a')
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        for (const x of [true, null, undefined, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()])
+          expect(prop.valid(x)).to.be.true
       })
     })
   })
@@ -395,89 +356,69 @@ describe("properties module", () => {
   describe("AngleSpec", () => {
     describe("normalize", () => {
       it("should multiply radians by -1", () => {
-        const prop = new p.AngleSpec(new SomeHasProps({a: {value: 10, units: "rad"}}), 'a')
+        const obj = new Some({angle_spec: {value: 10, units: "rad"}})
+        const prop = obj.properties.angle_spec
         expect(prop.normalize([-10, 0, 10, 20])).to.be.deep.equal([10, -0, -10, -20])
       })
 
       it("should convert degrees to -1 * radians", () => {
-        const prop = new p.AngleSpec(new SomeHasProps({a: {value: 10, units: "deg"}}), 'a')
+        const obj = new Some({angle_spec: {value: 10, units: "deg"}})
+        const prop = obj.properties.angle_spec
         expect(prop.normalize([-180, 0, 180])).to.be.deep.equal([Math.PI, -0, -Math.PI])
       })
     })
   })
 
   describe("Array", () => {
-    const prop = new p.Array(new SomeHasProps({a: {field: "foo"}}), 'a')
+    const obj = new Some({array: [1, 2, 3]})
+    const prop = obj.properties.array
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on array input", () => {
-        expect(prop.validate([])).to.be.undefined
-        expect(prop.validate([1, 2, 3])).to.be.undefined
-        expect(prop.validate(new Float64Array([1, 2, 3]))).to.be.undefined
+        expect(prop.valid([])).to.be.true
+        expect(prop.valid([1, 2, 3])).to.be.true
+        expect(prop.valid(new Float64Array([1, 2, 3]))).to.be.true
       })
 
       it("should throw an Error on non-array input", () => {
-        validation_error(prop, true)
-        validation_error(prop, 10)
-        validation_error(prop, 10.2)
-        validation_error(prop, "foo")
-        validation_error(prop, {})
-        validation_error(prop, null)
-        validation_error(prop, undefined)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(prop.valid(true)).to.be.false
+        expect(prop.valid(10)).to.be.false
+        expect(prop.valid(10.2)).to.be.false
+        expect(prop.valid("foo")).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid(null)).to.be.false
+        expect(prop.valid(undefined)).to.be.false
       })
     })
   })
 
   describe("Bool", () => {
-    const prop = new p.Boolean(new SomeHasProps({a: {value: true}}), 'a')
+    const obj = new Some({boolean: true})
+    const prop = obj.properties.boolean
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-
+    describe("valid", () => {
       it("should return undefined on bool input", () => {
-        expect(prop.validate(true)).to.be.undefined
-        expect(prop.validate(false)).to.be.undefined
+        expect(prop.valid(true)).to.be.true
+        expect(prop.valid(false)).to.be.true
       })
 
       it("should throw an Error on non-boolean input", () => {
-        validation_error(prop, 10)
-        validation_error(prop, 10.2)
-        validation_error(prop, "foo")
-        validation_error(prop, {})
-        validation_error(prop, [])
-        validation_error(prop, null)
-        validation_error(prop, undefined)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(prop.valid(10)).to.be.false
+        expect(prop.valid(10.2)).to.be.false
+        expect(prop.valid("foo")).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid([])).to.be.false
+        expect(prop.valid(null)).to.be.false
+        expect(prop.valid(undefined)).to.be.false
       })
     })
   })
 
   describe("Color", () => {
-    const prop = new p.Color(new SomeHasProps({a: {value: "#aabbccdd"}}), 'a')
+    const obj = new Some({color: "#aabbccdd"})
+    const prop = obj.properties.color
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
 
       const good_tuples = [
         "rgb(255, 0, 0)",
@@ -499,13 +440,13 @@ describe("properties module", () => {
       ]
 
       it("should return undefined on RGBa input", () => {
-        expect(prop.validate("#aabbccdd")).to.be.undefined
+        expect(prop.valid("#aabbccdd")).to.be.true
       })
 
       describe("should return undefined on good integer rgb and rgba tuples", () => {
         for (const good_tuple of good_tuples) {
           it(`${good_tuple}`, () => {
-            expect(prop.validate(good_tuple)).to.be.undefined
+            expect(prop.valid(good_tuple)).to.be.true
           })
         }
       })
@@ -513,68 +454,38 @@ describe("properties module", () => {
       describe("should throw Error on tuple with bad numerical values", () => {
         for (const bad_tuple of bad_tuples) {
           it(`${bad_tuple}`, () => {
-            function fn(): void {
-              prop.validate(bad_tuple)
-            }
-            expect(fn).to.throw(Error)
+            expect(prop.valid(bad_tuple)).to.be.false
           })
         }
       })
 
       it("should return undefined on svg color input", () => {
-        for (const color in svg_colors)
-          expect(prop.validate(color)).to.be.undefined
+        for (const color in svg_colors) {
+          expect(prop.valid(color)).to.be.true
+        }
       })
 
       it("should throw an Error on other input", () => {
-        validation_error(prop, true)
-        validation_error(prop, 10)
-        validation_error(prop, 10.2)
-        validation_error(prop, "foo")
-        validation_error(prop, {})
-        validation_error(prop, [])
-        validation_error(prop, null)
-        validation_error(prop, undefined)
-      })
-    })
-  })
-
-  describe("Dimension", () => {
-    const prop = new p.Dimension(new SomeHasProps({a: {value: "width"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on dimension input", () => {
-        for (const x of enums.Dimension)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(prop.valid(true)).to.be.false
+        expect(prop.valid(10)).to.be.false
+        expect(prop.valid(10.2)).to.be.false
+        expect(prop.valid("foo")).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid([])).to.be.false
+        expect(prop.valid(null)).to.be.false
+        expect(prop.valid(undefined)).to.be.false
       })
     })
   })
 
   describe("Direction", () => {
-    const prop = new p.Direction(new SomeHasProps({a: {value: "clock"}}), 'a')
+    const obj = new Some({direction: "clock"})
+    const prop = obj.properties.direction
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on direction input", () => {
-        expect(prop.validate("clock")).to.be.undefined
-        expect(prop.validate("anticlock")).to.be.undefined
+        expect(prop.valid("clock")).to.be.true
+        expect(prop.valid("anticlock")).to.be.true
       })
 
       it("should throw an Error on other input", () => {
@@ -604,381 +515,115 @@ describe("properties module", () => {
 
     describe("units", () => {
       it("should default to data units", () => {
-        const prop = new p.DistanceSpec(new SomeHasProps({a: {value: 10}}), 'a')
+        const obj = new Some({distance_spec: {value: 10}})
+        const prop = obj.properties.distance_spec
         expect(prop.spec.units).to.be.equal("data")
       })
 
       it("should accept screen units", () => {
-        const prop = new p.DistanceSpec(new SomeHasProps({a: {value: 10, units:"screen"}}), 'a')
+        const obj = new Some({distance_spec: {value: 10, units: "screen"}})
+        const prop = obj.properties.distance_spec
         expect(prop.spec.units).to.be.equal("screen")
       })
 
       it("should accept data units", () => {
-        const prop = new p.DistanceSpec(new SomeHasProps({a: {value: 10, units:"data"}}), 'a')
+        const obj = new Some({distance_spec: {value: 10, units: "data"}})
+        const prop = obj.properties.distance_spec
         expect(prop.spec.units).to.be.equal("data")
       })
 
       it("should throw an Error on bad units", () => {
-        function fn(): void {
-          const x = new SomeHasProps({a: {value: 10, units: "bad"}})
-          new p.DistanceSpec(x, 'a')
-        }
-        expect(fn).to.throw(Error, "units must be one of screen, data; got: bad")
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        const prop = new p.DistanceSpec(new SomeHasProps({a: {value: 10}}), 'a')
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(() => {
+          new Some({distance_spec: {value: 10, units: "bad"}})
+        }).to.throw(Error, "units must be one of screen, data; got: bad")
       })
     })
   })
 
   describe("Font", () => {
-    const prop = new p.Font(new SomeHasProps({a: {value: "times"}}), 'a')
+    const obj = new Some({font: "times"})
+    const prop = obj.properties.font
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on font input", () => {
-        expect(prop.validate("")).to.be.undefined
-        expect(prop.validate("helvetica")).to.be.undefined
+        expect(prop.valid("")).to.be.true
+        expect(prop.valid("helvetica")).to.be.true
       })
 
       it("should throw an Error on non-string input", () => {
-        validation_error(prop, true)
-        validation_error(prop, 10)
-        validation_error(prop, 10.2)
-        validation_error(prop, {})
-        validation_error(prop, [])
-        validation_error(prop, null)
-        validation_error(prop, undefined)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("FontStyle", () => {
-    const prop = new p.FontStyle(new SomeHasProps({a: {value: "normal"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on font style input", () => {
-        for (const x of enums.FontStyle)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(prop.valid(true)).to.be.false
+        expect(prop.valid(10)).to.be.false
+        expect(prop.valid(10.2)).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid([])).to.be.false
+        expect(prop.valid(null)).to.be.false
+        expect(prop.valid(undefined)).to.be.false
       })
     })
   })
 
   describe("Instance", () => {
-    const prop = new p.Instance(new SomeHasProps({a: null}), 'a')
+    const obj = new Some({instance: new Some()})
+    const prop = obj.properties.instance
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on HasProps", () => {
-        expect(prop.validate(new SomeHasProps({}))).to.be.undefined
+        const value = new Some()
+        expect(prop.valid(value)).to.be.true
       })
 
       it.skip("should throw an Error on other input", () => {
-        validation_error(prop, true)
-        validation_error(prop, 10)
-        validation_error(prop, 10.2)
-        validation_error(prop, "foo")
-        validation_error(prop, {})
-        validation_error(prop, [])
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("LegendLocation", () => {
-    const prop = new p.LegendLocation(new SomeHasProps({a: {value: "top_left"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on legend location input", () => {
-        for (const x of enums.LegendLocation)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("LineCap", () => {
-    const prop = new p.LineCap(new SomeHasProps({a: {value: "butt"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on line cap input", () => {
-        for (const x of enums.LineCap)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("LineJoin", () => {
-    const prop = new p.LineJoin(new SomeHasProps({a: {value: "miter"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on line join input", () => {
-        for (const x of enums.LineJoin)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(prop.valid(true)).to.be.false
+        expect(prop.valid(10)).to.be.false
+        expect(prop.valid(10.2)).to.be.false
+        expect(prop.valid("foo")).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid([])).to.be.false
       })
     })
   })
 
   describe("Number", () => {
-    const prop = new p.Number(new SomeHasProps({a: {value: 10}}), 'a')
+    const obj = new Some({number: 10})
+    const prop = obj.properties.number
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on numeric input", () => {
-        expect(prop.validate(10)).to.be.undefined
-        expect(prop.validate(10.2)).to.be.undefined
+        expect(prop.valid(10)).to.be.true
+        expect(prop.valid(10.2)).to.be.true
       })
 
       it("should throw an Error on non-numeric input", () => {
-        // validation_error(prop, true) // XXX should this succeed?
-        validation_error(prop, "foo")
-        validation_error(prop, {})
-        validation_error(prop, [])
-        validation_error(prop, null)
-        validation_error(prop, undefined)
-        validation_error(prop, new SomeHasProps())
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("Orientation", () => {
-    const prop = new p.Orientation(new SomeHasProps({a: {value: "vertical"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on orientation input", () => {
-        for (const x of enums.Orientation)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("RenderLevel", () => {
-    const prop = new p.RenderLevel(new SomeHasProps({a: {value: "glyph"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on render level input", () => {
-        for (const x of enums.RenderLevel)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("RenderMode", () => {
-    const prop = new p.RenderMode(new SomeHasProps({a: {value: "canvas"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on render mode input", () => {
-        for (const x of enums.RenderMode)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        // expect(prop.valid(true) // XXX should this succeed?
+        expect(prop.valid("foo")).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid([])).to.be.false
+        expect(prop.valid(null)).to.be.false
+        expect(prop.valid(undefined)).to.be.false
+        expect(prop.valid(new Some())).to.be.false
       })
     })
   })
 
   describe("String", () => {
-    const prop = new p.String(new SomeHasProps({a: {value: "foo"}}), 'a')
+    const obj = new Some({string: "foo"})
+    const prop = obj.properties.string
 
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
+    describe("valid", () => {
       it("should return undefined on string input", () => {
-        expect(prop.validate("")).to.be.undefined
-        expect(prop.validate("foo")).to.be.undefined
-        expect(prop.validate("1")).to.be.undefined
+        expect(prop.valid("")).to.be.true
+        expect(prop.valid("foo")).to.be.true
+        expect(prop.valid("1")).to.be.true
       })
 
       it("should throw an Error on non-string input", () => {
-        validation_error(prop, true)
-        validation_error(prop, 10)
-        validation_error(prop, 10.2)
-        validation_error(prop, {})
-        validation_error(prop, [])
-        validation_error(prop, null)
-        validation_error(prop, undefined)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("TextAlign", () => {
-    const prop = new p.TextAlign(new SomeHasProps({a: {value: "left"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on text align input", () => {
-        for (const x of enums.TextAlign)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
-      })
-    })
-  })
-
-  describe("TextBaseline", () => {
-    const prop = new p.TextBaseline(new SomeHasProps({a: {value: "top"}}), 'a')
-
-    it("should be an instance of Property", () => {
-      expect(prop).to.be.instanceof(p.Property)
-    })
-
-    describe("validate", () => {
-      it("should return undefined on text baseline input", () => {
-        for (const x of enums.TextBaseline)
-          expect(prop.validate(x)).to.be.undefined
-      })
-
-      it("should throw an Error on other input", () => {
-        enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should be Property.normalize", () => {
-        expect(prop.normalize).to.be.equal(p.Property.prototype.normalize)
+        expect(prop.valid(true)).to.be.false
+        expect(prop.valid(10)).to.be.false
+        expect(prop.valid(10.2)).to.be.false
+        expect(prop.valid({})).to.be.false
+        expect(prop.valid([])).to.be.false
+        expect(prop.valid(null)).to.be.false
+        expect(prop.valid(undefined)).to.be.false
       })
     })
   })
