@@ -303,7 +303,6 @@ from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
 from .property.numeric import PositiveInt; PositiveInt
 from .property.numeric import Size; Size
-from .property.numeric import Base64String; Base64String
 
 from .property.override import Override ; Override
 
@@ -316,6 +315,7 @@ from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import String; String
 
+from .property.regex import Base64String; Base64String
 from .property.regex import Regex; Regex
 
 from .property.struct import Struct; Struct

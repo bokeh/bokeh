@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import base64
 import re
 
 # Bokeh imports
@@ -32,6 +33,7 @@ from .primitive import String
 
 __all__ = (
     'Regex',
+    'Base64String',
 )
 
 #-----------------------------------------------------------------------------
@@ -89,6 +91,22 @@ class Regex(String):
         if not (value is None or self.regex.match(value) is not None):
             msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
             raise ValueError(msg)
+
+class Base64String(String):
+    ''' Encode a ascii string using Base64.
+
+    Args:
+        value : a string to encode
+
+    Returns:
+        string
+
+    '''
+
+    def serialize_value(value : str):
+
+        value = base64.b64encode(value.encode("utf-8"))
+        return value
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -90,7 +90,6 @@ __all__ = (
     'decode_base64_dict',
     'encode_binary_dict',
     'encode_base64_dict',
-    'encode_base64_string',
     'is_datetime_type',
     'is_timedelta_type',
     'make_globally_unique_id',
@@ -570,18 +569,6 @@ def decode_base64_dict(data):
         array = array.reshape(data['shape'])
     return array
 
-def encode_base64_string(str, value):
-    ''' Encode a ascii string using Base64.
-
-    Args:
-        str : a string to encode
-
-    Returns:
-        string
-
-    '''
-    b64_string = base64.b64encode(value.encode("ascii"))
-    return b64_string
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

@@ -27,6 +27,7 @@ import bokeh.core.property.regex as bcpr # isort:skip
 
 ALL = (
     'Regex',
+    'Base64String',
 )
 
 #-----------------------------------------------------------------------------

@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import MapType
 from ..core.has_props import abstract
-from ..core.properties import JSON, Bool, Enum, Float, Instance, Int, Override, Base64String
+from ..core.properties import JSON, Base64String, Bool, Enum, Float, Instance, Int, Override
 from ..core.validation import error, warning
 from ..core.validation.errors import (
     INCOMPATIBLE_MAP_RANGE_TYPE,

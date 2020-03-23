@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .bases import ParameterizedProperty
 from .primitive import Float, Int, String
-from ...util.serialization import encode_base64_string
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -29,7 +28,6 @@ from ...util.serialization import encode_base64_string
 
 __all__ = (
     'Angle',
-    'Base64String',
     'Byte',
     'Interval',
     'NonNegativeInt',
@@ -270,14 +268,6 @@ class Angle(Float):
 
     '''
     pass
-
-class Base64String(String):
-    """ Accept String value and encodes it into Base64 format."""
-
-    def serialize_value(self, value):
-
-        value = encode_base64_string(value)
-        return value
 
 #-----------------------------------------------------------------------------
 # Dev API

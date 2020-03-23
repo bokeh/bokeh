@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..core.properties import Auto, Either, Enum, Instance, Int, Seq, String, Base64String
+from ..core.properties import Auto, Base64String, Either, Enum, Instance, Int, Seq, String
 from ..models import (
     GMapPlot,
     LinearAxis,
@@ -230,9 +230,7 @@ def gmap(google_api_key, map_options, **kwargs):
        GMap
 
     '''
-    encoded_key = Base64String()
-    encoded_key = encoded_key.serialize_value(google_api_key)
-    return GMap(api_key=encoded_key, map_options=map_options, **kwargs)
+    return GMap(api_key=google_api_key, map_options=map_options, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API
