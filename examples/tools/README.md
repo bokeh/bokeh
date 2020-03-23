@@ -11,9 +11,9 @@ and drawing that graph to illuminate the model structure. The
    - a bokeh model that draws the graph of models and submodels; clicking on a node reveals the attributes
    of that submodel and their values.
 
-See [this jupyter notebook](./ModelStructureExample.ipynb)
-or run:
+	See [this jupyter notebook](./ModelStructureExample.ipynb)
+	or run:
 
-```
-$ python structure_graph.py
-```
+	```
+	$ python structure_graph.py
+	```
