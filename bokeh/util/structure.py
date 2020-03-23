@@ -3,13 +3,13 @@
    submodels by clicking on the nodes.  Uses simple custom javascript callbacks so no server is necessary;
    works in a jupyter notebook.
 
-   Suppose M is a bokeh model (i.e. a plot or figure).  
+   Suppose M is a bokeh model (i.e. a plot or figure).
 
       - K = BokehStructureGraph(M) creates the graph, which is itself a bokeh model.
       - K.show() calls show on the model to display it.
       - K.model returns the model consisting of the structure graph and associated datatable.
       - K.graph returns the directed graph in networkx format
-      - K.property_df returns the dataframe of models, submodels and their properties.      
+      - K.property_df returns the dataframe of models, submodels and their properties.
 """
 
 # Standard library imports
@@ -171,7 +171,7 @@ class BokehStructureGraph:
     def make_graph_plot(self):
         """
         Builds the graph portion of the final model from the graph constructed
-        by make_graph.  
+        by make_graph.
         """
         nodes = nx.nx_pydot.graphviz_layout(self._graph, prog="dot")
         node_x, node_y = zip(*nodes.values())
