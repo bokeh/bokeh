@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from .bases import ParameterizedProperty
-from .primitive import Float, Int, String
+from .primitive import Float, Int
 
 #-----------------------------------------------------------------------------
 # Globals and constants
