@@ -557,8 +557,8 @@ export class Grid extends Layoutable {
     })
 
     type Aligns = {
-      start: DefaultMap<number, number>,
-      end: DefaultMap<number, number>,
+      start: DefaultMap<number, number>
+      end: DefaultMap<number, number>
     }
 
     const row_aligns = rows.map((): Aligns => {

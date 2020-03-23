@@ -27,6 +27,8 @@ export class SaveTool extends ActionTool {
 
   static init_SaveTool(): void {
     this.prototype.default_view = SaveToolView
+
+    this.register_alias("save", () => new SaveTool())
   }
 
   tool_name = "Save"

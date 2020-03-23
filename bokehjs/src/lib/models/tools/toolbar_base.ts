@@ -150,16 +150,16 @@ export class ToolbarBaseView extends DOMView {
 }
 
 export type GesturesMap = {
-  pan:       { tools: GestureTool[], active: Tool | null },
-  scroll:    { tools: GestureTool[], active: Tool | null },
-  pinch:     { tools: GestureTool[], active: Tool | null },
-  tap:       { tools: GestureTool[], active: Tool | null },
-  doubletap: { tools: GestureTool[], active: Tool | null },
-  press:     { tools: GestureTool[], active: Tool | null },
-  pressup:   { tools: GestureTool[], active: Tool | null },
-  rotate:    { tools: GestureTool[], active: Tool | null },
-  move:      { tools: GestureTool[], active: Tool | null },
-  multi:     { tools: GestureTool[], active: Tool | null },
+  pan:       { tools: GestureTool[], active: Tool | null }
+  scroll:    { tools: GestureTool[], active: Tool | null }
+  pinch:     { tools: GestureTool[], active: Tool | null }
+  tap:       { tools: GestureTool[], active: Tool | null }
+  doubletap: { tools: GestureTool[], active: Tool | null }
+  press:     { tools: GestureTool[], active: Tool | null }
+  pressup:   { tools: GestureTool[], active: Tool | null }
+  rotate:    { tools: GestureTool[], active: Tool | null }
+  move:      { tools: GestureTool[], active: Tool | null }
+  multi:     { tools: GestureTool[], active: Tool | null }
 }
 
 export type GestureType = keyof GesturesMap
@@ -170,7 +170,7 @@ export namespace ToolbarBase {
   export type Props = Model.Props & {
     tools: p.Property<Tool[]>
     logo: p.Property<Logo>
-    gestures: p.Property<GesturesMap>,
+    gestures: p.Property<GesturesMap>
     actions: p.Property<ActionTool[]>
     inspectors: p.Property<InspectTool[]>
     help: p.Property<HelpTool[]>
