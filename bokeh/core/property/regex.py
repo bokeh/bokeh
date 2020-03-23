@@ -103,9 +103,10 @@ class Base64String(String):
 
     '''
 
-    def serialize_value(self, value : str):
+    def serialize_value(self, value):
 
-        value = base64.b64encode(value.encode("utf-8"))
+        if isinstance(value, str):
+            value = base64.b64encode(value.encode("utf-8"))
         return value
 
 #-----------------------------------------------------------------------------
