@@ -52,7 +52,7 @@ export class GMapPlotView extends PlotView {
 
     if (typeof google === "undefined" || google.maps == null) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
-        var decoded_api_key = atob(this.model.api_key)
+        const decoded_api_key = atob(this.model.api_key)
         load_google_api(decoded_api_key)
       }
       gmaps_ready.connect(() => this.request_render())
