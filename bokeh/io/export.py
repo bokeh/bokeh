@@ -362,7 +362,7 @@ function done() {
   window._bokeh_render_complete = true;
 }
 
-var doc = window.Bokeh.documents[0];
+var doc = Bokeh.documents[0];
 
 if (doc.is_idle)
   done();

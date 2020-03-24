@@ -5,6 +5,7 @@ import {task, log} from "../task"
 import {rename, write} from "@compiler/sys"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
+import * as preludes from "@compiler/prelude"
 import * as paths from "../paths"
 
 import pkg from "../../package.json"
@@ -40,6 +41,8 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
+    prelude: preludes.prelude,
+    plugin_prelude: () => preludes.plugin_prelude({version: pkg.version}),
     transpile: "ES2017",
     exports: ["tslib"],
   })

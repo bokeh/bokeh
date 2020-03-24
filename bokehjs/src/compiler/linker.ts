@@ -17,13 +17,6 @@ const root_path = process.cwd()
 
 const cache_version = 3
 
-export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
-  let i = 0
-  for (const item of iter) {
-    yield fn(item, i++)
-  }
-}
-
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
 export type Parent = {
@@ -195,7 +188,8 @@ export interface LinkerOpts {
   minify?: boolean
   plugin?: boolean
   exports?: string[]
-  prelude?: string
+  prelude?: () => string
+  plugin_prelude?: () => string
   shims?: string[]
 }
 
@@ -213,7 +207,8 @@ export class Linker {
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
-  readonly prelude: string | null
+  readonly prelude: string
+  readonly plugin_prelude: string
   readonly shims: Set<string>
 
   constructor(opts: LinkerOpts) {
@@ -226,7 +221,8 @@ export class Linker {
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false
     this.exports = new Set(opts.exports ?? [])
-    this.prelude = opts.prelude ?? null
+    this.prelude = (opts.prelude ?? preludes.prelude)()
+    this.plugin_prelude = (opts.plugin_prelude ?? preludes.plugin_prelude)()
 
     if (this.builtins) {
       this.external_modules.add("module")
@@ -357,14 +353,14 @@ export class Linker {
       })
     }
 
-    const main_prelude = this.prelude != null ? this.prelude : (!this.plugin ? preludes.prelude : preludes.plugin_prelude)
+    const main_prelude = !this.plugin ? this.prelude : this.plugin_prelude
     const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
 
     const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, main_prelude, main_assembly)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, preludes.plugin_prelude, sparse_assembly)
+      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, this.plugin_prelude, sparse_assembly)
       plugin_bundles.push(plugin_bundle)
     }
 
