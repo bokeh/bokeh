@@ -126,7 +126,7 @@ class TestJSResources(object):
         monkeypatch.setattr(resources, "__version__", v)
         r = resources.JSResources()
         assert r.mode == "cdn"
-        assert r.hashes == None
+        assert r.hashes == {}
 
 
 class TestCSSResources(object):

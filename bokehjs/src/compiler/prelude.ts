@@ -104,6 +104,15 @@ ${comment(license)}
     var main = require(entry);
     main.require = require;
 
+    if (typeof Proxy !== "undefined") {
+      // allow Bokeh.loader["@bokehjs/module/name"] syntax
+      main.loader = new Proxy({}, {
+        get: function(_obj, module) {
+          return require(module);
+        }
+      });
+    }
+
     main.register_plugin = function(plugin_modules, plugin_entry, plugin_aliases, plugin_externals) {
       if (plugin_aliases === undefined) plugin_aliases = {};
       if (plugin_externals === undefined) plugin_externals = {};
