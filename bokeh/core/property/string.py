@@ -93,18 +93,17 @@ class Regex(String):
             raise ValueError(msg)
 
 class Base64String(String):
-    ''' Encode a ascii string using Base64.
-
-    Args:
-        value : a string to encode
-
-    Returns:
-        string
-
-    '''
 
     def serialize_value(self, value):
+        ''' Encode a ascii string using Base64.
 
+        Args:
+            value : a string to encode
+
+        Returns:
+            string
+
+        '''
         if isinstance(value, str):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
         return value

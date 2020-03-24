@@ -32,7 +32,7 @@ __all__ = (
     'Regex',
 )
 
-deprecated("bokeh/core/property/regex is deprecated, use bokeh/core/property/string module instead")
+deprecated("bokeh.core.property.regex is deprecated, use bokeh.core.property.string module instead")
 
 #-----------------------------------------------------------------------------
 # General API
