@@ -223,7 +223,7 @@ In order to help prevent some accidental errors, here are some git hooks
 that may be useful. The scripts below should be placed in the ``.git/hooks``
 subdirectory in the top level of the *source checkout* directory and be
 marked executable with e.g. ``chmod +x pre-commit``. For more information
-on git hooks, see `this turorial`_.
+on git hooks, see `this tutorial`_.
 
 ``pre-commit``
 
@@ -235,7 +235,7 @@ on git hooks, see `this turorial`_.
 
         #!/bin/bash
 
-        py.test -m codebase
+        py.test tests/codebase
         exit $?
 
 ``pre-push``
