@@ -322,8 +322,8 @@ export namespace Legend {
   export type Props = Annotation.Props & {
     orientation: p.Property<Orientation>
     location: p.Property<LegendLocation | [number, number]>
-    title: p.Property<string>,
-    title_standoff: p.Property<number>,
+    title: p.Property<string>
+    title_standoff: p.Property<number>
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
     glyph_width: p.Property<number>

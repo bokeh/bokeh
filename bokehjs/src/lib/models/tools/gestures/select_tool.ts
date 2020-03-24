@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
-import {Geometry} from "core/geometry"
+import {Geometry, GeometryData} from "core/geometry"
 
 export abstract class SelectToolView extends GestureToolView {
   model: SelectTool
@@ -75,34 +75,40 @@ export abstract class SelectToolView extends GestureToolView {
     const {frame} = this.plot_view
     const xm = frame.xscales.default
     const ym = frame.yscales.default
-    let g: any // XXX: Geometry & something
+
+    let geometry_data: GeometryData
     switch (geometry.type) {
-      case 'point': {
+      case "point": {
         const {sx, sy} = geometry
         const x = xm.invert(sx)
         const y = ym.invert(sy)
-        g = {...geometry, x, y}
+        geometry_data = {...geometry, x, y}
         break
       }
-      case 'rect': {
+      case "span": {
+        const {sx, sy} = geometry
+        const x = xm.invert(sx)
+        const y = ym.invert(sy)
+        geometry_data = {...geometry, x, y}
+        break
+      }
+      case "rect": {
         const {sx0, sx1, sy0, sy1} = geometry
         const [x0, x1] = xm.r_invert(sx0, sx1)
         const [y0, y1] = ym.r_invert(sy0, sy1)
-        g = {...geometry, x0, y0, x1, y1}
+        geometry_data = {...geometry, x0, y0, x1, y1}
         break
       }
-      case 'poly': {
+      case "poly": {
         const {sx, sy} = geometry
         const x = xm.v_invert(sx)
         const y = ym.v_invert(sy)
-        g = {...geometry, x, y}
+        geometry_data = {...geometry, x, y}
         break
       }
-      default:
-        throw new Error(`Unrecognized selection geometry type: '${geometry.type}'`)
     }
 
-    this.plot_model.trigger_event(new SelectionGeometry(g, final))
+    this.plot_model.trigger_event(new SelectionGeometry(geometry_data, final))
   }
 }
 

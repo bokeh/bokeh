@@ -75,6 +75,8 @@ export class CrosshairTool extends InspectTool {
       render_mode:    [ p.RenderMode,   "css"    ],
       spans:          [ p.Any                    ],
     })
+
+    this.register_alias("crosshair", () => new CrosshairTool())
   }
 
   tool_name = "Crosshair"

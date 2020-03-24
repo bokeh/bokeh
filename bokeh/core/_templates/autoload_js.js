@@ -8,9 +8,6 @@ calls it with the rendered model.
 :param elementid: the unique id for the script tag
 :type elementid: str
 
-:param hashes: a map of filenames for to SRI hashes
-:type hases: dict[str, str]
-
 :param js_urls: URLs of JS files making up Bokeh library
 :type js_urls: list
 
@@ -88,7 +85,7 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
-    const hashes = {{ hashes }};
+    const hashes = {{ bundle.hashes|json }};
 
     for (var i = 0; i < js_urls.length; i++) {
       var url = js_urls[i];
@@ -98,8 +95,8 @@ calls it with the rendered model.
       element.async = false;
       element.src = url;
       if (url in hashes) {
-        element.crossOrigin="anonymous";
-        element.integrity="sha384-" + hashes[url];
+        element.crossOrigin = "anonymous";
+        element.integrity = "sha384-" + hashes[url];
       }
       console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
       document.head.appendChild(element);

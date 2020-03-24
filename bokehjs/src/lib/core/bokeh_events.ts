@@ -1,5 +1,5 @@
 import {HasProps} from "./has_props"
-import {Geometry} from "./geometry"
+import {GeometryData} from "./geometry"
 import {Class} from "./class"
 
 export type JSON = {[key: string]: unknown}
@@ -57,7 +57,7 @@ export class LODEnd extends UIEvent {}
 @event("selectiongeometry")
 export class SelectionGeometry extends UIEvent {
 
-  constructor(readonly geometry: Geometry, readonly final: boolean) {
+  constructor(readonly geometry: GeometryData, readonly final: boolean) {
     super()
   }
 

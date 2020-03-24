@@ -160,9 +160,9 @@ export namespace CategoricalAxis {
     & mixins.SubGroupText
 
   export type Visuals = Axis.Visuals & {
-    separator_line: visuals.Line,
-    group_text: visuals.Text,
-    subgroup_text: visuals.Text,
+    separator_line: visuals.Line
+    group_text: visuals.Text
+    subgroup_text: visuals.Text
   }
 }
 

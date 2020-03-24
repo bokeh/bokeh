@@ -346,7 +346,7 @@ class BaseResources(object):
     def _resolve(self, kind):
         paths = self._file_paths(kind)
         files, raw = [], []
-        hashes = None
+        hashes = {}
 
         if self.mode == "inline":
             raw = [self._inline(path) for path in paths]
