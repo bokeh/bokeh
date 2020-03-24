@@ -15,7 +15,7 @@ export interface ModelChanged {
 export interface MessageSent {
   kind: "MessageSent"
   msg_type: string
-  msg_data: unknown
+  msg_data?: unknown
 }
 
 export interface TitleChanged {
