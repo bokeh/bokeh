@@ -703,8 +703,20 @@ export class Document {
     for (const event_json of events_json) {
       switch (event_json.kind) {
         case 'MessageSent': {
-          const msg_data = Document._resolve_refs(event_json.msg_data, old_references, new_references)
-          this._trigger_on_message(event_json.msg_type, msg_data)
+          const {msg_type, msg_data} = event_json
+          let data: unknown
+          if (msg_data === undefined) {
+            if (buffers.length == 1) {
+              const [[, buffer]] = buffers
+              data = buffer
+            } else {
+              throw new Error("expected exactly one buffer")
+            }
+          } else {
+            data = Document._resolve_refs(msg_data, old_references, new_references)
+          }
+
+          this._trigger_on_message(msg_type, data)
           break
         }
         case 'ModelChanged': {
