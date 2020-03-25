@@ -29,7 +29,7 @@ from .container import Tuple
 from .either import Either
 from .enum import Enum
 from .numeric import Byte, Percent
-from .regex import Regex
+from .string import Regex
 
 #-----------------------------------------------------------------------------
 # Globals and constants
