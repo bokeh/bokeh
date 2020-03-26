@@ -43,7 +43,6 @@ if "windows" in platform.platform().lower():
     spec = ['"{}"'.format(s) for s in spec]
 
 deps = ""
-deps += " ".join("-c " + c for c in meta_src["extra"]["channels"]) + " "
 deps += " ".join(s for s in spec)
 deps = deps.replace(' >=', '>=')  # conda syntax doesn't allow spaces b/w pkg name and version spec
 deps = deps.replace(' <', '<')
