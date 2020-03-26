@@ -12,11 +12,6 @@ build:
   entry_points:
     - bokeh = bokeh.__main__:main
 
-extra:
-  channels:
-    - bokeh
-    - conda-forge
-
 requirements:
   build:
     - jinja2
@@ -84,6 +79,8 @@ test:
     # examples
     - flask >=1.0
     - django
+    - panel
+    - django-channels
     - h5py
     - icalendar
     - networkx
@@ -109,3 +106,7 @@ extra:
     - anaconda-client
     - setuptools >=0.39
     - twine >=1.11
+  channels:
+    - bokeh
+    - conda-forge
+    - tethysplatform
