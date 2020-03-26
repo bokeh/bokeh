@@ -19,13 +19,24 @@ log = logging.getLogger(__name__)
 import itertools
 import re
 import warnings
-from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 # External imports
 from typing_extensions import Literal
 
 # Bokeh imports
-from ..models import HoverTool, Plot, Tool
+from ..models import HoverTool, Plot, Tool, Toolbar
+from ..models.tools import Drag, Inspection, Scroll, Tap
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,12 +55,20 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_scroll, active_tap):
+# TODO: str should be literal union of e.g. pan | xpan | ypan
+Auto = Literal["auto"]
+ActiveDrag = Union[Drag, Auto, str, None]
+ActiveInspect = Union[List[Inspection], Inspection, Auto, str, None]
+ActiveScroll = Union[Scroll, Auto, str, None]
+ActiveTap = Union[Tap, Auto, str, None]
+
+def process_active_tools(toolbar: Toolbar, tool_map: Dict[str, Tool],
+        active_drag: ActiveDrag, active_inspect: ActiveInspect, active_scroll: ActiveScroll, active_tap: ActiveTap) -> None:
     """ Adds tools to the plot object
 
     Args:
         toolbar (Toolbar): instance of a Toolbar object
-        tools_map (dict[str]|Tool): tool_map from _process_tools_arg
+        tools_map (dict[str]): tool_map from _process_tools_arg
         active_drag (str or Tool): the tool to set active for drag
         active_inspect (str or Tool): the tool to set active for inspect
         active_scroll (str or Tool): the tool to set active for scroll
@@ -68,9 +87,10 @@ def process_active_tools(toolbar, tool_map, active_drag, active_inspect, active_
     else:
         raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
 
-    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all(isinstance(t, Tool) for t in active_inspect):
+    if active_inspect in ["auto", None] or isinstance(active_inspect, Tool) or \
+            (isinstance(active_inspect, list) and all(isinstance(t, Tool) for t in active_inspect)):
         toolbar.active_inspect = active_inspect
-    elif active_inspect in tool_map:
+    elif isinstance(active_inspect, str) and active_inspect in tool_map:
         toolbar.active_inspect = tool_map[active_inspect]
     else:
         raise ValueError("Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll)
