@@ -19,7 +19,10 @@ log = logging.getLogger(__name__)
 import itertools
 import re
 import warnings
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Sequence, Tuple, Union
+
+# External imports
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..models import HoverTool, Plot, Tool
@@ -102,12 +105,32 @@ def process_tools_arg(plot: Plot, tools: Union[str, Sequence[Union[Tool, str]]],
     Returns:
         list of Tools objects added to plot, map of supplied string names to tools
     """
+    tool_objs, tool_map = _resolve_tools(tools)
+
+    repeated_tools = [ str(obj) for obj in _collect_repeated_tools(tool_objs) ]
+    if repeated_tools:
+        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+    if tooltips is not None:
+        for tool_obj in tool_objs:
+            if isinstance(tool_obj, HoverTool):
+                tool_obj.tooltips = tooltips
+                break
+        else:
+            tool_objs.append(HoverTool(tooltips=tooltips)) # type: ignore[no-untyped-call]
+
+    return tool_objs, tool_map
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _resolve_tools(tools: Union[str, Sequence[Union[Tool, str]]]) -> Tuple[List[Tool], Dict[str, Tool]]:
     tool_objs = []
     tool_map = {}
-    temp_tool_str = ""
-    repeated_tools = []
 
     if not isinstance(tools, str):
+        temp_tool_str = ""
         for tool in tools:
             if isinstance(tool, Tool):
                 tool_objs.append(tool)
@@ -126,26 +149,22 @@ def process_tools_arg(plot: Plot, tools: Union[str, Sequence[Union[Tool, str]]],
         tool_objs.append(tool_obj)
         tool_map[tool] = tool_obj
 
-    for typename, group in itertools.groupby(sorted(tool.__class__.__name__ for tool in tool_objs)):
-        if len(list(group)) > 1:
-            repeated_tools.append(typename)
-
-    if repeated_tools:
-        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
-
-    if tooltips is not None:
-        for tool_obj in tool_objs:
-            if isinstance(tool_obj, HoverTool):
-                tool_obj.tooltips = tooltips
-                break
-        else:
-            tool_objs.append(HoverTool(tooltips=tooltips))
-
     return tool_objs, tool_map
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+def _collect_repeated_tools(tool_objs: List[Tool]) -> Iterator[Tool]:
+    class Item(NamedTuple):
+        obj: Tool
+        properties: Dict[str, Any]
+
+    key = lambda obj: obj.__class__.__name__
+
+    for _, group in itertools.groupby(sorted(tool_objs, key=key), key=key):
+        rest = [ Item(obj, obj.properties_with_values()) for obj in group ]
+        while len(rest) > 1:
+            head, *rest = rest
+            for item in rest:
+                if item.properties == head.properties:
+                    yield item.obj
 
 #-----------------------------------------------------------------------------
 # Code
