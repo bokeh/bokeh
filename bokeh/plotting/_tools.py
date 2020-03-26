@@ -137,7 +137,7 @@ def process_tools_arg(plot: Plot, tools: Union[str, Sequence[Union[Tool, str]]],
                 tool_obj.tooltips = tooltips
                 break
         else:
-            tool_objs.append(HoverTool(tooltips=tooltips)) # type: ignore[no-untyped-call]
+            tool_objs.append(HoverTool(tooltips=tooltips)) # type: ignore
 
     return tool_objs, tool_map
 
