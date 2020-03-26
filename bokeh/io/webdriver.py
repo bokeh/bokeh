@@ -65,7 +65,6 @@ def create_chromium_webdriver() -> WebDriver:
     options.add_argument("--hide-scrollbars")
     options.add_argument("--force-device-scale-factor=1")
     options.add_argument("--force-color-profile=srgb")
-    options['loggingPrefs'] = {'browser': 'ALL'}
     return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
