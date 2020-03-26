@@ -42,6 +42,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...util.callback_manager import _check_callback
 from .handler import Handler
+from .code_runner import _handle_exception
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -124,8 +125,12 @@ class FunctionHandler(Handler):
         ``False``.
 
         '''
-        self._func(doc)
-        self._safe_to_fork = False
+        try:
+            self._func(doc)
+        except Exception as e:
+            _handle_exception(self, e)
+        finally:
+            self._safe_to_fork = False
 
 #-----------------------------------------------------------------------------
 # Private API
