@@ -43,6 +43,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+# Standard library imports
+import os
+import sys
+import traceback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -211,6 +215,16 @@ class Handler(object):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _handle_exception(handler, e):
+    """helper to stash an exception on a CodeRunner or Handler"""
+    handler._failed = True
+    handler._error_detail = traceback.format_exc()
+
+    _exc_type, _exc_value, exc_traceback = sys.exc_info()
+    filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
+
+    handler._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
 
 #-----------------------------------------------------------------------------
 # Code

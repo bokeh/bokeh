@@ -41,8 +41,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback
-from .handler import Handler
-from .code_runner import _handle_exception
+from .handler import Handler, _handle_exception
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -81,7 +80,7 @@ class FunctionHandler(Handler):
 
     '''
 
-    def __init__(self, func):
+    def __init__(self, func, *, trap_exceptions=False):
         '''
 
         Args:
@@ -97,12 +96,16 @@ class FunctionHandler(Handler):
                 and it  should return the passed-in document after making any
                 modifications in-place.
 
+            trap_exceptions (bool) : should exceptions in `func` be caught and
+                logged or allowed to propagate
+
         '''
         super().__init__()
 
         _check_callback(func, ('doc',))
 
         self._func = func
+        self._trap_exceptions = trap_exceptions
         self._safe_to_fork = True
 
     # Properties --------------------------------------------------------------
@@ -128,7 +131,10 @@ class FunctionHandler(Handler):
         try:
             self._func(doc)
         except Exception as e:
-            _handle_exception(self, e)
+            if self._trap_exceptions:
+                _handle_exception(self, e)
+            else:
+                raise
         finally:
             self._safe_to_fork = False
 
