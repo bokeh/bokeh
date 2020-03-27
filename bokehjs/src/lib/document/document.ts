@@ -9,7 +9,6 @@ import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data, Buffers} from "core/util/serialization"
 import {MultiDict, Set as OurSet} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
-import {values} from "core/util/object"
 import {isEqual} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
@@ -41,7 +40,7 @@ export class EventManager {
     for (const id of this.subscribed_models) {
       if (event.origin != null && event.origin.id !== id)
         continue
-      const model = this.document._all_models[id]
+      const model = this.document._all_models.get(id)
       if (model != null && model instanceof Model)
         model._process_event(event)
     }
@@ -62,7 +61,8 @@ export interface Patch {
   events: DocumentChanged[]
 }
 
-export type References = {[key: string]: HasProps}
+export type ID = string
+export type RefMap = Map<ID, HasProps>
 
 export const documents: Document[] = []
 
@@ -78,7 +78,7 @@ export class Document {
   protected readonly _init_timestamp: number
   protected _title: string
   protected _roots: Model[]
-  /*protected*/ _all_models: {[key: string]: HasProps}
+  /*protected*/ _all_models: Map<string, HasProps>
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: ((event: DocumentChangedEvent) => void)[]
@@ -92,7 +92,7 @@ export class Document {
     this._init_timestamp = Date.now()
     this._title = DEFAULT_TITLE
     this._roots = []
-    this._all_models = {}
+    this._all_models = new Map()
     this._all_models_by_name = new MultiDict()
     this._all_models_freeze_count = 0
     this._callbacks = []
@@ -174,7 +174,7 @@ export class Document {
         throw new Error(`Somehow we didn't detach ${root}`)
     }
 
-    if (Object.keys(this._all_models).length !== 0) {
+    if (this._all_models.size != 0) {
       throw new Error(`this._all_models still had stuff in it: ${this._all_models}`)
     }
 
@@ -210,12 +210,12 @@ export class Document {
     for (const r of this._roots) {
       new_all_models_set = new_all_models_set.union(r.references())
     }
-    const old_all_models_set = new OurSet(values(this._all_models))
+    const old_all_models_set = new OurSet(this._all_models.values())
     const to_detach = old_all_models_set.diff(new_all_models_set)
     const to_attach = new_all_models_set.diff(old_all_models_set)
-    const recomputed: {[key: string]: HasProps} = {}
-    for (const m of new_all_models_set.values) {
-      recomputed[m.id] = m
+    const recomputed: RefMap = new Map()
+    for (const model of new_all_models_set.values) {
+      recomputed.set(model.id, model)
     }
     for (const d of to_detach.values) {
       d.detach_document()
@@ -274,11 +274,7 @@ export class Document {
   }
 
   get_model_by_id(model_id: string): HasProps | null {
-    if (model_id in this._all_models) {
-      return this._all_models[model_id]
-    } else {
-      return null
-    }
+    return this._all_models.get(model_id) ?? null
   }
 
   get_model_by_name(name: string): HasProps | null {
@@ -324,18 +320,18 @@ export class Document {
   }
 
   // called by the model
-  _notify_change(model: HasProps, attr: string, old: any, new_: any, options?: {setter_id?: string, hint?: any}): void {
+  _notify_change(model: HasProps, attr: string, old: unknown, new_: unknown, options?: {setter_id?: string, hint?: unknown}): void {
     if (attr === 'name') {
-      this._all_models_by_name.remove_value(old, model)
+      this._all_models_by_name.remove_value(old as string, model)
       if (new_ != null)
-        this._all_models_by_name.add_value(new_, model)
+        this._all_models_by_name.add_value(new_ as string, model)
     }
     const setter_id = options != null ? options.setter_id : void 0
     const hint = options != null ? options.hint : void 0
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id, hint))
   }
 
-  static _references_json(references: HasProps[], include_defaults: boolean = true): Struct[] {
+  static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {
     const references_json: Struct[] = []
     for (const r of references) {
       const struct = r.struct()
@@ -355,36 +351,34 @@ export class Document {
 
   // given a JSON representation of all models in a graph, return a
   // dict of new model objects
-  static _instantiate_references_json(references_json: Struct[], existing_models: {[key: string]: HasProps}): References {
+  static _instantiate_references_json(references_json: Struct[], existing_models: RefMap): RefMap {
     // Create all instances, but without setting their props
-    const references: References = {}
+    const references = new Map()
     for (const obj of references_json) {
       const obj_id = obj.id
       const obj_type = obj.type
       const obj_attrs = obj.attributes || {}
 
-      let instance: HasProps
-      if (obj_id in existing_models)
-        instance = existing_models[obj_id]
-      else {
+      let instance = existing_models.get(obj_id)
+      if (instance == null) {
         instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
         if (obj.subtype != null)
           instance.set_subtype(obj.subtype)
       }
-      references[instance.id] = instance
+      references.set(instance.id, instance)
     }
     return references
   }
 
   // if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
   // recurse into collections but not into HasProps
-  static _resolve_refs(value: any, old_references: References, new_references: References): any {
-    function resolve_ref(v: any): any {
+  static _resolve_refs(value: unknown, old_references: RefMap, new_references: RefMap): unknown {
+    function resolve_ref(v: unknown): unknown {
       if (is_ref(v)) {
-        if (v.id in old_references)
-          return old_references[v.id]
-        else if (v.id in new_references)
-          return new_references[v.id]
+        if (old_references.has(v.id))
+          return old_references.get(v.id)
+        else if (new_references.has(v.id))
+          return new_references.get(v.id)
         else
           throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
       } else if (isArray(v))
@@ -418,30 +412,35 @@ export class Document {
   // given a JSON representation of all models in a graph and new
   // model instances, set the properties on the models from the
   // JSON
-  static _initialize_references_json(references_json: Struct[], old_references: References, new_references: References): void {
-    type ID = string
+  static _initialize_references_json(references_json: Struct[], old_references: RefMap, new_references: RefMap): void {
     const to_update = new Map<ID, {instance: HasProps, is_new: boolean}>()
+
     for (const {id, attributes} of references_json) {
-      const is_new = !(id in old_references)
-      const instance = is_new ? new_references[id] : old_references[id]
+      const is_new = !old_references.has(id)
+      const instance = is_new ? new_references.get(id)! : old_references.get(id)!
 
       // replace references with actual instances in obj_attrs
-      const resolved_attrs = Document._resolve_refs(attributes, old_references, new_references)
+      const resolved_attrs = Document._resolve_refs(attributes, old_references, new_references) as Attrs
       instance.setv(resolved_attrs, {silent: true})
       to_update.set(id, {instance, is_new})
     }
 
     const ordered_instances: HasProps[] = []
     const handled = new Set<ID>()
-    const finalize_all_by_dfs = (v: unknown) => {
+
+    function finalize_all_by_dfs(v: unknown): void {
       if (v instanceof HasProps) {
         // note that we ignore instances that aren't updated (not in to_update)
         if (to_update.has(v.id) && !handled.has(v.id)) {
           handled.add(v.id)
+
           const {instance, is_new} = to_update.get(v.id)!
           const {attributes} = instance
-          for (const a in attributes)
-            finalize_all_by_dfs(attributes[a])
+
+          for (const attr in attributes) {
+            finalize_all_by_dfs(attributes[attr])
+          }
+
           if (is_new) {
             // Finalizing here just to avoid iterating
             // over `ordered_instances` twice.
@@ -460,18 +459,21 @@ export class Document {
       }
     }
 
-    for (const item of to_update.values())
+    for (const item of to_update.values()) {
       finalize_all_by_dfs(item.instance)
+    }
 
     // `connect_signals` has to be executed last because it
     // may rely on properties of dependencies that are initialized
     // only in `finalize`. It's a problem that appears when
     // there are circular references, e.g. as in
     // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
-    ordered_instances.forEach(i => { i.connect_signals() })
+    for (const instance of ordered_instances) {
+      instance.connect_signals()
+    }
   }
 
-  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged | null {
+  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: Set<HasProps>): ModelChanged | null {
     const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
     if (!changed_model.property(key).syncable)
       return null
@@ -487,7 +489,7 @@ export class Document {
     }
   }
 
-  static _events_to_sync_objects(from_obj: Struct, to_obj: Struct, to_doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged[] {
+  static _events_to_sync_objects(from_obj: Struct, to_obj: Struct, to_doc: Document, value_refs: Set<HasProps>): ModelChanged[] {
     const from_keys = Object.keys(from_obj.attributes!) //XXX!
     const to_keys = Object.keys(to_obj.attributes!) //XXX!
     const removed = difference(from_keys, to_keys)
@@ -563,17 +565,17 @@ export class Document {
       throw new Error("Not implemented: computing add/remove of document roots")
     }
 
-    const value_refs: {[key: string]: HasProps} = {}
+    const value_refs = new Set<HasProps>()
     let events: DocumentChanged[] = []
 
-    for (const id in to_doc._all_models) {
+    for (const id of to_doc._all_models.keys()) {
       if (id in from_references) {
         const update_model_events = Document._events_to_sync_objects(from_references[id], to_references[id], to_doc, value_refs)
         events = events.concat(update_model_events)
       }
     }
     return {
-      references: Document._references_json(values(value_refs), false), // include_defaults=false
+      references: Document._references_json(value_refs, false), // include_defaults=false
       events,
     }
   }
@@ -584,7 +586,7 @@ export class Document {
 
   to_json(include_defaults: boolean = true): DocJson {
     const root_ids = this._roots.map((r) => r.id)
-    const root_references = values(this._all_models)
+    const root_references = this._all_models.values()
     return {
       version: js_version,
       title: this._title,
@@ -620,12 +622,16 @@ export class Document {
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
 
-    const references = Document._instantiate_references_json(references_json, {})
-    Document._initialize_references_json(references_json, {}, references)
+    const references = Document._instantiate_references_json(references_json, new Map())
+    Document._initialize_references_json(references_json, new Map(), references)
 
     const doc = new Document()
-    for (const r of root_ids)
-      doc.add_root(references[r] as Model) // XXX: HasProps
+    for (const id of root_ids) {
+      const root = references.get(id)
+      if (root != null) {
+        doc.add_root(root as Model) // XXX: HasProps
+      }
+    }
     doc.set_title(json.title!) // XXX!
     return doc
   }
@@ -640,7 +646,7 @@ export class Document {
   }
 
   create_json_patch(events: DocumentChangedEvent[]): Patch {
-    const references: References = {}
+    const references = new Set<HasProps>()
     const json_events: DocumentChanged[] = []
     for (const event of events) {
       if (event.document !== this) {
@@ -651,7 +657,7 @@ export class Document {
     }
     return {
       events: json_events,
-      references: Document._references_json(values(references)),
+      references: Document._references_json(references),
     }
   }
 
@@ -671,13 +677,12 @@ export class Document {
         case "RootRemoved":
         case "ModelChanged": {
           const model_id = event_json.model.id
-          if (model_id in this._all_models) {
-            references[model_id] = this._all_models[model_id]
-          } else {
-            if (!(model_id in references)) {
-              logger.warn("Got an event for unknown model ", event_json.model)
-              throw new Error("event model wasn't known")
-            }
+          const model = this._all_models.get(model_id)
+          if (model != null) {
+            references.set(model_id, model)
+          } else if (!references.has(model_id)) {
+            logger.warn(`Got an event for unknown model ${event_json.model}"`)
+            throw new Error("event model wasn't known")
           }
           break
         }
@@ -685,14 +690,13 @@ export class Document {
     }
 
     // split references into old and new so we know whether to initialize or update
-    const old_references: {[key: string]: HasProps} = {}
-    const new_references: {[key: string]: HasProps} = {}
-    for (const id in references) {
-      const value = references[id]
-      if (id in this._all_models)
-        old_references[id] = value
+    const old_references: RefMap = new Map()
+    const new_references: RefMap = new Map()
+    for (const [id, value] of references) {
+      if (this._all_models.has(id))
+        old_references.set(id, value)
       else
-        new_references[id] = value
+        new_references.set(id, value)
     }
 
     Document._initialize_references_json(references_json, old_references, new_references)
@@ -718,10 +722,10 @@ export class Document {
         }
         case 'ModelChanged': {
           const patched_id = event_json.model.id
-          if (!(patched_id in this._all_models)) {
+          const patched_obj = this._all_models.get(patched_id)
+          if (patched_obj == null) {
             throw new Error(`Cannot apply patch to ${patched_id} which is not in the document`)
           }
-          const patched_obj = this._all_models[patched_id]
           const attr = event_json.attr
           // XXXX currently still need this first branch, some updates (initial?) go through here
           if (attr === 'data' && patched_obj.type === 'ColumnDataSource') {
@@ -735,10 +739,10 @@ export class Document {
         }
         case 'ColumnDataChanged': {
           const column_source_id = event_json.column_source.id
-          if (!(column_source_id in this._all_models)) {
+          const column_source = this._all_models.get(column_source_id) as ColumnDataSource | undefined
+          if (column_source == null) {
             throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
           }
-          const column_source = this._all_models[column_source_id] as ColumnDataSource
           const [data, shapes] = decode_column_data(event_json.new, buffers)
           if (event_json.cols != null) {
             for (const k in column_source.data) {
@@ -763,10 +767,10 @@ export class Document {
         }
         case 'ColumnsStreamed': {
           const column_source_id = event_json.column_source.id
-          if (!(column_source_id in this._all_models)) {
+          const column_source = this._all_models.get(column_source_id)
+          if (column_source == null) {
             throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
           }
-          const column_source = this._all_models[column_source_id]
           if (!(column_source instanceof ColumnDataSource)) {
             throw new Error("Cannot stream to non-ColumnDataSource")
           }
@@ -777,10 +781,10 @@ export class Document {
         }
         case 'ColumnsPatched': {
           const column_source_id = event_json.column_source.id
-          if (!(column_source_id in this._all_models)) {
+          const column_source = this._all_models.get(column_source_id)
+          if (column_source == null) {
             throw new Error(`Cannot patch ${column_source_id} which is not in the document`)
           }
-          const column_source = this._all_models[column_source_id]
           if (!(column_source instanceof ColumnDataSource)) {
             throw new Error("Cannot patch non-ColumnDataSource")
           }
@@ -790,13 +794,13 @@ export class Document {
         }
         case 'RootAdded': {
           const root_id = event_json.model.id
-          const root_obj = references[root_id]
+          const root_obj = references.get(root_id)
           this.add_root(root_obj as Model, setter_id) // XXX: HasProps
           break
         }
         case 'RootRemoved': {
           const root_id = event_json.model.id
-          const root_obj = references[root_id]
+          const root_obj = references.get(root_id)
           this.remove_root(root_obj as Model, setter_id) // XXX: HasProps
           break
         }
