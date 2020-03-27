@@ -40,16 +40,17 @@ based off information in some database:
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+# Standard library imports
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-# Standard library imports
 import os
 import sys
 import traceback
 
-#-----------------------------------------------------------------------------
-# Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
