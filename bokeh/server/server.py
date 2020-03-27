@@ -43,7 +43,6 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..application import Application
 from ..core.properties import Bool, Int, List, String
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
@@ -409,8 +408,8 @@ class Server(BaseServer):
         try:
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
-                                       prefix=self.prefix,
-                                       index=self.index,
+                                       prefix=opts.prefix,
+                                       index=opts.index,
                                        websocket_max_message_size_bytes=opts.websocket_max_message_size,
                                        **kwargs)
 
