@@ -33,6 +33,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import atexit
 import signal
+import socket
 import sys
 
 # External imports
@@ -272,6 +273,39 @@ class BaseServer(object):
         # Tell self._loop.start() to return.
         self._loop.add_callback_from_signal(self._loop.stop)
 
+    @property
+    def port(self):
+        '''
+        The configured port number that the server listens on for HTTP requests
+        '''
+        sock = next(
+            sock for sock in self._http._sockets.values()
+            if sock.family in (socket.AF_INET, socket.AF_INET6)
+        )
+        return sock.getsockname()[1]
+
+    @property
+    def address(self):
+        '''
+        The configured address that the server listens on for HTTP requests
+        '''
+        sock = next(
+            sock for sock in self._http._sockets.values()
+            if sock.family in (socket.AF_INET, socket.AF_INET6)
+        )
+        return sock.getsockname()[0]
+
+    @property
+    def prefix(self):
+        ''' The configured URL prefix to use for all Bokeh server paths. '''
+        return self._tornado.prefix
+
+    @property
+    def index(self):
+        ''' A path to a Jinja2 template to use for index at "/" '''
+        return self._tornado.index
+
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -341,27 +375,9 @@ class Server(BaseServer):
         '''
         log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
-        from bokeh.application.handlers.function import FunctionHandler
-        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
-
-        if callable(applications):
-            applications = Application(FunctionHandler(applications))
-
-        if isinstance(applications, Application):
-            applications = { '/' : applications }
-
-        for k, v in list(applications.items()):
-            if callable(v):
-                applications[k] = Application(FunctionHandler(v))
-            if all(not isinstance(handler, DocumentLifecycleHandler)
-                   for handler in applications[k]._handlers):
-                applications[k].add(DocumentLifecycleHandler())
-
         opts = _ServerOpts(kwargs)
         self._port = opts.port
         self._address = opts.address
-        self._prefix = opts.prefix
-        self._index = opts.index
 
         if opts.num_procs != 1:
             assert all(app.safe_to_fork for app in applications.values()), (
@@ -413,20 +429,6 @@ class Server(BaseServer):
             io_loop = IOLoop.current()
 
         super().__init__(io_loop, tornado_app, http_server)
-
-    @property
-    def index(self):
-        ''' A path to a Jinja2 template to use for index at "/"
-
-        '''
-        return self._index
-
-    @property
-    def prefix(self):
-        ''' The configured URL prefix to use for all Bokeh server paths.
-
-        '''
-        return self._prefix
 
     @property
     def port(self):

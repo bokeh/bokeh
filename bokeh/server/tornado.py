@@ -224,6 +224,23 @@ class BokehTornado(TornadoApplication):
         # This will be set when initialize is called
         self._loop = None
 
+        # Convert functions into Applications
+        from bokeh.application.handlers.function import FunctionHandler
+        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
+
+        if callable(applications):
+            applications = Application(FunctionHandler(applications))
+
+        if isinstance(applications, Application):
+            applications = { '/' : applications }
+
+        for k, v in list(applications.items()):
+            if callable(v):
+                applications[k] = Application(FunctionHandler(v))
+            if all(not isinstance(handler, DocumentLifecycleHandler)
+                   for handler in applications[k]._handlers):
+                applications[k].add(DocumentLifecycleHandler())
+
         if isinstance(applications, Application):
             applications = { '/' : applications }
 
