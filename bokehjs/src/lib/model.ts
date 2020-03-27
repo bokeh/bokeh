@@ -24,7 +24,7 @@ export interface Model extends Model.Attrs {}
 export class Model extends HasProps {
   properties: Model.Props
 
-  private _js_callbacks: {[key: string]: (() => void)[]}
+  private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
@@ -38,6 +38,11 @@ export class Model extends HasProps {
       js_event_callbacks:    [ p.Any,   {} ],
       subscribed_events:     [ p.Array, [] ],
     })
+  }
+
+  initialize(): void {
+    super.initialize()
+    this._js_callbacks = new Map()
   }
 
   connect_signals(): void {
@@ -79,18 +84,17 @@ export class Model extends HasProps {
       return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
     }
 
-    for (const event in this._js_callbacks) {
-      const callbacks = this._js_callbacks[event]
+    for (const [event, callbacks] of this._js_callbacks) {
       const signal = signal_for(event)
       for (const cb of callbacks)
         this.disconnect(signal, cb)
     }
-    this._js_callbacks = {}
+    this._js_callbacks.clear()
 
     for (const event in this.js_property_callbacks) {
       const callbacks = this.js_property_callbacks[event]
       const wrappers = callbacks.map((cb) => () => cb.execute(this))
-      this._js_callbacks[event] = wrappers
+      this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
       for (const cb of wrappers)
         this.connect(signal, cb)
