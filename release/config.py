@@ -8,7 +8,7 @@
 # Standard library imports
 import re
 from collections import defaultdict
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict
 
 # Bokeh imports
 from .enums import ActionStatus, VersionType
