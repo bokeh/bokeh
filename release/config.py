@@ -8,7 +8,7 @@
 # Standard library imports
 import re
 from collections import defaultdict
-from typing import Any, Callable, Dict, Optional, cast
+from typing import Any, Callable, Dict, Optional
 
 # Bokeh imports
 from .enums import ActionStatus, VersionType
@@ -59,7 +59,7 @@ class Config(object):
 
     @property
     def repo_top_dir(self) -> str:
-        return cast(str, run("git rev-parse --show-toplevel").strip())
+        return run("git rev-parse --show-toplevel").strip()
 
     @property
     def js_version(self) -> Optional[str]:
