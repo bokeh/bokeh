@@ -179,13 +179,16 @@ export class Plot extends LayoutDOM {
     })
   }
 
+  // TODO: change this when we drop ES5 compatibility (https://github.com/microsoft/TypeScript/issues/338)
   get width(): number | null {
-    const width = this.getv("width")
+    // const width = super.width
+    const width = this.properties.width.get_value()
     return width != null ? width : this.plot_width
   }
 
   get height(): number | null {
-    const height = this.getv("height")
+    // const height = super.height
+    const height = this.properties.height.get_value()
     return height != null ? height : this.plot_height
   }
 
@@ -218,7 +221,8 @@ export class Plot extends LayoutDOM {
   }
 
   add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
-    this.setv({[side]: [...this.getv(side), renderer]})
+    const renderers = this.properties[side].get_value()
+    this.setv({[side]: [...renderers, renderer]})
   }
 
   remove_layout(renderer: Annotation | GuideRenderer): void {

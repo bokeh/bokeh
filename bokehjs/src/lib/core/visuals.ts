@@ -204,7 +204,7 @@ export abstract class ContextProperties {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
         this.cache[attr] = prop.spec.value
-      else if (source != null)
+      else if (source != null && prop instanceof p.VectorSpec)
         this.cache[attr + "_array"] = prop.array(source)
       else
         throw new Error("source is required with a vectorized visual property")

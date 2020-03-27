@@ -17,7 +17,7 @@ export function isNumber(obj: unknown): obj is number {
 }
 
 export function isInteger(obj: unknown): obj is number {
-  return isNumber(obj) && isFinite(obj) && Math.floor(obj) === obj
+  return isNumber(obj) && Number.isInteger(obj)
 }
 
 export function isString(obj: unknown): obj is string {

@@ -71,21 +71,25 @@ export function valid_rgb(value: string): boolean {
 
   // if '.' and then ',' found, we know decimals are used on rgb
   if (new RegExp(".*?(\\.).*(,)").test(value))
-    throw new Error(`color expects integers for rgb in rgb/rgba tuple, received ${value}`)
+    return false
+    // throw new Error(`color expects integers for rgb in rgb/rgba tuple, received ${value}`)
 
   // extract the numerical values from inside parens
   const contents = value.replace(params.start, "").replace(")", "").split(',').map(parseFloat)
 
   // check length of array based on rgb/rgba
   if (contents.length != params.len)
-    throw new Error(`color expects rgba ${params.len}-tuple, received ${value}`)
+    return false
+    // throw new Error(`color expects rgba ${params.len}-tuple, received ${value}`)
 
   // check for valid numerical values for rgba
   if (params.alpha && !(0 <= contents[3] && contents[3] <= 1))
-    throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
+    return false
+    // throw new Error("color expects rgba 4-tuple to have alpha value between 0 and 1")
 
   if (includes(contents.slice(0, 3).map((rgb) => 0 <= rgb && rgb <= 255), false))
-    throw new Error("color expects rgb to have value between 0 and 255")
+    return false
+    // throw new Error("color expects rgb to have value between 0 and 255")
 
   return true
 }
