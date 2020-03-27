@@ -480,7 +480,7 @@ export class Document {
 
   static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged | null {
     const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
-    if (!changed_model.attribute_is_serializable(key))
+    if (!changed_model.property(key).syncable)
       return null
     else {
       const event: ModelChanged = {
@@ -489,7 +489,7 @@ export class Document {
         attr: key,
         new: new_value,
       }
-      HasProps._json_record_references(doc, new_value, value_refs, true) // true = recurse
+      HasProps._json_record_references(doc, new_value, value_refs, {recursive: true})
       return event
     }
   }

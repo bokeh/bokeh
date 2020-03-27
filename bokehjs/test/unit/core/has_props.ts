@@ -66,7 +66,7 @@ class SubclassWithOptionalSpec extends HasProps {
   baz: any // XXX
 }
 SubclassWithOptionalSpec.define<any>({
-  foo: [ p.NumberSpec, {value: null}      ],
+  foo: [ p.NumberSpec, {value: null}, {optional: true} ],
   bar: [ p.Boolean,    true               ],
   baz: [ p.NumberSpec, {field: 'colname'} ],
 })
@@ -148,7 +148,6 @@ describe("has_properties module", () => {
     it("should collect ignore optional specs with null values", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
       const obj = new SubclassWithOptionalSpec()
-      obj.properties.foo.optional = true
       const data = obj.materialize_dataspecs(r)
       expect(data).to.be.deep.equal({_baz: [1, 2, 3, 4]})
     })

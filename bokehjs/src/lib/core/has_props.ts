@@ -26,7 +26,6 @@ export module HasProps {
     check_eq?: boolean
     silent?: boolean
     no_change?: boolean
-    defaults?: boolean
     setter_id?: string
   }
 }
@@ -42,6 +41,8 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   // --build disagree whether this is necessary or not (it shouldn't).
   id: string
 }
+
+export type PropertyGenerator = Generator<[string, Property<unknown>], void>
 
 export abstract class HasProps extends Signalable() {
   __view_type__: View
@@ -65,20 +66,20 @@ export abstract class HasProps extends Signalable() {
   }
 
   static init_HasProps(): void {
-    this.prototype.props = {}
+    this.prototype._props = {}
     this.prototype.mixins = []
 
     this.define<HasProps.Props>({
-      id: [ p.Any ],
+      id: [ p.String, () => uniqueId() ],
     })
   }
 
   // {{{ prototype
   default_view: Class<View, [View.Options]>
-  props: {[key: string]: {
-    type: Class<Property<unknown>>  // T
+  _props: {[key: string]: {
+    type: p.PropertyConstructor<unknown>
     default_value?: () => unknown   // T
-    internal: boolean
+    options: p.PropertyOptions
   }}
   mixins: string[]
   // }}}
@@ -104,7 +105,7 @@ export abstract class HasProps extends Signalable() {
   static define<T>(obj: Partial<p.DefineOf<T>>): void {
     for (const name in obj) {
       const prop = obj[name]
-      if (this.prototype.props[name] != null)
+      if (this.prototype._props[name] != null)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
       if ((this.prototype as any)[name] != null)
@@ -113,7 +114,7 @@ export abstract class HasProps extends Signalable() {
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
         get(this: HasProps): any {
-          const value = this.getv(name)
+          const value = this.properties[name].get_value()
           return value
         },
         set(this: HasProps, value: any): HasProps {
@@ -124,25 +125,24 @@ export abstract class HasProps extends Signalable() {
         enumerable: true,
       })
 
-      const [type, default_value, internal] = prop as any
+      const [type, default_value, options] = prop as any
       const refined_prop = {
         type,
         default_value: this._fix_default(default_value, name),
-        internal: internal || false,
+        options,
       }
 
-      const props = clone(this.prototype.props)
+      const props = clone(this.prototype._props)
       props[name] = refined_prop
-      this.prototype.props = props
+      this.prototype._props = props
     }
   }
 
   static internal(obj: any): void {
     const _object: any = {}
     for (const name in obj) {
-      const prop = obj[name]
-      const [type, default_value] = prop
-      _object[name] = [type, default_value, true]
+      const [type, default_value, options = {}] = obj[name]
+      _object[name] = [type, default_value, {...options, internal: true}]
     }
     this.define(_object)
   }
@@ -160,12 +160,12 @@ export abstract class HasProps extends Signalable() {
   static override(obj: any): void {
     for (const name in obj) {
       const default_value = this._fix_default(obj[name], name)
-      const value = this.prototype.props[name]
+      const value = this.prototype._props[name]
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
-      const props = clone(this.prototype.props)
+      const props = clone(this.prototype._props)
       props[name] = {...value, default_value}
-      this.prototype.props = props
+      this.prototype._props = props
     }
   }
 
@@ -181,55 +181,47 @@ export abstract class HasProps extends Signalable() {
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
-  readonly attributes: {[key: string]: any} = {}
-  readonly properties: {[key: string]: any} = {}
+  readonly properties: {[key: string]: Property<unknown>} = {} // Object.create(null)
 
-  protected readonly _set_after_defaults: {[key: string]: boolean} = {}
+  property(name: string): Property<unknown> {
+    const prop = this.properties[name]
+    if (prop != null)
+      return prop
+    else
+      throw new Error(`unknown property ${name}`)
+  }
 
-  constructor(attrs: Attrs = {}) {
+  get attributes(): Attrs {
+    const attrs: Attrs = {} // Object.create(null)
+    for (const [name, prop] of this) {
+      attrs[name] = prop.get_value()
+    }
+    return attrs
+  }
+
+  constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
 
-    for (const name in this.props) {
-      const {type, default_value} = this.props[name]
+    const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
+
+    for (const name in this._props) {
+      const {type, default_value, options} = this._props[name]
       if (type != null)
-        this.properties[name] = new type(this, name, default_value)
+        this.properties[name] = new type(this, name, default_value, get(name), options)
       else
         throw new Error(`undefined property type for ${this.type}.${name}`)
     }
 
-    // auto generating ID
-    if (attrs.id == null)
-      this.setv({id: uniqueId()}, {silent: true})
-
-    const deferred = attrs.__deferred__ || false
-    if (deferred) {
-      attrs = clone(attrs)
-      delete attrs.__deferred__
-    }
-
-    this.setv(attrs, {silent: true})
-
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
-
-    if (!deferred)
+    if (!(get("__deferred__") ?? false))
       this.finalize()
   }
 
   finalize(): void {
-    // This is necessary because the initial creation of properties relies on
-    // model.get which is not usable at that point yet in the constructor. This
-    // initializer is called when deferred initialization happens for all models
-    // and insures that the Bokeh properties are initialized from Backbone
-    // attributes in a consistent way.
-    //
-    // TODO (bev) split property creation up into two parts so that only the
-    // portion of init that can be done happens in HasProps constructor and so
-    // that subsequent updates do not duplicate that setup work.
     for (const name in this.properties) {
       const prop = this.properties[name]
-      prop.update()
       if (prop.spec.transform != null)
         this.connect(prop.spec.transform.change, () => this.transformchange.emit())
     }
@@ -270,25 +262,23 @@ export abstract class HasProps extends Signalable() {
     const changing   = this._changing
     this._changing = true
 
-    const current = this.attributes
-
-    // For each `set` attribute, update or delete the current value.
     for (const attr in attrs) {
+      const prop = this.properties[attr]
       const val = attrs[attr]
-      if (check_eq !== false) {
-        if (!isEqual(current[attr], val))
-          changes.push(attr)
-      } else
-        changes.push(attr)
-      current[attr] = val
+
+      if (check_eq === false || !isEqual(prop.get_value(), val)) {
+        prop.set_value(val)
+        changes.push(prop)
+      }
     }
 
     // Trigger all relevant attribute changes.
     if (!silent) {
       if (changes.length > 0)
         this._pending = true
-      for (let i = 0; i < changes.length; i++)
-        this.properties[changes[i]].change.emit()
+      for (const prop of changes) {
+        prop.change.emit()
+      }
     }
 
     // You might be wondering why there's a `while` loop here. Changes can
@@ -312,32 +302,22 @@ export abstract class HasProps extends Signalable() {
         continue
 
       const prop_name = key
-      if (this.props[prop_name] == null)
+      if (this.properties[prop_name] == null)
         throw new Error(`property ${this.type}.${prop_name} wasn't declared`)
-
-      if (!(options != null && options.defaults))
-        this._set_after_defaults[key] = true
     }
 
     if (!isEmpty(attrs)) {
       const old: typeof attrs = {}
       for (const key in attrs)
-        old[key] = this.getv(key)
+        old[key] = this.properties[key].get_value()
       this._setv(attrs, options)
 
       const silent = options.silent
       if (silent == null || !silent) {
         for (const key in attrs)
-          this._tell_document_about_change(key, old[key], this.getv(key), options)
+          this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
       }
     }
-  }
-
-  getv(prop_name: string): any {
-    if (this.props[prop_name] == null)
-      throw new Error(`property ${this.type}.${prop_name} wasn't declared`)
-    else
-      return this.attributes[prop_name]
   }
 
   ref(): Ref {
@@ -362,26 +342,19 @@ export abstract class HasProps extends Signalable() {
     this._subtype = subtype
   }
 
-  attribute_is_serializable(attr: string): boolean {
-    const prop = this.props[attr]
-    if (prop == null)
-      throw new Error(`${this.type}.attribute_is_serializable('${attr}'): ${attr} wasn't declared`)
-    else
-      return !prop.internal
+  *[Symbol.iterator](): PropertyGenerator {
+    for (const name in this.properties) {
+      yield [name, this.properties[name]]
+    }
   }
 
-  // dict of attributes that should be serialized to the server. We
-  // sometimes stick things in attributes that aren't part of the
-  // Document's models, subtypes that do that have to remove their
-  // extra attributes here.
-  serializable_attributes(): Attrs {
-    const attrs: Attrs = {}
-    for (const name in this.attributes) {
-      const value = this.attributes[name]
-      if (this.attribute_is_serializable(name))
-        attrs[name] = value
+  *syncable_properties(): PropertyGenerator {
+    for (const entry of this) {
+      const [, prop] = entry
+      if (prop.syncable) {
+        yield entry
+      }
     }
-    return attrs
   }
 
   static _value_to_json(_key: string, value: any, _optional_parent_object: any): any {
@@ -408,37 +381,32 @@ export abstract class HasProps extends Signalable() {
   // Convert attributes to "shallow" JSON (values which are themselves models
   // are included as just references)
   attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): any {
-    const serializable = this.serializable_attributes()
-    const attrs: Attrs = {}
-    for (const key in serializable) {
-      if (serializable.hasOwnProperty(key)) {
-        const value = serializable[key]
-        if (include_defaults)
-          attrs[key] = value
-        else if (key in this._set_after_defaults)
-          attrs[key] = value
+    const attributes: Attrs = {} // Object.create(null)
+    for (const [name, prop] of this) {
+      if (prop.syncable && (include_defaults || prop.dirty)) {
+        attributes[name] = prop.get_value()
       }
     }
-    return value_to_json("attributes", attrs, this)
+    return value_to_json("attributes", attributes, this)
   }
 
   // this is like _value_record_references but expects to find refs
   // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, recurse: boolean): void {
-    if (v == null) {
-    } else if (is_ref(v)) {
+  static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, options: {recursive: boolean}): void {
+    const {recursive} = options
+    if (is_ref(v)) {
       if (!(v.id in result)) {
         const model = doc.get_model_by_id(v.id)
-        HasProps._value_record_references(model, result, recurse)
+        HasProps._value_record_references(model, result, {recursive})
       }
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._json_record_references(doc, elem, result, recurse)
+        HasProps._json_record_references(doc, elem, result, {recursive})
     } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
-          HasProps._json_record_references(doc, elem, result, recurse)
+          HasProps._json_record_references(doc, elem, result, {recursive})
         }
       }
     }
@@ -447,26 +415,25 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, result: Attrs, recurse: boolean): void {
-    if (v == null) {
-    } else if (v instanceof HasProps) {
+  static _value_record_references(v: any, result: Attrs, options: {recursive: boolean}): void {
+    const {recursive} = options
+    if (v instanceof HasProps) {
       if (!(v.id in result)) {
         result[v.id] = v
-        if (recurse) {
+        if (recursive) {
           const immediate = v._immediate_references()
           for (const obj of immediate)
-            HasProps._value_record_references(obj, result, true) // true=recurse
+            HasProps._value_record_references(obj, result, {recursive: true})
         }
       }
-    } else if (v.buffer instanceof ArrayBuffer) {
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._value_record_references(elem, result, recurse)
+        HasProps._value_record_references(elem, result, {recursive})
     } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
-          HasProps._value_record_references(elem, result, recurse)
+          HasProps._value_record_references(elem, result, {recursive})
         }
       }
     }
@@ -476,18 +443,16 @@ export abstract class HasProps extends Signalable() {
   // (do not recurse, do not include ourselves)
   protected _immediate_references(): HasProps[] {
     const result = {}
-    const attrs = this.serializable_attributes()
-    for (const key in attrs) {
-      const value = attrs[key]
-      HasProps._value_record_references(value, result, false) // false = no recurse
+    for (const [, prop] of this.syncable_properties()) {
+      const value = prop.get_value()
+      HasProps._value_record_references(value, result, {recursive: false})
     }
-
     return values(result)
   }
 
   references(): HasProps[] {
     const references = {}
-    HasProps._value_record_references(this, references, true)
+    HasProps._value_record_references(this, references, {recursive: true})
     return values(references)
   }
 
@@ -508,15 +473,15 @@ export abstract class HasProps extends Signalable() {
   }
 
   protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string}): void {
-    if (!this.attribute_is_serializable(attr))
+    if (!this.properties[attr].syncable)
       return
 
     if (this.document != null) {
       const new_refs: {[key: string]: HasProps} = {}
-      HasProps._value_record_references(new_, new_refs, false)
+      HasProps._value_record_references(new_, new_refs, {recursive: false})
 
       const old_refs: {[key: string]: HasProps} = {}
-      HasProps._value_record_references(old, old_refs, false)
+      HasProps._value_record_references(old, old_refs, {recursive: false})
 
       let need_invalidate = false
       for (const new_id in new_refs) {
@@ -545,12 +510,11 @@ export abstract class HasProps extends Signalable() {
   materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
     // Note: this should be moved to a function separate from HasProps
     const data: {[key: string]: unknown[] | number} = {}
-    for (const name in this.properties) {
-      const prop = this.properties[name]
+    for (const [name, prop] of this) {
       if (!(prop instanceof p.VectorSpec))
         continue
       // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))
+      if (prop.optional && prop.spec.value == null && !prop.dirty)
         continue
 
       const array = prop.array(source)

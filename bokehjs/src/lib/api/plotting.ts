@@ -2,7 +2,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
-import {Omit, Color, Data, Attrs} from "../core/types"
+import {Color, Data, Attrs} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
@@ -605,13 +605,13 @@ export class Figure extends Plot {
 
     const result: Attrs = {}
     const traits = new Set()
-    for (const pname in cls.prototype.props) {
+    for (const pname in cls.prototype._props) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
         if (props.hasOwnProperty(prefix+pname)) {
           result[pname] = props[prefix+pname]
           delete props[prefix+pname]
-        } else if (!cls.prototype.props.hasOwnProperty(trait)
+        } else if (!cls.prototype._props.hasOwnProperty(trait)
                  && props.hasOwnProperty(prefix+trait)) {
           result[pname] = props[prefix+trait]
         } else if (override_defaults.hasOwnProperty(trait)) {
@@ -621,7 +621,7 @@ export class Figure extends Plot {
         } else if (trait_defaults.hasOwnProperty(trait)) {
           result[pname] = trait_defaults[trait]
         }
-        if (!cls.prototype.props.hasOwnProperty(trait)) {
+        if (!cls.prototype._props.hasOwnProperty(trait)) {
           traits.add(trait)
         }
       }
@@ -648,7 +648,7 @@ export class Figure extends Plot {
   _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
     for (const name in attrs) {
       const value = attrs[name]
-      const prop = cls.prototype.props[name]
+      const prop = cls.prototype._props[name]
 
       if (prop != null) {
         if (prop.type.prototype instanceof VectorSpec) {
