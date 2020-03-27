@@ -32,8 +32,8 @@ class Config(object):
             raise ValueError(f"Invalid Bokeh version for build/release {version!r}")
         self.version: str = version
         self.credentials: Dict[str, Any] = {}
-        self._last_any_version: Optional[str] = None
-        self._last_full_version: Optional[str] = None
+        self._last_any_version: str = ""
+        self._last_full_version: str = ""
 
         self.builds = ("conda", "sdist", "docs", "npm")
         self.build_status: Dict[str, ActionStatus] = defaultdict(lambda: ActionStatus.NOT_STARTED)
@@ -62,11 +62,11 @@ class Config(object):
         return run("git rev-parse --show-toplevel").strip()
 
     @property
-    def js_version(self) -> Optional[str]:
+    def js_version(self) -> str:
         return self._to_js_version(self.version)
 
     @property
-    def last_any_version(self) -> Optional[str]:
+    def last_any_version(self) -> str:
         return self._last_any_version
 
     @last_any_version.setter
@@ -77,13 +77,11 @@ class Config(object):
         self._last_any_version = v
 
     @property
-    def js_last_any_version(self) -> Optional[str]:
-        if self.last_any_version:
-            return self._to_js_version(self.last_any_version)
-        return None
+    def js_last_any_version(self) -> str:
+        return self._to_js_version(self.last_any_version)
 
     @property
-    def last_full_version(self) -> Optional[str]:
+    def last_full_version(self) -> str:
         return self._last_full_version
 
     @last_full_version.setter
