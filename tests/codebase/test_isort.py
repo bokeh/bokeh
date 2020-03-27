@@ -27,7 +27,7 @@ from . import TOP_PATH, ls_files
 #-----------------------------------------------------------------------------
 
 def test_isort() -> None:
-    ''' Assures that the Python codebase passes configured Flake8 checks
+    ''' Assures that the Python codebase imports are correctly sorted.
 
     '''
     chdir(TOP_PATH)
