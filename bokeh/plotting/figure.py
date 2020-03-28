@@ -1095,7 +1095,7 @@ Examples:
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2106* and *2017*, then the following call to ``hbar_stack`` will
+            *2016* and *2017*, then the following call to ``hbar_stack`` will
             will create two ``HBar`` renderers that stack:
 
             .. code-block:: python
@@ -1138,7 +1138,7 @@ Examples:
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2106* and *2017*, then the following call to ``line_stack`` with
+            *2016* and *2017*, then the following call to ``line_stack`` with
             stackers for the y-coordinates will will create two ``Line``
             renderers that stack:
 
@@ -1194,7 +1194,7 @@ Examples:
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2106* and *2017*, then the following call to ``hline_stack`` with
+            *2016* and *2017*, then the following call to ``hline_stack`` with
             stackers for the x-coordinates will will create two ``Line``
             renderers that stack:
 
@@ -1317,7 +1317,7 @@ Examples:
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
-            *2106* and *2017*, then the following call to ``vline_stack`` with
+            *2016* and *2017*, then the following call to ``vline_stack`` with
             stackers for the y-coordinates will will create two ``Line``
             renderers that stack:
 
