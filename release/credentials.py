@@ -16,7 +16,7 @@ import boto.s3.key
 
 # Bokeh imports
 from .config import Config, StepType
-from .system import run
+from .system import System
 from .ui import failed, passed
 
 __all__ = (
@@ -26,15 +26,15 @@ __all__ = (
     "verify_pypi_credentials",
 )
 
-ReturnStepType = Callable[[Config], Union[str, Tuple[str, str]]]
+ReturnStepType = Callable[[Config, System], Union[str, Tuple[str, str]]]
 
 
 def collect_credential(func: ReturnStepType) -> StepType:
     service = func.__name__.split("_")[1].upper()
 
-    def wrapper(config: Config) -> None:
+    def wrapper(config: Config, system: System) -> None:
         try:
-            config.credentials[service] = func(config)
+            config.credentials[service] = func(config, system)
             passed(f"Verified {service} credentials")
         except Exception:
             failed(f"Could NOT verify {service} credentials")
@@ -44,27 +44,27 @@ def collect_credential(func: ReturnStepType) -> StepType:
 
 
 @collect_credential
-def verify_anaconda_credentials(config: Config) -> str:
+def verify_anaconda_credentials(config: Config, system: System) -> str:
     token = os.environ["ANACONDA_TOKEN"]
-    out = run(f"anaconda -t {token} whoami", silent=True)
+    out = system.run(f"anaconda -t {token} whoami")
     if "Anonymous User" in out:
         raise ValueError()
     return token
 
 
 @collect_credential
-def verify_pypi_credentials(config: Config) -> str:
+def verify_pypi_credentials(config: Config, system: System) -> str:
     # TODO is there a way to actually test that the creds work?
     token = os.environ["PYPI_TOKEN"]
     return token
 
 
 @collect_credential
-def verify_npm_credentials(config: Config) -> str:
+def verify_npm_credentials(config: Config, system: System) -> str:
     token = os.environ["NPM_TOKEN"]
-    run("npm set registry 'https://registry.npmjs.org'")
-    run(f"npm set //registry.npmjs.org/:_authToken {token}", silent=True)
-    out = run(f"npm whoami")
+    system.run("npm set registry 'https://registry.npmjs.org'")
+    system.run(f"npm set //registry.npmjs.org/:_authToken {token}")
+    out = system.run(f"npm whoami")
     if out.strip() != "bokeh":
         raise ValueError()
 
@@ -72,7 +72,7 @@ def verify_npm_credentials(config: Config) -> str:
 
 
 @collect_credential
-def verify_aws_credentials(config: Config) -> Tuple[str, str]:
+def verify_aws_credentials(config: Config, system: System) -> Tuple[str, str]:
     access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
     secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
 

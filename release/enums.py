@@ -9,7 +9,9 @@
 from enum import Enum
 
 __all__ = (
-    "ActionStatus",
+    "ActionResult",
+    "ActionState",
+    "ActionType",
     "StepStatus",
     "VersionType",
 )
@@ -27,7 +29,18 @@ class StepStatus(Enum):
     SKIP = "SKIP"
 
 
-class ActionStatus(Enum):
-    NOT_STARTED = "NOT STARTED"
-    STARTED = "STARTED BUT NOT COMPLETED"
+class ActionResult(Enum):
+    PASS = "PASS"
+    FAIL = "FAIL"
+    SKIP = "SKIP"
+
+
+class ActionState(Enum):
+    PENDING = "PENDING"
+    STARTED = "STARTED"
     COMPLETED = "COMPLETED"
+
+
+class ActionType(Enum):
+    CHECK = "CHECK"
+    TASK = "TASK"

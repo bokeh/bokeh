@@ -22,25 +22,25 @@ try:
     import colorama  # isort:skip
 
     def bright(text: str) -> str:
-        return "%s%s%s" % (colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Style.BRIGHT}{text}{colorama.Style.RESET_ALL}"
 
     def dim(text: str) -> str:
-        return "%s%s%s" % (colorama.Style.DIM, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Style.DIM}{text}{colorama.Style.RESET_ALL}"
 
     def white(text: str) -> str:
-        return "%s%s%s" % (colorama.Fore.WHITE, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Fore.WHITE}{text}{colorama.Style.RESET_ALL}"
 
     def blue(text: str) -> str:
-        return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Fore.BLUE}{text}{colorama.Style.RESET_ALL}"
 
     def red(text: str) -> str:
-        return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Fore.RED}{text}{colorama.Style.RESET_ALL}"
 
     def green(text: str) -> str:
-        return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Fore.GREEN}{text}{colorama.Style.RESET_ALL}"
 
     def yellow(text: str) -> str:
-        return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+        return f"{colorama.Fore.YELLOW}{text}{colorama.Style.RESET_ALL}"
 
     sys.platform == "win32" and colorama.init()
 except ImportError:
