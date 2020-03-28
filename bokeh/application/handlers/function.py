@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback
-from .handler import Handler, _handle_exception
+from .handler import Handler, handle_exception
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -132,7 +132,7 @@ class FunctionHandler(Handler):
             self._func(doc)
         except Exception as e:
             if self._trap_exceptions:
-                _handle_exception(self, e)
+                handle_exception(self, e)
             else:
                 raise
         finally:

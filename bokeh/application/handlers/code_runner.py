@@ -28,7 +28,7 @@ from types import ModuleType
 
 # Bokeh imports
 from ...util.serialization import make_globally_unique_id
-from .handler import _handle_exception
+from .handler import handle_exception
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -199,7 +199,7 @@ class CodeRunner(object):
             if post_check: post_check()
 
         except Exception as e:
-            _handle_exception(self, e)
+            handle_exception(self, e)
 
         finally:
             # undo sys.path, CWD fixups

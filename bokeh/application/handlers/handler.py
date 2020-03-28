@@ -214,12 +214,11 @@ class Handler(object):
         '''
         return None
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-def _handle_exception(handler, e):
-    """helper to stash an exception on a CodeRunner or Handler"""
+def handle_exception(handler, e):
+    ''' Record an exception and details on a Handler.
+
+    '''
     handler._failed = True
     handler._error_detail = traceback.format_exc()
 
@@ -227,6 +226,10 @@ def _handle_exception(handler, e):
     filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
 
     handler._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code
