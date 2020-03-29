@@ -28,6 +28,7 @@ from types import ModuleType
 
 # Bokeh imports
 from ...util.serialization import make_globally_unique_id
+from .handler import handle_exception
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -198,13 +199,7 @@ class CodeRunner(object):
             if post_check: post_check()
 
         except Exception as e:
-            self._failed = True
-            self._error_detail = traceback.format_exc()
-
-            _exc_type, _exc_value, exc_traceback = sys.exc_info()
-            filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
-
-            self._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
+            handle_exception(self, e)
 
         finally:
             # undo sys.path, CWD fixups
