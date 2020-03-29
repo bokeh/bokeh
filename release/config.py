@@ -42,6 +42,8 @@ class Config(object):
         self.upload_status: Dict[str, ActionStatus] = defaultdict(lambda: ActionStatus.NOT_STARTED)
 
     def _to_js_version(self, v: str) -> str:
+        if FULL_VERSION.match(v):
+            return v
         match = ANY_VERSION.match(v)
         if not match:
             raise ValueError(f"Invalid verison {v!r}")
