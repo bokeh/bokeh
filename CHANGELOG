@@ -1,3 +1,45 @@
+2020-03-29    2.0.1:
+--------------------
+  * bugfixes:
+    - #9522 [component: bokehjs] [bug] arrow lines do not render completely if figure is placed below some div
+    - #9703 [component: bokehjs] [bug] image_url combined anchor and angle options generated unexpected results
+    - #9724 [component: bokehjs] [bug] behaviour of automated padding for ranges is inconsistent
+    - #9773 [infra] [bug] potential chrome cors problem with local output
+    - #9778 [component: docs] Incorrect guidance on installing additional dependencies for export() functions
+    - #9784 [component: bokehjs] [bug] `selectiongeometry` has incomplete type of `geometry`
+    - #9793 [component: docs] Wrong links in bokeh embed example readme
+    - #9796 [notebook] Autoload js in notebook broken after pr #9777
+    - #9820 Deprecation warnings after pr #9807
+    - #9821 [component: docs] [bug] version 2.0 release notes date
+    - #9834 [regression] [bug] cannot update datepicker display value from python
+    - #9837 [component: bokehjs] [webgl] [bug] lines with empty data breaks plot with webgl renderer
+    - #9852 [component: build] Bryanv/correct js version full release
+  * features:
+    - #9727 [component: bokehjs] [widgets] [feature] add multi-file selection to fileinput widget
+    - #9783 [feature] expose `_known_tools` and `_tool_from_string` to allow reuse
+    - #9799 [component: server] Allow to serve extensions' bundles and related resources
+    - #9814 [bug] 'bokeh.server.django' ignores &bokeh-session-id url parameter
+    - #9819 Allow to send binary buffers by messagesent
+  * tasks:
+    - #9458 [component: bokehjs] [bug] hovertool in 'vline' mode doesn't work with vertical segments
+    - #9581 Update dockertools
+    - #9692 [component: bokehjs] [typescript] Upgrade to typescript 3.8
+    - #9750 [component: bokehjs] [component: build] [feature] improve bokehjs dependency and project management 
+    - #9758 [component: bokehjs] Deprecate bokehjs package and suggest @bokeh/bokehjs
+    - #9766 [component: docs] Doc: add missing '@' in hovertool.formatters example
+    - #9775 [component: server] [bug] always setting asyncio event loop policy
+    - #9791 [component: server] Allow subclasses of serve subcommand to modify server_kwargs
+    - #9794 [component: bokehjs] Add support for bokeh.loader["@bokehjs/module/name"]
+    - #9797 [component: tests] Configure codebase tests with `git ls-files`
+    - #9801 [component: bokehjs] Update deps and resolve audit warnings
+    - #9802 [component: bokehjs] [component: build] Drop tslint in favor of @typescript/eslint
+    - #9805 [component: docs] Dev_guide update
+    - #9816 [component: docs] [documentation] the developers guide uses old syntax for py.test in pre-commit hook
+    - #9823 [component: docs] [bug] clarify that bokeh 2.0.0 no longer accepts a `selected` argument in cds constructor
+    - #9831 [component: server] [bug] unhandled exceptions in functionhandler cause hang/blank screen
+    - #9839 [component: docs] Fixed some minor docstring typos
+    - #9848 [component: docs] Minor typo in bokeh.transform reference docs
+
 2020-03-02    2.0.0:
 --------------------
   * bugfixes:
