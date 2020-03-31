@@ -5,6 +5,7 @@ import {basename, dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
 import {Path} from "./sys"
+import {BuildError} from "./error"
 
 export type CompileConfig = {
   out_dir?: OutDir
@@ -183,6 +184,6 @@ export function compile_typescript(tsconfig_path: Path, config: CompileConfig = 
 
   if (is_failed(result)) {
     const {count, text} = report_diagnostics(result.diagnostics)
-    throw new Error(`There were ${chalk.red("" + count)} TypeScript errors:\n${text}`)
+    throw new BuildError("typescript", `There were ${chalk.red("" + count)} TypeScript errors:\n${text}`)
   }
 }

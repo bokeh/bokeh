@@ -1,5 +1,8 @@
 import chalk from "chalk"
 
+import {BuildError} from "@compiler/error"
+export {BuildError}
+
 export type Result<T = unknown> = Success<T> | Failure<T>
 
 export class Success<T> {
@@ -32,12 +35,6 @@ export function success<T>(value: T): Result<T> {
 
 export function failure<T>(error: Error): Result<T> {
   return new Failure<T>(error)
-}
-
-export class BuildError extends Error {
-  constructor(readonly component: string, message: string) {
-    super(message)
-  }
 }
 
 export function log(message: string): void {
@@ -161,21 +158,31 @@ export async function run(...names: string[]): Promise<Result> {
     if (finished.has(task)) {
       return finished.get(task)!
     } else {
-      let failed = false
+      const failures = []
 
       for (const name of task.deps) {
         for (const dep of resolve_task(name, task)) {
           const result = await _run(dep)
           if (result.is_Failure())
-            failed = true
+            failures.push(dep)
         }
       }
 
       let result: Result
-      if (!failed)
+      if (failures.length == 0) {
         result = await exec_task(task)
-      else
-        result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed`))
+      } else {
+        function join(items: string[], sep0: string, sep1: string): string {
+          if (items.length <= 1) {
+            return items.join("")
+          } else {
+            return `${items.slice(0, -1).join(sep0)}${sep1}${items[items.length-1]}`
+          }
+        }
+
+        const failed = join(failures.map((dep) => `'${chalk.cyan(dep.name)}'`), ", ", " and ")
+        result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed because ${failed} failed`))
+      }
 
       finished.set(task, result)
 

@@ -2,7 +2,7 @@ import lesscss from "less"
 import chalk from "chalk"
 import {basename} from "path"
 
-import {task} from "../task"
+import {task, BuildError} from "../task"
 import {scan, read, write, rename} from "@compiler/sys"
 import * as paths from "../paths"
 
@@ -28,6 +28,6 @@ task("styles:compile", async () => {
   }
 
   if (errors.length != 0) {
-    throw new Error(`There were ${chalk.red("" + errors.length)} Less errors:\n${errors.join("\n")}`)
+    throw new BuildError("less", `There were ${chalk.red("" + errors.length)} Less errors:\n${errors.join("\n")}`)
   }
 })

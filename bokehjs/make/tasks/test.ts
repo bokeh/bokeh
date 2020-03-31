@@ -41,7 +41,7 @@ async function is_available(port: number): Promise<boolean> {
       if (!failure)
         resolve(available)
       else
-        reject(new Error("timeout when searching for unused port"))
+        reject(new BuildError("net", "timeout when searching for unused port"))
     })
 
     socket.connect(port, host)
