@@ -34,10 +34,20 @@ function comment(text: string): string {
   return `/*!${"\n"}${text.trim().split("\n").map((line) => ` * ${line}`).join("\n")}${"\n"}*/`
 }
 
-export const prelude = `\
+function str(obj: unknown): string {
+  return JSON.stringify(obj)
+}
+
+export function prelude(): string {
+  return `\
 ${comment(license)}
 (function(root, factory) {
-  root["Bokeh"] = factory();
+  const bokeh = factory();
+  if (root.Bokeh === undefined) {
+    root.Bokeh = bokeh;
+  }
+  const Bokeh = root.Bokeh;
+  Bokeh[bokeh.version] = bokeh;
 })(this, function() {
   var define;
   var parent_require = typeof require === "function" && require
@@ -141,26 +151,30 @@ ${comment(license)}
     return main;
   })
 `
+}
 
-export const plugin_prelude = `\
+export function plugin_prelude(options?: {version?: string}): string {
+  return `\
 ${comment(license)}
 (function(root, factory) {
-  factory(root["Bokeh"]);
-})(this, function(Bokeh) {
+  factory(root["Bokeh"], ${str(options?.version)});
+})(this, function(Bokeh, version) {
   var define;
   return (function(modules, entry, aliases, externals) {
-    if (Bokeh != null) {
-      return Bokeh.register_plugin(modules, entry, aliases, externals);
+    const bokeh = typeof Bokeh !== "undefined" && (version != null ? Bokeh[version] : Bokeh);
+    if (bokeh != null) {
+      return bokeh.register_plugin(modules, entry, aliases);
     } else {
-      throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
+      throw new Error("Cannot find Bokeh " + version + ". You have to load it prior to loading plugins.");
     }
   })
 `
+}
 
-export function default_prelude(options: {global?: string} = {}): string {
+export function default_prelude(options?: {global?: string}): string {
   return `\
 (function(root, factory) {
-  ${options.global != null ? `root["${options.global}"] = factory()` : "Object.assign(root, factory())"};
+  ${options?.global != null ? `root[${str(options.global)}] = factory()` : "Object.assign(root, factory())"};
 })(this, function() {
   var parent_require = typeof require === "function" && require
   return (function(modules, entry, aliases, externals) {

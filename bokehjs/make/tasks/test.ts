@@ -103,7 +103,7 @@ function bundle(name: string): void {
     cache: join(paths.build_dir.test, `${name}.json`),
     transpile: "ES2017",
     externals: [/^@bokehjs\//],
-    prelude: default_prelude({global: "Tests"}),
+    prelude: () => default_prelude({global: "Tests"}),
     shims: ["fs", "module"],
   })
 

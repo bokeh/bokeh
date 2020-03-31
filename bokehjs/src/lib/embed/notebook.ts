@@ -12,7 +12,7 @@ import "styles/notebook"
 
 // This exists to allow the @bokeh/jupyter_bokeh extension to store the
 // notebook kernel so that _init_comms can register the comms target.
-// This has to be available at window.Bokeh.embed.kernels in JupyterLab.
+// This has to be available at Bokeh.embed.kernels in JupyterLab.
 export const kernels: {[key: string]: unknown} = {}
 
 function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {
