@@ -7,13 +7,12 @@
 
 # Standard library imports
 import re
-from collections import defaultdict
 from typing import Any, Callable, Dict
 
 # Bokeh imports
-from .enums import ActionStatus, VersionType
-from .system import run
-from .ui import banner, bright, red, yellow
+from .enums import VersionType
+from .system import System
+from .ui import bright, red
 
 __all__ = (
     "Config",
@@ -27,19 +26,17 @@ FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)?$")
 
 
 class Config(object):
-    def __init__(self, version: str) -> None:
+    def __init__(self, version: str, dry_run: bool = False) -> None:
         if not ANY_VERSION.match(version):
             raise ValueError(f"Invalid Bokeh version for build/release {version!r}")
         self.version: str = version
+        self.dry_run: bool = False
+
+        self.system = System(dry_run=dry_run)
+
         self.credentials: Dict[str, Any] = {}
         self._last_any_version: str = ""
         self._last_full_version: str = ""
-
-        self.builds = ("conda", "sdist", "docs", "npm")
-        self.build_status: Dict[str, ActionStatus] = defaultdict(lambda: ActionStatus.NOT_STARTED)
-
-        self.uploads = ("cdn", "anaconda", "pypi", "docs", "npm")
-        self.upload_status: Dict[str, ActionStatus] = defaultdict(lambda: ActionStatus.NOT_STARTED)
 
     def _to_js_version(self, v: str) -> str:
         if FULL_VERSION.match(v):
@@ -60,10 +57,6 @@ class Config(object):
             return VersionType.FULL
 
     @property
-    def repo_top_dir(self) -> str:
-        return run("git rev-parse --show-toplevel").strip()
-
-    @property
     def js_version(self) -> str:
         return self._to_js_version(self.version)
 
@@ -75,7 +68,7 @@ class Config(object):
     def last_any_version(self, v: str) -> None:
         m = ANY_VERSION.match(v)
         if not m:
-            raise ValueError("Invalid Bokeh version %r" % v)
+            raise ValueError(f"Invalid Bokeh version {v!r}")
         self._last_any_version = v
 
     @property
@@ -90,37 +83,19 @@ class Config(object):
     def last_full_version(self, v: str) -> None:
         m = FULL_VERSION.match(v)
         if not m:
-            raise ValueError("Invalid Bokeh version %r" % v)
+            raise ValueError(f"Invalid Bokeh version {v!r}")
         self._last_full_version = v
 
     @property
     def release_branch(self) -> str:
-        return "release-%s" % self.version
+        return f"release-{self.version}"
 
     def abort(self) -> None:
         print()
-        print(bright(red("!!! Steps failed. The BUILD has been aborted.")))
+        print(bright(red("!!! Tasks failed. The XXX has been aborted.")))
         print()
 
-        print(bright(yellow("Here is the status of all build steps:")))
-        print()
-        for build in self.builds:
-            print(f"    - {build:>10}: {self.build_status[build].value}")
-
-        print()
-
-        if all(self.upload_status[x] == ActionStatus.NOT_STARTED for x in self.uploads):
-            print(bright(red("!!! NO ASSETS HAVE BEEN UPLOADED")))
-        else:
-            print(bright(red("!!! SOME ASSETS MAY HAVE BEEN UPLOADED")))
-            print
-            print(bright(yellow("Here is the status of all uploads:")))
-            for upload in self.uploads:
-                print(f"    - {upload:>10}: {self.upload_status[upload].value}")
-
-        banner(red, "{:^80}".format(f"Bokeh {self.version!r} build: FAILURE"))
         raise RuntimeError()
-        # sys.exit(1)
 
 
-StepType = Callable[[Config], None]
+StepType = Callable[[Config, System], None]

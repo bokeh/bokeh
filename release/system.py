@@ -9,36 +9,38 @@
 import os
 from subprocess import PIPE, STDOUT
 from subprocess import run as stdlib_run
-from typing import Any, Optional
+from typing import Any, List, Optional, cast
 
-__all__ = (
-    "cd",
-    "run",
-)
+__all__ = ("System",)
 
 
-def run(cmd: str, fake_cmd: Optional[str] = None, silent: bool = True, **kw: Any) -> str:
+class System(object):
+    def __init__(self, dry_run: bool = False) -> None:
+        self.dry_run: bool = dry_run
+        self.log: List[str] = []
 
-    if not silent:
-        envstr = " ".join(f"{k}={v}" for k, v in kw.items())
-        if envstr:
-            envstr += " "
-        if fake_cmd:
-            print(f"+{envstr}{fake_cmd}")
-        else:
-            print(f"+{envstr}{cmd}")
+    def record(self, *lines: str) -> None:
+        self.log.extend(lines)
 
-    env = dict(os.environ)
-    env.update(kw)
+    def run(self, cmd: str, fake_cmd: Optional[str] = None, **kw: Any) -> str:
 
-    result = stdlib_run(cmd, shell=True, stdout=PIPE, stderr=STDOUT, text=True, env=env)  # type: ignore
+        envstr = " ".join(f"{k}={v}" for k, v in kw.items()) + min(len(kw), 1) * " "
+        self.record(f"+{envstr}{fake_cmd or cmd}")
 
-    result.check_returncode()
+        env = dict(os.environ)
+        env.update(kw)
 
-    return result.stdout or ""
+        if self.dry_run:
+            return ""
 
+        result = stdlib_run(cmd, shell=True, stdout=PIPE, stderr=STDOUT, text=True, env=env)  # type: ignore
 
-def cd(dir: str, silent: bool = True) -> None:
-    os.chdir(dir)
-    if not silent:
-        print("+cd %s    [now: %s]" % (dir, os.getcwd()))
+        self.record(*result.stdout.split("\n"))
+
+        result.check_returncode()
+
+        return cast(str, result.stdout)
+
+    def cd(self, new_dir: str) -> None:
+        os.chdir(new_dir)
+        self.record(f"+cd {new_dir}  [now: {os.getcwd()}]")

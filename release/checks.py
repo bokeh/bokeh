@@ -13,7 +13,7 @@ from packaging.version import Version as V
 
 # Bokeh imports
 from .config import Config
-from .system import run
+from .system import System
 from .ui import failed, passed
 
 __all__ = (
@@ -27,24 +27,24 @@ __all__ = (
 )
 
 
-def check_git(config: Config) -> None:
+def check_git(config: Config, system: System) -> None:
     try:
-        run("which git")
+        system.run("which git")
         passed("Command 'git' is available")
     except CalledProcessError:
         failed("Command 'git' is missing")
         config.abort()
 
 
-def check_repo(config: Config) -> None:
+def check_repo(config: Config, system: System) -> None:
     try:
-        run("git status")
+        system.run("git status")
     except CalledProcessError:
         failed("Executing outside of a git repository")
         config.abort()
 
     try:
-        remote = run("git config --get remote.origin.url")
+        remote = system.run("git config --get remote.origin.url")
         if "bokeh/bokeh" in remote:
             passed("Executing inside the the bokeh/bokeh repository")
         else:
@@ -55,16 +55,16 @@ def check_repo(config: Config) -> None:
         config.abort()
 
 
-def check_checkout(config: Config) -> None:
+def check_checkout(config: Config, system: System) -> None:
     try:
-        branch = run("git rev-parse --abbrev-ref HEAD").strip()
+        branch = system.run("git rev-parse --abbrev-ref HEAD").strip()
         if branch == "master":
             passed("Working on master branch")
         else:
             failed(f"NOT working on master branch ({branch!r})")
             config.abort()
 
-        extras = run("git status --porcelain").split("\n")
+        extras = system.run("git status --porcelain").split("\n")
         extras = [x for x in extras if x != ""]
         if extras:
             failed("Local checkout is NOT clean", extras)
@@ -73,10 +73,10 @@ def check_checkout(config: Config) -> None:
             passed("Local checkout is clean")
 
         try:
-            run("git remote update")
-            local = run("git rev-parse @")
-            remote = run("git rev-parse @{u}")
-            base = run("git merge-base @ @{u}")
+            system.run("git remote update")
+            local = system.run("git rev-parse @")
+            remote = system.run("git rev-parse @{u}")
+            base = system.run("git merge-base @ @{u}")
             if local == remote:
                 passed("Checkout is up to date with GitHub")
             else:
@@ -97,9 +97,9 @@ def check_checkout(config: Config) -> None:
         config.abort()
 
 
-def check_tags(config: Config) -> None:
+def check_tags(config: Config, system: System) -> None:
     try:
-        out = run("git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags")
+        out = system.run("git for-each-ref --sort=-taggerdate --format '%(tag)' refs/tags")
         tags = [x.strip("'\"") for x in out.split("\n")]
 
         if config.version in tags:
@@ -127,7 +127,7 @@ def check_tags(config: Config) -> None:
         config.abort()
 
 
-def check_version_order(config: Config) -> None:
+def check_version_order(config: Config, system: System) -> None:
     if V(config.version) > V(config.last_any_version):
         passed(f"New version {config.version!r} is newer than last version {config.last_any_version!r}")
     else:
@@ -135,8 +135,8 @@ def check_version_order(config: Config) -> None:
         config.abort()
 
 
-def check_release_branch(config: Config) -> None:
-    out = run("git branch --list %s" % config.release_branch)
+def check_release_branch(config: Config, system: System) -> None:
+    out = system.run(f"git branch --list {config.release_branch}")
     if out:
         failed(f"Release branch {config.release_branch!r} ALREADY exists")
         config.abort()
@@ -144,9 +144,9 @@ def check_release_branch(config: Config) -> None:
         passed(f"Release branch {config.release_branch!r} does not already exist")
 
 
-def check_issues(config: Config) -> None:
+def check_issues(config: Config, system: System) -> None:
     try:
-        run(f"python scripts/issues.py -c -p {config.last_full_version}")
+        system.run(f"python scripts/issues.py -c -p {config.last_full_version}")
         passed("Issue labels are BEP-1 compliant")
     except CalledProcessError as e:
         if "HTTP Error 403: Forbidden" in e.output:
