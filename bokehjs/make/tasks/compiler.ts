@@ -1,19 +1,13 @@
 import {join} from "path"
 import {argv} from "yargs"
 
-import {task, log} from "../task"
+import {task} from "../task"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import {src_dir, build_dir} from "../paths"
 
 task("compiler:ts", async () => {
-  const success = compile_typescript(join(src_dir.compiler, "tsconfig.json"), {
-    log,
-    out_dir: build_dir.compiler,
-  })
-
-  if (argv.emitError && !success)
-    process.exit(1)
+  compile_typescript(join(src_dir.compiler, "tsconfig.json"), {out_dir: build_dir.compiler})
 })
 
 task("compiler:build", ["compiler:ts"], async () => {

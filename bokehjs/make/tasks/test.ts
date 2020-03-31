@@ -7,7 +7,7 @@ import assert from "assert"
 
 import which from "which"
 
-import {task, task2, log, success, BuildError} from "../task"
+import {task, task2, success, BuildError} from "../task"
 import {Linker} from "@compiler/linker"
 import {default_prelude} from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
@@ -100,10 +100,7 @@ function mocha(files: string[]): Promise<void> {
 }
 
 task("test:codebase:compile", async () => {
-  const success = compile_typescript("./test/codebase/tsconfig.json", {log})
-
-  if (argv.emitError && !success)
-    process.exit(1)
+  compile_typescript("./test/codebase/tsconfig.json")
 })
 
 task("test:size", ["test:codebase:compile"], async () => {
@@ -297,10 +294,7 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
 })
 
 function compile(name: string) {
-  const success = compile_typescript(`./test/${name}/tsconfig.json`, {log})
-
-  if (argv.emitError && !success)
-    process.exit(1)
+  compile_typescript(`./test/${name}/tsconfig.json`)
 }
 
 function bundle(name: string): void {
