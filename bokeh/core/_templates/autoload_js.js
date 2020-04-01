@@ -31,6 +31,12 @@ calls it with the rendered model.
   {% endblock %}
 
   {% block autoload_init %}
+    {%- if elementid -%}
+    var element = document.getElementById({{ elementid|json }});
+    if (element == null) {
+      console.warn("Bokeh: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found.")
+    }
+    {%- endif %}
   {% endblock %}
 
   function run_callbacks() {
@@ -102,14 +108,6 @@ calls it with the rendered model.
       document.head.appendChild(element);
     }
   };
-
-  {%- if elementid -%}
-  var element = document.getElementById({{ elementid|json }});
-  if (element == null) {
-    console.error("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
-    return false;
-  }
-  {%- endif %}
 
   function inject_raw_css(css) {
     const element = document.createElement("style");
