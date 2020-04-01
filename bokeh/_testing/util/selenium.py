@@ -144,7 +144,7 @@ def select_element_and_press_key(driver, element, key, press_number=1):
     actions = ActionChains(driver)
     actions.move_to_element(element)
     actions.click()
-    for i in range(press_number):
+    for _ in range(press_number):
         actions = ActionChains(driver)
         actions.send_keys_to_element(element, key)
         actions.perform()
