@@ -235,7 +235,7 @@ function opt(name: string, value: unknown): string {
 
 function devtools(devtools_port: number, server_port: number, name: string): Promise<void> {
   const url = `http://localhost:${server_port}/${name}`
-  const args = ["--no-warnings", "./test/devtools", url, `--port=${devtools_port}`, opt("k", argv.k), opt("grep", argv.grep)]
+  const args = ["--no-warnings", "./test/devtools", url, `--port=${devtools_port}`, opt("k", argv.k), opt("grep", argv.grep), "--screenshot=skip"]
 
   if (argv.debug) {
     if (argv.debug === true)

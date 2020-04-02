@@ -336,17 +336,20 @@ async function run_tests(): Promise<void> {
 
                       const image_path = `${baseline_path}.png`
                       const existing = load_baseline_image(image_path)
-                      if (existing == null) {
-                        status.failure = true
-                        status.errors.push("missing baseline image")
-                      } else {
-                        status.reference = existing
-                        const result = diff_image(existing, current)
-                        if (result != null) {
-                          await fs.promises.writeFile(image_path, current)
+                      if (argv.screenshot != "skip") {
+                        if (existing == null) {
                           status.failure = true
-                          status.image_diff = result.diff
-                          status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                          status.errors.push("missing baseline image")
+                          await fs.promises.writeFile(image_path, current)
+                        } else {
+                          status.reference = existing
+                          const result = diff_image(existing, current)
+                          if (result != null) {
+                            await fs.promises.writeFile(image_path, current)
+                            status.failure = true
+                            status.image_diff = result.diff
+                            status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                          }
                         }
                       }
                     }
