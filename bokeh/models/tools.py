@@ -1124,6 +1124,11 @@ class HoverTool(Inspection):
     span on h or v directions.
     """)
 
+    muted_policy = Enum("show", "ignore",
+                        default="show", help="""
+    Whether to avoid showing tooltips on muted glyphs.
+    """)
+
     point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
     Whether the tooltip position should snap to the "center" (or other anchor)
     position of the associated glyph, or always follow the current mouse cursor

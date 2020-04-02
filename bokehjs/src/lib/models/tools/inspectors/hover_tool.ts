@@ -15,7 +15,7 @@ import {color2hex} from "core/util/color"
 import {values, isEmpty} from "core/util/object"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
-import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment} from "core/enums"
+import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
@@ -187,6 +187,9 @@ export class HoverToolView extends InspectToolView {
       return
 
     const {model: renderer} = renderer_view
+
+    if (this.model.muted_policy == 'ignore' && renderer instanceof GlyphRenderer && renderer.muted)
+      return
 
     const tooltip = this.ttmodels[renderer.id]
     if (tooltip == null)
@@ -429,6 +432,7 @@ export namespace HoverTool {
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
     mode: p.Property<HoverMode>
+    muted_policy: p.Property<MutedPolicy>
     point_policy: p.Property<PointPolicy>
     line_policy: p.Property<LinePolicy>
     show_arrow: p.Property<boolean>
@@ -460,6 +464,7 @@ export class HoverTool extends InspectTool {
       renderers:    [ p.Any,               'auto'         ],
       names:        [ p.Array,             []             ],
       mode:         [ p.HoverMode,         'mouse'        ],
+      muted_policy: [ p.MutedPolicy,       'show'         ],
       point_policy: [ p.PointPolicy,       'snap_to_data' ],
       line_policy:  [ p.LinePolicy,        'nearest'      ],
       show_arrow:   [ p.Boolean,           true           ],

@@ -93,6 +93,9 @@ export const MarkerType: MarkerType[] = [
   "square", "square_cross", "square_x", "triangle", "x",
 ]
 
+export type MutedPolicy = "show" | "ignore"
+export const MutedPolicy: MutedPolicy[] = ["show", "ignore"]
+
 export type Orientation = "vertical" | "horizontal"
 export const Orientation: Orientation[] = ["vertical", "horizontal"]
 
