@@ -49,7 +49,7 @@ p1.rect(0, 0, width=18, height=10, fill_color='color',
         line_color = 'black', source=source)
 
 p1.text(0, 0, text='color', text_color='text_color',
-        alpha=0.6667, text_font_size='36pt', text_baseline='middle',
+        alpha=0.6667, text_font_size='48px', text_baseline='middle',
         text_align='center', source=source)
 
 red_slider = Slider(title="R", start=0, end=255, value=255, step=1)

@@ -291,7 +291,7 @@ class PanTool(Drag):
     a pan in the vertical direction only, with horizontal dimension kept fixed.
 
     .. |pan_icon| image:: /_images/icons/Pan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -326,7 +326,7 @@ class RangeTool(Drag):
     automatically.
 
     .. |range_icon| image:: /_images/icons/Range.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -376,7 +376,7 @@ class WheelPanTool(Scroll):
     dimension using the scroll wheel.
 
     .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -397,7 +397,7 @@ class WheelZoomTool(Scroll):
     horizontal dimension kept fixed.
 
     .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -465,7 +465,7 @@ class SaveTool(Action):
     menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -477,7 +477,7 @@ class ResetTool(Action):
     created.
 
     .. |reset_icon| image:: /_images/icons/Reset.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -493,7 +493,7 @@ class TapTool(Tap):
     on styling selected and unselected glyphs.
 
     .. |tap_icon| image:: /_images/icons/Tap.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         Selections can be comprised of multiple regions, even those
@@ -563,7 +563,7 @@ class CrosshairTool(Inspection):
     ``width`` or ``height``.
 
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -623,7 +623,7 @@ class BoxZoomTool(Drag):
     the drag event indicates the selection region is ready.
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         ``BoxZoomTool`` is incompatible with ``GMapPlot`` due to the manner in
@@ -667,7 +667,7 @@ class ZoomInTool(Action):
     by a fixed amount.
 
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
-        :height: 18pt
+        :height: 24px
 
     '''
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
@@ -689,7 +689,7 @@ class ZoomOutTool(Action):
     by a fixed amount.
 
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
-        :height: 18pt
+        :height: 24px
 
     '''
     dimensions = Enum(Dimensions, default="both", help="""
@@ -715,7 +715,7 @@ class BoxSelectTool(Drag):
 
 
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -782,7 +782,7 @@ class LassoSelectTool(Drag):
         might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -824,7 +824,7 @@ class PolySelectTool(Tap):
         previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -991,7 +991,7 @@ class HoverTool(Inspection):
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -1178,7 +1178,7 @@ class UndoTool(Action):
     Undo tool allows to restore previous state of the plot.
 
     .. |undo_icon| image:: /_images/icons/Undo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -1188,7 +1188,7 @@ class RedoTool(Action):
     Redo tool reverses the last action performed by undo tool.
 
     .. |redo_icon| image:: /_images/icons/Redo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -1258,7 +1258,7 @@ class BoxEditTool(EditTool, Drag, Tap):
       tool) then press <<backspace>> while the mouse is within the plot area.
 
     .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
-        :height: 18pt
+        :height: 24px
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
@@ -1318,7 +1318,7 @@ class PointDrawTool(EditTool, Drag, Tap):
       key while the mouse is within the plot area.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     add = Bool(default=True, help="""
@@ -1376,7 +1376,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
       press <<backspace>> key while the mouse is within the plot area.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     drag = Bool(default=True, help="""
@@ -1431,7 +1431,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
       <<backspace>> key while the mouse is within the plot area.
 
     .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     num_objects = Int(default=0, help="""
@@ -1479,7 +1479,7 @@ class PolyEditTool(EditTool, Drag, Tap):
       while the mouse cursor is within the plot area.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
-        :height: 18pt
+        :height: 24px
     '''
 
     vertex_renderer = Instance(GlyphRenderer, help="""

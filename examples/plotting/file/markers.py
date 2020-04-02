@@ -9,7 +9,7 @@ def mscatter(p, x, y, marker):
 
 def mtext(p, x, y, text):
     p.text(x, y, text=[text],
-           text_color="firebrick", text_align="center", text_font_size="10pt")
+           text_color="firebrick", text_align="center", text_font_size="13px")
 
 p = figure(title="Bokeh Markers", toolbar_location=None)
 p.grid.grid_line_color = None

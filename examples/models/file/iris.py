@@ -42,7 +42,7 @@ plot.add_tools(PanTool(), WheelZoomTool())
 
 # Add a caption as a title placed in "below" layout panel.
 msg = """The Iris flower data set, or Fisher's Iris data set, is a multivariate data set introduced by Ronald Fisher in his 1936 paper."""
-caption = Title(text=msg, align='left', text_font_size='10pt')
+caption = Title(text=msg, align='left', text_font_size='13px')
 plot.add_layout(caption, 'below')
 
 doc = Document()

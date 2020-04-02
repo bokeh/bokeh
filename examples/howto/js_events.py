@@ -16,7 +16,7 @@ def display_event(div, attributes=[]):
     Function to build a suitable CustomJS to display the current event
     in the div model.
     """
-    style = 'float: left; clear: left; font-size: 10pt'
+    style = 'float: left; clear: left; font-size: 13px'
     return CustomJS(args=dict(div=div), code="""
         var attrs = %s;
         var args = [];
