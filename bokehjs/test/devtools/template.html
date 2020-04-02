@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/fonts/fonts.css">
     <style>
       html, body {
         box-sizing: border-box;
@@ -20,8 +21,12 @@
       }
 
       .bk-root {
-        font-family: Helvetica;
-        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
+        font-family: Bokeh;
+      }
+
+      pre.bk {
+        font-family: BokehMono;
       }
     </style>
     <script type="text/javascript" src="/static/js/bokeh.js"></script>

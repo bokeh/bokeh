@@ -14,6 +14,7 @@ nunjucks.configure(__dirname, {
 })
 
 app.use("/static", express.static("build/"))
+app.use("/fonts", express.static("test/fonts/"))
 
 app.get("/unit", (_req, res) => {
   res.render("template.html", {title: "Unit Tests", main: "unit.js"})
