@@ -335,22 +335,34 @@ async function run_tests(): Promise<void> {
                       status.image = current
 
                       const image_path = `${baseline_path}.png`
+                      const write_image = async () => fs.promises.writeFile(image_path, current)
                       const existing = load_baseline_image(image_path)
-                      if (argv.screenshot != "skip") {
-                        if (existing == null) {
-                          status.failure = true
-                          status.errors.push("missing baseline image")
-                          await fs.promises.writeFile(image_path, current)
-                        } else {
-                          status.reference = existing
-                          const result = diff_image(existing, current)
-                          if (result != null) {
-                            await fs.promises.writeFile(image_path, current)
+
+                      switch (argv.screenshot) {
+                        case undefined:
+                        case "test":
+                          if (existing == null) {
                             status.failure = true
-                            status.image_diff = result.diff
-                            status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                            status.errors.push("missing baseline image")
+                            await write_image()
+                          } else {
+                            status.reference = existing
+                            const result = diff_image(existing, current)
+                            if (result != null) {
+                              await write_image()
+                              status.failure = true
+                              status.image_diff = result.diff
+                              status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                            }
                           }
-                        }
+                          break
+                        case "save":
+                          await write_image()
+                          break
+                        case "skip":
+                          break
+                        default:
+                          throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
                       }
                     }
 
