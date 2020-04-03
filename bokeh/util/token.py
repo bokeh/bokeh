@@ -298,7 +298,7 @@ def _get_random_string(length: int = 44,
     """
     secret_key = _ensure_bytes(secret_key)
     _reseed_if_needed(using_sysrandom, secret_key)
-    return ''.join(random.choice(allowed_chars) for i in range(length))
+    return ''.join(random.choice(allowed_chars) for _ in range(length))
 
 #-----------------------------------------------------------------------------
 # Code
