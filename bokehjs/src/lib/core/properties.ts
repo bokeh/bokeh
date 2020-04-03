@@ -1,5 +1,5 @@
 import {Signal0, Signal, Signalable} from "./signaling"
-import {HasProps} from "./has_props"  // XXX: only for type purpose
+import type {HasProps} from "./has_props"
 import * as enums from "./enums"
 import {Arrayable, Color as ColorType} from "./types"
 import {includes, repeat} from "./util/array"
@@ -9,6 +9,7 @@ import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/type
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
+import {settings} from "./settings"
 
 // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 Signal // lgtm [js/useless-expression]
@@ -110,7 +111,9 @@ export abstract class Property<T> extends Signalable() {
 
     if (attr_value === undefined) {
       const default_value = this.default_value
-      if (default_value !== undefined)
+      if (this._default_override != null)
+        attr_value = this._default_override()
+      else if (default_value !== undefined)
         attr_value = default_value(obj)
       else
         attr_value = null
@@ -132,6 +135,8 @@ export abstract class Property<T> extends Signalable() {
 
     this.init()
   }
+
+  _default_override?: () => T
 
   toString(): string {
     /*${this.name}*/
@@ -195,7 +200,9 @@ export class String extends Property<string> {
 
 export class FontSize extends String {}
 
-export class Font extends String {} // TODO (bev) don't think this exists python side
+export class Font extends String {
+  _default_override = settings.dev ? () => "Bokeh" : undefined
+}
 
 //
 // Enum properties
@@ -256,6 +263,7 @@ export const LinePolicy = Enum(enums.LinePolicy)
 export const Location = Enum(enums.Location)
 export const Logo = Enum(enums.Logo)
 export const MarkerType = Enum(enums.MarkerType)
+export const MutedPolicy = Enum(enums.MutedPolicy)
 export const Orientation = Enum(enums.Orientation)
 export const OutputBackend = Enum(enums.OutputBackend)
 export const PaddingUnits = Enum(enums.PaddingUnits)

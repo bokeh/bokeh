@@ -40,13 +40,19 @@ based off information in some database:
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
 
+
+
+# Standard library imports
+#-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+import os
+import sys
+import traceback
 
 __all__ = (
     'Handler',
@@ -207,6 +213,19 @@ class Handler(object):
 
         '''
         return None
+
+
+def handle_exception(handler, e):
+    ''' Record an exception and details on a Handler.
+
+    '''
+    handler._failed = True
+    handler._error_detail = traceback.format_exc()
+
+    _exc_type, _exc_value, exc_traceback = sys.exc_info()
+    filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
+
+    handler._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -1,31 +1,38 @@
 import fs from "fs"
+import {join} from "path"
 
-import express from "express"
 import {argv} from "yargs"
+import express from "express"
+import nunjucks from "nunjucks"
 
 const app = express()
-app.engine("html", (path, options, callback) => {
-  fs.readFile(path, (err, content) => {
-    if (err)
-      return callback(err, "")
 
-    const rendered = content
-      .toString()
-      .replace(/{{ (\w+) }}/g, (_, key) => (options as any)[key])
-
-    return callback(null, rendered)
-  })
+nunjucks.configure(__dirname, {
+  autoescape: true,
+  express: app,
+  noCache: true,
 })
-app.set("views", __dirname)
-app.set("view engine", "html")
 
 app.use("/static", express.static("build/"))
+app.use("/fonts", express.static("test/fonts/"))
 
 app.get("/unit", (_req, res) => {
-  res.render("template", {title: "Unit Tests", main: "unit.js"})
+  res.render("template.html", {title: "Unit Tests", main: "unit.js"})
 })
 app.get("/integration", (_req, res) => {
-  res.render("template", {title: "Integration Tests", main: "integration.js"})
+  res.render("template.html", {title: "Integration Tests", main: "integration.js"})
+})
+
+app.get("/unit/run", (_req, res) => {
+  res.render("template.html", {title: "Unit Tests", main: "unit.js", run: true})
+})
+app.get("/integration/run", (_req, res) => {
+  res.render("template.html", {title: "Integration Tests", main: "integration.js", run: true})
+})
+
+app.get("/integration/report", async (_req, res) => {
+  const json = await fs.promises.readFile(join("test", "report.json"), {encoding: "utf-8"})
+  res.render("report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
 })
 
 process.once("SIGTERM", () => {
@@ -33,7 +40,7 @@ process.once("SIGTERM", () => {
 })
 
 const host = argv.host as string | undefined ?? "127.0.0.1"
-const port = 5777
+const port = parseInt(argv.port as string | undefined ?? "5777")
 
 const server = app.listen(port, host)
 

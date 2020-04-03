@@ -53,7 +53,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def cumsum(field, include_zero=False):
-    ''' Create a Create a ``DataSpec`` dict to generate a ``CumSum`` expression
+    ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression
     for a ``ColumnDataSource``.
 
     Examples:

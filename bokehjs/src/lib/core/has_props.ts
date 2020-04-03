@@ -2,7 +2,7 @@
 import {View} from "./view"
 import {Class} from "./class"
 import {Attrs} from "./types"
-import {Signal0, Signal, Signalable} from "./signaling"
+import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
@@ -31,7 +31,7 @@ export module HasProps {
   }
 }
 
-export interface HasProps extends HasProps.Attrs {
+export interface HasProps extends HasProps.Attrs, ISignalable {
   constructor: Function & {
     __name__: string
     __module__?: string
@@ -76,9 +76,9 @@ export abstract class HasProps extends Signalable() {
   // {{{ prototype
   default_view: Class<View, [View.Options]>
   props: {[key: string]: {
-    type: Class<Property<unknown>>,  // T
-    default_value?: () => unknown,   // T
-    internal: boolean,
+    type: Class<Property<unknown>>  // T
+    default_value?: () => unknown   // T
+    internal: boolean
   }}
   mixins: string[]
   // }}}

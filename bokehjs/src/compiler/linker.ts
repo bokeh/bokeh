@@ -17,13 +17,6 @@ const root_path = process.cwd()
 
 const cache_version = 3
 
-export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
-  let i = 0
-  for (const item of iter) {
-    yield fn(item, i++)
-  }
-}
-
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
 export type Parent = {
@@ -191,11 +184,12 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  transpile?: "ES2017" | "ES5"
+  transpile?: "ES2020" | "ES2017" | "ES5"
   minify?: boolean
   plugin?: boolean
   exports?: string[]
-  prelude?: string
+  prelude?: () => string
+  plugin_prelude?: () => string
   shims?: string[]
 }
 
@@ -209,11 +203,12 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly transpile: "ES2017" | "ES5" | null
+  readonly transpile: "ES2020" | "ES2017" | "ES5" | null
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
-  readonly prelude: string | null
+  readonly prelude: string
+  readonly plugin_prelude: string
   readonly shims: Set<string>
 
   constructor(opts: LinkerOpts) {
@@ -226,7 +221,8 @@ export class Linker {
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false
     this.exports = new Set(opts.exports ?? [])
-    this.prelude = opts.prelude ?? null
+    this.prelude = (opts.prelude ?? preludes.prelude)()
+    this.plugin_prelude = (opts.plugin_prelude ?? preludes.plugin_prelude)()
 
     if (this.builtins) {
       this.external_modules.add("module")
@@ -357,14 +353,14 @@ export class Linker {
       })
     }
 
-    const main_prelude = this.prelude != null ? this.prelude : (!this.plugin ? preludes.prelude : preludes.plugin_prelude)
+    const main_prelude = !this.plugin ? this.prelude : this.plugin_prelude
     const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
 
     const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, main_prelude, main_assembly)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, preludes.plugin_prelude, sparse_assembly)
+      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, this.plugin_prelude, sparse_assembly)
       plugin_bundles.push(plugin_bundle)
     }
 
@@ -565,7 +561,10 @@ export class Linker {
   }
 
   new_module(file: Path): ModuleInfo {
-    let source = read(file)!
+    let source = read(file)
+    if (source == null) {
+      throw new Error(`'${file} doesn't exist`)
+    }
     const hash = crypto.createHash("sha256").update(source).digest("hex")
     const type = (() => {
       switch (extname(file)) {
@@ -633,8 +632,8 @@ export class Linker {
       let collected: string[] | null = null
       if (type == "js") {
         if (this.transpile != null && resolution == "ESM") {
-          const {ES2017, ES5} = ts.ScriptTarget
-          const target = this.transpile == "ES2017" ? ES2017 : ES5
+          const {ES2020, ES2017, ES5} = ts.ScriptTarget
+          const target = this.transpile == "ES2020" ? ES2020 : (this.transpile == "ES2017" ? ES2017 : ES5)
           const imports = new Set<string>(["tslib"])
           const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
           const {output, error} = transpile(file, source, target, transform)

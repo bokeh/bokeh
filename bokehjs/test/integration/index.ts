@@ -378,6 +378,26 @@ describe("Plot", () => {
     const row = new Row({children: [fig0, fig1]})
     await display(row, [600, 300])
   })
+
+  describe("with webgl backend", () => {
+    function webgl_figure() {
+      return figure({width: 200, height: 200, toolbar_location: null, title: null, output_backend: "webgl"})
+    }
+
+    it("should allow empty line glyphs", async () => {
+      const p = webgl_figure()
+      p.line([1, 2, 3], [1, 4, 9], {line_width: 3})
+      p.line([], [], {line_width: 3})
+      await display(p, [300, 300])
+    })
+
+    it("should allow empty circle glyphs", async () => {
+      const p = webgl_figure()
+      p.circle([1, 2, 3], [1, 4, 9], {size: 10})
+      p.circle([], [], {size: 10})
+      await display(p, [300, 300])
+    })
+  })
 })
 
 describe("ToolbarBox", () => {

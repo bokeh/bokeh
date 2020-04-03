@@ -60,24 +60,43 @@ export function show_failure(failure: Failure<unknown>): void {
   }
 }
 
-export type Fn<T> = () => Promise<Result<T> | void>
+export type Fn<T> = (...args: unknown[]) => Promise<Result<T> | void>
 
 class Task<T = unknown> {
   constructor(readonly name: string,
               readonly deps: string[],
               readonly fn?: Fn<T>) {}
+
+  get task_deps(): Task<unknown>[] {
+    return this.deps.map((dep) => {
+      const task = tasks.get(dep)
+      if (task != null)
+        return task
+      else
+        throw new Error(`can't resolve ${dep} task`)
+    })
+  }
 }
 
 const tasks = new Map<string, Task>()
 
-export function task<T>(name: string, deps: string[] | Fn<T>, fn?: Fn<T>): void {
+export function task2<T, T0>        (name: string, deps: [Task<T0>],                     fn: (v0: T0)                 => Promise<Result<T>>): Task<T>
+export function task2<T, T0, T1>    (name: string, deps: [Task<T0>, Task<T1>],           fn: (v0: T0, v1: T1)         => Promise<Result<T>>): Task<T>
+export function task2<T, T0, T1, T2>(name: string, deps: [Task<T0>, Task<T1>, Task<T2>], fn: (v0: T0, v1: T1, v2: T2) => Promise<Result<T>>): Task<T>
+
+export function task2<T, Args extends unknown[]>(name: string, deps: Task<unknown>[], fn: (...args: Args) => Promise<Result<T>>): Task<T> {
+  return task(name, deps.map((dep) => dep.name), fn)
+}
+
+export function task<T>(name: string, deps: string[] | Fn<T>, fn?: Fn<T>): Task<T> {
   if (!Array.isArray(deps)) {
     fn = deps
     deps = []
   }
 
-  const t = new Task<T>(name, deps, fn)
-  tasks.set(name, t)
+  const task = new Task<T>(name, deps, fn)
+  tasks.set(name, task)
+  return task
 }
 
 export function task_names(): string[] {
@@ -103,30 +122,40 @@ function* resolve_task(name: string, parent?: Task): Iterable<Task> {
   }
 }
 
-async function exec_task(task: Task): Promise<Result> {
-  if (task.fn == null) {
-    log(`Finished '${chalk.cyan(task.name)}'`)
-    return success(undefined)
-  } else {
-    log(`Starting '${chalk.cyan(task.name)}'...`)
-    const start = Date.now()
-    let result: Result
-    try {
-      const value = await task.fn()
-      result = value === undefined ? success(value) : value
-    } catch (error) {
-      result = failure(error)
-    }
-    const end = Date.now()
-    const diff = end - start
-    const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
-    log(`${result.is_Success() ? "Finished" : chalk.red("Failed")} '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
-    return result
-  }
-}
-
 export async function run(...names: string[]): Promise<Result> {
   const finished = new Map<Task, Result>()
+
+  async function exec_task(task: Task): Promise<Result> {
+    if (task.fn == null) {
+      log(`Finished '${chalk.cyan(task.name)}'`)
+      return success(undefined)
+    } else {
+      log(`Starting '${chalk.cyan(task.name)}'...`)
+
+      const args = []
+      for (const dep of task.task_deps) {
+        const result = finished.get(dep)
+        if (result != null && result.is_Success())
+          args.push(result.value)
+        else
+          throw new Error(`${dep} value is not available for ${task.name}`)
+      }
+
+      const start = Date.now()
+      let result: Result
+      try {
+        const value = await task.fn(...args)
+        result = value === undefined ? success(value) : value
+      } catch (error) {
+        result = failure(error)
+      }
+      const end = Date.now()
+      const diff = end - start
+      const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
+      log(`${result.is_Success() ? "Finished" : chalk.red("Failed")} '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
+      return result
+    }
+  }
 
   async function _run(task: Task): Promise<Result> {
     if (finished.has(task)) {

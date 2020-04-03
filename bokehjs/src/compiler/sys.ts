@@ -21,10 +21,10 @@ export const file_exists = ts.sys.fileExists
 export const directory_exists = ts.sys.directoryExists
 
 export type RenameOptions = {
-  base?: string,
-  dir?: string,
-  name?: (name: string) => string,
-  ext?: string,
+  base?: string
+  dir?: string
+  name?: (name: string) => string
+  ext?: string
 }
 
 export function rename(path: string, options: RenameOptions): string {

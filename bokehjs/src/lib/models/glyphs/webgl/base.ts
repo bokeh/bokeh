@@ -1,5 +1,5 @@
 // This module implements the Base GL Glyph and some utilities
-import {Program, VertexBuffer} from "gloo2"
+import {Program, VertexBuffer} from "@bokeh/gloo2"
 import {Arrayable} from "core/types"
 import {color2rgba} from "core/util/color"
 import {Context2d} from "core/util/canvas"
@@ -33,6 +33,11 @@ export abstract class BaseGLGlyph {
   }
 
   render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): boolean {
+    if (indices.length == 0) {
+      // Implementations assume at least one index to draw. We return true,
+      // because there is no need to switch back to a fallback renderer.
+      return true
+    }
     // Get transform
     const [a, b, c] = [0, 1, 2]
     let wx = 1   // Weights to scale our vectors

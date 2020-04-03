@@ -17,10 +17,10 @@ import pytest ; pytest
 
 # Standard library imports
 from os import chdir
-from subprocess import PIPE, Popen
+from subprocess import run
 
 # Bokeh imports
-from . import TOP_PATH
+from . import TOP_PATH, ls_files
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -31,9 +31,8 @@ def test_flake8() -> None:
 
     '''
     chdir(TOP_PATH)
-    proc = Popen(["flake8"], stdout=PIPE, stderr=PIPE)
-    out, _ = proc.communicate()
-    assert proc.returncode == 0, "Flake8 issues:\n%s" % out.decode("utf-8")
+    proc = run(["flake8", *ls_files("*.py")], capture_output=True)
+    assert proc.returncode == 0, f"Flake8 issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------
 # Support

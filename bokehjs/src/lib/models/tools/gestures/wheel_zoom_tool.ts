@@ -82,6 +82,9 @@ export class WheelZoomTool extends GestureTool {
       speed:          [ p.Number,     1/600  ],
     })
 
+    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: 'both'}))
+    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: 'width'}))
+    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: 'height'}))
   }
 
   tool_name = "Wheel Zoom"

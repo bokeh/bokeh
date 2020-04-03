@@ -11,8 +11,8 @@
   <td>Latest Release</td>
   <td>
     <img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="Latest release version" />
-    <a href="https://badge.fury.io/js/bokehjs">
-      <img src="https://badge.fury.io/js/bokehjs.svg" alt="npm version">
+    <a href="https://badge.fury.io/js/%40bokeh%2Fbokehjs">
+      <img src="https://badge.fury.io/js/%40bokeh%2Fbokehjs.svg" alt="npm version">
     </a>
   </td>
 
@@ -243,8 +243,7 @@
 </table>
 </p>
 
-Installation
-------------
+## Installation
 
 The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
 
@@ -259,8 +258,7 @@ pip install bokeh
 
 For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
 
-Resources
----------
+## Resources
 
 Once Bokeh is installed, check out the [Getting Started](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#getting-started) section of the [Quickstart guide](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html).
 
@@ -270,13 +268,13 @@ Community support is available on the [Project Discourse](https://discourse.boke
 
 If you would like to contribute to Bokeh, please review the [Developer Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and say hello on the [Zulip Chat for Developers](https://bokeh.zulipchat.com/).
 
-Follow us
----------
+## Follow us
 
 Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
-Sponsors
---------
+## Sponsors
+
+### Fiscal Sponsors
 
 The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) as well as sponsorship by the organizations and companies below:
 
@@ -333,8 +331,15 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 *Donations to Bokeh are managed by NumFOCUS. For donors in the United States, your gift is tax-deductible to the extent provided by law. As with any donation, you should consult with your tax adviser about your particular tax situation.*
 
-Security
---------
+### In-kind Sponsors
+
+The Bokeh project is also grateful for the donation of services from the following companies:
+
+* [Amazon Web Services](https://aws.amazon.com/)
+* [Pingdom](https://www.pingdom.com/website-monitoring)
+* [1Password](https://1password.com/)
+
+## Security
 
 To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
 Tidelift will coordinate the fix and disclosure.

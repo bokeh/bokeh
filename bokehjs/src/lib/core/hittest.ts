@@ -77,9 +77,9 @@ export function dist_to_segment(p: Point, v: Point, w: Point): number {
 export function check_2_segments_intersect(
   l0_x0: number, l0_y0: number, l0_x1: number, l0_y1: number,
   l1_x0: number, l1_y0: number, l1_x1: number, l1_y1: number): {
-    hit: boolean,
-    x: number | null,
-    y: number | null,
+    hit: boolean
+    x: number | null
+    y: number | null
   } {
   /*
    *  Check if 2 segments (l0 and l1) intersect. Returns a structure with

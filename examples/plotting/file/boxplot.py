@@ -61,7 +61,7 @@ if not out.empty:
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = "white"
 p.grid.grid_line_width = 2
-p.xaxis.major_label_text_font_size="12pt"
+p.xaxis.major_label_text_font_size="16px"
 
 output_file("boxplot.html", title="boxplot.py example")
 

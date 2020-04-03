@@ -15,6 +15,7 @@ import {isNumber, isString, isArray} from "../core/util/types"
 import {ViewOf} from "core/view"
 
 import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
+import {ToolAliases} from "../models/tools/tool"
 
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {Legend} from "models/annotations/legend"
@@ -22,62 +23,9 @@ import {Legend} from "models/annotations/legend"
 export {gridplot} from "./gridplot"
 export {rgb2hex as color} from "../core/util/color"
 
-const _default_tooltips: [string, string][] = [
-  ["index",         "$index"    ],
-  ["data (x, y)",   "($x, $y)"  ],
-  ["screen (x, y)", "($sx, $sy)"],
-]
-
-export type ToolName =
-  "pan" | "xpan" | "ypan" |
-  "xwheel_pan" | "ywheel_pan" | "wheel_zoom" |
-  "xwheel_zoom" | "ywheel_zoom" |
-  "zoom_in" | "xzoom_in" | "yzoom_in" |
-  "zoom_out" | "xzoom_out" | "yzoom_out" |
-  "click" | "tap" |
-  "box_select" | "xbox_select" | "ybox_select" |
-  "poly_select" | "lasso_select" |
-  "box_zoom" | "xbox_zoom" | "ybox_zoom" |
-  "crosshair" | "hover" |
-  "save" |
-  "undo" | "redo" | "reset" |
-  "help"
+export type ToolName = keyof ToolAliases
 
 const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
-
-const _known_tools: {[key in ToolName]: () => Tool} = {
-  pan:          () => new models.PanTool({dimensions: 'both'}),
-  xpan:         () => new models.PanTool({dimensions: 'width'}),
-  ypan:         () => new models.PanTool({dimensions: 'height'}),
-  xwheel_pan:   () => new models.WheelPanTool({dimension: "width"}),
-  ywheel_pan:   () => new models.WheelPanTool({dimension: "height"}),
-  wheel_zoom:   () => new models.WheelZoomTool({dimensions: 'both'}),
-  xwheel_zoom:  () => new models.WheelZoomTool({dimensions: 'width'}),
-  ywheel_zoom:  () => new models.WheelZoomTool({dimensions: 'height'}),
-  zoom_in:      () => new models.ZoomInTool({dimensions: 'both'}),
-  xzoom_in:     () => new models.ZoomInTool({dimensions: 'width'}),
-  yzoom_in:     () => new models.ZoomInTool({dimensions: 'height'}),
-  zoom_out:     () => new models.ZoomOutTool({dimensions: 'both'}),
-  xzoom_out:    () => new models.ZoomOutTool({dimensions: 'width'}),
-  yzoom_out:    () => new models.ZoomOutTool({dimensions: 'height'}),
-  click:        () => new models.TapTool({behavior: "inspect"}),
-  tap:          () => new models.TapTool(),
-  crosshair:    () => new models.CrosshairTool(),
-  box_select:   () => new models.BoxSelectTool(),
-  xbox_select:  () => new models.BoxSelectTool({dimensions: 'width'}),
-  ybox_select:  () => new models.BoxSelectTool({dimensions: 'height'}),
-  poly_select:  () => new models.PolySelectTool(),
-  lasso_select: () => new models.LassoSelectTool(),
-  box_zoom:     () => new models.BoxZoomTool({dimensions: 'both'}),
-  xbox_zoom:    () => new models.BoxZoomTool({dimensions: 'width'}),
-  ybox_zoom:    () => new models.BoxZoomTool({dimensions: 'height'}),
-  hover:        () => new models.HoverTool({tooltips: _default_tooltips}),
-  save:         () => new models.SaveTool(),
-  undo:         () => new models.UndoTool(),
-  redo:         () => new models.RedoTool(),
-  reset:        () => new models.ResetTool(),
-  help:         () => new models.HelpTool(),
-}
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 
@@ -639,8 +587,7 @@ export class Figure extends Plot {
       if (fta.length==2) { return fta } else { return fta.concat(['']) }
     }
     const _is_visual = function(ft: string): boolean {
-      let feature, trait
-      [feature, trait] = _split_feature_trait(ft)
+      const [feature, trait] = _split_feature_trait(ft)
       return includes(['line', 'fill', 'text', 'global'], feature) && (trait!=='')
     }
 
@@ -913,26 +860,7 @@ export class Figure extends Plot {
   _process_tools(tools: (Tool | string)[] | string): Tool[] {
     if (isString(tools))
       tools = tools.split(/\s*,\s*/).filter((tool) => tool.length > 0)
-
-    function isToolName(tool: string): tool is ToolName {
-      return _known_tools.hasOwnProperty(tool)
-    }
-
-    const objs = (() => {
-      const result = []
-      for (const tool of tools) {
-        if (isString(tool)) {
-          if (isToolName(tool))
-            result.push(_known_tools[tool]())
-          else
-            throw new Error(`unknown tool type: ${tool}`)
-        } else
-          result.push(tool)
-      }
-      return result
-    })()
-
-    return objs
+    return tools.map((tool) => isString(tool) ? Tool.from_string(tool) : tool)
   }
 
   _process_legend(legend: string | Vector<string> | undefined, source: ColumnarDataSource): Vector<string> | null {
@@ -982,7 +910,7 @@ export function figure(attributes?: Partial<FigureAttrs>): Figure {
   return new Figure(attributes)
 }
 
-declare var $: any
+declare const $: any
 
 export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>>
 export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>[]>

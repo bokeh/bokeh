@@ -104,6 +104,8 @@ export class PolySelectTool extends SelectTool {
     this.define<PolySelectTool.Props>({
       overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
+
+    this.register_alias("poly_select", () => new PolySelectTool())
   }
 
   tool_name = "Poly Select"

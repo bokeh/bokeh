@@ -22,8 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Union
+
 # Bokeh imports
 from ..util.dependencies import import_optional
+from ..util.serialization import make_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -146,22 +150,30 @@ class DocumentPatchedEvent(DocumentChangedEvent):
 class MessageSentEvent(DocumentPatchedEvent):
     """ """
 
-    def __init__(self, document, msg_type, msg_data, setter=None, callback_invoker=None):
+    def __init__(self, document, msg_type: str, msg_data: Union[Any, bytes], setter=None, callback_invoker=None):
         super(MessageSentEvent, self).__init__(document, setter, callback_invoker)
         self.msg_type = msg_type
         self.msg_data = msg_data
 
     def dispatch(self, receiver):
         super(MessageSentEvent, self).dispatch(receiver)
-        if hasattr(receiver, '_document_message_sent'):
+        if hasattr(receiver, "_document_message_sent"):
             receiver._document_message_sent(self)
 
     def generate(self, references, buffers):
-        return {
-            'kind' : 'MessageSent',
-            'msg_type' : self.msg_type,
-            'msg_data' : self.msg_data,
+        msg = {
+            "kind": "MessageSent",
+            "msg_type": self.msg_type,
         }
+
+        if not isinstance(self.msg_data, bytes):
+            msg["msg_data"] = self.msg_data
+        else:
+            buffer_id = make_id()
+            buf = (dict(id=buffer_id), self.msg_data)
+            buffers.append(buf)
+
+        return msg
 
 class ModelChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing updating an attribute and value of a

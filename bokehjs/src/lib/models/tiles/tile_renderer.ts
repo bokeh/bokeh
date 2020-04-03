@@ -103,7 +103,7 @@ export class TileRendererView extends DataRendererView {
           'max-width': `${max_width - 4 /*padding*/}px`,
           padding: "2px",
           'background-color': 'rgba(255,255,255,0.5)',
-          'font-size': '7pt',
+          'font-size': '9px',
           'line-height': '1.05',
           'white-space': 'nowrap',
           overflow: 'hidden',

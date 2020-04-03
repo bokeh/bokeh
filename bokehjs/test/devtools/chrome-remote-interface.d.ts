@@ -24,6 +24,14 @@ declare module "chrome-remote-interface" {
     }
   }
 
+  interface Options {
+    host?: string
+    port?: number
+  }
+
+  function CDP(options: Options, callback: (client: DevTools) => void): NodeJS.EventEmitter
+  function CDP(options: Options): Promise<DevTools>
+
   function CDP(callback: (client: DevTools) => void): NodeJS.EventEmitter
   function CDP(): Promise<DevTools>
 

@@ -14,65 +14,16 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from _util_property import _TestHasProps, _TestModel
-from bokeh._testing.util.api import verify_all
-
 # Module under test
-import bokeh.core.property.regex as bcpr # isort:skip
+import bokeh.plotting._tools as _tools # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-ALL = (
-    'Regex',
-)
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-class Test_Regex(object):
-
-    def test_init(self) -> None:
-        with pytest.raises(TypeError):
-            bcpr.Regex()
-
-    def test_valid(self) -> None:
-        prop = bcpr.Regex("^x*$")
-
-        assert prop.is_valid(None)
-
-        assert prop.is_valid("")
-        assert prop.is_valid("x")
-
-    def test_invalid(self) -> None:
-        prop = bcpr.Regex("^x*$")
-
-        assert not prop.is_valid("xy")
-
-        assert not prop.is_valid(False)
-        assert not prop.is_valid(True)
-        assert not prop.is_valid(0)
-        assert not prop.is_valid(1)
-        assert not prop.is_valid(0.0)
-        assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
-
-        assert not prop.is_valid(())
-        assert not prop.is_valid([])
-        assert not prop.is_valid({})
-        assert not prop.is_valid(_TestHasProps())
-        assert not prop.is_valid(_TestModel())
-
-    def test_has_ref(self) -> None:
-        prop = bcpr.Regex("")
-        assert not prop.has_ref
-
-    def test_str(self) -> None:
-        prop = bcpr.Regex("")
-        assert str(prop).startswith("Regex(")
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -82,8 +33,33 @@ class Test_Regex(object):
 # Private API
 #-----------------------------------------------------------------------------
 
+def test__collect_repeated_tools() -> None:
+    def count_repeated(tools: str) -> int:
+        objs, _ = _tools._resolve_tools(tools)
+        return len(list(_tools._collect_repeated_tools(objs)))
+
+    assert count_repeated("pan,xpan,ypan") == 0
+    assert count_repeated("xwheel_pan,ywheel_pan") == 0
+    assert count_repeated("wheel_zoom,xwheel_zoom,ywheel_zoom") == 0
+    assert count_repeated("zoom_in,xzoom_in,yzoom_in") == 0
+    assert count_repeated("zoom_out,xzoom_out,yzoom_out") == 0
+    assert count_repeated("click,tap") == 0
+    assert count_repeated("crosshair") == 0
+    assert count_repeated("box_select,xbox_select,ybox_select") == 0
+    assert count_repeated("poly_select,lasso_select") == 0
+    assert count_repeated("box_zoom,xbox_zoom,ybox_zoom") == 0
+    assert count_repeated("hover,save,undo,redo,reset,help") == 0
+
+    assert count_repeated("pan,xpan,xpan") == 1
+
+    assert count_repeated("pan,xpan,ypan,xpan") == 1
+    assert count_repeated("pan,xpan,ypan,click,xpan") == 1
+    assert count_repeated("pan,xpan,ypan,click,xpan,click") == 2
+
+    assert count_repeated("pan,xpan,ypan,xpan,ypan") == 2
+    assert count_repeated("pan,xpan,ypan,click,xpan,ypan") == 2
+    assert count_repeated("pan,xpan,ypan,click,xpan,ypan,click") == 3
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-Test___all__ = verify_all(bcpr, ALL)

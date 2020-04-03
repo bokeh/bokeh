@@ -1,7 +1,7 @@
 import numpy as np
+import panel as pn
 import param
 
-import panel as pn
 from bokeh.plotting import figure
 
 

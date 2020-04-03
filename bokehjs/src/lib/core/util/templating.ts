@@ -1,4 +1,4 @@
-import * as Numbro from "numbro"
+import * as Numbro from "@bokeh/numbro"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 

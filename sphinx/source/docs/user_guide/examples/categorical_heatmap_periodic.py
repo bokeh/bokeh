@@ -44,13 +44,13 @@ r = p.text(x=x, y="period", text="symbol", **text_props)
 r.glyph.text_font_style="bold"
 
 r = p.text(x=x, y=dodge("period", 0.3, range=p.y_range), text="atomic number", **text_props)
-r.glyph.text_font_size="8pt"
+r.glyph.text_font_size="11px"
 
 r = p.text(x=x, y=dodge("period", -0.35, range=p.y_range), text="name", **text_props)
-r.glyph.text_font_size="5pt"
+r.glyph.text_font_size="7px"
 
 r = p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass", **text_props)
-r.glyph.text_font_size="5pt"
+r.glyph.text_font_size="7px"
 
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
 
