@@ -1,23 +1,12 @@
-from bokeh.models import (
-    ColumnDataSource,
-    Title,
-    Ellipse,
-    HBar,
-    Text,
-    Plot,
-    LinearAxis,
-    DataRange1d,
-    Scatter,
-    Line,
-)
-from bokeh.models.tickers import BasicTicker
-from bokeh.models.formatters import BasicTickFormatter
-from bokeh.transform import dodge
-from bokeh.themes import Theme
-from bokeh.io import output_file, show, curdoc
 import numpy as np
 
-
+from bokeh.io import curdoc, output_file, show
+from bokeh.models import (ColumnDataSource, DataRange1d, Ellipse, HBar,
+                          Line, LinearAxis, Plot, Scatter, Text, Title,)
+from bokeh.models.formatters import BasicTickFormatter
+from bokeh.models.tickers import BasicTicker
+from bokeh.themes import Theme
+from bokeh.transform import dodge
 
 theme_json = {
     "attrs": {

@@ -132,7 +132,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AnnularWedge(LineGlyph, FillGlyph):
+class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     ''' Render annular wedges.
 
     '''
@@ -179,7 +179,7 @@ class AnnularWedge(LineGlyph, FillGlyph):
     The %s values for the annular wedges.
     """)
 
-class Annulus(LineGlyph, FillGlyph):
+class Annulus(XYGlyph, LineGlyph, FillGlyph):
     ''' Render annuli.
 
     '''
@@ -214,7 +214,7 @@ class Annulus(LineGlyph, FillGlyph):
     The %s values for the annuli.
     """)
 
-class Arc(LineGlyph):
+class Arc(XYGlyph, LineGlyph):
     ''' Render arcs.
 
     '''
@@ -304,7 +304,7 @@ class Bezier(LineGlyph):
     The %s values for the Bezier curves.
     """)
 
-class Ellipse(LineGlyph, FillGlyph):
+class Ellipse(XYGlyph, LineGlyph, FillGlyph):
     ''' Render ellipses.
 
     '''
@@ -684,7 +684,7 @@ class ImageURL(XYGlyph):
     specified URL. Default is zero ms.
     """)
 
-class Line(LineGlyph):
+class Line(ConnectedXYGlyph, LineGlyph):
     ''' Render a single line.
 
     The ``Line`` glyph is different from most other glyphs in that the vector
@@ -783,7 +783,7 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the patches.
     """)
 
-class Oval(LineGlyph, FillGlyph):
+class Oval(XYGlyph, LineGlyph, FillGlyph):
     ''' Render ovals.
 
     This glyph renders ovals using Bezier curves, which are similar,
@@ -826,7 +826,7 @@ class Oval(LineGlyph, FillGlyph):
     The %s values for the ovals.
     """)
 
-class Patch(LineGlyph, FillGlyph, HatchGlyph):
+class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a single patch.
 
     The ``Patch`` glyph is different from most other glyphs in that the vector
@@ -995,7 +995,7 @@ class Quadratic(LineGlyph):
     The %s values for the parabolas.
     """)
 
-class Ray(LineGlyph):
+class Ray(XYGlyph, LineGlyph):
     ''' Render rays.
 
     '''
@@ -1027,7 +1027,7 @@ class Ray(LineGlyph):
     The %s values for the rays.
     """)
 
-class Rect(LineGlyph, FillGlyph):
+class Rect(XYGlyph, LineGlyph, FillGlyph):
     ''' Render rectangles.
 
     '''
@@ -1106,7 +1106,7 @@ class Segment(LineGlyph):
     The %s values for the segments.
     """)
 
-class Step(LineGlyph):
+class Step(XYGlyph, LineGlyph):
     ''' Render step lines.
 
     Step levels can be draw before, after, or centered on each point, according
@@ -1144,7 +1144,7 @@ class Step(LineGlyph):
     * ``center``: Draw step levels centered on each x-coordinate
     """)
 
-class Text(TextGlyph):
+class Text(XYGlyph, TextGlyph):
     ''' Render text.
 
     '''
@@ -1260,7 +1260,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the vertical bars.
     """)
 
-class Wedge(LineGlyph, FillGlyph):
+class Wedge(XYGlyph, LineGlyph, FillGlyph):
     ''' Render wedges.
 
     '''
