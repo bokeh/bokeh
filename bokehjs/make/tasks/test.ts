@@ -3,6 +3,7 @@ import {Socket} from "net"
 import {argv} from "yargs"
 import {join, delimiter} from "path"
 import os from "os"
+import assert from "assert"
 
 import which from "which"
 
@@ -170,7 +171,8 @@ async function headless(port: number): Promise<ChildProcess> {
     "--force-color-profile=srgb",
     "--force-device-scale-factor=1",
   ]
-  const proc = spawn(chrome(), args, {stdio: "pipe"})
+  const executable = chrome()
+  const proc = spawn(executable, args, {stdio: "pipe"})
 
   process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
@@ -178,7 +180,7 @@ async function headless(port: number): Promise<ChildProcess> {
 
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      reject(new Error("timeout"))
+      reject(new BuildError("headless", `timeout starting ${executable}`))
     }, 10000)
     proc.on("error", reject)
     proc.stderr.on("data", (chunk) => {
@@ -187,6 +189,7 @@ async function headless(port: number): Promise<ChildProcess> {
       for (const line of text.split("\n")) {
         if (line.match(/DevTools listening/) != null) {
           clearTimeout(timer)
+          console.log(line)
           resolve(proc)
         } else if (line.match(/bind() failed: Address already in use/)) {
           clearTimeout(timer)
@@ -197,7 +200,7 @@ async function headless(port: number): Promise<ChildProcess> {
   })
 }
 
-function server(port: number): Promise<ChildProcess> {
+async function server(port: number): Promise<ChildProcess> {
   const args = ["--no-warnings", "./test/devtools", "server", `--port=${port}`]
 
   if (argv.debug) {
@@ -227,6 +230,21 @@ function server(port: number): Promise<ChildProcess> {
       }
     })
   })
+}
+
+async function retry(fn: () => Promise<void>, attempts: number): Promise<void> {
+  assert(attempts > 0)
+  while (true) {
+    if (--attempts == 0) {
+      await fn()
+      break
+    } else {
+      try {
+        await fn()
+        break
+      } catch {}
+    }
+  }
 }
 
 function opt(name: string, value: unknown): string {
@@ -273,10 +291,14 @@ function devtools(devtools_port: number, server_port: number, name: string): Pro
 const start_headless = task("test:start:headless", async () => {
   let port = 9222
   if (await is_available(port)) {
-    await headless(port)
+    await retry(async () => {
+      await headless(port)
+    }, 3)
   } else if (argv.reuse !== true) {
-    port = await find_port(port)
-    await headless(port)
+    await retry(async () => {
+      port = await find_port(port)
+      await headless(port)
+    }, 3)
   } else {
     log(`Reusing chromium browser instance on port ${port}`)
   }
