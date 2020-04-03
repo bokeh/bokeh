@@ -1,8 +1,8 @@
 import numpy as np
 
 from bokeh.io import curdoc, output_file, show
-from bokeh.models import (ColumnDataSource, DataRange1d, Ellipse, HBar,
-                          Line, LinearAxis, Plot, Scatter, Text, Title,)
+from bokeh.models import (ColumnDataSource, Ellipse, HBar, Line,
+                          LinearAxis, Plot, Scatter, Text, Title,)
 from bokeh.models.formatters import BasicTickFormatter
 from bokeh.models.tickers import BasicTicker
 from bokeh.themes import Theme
@@ -31,35 +31,31 @@ theme_json = {
     }
 }
 
+curdoc().theme = Theme(json=theme_json)
 
 x = np.linspace(1, 5, 100)
 y = x + np.sin((x - 1) * np.pi)
 x2 = np.linspace(1.5, 5.5, 5)
 z = x2 + 2 * np.cos((x2 - 1) * np.pi)
-source = ColumnDataSource(
-    {"x": [1, 2, 3, 4, 5], "y": [1, 2, 3, 4, 5], "who": ["a", "b", "c", "d", "e"]}
-)
+
+source1 = ColumnDataSource({"x": [1, 2, 3, 4, 5], "y": [1, 2, 3, 4, 5], "who": ["a", "b", "c", "d", "e"]})
 source2 = ColumnDataSource({"x": x, "y": y})
 source3 = ColumnDataSource({"x": x2, "y": z})
+source4 = ColumnDataSource({"y": [2.5], "x": [0.5]})
 
+plot = Plot(plot_width=300, plot_height=300)
+plot.title = Title(text="Themed glyphs")
 
-plot = Plot(
-    plot_width=300, plot_height=300, x_range=DataRange1d(), y_range=DataRange1d()
-)
-plot.title = Title()
 xaxis = LinearAxis(ticker=BasicTicker(), formatter=BasicTickFormatter())
 yaxis = LinearAxis(ticker=BasicTicker(), formatter=BasicTickFormatter())
 plot.add_layout(xaxis, "below")
 plot.add_layout(yaxis, "left")
 
-plot.add_glyph(source, Scatter(x="x", y="y", marker="diamond", size=20))
-plot.add_glyph(source, Text(x=dodge("x", -0.2), y=dodge("y", 0.1), text="who"))
+plot.add_glyph(source1, Scatter(x="x", y="y", marker="diamond", size=20))
+plot.add_glyph(source1, Text(x=dodge("x", -0.2), y=dodge("y", 0.1), text="who"))
 plot.add_glyph(source2, Line(x="x", y="y"))
 plot.add_glyph(source3, Ellipse(x="x", y="y", width=0.2, height=0.3, angle=-0.7))
-plot.add_glyph(
-    ColumnDataSource({"y": [2.5], "x": [0.5]}), glyph=HBar(y="y", right="x", height=1.5)
-)
-curdoc().theme = Theme(json=theme_json)
+plot.add_glyph(source4, glyph=HBar(y="y", right="x", height=1.5))
 
 output_file("theme_glyphs.html", title="themed_glyphs.py example")
 show(plot)
