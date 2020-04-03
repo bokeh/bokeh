@@ -80,7 +80,15 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
-from .glyph import ConnectedXYGlyph, Glyph, XYGlyph
+from .glyph import (
+    ConnectedXYGlyph,
+    FillGlyph,
+    Glyph,
+    HatchGlyph,
+    LineGlyph,
+    TextGlyph,
+    XYGlyph,
+)
 from .mappers import ColorMapper, LinearColorMapper
 
 #-----------------------------------------------------------------------------
@@ -124,7 +132,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AnnularWedge(XYGlyph):
+class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     ''' Render annular wedges.
 
     '''
@@ -171,7 +179,7 @@ class AnnularWedge(XYGlyph):
     The %s values for the annular wedges.
     """)
 
-class Annulus(XYGlyph):
+class Annulus(XYGlyph, LineGlyph, FillGlyph):
     ''' Render annuli.
 
     '''
@@ -206,7 +214,7 @@ class Annulus(XYGlyph):
     The %s values for the annuli.
     """)
 
-class Arc(XYGlyph):
+class Arc(XYGlyph, LineGlyph):
     ''' Render arcs.
 
     '''
@@ -245,7 +253,7 @@ class Arc(XYGlyph):
     The %s values for the arcs.
     """)
 
-class Bezier(Glyph):
+class Bezier(LineGlyph):
     ''' Render Bezier curves.
 
     For more information consult the `Wikipedia article for Bezier curve`_.
@@ -296,7 +304,7 @@ class Bezier(Glyph):
     The %s values for the Bezier curves.
     """)
 
-class Ellipse(XYGlyph):
+class Ellipse(XYGlyph, LineGlyph, FillGlyph):
     ''' Render ellipses.
 
     '''
@@ -335,7 +343,7 @@ class Ellipse(XYGlyph):
     The %s values for the ovals.
     """)
 
-class HArea(Glyph):
+class HArea(FillGlyph, HatchGlyph, LineGlyph):
     ''' Render a horizontally directed area between two equal length sequences
     of x-coordinates with the same y-coordinates.
 
@@ -367,7 +375,7 @@ class HArea(Glyph):
     The %s values for the horizontal bars.
     """)
 
-class HBar(Glyph):
+class HBar(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render horizontal bars, given a center coordinate, ``height`` and
     (``left``, ``right``) coordinates.
 
@@ -407,7 +415,7 @@ class HBar(Glyph):
     The %s values for the horizontal bars.
     """)
 
-class HexTile(Glyph):
+class HexTile(LineGlyph, FillGlyph):
     ''' Render horizontal tiles on a regular hexagonal grid.
 
     '''
@@ -676,7 +684,7 @@ class ImageURL(XYGlyph):
     specified URL. Default is zero ms.
     """)
 
-class Line(ConnectedXYGlyph):
+class Line(ConnectedXYGlyph, LineGlyph):
     ''' Render a single line.
 
     The ``Line`` glyph is different from most other glyphs in that the vector
@@ -701,7 +709,7 @@ class Line(ConnectedXYGlyph):
     The %s values for the line.
     """)
 
-class MultiLine(Glyph):
+class MultiLine(LineGlyph):
     ''' Render several lines.
 
     The data for the ``MultiLine`` glyph is different in that the vector of
@@ -727,7 +735,7 @@ class MultiLine(Glyph):
     The %s values for the lines.
     """)
 
-class MultiPolygons(Glyph):
+class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render several MultiPolygon.
 
     Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
@@ -775,7 +783,7 @@ class MultiPolygons(Glyph):
     The %s values for the patches.
     """)
 
-class Oval(XYGlyph):
+class Oval(XYGlyph, LineGlyph, FillGlyph):
     ''' Render ovals.
 
     This glyph renders ovals using Bezier curves, which are similar,
@@ -818,7 +826,7 @@ class Oval(XYGlyph):
     The %s values for the ovals.
     """)
 
-class Patch(ConnectedXYGlyph):
+class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a single patch.
 
     The ``Patch`` glyph is different from most other glyphs in that the vector
@@ -862,7 +870,7 @@ class Patch(ConnectedXYGlyph):
     The %s values for the patch.
     """)
 
-class Patches(Glyph):
+class Patches(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render several patches.
 
     The data for the ``Patches`` glyph is different in that the vector of
@@ -909,7 +917,7 @@ class Patches(Glyph):
     The %s values for the patches.
     """)
 
-class Quad(Glyph):
+class Quad(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render axis-aligned quads.
 
     '''
@@ -948,7 +956,7 @@ class Quad(Glyph):
     The %s values for the horizontal bars.
     """)
 
-class Quadratic(Glyph):
+class Quadratic(LineGlyph):
     ''' Render parabolas.
 
     '''
@@ -987,7 +995,7 @@ class Quadratic(Glyph):
     The %s values for the parabolas.
     """)
 
-class Ray(XYGlyph):
+class Ray(XYGlyph, LineGlyph):
     ''' Render rays.
 
     '''
@@ -1019,7 +1027,7 @@ class Ray(XYGlyph):
     The %s values for the rays.
     """)
 
-class Rect(XYGlyph):
+class Rect(XYGlyph, LineGlyph, FillGlyph):
     ''' Render rectangles.
 
     '''
@@ -1067,7 +1075,7 @@ class Rect(XYGlyph):
     The %s values for the rectangles.
     """)
 
-class Segment(Glyph):
+class Segment(LineGlyph):
     ''' Render segments.
 
     '''
@@ -1098,7 +1106,7 @@ class Segment(Glyph):
     The %s values for the segments.
     """)
 
-class Step(XYGlyph):
+class Step(XYGlyph, LineGlyph):
     ''' Render step lines.
 
     Step levels can be draw before, after, or centered on each point, according
@@ -1136,7 +1144,7 @@ class Step(XYGlyph):
     * ``center``: Draw step levels centered on each x-coordinate
     """)
 
-class Text(XYGlyph):
+class Text(XYGlyph, TextGlyph):
     ''' Render text.
 
     '''
@@ -1181,7 +1189,7 @@ class Text(XYGlyph):
     The %s values for the text.
     """)
 
-class VArea(Glyph):
+class VArea(FillGlyph, HatchGlyph):
     ''' Render a vertically directed area between two equal length sequences
     of y-coordinates with the same x-coordinates.
 
@@ -1213,7 +1221,7 @@ class VArea(Glyph):
     The %s values for the horizontal bars.
     """)
 
-class VBar(Glyph):
+class VBar(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
     '''
@@ -1252,7 +1260,7 @@ class VBar(Glyph):
     The %s values for the vertical bars.
     """)
 
-class Wedge(XYGlyph):
+class Wedge(XYGlyph, LineGlyph, FillGlyph):
     ''' Render wedges.
 
     '''

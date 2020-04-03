@@ -120,6 +120,26 @@ class ConnectedXYGlyph(XYGlyph):
 
     '''
 
+@abstract
+class LineGlyph(Glyph):
+    ''' Glyphs with line properties
+    '''
+
+@abstract
+class FillGlyph(Glyph):
+    ''' Glyphs with fill properties
+    '''
+
+@abstract
+class TextGlyph(Glyph):
+    ''' Glyphs with text properties
+    '''
+
+@abstract
+class HatchGlyph(Glyph):
+    ''' Glyphs with Hatch properties
+    '''
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
