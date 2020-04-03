@@ -18,8 +18,8 @@
 **/.ipynb_checkpoints
 
 # tests/examples
-report.html
-examples.log
+/tests/examples/report.html
+/examples.log
 /examples/custom/font-awesome/package-lock.json
 
 # conda build
