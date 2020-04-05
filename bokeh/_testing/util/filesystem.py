@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import codecs
-import errno
 import os
 import shutil
 import sys
@@ -71,7 +70,7 @@ def with_directory_contents(contents, func):
         for filename, file_content in contents.items():
             path = os.path.join(dirname, filename)
             if file_content is None:
-               os.makedirs(path, exist_ok=True)
+                os.makedirs(path, exist_ok=True)
             else:
                 os.makedirs(os.path.dirname(path), exist_ok=True)
                 with codecs.open(path, 'w', 'utf-8') as f:
