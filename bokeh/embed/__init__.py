@@ -7,13 +7,6 @@
 ''' Provide functions for embedding Bokeh standalone and server content in
 web pages.
 
-.. autofunction:: autoload_static
-.. autofunction:: components
-.. autofunction:: file_html
-.. autofunction:: json_item
-.. autofunction:: server_document
-.. autofunction:: server_session
-
 '''
 
 #-----------------------------------------------------------------------------
