@@ -217,34 +217,39 @@ async function run_tests(): Promise<void> {
         return [...suites, test].map((obj) => obj.description)
       }
 
+      function description(suites: Suite[], test: Test, sep: string = " "): string {
+        return descriptions(suites, test).join(sep)
+      }
+
       const all_tests = [...iter(top_level)]
+      const test_suite = all_tests
 
-      const test_suite = (() => {
-        if (argv.k != null || argv.grep != null) {
-          let selected_tests = all_tests
-
-          if (argv.k != null) {
-            const keyword = argv.k as string
-            selected_tests = selected_tests.filter(([suites, test]) => {
-              return descriptions(suites, test).some((description) => description.includes(keyword))
-            })
+      if (argv.k != null || argv.grep != null) {
+        if (argv.k != null) {
+          const keyword = argv.k as string
+          for (const [suites, test] of test_suite) {
+            if (!description(suites, test).includes(keyword)) {
+              test.skip = true
+            }
           }
+        }
 
-          if (argv.grep != null) {
-            const regex = new RegExp(argv.grep as string)
-            selected_tests = selected_tests.filter(([suites, test]) => {
-              return descriptions(suites, test).some((description) => description.match(regex) != null)
-            })
+        if (argv.grep != null) {
+          const regex = new RegExp(argv.grep as string)
+          for (const [suites, test] of test_suite) {
+            if (!description(suites, test).match(regex) != null) {
+              test.skip = true
+            }
           }
-
-          console.log(`selected ${selected_tests.length} tests from ${all_tests.length} total`)
-          return selected_tests
-        } else
-          return all_tests
-      })()
+        }
+      }
 
       if (test_suite.length == 0) {
         fail("nothing to test")
+      }
+
+      if (!test_suite.some(([, test]) => !test.skip)) {
+        fail("nothing to test because all tests were skipped")
       }
 
       const progress = new Bar({
@@ -293,6 +298,16 @@ async function run_tests(): Promise<void> {
         for (const [suites, test, status] of test_suite) {
           entries = []
 
+          const baseline_name = encode(description(suites, test, "__"))
+          status.baseline_name = baseline_name
+
+          if (baseline_names.has(baseline_name)) {
+            status.errors.push("duplicated description")
+            status.failure = true
+          } else {
+            baseline_names.add(baseline_name)
+          }
+
           if (test.skip) {
             status.skipped = true
           } else {
@@ -318,68 +333,59 @@ async function run_tests(): Promise<void> {
                   status.errors.push(stack ?? str)
                   status.failure = true
                 } else if (result.state != null) {
-                  const baseline_name = descriptions(suites, test).map(encode).join("__")
-                  status.baseline_name = baseline_name
+                  const baseline_path = path.join(baselines_root, baseline_name)
 
-                  if (baseline_names.has(baseline_name)) {
-                    status.errors.push("duplicated description")
-                    status.failure = true
-                  } else {
-                    const baseline_path = path.join(baselines_root, baseline_name)
-                    baseline_names.add(baseline_name)
+                  const {bbox} = result
+                  if (bbox != null) {
+                    const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                    const current = Buffer.from(image.data, "base64")
+                    status.image = current
 
-                    const {bbox} = result
-                    if (bbox != null) {
-                      const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                      const current = Buffer.from(image.data, "base64")
-                      status.image = current
+                    const image_path = `${baseline_path}.png`
+                    const write_image = async () => fs.promises.writeFile(image_path, current)
+                    const existing = load_baseline_image(image_path)
 
-                      const image_path = `${baseline_path}.png`
-                      const write_image = async () => fs.promises.writeFile(image_path, current)
-                      const existing = load_baseline_image(image_path)
-
-                      switch (argv.screenshot) {
-                        case undefined:
-                        case "test":
-                          if (existing == null) {
-                            status.failure = true
-                            status.errors.push("missing baseline image")
-                            await write_image()
-                          } else {
-                            status.reference = existing
-                            const result = diff_image(existing, current)
-                            if (result != null) {
-                              await write_image()
-                              status.failure = true
-                              status.image_diff = result.diff
-                              status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
-                            }
-                          }
-                          break
-                        case "save":
+                    switch (argv.screenshot) {
+                      case undefined:
+                      case "test":
+                        if (existing == null) {
+                          status.failure = true
+                          status.errors.push("missing baseline image")
                           await write_image()
-                          break
-                        case "skip":
-                          break
-                        default:
-                          throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
-                      }
+                        } else {
+                          status.reference = existing
+                          const result = diff_image(existing, current)
+                          if (result != null) {
+                            await write_image()
+                            status.failure = true
+                            status.image_diff = result.diff
+                            status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                          }
+                        }
+                        break
+                      case "save":
+                        await write_image()
+                        break
+                      case "skip":
+                        break
+                      default:
+                        throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
                     }
+                  }
 
-                    const baseline = create_baseline([result.state])
-                    await fs.promises.writeFile(baseline_path, baseline)
-                    status.baseline = baseline
+                  const baseline = create_baseline([result.state])
+                  await fs.promises.writeFile(baseline_path, baseline)
+                  status.baseline = baseline
 
-                    const existing = load_baseline(baseline_path)
-                    if (existing != baseline) {
-                      if (existing == null) {
-                        status.errors.push("missing baseline")
-                      }
-                      const diff = diff_baseline(baseline_path)
-                      status.failure = true
-                      status.baseline_diff = diff
-                      status.errors.push(diff)
+                  const existing = load_baseline(baseline_path)
+                  if (existing != baseline) {
+                    if (existing == null) {
+                      status.errors.push("missing baseline")
                     }
+                    const diff = diff_baseline(baseline_path)
+                    status.failure = true
+                    status.baseline_diff = diff
+                    status.errors.push(diff)
                   }
                 }
               }
@@ -449,7 +455,7 @@ async function run_tests(): Promise<void> {
   } catch (err) {
     failure = true
     if (!(err instanceof Exit))
-      console.error(`INTERNAL ERROR: ${err}`)
+      console.error(`INTERNAL ERROR: ${err.stack ?? err}`)
   } finally {
     if (client) {
       await client.close()
