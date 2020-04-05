@@ -20,27 +20,38 @@ const delay_animation =
 // @param wait [number] time in milliseconds to use for window
 // @return [function] throttled function
 //
-export function throttle(func: () => void, wait: number): () => void {
+export function throttle(func: () => void, wait: number): () => Promise<void> {
   let timeout: number | null = null
   let previous = 0
   let pending = false
 
-  const later = function() {
-    previous = Date.now()
-    timeout = null
-    pending = false
-    func()
-  }
-
   return function() {
-    const now = Date.now()
-    const remaining = wait - (now - previous)
-    if (remaining <= 0 && !pending) {
-      if (timeout != null)
-        clearTimeout(timeout)
-      pending = true
-      delay_animation(later)
-    } else if (!timeout && !pending)
-      timeout = setTimeout(() => delay_animation(later), remaining)
+    return new Promise<void>((resolve, reject) => {
+      const later = function() {
+        previous = Date.now()
+        timeout = null
+        pending = false
+        try {
+          func()
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      }
+
+      const now = Date.now()
+      const remaining = wait - (now - previous)
+      if (remaining <= 0 && !pending) {
+        if (timeout != null) {
+          clearTimeout(timeout)
+        }
+        pending = true
+        delay_animation(later)
+      } else if (!timeout && !pending) {
+        timeout = setTimeout(() => delay_animation(later), remaining)
+      } else {
+        resolve()
+      }
+    })
   }
 }
