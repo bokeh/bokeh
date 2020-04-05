@@ -235,6 +235,8 @@ export class FactorRange extends Range {
   protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
+    this.tops = undefined
+    this.mids = undefined
     if (every(this.factors, isString)) {
       levels = 1;
       [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
@@ -245,7 +247,7 @@ export class FactorRange extends Range {
       levels = 3;
       [this._mapping, this.tops, this.mids, inside_padding] = map_three_levels(this.factors as [string, string, string][], this.group_padding, this.subgroup_padding, this.factor_padding)
     } else
-      throw new Error("???")
+      unreachable()
 
     let start = 0
     let end = this.factors.length + inside_padding
