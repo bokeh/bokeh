@@ -31,7 +31,6 @@ import tempfile
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'makedirs_ok_if_exists',
     'TmpDir',
     'with_directory_contents',
     'with_temporary_file',
@@ -41,20 +40,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def makedirs_ok_if_exists(path):
-    '''
-
-    '''
-    try:
-        os.makedirs(path)
-    except IOError as e:  # pragma: no cover (py3 only)
-        if e.errno != errno.EEXIST:
-            raise e
-    except OSError as e:  # pragma: no cover (py2 only)
-        if e.errno != errno.EEXIST:
-            raise e
-    return path
 
 class TmpDir(object):
     '''
@@ -86,10 +71,9 @@ def with_directory_contents(contents, func):
         for filename, file_content in contents.items():
             path = os.path.join(dirname, filename)
             if file_content is None:
-                # make a directory
-                makedirs_ok_if_exists(path)
+               os.makedirs(path, exist_ok=True)
             else:
-                makedirs_ok_if_exists(os.path.dirname(path))
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 with codecs.open(path, 'w', 'utf-8') as f:
                     f.write(file_content)
         return func(os.path.realpath(dirname))
@@ -186,4 +170,4 @@ class WorkingDir(object):
 #-----------------------------------------------------------------------------
 
 _LOCAL_TMP = os.path.abspath("./build/tmp")
-makedirs_ok_if_exists(_LOCAL_TMP)
+os.makedirs(_LOCAL_TMP, exist_ok=True)
