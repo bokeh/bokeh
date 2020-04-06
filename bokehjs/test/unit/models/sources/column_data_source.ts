@@ -481,7 +481,7 @@ describe("column_data_source module", () => {
     })
   })
 
-  describe("single column added", () => {
+  describe("multiple columns added", () => {
     const r = new ColumnDataSource({data: {foo: [], bar:[]}})
 
     it("should return supplied data", () => {

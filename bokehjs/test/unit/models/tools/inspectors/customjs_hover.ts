@@ -6,9 +6,9 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Document} from "@bokehjs/document"
 import {version as js_version} from "@bokehjs/version"
 
-describe("customjs module", () => {
+describe("CustomJSHover", () => {
 
-  describe("default creation", () => {
+  describe("default constructor", () => {
     const r = new CustomJSHover()
 
     it("should have empty args", () => {
