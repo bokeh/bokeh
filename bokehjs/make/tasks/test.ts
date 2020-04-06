@@ -116,6 +116,7 @@ function bundle(name: string): void {
     bases: [paths.build_dir.test, "./node_modules"],
     cache: join(paths.build_dir.test, `${name}.json`),
     target: "ES2020",
+    minify: false,
     externals: [/^@bokehjs\//],
     prelude: () => default_prelude({global: "Tests"}),
     shims: ["fs", "module"],
