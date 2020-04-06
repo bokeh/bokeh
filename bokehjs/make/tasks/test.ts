@@ -182,7 +182,7 @@ async function headless(port: number): Promise<ChildProcess> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new BuildError("headless", `timeout starting ${executable}`))
-    }, 10000)
+    }, 30000)
     proc.on("error", reject)
     proc.stderr.on("data", (chunk) => {
       const text = `${chunk}`
@@ -295,12 +295,12 @@ const start_headless = task("test:start:headless", async () => {
   if (await is_available(port)) {
     await retry(async () => {
       await headless(port)
-    }, 3)
+    }, 5)
   } else if (argv.reuse !== true) {
     await retry(async () => {
       port = await find_port(port)
       await headless(port)
-    }, 3)
+    }, 5)
   } else {
     log(`Reusing chromium browser instance on port ${port}`)
   }
