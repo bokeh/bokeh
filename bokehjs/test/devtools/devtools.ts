@@ -259,7 +259,9 @@ async function run_tests(): Promise<void> {
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
 
-      const baselines_root = path.join("test", "baselines")
+      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
+
+      path.join("test", "baselines")
       const baseline_names = new Set<string>()
 
       let skipped = 0
@@ -332,60 +334,65 @@ async function run_tests(): Promise<void> {
                   const {str, stack} = result.error
                   status.errors.push(stack ?? str)
                   status.failure = true
-                } else if (result.state != null) {
-                  const baseline_path = path.join(baselines_root, baseline_name)
-
-                  const {bbox} = result
-                  if (bbox != null) {
-                    const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                    const current = Buffer.from(image.data, "base64")
-                    status.image = current
-
-                    const image_path = `${baseline_path}.png`
-                    const write_image = async () => fs.promises.writeFile(image_path, current)
-                    const existing = load_baseline_image(image_path)
-
-                    switch (argv.screenshot) {
-                      case undefined:
-                      case "test":
-                        if (existing == null) {
-                          status.failure = true
-                          status.errors.push("missing baseline image")
-                          await write_image()
-                        } else {
-                          status.reference = existing
-                          const result = diff_image(existing, current)
-                          if (result != null) {
-                            await write_image()
-                            status.failure = true
-                            status.image_diff = result.diff
-                            status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
-                          }
-                        }
-                        break
-                      case "save":
-                        await write_image()
-                        break
-                      case "skip":
-                        break
-                      default:
-                        throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
-                    }
-                  }
-
-                  const baseline = create_baseline([result.state])
-                  await fs.promises.writeFile(baseline_path, baseline)
-                  status.baseline = baseline
-
-                  const existing = load_baseline(baseline_path)
-                  if (existing != baseline) {
-                    if (existing == null) {
-                      status.errors.push("missing baseline")
-                    }
-                    const diff = diff_baseline(baseline_path)
+                } else if (baselines_root != null) {
+                  if (result.state == null) {
+                    status.errors.push("state not present in output")
                     status.failure = true
-                    status.baseline_diff = diff
-                    status.errors.push(diff)
+                  } else {
+                    const baseline_path = path.join(baselines_root, baseline_name)
+
+                    const {bbox} = result
+                    if (bbox != null) {
+                      const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                      const current = Buffer.from(image.data, "base64")
+                      status.image = current
+
+                      const image_path = `${baseline_path}.png`
+                      const write_image = async () => fs.promises.writeFile(image_path, current)
+                      const existing = load_baseline_image(image_path)
+
+                      switch (argv.screenshot) {
+                        case undefined:
+                        case "test":
+                          if (existing == null) {
+                            status.failure = true
+                            status.errors.push("missing baseline image")
+                            await write_image()
+                          } else {
+                            status.reference = existing
+                            const result = diff_image(existing, current)
+                            if (result != null) {
+                              await write_image()
+                              status.failure = true
+                              status.image_diff = result.diff
+                              status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                            }
+                          }
+                          break
+                        case "save":
+                          await write_image()
+                          break
+                        case "skip":
+                          break
+                        default:
+                          throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                      }
+                    }
+
+                    const baseline = create_baseline([result.state])
+                    await fs.promises.writeFile(baseline_path, baseline)
+                    status.baseline = baseline
+
+                    const existing = load_baseline(baseline_path)
+                    if (existing != baseline) {
+                      if (existing == null) {
+                        status.errors.push("missing baseline")
+                      }
+                      const diff = diff_baseline(baseline_path)
+                      status.failure = true
+                      status.baseline_diff = diff
+                      status.errors.push(diff)
+                    }
                   }
                 }
               }
@@ -433,7 +440,7 @@ async function run_tests(): Promise<void> {
       })
       await fs.promises.writeFile(path.join("test", "report.json"), json)
 
-      if (baseline_names.size != 0) {
+      if (baselines_root != null && baseline_names.size != 0) {
         const files = new Set(await fs.promises.readdir(baselines_root))
 
         for (const name of baseline_names) {
