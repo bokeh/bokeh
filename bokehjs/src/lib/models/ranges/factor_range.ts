@@ -121,8 +121,8 @@ export namespace FactorRange {
     end: p.Property<number>
 
     levels: p.Property<number>
-    mids: p.Property<[string, string][] | undefined>
-    tops: p.Property<string[] | undefined>
+    mids: p.Property<[string, string][] | null>
+    tops: p.Property<string[] | null>
     tops_groups: p.Property<string[]>
   }
 }
@@ -149,10 +149,10 @@ export class FactorRange extends Range {
     })
 
     this.internal({
-      levels:      [ p.Number ], // how many levels of
-      mids:        [ p.Array  ], // mid level factors (if 3 total levels)
-      tops:        [ p.Array  ], // top level factors (whether 2 or 3 total levels)
-      tops_groups: [ p.Array  ], // ordered list of full factors for each top level factor in tops
+      levels:      [ p.Number      ], // how many levels of
+      mids:        [ p.Array, null ], // mid level factors (if 3 total levels)
+      tops:        [ p.Array, null ], // top level factors (whether 2 or 3 total levels)
+      tops_groups: [ p.Array       ], // ordered list of full factors for each top level factor in tops
     })
   }
 
@@ -235,8 +235,8 @@ export class FactorRange extends Range {
   protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
-    this.tops = undefined
-    this.mids = undefined
+    this.tops = null
+    this.mids = null
     if (every(this.factors, isString)) {
       levels = 1;
       [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
