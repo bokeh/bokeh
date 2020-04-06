@@ -184,7 +184,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  transpile?: "ES2020" | "ES2017" | "ES5"
+  target?: "ES2020" | "ES2017" | "ES5"
   minify?: boolean
   plugin?: boolean
   exports?: string[]
@@ -203,7 +203,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly transpile: "ES2020" | "ES2017" | "ES5" | null
+  readonly target: "ES2020" | "ES2017" | "ES5" | null
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
@@ -245,7 +245,7 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.transpile = opts.transpile != null ? opts.transpile : null
+    this.target = opts.target != null ? opts.target : null
     this.minify = opts.minify != null ? opts.minify : true
     this.plugin = opts.plugin != null ? opts.plugin : false
 
@@ -344,7 +344,8 @@ export class Linker {
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
           const source = print(module)
-          const minified = this.minify ? minify(module, source) : {min_source: source}
+          const ecma = this.target == "ES2020" ? 2020 : (this.target == "ES2017" ? 2017 : 5)
+          const minified = this.minify ? minify(module, source, ecma) : {min_source: source}
           code = {source, ...minified}
         } else
           code = cached!.code
@@ -448,7 +449,7 @@ export class Linker {
       const pkg_path = join(dir, "package.json")
       if (file_exists(pkg_path)) {
         const pkg = JSON.parse(read(pkg_path)!)
-        if (this.transpile != null && pkg.module != null)
+        if (this.target != null && pkg.module != null)
           return pkg.module
         if (pkg.main != null)
           return pkg.main
@@ -631,9 +632,9 @@ export class Linker {
     if (changed) {
       let collected: string[] | null = null
       if (type == "js") {
-        if (this.transpile != null && resolution == "ESM") {
+        if (this.target != null && resolution == "ESM") {
           const {ES2020, ES2017, ES5} = ts.ScriptTarget
-          const target = this.transpile == "ES2020" ? ES2020 : (this.transpile == "ES2017" ? ES2017 : ES5)
+          const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
           const imports = new Set<string>(["tslib"])
           const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
           const {output, error} = transpile(file, source, target, transform)
@@ -759,12 +760,13 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
   }
 }
 
-export function minify(module: ModuleInfo, source: string): {min_source: string, min_map?: string} {
+export function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): {min_source: string, min_map?: string} {
   const name = basename(module.file)
   const min_js = rename(name, {ext: '.min.js'})
   const min_js_map = rename(name, {ext: '.min.js.map'})
 
   const minify_opts: terser.MinifyOptions = {
+    ecma,
     output: {
       comments: /^!|copyright|license|\(c\)/i,
     },

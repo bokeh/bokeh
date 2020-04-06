@@ -43,7 +43,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
     prelude: preludes.prelude,
     plugin_prelude: () => preludes.plugin_prelude({version: pkg.version}),
-    transpile: "ES2017",
+    target: "ES2017",
     exports: ["tslib"],
   })
 
@@ -71,7 +71,7 @@ task("scripts:bundle-legacy", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.legacy.json") : undefined,
-    transpile: "ES5",
+    target: "ES5",
   })
 
   if (!argv.rebuild) linker.load_cache()
