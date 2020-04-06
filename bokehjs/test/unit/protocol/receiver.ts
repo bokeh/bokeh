@@ -31,7 +31,7 @@ describe("protocol/receiver module", () => {
         })
       })
 
-      describe("metadata consume", () => {
+      describe("empty metadata consume", () => {
 
         it("should should leave message null", () => {
           const res = r.consume('{}')
@@ -88,7 +88,7 @@ describe("protocol/receiver module", () => {
         })
       })
 
-      describe("metadata consume", () => {
+      describe("empty metadata consume", () => {
 
         it("should throw an error on binary data", () => {
           expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)

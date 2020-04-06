@@ -5,9 +5,9 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Document} from "@bokehjs/document"
 import {version as js_version} from "@bokehjs/version"
 
-describe("customjs module", () => {
+describe("CustomJS", () => {
 
-  describe("default creation", () => {
+  describe("default constructor", () => {
     const r = new CustomJS()
 
     it("should have empty args", () => {

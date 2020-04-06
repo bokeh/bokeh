@@ -1,6 +1,7 @@
 import {describe, it, display} from "../framework"
 export * from "../framework"
 
+import {DataRange1d, FactorRange, ColumnDataSource} from "@bokehjs/models"
 import {LayoutDOM, Row, Column, GridBox, Spacer, Tabs, Panel} from "@bokehjs/models/layouts/index"
 import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
 import {
@@ -662,5 +663,26 @@ describe("Tabs", () => {
   it("should allow tabs header location right", async () => {
     const obj = tabs("right")
     await display(obj, [300, 300])
+  })
+})
+
+describe("Bug", () => {
+  describe("in issue #9879", () => {
+    it("disallows to change FactorRange to a lower dimension with a different number of factors", async () => {
+      const fig = figure({
+        width: 200, height: 200,
+        title: null,
+        toolbar_location: null,
+        x_range: new FactorRange({factors: [["a", "b"], ["b", "c"]]}),
+        y_range: new DataRange1d(),
+      })
+      const source = new ColumnDataSource({data: {x: [["a", "b"], ["b", "c"]], y: [1, 2]}})
+      fig.vbar({x: {field: "x"}, top: {field: "y"}, source})
+      const view = await display(fig, [300, 300])
+
+      source.data = {x: ["a"], y: [1]}
+      ;(fig.x_range as FactorRange).factors = ["a"]
+      await view.ready
+    })
   })
 })

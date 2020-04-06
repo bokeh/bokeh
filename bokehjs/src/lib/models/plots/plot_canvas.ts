@@ -129,7 +129,6 @@ export class PlotView extends LayoutDOMView {
   protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
 
-  force_paint: Signal0<this>
   state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
 
@@ -184,8 +183,10 @@ export class PlotView extends LayoutDOMView {
   }
 
   request_paint(): void {
-    if (!this.is_paused)
-      this.throttled_paint()
+    if (!this.is_paused) {
+      const promise = this.throttled_paint()
+      this._ready = this._ready.then(() => promise)
+    }
   }
 
   request_layout(): void {
@@ -222,7 +223,6 @@ export class PlotView extends LayoutDOMView {
 
     super.initialize()
 
-    this.force_paint = new Signal0(this, "force_paint")
     this.state_changed = new Signal0(this, "state_changed")
 
     this.lod_started = false
@@ -250,7 +250,7 @@ export class PlotView extends LayoutDOMView {
       this.model.extra_y_ranges,
     )
 
-    this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
+    this.throttled_paint = throttle(() => this.repaint(), 1000/60)
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
@@ -855,8 +855,6 @@ export class PlotView extends LayoutDOMView {
 
   connect_signals(): void {
     super.connect_signals()
-
-    this.connect(this.force_paint, () => this.repaint())
 
     const {x_ranges, y_ranges} = this.frame
 

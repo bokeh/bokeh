@@ -6,7 +6,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("CustomJSFilter", () => {
 
-  describe("default creation", () => {
+  describe("default constructor", () => {
     const filter = new CustomJSFilter()
 
     it("should have empty args", () => {

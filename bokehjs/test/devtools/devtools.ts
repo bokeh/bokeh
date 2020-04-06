@@ -217,34 +217,39 @@ async function run_tests(): Promise<void> {
         return [...suites, test].map((obj) => obj.description)
       }
 
+      function description(suites: Suite[], test: Test, sep: string = " "): string {
+        return descriptions(suites, test).join(sep)
+      }
+
       const all_tests = [...iter(top_level)]
+      const test_suite = all_tests
 
-      const test_suite = (() => {
-        if (argv.k != null || argv.grep != null) {
-          let selected_tests = all_tests
-
-          if (argv.k != null) {
-            const keyword = argv.k as string
-            selected_tests = selected_tests.filter(([suites, test]) => {
-              return descriptions(suites, test).some((description) => description.includes(keyword))
-            })
+      if (argv.k != null || argv.grep != null) {
+        if (argv.k != null) {
+          const keyword = argv.k as string
+          for (const [suites, test] of test_suite) {
+            if (!description(suites, test).includes(keyword)) {
+              test.skip = true
+            }
           }
+        }
 
-          if (argv.grep != null) {
-            const regex = new RegExp(argv.grep as string)
-            selected_tests = selected_tests.filter(([suites, test]) => {
-              return descriptions(suites, test).some((description) => description.match(regex) != null)
-            })
+        if (argv.grep != null) {
+          const regex = new RegExp(argv.grep as string)
+          for (const [suites, test] of test_suite) {
+            if (!description(suites, test).match(regex) != null) {
+              test.skip = true
+            }
           }
-
-          console.log(`selected ${selected_tests.length} tests from ${all_tests.length} total`)
-          return selected_tests
-        } else
-          return all_tests
-      })()
+        }
+      }
 
       if (test_suite.length == 0) {
         fail("nothing to test")
+      }
+
+      if (!test_suite.some(([, test]) => !test.skip)) {
+        fail("nothing to test because all tests were skipped")
       }
 
       const progress = new Bar({
@@ -254,7 +259,9 @@ async function run_tests(): Promise<void> {
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
 
-      const baselines_root = path.join("test", "baselines")
+      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
+
+      path.join("test", "baselines")
       const baseline_names = new Set<string>()
 
       let skipped = 0
@@ -293,6 +300,16 @@ async function run_tests(): Promise<void> {
         for (const [suites, test, status] of test_suite) {
           entries = []
 
+          const baseline_name = encode(description(suites, test, "__"))
+          status.baseline_name = baseline_name
+
+          if (baseline_names.has(baseline_name)) {
+            status.errors.push("duplicated description")
+            status.failure = true
+          } else {
+            baseline_names.add(baseline_name)
+          }
+
           if (test.skip) {
             status.skipped = true
           } else {
@@ -317,16 +334,12 @@ async function run_tests(): Promise<void> {
                   const {str, stack} = result.error
                   status.errors.push(stack ?? str)
                   status.failure = true
-                } else if (result.state != null) {
-                  const baseline_name = descriptions(suites, test).map(encode).join("__")
-                  status.baseline_name = baseline_name
-
-                  if (baseline_names.has(baseline_name)) {
-                    status.errors.push("duplicated description")
+                } else if (baselines_root != null) {
+                  if (result.state == null) {
+                    status.errors.push("state not present in output")
                     status.failure = true
                   } else {
                     const baseline_path = path.join(baselines_root, baseline_name)
-                    baseline_names.add(baseline_name)
 
                     const {bbox} = result
                     if (bbox != null) {
@@ -427,7 +440,7 @@ async function run_tests(): Promise<void> {
       })
       await fs.promises.writeFile(path.join("test", "report.json"), json)
 
-      if (baseline_names.size != 0) {
+      if (baselines_root != null && baseline_names.size != 0) {
         const files = new Set(await fs.promises.readdir(baselines_root))
 
         for (const name of baseline_names) {
@@ -449,7 +462,7 @@ async function run_tests(): Promise<void> {
   } catch (err) {
     failure = true
     if (!(err instanceof Exit))
-      console.error(`INTERNAL ERROR: ${err}`)
+      console.error(`INTERNAL ERROR: ${err.stack ?? err}`)
   } finally {
     if (client) {
       await client.close()

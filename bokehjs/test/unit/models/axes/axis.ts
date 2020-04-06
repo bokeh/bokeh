@@ -133,12 +133,12 @@ describe("AxisView", () => {
     return {axis, axis_view}
   }
 
-  it("needs_clip should return the false when fixed_location null", async () => {
+  it("needs_clip should return false when fixed_location is null", async () => {
     const {axis_view} = await build()
     expect(axis_view.needs_clip).to.be.equal(false)
   })
 
-  it("needs_clip should return the false when fixed_location null", async () => {
+  it("needs_clip should return true when fixed_location is not null", async () => {
     const {axis_view} = await build({fixed_location: 10})
     expect(axis_view.needs_clip).to.be.equal(true)
   })
