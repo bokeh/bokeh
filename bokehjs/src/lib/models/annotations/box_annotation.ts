@@ -78,20 +78,16 @@ export class BoxAnnotationView extends AnnotationView {
     this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
     this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
     this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
-
-    
      
     const draw = this.model.render_mode == 'css' ? this._css_box.bind(this) : this._canvas_box.bind(this)
 
     draw(this.sleft, this.sright, this.sbottom, this.stop)
-    
   }
 
   protected _css_box(sleft: number, sright: number, sbottom: number, stop: number): void {
     const line_width = this.model.properties.line_width.value()
     const sw = Math.floor(sright - sleft) - line_width
     const sh = Math.floor(sbottom - stop) - line_width
-
 
     this.el.style.left = `${sleft}px`
     this.el.style.width = `${sw}px`
@@ -103,6 +99,7 @@ export class BoxAnnotationView extends AnnotationView {
       this.el.style.backgroundColor = this.model.properties.fill_color.value()
       this.el.style.opacity = this.model.properties.fill_alpha.value()
     }
+    
     // try our best to honor line dashing in some way, if we can
     const ld = this.model.properties.line_dash.value().length < 2 ? "solid" : "dashed"
     this.el.style.borderStyle = ld
