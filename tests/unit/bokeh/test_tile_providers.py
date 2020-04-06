@@ -47,11 +47,11 @@ _CARTO_URLS = {
 }
 
 _STAMEN_URLS = {
-    'STAMEN_TERRAIN':          'http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-    'STAMEN_TERRAIN_RETINA':   'http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png',
-    'STAMEN_TONER':            'http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-    'STAMEN_TONER_BACKGROUND': 'http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-    'STAMEN_TONER_LABELS':     'http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
+    'STAMEN_TERRAIN':          'https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}.png',
+    'STAMEN_TERRAIN_RETINA':   'https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}@2x.png',
+    'STAMEN_TONER':            'https://stamen-tiles.a.ssl.fastly.net/toner/{Z}/{X}/{Y}.png',
+    'STAMEN_TONER_BACKGROUND': 'https://stamen-tiles.a.ssl.fastly.net/toner-background/{Z}/{X}/{Y}.png',
+    'STAMEN_TONER_LABELS':     'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{Z}/{X}/{Y}.png',
 }
 
 _STAMEN_LIC = {
