@@ -181,11 +181,11 @@ class _TileProvidersModule(types.ModuleType):
     _SERVICE_URLS = dict(
         CARTODBPOSITRON='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         CARTODBPOSITRON_RETINA='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-        STAMEN_TERRAIN='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-        STAMEN_TERRAIN_RETINA='http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png',
-        STAMEN_TONER='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_BACKGROUND='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_LABELS='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
+        STAMEN_TERRAIN='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}.png',
+        STAMEN_TERRAIN_RETINA='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}@2x.png',
+        STAMEN_TONER='https://stamen-tiles.a.ssl.fastly.net/toner/{Z}/{X}/{Y}.png',
+        STAMEN_TONER_BACKGROUND='https://stamen-tiles.a.ssl.fastly.net/toner-background/{Z}/{X}/{Y}.png',
+        STAMEN_TONER_LABELS='https://stamen-tiles.a.ssl.fastly.net/toner-labels/{Z}/{X}/{Y}.png',
         OSM='https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
         WIKIMEDIA='https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png',
         ESRI_IMAGERY='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg'
