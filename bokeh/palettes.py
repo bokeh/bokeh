@@ -325,7 +325,7 @@ viewable as a comment at the top of the :bokeh-tree:`bokeh/palettes.py`
 source file.
 
 .. _ColorBrewer: http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
-.. _colorcet: https://github.com/holoviz/colorcet
+.. _colorcet: https://colorcet.holoviz.org
 .. _D3: https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#categorical-colors
 .. _Matplotlib: http://matplotlib.org/examples/color/colormaps_reference.html
 
