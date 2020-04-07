@@ -93,8 +93,10 @@ export class BoxAnnotationView extends AnnotationView {
     this.el.style.width = `${sw}px`
     this.el.style.top = `${stop}px`
     this.el.style.height = `${sh}px`
-    this.el.style.borderWidth = `${line_width}px`
-    this.el.style.borderColor = this.model.properties.line_color.value()
+    if (this.visuals.line.doit) {
+      this.el.style.borderWidth = `${line_width}px`
+      this.el.style.borderColor = this.model.properties.line_color.value()
+    }
     if (this.visuals.fill.doit) {
       this.el.style.backgroundColor = this.model.properties.fill_color.value()
       this.el.style.opacity = this.model.properties.fill_alpha.value()
@@ -118,9 +120,10 @@ export class BoxAnnotationView extends AnnotationView {
       this.visuals.fill.set_value(ctx)
       ctx.fill()
     }
-    this.visuals.line.set_value(ctx)
-    ctx.stroke()
-
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx)
+      ctx.stroke()
+    }
     ctx.restore()
   }
 
