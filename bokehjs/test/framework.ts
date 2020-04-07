@@ -84,18 +84,21 @@ function* iter_tests(): Iterable<[Suite[], Test]> {
   yield* iter_from(top_level)
 }
 
-export async function run_all(grep?: string | RegExp): Promise<void> {
+function descriptions(suites: Suite[], test: Test): string[] {
+  return [...suites, test].map((obj) => obj.description)
+}
+
+function description(suites: Suite[], test: Test, sep: string = " "): string {
+  return descriptions(suites, test).join(sep)
+}
+
+export async function run_all(query?: string | RegExp): Promise<void> {
+  const matches: (d: string) => boolean =
+    query == null ? (_d) => true : (isString(query) ? (d) => d.includes(query) : (d) => d.match(query) != null)
+
   for (const [parents, test] of iter_tests()) {
-    if (test.skip)
+    if (test.skip || !matches(description(parents, test))) {
       continue
-
-    if (grep != null) {
-      const descriptions = [...parents, test].map((s) => s.description)
-
-      const macher: (d: string) => boolean =
-        isString(grep) ? (d) => d.includes(grep) : (d) => d.search(grep) != -1
-      if (!descriptions.some(macher))
-        continue
     }
 
     await _run_test(parents, test)
