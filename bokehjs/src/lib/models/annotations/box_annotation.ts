@@ -78,9 +78,9 @@ export class BoxAnnotationView extends AnnotationView {
     this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
     this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
     this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
-    
+
     const draw = this.model.render_mode == 'css' ? this._css_box.bind(this) : this._canvas_box.bind(this)
-    
+
     draw(this.sleft, this.sright, this.sbottom, this.stop)
   }
 
