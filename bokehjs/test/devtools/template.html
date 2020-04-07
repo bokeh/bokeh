@@ -45,7 +45,8 @@
     <script type="text/javascript" src="/static/test/{{ main }}"></script>
     {%- if run %}
     <script>
-      Tests.run_all()
+      const params = new URLSearchParams(location.search)
+      Tests.run_all(params.get("k"))
     </script>
     {% endif -%}
   </body>
