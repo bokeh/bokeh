@@ -125,18 +125,20 @@ function _with_default<T>(value: T | undefined, default_value: T): T {
 
 export type AxisType = "auto" | "linear" | "datetime" | "log" | null
 
-export type FigureAttrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
-  x_range: Range | [number, number] | string[]
-  y_range: Range | [number, number] | string[]
-  x_axis_type: AxisType
-  y_axis_type: AxisType
-  x_axis_location: Location
-  y_axis_location: Location
-  x_axis_label: string
-  y_axis_label: string
-  x_minor_ticks: number | "auto"
-  y_minor_ticks: number | "auto"
-  tools: (Tool | ToolName)[] | string
+export namespace Figure {
+  export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
+    x_range: Range | [number, number] | string[]
+    y_range: Range | [number, number] | string[]
+    x_axis_type: AxisType
+    y_axis_type: AxisType
+    x_axis_location: Location
+    y_axis_location: Location
+    x_axis_label: string
+    y_axis_label: string
+    x_minor_ticks: number | "auto"
+    y_minor_ticks: number | "auto"
+    tools: (Tool | ToolName)[] | string
+  }
 }
 
 export class Figure extends Plot {
@@ -169,7 +171,7 @@ export class Figure extends Plot {
     }
   }
 
-  constructor(attrs: Partial<FigureAttrs> = {}) {
+  constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
     const tools = _with_default(attrs.tools, _default_tools)
@@ -906,7 +908,7 @@ export class Figure extends Plot {
   }
 }
 
-export function figure(attributes?: Partial<FigureAttrs>): Figure {
+export function figure(attributes?: Partial<Figure.Attrs>): Figure {
   return new Figure(attributes)
 }
 
