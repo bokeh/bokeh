@@ -301,7 +301,7 @@ export class Fill extends ContextProperties {
   readonly fill_alpha: p.NumberSpec
 
   set_value(ctx: Context2d): void {
-    ctx.fillStyle   = this.fill_color.value()
+    ctx.fillStyle = this.fill_color.value()
     ctx.globalAlpha = this.fill_alpha.value()
   }
 

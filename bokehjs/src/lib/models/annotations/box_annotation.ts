@@ -93,10 +93,14 @@ export class BoxAnnotationView extends AnnotationView {
     this.el.style.width = `${sw}px`
     this.el.style.top = `${stop}px`
     this.el.style.height = `${sh}px`
-    this.el.style.borderWidth = `${line_width}px`
-    this.el.style.borderColor = this.model.properties.line_color.value()
-    this.el.style.backgroundColor = this.model.properties.fill_color.value()
-    this.el.style.opacity = this.model.properties.fill_alpha.value()
+    if (this.visuals.line.doit) {
+      this.el.style.borderWidth = `${line_width}px`
+      this.el.style.borderColor = this.model.properties.line_color.value()
+    }
+    if (this.visuals.fill.doit) {
+      this.el.style.backgroundColor = this.model.properties.fill_color.value()
+      this.el.style.opacity = this.model.properties.fill_alpha.value()
+    }
 
     // try our best to honor line dashing in some way, if we can
     const ld = this.model.properties.line_dash.value().length < 2 ? "solid" : "dashed"
@@ -112,12 +116,14 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    this.visuals.fill.set_value(ctx)
-    ctx.fill()
-
-    this.visuals.line.set_value(ctx)
-    ctx.stroke()
-
+    if (this.visuals.fill.doit) {
+      this.visuals.fill.set_value(ctx)
+      ctx.fill()
+    }
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx)
+      ctx.stroke()
+    }
     ctx.restore()
   }
 
