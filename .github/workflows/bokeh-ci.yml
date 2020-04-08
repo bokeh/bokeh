@@ -24,7 +24,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -107,7 +107,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -197,7 +197,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -316,15 +316,15 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
 
@@ -444,7 +444,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -535,15 +535,15 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
 
@@ -650,7 +650,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -739,7 +739,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -838,7 +838,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
