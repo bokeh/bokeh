@@ -222,7 +222,7 @@ class Test_bce(object):
     def test_MarkerType(self) -> None:
         assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_x", "cross",
                                          "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                                         "square", "square_cross", "square_x", "triangle", "x")
+                                         "plus", "square", "square_cross", "square_x", "triangle", "x")
 
     def test_NamedColor(self) -> None:
         assert len(tuple(bce.NamedColor)) == 147

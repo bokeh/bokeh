@@ -344,7 +344,7 @@ MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
 #: Specify one of the built-in marker types
 MarkerType = enumeration("asterisk", "circle", "circle_cross", "circle_x", "cross",
                          "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                         "square", "square_cross", "square_x", "triangle", "x")
+                         "plus", "square", "square_cross", "square_x", "triangle", "x")
 
 #: Specify one of the 137 named CSS colors
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)

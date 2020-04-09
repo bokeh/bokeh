@@ -94,6 +94,7 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.oval`
         * :func:`~bokeh.plotting.figure.Figure.patch`
         * :func:`~bokeh.plotting.figure.Figure.patches`
+        * :func:`~bokeh.plotting.figure.Figure.plus`
         * :func:`~bokeh.plotting.figure.Figure.quad`
         * :func:`~bokeh.plotting.figure.Figure.quadratic`
         * :func:`~bokeh.plotting.figure.Figure.ray`
@@ -610,6 +611,24 @@ Examples:
 
 """
         pass
+
+    @glyph_method(markers.Plus)
+    def plus(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.plus(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
+    pass
 
     @glyph_method(glyphs.Quad)
     def quad(self, **kwargs):

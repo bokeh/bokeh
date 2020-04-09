@@ -189,6 +189,29 @@ function inverted_triangle(ctx: Context2d, i: number, r: number, line: Line, fil
 
 }
 
+function plus(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  const a = 3*r/8
+  const b = r
+  const xs = [a, a, b,  b,  a,  a, -a, -a, -b, -b, -a, -a]
+  const ys = [b, a, a, -a, -a, -b, -b, -a, -a,  a,  a,  b]
+
+  ctx.moveTo(xs[0], ys[0])
+  for (i=1; i<12; i++)
+    ctx.lineTo(xs[i], ys[i])
+  ctx.closePath()
+
+  if (fill.doit) {
+    fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+
+}
+
 function square(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
   const size = 2*r
   ctx.rect(-r, -r, size, size)
@@ -303,6 +326,7 @@ export const Diamond          = _mk_model('Diamond',          diamond)
 export const DiamondCross     = _mk_model('DiamondCross',     diamond_cross)
 export const Hex              = _mk_model('Hex',              hex)
 export const InvertedTriangle = _mk_model('InvertedTriangle', inverted_triangle)
+export const Plus             = _mk_model('Plus',             plus)
 export const Square           = _mk_model('Square',           square)
 export const SquareCross      = _mk_model('SquareCross',      square_cross)
 export const SquareX          = _mk_model('SquareX',          square_x)
@@ -319,6 +343,7 @@ export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   diamond_cross,
   hex,
   inverted_triangle,
+  plus,
   square,
   square_cross,
   square_x,
