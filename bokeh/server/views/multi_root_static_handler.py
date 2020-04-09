@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 from typing import Dict, Optional
 
 # External imports
@@ -49,7 +50,7 @@ class MultiRootStaticHandler(StaticFileHandler):
     @classmethod
     def get_absolute_path(cls, root: Dict[str, str], path: str) -> str:
         try:
-            name, artifact_path = path.split("/", 1)
+            name, artifact_path = path.split(os.sep, 1)
         except ValueError:
             raise HTTPError(404)
 

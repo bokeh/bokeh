@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-from os.path import abspath, basename, dirname, exists, join
+from os.path import abspath, basename, dirname, exists, join, normpath
 from typing import Dict, List, NamedTuple, Optional
 from warnings import warn
 
@@ -186,7 +186,7 @@ def bundle_for_objs_and_resources(objs, resources):
         elif mode == "server":
             js_files.extend([ bundle.server_url for bundle in extensions ])
         elif mode == "cdn":
-            js_files.extend([ bundle.cdn_url for bundle in extensions ])
+            js_files.extend([ bundle.cdn_url for bundle in extensions if bundle.cdn_url is not None ])
         else:
             js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
@@ -278,7 +278,7 @@ def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
                 cdn_url = f"{_default_cdn_host}/{pkg_name}@^{pkg_version}/{pkg_main}"
             else:
                 pkg_main = join(dist_dir, f"{name}.js")
-            artifact_path = join(base_dir, pkg_main)
+            artifact_path = join(base_dir, normpath(pkg_main))
             artifacts_dir = dirname(artifact_path)
             artifact_name = basename(artifact_path)
             server_path = f"{name}/{artifact_name}"
