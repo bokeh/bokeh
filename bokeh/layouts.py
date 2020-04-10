@@ -491,6 +491,9 @@ class GridSpec(object):
         self.ncols = ncols
         self._arrangement = {}
 
+        from .util.deprecation import deprecated
+        deprecated("'GridSpec' is deprecated and will be removed in Bokeh 3.0")
+
     def __setitem__(self, key, obj):
         k1, k2 = key
 
@@ -527,13 +530,13 @@ class GridSpec(object):
             self._arrangement[row1, col1] = obj
         elif row2 is None:
             for col in range(col1, col2):
-                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None)
+                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None) # lgtm [py/loop-variable-capture]
         elif col2 is None:
             for row in range(row1, row2):
-                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None)
+                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None) # lgtm [py/loop-variable-capture]
         else:
             for row, col in zip(range(row1, row2), range(col1, col2)):
-                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None)
+                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None) # lgtm [py/loop-variable-capture]
 
     def __iter__(self):
         array = [ [ None ]*self.ncols for _ in range(0, self.nrows) ]
