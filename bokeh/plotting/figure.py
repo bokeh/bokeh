@@ -190,7 +190,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Arc)
     def arc(self, **kwargs):
@@ -212,7 +211,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Bezier)
     def bezier(self, **kwargs):
@@ -238,7 +236,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.CircleCross)
     def circle_cross(self, **kwargs):
@@ -257,7 +254,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.CircleX)
     def circle_x(self, **kwargs):
@@ -276,7 +272,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Cross)
     def cross(self, **kwargs):
@@ -295,7 +290,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Dash)
     def dash(self, **kwargs):
@@ -314,7 +308,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Diamond)
     def diamond(self, **kwargs):
@@ -333,7 +326,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.DiamondCross)
     def diamond_cross(self, **kwargs):
@@ -352,7 +344,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.HArea)
     def harea(self, **kwargs):
@@ -371,7 +362,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.HBar)
     def hbar(self, **kwargs):
@@ -389,7 +379,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Ellipse)
     def ellipse(self, **kwargs):
@@ -408,7 +397,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Hex)
     def hex(self, **kwargs):
@@ -426,7 +414,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.HexTile)
     def hex_tile(self, **kwargs):
@@ -444,7 +431,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Image)
     def image(self, **kwargs):
@@ -455,7 +441,6 @@ Examples:
     palette will be used as a default.
 
 """
-        pass
 
     @glyph_method(glyphs.ImageRGBA)
     def image_rgba(self, **kwargs):
@@ -465,7 +450,6 @@ Examples:
     values (encoded as 32-bit integers).
 
 """
-        pass
 
     @glyph_method(glyphs.ImageURL)
     def image_url(self, **kwargs):
@@ -487,7 +471,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Line)
     def line(self, **kwargs):
@@ -505,7 +488,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.MultiLine)
     def multi_line(self, **kwargs):
@@ -528,7 +510,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.MultiPolygons)
     def multi_polygons(self, **kwargs):
@@ -551,7 +532,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.Oval)
     def oval(self, **kwargs):
@@ -570,7 +550,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Patch)
     def patch(self, **kwargs):
@@ -588,7 +567,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.Patches)
     def patches(self, **kwargs):
@@ -611,7 +589,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(markers.Plus)
     def plus(self, **kwargs):
@@ -629,7 +606,6 @@ Examples:
         show(plot)
 
 """
-    pass
 
     @glyph_method(glyphs.Quad)
     def quad(self, **kwargs):
@@ -648,7 +624,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Quadratic)
     def quadratic(self, **kwargs):
@@ -671,7 +646,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Rect)
     def rect(self, **kwargs):
@@ -690,7 +664,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Step)
     def step(self, **kwargs):
@@ -708,7 +681,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Segment)
     def segment(self, **kwargs):
@@ -728,7 +700,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Square)
     def square(self, **kwargs):
@@ -746,7 +717,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.SquareCross)
     def square_cross(self, **kwargs):
@@ -765,7 +735,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.SquareX)
     def square_x(self, **kwargs):
@@ -784,7 +753,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Text)
     def text(self, **kwargs):
@@ -794,7 +762,6 @@ Examples:
     is indicated by the alignment and baseline text properties.
 
 """
-        pass
 
     @glyph_method(markers.Triangle)
     def triangle(self, **kwargs):
@@ -813,7 +780,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.VArea)
     def varea(self, **kwargs):
@@ -832,7 +798,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.VBar)
     def vbar(self, **kwargs):
@@ -850,7 +815,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Wedge)
     def wedge(self, **kwargs):
@@ -869,7 +833,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.X)
     def x(self, **kwargs):
@@ -887,7 +850,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Y)
     def y(self, **kwargs):
@@ -905,7 +867,6 @@ Examples:
         show(plot)
 
 """
-    pass
 
     # -------------------------------------------------------------------------
 
