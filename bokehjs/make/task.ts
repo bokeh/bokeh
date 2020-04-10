@@ -3,6 +3,14 @@ import chalk from "chalk"
 import {BuildError} from "@compiler/error"
 export {BuildError}
 
+function join(items: string[], sep0: string, sep1: string): string {
+  if (items.length <= 1) {
+    return items.join("")
+  } else {
+    return `${items.slice(0, -1).join(sep0)}${sep1}${items[items.length-1]}`
+  }
+}
+
 export type Result<T = unknown> = Success<T> | Failure<T>
 
 export class Success<T> {
@@ -49,7 +57,10 @@ export function print(message: string): void {
 }
 
 export function show_failure(failure: Failure<unknown>): void {
-  const error = failure.value
+  show_error(failure.value)
+}
+
+export function show_error(error: Error): void {
   if (error instanceof BuildError) {
     log(`${chalk.red("failed:")} ${error.message}`)
   } else {
@@ -64,14 +75,22 @@ class Task<T = unknown> {
               readonly deps: string[],
               readonly fn?: Fn<T>) {}
 
-  get task_deps(): Task<unknown>[] {
-    return this.deps.map((dep) => {
-      const task = tasks.get(dep)
+  get task_deps(): Dependency[] {
+    return this.deps.map((name) => {
+      const passthrough = name.endsWith("!")
+      if (passthrough) {
+        name = name.slice(0, -1)
+      }
+      const task = tasks.get(name)
       if (task != null)
-        return task
+        return new Dependency(task, passthrough)
       else
-        throw new Error(`can't resolve ${dep} task`)
+        throw new Error(`can't resolve ${name} task`)
     })
+  }
+
+  toString(): string {
+    return this.name
   }
 }
 
@@ -100,17 +119,26 @@ export function task_names(): string[] {
   return Array.from(tasks.keys())
 }
 
-function* resolve_task(name: string, parent?: Task): Iterable<Task> {
-  const [prefix, suffix] = name.split(":", 2)
+class Dependency {
+  constructor(readonly task: Task, readonly passthrough: boolean = false) {}
+}
 
+function* resolve_dep(name: string, parent?: Task): Iterable<Dependency> {
+  const passthrough = name.endsWith("!")
+  if (passthrough) {
+    name = name.slice(0, -1)
+  }
+
+  const [prefix, suffix] = name.split(":", 2)
   if (prefix == "*") {
     for (const task of tasks.values()) {
       if (task.name.endsWith(`:${suffix}`)) {
-        yield task
+        yield new Dependency(task, passthrough)
       }
     }
   } else if (tasks.has(name)) {
-    yield tasks.get(name)!
+    const task = tasks.get(name)!
+    yield new Dependency(task, passthrough)
   } else {
     let message = `unknown task '${chalk.cyan(name)}'`
     if (parent != null)
@@ -119,7 +147,7 @@ function* resolve_task(name: string, parent?: Task): Iterable<Task> {
   }
 }
 
-export async function run(...names: string[]): Promise<Result> {
+export async function run(task: Task): Promise<Result> {
   const finished = new Map<Task, Result>()
 
   async function exec_task(task: Task): Promise<Result> {
@@ -131,11 +159,13 @@ export async function run(...names: string[]): Promise<Result> {
 
       const args = []
       for (const dep of task.task_deps) {
-        const result = finished.get(dep)
+        const result = finished.get(dep.task)
         if (result != null && result.is_Success())
           args.push(result.value)
+        else if (dep.passthrough)
+          args.push(undefined)
         else
-          throw new Error(`${dep} value is not available for ${task.name}`)
+          throw new Error(`${dep} value is not available for ${task}`)
       }
 
       const start = Date.now()
@@ -161,8 +191,8 @@ export async function run(...names: string[]): Promise<Result> {
       const failures = []
 
       for (const name of task.deps) {
-        for (const dep of resolve_task(name, task)) {
-          const result = await _run(dep)
+        for (const dep of resolve_dep(name, task)) {
+          const result = await _run(dep.task)
           if (result.is_Failure())
             failures.push(dep)
         }
@@ -172,15 +202,15 @@ export async function run(...names: string[]): Promise<Result> {
       if (failures.length == 0) {
         result = await exec_task(task)
       } else {
-        function join(items: string[], sep0: string, sep1: string): string {
-          if (items.length <= 1) {
-            return items.join("")
-          } else {
-            return `${items.slice(0, -1).join(sep0)}${sep1}${items[items.length-1]}`
+        if (failures.every((dep) => dep.passthrough)) {
+          const result = await exec_task(task)
+
+          if (result.is_Failure()) {
+            show_failure(result)
           }
         }
 
-        const failed = join(failures.map((dep) => `'${chalk.cyan(dep.name)}'`), ", ", " and ")
+        const failed = join(failures.map((dep) => `'${chalk.cyan(dep.task.name)}'`), ", ", " and ")
         result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed because ${failed} failed`))
       }
 
@@ -194,13 +224,5 @@ export async function run(...names: string[]): Promise<Result> {
     }
   }
 
-  for (const name of names) {
-    for (const task of resolve_task(name)) {
-      const result = await _run(task)
-      if (result.is_Failure())
-        return result
-    }
-  }
-
-  return success(undefined)
+  return await _run(task)
 }
