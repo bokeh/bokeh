@@ -51,7 +51,7 @@ function min_js(js: string): string {
   return rename(js, {ext: '.min.js'})
 }
 
-task("scripts:bundle", ["scripts:compile"], async () => {
+task("scripts:bundle", ["scripts:compile!"], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables]
 
@@ -81,7 +81,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:bundle-legacy", ["scripts:compile"], async () => {
+task("scripts:bundle-legacy", ["scripts:compile!"], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib_legacy
   const packages = [bokehjs, gl, api, widgets, tables]
 
