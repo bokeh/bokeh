@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.layouts import column, grid, gridplot, layout, row
+from bokeh.layouts import GridSpec, column, grid, gridplot, layout, row
 from bokeh.models import Column, GridBox, Row, Spacer
 from bokeh.plotting import figure
 
@@ -26,6 +26,12 @@ from bokeh.plotting import figure
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+# TODO (bev) deprecation: 3.0
+def test_GridSpec_deprecated() -> None:
+    from bokeh.util.deprecation import BokehDeprecationWarning
+    with pytest.warns(BokehDeprecationWarning):
+        GridSpec(2, 2)
 
 def test_gridplot_merge_tools_flat() -> None:
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()

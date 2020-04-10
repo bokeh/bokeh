@@ -491,6 +491,9 @@ class GridSpec(object):
         self.ncols = ncols
         self._arrangement = {}
 
+        from .util.deprecation import deprecated
+        deprecated("'GridSpec' is deprecated and will be removed in Bokeh 3.0")
+
     def __setitem__(self, key, obj):
         k1, k2 = key
 
