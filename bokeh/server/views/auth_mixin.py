@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from tornado import gen
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -69,13 +66,12 @@ class AuthMixin(object):
             return self.application.auth_provider.get_user(self)
         return "default_user"
 
-    @gen.coroutine
-    def prepare(self):
+    async def prepare(self):
         ''' Async counterpart to ``get_current_user``
 
         '''
         if self.application.auth_provider.get_user_async is not None:
-            self.current_user = yield self.application.auth_provider.get_user_async(self)
+            self.current_user = await self.application.auth_provider.get_user_async(self)
 
 #-----------------------------------------------------------------------------
 # Private API

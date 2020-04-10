@@ -52,25 +52,25 @@ class TestNullAuth(object):
         assert null_auth.endpoints == []
 
     def test_get_user(self, null_auth) -> None:
-        assert null_auth.get_user ==  None
+        assert null_auth.get_user == None
 
-    def test_get_user_async(self, null_auth) -> None:
-        assert null_auth.get_user_async ==  None
+    async def test_get_user_async(self, null_auth) -> None:
+        assert null_auth.get_user_async == None
 
     def test_login_url(self, null_auth) -> None:
-        assert null_auth.login_url ==  None
+        assert null_auth.login_url == None
 
     def test_get_login_url(self, null_auth) -> None:
-        assert null_auth.get_login_url ==  None
+        assert null_auth.get_login_url == None
 
     def test_login_handler(self, null_auth) -> None:
-        assert null_auth.login_handler ==  None
+        assert null_auth.login_handler == None
 
     def test_logout_url(self, null_auth) -> None:
-        assert null_auth.logout_url ==  None
+        assert null_auth.logout_url == None
 
     def test_logout_handler(self, null_auth) -> None:
-        assert null_auth.logout_handler ==  None
+        assert null_auth.logout_handler == None
 
 class TestAuthModule_properties(object):
     def test_no_endpoints(self) -> None:
@@ -245,7 +245,7 @@ class TestAuthModule_validation(object):
 
         with_file_contents("""
 def get_user(handler): return 10
-def get_user_async(handler): return 20
+async def get_user_async(handler): return 20
     """, func, suffix='.py')
 
     @pytest.mark.parametrize('user_func', ['get_user', 'get_user_async'])

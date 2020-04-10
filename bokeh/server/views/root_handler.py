@@ -63,6 +63,12 @@ class RootHandler(AuthMixin, RequestHandler):
             index = "app_index.html" if self.index is None else self.index
             self.render(index, prefix=prefix, items=sorted(self.applications.keys()))
 
+    # NOTE: The methods below exist on both AuthMixin and RequestHandler. This
+    # makes it explicit which of the versions is intended to be called.
+    get_login_url = AuthMixin.get_login_url
+    get_current_user = AuthMixin.get_current_user
+    prepare = AuthMixin.prepare
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
