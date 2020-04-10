@@ -86,11 +86,11 @@ export const Logo: Logo[] = ["normal", "grey"]
 export type MarkerType =
   "asterisk" | "circle" | "circle_cross" | "circle_x" | "cross" |
   "dash" | "diamond" | "diamond_cross" | "hex" | "inverted_triangle" |
-  "plus" | "square" | "square_cross" | "square_x" | "triangle" | "x"
+  "plus" | "square" | "square_cross" | "square_x" | "triangle" | "x" | "y"
 export const MarkerType: MarkerType[] = [
   "asterisk", "circle", "circle_cross", "circle_x", "cross",
   "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-  "plus", "square", "square_cross", "square_x", "triangle", "x",
+  "plus", "square", "square_cross", "square_x", "triangle", "x", "y",
 ]
 
 export type MutedPolicy = "show" | "ignore"

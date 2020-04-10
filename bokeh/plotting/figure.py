@@ -110,6 +110,7 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.vbar`
         * :func:`~bokeh.plotting.figure.Figure.wedge`
         * :func:`~bokeh.plotting.figure.Figure.x`
+        * :func:`~bokeh.plotting.figure.Figure.y`
 
     There is a scatter function that can be parameterized by marker type:
 
@@ -887,6 +888,24 @@ Examples:
 
 """
         pass
+
+    @glyph_method(markers.Y)
+    def y(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.y(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
+    pass
 
     # -------------------------------------------------------------------------
 

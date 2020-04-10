@@ -247,7 +247,7 @@ class TestValidateDetailDefault(object):
         p = MarkerType()
         with pytest.raises(ValueError) as e:
             p.validate("foo")
-        assert matches(str(e.value), r"invalid value: 'foo'; allowed values are asterisk, .* or x")
+        assert matches(str(e.value), r"invalid value: 'foo'; allowed values are asterisk, .* or y")
 
 
     @pytest.mark.parametrize('spec', SPECS)

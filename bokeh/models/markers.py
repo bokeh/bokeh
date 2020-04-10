@@ -25,6 +25,7 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.SquareX`
 * :class:`~bokeh.models.markers.Triangle`
 * :class:`~bokeh.models.markers.X`
+* :class:`~bokeh.models.markers.Y`
 
 Markers are all subclasses of ``Glyph``. Additionally, they all share the
 same common interface providing fill and line properties provided by their
@@ -86,6 +87,7 @@ __all__ = (
     'SquareX',
     'Triangle',
     'X',
+    'Y',
 )
 
 #-----------------------------------------------------------------------------
@@ -287,9 +289,14 @@ class Triangle(Marker):
     __example__ = "examples/reference/models/Triangle.py"
 
 class X(Marker):
-    ''' Render a 'X' cross markers. '''
+    ''' Render 'X' markers. '''
 
     __example__ = "examples/reference/models/X.py"
+
+class Y(Marker):
+    ''' Render 'Y' markers. '''
+
+    __example__ = "examples/reference/models/Y.py"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -312,7 +319,8 @@ marker_types = {
     "square_cross": SquareCross,
     "square_x": SquareX,
     "triangle": Triangle,
-    "x": X
+    "x": X,
+    "y": Y,
 }
 
 #-----------------------------------------------------------------------------

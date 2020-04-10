@@ -18,6 +18,17 @@ function _one_x(ctx: Context2d, r: number): void {
   ctx.lineTo(r,  r)
 }
 
+function _one_y(ctx: Context2d, r: number): void {
+  const h = r*SQ3
+  const a = h/3
+
+  ctx.moveTo(-h/2, -a)
+  ctx.lineTo(0, 0)
+  ctx.lineTo(h/2, -a)
+  ctx.lineTo(0, 0)
+  ctx.lineTo(0, r)
+}
+
 function _one_cross(ctx: Context2d, r: number): void {
   ctx.moveTo(0,  r)
   ctx.lineTo(0, -r)
@@ -295,6 +306,15 @@ function x(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void 
   }
 }
 
+function y(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
+  _one_y(ctx, r)
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+}
+
 function _mk_model(type: string, f: RenderOne): Class<Marker> {
   const view = class extends MarkerView {
     static initClass(): void {
@@ -332,6 +352,7 @@ export const SquareCross      = _mk_model('SquareCross',      square_cross)
 export const SquareX          = _mk_model('SquareX',          square_x)
 export const Triangle         = _mk_model('Triangle',         triangle)
 export const X                = _mk_model('X',                x)
+export const Y                = _mk_model('Y',                y)
 
 export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   asterisk,
@@ -350,4 +371,5 @@ export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   triangle,
   dash,
   x,
+  y,
 }
