@@ -44,7 +44,7 @@ HoverTool Formatters Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, the ``formatters`` property accepted a CDS column name. For example
-a formatter for a tooltip for ``"@foo`` could be specied with just ``"foo"``:
+a formatter for a tooltip for ``"@foo`` could be specified with just ``"foo"``:
 
 .. code-block:: python
 
