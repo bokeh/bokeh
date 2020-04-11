@@ -207,8 +207,8 @@ export class DataRange1d extends DataRange {
         }
         center = (log_min + log_max) / 2.0
       }
-      start = Math.pow(10, center - span / 2.0)
-      end   = Math.pow(10, center + span / 2.0)
+      start = 10**(center - span / 2.0)
+      end   = 10**(center + span / 2.0)
     } else {
       let span: number
       if (max == min)

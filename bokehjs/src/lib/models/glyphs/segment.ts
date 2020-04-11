@@ -79,7 +79,7 @@ export class SegmentView extends GlyphView {
     const candidates = this.index.indices({x0, y0, x1, y1})
 
     for (const i of candidates) {
-      const threshold2 = Math.pow(Math.max(2, this.visuals.line.cache_select('line_width', i) / 2), 2)
+      const threshold2 = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2)**2
       const p0 = {x: this.sx0[i], y: this.sy0[i]}
       const p1 = {x: this.sx1[i], y: this.sy1[i]}
       const dist2 = hittest.dist_to_segment_squared(point, p0, p1)

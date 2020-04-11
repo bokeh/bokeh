@@ -58,7 +58,7 @@ class TileExpects {
   expect_mercator_tile_counts(source: TileSource): void {
     for (const zoom_level of [1, 2, 3, 4, 5]) {
       const tiles = source.get_tiles_by_extent(this.MERCATOR_BOUNDS, zoom_level, 0)
-      expect(tiles.length).to.be.equal(Math.pow(2, zoom_level) * Math.pow(2, zoom_level))
+      expect(tiles.length).to.be.equal(2**zoom_level * 2**zoom_level)
     }
   }
 
@@ -66,7 +66,7 @@ class TileExpects {
     // assumes 512 tile size
     for (const zoom_level of [0, 1, 2, 3, 4, 5]) {
       const tiles = source.get_tiles_by_extent(this.GEOGRAPHIC_BOUNDS, zoom_level, 0)
-      expect(tiles.length).to.be.equal(Math.pow(4, zoom_level)*2)
+      expect(tiles.length).to.be.equal(4**zoom_level*2)
     }
   }
 }

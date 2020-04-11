@@ -101,8 +101,8 @@ export abstract class TileSource extends Model {
     const center_x = ((txmax - txmin) / 2) + txmin
     const center_y = ((tymax - tymin) / 2) + tymin
     tiles.sort(function(a, b) {
-      const a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2))
-      const b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2))
+      const a_distance = Math.sqrt((center_x - a[0])**2 + (center_y - a[1])**2)
+      const b_distance = Math.sqrt((center_x - b[0])**2 + (center_y - b[1])**2)
       return a_distance - b_distance
     })
   }

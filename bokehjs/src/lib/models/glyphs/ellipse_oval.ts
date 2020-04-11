@@ -91,7 +91,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       if (cond) {
         [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+        dist = (sx0-sx1)**2 + (sy0-sy1)**2
         hits.push([i, dist])
       }
     }

@@ -86,10 +86,10 @@ export class WedgeView extends XYGlyphView {
     const candidates = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      const r2 = Math.pow(this.sradius[i], 2)
+      const r2 = this.sradius[i]**2
       ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
       ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-      dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+      dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= r2) {
         candidates.push([i, dist])
       }
