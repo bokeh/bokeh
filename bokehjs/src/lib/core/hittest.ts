@@ -1,5 +1,4 @@
 import {Arrayable} from "./types"
-import {sort_by} from "./util/array"
 import {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null
@@ -31,16 +30,6 @@ export function point_in_ellipse(x: number, y: number, angle: number, b: number,
   const eqn = A * (x - x0) ** 2 + B * (x - x0) * (y - y0) + C * (y - y0) ** 2
   const inside = eqn <= 1
   return inside
-}
-
-export function create_empty_hit_test_result(): Selection {
-  return new Selection()
-}
-
-export function create_hit_test_result_from_hits(hits: [number, number][]): Selection {
-  const result = new Selection()
-  result.indices = sort_by(hits, ([_i, dist]) => dist).map(([i, _dist]) => i)
-  return result
 }
 
 function sqr(x: number): number {

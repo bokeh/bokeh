@@ -49,10 +49,10 @@ describe("GlyphRenderer", () => {
       hit_test: (geometry) -> return null
 
     class HitTestMiss
-      hit_test: (geometry) -> return create_hit_test_result_from_hits([])
+      hit_test: (geometry) -> return Selection.from_hits([])
 
     class HitTestHit
-      hit_test: (geometry) -> return create_hit_test_result_from_hits([[0], [1]])
+      hit_test: (geometry) -> return Selection.from_hits([[0], [1]])
 
     class DummyGlyphRendererView
       @glyph = null

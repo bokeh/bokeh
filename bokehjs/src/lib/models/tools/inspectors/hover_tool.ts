@@ -267,7 +267,7 @@ export class HoverToolView extends InspectToolView {
     for (const i of indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (!isEmpty(indices.multiline_indices)) {
-        for (const j of indices.multiline_indices[i.toString()]) {
+        for (const j of indices.multiline_indices[i.toString()]) { // TODO: indices.multiline_indices.get(i)
           let data_x = glyph._xs[i][j]
           let data_y = glyph._ys[i][j]
           let jj = j

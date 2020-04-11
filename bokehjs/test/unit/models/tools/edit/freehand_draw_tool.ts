@@ -2,12 +2,12 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
-import {create_hit_test_result_from_hits} from "@bokehjs/core/hittest"
 import {build_view} from "@bokehjs/core/build_views"
 
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {FreehandDrawTool, FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_draw_tool"
@@ -83,7 +83,7 @@ describe("FreehandDrawTool", () => {
     it("should select patches on tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -94,11 +94,11 @@ describe("FreehandDrawTool", () => {
     it("should select multiple patches on shift-tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
 
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(create_hit_test_result_from_hits([[0, 0]]))
+      hit_test_stub.returns(Selection.from_hits([[0, 0]]))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -108,7 +108,7 @@ describe("FreehandDrawTool", () => {
     it("should delete selected on delete key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -127,7 +127,7 @@ describe("FreehandDrawTool", () => {
     it("should clear selection on escape key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)

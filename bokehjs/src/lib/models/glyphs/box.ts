@@ -7,7 +7,6 @@ import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import * as hittest from "core/hittest"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
@@ -124,32 +123,27 @@ export abstract class BoxView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const hits = this.index.indices({x0: x, y0: y, x1: x, y1: y})
-
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    const indices = this.index.indices({x0: x, y0: y, x1: x, y1: y})
+    return new Selection({indices})
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
-    let hits: number[]
+    let indices: number[]
     if (geometry.direction == 'v') {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      hits = this.index.indices({x0, y0: y, x1, y1: y})
+      indices = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
       const x = this.renderer.xscale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
       const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      hits = this.index.indices({x0: x, y0, x1: x, y1})
+      indices = this.index.indices({x0: x, y0, x1: x, y1})
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

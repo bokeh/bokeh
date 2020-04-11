@@ -46,3 +46,11 @@ export function size<T>(obj: T): number {
 export function isEmpty<T>(obj: T): boolean {
   return size(obj) === 0
 }
+
+export function to_object<T>(map: Map<unknown, T>): {[key: string]: T} {
+  const obj: {[key: string]: T} = {}
+  for (const [key, val] of map) {
+    obj[`${key}`] = val
+  }
+  return obj
+}

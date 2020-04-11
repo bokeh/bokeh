@@ -53,7 +53,7 @@ export class PatchView extends XYGlyphView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
 
     if (hittest.point_in_poly(geometry.sx, geometry.sy, this.sx, this.sy)) {
       result.add_to_selected_glyphs(this.model)
@@ -62,7 +62,6 @@ export class PatchView extends XYGlyphView {
 
     return result
   }
-
 }
 
 export namespace Patch {

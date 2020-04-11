@@ -163,13 +163,12 @@ export class CircleView extends XYGlyphView {
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return Selection.from_hits(hits)
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const bounds = this.bounds()
-    const result = hittest.create_empty_hit_test_result()
 
     let x0, x1, y0, y1
     if (geometry.direction == 'h') {
@@ -204,19 +203,16 @@ export class CircleView extends XYGlyphView {
       }
     }
 
-    const hits = this.index.indices({x0, x1, y0, y1})
-
-    result.indices = hits
-    return result
+    const indices = this.index.indices({x0, x1, y0, y1})
+    return new Selection({indices})
   }
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices({x0, x1, y0, y1})
-    return result
+    const indices = this.index.indices({x0, x1, y0, y1})
+    return new Selection({indices})
   }
 
   protected _hit_poly(geometry: PolyGeometry): Selection {
@@ -225,17 +221,15 @@ export class CircleView extends XYGlyphView {
     // TODO (bev) use spatial index to pare candidate list
     const candidates = range(0, this.sx.length)
 
-    const hits = []
+    const indices = []
     for (let i = 0, end = candidates.length; i < end; i++) {
-      const idx = candidates[i]
+      const index = candidates[i]
       if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
-        hits.push(idx)
+        indices.push(index)
       }
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   // circle does not inherit from marker (since it also accepts radius) so we

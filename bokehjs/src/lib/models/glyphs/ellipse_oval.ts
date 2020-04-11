@@ -96,7 +96,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return Selection.from_hits(hits)
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {

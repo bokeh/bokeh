@@ -155,54 +155,46 @@ export class HexTileView extends GlyphView {
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
-    const hits = []
+    const indices = []
     for (const i of candidates) {
-
       if (hittest.point_in_poly(sx-this.sx[i], sy-this.sy[i], this.svx, this.svy)) {
-        hits.push(i)
+        indices.push(i)
       }
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-
-    return result
+    return new Selection({indices})
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
-    let hits: number[]
+    let indices: number[]
     if (geometry.direction == 'v') {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      hits = this.index.indices({x0, y0: y, x1, y1: y})
+      indices = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
       const x = this.renderer.xscale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
       const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      hits = this.index.indices({x0: x, y0, x1: x, y1})
+      indices = this.index.indices({x0: x, y0, x1: x, y1})
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices({x0, x1, y0, y1})
-    return result
+    const indices = this.index.indices({x0, x1, y0, y1})
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
-
 }
 
 export namespace HexTile {

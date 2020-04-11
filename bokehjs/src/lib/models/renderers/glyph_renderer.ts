@@ -11,10 +11,10 @@ import {Color} from "core/types"
 import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {indexOf, map, filter} from "core/util/arrayable"
+import {indexOf, filter} from "core/util/arrayable"
 import {difference, includes, range} from "core/util/array"
 import {extend, clone} from "core/util/object"
-import * as hittest from "core/hittest"
+import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
@@ -251,8 +251,10 @@ export class GlyphRendererView extends DataRendererView {
           return this.model.view.convert_indices_from_subset(indices)
         else if (inspected.indices.length > 0)
           return inspected.indices
-        else
-          return map(Object.keys(inspected.multiline_indices), (i) => parseInt(i))
+        else {
+          // TODO: return inspected.multiline_indices.keys()
+          return Object.keys(inspected.multiline_indices).map((i) => parseInt(i))
+        }
       }
     })())
 
@@ -366,7 +368,7 @@ export class GlyphRendererView extends DataRendererView {
     this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
   }
 
-  hit_test(geometry: Geometry): hittest.HitTestResult {
+  hit_test(geometry: Geometry): HitTestResult {
     if (!this.model.visible)
       return null
 
