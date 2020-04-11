@@ -83,7 +83,7 @@ describe("PolyDrawTool", (): void => {
     it("should select patches on tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -94,11 +94,11 @@ describe("PolyDrawTool", (): void => {
     it("should select multiple patches on shift-tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
 
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(Selection.from_hits([[0, 0]]))
+      hit_test_stub.returns(new Selection({indices: [0]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -108,7 +108,7 @@ describe("PolyDrawTool", (): void => {
     it("should delete selected on delete key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -127,7 +127,7 @@ describe("PolyDrawTool", (): void => {
     it("should clear selection on escape key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -145,7 +145,7 @@ describe("PolyDrawTool", (): void => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const start_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(start_event)
       const pan_event = make_pan_event(290, 290)
@@ -163,10 +163,10 @@ describe("PolyDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       const start_event1 = make_tap_event(300, 300)
-      hit_test_stub.returns(Selection.from_hits([[0, 0]]))
+      hit_test_stub.returns(new Selection({indices: [0]}))
       testcase.draw_tool_view._tap(start_event1)
       const start_event2 = make_pan_event(300, 300)
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       testcase.draw_tool_view._pan_start(start_event2)
       const pan_event = make_pan_event(290, 290)
       testcase.draw_tool_view._pan(pan_event)

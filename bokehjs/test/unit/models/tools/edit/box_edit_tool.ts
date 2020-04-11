@@ -87,7 +87,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -98,10 +98,10 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(Selection.from_hits([[2, 0]]))
+      hit_test_stub.returns(new Selection({indices: [2]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -112,7 +112,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -131,7 +131,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -148,7 +148,7 @@ describe("BoxEditTool", () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(Selection.from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 

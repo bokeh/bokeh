@@ -23,7 +23,7 @@ describe("SelectionManager", () => {
   describe("select", () => {
 
     it("should return true and set source selected if hit_test_result is not empty", () => {
-      glyph_stub.returns(Selection.from_hits([[0, 1]]))
+      glyph_stub.returns(new Selection({indices: [0]}))
       const source = renderer_view.model.data_source
 
       const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, false)
@@ -33,7 +33,7 @@ describe("SelectionManager", () => {
 
     it("should set source selected correctly with a cds_view", () => {
       // hit-testing is done in subset space, whereas selected should be set in full data space
-      glyph_stub.returns(Selection.from_hits([[0, 1]]))
+      glyph_stub.returns(new Selection({indices: [0]}))
       const source = renderer_view.model.data_source
       const filter = new IndexFilter({indices: [1]})
       renderer_view.model.view = new CDSView({filters: [filter]})
@@ -58,7 +58,7 @@ describe("SelectionManager", () => {
   describe("inspect", () => {
 
     it("should return true and set source inspected if hit_test result is not empty", () => {
-      glyph_stub.returns(Selection.from_hits([[1, 2]]))
+      glyph_stub.returns(new Selection({indices: [1]}))
       const source = renderer_view.model.data_source
 
       const did_hit = source.selection_manager.inspect(renderer_view, {type: "point", sx: 0, sy: 0})
