@@ -145,18 +145,18 @@ export class CircleView extends XYGlyphView {
     const hits: [number, number][] = []
     if (this._radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
-        const r2 = Math.pow(this.sradius[i], 2)
+        const r2 = this.sradius[i]**2
         const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-        const dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2)
+        const dist = (sx0 - sx1)**2 + (sy0 - sy1)**2
         if (dist <= r2) {
           hits.push([i, dist])
         }
       }
     } else {
       for (const i of candidates) {
-        const r2 = Math.pow(this.sradius[i], 2)
-        const dist = Math.pow(this.sx[i] - sx, 2) + Math.pow(this.sy[i] - sy, 2)
+        const r2 = this.sradius[i]**2
+        const dist = (this.sx[i] - sx)**2 + (this.sy[i] - sy)**2
         if (dist <= r2) {
           hits.push([i, dist])
         }

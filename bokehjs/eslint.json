@@ -57,6 +57,7 @@
     "no-var": "error",
     "object-shorthand": "error",
     "prefer-const": ["error", {"destructuring": "all"}],
+    "prefer-exponentiation-operator": "error",
     "quote-props": ["error", "as-needed"],
     "space-before-function-paren": ["error", {
       "anonymous": "never",

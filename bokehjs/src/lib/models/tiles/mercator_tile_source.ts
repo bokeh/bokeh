@@ -53,11 +53,11 @@ export class MercatorTileSource extends TileSource {
 
   is_valid_tile(x: number, y: number, z: number): boolean {
     if (!this.wrap_around) {
-      if (x < 0 || x >= Math.pow(2, z))
+      if (x < 0 || x >= 2**z)
         return false
     }
 
-    if (y < 0 || y >= Math.pow(2, z))
+    if (y < 0 || y >= 2**z)
       return false
 
     return true
@@ -70,7 +70,7 @@ export class MercatorTileSource extends TileSource {
   }
 
   get_resolution(level: number): number {
-    return this._computed_initial_resolution() / Math.pow(2, level)
+    return this._computed_initial_resolution() / 2**level
   }
 
   get_resolution_by_extent(extent: Extent, height: number, width: number): [number, number] {
@@ -136,12 +136,12 @@ export class MercatorTileSource extends TileSource {
 
   tms_to_wmts(x: number, y: number, z: number): [number, number, number] {
     // Note this works both ways
-    return [x, Math.pow(2, z) - 1 - y, z]
+    return [x, 2**z - 1 - y, z]
   }
 
   wmts_to_tms(x: number, y: number, z: number): [number, number, number] {
     // Note this works both ways
-    return [x, Math.pow(2, z) - 1 - y, z]
+    return [x, 2**z - 1 - y, z]
   }
 
   pixels_to_meters(px: number, py: number, level: number): [number, number] {
@@ -293,7 +293,7 @@ export class MercatorTileSource extends TileSource {
 
   normalize_xyz(x: number, y: number, z: number): [number, number, number] {
     if (this.wrap_around) {
-      const tile_count = Math.pow(2, z)
+      const tile_count = 2**z
       return [((x % tile_count) + tile_count) % tile_count, y, z]
     } else {
       return [x, y, z]
@@ -301,7 +301,7 @@ export class MercatorTileSource extends TileSource {
   }
 
   denormalize_xyz(x: number, y: number, z: number, world_x: number): [number, number, number] {
-    return [x + (world_x * Math.pow(2, z)), y, z]
+    return [x + (world_x * 2**z), y, z]
   }
 
   denormalize_meters(meters_x: number, meters_y: number, _level: number, world_x: number): [number, number] {
@@ -309,6 +309,6 @@ export class MercatorTileSource extends TileSource {
   }
 
   calculate_world_x_by_tile_xyz(x: number, _y: number, z: number): number {
-    return Math.floor(x / Math.pow(2, z))
+    return Math.floor(x / 2**z)
   }
 }

@@ -33,11 +33,11 @@ export class BasicTickFormatter extends TickFormatter {
   protected last_precision: number = 3
 
   get scientific_limit_low(): number {
-    return Math.pow(10.0, this.power_limit_low)
+    return 10.0**this.power_limit_low
   }
 
   get scientific_limit_high(): number {
-    return Math.pow(10.0, this.power_limit_high)
+    return 10.0**this.power_limit_high
   }
 
   _need_sci(ticks: number[]): boolean {

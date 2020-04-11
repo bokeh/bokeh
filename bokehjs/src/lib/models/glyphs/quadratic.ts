@@ -22,7 +22,7 @@ function _qbb(u: number, v: number, w: number): [number, number] {
     return [u, w]
   else {
     const t = (u - v) / ((u - (2*v)) + w)
-    const bd = (u*Math.pow((1 - t), 2)) + (2*v*(1 - t)*t) + (w*Math.pow(t, 2))
+    const bd = (u*(1 - t)**2) + (2*v*(1 - t)*t) + (w*t**2)
     return [Math.min(u, w, bd), Math.max(u, w, bd)]
   }
 }
