@@ -26,7 +26,6 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   protected _map_data(): void {
-
     if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
     else
