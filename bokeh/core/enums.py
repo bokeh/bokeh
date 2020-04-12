@@ -342,9 +342,13 @@ Location = enumeration("above", "below", "left", "right")
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
 
 #: Specify one of the built-in marker types
-MarkerType = enumeration("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                         "plus", "square", "square_cross", "square_x", "triangle", "x", "y")
+MarkerType = enumeration(
+    "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
+    "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
+    "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
+    "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+    "triangle_dot", "triangle_pin", "x", "y"
+)
 
 #: Specify one of the 137 named CSS colors
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
