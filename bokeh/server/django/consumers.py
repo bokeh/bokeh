@@ -87,7 +87,7 @@ class ConsumerHelper(AsyncConsumer):
         return self.arguments.get(name, default)
 
     def resources(self, absolute_url: Optional[str] = None) -> Resources:
-        mode = settings.resources(default="server")
+        mode = settings.resources(default="cdn")
         if mode == "server":
             root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
             return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
