@@ -336,6 +336,7 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 The Bokeh project is also grateful for the donation of services from the following companies:
 
 * [Amazon Web Services](https://aws.amazon.com/)
+* [GitHub](https://github.com/)
 * [GitGuardian](https://gitguardian.com/)
 * [Pingdom](https://www.pingdom.com/website-monitoring)
 * [1Password](https://1password.com/)
