@@ -3,8 +3,8 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
-import {Place, Location, OutputBackend, ResetPolicy} from "core/enums"
-import {remove_by, concat} from "core/util/array"
+import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
+import {concat, remove_by} from "core/util/array"
 import {values} from "core/util/object"
 import {isArray} from "core/util/types"
 
@@ -28,6 +28,7 @@ import {Tool} from "../tools/tool"
 import {DataRange1d} from '../ranges/data_range1d'
 
 import {PlotView} from "./plot_canvas"
+
 export {PlotView}
 
 export namespace Plot {
@@ -217,8 +218,7 @@ export class Plot extends LayoutDOM {
   }
 
   add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
-    const side_renderers = this.getv(side)
-    side_renderers.push(renderer as any /* XXX */)
+    this.setv({[side]: [...this.getv(side), renderer]})
   }
 
   remove_layout(renderer: Annotation | GuideRenderer): void {

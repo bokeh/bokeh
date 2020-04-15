@@ -824,12 +824,8 @@ export class PlotView extends LayoutDOMView {
   async build_renderer_views(): Promise<void> {
     this.computed_renderers = []
 
-    this.computed_renderers.push(...this.model.above)
-    this.computed_renderers.push(...this.model.below)
-    this.computed_renderers.push(...this.model.left)
-    this.computed_renderers.push(...this.model.right)
-    this.computed_renderers.push(...this.model.center)
-    this.computed_renderers.push(...this.model.renderers)
+    const {above, below, left, right, center, renderers} = this.model
+    this.computed_renderers.push(...above, ...below, ...left, ...right, ...center, ...renderers)
 
     if (this._title != null)
       this.computed_renderers.push(this._title)
@@ -867,9 +863,9 @@ export class PlotView extends LayoutDOMView {
       this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
-    this.connect(this.model.properties.renderers.change, async () => {
-      await this.build_renderer_views()
-    })
+    const {above, below, left, right, center, renderers} = this.model.properties
+    this.on_change([above, below, left, right, center, renderers], async () => await this.build_renderer_views())
+
     this.connect(this.model.toolbar.properties.tools.change, async () => {
       await this.build_renderer_views()
       await this.build_tool_views()

@@ -4,7 +4,9 @@ import * as sinon from 'sinon'
 import {Plot} from "@bokehjs/models/plots/plot"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import {build_view} from "@bokehjs/core/build_views"
+import {Place} from "@bokehjs/core/enums"
 
 async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
   const plot = new Plot({
@@ -77,6 +79,18 @@ describe("Plot module", () => {
       expect(view.layout.min_border.bottom).to.be.equal(5)
       expect(view.layout.min_border.left).to.be.equal(4)
       expect(view.layout.min_border.right).to.be.equal(5)
+    })
+
+    it("should rebuild renderer views after add_layout", async () => {
+      const view = await new_plot_view()
+      for (const side of Place) {
+        view.model.add_layout(new Label({x: 0, y: 0, text: side, id: side}), side)
+        // We need to do this for each side separately because otherwise
+        // even if only e.g. `center.change` is connected, all other changes
+        // will be taken into account by `build_renderer_views`.
+        await view.ready
+        expect(view.renderer_views[side]).to.be.instanceof(LabelView)
+      }
     })
 
     describe("PlotView.pause()", () => {
