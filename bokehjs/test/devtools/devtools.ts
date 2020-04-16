@@ -63,7 +63,7 @@ async function run_tests(): Promise<void> {
   let handle_exceptions = true
   try {
     client = await CDP({port})
-    const {Network, Page, Runtime, Log} = client
+    const {Emulation, Network, Page, Runtime, Log} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -159,6 +159,13 @@ async function run_tests(): Promise<void> {
       await Runtime.enable()
       await Page.enable()
       await Log.enable()
+
+      await Emulation.setDeviceMetricsOverride({
+        width: 1000,
+        height: 1000,
+        deviceScaleFactor: 1,
+        mobile: false,
+      })
 
       const {errorText} = await Page.navigate({url})
 
