@@ -42,6 +42,13 @@
     </script>
   </head>
   <body>
+    <div style="visibility: hidden;">
+      <!-- Preload fonts. Rmove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
+      <span style="font-family: Bokeh;     font-style: normal; font-weight: normal;">Ab01_</span>
+      <span style="font-family: Bokeh;     font-style: normal; font-weight: bold;"  >Ab01_</span>
+      <span style="font-family: Bokeh;     font-style: italic; font-weight: normal;">Ab01_</span>
+      <span style="font-family: BokehMono; font-style: normal; font-weight: normal;">Ab01_</span>
+    </div>
     <script type="text/javascript" src="/static/test/{{ main }}"></script>
     {%- if run %}
     <script>
