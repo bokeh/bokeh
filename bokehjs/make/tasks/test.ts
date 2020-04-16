@@ -261,7 +261,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     opt("k", argv.k),
     opt("grep", argv.grep),
     opt("baselines-root", baselines_root),
-    `--screenshot=${argv.screenshot ?? "skip"}`,
+    `--screenshot=${argv.screenshot ?? "test"}`,
   ]
 
   if (argv.debug) {

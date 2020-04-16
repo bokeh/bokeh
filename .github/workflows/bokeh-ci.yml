@@ -398,7 +398,7 @@ jobs:
         shell: bash
         working-directory: ./bokehjs
         run: |
-          node make test --screenshot=save
+          node make test
 
       - name: Collect results
         if: always()
