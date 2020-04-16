@@ -110,13 +110,14 @@ export abstract class Property<T> extends Signalable() {
     let attr_value: any = obj.getv(attr)
 
     if (attr_value === undefined) {
-      const default_value = this.default_value
-      if (this._default_override != null)
-        attr_value = this._default_override()
-      else if (default_value !== undefined)
-        attr_value = default_value(obj)
-      else
-        attr_value = null
+      attr_value = this._default_override()
+      if (attr_value === undefined) {
+        const default_value = this.default_value
+        if (default_value !== undefined)
+          attr_value = default_value(obj)
+        else
+          attr_value = null
+      }
       obj.setv({[attr]: attr_value}, {silent: true, defaults: true})
     }
 
@@ -136,7 +137,9 @@ export abstract class Property<T> extends Signalable() {
     this.init()
   }
 
-  _default_override?: () => T
+  _default_override(): T | undefined {
+    return undefined
+  }
 
   toString(): string {
     /*${this.name}*/
@@ -201,7 +204,9 @@ export class String extends Property<string> {
 export class FontSize extends String {}
 
 export class Font extends String {
-  _default_override = settings.dev ? () => "Bokeh" : undefined
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
 }
 
 //
