@@ -4,7 +4,7 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTicker} from "../tickers/basic_ticker"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
-import {LinearColorMapper, LogColorMapper, EqHistColorMapper} from "../mappers"
+import {LinearColorMapper, LogColorMapper, ScanningColorMapper} from "../mappers"
 import {LinearScale} from "../scales/linear_scale"
 import {LinearInterpolationScale} from "../scales/linear_interpolation_scale"
 import {Scale} from "../scales/scale"
@@ -205,12 +205,10 @@ export class ColorBarView extends AnnotationView {
 
     this._draw_image(ctx)
 
-    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null) {
-      const tick_info = this.tick_info()
-      this._draw_major_ticks(ctx, tick_info)
-      this._draw_minor_ticks(ctx, tick_info)
-      this._draw_major_labels(ctx, tick_info)
-    }
+    const tick_info = this.tick_info()
+    this._draw_major_ticks(ctx, tick_info)
+    this._draw_minor_ticks(ctx, tick_info)
+    this._draw_major_labels(ctx, tick_info)
 
     if (this.model.title)
       this._draw_title(ctx)
@@ -333,7 +331,7 @@ export class ColorBarView extends AnnotationView {
     const major_labels = this.tick_info().labels.major
 
     let label_extent: number
-    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !is_empty(major_labels)) {
+    if (!is_empty(major_labels)) {
       const {ctx} = this.layer
       ctx.save()
       this.visuals.major_label_text.set_value(ctx)
@@ -373,10 +371,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   _tick_extent(): number {
-    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null)
-      return max([this.model.major_tick_out, this.model.minor_tick_out])
-    else
-      return 0
+    return max([this.model.major_tick_out, this.model.minor_tick_out])
   }
 
   _computed_image_dimensions(): {height: number, width: number} {
@@ -456,8 +451,8 @@ export class ColorBarView extends AnnotationView {
 
     const ranges = {
       source_range: new Range1d({
-        start: this.model.color_mapper.low,
-        end: this.model.color_mapper.high,
+        start: this.model.color_mapper.metrics.min,
+        end: this.model.color_mapper.metrics.max,
       }),
       target_range: new Range1d({
         start: 0,
@@ -467,13 +462,14 @@ export class ColorBarView extends AnnotationView {
 
     const {color_mapper} = this.model
     if (color_mapper instanceof LinearColorMapper)
-       return new LinearScale(ranges)
+      return new LinearScale(ranges)
     else if (color_mapper instanceof LogColorMapper)
-       return new LogScale(ranges)
-    else if (color_mapper instanceof EqHistColorMapper) {
-      const {scan_result} = color_mapper
+      return new LogScale(ranges)
+    else if (color_mapper instanceof ScanningColorMapper) {
+      const {binning} = color_mapper.metrics
       // TODO: scan_result = this.model.color_mapper.scan(???)
-      return new LinearInterpolationScale({...ranges, scan_result})
+      return new LinearInterpolationScale({...ranges, binning})
+    // TODO: Categorical*Mapper needs painters
     } else
       unreachable()
   }
@@ -508,7 +504,7 @@ export class ColorBarView extends AnnotationView {
 
     const scale = this._tick_coordinate_scale(scale_length)
     const [i, j] = this._normals()
-    const [start, end] = [this.model.color_mapper.low, this.model.color_mapper.high]
+    const [start, end] = [this.model.color_mapper.metrics.min, this.model.color_mapper.metrics.max]
 
     // XXX: passing null as cross_loc probably means MercatorTickers, etc
     // will not function properly in conjunction with colorbars

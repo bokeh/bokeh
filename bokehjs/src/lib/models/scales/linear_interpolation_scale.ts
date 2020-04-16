@@ -1,14 +1,14 @@
 import {Scale} from "./scale"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import {linspace} from "core/util/array"
-import {interp, norm, map} from "core/util/arrayable"
+import {interpolate, norm, map} from "core/util/arrayable"
 import * as p from "core/properties"
 
 export namespace LinearInterpolationScale {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Scale.Props & {
-    scan_result: p.Property<Arrayable<number>>
+    binning: p.Property<Arrayable<number>>
   }
 }
 
@@ -22,27 +22,28 @@ export class LinearInterpolationScale extends Scale {
   }
 
   static init_LinearInterpolationScale(): void {
-    this.internal({scan_result: [ p.Array ]})
+    this.internal({binning: [ p.Array ]})
   }
 
   compute(x: number): number {
     return x
   }
 
-  v_compute(xs: number[]): Arrayable<number> {
+  v_compute(xs: Arrayable<number>): NumberArray {
     const norm_xs = norm(xs, this.source_range.start, this.source_range.end)
-    const edges_norm = linspace(0, 1, this.scan_result.length)
-    const interpolated = interp(norm_xs, edges_norm, this.scan_result)
+    const edges_norm = linspace(0, 1, this.binning.length)
+    const interpolated = interpolate(norm_xs, edges_norm, this.binning)
     const norm_interp = norm(interpolated, this.source_range.start, this.source_range.end)
     const target_span = this.target_range.end - this.target_range.start
-    return map(norm_interp, (x) => this.target_range.start + x*target_span)
+    const sxs = map(norm_interp, (x) => this.target_range.start + x*target_span)
+    return new NumberArray(sxs)
   }
 
   invert(xprime: number): number {
     return xprime
   }
 
-  v_invert(xprimes: Arrayable<number>): Arrayable<number> {
-    return xprimes
+  v_invert(xprimes: Arrayable<number>): NumberArray {
+    return new NumberArray(xprimes)
   }
 }

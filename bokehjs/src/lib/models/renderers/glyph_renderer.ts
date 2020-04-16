@@ -146,6 +146,15 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
+  _update_masked_indices(): number[] {
+    let masked = this.glyph.mask_data(this.all_indices)
+    if (masked.length === this.all_indices.length) {
+      masked = range(0, this.all_indices.length)
+    }
+    this.model.view.masked = masked
+    return masked
+  }
+
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
@@ -153,8 +162,15 @@ export class GlyphRendererView extends DataRendererView {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
-
     this.glyph.set_data(source, this.all_indices, indices)
+
+    this._update_masked_indices()
+
+    const {lod_factor} = this.plot_model
+    this.decimated = []
+    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
+      this.decimated.push(i*lod_factor)
+    }
 
     this.glyph.set_visuals(source, this.all_indices)
     this.decimated_glyph.set_visuals(source, this.all_indices)
@@ -162,12 +178,6 @@ export class GlyphRendererView extends DataRendererView {
     this.nonselection_glyph.set_visuals(source, this.all_indices)
     this.hover_glyph?.set_visuals(source, this.all_indices)
     this.muted_glyph?.set_visuals(source, this.all_indices)
-
-    const {lod_factor} = this.plot_model
-    this.decimated = []
-    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
-      this.decimated.push(i*lod_factor)
-    }
 
     const dt = Date.now() - t0
     logger.debug(`${this.glyph.model.type} ${this.model}): set_data finished in ${dt}ms`)
@@ -191,12 +201,11 @@ export class GlyphRendererView extends DataRendererView {
     const dtmap = Date.now() - t0
 
     const tmask = Date.now()
+
     // all_indices is in full data space, indices is converted to subset space
     // either by mask_data (that uses the spatial index) or manually
-    let indices = this.glyph.mask_data(this.all_indices)
-    if (indices.length === this.all_indices.length) {
-      indices = range(0, this.all_indices.length)
-    }
+    let indices = this._update_masked_indices()
+
     const dtmask = Date.now() - tmask
 
     const {ctx} = this.layer

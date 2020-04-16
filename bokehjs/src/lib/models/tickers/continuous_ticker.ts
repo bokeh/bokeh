@@ -65,7 +65,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)
     let factors: number[]
-    if (isNaN(start_factor) || isNaN(end_factor))
+    if (!isFinite(start_factor) || !isFinite(end_factor))
       factors = []
     else
       factors = range(start_factor, end_factor + 1)
