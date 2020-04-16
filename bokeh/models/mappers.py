@@ -33,13 +33,17 @@ from ..core.properties import (
     Enum,
     Float,
     HatchPatternType,
+    Instance,
     Int,
+    List,
     MarkerType,
     Seq,
     String,
     Tuple,
 )
 from .transforms import Transform
+#from .sources import ColumnDataSource, CDSView
+#from .renderers import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -192,6 +196,9 @@ class ContinuousColorMapper(ColorMapper):
     ''' Base class for continuous color mapper types.
 
     '''
+
+    #domain = List(Tuple(Instance(ColumnDataSource), List(String), Instance(CDSView)), default=[])
+    domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[])
 
     low = Float(help="""
     The minimum value of the range to map into the palette. Values below

@@ -70,9 +70,9 @@ export function rnorm(mu: number, sigma: number): number {
 }
 
 export function clamp(val: number, min: number, max: number): number {
-  if (val > max)
-    return max
   if (val < min)
     return min
+  if (val > max)
+    return max
   return val
 }

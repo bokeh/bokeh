@@ -93,7 +93,7 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
 
   const delta = start <= stop ? step : -step
   const length = max(ceil(abs(stop - start) / step), 0)
-  const range = Array(length)
+  const range = new Array(length)
 
   for (let i = 0; i < length; i++, start += delta) {
     range[i] = start

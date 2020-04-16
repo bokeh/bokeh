@@ -145,14 +145,20 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
+  _update_masked_indices(): Indices {
+    let masked = this.glyph.mask_data()
+    this.model.view.masked = masked
+    return masked
+  }
+
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
+    const {all_indices} = this
 
-    const all_indices = this.all_indices
     this.glyph.set_data(source, all_indices, indices)
 
     this.glyph.set_visuals(source, all_indices)
@@ -161,6 +167,8 @@ export class GlyphRendererView extends DataRendererView {
     this.nonselection_glyph?.set_visuals(source, all_indices)
     this.hover_glyph?.set_visuals(source, all_indices)
     this.muted_glyph?.set_visuals(source, all_indices)
+
+    this._update_masked_indices()
 
     const {lod_factor} = this.plot_model
     const n = this.all_indices.count
@@ -187,7 +195,7 @@ export class GlyphRendererView extends DataRendererView {
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]
-    let indices = [...this.glyph.mask_data()]
+    let indices = [...this._update_masked_indices()]
 
     const {ctx} = this.layer
     ctx.save()

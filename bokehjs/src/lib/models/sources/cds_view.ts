@@ -13,6 +13,7 @@ export namespace CDSView {
     source: p.Property<ColumnarDataSource>
     indices: p.Property<Indices>
     indices_map: p.Property<{[key: string]: number}>
+    masked: p.Property<Indices | null>
   }
 }
 
@@ -32,8 +33,9 @@ export class CDSView extends Model {
     })
 
     this.internal({
-      indices:     [ p.Any     ],
-      indices_map: [ p.Any, {} ],
+      indices:     [ p.Any       ],
+      indices_map: [ p.Any, {}   ],
+      masked:      [ p.Any, null ],
     })
   }
 

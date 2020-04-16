@@ -1,5 +1,6 @@
 import {Arrayable, ArrayableNew} from "../types"
 import {isArray} from "./types"
+import {clamp} from "./math"
 
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
@@ -299,32 +300,37 @@ export function sorted_index<T>(array: Arrayable<T>, value: T): number {
   return low
 }
 
-export function bin_counts(data : Arrayable<number>, bin_edges : Arrayable<number>) {
-    const counts = Array(bin_edges.length -1).fill(0)
-    for (let i = 0; i < data.length; i++){
-        const sample = data[i]
-        for (let bin = 0; bin < counts.length; bin++){
-            if(sample > bin_edges[bin] && sample <= bin_edges[bin+1]){
-                counts[bin]+=1
-            }
-        }
-    }
-    return counts
+export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): Arrayable<number> {
+  const nbins = bin_edges.length - 1
+  const counts = Array(nbins).fill(0)
+  for (let i = 0; i < data.length; i++) {
+    const sample = data[i]
+    const index = sorted_index(bin_edges, sample)
+    const bin = clamp(index - 1, 0, nbins - 1)
+    counts[bin] += 1
+  }
+  return counts
 }
 
-export function interp(pointsToEvaluate: Arrayable<number>, functionValuesX: Arrayable<number>, functionValuesY: Arrayable<number>): Arrayable<number> {
-  const results: number[] = []
-  for (const point of pointsToEvaluate) {
-    let index = leftedgeindex(point, functionValuesX)
-    if (index == functionValuesX.length - 1)
-        index--
+export function interpolate(points: Arrayable<number>, x_values: Arrayable<number>, y_values: Arrayable<number>): Arrayable<number> {
+  const n = points.length
+  const results: number[] = new Array(n)
 
-    const x0 = functionValuesX[index]
-    const y0 = functionValuesY[index]
-    const x1 = functionValuesX[index + 1]
-    const y1 = functionValuesY[index + 1]
-    results.push(lerp(point, x0, y0, x1, y1))
+  for (let i = 0; i < n; i++) {
+    const point = points[i]
+
+    let index = left_edge_index(point, x_values)
+    if (index == x_values.length - 1) {
+      index--
+    }
+
+    const x0 = x_values[index]
+    const y0 = y_values[index]
+    const x1 = x_values[index + 1]
+    const y1 = y_values[index + 1]
+    results[i] = lerp(point, x0, y0, x1, y1)
   }
+
   return results
 }
 
@@ -334,7 +340,7 @@ function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number
   return a*x + b
 }
 
-function leftedgeindex(point: number, intervals: Arrayable<number>): number {
+function left_edge_index(point: number, intervals: Arrayable<number>): number {
   if (point < intervals[0])
     return 0
   if (point > intervals[intervals.length - 1])
@@ -352,6 +358,6 @@ function leftedgeindex(point: number, intervals: Arrayable<number>): number {
 }
 
 export function norm(array: Arrayable<number>, start: number, end:number): Arrayable<number> {
-  const span = (end - start)
+  const span = end - start
   return map(array, (x) => (x - start) / span)
 }

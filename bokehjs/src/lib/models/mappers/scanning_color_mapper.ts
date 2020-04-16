@@ -18,6 +18,8 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     super(attrs)
   }
 
+  metrics: {min: number, max: number, binning: Arrayable<number>}
+
   protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, edges: Arrayable<number>): T {
     assert(edges.length > 0)
 
@@ -29,11 +31,11 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     }
 
     let key = 0
-    for (let i = 0, end = edges.length-1; i < end; i++) {
+    for (let i = 0, end = edges.length - 2; i < end; i++) {
       const low_edge = edges[i]
       const high_edge = edges[i+1]
       key = i
-      if (d < high_edge && d >= low_edge) {
+      if (low_edge <= d && d < high_edge) {
         break
       }
     }
