@@ -242,7 +242,7 @@ class Test_components(object):
         assert div.attrs['class'] == ['bk-root']
         assert div.attrs['id'] == 'ID'
         assert div.attrs['data-root-id'] == test_plot.id
-        assert div.text == ''
+        assert div.string is None
 
     def test_script_is_utf8_encoded(self, test_plot) -> None:
         script, div = bes.components(test_plot)

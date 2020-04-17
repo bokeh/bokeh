@@ -339,7 +339,7 @@ class TestResources(object):
         html = bs4.BeautifulSoup(out, "lxml")
         scripts = html.findAll(name='script')
         for script in scripts:
-            if "set_log_level" in script.text:
+            if "src" not in script.attrs:
                 continue
             assert script.attrs['crossorigin'] == "anonymous"
             assert script.attrs['integrity'].startswith("sha384-")
@@ -362,7 +362,7 @@ class TestResources(object):
         html = bs4.BeautifulSoup(out, "lxml")
         scripts = html.findAll(name='script')
         for script in scripts:
-            if "set_log_level" in script.text:
+            if "src" not in script.attrs:
                 continue
             assert script.attrs['crossorigin'] == "anonymous"
             assert script.attrs['integrity'].startswith("sha384-")

@@ -64,7 +64,7 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
-        assert request in script.text
+        assert request in script.string
 
     def test_script_attrs_arguments_provided(self) -> None:
         r = bes.server_document(arguments=dict(foo=10))
@@ -78,7 +78,7 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10\", true);" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
+        assert request in script.string
 
     def test_script_attrs_url_provided_absolute_resources(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
@@ -93,7 +93,7 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
-        assert request in script.text
+        assert request in script.string
 
     def test_script_attrs_url_provided(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
@@ -107,7 +107,7 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders\", true);" % \
               ("http://localhost:8081/foo/bar/sliders", divid)
-        assert request in script.text
+        assert request in script.string
 
 class TestServerSession(object):
 
@@ -126,8 +126,8 @@ class TestServerSession(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.text
+        assert request in script.string
+        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
     def test_invalid_resources_param(self, test_plot) -> None:
         with pytest.raises(ValueError):
@@ -154,8 +154,8 @@ class TestServerSession(object):
         divid = attrs['id']
         request = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.text
+        assert request in script.string
+        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
     def test_general(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
@@ -168,8 +168,8 @@ class TestServerSession(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.text
+        assert request in script.string
+        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
 #-----------------------------------------------------------------------------
 # Dev API
