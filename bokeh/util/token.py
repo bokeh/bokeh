@@ -103,7 +103,7 @@ def generate_jwt_token(session_id: str,
     Returns:
         str
     """
-    now = calendar.timegm(dt.datetime.now().utctimetuple())
+    now = calendar.timegm(dt.datetime.utcnow().utctimetuple())
     payload = {'session_id': session_id, 'session_expiry': now+expiration}
     if extra_payload:
         if "session_id" in extra_payload:

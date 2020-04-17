@@ -197,7 +197,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             self.close()
             raise RuntimeError("No token received in subprotocol header")
 
-        now = calendar.timegm(dt.datetime.now().utctimetuple())
+        now = calendar.timegm(dt.datetime.utcnow().utctimetuple())
         payload = get_token_payload(token)
         if 'session_expiry' not in payload:
             self.close()

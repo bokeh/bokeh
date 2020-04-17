@@ -15,13 +15,15 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import calendar
 import codecs
+import datetime as dt
 import json
 import os
 import random
 
 # External imports
-from mock import patch
+from mock import patch, Mock
 
 # Bokeh imports
 from bokeh.util.token import (
@@ -35,6 +37,7 @@ from bokeh.util.token import (
     generate_secret_key,
     generate_session_id,
     get_session_id,
+    get_token_payload,
 )
 
 # Module under test
@@ -161,6 +164,16 @@ class TestSessionId(object):
         session_id = generate_session_id(signed=True, secret_key="abc")
         token = generate_jwt_token(session_id, signed=True, secret_key="abc")
         assert check_token_signature(token, secret_key="abc", signed=True)
+
+    def test_jwt_token_uses_utc_time(self) -> None:
+        # django server generates token using UTC timezone
+        token = generate_jwt_token("foo", expiration=0)
+        with patch.object(dt, "datetime", Mock(wraps=dt.datetime)) as patched_dt:
+            # mock bokeh server localtime to be UTC + 10
+            patched_dt.now.return_value = dt.datetime.utcnow() + dt.timedelta(hours=10)
+            payload = get_token_payload(token)
+        utcnow = calendar.timegm(dt.datetime.utcnow().utctimetuple())
+        assert utcnow -1 <= payload['session_expiry'] <= utcnow + 1
 
 #-----------------------------------------------------------------------------
 # Dev API
