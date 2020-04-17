@@ -55,7 +55,7 @@ class TestServerDocument(object):
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -69,7 +69,7 @@ class TestServerDocument(object):
     def test_script_attrs_arguments_provided(self) -> None:
         r = bes.server_document(arguments=dict(foo=10))
         assert 'foo=10' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -84,7 +84,7 @@ class TestServerDocument(object):
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -98,7 +98,7 @@ class TestServerDocument(object):
     def test_script_attrs_url_provided(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -117,7 +117,7 @@ class TestServerSession(object):
 
     def test_script_attrs_session_id_provided(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -145,7 +145,7 @@ class TestServerSession(object):
 
     def test_model_none(self) -> None:
         r = bes.server_session(None, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -159,7 +159,7 @@ class TestServerSession(object):
 
     def test_general(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]

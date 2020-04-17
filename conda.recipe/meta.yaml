@@ -63,7 +63,6 @@ test:
     - geckodriver
     - ipython
     - isort >=4.3.21
-    - lxml
     - mock
     - mypy
     - nbconvert >=5.4
