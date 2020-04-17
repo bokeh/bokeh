@@ -336,10 +336,10 @@ class TestResources(object):
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         out = resources.CDN.render_js()
-        html = bs4.BeautifulSoup(out, "lxml")
+        html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
-            if "set_log_level" in script.text:
+            if "src" not in script.attrs:
                 continue
             assert script.attrs['crossorigin'] == "anonymous"
             assert script.attrs['integrity'].startswith("sha384-")
@@ -349,7 +349,7 @@ class TestResources(object):
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.CDN.render_js()
-        html = bs4.BeautifulSoup(out, "lxml")
+        html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
             assert "crossorigin" not in script.attrs
@@ -359,10 +359,10 @@ class TestResources(object):
         monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
         out = resources.CDN.render_js()
-        html = bs4.BeautifulSoup(out, "lxml")
+        html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
-            if "set_log_level" in script.text:
+            if "src" not in script.attrs:
                 continue
             assert script.attrs['crossorigin'] == "anonymous"
             assert script.attrs['integrity'].startswith("sha384-")
@@ -372,7 +372,7 @@ class TestResources(object):
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.INLINE.render_js()
-        html = bs4.BeautifulSoup(out, "lxml")
+        html = bs4.BeautifulSoup(out, "html.parser")
         scripts = html.findAll(name='script')
         for script in scripts:
             assert "crossorigin" not in script.attrs

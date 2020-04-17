@@ -79,7 +79,7 @@ class Test_autoload_static(object):
 
     def test_script_attrs(self, test_plot) -> None:
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
-        html = bs4.BeautifulSoup(tag, "lxml")
+        html = bs4.BeautifulSoup(tag, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         attrs = scripts[0].attrs
@@ -224,7 +224,7 @@ class Test_components(object):
 
     def test_result_attrs(self, test_plot) -> None:
         script, div = bes.components(test_plot)
-        html = bs4.BeautifulSoup(script, "lxml")
+        html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         assert scripts[0].attrs == {'type': 'text/javascript'}
@@ -232,7 +232,7 @@ class Test_components(object):
     @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
     def test_div_attrs(self, test_plot) -> None:
         script, div = bes.components(test_plot)
-        html = bs4.BeautifulSoup(div, "lxml")
+        html = bs4.BeautifulSoup(div, "html.parser")
 
         divs = html.findAll(name='div')
         assert len(divs) == 1
@@ -242,7 +242,7 @@ class Test_components(object):
         assert div.attrs['class'] == ['bk-root']
         assert div.attrs['id'] == 'ID'
         assert div.attrs['data-root-id'] == test_plot.id
-        assert div.text == ''
+        assert div.string is None
 
     def test_script_is_utf8_encoded(self, test_plot) -> None:
         script, div = bes.components(test_plot)
@@ -250,7 +250,7 @@ class Test_components(object):
 
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot) -> None:
         script, div = bes.components(test_plot)
-        html = bs4.BeautifulSoup(script, "lxml")
+        html = bs4.BeautifulSoup(script, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
 
