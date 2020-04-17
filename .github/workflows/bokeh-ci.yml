@@ -404,18 +404,14 @@ jobs:
         if: always()
         shell: bash
         run: |
-          SRC="bokehjs/test"
-          DST="integration-report/$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')"
-          mkdir -p $DST
-          if [[ -e $SRC/report.json ]];
+          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
+          SRC="bokehjs/test/baselines/${OS}"
+          DST="integration-report/${SRC}"
+          mkdir -p ${DST}
+          if [[ -e ${SRC}/report.json ]];
           then
-            if [[ "${{ runner.os }}" = "Windows" ]]; then
-              COPY="cp --parents"
-            else
-              COPY="rsync -R"
-            fi
-            CHANGED=$(git status --short $SRC/baselines | cut -c4-)
-            $COPY $SRC/report.json $CHANGED $DST
+            CHANGED=$(git status --short ${SRC}/*.png | cut -c4-)
+            cp ${SRC}/report.json ${CHANGED} ${DST}
           fi
 
       - name: Upload report

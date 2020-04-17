@@ -9,6 +9,7 @@ import {Bar, Presets} from "cli-progress"
 
 import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 import {diff_image} from "./image"
+import {platform} from "./sys"
 
 const url = argv._[0]
 const port = parseInt(argv.port as string | undefined ?? "9222")
@@ -267,8 +268,6 @@ async function run_tests(): Promise<void> {
       }, Presets.shades_classic)
 
       const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
-
-      path.join("test", "baselines")
       const baseline_names = new Set<string>()
 
       let skipped = 0
@@ -342,64 +341,72 @@ async function run_tests(): Promise<void> {
                   status.errors.push(stack ?? str)
                   status.failure = true
                 } else if (baselines_root != null) {
-                  if (result.state == null) {
+                  const {state} = result
+                  if (state == null) {
                     status.errors.push("state not present in output")
                     status.failure = true
                   } else {
-                    const baseline_path = path.join(baselines_root, baseline_name)
+                    await (async () => {
+                      const baseline_path = path.join(baselines_root, baseline_name)
 
-                    const {bbox} = result
-                    if (bbox != null) {
-                      const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                      const current = Buffer.from(image.data, "base64")
-                      status.image = current
+                      const baseline = create_baseline([state])
+                      await fs.promises.writeFile(baseline_path, baseline)
+                      status.baseline = baseline
 
-                      const image_path = `${baseline_path}.png`
-                      const write_image = async () => fs.promises.writeFile(image_path, current)
-                      const existing = load_baseline_image(image_path)
+                      const existing = load_baseline(baseline_path)
+                      if (existing != baseline) {
+                        if (existing == null) {
+                          status.errors.push("missing baseline")
+                        }
+                        const diff = diff_baseline(baseline_path)
+                        status.failure = true
+                        status.baseline_diff = diff
+                        status.errors.push(diff)
+                      }
+                    })()
 
-                      switch (argv.screenshot) {
-                        case undefined:
-                        case "test":
-                          if (existing == null) {
-                            status.failure = true
-                            status.errors.push("missing baseline image")
-                            await write_image()
-                          } else {
-                            status.reference = existing
-                            const result = diff_image(existing, current)
-                            if (result != null) {
-                              await write_image()
+                    await (async () => {
+                      const baseline_path = path.join(baselines_root, platform, baseline_name)
+
+                      const {bbox} = result
+                      if (bbox != null) {
+                        const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                        const current = Buffer.from(image.data, "base64")
+                        status.image = current
+
+                        const image_path = `${baseline_path}.png`
+                        const write_image = async () => fs.promises.writeFile(image_path, current)
+                        const existing = load_baseline_image(image_path)
+
+                        switch (argv.screenshot) {
+                          case undefined:
+                          case "test":
+                            if (existing == null) {
                               status.failure = true
-                              status.image_diff = result.diff
-                              status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
+                              status.errors.push("missing baseline image")
+                              await write_image()
+                            } else {
+                              status.reference = existing
+                              const diff_result = diff_image(existing, current)
+                              if (diff_result != null) {
+                                const {diff, pixels, percent} = diff_result
+                                await write_image()
+                                status.failure = true
+                                status.image_diff = diff
+                                status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)`)
+                              }
                             }
-                          }
-                          break
-                        case "save":
-                          await write_image()
-                          break
-                        case "skip":
-                          break
-                        default:
-                          throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                            break
+                          case "save":
+                            await write_image()
+                            break
+                          case "skip":
+                            break
+                          default:
+                            throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                        }
                       }
-                    }
-
-                    const baseline = create_baseline([result.state])
-                    await fs.promises.writeFile(baseline_path, baseline)
-                    status.baseline = baseline
-
-                    const existing = load_baseline(baseline_path)
-                    if (existing != baseline) {
-                      if (existing == null) {
-                        status.errors.push("missing baseline")
-                      }
-                      const diff = diff_baseline(baseline_path)
-                      status.failure = true
-                      status.baseline_diff = diff
-                      status.errors.push(diff)
-                    }
+                    })()
                   }
                 }
               }
@@ -436,23 +443,26 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
-        const {failure, image, image_diff, reference} = status
-        return [descriptions(suites, test), {failure, image, image_diff, reference}]
-      }), (_key, value) => {
-        if (value?.type == "Buffer")
-          return Buffer.from(value.data).toString("base64")
-        else
-          return value
-      })
-      await fs.promises.writeFile(path.join("test", "report.json"), json)
+      if (baselines_root != null) {
+        const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
+          const {failure, image, image_diff, reference} = status
+          return [descriptions(suites, test), {failure, image, image_diff, reference}]
+        }), (_key, value) => {
+          if (value?.type == "Buffer")
+            return Buffer.from(value.data).toString("base64")
+          else
+            return value
+        })
+        await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
 
-      if (baselines_root != null && baseline_names.size != 0) {
         const files = new Set(await fs.promises.readdir(baselines_root))
+
+        files.delete("linux")
+        files.delete("macos")
+        files.delete("windows")
 
         for (const name of baseline_names) {
           files.delete(name)
-          files.delete(`${name}.png`)
         }
 
         if (files.size != 0) {

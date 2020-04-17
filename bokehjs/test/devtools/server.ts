@@ -5,6 +5,8 @@ import {argv} from "yargs"
 import express from "express"
 import nunjucks from "nunjucks"
 
+import {platform} from "./sys"
+
 const app = express()
 
 nunjucks.configure(__dirname, {
@@ -31,7 +33,7 @@ app.get("/integration/run", (_req, res) => {
 })
 
 app.get("/integration/report", async (_req, res) => {
-  const json = await fs.promises.readFile(join("test", "report.json"), {encoding: "utf-8"})
+  const json = await fs.promises.readFile(join("test", "baselines", platform, "report.json"), {encoding: "utf-8"})
   res.render("report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
 })
 
