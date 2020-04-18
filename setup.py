@@ -60,15 +60,15 @@ an sdist. They will be ignored, and warning printed.
 
 '''
 import sys
-from os.path import join
 from shutil import copy
 
 from setuptools import find_packages, setup
 
+import versioneer
+
 from _setup_support import ( # isort:skip
-    ROOT, SERVER, build_or_install_bokehjs, check_building_sdist,
-    conda_rendering, fixup_for_packaged, get_cmdclass, get_package_data,
-    get_version, install_js, package_files, package_path, show_bokehjs, show_help,
+    build_or_install_bokehjs, check_building_sdist, conda_rendering,
+    fixup_for_packaged, install_js, show_bokehjs, show_help,
 )
 
 # immediately bail on unsupported Python versions
@@ -103,19 +103,10 @@ if not conda_rendering():
 
     bokehjs_action = build_or_install_bokehjs()
 
-# configuration to include all the special or non-python files in the package
-# directory that need to also be installed or included in a build
-package_path(join(SERVER, 'static'))
-package_path(join(ROOT, 'bokeh', 'core', '_templates'))
-package_path(join(ROOT, 'bokeh', 'sphinxext', '_templates'))
-package_path(join(ROOT, 'bokeh', 'server', 'views'), ('.html'))
-package_path(join(ROOT, 'bokeh', 'sampledata', '_data'))
-package_files('_sri.json', 'LICENSE.txt', 'themes/*.yaml', 'themes/*.json', 'util/sampledata.json')
-
 setup(
     # basic package metadata
     name='bokeh',
-    version=get_version(),
+    version=versioneer.get_version(),
     description='Interactive plots and applications in the browser from Python',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -128,11 +119,11 @@ setup(
     # details needed by setup
     install_requires=REQUIRES,
     python_requires=">=3.6",
-    packages=find_packages(exclude=["scripts*", "tests*"]),
-    package_data=get_package_data(),
+    packages=find_packages(include=["bokeh", "bokeh.*"]),
+    include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
     zip_safe=False,
-    cmdclass=get_cmdclass(),
+    cmdclass=versioneer.get_cmdclass(),
 )
 
 # if this is just conda-build skimming information, skip all this actual work
