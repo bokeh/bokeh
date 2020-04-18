@@ -184,18 +184,21 @@ async function headless(port: number): Promise<ChildProcess> {
       reject(new BuildError("headless", `timeout starting ${executable}`))
     }, 30000)
     proc.on("error", reject)
+    let buffer = ""
     proc.stderr.on("data", (chunk) => {
-      const text = `${chunk}`
+      buffer += `${chunk}`
 
-      for (const line of text.split("\n")) {
-        if (line.match(/DevTools listening/) != null) {
-          clearTimeout(timer)
-          console.log(line)
-          resolve(proc)
-        } else if (line.match(/bind() failed: Address already in use/)) {
-          clearTimeout(timer)
-          reject(new BuildError("headless", `can't start headless browser on port ${port}`))
-        }
+      const result = buffer.match(/DevTools listening [^\n]*\n/)
+      if (result != null) {
+        proc.stderr.removeAllListeners()
+        clearTimeout(timer)
+        const [line] = result
+        console.log(line.trim())
+        resolve(proc)
+      } else if (buffer.match(/bind\(\)/)) {
+        proc.stderr.removeAllListeners()
+        clearTimeout(timer)
+        reject(new BuildError("headless", `can't start headless browser on port ${port}`))
       }
     })
   })
