@@ -23,7 +23,7 @@ import os
 import random
 
 # External imports
-from mock import patch, Mock
+from mock import Mock, patch
 
 # Bokeh imports
 from bokeh.util.token import (
