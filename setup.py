@@ -67,8 +67,8 @@ from setuptools import find_packages, setup
 
 from _setup_support import ( # isort:skip
     ROOT, SERVER, build_or_install_bokehjs, check_building_sdist,
-    conda_rendering, fixup_for_packaged, get_cmdclass, get_package_data,
-    get_version, install_js, package_files, package_path, show_bokehjs, show_help,
+    conda_rendering, fixup_for_packaged, get_cmdclass, get_version,
+    install_js, package_files, package_path, show_bokehjs, show_help,
 )
 
 # immediately bail on unsupported Python versions
@@ -128,8 +128,8 @@ setup(
     # details needed by setup
     install_requires=REQUIRES,
     python_requires=">=3.6",
-    packages=find_packages(exclude=["scripts*", "tests*"]),
-    package_data=get_package_data(),
+    packages=find_packages(exclude=["scripts*", "tests*", "release*"]),
+    include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
     zip_safe=False,
     cmdclass=get_cmdclass(),

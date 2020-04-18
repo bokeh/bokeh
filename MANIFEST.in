@@ -5,6 +5,9 @@ graft tests/unit
 # sphinx
 prune sphinx
 
+# release
+prune release
+
 # Things to always exclude
 global-exclude .git*
 global-exclude .ipynb_checkpoints
