@@ -307,96 +307,61 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [12.x]
 
     steps:
-      - uses: actions/checkout@v2-beta
+      - name: Checkout the repository
+        uses: actions/checkout@v2
 
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-            ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
-          fi
-
-      - name: Setup paths (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          echo "::add-path::$HOME\miniconda3"
-          echo "::add-path::$HOME\miniconda3\DLLs"
-          echo "::add-path::$HOME\miniconda3\Scripts"
-          echo "::add-path::$HOME\miniconda3\Library\bin"
-          echo "::add-path::$HOME\miniconda3\Library\usr\bin"
-          echo "::add-path::$HOME\miniconda3\Library\mingw-w64\bin"
-
-      - name: Setup paths (Linux or macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 jinja2 pyyaml"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
-
-      - name: Download Bokehjs
+      - name: Download bokehjs artifact
         uses: actions/download-artifact@v1
         with:
           name: bokehjs-build
 
-      - name: Download conda package
-        uses: actions/download-artifact@v1
-        with:
-          name: conda-bld-noarch
-
-      - name: Unpack artifacts
+      - name: Unpack bokehjs artifacts
         shell: bash
         run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
           tar xvzf bokehjs-build/bokehjs-build.tgz
 
-      - name: Install conda packages
+      - name: Install node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get npm cache directory
+        id: npm-cache
         shell: bash
         run: |
-          conda install --yes --quiet --use-local python=${{ matrix.python-version }} bokeh "nodejs=12.*"
+          echo "::set-output name=dir::$(npm config get cache)"
 
-      - name: Cache node modules
+      - name: Reset npm cache
+        shell: bash
+        run: |
+          # https://github.com/actions/virtual-environments/issues/427
+          rm -rf ${{ steps.npm-cache.outputs.dir }}
+
+      - name: Cache npm modules
         uses: actions/cache@v1
         with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('bokehjs/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
-      - name: Install node modules
+      - name: Upgrade npm
+        shell: bash
         run: |
-          pushd bokehjs
           npm install -g npm
+
+      - name: Install dependencies
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
           npm ci --no-progress
-          popd
-          python setup.py --install-js
 
       - name: Run tests
-        shell: bash
         working-directory: ./bokehjs
+        shell: bash
         run: |
           node make test
 
