@@ -32,8 +32,9 @@ app.get("/integration/run", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js", run: true})
 })
 
-app.get("/integration/report", async (_req, res) => {
-  const json = await fs.promises.readFile(join("test", "baselines", platform, "report.json"), {encoding: "utf-8"})
+app.get("/integration/report", async (req, res) => {
+  const report_path = join("test", "baselines", req.query.platform ?? platform, "report.json")
+  const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
   res.render("report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
 })
 
