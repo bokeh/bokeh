@@ -92,14 +92,12 @@ class BokehReleases(BokehDirective):
             rst_text = f".. include:: releases/{v}.rst"
             try:
                 hashes = get_sri_hashes_for_version(v)
+                rst_text += _SRI_SECTION % v
+                for key, val in sorted(hashes.items()):
+                    rst_text += f"    ``{key}``, ``{val}``\n"
             except KeyError:
                 if v == __version__:
                     raise RuntimeError(f"Missing SRI Hash for full release version {v!r}")
-                continue
-
-            rst_text += _SRI_SECTION % v
-            for key, val in sorted(hashes.items()):
-                rst_text += f"    ``{key}``, ``{val}``\n"
 
             entry = self._parse(rst_text, "<bokeh-releases>")
             rst.extend(entry)
