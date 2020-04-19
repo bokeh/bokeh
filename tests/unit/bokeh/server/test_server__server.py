@@ -680,6 +680,7 @@ async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
 
         assert check_token_signature(token, signed=True, secret_key='foo')
 
+@flaky(max_runs=10)
 async def test__accept_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, session_token_expiration=1) as server:
