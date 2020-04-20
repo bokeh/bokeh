@@ -12,7 +12,6 @@ jobs:
       - uses: actions/checkout@v2-beta
 
       - name: Setup paths
-        shell: bash
         run: |
           echo "::add-path::$HOME/work"
 
@@ -20,7 +19,6 @@ jobs:
         env:
           CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
-          run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
           conda config --get channels
