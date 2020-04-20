@@ -33,7 +33,6 @@ jobs:
       - name: Install node modules
         run: |
           pushd bokehjs
-          npm install -g npm
           npm ci --no-progress
           popd
 
