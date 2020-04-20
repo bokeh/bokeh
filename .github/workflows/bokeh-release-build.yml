@@ -11,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2-beta
 
+      - name: Setup paths
+        shell: bash
+        run: |
+          echo "::add-path::$HOME/work"
+
       - name: Configure conda
         env:
           CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
@@ -20,17 +25,16 @@ jobs:
           conda config --append channels bokeh
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
-          conda create -n work python=3.8
+          conda init bash
+          conda --prefix="${HOME}/work" python=3.8
 
       - name: Install conda packages
         run: |
-          conda activate work
           BUILD_DEPS=`python scripts/deps.py build`
           conda install --yes --quiet conda ativate work $BUILD_DEPS
 
       - name: Install node modules
         run: |
-          conda activate work
           pushd bokehjs
           npm install -g npm
           npm ci --no-progress
@@ -38,5 +42,4 @@ jobs:
 
       - name: Execute Build
         run: |
-          conda activate work
           python -m release build ${{ github.event.client_payload.version }}
