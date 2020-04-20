@@ -25,8 +25,7 @@ jobs:
           conda config --append channels bokeh
           conda config --get channels
           conda install --yes --quiet $CONDA_REQS
-          conda init bash
-          conda --prefix="${HOME}/work" python=3.8
+          conda create --yes --prefix="${HOME}/work" python=3.8
 
       - name: Install conda packages
         run: |
