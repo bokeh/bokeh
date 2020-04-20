@@ -114,16 +114,15 @@ class RoutingConfiguration(object):
     def _add_new_routing(self, routing: Routing) -> None:
         kwargs = dict(app_context=routing.app_context)
 
-        def join(*components):
-            return "/".join([ component.strip("/") for component in components if component ])
-
         def urlpattern(suffix=""):
-            return r"^{}$".format(join(re.escape(routing.url)) + suffix)
+            if routing.url.endswith("/") and suffix.startswith("/"):
+                suffix = suffix[1:]
+            return r"^{}$".format(routing.url + suffix)
 
         if routing.document:
             self._http_urlpatterns.append(url(urlpattern(), DocConsumer, kwargs=kwargs))
         if routing.autoload:
-            self._http_urlpatterns.append(url(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs))
+            self._http_urlpatterns.append(url(urlpattern("/autoload\.js"), AutoloadJsConsumer, kwargs=kwargs))
 
         self._websocket_urlpatterns.append(url(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
 
