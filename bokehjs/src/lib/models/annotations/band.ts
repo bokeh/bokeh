@@ -91,7 +91,7 @@ export class BandView extends AnnotationView {
 
     this._map_data()
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     // Draw the band body
     ctx.beginPath()

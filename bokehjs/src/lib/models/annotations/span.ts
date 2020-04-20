@@ -12,8 +12,8 @@ export class SpanView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_render())
-    this.connect(this.model.properties.location.change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.plot_view.request_paint(this))
+    this.connect(this.model.properties.location.change, () => this.plot_view.request_paint(this))
   }
 
   render(): void {
@@ -54,7 +54,7 @@ export class SpanView extends AnnotationView {
       height = frame._height.value
     }
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     ctx.beginPath()

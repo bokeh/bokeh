@@ -62,7 +62,7 @@ export class TileRendererView extends DataRendererView {
   }
 
   private get map_canvas(): Context2d {
-    return this.plot_view.canvas_view.ctx
+    return this.layer.ctx
   }
 
   private get map_frame(): CartesianFrame {

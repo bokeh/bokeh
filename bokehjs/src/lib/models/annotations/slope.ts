@@ -47,7 +47,7 @@ export class SlopeView extends AnnotationView {
     const sx_start = xscale.compute(x_start)
     const sx_end = xscale.compute(x_end)
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     ctx.beginPath()
