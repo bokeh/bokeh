@@ -1,0 +1,38 @@
+name: Bokeh Release Build
+
+on:
+  repository_dispatch:
+    types: [build]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2-beta
+
+      - name: Configure conda
+        env:
+          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+        run: |
+          run: |
+          conda config --set auto_update_conda off
+          conda config --append channels bokeh
+          conda config --get channels
+          conda install --yes --quiet $CONDA_REQS
+
+      - name: Install conda packages
+        run: |
+          BUILD_DEPS=`python scripts/deps.py build`
+          conda install --yes --quiet $BUILD_DEPS
+
+      - name: Install node modules
+        run: |
+          pushd bokehjs
+          npm install -g npm
+          npm ci --no-progress
+          popd
+
+      - name: Execute Build
+        run: |
+          python -m release build ${{ github.event.client_payload.version }}
