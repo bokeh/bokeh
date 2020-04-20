@@ -28,7 +28,7 @@ jobs:
       - name: Install conda packages
         run: |
           BUILD_DEPS=`python scripts/deps.py build`
-          conda install --yes --quiet conda ativate work $BUILD_DEPS
+          conda install --yes --quiet conda $BUILD_DEPS
 
       - name: Install node modules
         run: |
