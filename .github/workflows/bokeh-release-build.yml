@@ -13,7 +13,7 @@ jobs:
 
       - name: Configure conda
         env:
-          CONDA_REQS: "python=3.8 conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "python=3.7 conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
         run: |
           run: |
           conda config --set auto_update_conda off
