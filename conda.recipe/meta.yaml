@@ -80,7 +80,7 @@ test:
     - flask >=1.0
     - django
     - panel
-    - django-channels
+    - channels
     - h5py
     - icalendar
     - networkx
@@ -106,7 +106,3 @@ extra:
     - anaconda-client
     - setuptools >=0.39
     - twine >=1.11
-  channels:
-    - bokeh
-    - conda-forge
-    - tethysplatform
