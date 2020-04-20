@@ -1,5 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView} from "../canvas/canvas"
+import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
@@ -31,8 +31,6 @@ import {HStack, VStack} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
-
-export type FrameBox = [number, number, number, number]
 
 export type RangeInfo = {
   xrs: {[key: string]: Interval}
@@ -430,59 +428,6 @@ export class PlotView extends LayoutDOMView {
       callback(visible)
   }
 
-  prepare_webgl(ratio: number, frame_box: FrameBox): void {
-    // Prepare WebGL for a drawing pass
-    const {webgl} = this.canvas_view
-    if (webgl != null) {
-      // Sync canvas size
-      const {width, height} = this.canvas_view.bbox
-      const {pixel_ratio} = this.canvas_view.model
-      webgl.canvas.width = pixel_ratio*width
-      webgl.canvas.height = pixel_ratio*height
-      const {gl} = webgl
-      // Clipping
-      gl.enable(gl.SCISSOR_TEST)
-      const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.canvas_view.bbox
-      const vx = xview.compute(sx)
-      const vy = yview.compute(sy + h)
-      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
-      // Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
-    }
-  }
-
-  clear_webgl(): void {
-    const {webgl} = this.canvas_view
-    if (webgl != null) {
-      // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
-    }
-  }
-
-  blit_webgl(): void {
-    // This should be called when the ctx has no state except the HIDPI transform
-    const {ctx, webgl} = this.canvas_view
-    if (webgl != null) {
-      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      // to remove the hidpi transform, then blit, then restore.
-      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('drawing with WebGL')
-      ctx.restore()
-      ctx.drawImage(webgl.canvas, 0, 0)
-      // Set back hidpi transform
-      ctx.save()
-      if (this.model.hidpi) {
-        const ratio = this.canvas.pixel_ratio
-        ctx.scale(ratio, ratio)
-        ctx.translate(0.5, 0.5)
-      }
-    }
-  }
 
   update_dataranges(): void {
     // Update any DataRange1ds here
@@ -993,15 +938,7 @@ export class PlotView extends LayoutDOMView {
       }
     }
 
-    const {ctx} = this.canvas_view
-    const ratio = this.canvas.pixel_ratio
-
-    // Set hidpi-transform
-    ctx.save()   // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
-    if (this.model.hidpi) {
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
-    }
+    const ctx = this.canvas_view.prepare_paint()
 
     const frame_box: FrameBox = [
       this.frame._left.value,
@@ -1010,60 +947,45 @@ export class PlotView extends LayoutDOMView {
       this.frame._height.value,
     ]
 
+    this.canvas_view.prepare_webgl(frame_box)
+    this.canvas_view.clear_webgl()
+
     this._map_hook(ctx, frame_box)
     this._paint_empty(ctx, frame_box)
+    this._paint_outline(ctx, frame_box)
 
-    this.prepare_webgl(ratio, frame_box)
-    this.clear_webgl()
-
-    if (this.visuals.outline_line.doit) {
-      ctx.save()
-      this.visuals.outline_line.set_value(ctx)
-      let [x0, y0, w, h] = frame_box
-      // XXX: shrink outline region by 1px to make right and bottom lines visible
-      // if they are on the edge of the canvas.
-      if (x0 + w == this.layout._width.value) {
-        w -= 1
-      }
-      if (y0 + h == this.layout._height.value) {
-        h -= 1
-      }
-      ctx.strokeRect(x0, y0, w, h)
-      ctx.restore()
-    }
-
-    this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
-    this._paint_levels(ctx, ['annotation'], frame_box, false)
-    this._paint_levels(ctx, ['overlay'], frame_box, false)
+    this._paint_levels(ctx, "image", frame_box, true)
+    this._paint_levels(ctx, "underlay", frame_box, true)
+    this._paint_levels(ctx, "glyph", frame_box, true)
+    this._paint_levels(ctx, "annotation", frame_box, false)
+    this._paint_levels(ctx, "overlay", frame_box, false)
 
     if (this._initial_state_info.range == null)
       this.set_initial_range()
 
-    ctx.restore()   // Restore to default state
+    this.canvas_view.finish_paint()
   }
 
-  protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {
-    for (const level of levels) {
-      for (const renderer of this.computed_renderers) {
-        if (renderer.level != level)
-          continue
+  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+    for (const renderer of this.computed_renderers) {
+      if (renderer.level != level)
+        continue
 
-        const renderer_view = this.renderer_views[renderer.id]
+      const renderer_view = this.renderer_views[renderer.id]
 
-        ctx.save()
-        if (global_clip || renderer_view.needs_clip) {
-          ctx.beginPath()
-          ctx.rect(...clip_region)
-          ctx.clip()
-        }
+      ctx.save()
+      if (global_clip || renderer_view.needs_clip) {
+        ctx.beginPath()
+        ctx.rect(...clip_region)
+        ctx.clip()
+      }
 
-        renderer_view.render()
-        ctx.restore()
+      renderer_view.render()
+      ctx.restore()
 
-        if (renderer_view.has_webgl) {
-          this.blit_webgl()
-          this.clear_webgl()
-        }
+      if (renderer_view.has_webgl) {
+        this.canvas_view.blit_webgl()
+        this.canvas_view.clear_webgl()
       }
     }
   }
@@ -1085,6 +1007,24 @@ export class PlotView extends LayoutDOMView {
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx)
       ctx.fillRect(fx, fy, fw, fh)
+    }
+  }
+
+  protected _paint_outline(ctx: Context2d, frame_box: FrameBox): void {
+    if (this.visuals.outline_line.doit) {
+      ctx.save()
+      this.visuals.outline_line.set_value(ctx)
+      let [x0, y0, w, h] = frame_box
+      // XXX: shrink outline region by 1px to make right and bottom lines visible
+      // if they are on the edge of the canvas.
+      if (x0 + w == this.layout._width.value) {
+        w -= 1
+      }
+      if (y0 + h == this.layout._height.value) {
+        h -= 1
+      }
+      ctx.strokeRect(x0, y0, w, h)
+      ctx.restore()
     }
   }
 

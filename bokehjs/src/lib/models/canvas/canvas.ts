@@ -8,6 +8,8 @@ import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {bk_canvas, bk_canvas_underlays, bk_canvas_overlays, bk_canvas_events} from "styles/canvas"
 
+export type FrameBox = [number, number, number, number]
+
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
 // webgl canvas that we create below. In this way, the rest of bokehjs
@@ -113,6 +115,11 @@ export class CanvasView extends DOMView {
     this.events_el.appendChild(el)
   }
 
+  private _pixel_ratio: number
+  get pixel_ratio(): number {
+    return this._pixel_ratio
+  }
+
   prepare_canvas(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
@@ -121,7 +128,7 @@ export class CanvasView extends DOMView {
 
     const {use_hidpi, output_backend} = this.model
     const pixel_ratio = use_hidpi && output_backend != "svg" ? devicePixelRatio : 1
-    this.model.pixel_ratio = pixel_ratio
+    this._pixel_ratio = pixel_ratio
 
     this.canvas_el.style.width = `${width}px`
     this.canvas_el.style.height = `${height}px`
@@ -133,6 +140,76 @@ export class CanvasView extends DOMView {
     this.canvas_el.setAttribute("height", `${height*pixel_ratio}`)
 
     logger.debug(`Rendering CanvasView with width: ${width}, height: ${height}, pixel ratio: ${pixel_ratio}`)
+  }
+
+  prepare_paint(): Context2d {
+    // Set hidpi-transform
+    const {ctx, pixel_ratio} = this
+    ctx.save() // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
+    if (this.model.use_hidpi) {
+      ctx.scale(pixel_ratio, pixel_ratio)
+      ctx.translate(0.5, 0.5)
+    }
+    return ctx
+  }
+
+  finish_paint(): void {
+    const {ctx} = this
+    ctx.restore()   // Restore to default state
+  }
+
+  prepare_webgl(frame_box: FrameBox): void {
+    // Prepare WebGL for a drawing pass
+    const {webgl} = this
+    if (webgl != null) {
+      // Sync canvas size
+      const {width, height} = this.bbox
+      webgl.canvas.width = this.pixel_ratio*width
+      webgl.canvas.height = this.pixel_ratio*height
+      const {gl} = webgl
+      // Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      const [sx, sy, w, h] = frame_box
+      const {xview, yview} = this.bbox
+      const vx = xview.compute(sx)
+      const vy = yview.compute(sy + h)
+      const ratio = this.pixel_ratio
+      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
+      // Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
+    }
+  }
+
+  clear_webgl(): void {
+    const {webgl} = this
+    if (webgl != null) {
+      // Prepare GL for drawing
+      const {gl, canvas} = webgl
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+    }
+  }
+
+  blit_webgl(): void {
+    // This should be called when the ctx has no state except the HIDPI transform
+    const {ctx, webgl} = this
+    if (webgl != null) {
+      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      // to remove the hidpi transform, then blit, then restore.
+      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+      logger.debug('drawing with WebGL')
+      ctx.restore()
+      ctx.drawImage(webgl.canvas, 0, 0)
+      // Set back hidpi transform
+      ctx.save()
+      if (this.model.use_hidpi) {
+        const ratio = this.pixel_ratio
+        ctx.scale(ratio, ratio)
+        ctx.translate(0.5, 0.5)
+      }
+    }
   }
 
   save(name: string): void {
@@ -169,7 +246,6 @@ export namespace Canvas {
 
   export type Props = HasProps.Props & {
     use_hidpi: p.Property<boolean>
-    pixel_ratio: p.Property<number>
     output_backend: p.Property<OutputBackend>
   }
 }
@@ -189,7 +265,6 @@ export class Canvas extends HasProps {
 
     this.internal({
       use_hidpi:      [ p.Boolean,       true     ],
-      pixel_ratio:    [ p.Number,        1        ],
       output_backend: [ p.OutputBackend, "canvas" ],
     })
   }
