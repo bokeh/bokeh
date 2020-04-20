@@ -13,7 +13,7 @@ jobs:
 
       - name: Setup paths
         run: |
-          echo "::add-path::$HOME/work"
+          echo "::add-path::$HOME/work/bin"
 
       - name: Configure conda
         env:
