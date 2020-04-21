@@ -985,6 +985,7 @@ export class PlotView extends LayoutDOMView {
       this._paint_levels(primary.ctx, "image", frame_box, true)
       this._paint_levels(primary.ctx, "underlay", frame_box, true)
       this._paint_levels(primary.ctx, "glyph", frame_box, true)
+      this._paint_levels(primary.ctx, "guide", frame_box, false)
       this._paint_levels(primary.ctx, "annotation", frame_box, false)
       primary.finish()
     }

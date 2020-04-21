@@ -247,7 +247,7 @@ class Test_bce(object):
         assert tuple(bce.Palette) == tuple(__palettes__)
 
     def test_RenderLevel(self) -> None:
-        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "annotation", "overlay")
+        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
     def test_RenderMode(self) -> None:
         assert tuple(bce.RenderMode) == ("canvas", "css")

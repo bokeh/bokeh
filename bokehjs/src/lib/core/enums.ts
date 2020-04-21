@@ -114,8 +114,8 @@ export const PointPolicy: PointPolicy[] = ["snap_to_data", "follow_mouse", "none
 export type RadiusDimension = "x" | "y" | "max" | "min"
 export const RadiusDimension: RadiusDimension[] = ["x", "y", "max", "min"]
 
-export type RenderLevel = "image" | "underlay" | "glyph" | "annotation" | "overlay"
-export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "annotation", "overlay"]
+export type RenderLevel = "image" | "underlay" | "glyph" | "guide" | "annotation" | "overlay"
+export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "guide", "annotation", "overlay"]
 
 export type RenderMode = "canvas" | "css"
 export const RenderMode: RenderMode[] = ["canvas", "css"]

@@ -368,7 +368,7 @@ PaddingUnits = enumeration("percent", "absolute")
 Palette = enumeration(*palettes.__palettes__)
 
 #: Specify a position in the render order for a Bokeh renderer
-RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
+RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
