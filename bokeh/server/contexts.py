@@ -342,9 +342,6 @@ class _RequestProxy(object):
                 return val
         return super.__getattr__(name)
 
-    def __getitem__(self, name):
-        return self._request[name]
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
