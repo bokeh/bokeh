@@ -30,9 +30,9 @@ export class CrosshairToolView extends InspectToolView {
   _update_spans(x: number | null, y: number | null): void {
     const dims = this.model.dimensions
     if (dims == "width" || dims == "both")
-      this.model.spans.width.computed_location  = y
+      this.model.spans.width.location  = y
     if (dims == "height" || dims == "both")
-      this.model.spans.height.computed_location = x
+      this.model.spans.height.location = x
   }
 }
 

@@ -13,15 +13,14 @@ export class SpanView extends AnnotationView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_paint(this))
-    this.connect(this.model.properties.location.change, () => this.plot_view.request_paint(this))
   }
 
   render(): void {
     if (!this.model.visible)
       return
 
-    const loc = this.model.for_hover ? this.model.computed_location : this.model.location
-    if (loc == null) {
+    const {location} = this.model
+    if (location == null) {
       return
     }
 
@@ -31,14 +30,10 @@ export class SpanView extends AnnotationView {
     const yscale = frame.yscales[this.model.y_range_name]
 
     const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
-      if (this.model.for_hover)
-        return this.model.computed_location!
-      else {
-        if (this.model.location_units == 'data')
-          return scale.compute(loc)
-        else
-          return view.compute(loc)
-      }
+      if (this.model.location_units == 'data')
+        return scale.compute(location)
+      else
+        return this.model.for_hover ? location : view.compute(location)
     }
 
     let height: number, sleft: number, stop: number, width: number
@@ -82,7 +77,6 @@ export namespace Span {
     location_units: p.Property<SpatialUnits>
     dimension: p.Property<Dimension>
     for_hover: p.Property<boolean>
-    computed_location: p.Property<number | null>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line}
@@ -117,7 +111,6 @@ export class Span extends Annotation {
 
     this.internal({
       for_hover: [ p.Boolean, false ],
-      computed_location: [ p.Number, null ], // absolute screen coordinate
     })
   }
 }
