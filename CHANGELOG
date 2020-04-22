@@ -1,3 +1,43 @@
+2020-04-21    2.0.2:
+--------------------
+  * bugfixes:
+    - #8862 [component: bokehjs] [layout] [regression] [bug] fig.add_layout doesn't update the figure
+    - #9864 [component: bokehjs] Fixed palettes bug
+    - #9869 [component: docs] [bug] minor typos in validation error output for factorrange and cdsview
+    - #9875 [component: bokehjs] [component: tests] Starting headless chrome on macos is unreliable
+    - #9877 [component: bokehjs] [bug] boxannotation doesn't respect fill_color=none
+    - #9879 [component: bokehjs] [bug] impossible to change factorrange to a lower dimension with different number of factors
+    - #9900 Bundling and serving precompiled extensions in broken on windows
+    - #9931 [component: build] Installation of bokeh>=2.0.0 adds `release` directory to site-packages
+    - #9938 [component: server] [bug] timezone bug in generate_jwt_token 
+  * features:
+    - #9339 [API: models] [feature] add broader themes
+    - #9812 [component: bokehjs] Load multiple versions of bokeh into a single web page
+    - #9872 [API: models] [feature] allow hiding tooltips for muted glyphs
+  * tasks:
+    - #6840 Use px as the default font size unit of measurement
+    - #9771 [component: tests] Recent changes that require visual testing
+    - #9772 [component: examples] Ipywidgets examples
+    - #9861 [component: bokehjs] [notebook] Relax elementid check in autoload.js
+    - #9865 Change array.length issue in filters
+    - #9866 Refactored unused vars to _
+    - #9880 [component: docs] Sphinx 3.0 compat
+    - #9881 Remove pointless util function
+    - #9883 [component: bokehjs] [component: build] Match compilation and minification targets
+    - #9885 Update stamen urls for ssl links
+    - #9888 Broken link to colorcet repo in palettes.py
+    - #9892 [notebook] [bug] saving bokeh example notebooks causes notebook validation errors
+    - #9895 [component: build] Ci build is broken (suddenly using python 2)
+    - #9903 Suppress gridspec warning
+    - #9904 Minor import cleanup
+    - #9906 Make auth method overrides explicit
+    - #9908 [component: docs] Missing 2.0.1 release notes + typos
+    - #9914 [component: bokehjs] Prefer ** operator in bokehjs codebase
+    - #9916 [component: bokehjs] Don't duplicate parent's code in oval._map_data()
+    - #9942 [component: build] Prep for 2.0.2 release
+    - #9944 [component: docs] Improve tile provider docs
+    - #9945 [component: build] Release build first steps
+
 2020-03-29    2.0.1:
 --------------------
   * bugfixes:
