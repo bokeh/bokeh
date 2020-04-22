@@ -53,7 +53,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean}
+type Test = {description: string, skip: boolean, threshold?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -393,10 +393,13 @@ async function run_tests(): Promise<void> {
                                 if (diff_result != null) {
                                   may_retry = true
                                   const {diff, pixels, percent} = diff_result
-                                  await write_image()
-                                  status.failure = true
-                                  status.image_diff = diff
-                                  status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                  const threshold = test.threshold ?? 0
+                                  if (pixels > threshold) {
+                                    await write_image()
+                                    status.failure = true
+                                    status.image_diff = diff
+                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                  }
                                 }
                               }
                               break
@@ -420,9 +423,8 @@ async function run_tests(): Promise<void> {
               return may_retry
             }
 
-            const may_retry = await run_test(null, status)
-
-            if (may_retry) {
+            const retry = await run_test(null, status)
+            if (retry) {
               for (let i = 0; i < 10; i++) {
                 await run_test(i, status)
               }

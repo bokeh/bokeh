@@ -19,6 +19,7 @@ export type Test = Decl & {
   skip: boolean
   view?: LayoutDOMView
   el?: HTMLElement
+  threshold?: number
 }
 
 export type Suite = {
@@ -43,17 +44,37 @@ export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
   }
 }
 
-type _It = {(description: string, fn: AsyncFunc): void} & {skip: Fn, with_server: Fn}
-
-export function skip(description: string, fn: Func | AsyncFunc): void {
-  stack[0].tests.push({description, fn, skip: true})
+type ItFn = (description: string, fn: Func | AsyncFunc) => Test
+type _It = ItFn & {
+  skip: Fn
+  with_server: Fn
+  allowing: (threshold: number) => ItFn
 }
 
-export const it: _It = ((description: string, fn: Func | AsyncFunc): void => {
-  stack[0].tests.push({description, fn, skip: false})
+function _it(description: string, fn: Func | AsyncFunc, skip: boolean): Test {
+  const test = {description, fn, skip}
+  stack[0].tests.push(test)
+  return test
+}
+
+export function allowing(threshold: number): ItFn {
+  return (description: string, fn: Func | AsyncFunc): Test => {
+    const test = it(description, fn)
+    test.threshold = threshold
+    return test
+  }
+}
+
+export function skip(description: string, fn: Func | AsyncFunc): Test {
+  return _it(description, fn, true)
+}
+
+export const it: _It = ((description: string, fn: Func | AsyncFunc): Test => {
+  return _it(description, fn, false)
 }) as _It
 it.skip = skip as any
 it.with_server = skip as any
+it.allowing = allowing
 
 export function before_each(fn: Func | AsyncFunc): void {
   stack[0].before_each.push({fn})
