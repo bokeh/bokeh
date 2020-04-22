@@ -295,31 +295,19 @@ function devtools(devtools_port: number, server_port: number, name: string, base
 
 const start_headless = task("test:start:headless", async () => {
   let port = 9222
-  if (await is_available(port)) {
-    await retry(async () => {
-      await headless(port)
-    }, 5)
-  } else if (argv.reuse !== true) {
-    await retry(async () => {
-      port = await find_port(port)
-      await headless(port)
-    }, 5)
-  } else {
-    log(`Reusing chromium browser instance on port ${port}`)
-  }
+  await retry(async () => {
+    port = await find_port(port)
+    await headless(port)
+  }, 3)
   return success(port)
 })
 
 const start_server = task("test:start:server", async () => {
   let port = 5777
-  if (await is_available(port)) {
-    await server(port)
-  } else if (argv.reuse !== true) {
+  await retry(async () => {
     port = await find_port(port)
     await server(port)
-  } else {
-    log(`Reusing devtools server instance on port ${port}`)
-  }
+  }, 3)
   return success(port)
 })
 
