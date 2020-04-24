@@ -6,7 +6,6 @@ on:
 
 env:
   CONDA_BASE_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-  CONDA_ENV_PATH: "${HOME}/work"
   CONDA_ENV_REQS: "python=3.8 jinja2 yaml pyyaml"
 
 jobs:
@@ -19,14 +18,14 @@ jobs:
 
       - name: Setup paths
         run: |
-          echo "::add-path::${CONDA_ENV_PATH}/bin"
+          echo "::add-path::${HOME}/work/bin"
 
       - name: Configure conda
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
           conda install --yes --quiet ${CONDA_BASE_REQS}
-          conda create --yes --prefix="${CONDA_ENV_PATH}" ${CONDA_ENV_REQS}
+          conda create --yes --prefix="${HOME}/work" ${CONDA_ENV_REQS}
 
       - name: Install conda packages
         run: |
