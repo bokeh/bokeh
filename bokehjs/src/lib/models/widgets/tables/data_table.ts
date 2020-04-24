@@ -210,7 +210,9 @@ export class DataTableView extends WidgetView {
 
   render(): void {
     let checkboxSelector
-    let columns = this.model.columns.map((column) => column.toColumn())
+    let columns: ColumnType[] = this.model.columns.map((column) => {
+      return {...column.toColumn(), parent: this}
+    })
 
     if (this.model.selectable == "checkbox") {
       checkboxSelector = new CheckboxSelectColumn({cssClass: bk_cell_select})
