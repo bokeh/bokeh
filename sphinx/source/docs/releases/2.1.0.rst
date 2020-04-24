@@ -1,0 +1,20 @@
+.. _release-2-1-0:
+
+2.1.0
+=====
+
+Bokeh Version ``2.1.0`` (May/June 2020) is a minor-release.
+
+.. _release-2-1-0-migration:
+
+`Migration Guide <releases.html#release-2-1-0-migration>`__
+-----------------------------------------------------------
+
+``render_mode`` in ``BoxAnnotation``, ``Span``, etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Certain annotations like ``BoxAnnotation`` or ``Span`` supported dual canvas
+and CSS rendering modes, primarily for performance reasons, when used as
+overlays. Overlays are now implemented efficiently on the HTML5 canvas and
+thus CSS mode and ``render_mode`` property aren't needed anymore and have
+been deprecated. They will be removed in bokeh 3.0.
