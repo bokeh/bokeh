@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2-beta
 
-      - name: Setup paths
+      - name: Set up PATH
         run: |
           echo "::add-path::${HOME}/work/bin"
 
@@ -46,4 +46,3 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
           python -m release build --notify-slack ${BOKEH_VERSION}
-
