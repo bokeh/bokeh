@@ -1,36 +1,37 @@
-/*
+import {describe, it} from "../framework"
+export * from "../framework"
+
 import {expect} from "chai"
 
-import models_defaults from "../.generated_defaults/models_defaults.json"
-import widget_defaults from "../.generated_defaults/widgets_defaults.json"
+import all_defaults from "../.generated_defaults/defaults.json"
 
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {difference, concat} from "@bokehjs/core/util/array"
+import {difference} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {isEqual} from "@bokehjs/core/util/eq"
 
 import {Models} from "@bokehjs/base"
 import {HasProps} from "@bokehjs/core/has_props"
 
-import {Widgets as widget_models} from "@bokehjs/models/widgets/main"
-import {Tables as table_models} from "@bokehjs/models/widgets/tables/main"
+import "@bokehjs/models/widgets/main"
+import "@bokehjs/models/widgets/tables/main"
 
 function get_defaults(name: string) {
-  const defaults = models_defaults[name] || widget_defaults[name]
+  const defaults = all_defaults[name]
   if (defaults != null)
     return defaults
   else
     throw new Error(`can't find defaults for ${name}`)
 }
 
-function safe_stringify(v: any): string {
+function safe_stringify(v: unknown): string {
   if (v === Infinity) {
     return "Infinity"
   } else {
     try {
       return JSON.stringify(v)
-    } catch (_e) {
-      return v.toString()
+    } catch {
+      return `${v}`
     }
   }
 }
@@ -182,33 +183,6 @@ function strip_ids(value: any): void {
 }
 
 describe("Defaults", () => {
-  // this is skipped while we decide whether to automate putting them all
-  // in Bokeh or just leave it as a curated (or ad hoc?) subset
-  it.skip("have all non-Widget view models from Python in the Models object", () => {
-    const missing = []
-    for (const name of keys(models_defaults)) {
-      if (!(name in Models.registered_names())) {
-        missing.push(name)
-      }
-    }
-    for (const m of missing) {
-      console.error(`'Models.${m}' not found but there's a Python model '${m}'`)
-    }
-    expect(missing.length).to.equal(0)
-  })
-
-  it("have all Widget view models from Python in widget locations registry", () => {
-    const missing = []
-    for (const name of keys(widget_defaults)) {
-      if (!(name in widget_models || name in table_models)) {
-        missing.push(name)
-      }
-    }
-    for (const m of missing) {
-      console.error(`'${m}' not found but there's a Python model '${m}'`)
-    }
-    expect(missing.length).to.equal(0)
-  })
 
   it("have all view models from Python in registered locations", () => {
     const registered: {[key: string]: boolean} = {}
@@ -216,7 +190,7 @@ describe("Defaults", () => {
       registered[name] = true
     }
     const missing = []
-    const all_view_model_names = concat([keys(models_defaults), keys(widget_defaults)])
+    const all_view_model_names = keys(all_defaults)
     for (const name of all_view_model_names) {
       if (!(name in registered)) {
         missing.push(name)
@@ -230,7 +204,7 @@ describe("Defaults", () => {
 
   it("match between Python and bokehjs", () => {
     let fail_count = 0
-    const all_view_model_names = concat([keys(models_defaults), keys(widget_defaults)])
+    const all_view_model_names = keys(all_defaults)
     for (const name of all_view_model_names) {
       const model = Models(name)
       const attrs: {[key: string]: unknown} = {}
@@ -254,4 +228,3 @@ describe("Defaults", () => {
     expect(fail_count).to.equal(0)
   })
 })
-*/

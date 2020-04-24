@@ -19,4 +19,6 @@ task("examples:compile", async () => {
   compile_typescript(join(BASE_DIR, "tsconfig.json"), {log})
 })
 
-task("examples", ["scripts:build", "styles:build", "examples:compile"])
+task("examples:build", ["examples:compile"])
+
+task("examples", ["scripts:build", "styles:build", "examples:build"])

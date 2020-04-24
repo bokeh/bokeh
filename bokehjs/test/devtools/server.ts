@@ -21,12 +21,18 @@ app.use("/fonts", express.static("test/fonts/"))
 app.get("/unit", (_req, res) => {
   res.render("template.html", {title: "Unit Tests", main: "unit.js"})
 })
+app.get("/defaults", (_req, res) => {
+  res.render("template.html", {title: "Defaults Tests", main: "defaults.js"})
+})
 app.get("/integration", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js"})
 })
 
 app.get("/unit/run", (_req, res) => {
   res.render("template.html", {title: "Unit Tests", main: "unit.js", run: true})
+})
+app.get("/defaults/run", (_req, res) => {
+  res.render("template.html", {title: "Defaults Tests", main: "defaults.js", run: true})
 })
 app.get("/integration/run", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js", run: true})

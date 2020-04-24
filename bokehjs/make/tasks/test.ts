@@ -315,7 +315,7 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-task("test:compile", [/*"defaults:generate"*/], async () => {
+task("test:compile", async () => {
   const success = compile_typescript("./test/tsconfig.json", {log})
 
   if (argv.emitError && !success)
@@ -343,3 +343,16 @@ task2("test:integration", [start, integration_bundle], async ([devtools_port, se
 })
 
 task("test", ["test:size", "test:unit", "test:integration"])
+
+task("test:defaults:compile", ["defaults:generate"], async () => {
+  const success = compile_typescript("./test/defaults/tsconfig.json", {log})
+
+  if (argv.emitError && !success)
+    process.exit(1)
+})
+const defaults_bundle = task("test:defaults:bundle", ["test:defaults:compile"], async () => bundle("defaults"))
+
+task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "defaults")
+  return success(undefined)
+})
