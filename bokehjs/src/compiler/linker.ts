@@ -185,6 +185,7 @@ export interface LinkerOpts {
   builtins?: boolean
   cache?: Path
   target?: "ES2020" | "ES2017" | "ES5"
+  es_modules?: boolean
   minify?: boolean
   plugin?: boolean
   exports?: string[]
@@ -204,6 +205,7 @@ export class Linker {
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
   readonly target: "ES2020" | "ES2017" | "ES5" | null
+  readonly es_modules: boolean
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
@@ -245,9 +247,10 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.target = opts.target != null ? opts.target : null
-    this.minify = opts.minify != null ? opts.minify : true
-    this.plugin = opts.plugin != null ? opts.plugin : false
+    this.target = opts.target ?? null
+    this.es_modules = opts.es_modules ?? true
+    this.minify = opts.minify ?? true
+    this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
   }
@@ -560,17 +563,18 @@ export class Linker {
       }
     })()
 
+    const export_type = this.es_modules ? "default" : "="
     switch (type) {
       case "json":
         source = `\
 const json = ${source};
-export default json;
+export ${export_type} json;
 `
         break
       case "css":
         source = `\
 const css = \`${source}\`;
-export default css;
+export ${export_type} css;
 `
         break
     }
@@ -633,13 +637,13 @@ export default css;
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       let collected: string[] | null = null
-      if (this.target != null && resolution == "ESM") {
+      if ((this.target != null && resolution == "ESM") || type == "json") {
         const {ES2020, ES2017, ES5} = ts.ScriptTarget
         const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
         const imports = new Set<string>(["tslib"])
         const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
         // XXX: .json extension will cause an internal error
-        const {output, error} = transpile(type == "json" ? `${file}.js` : file, source, target, transform)
+        const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
         if (error)
           throw new Error(error)
         else {
