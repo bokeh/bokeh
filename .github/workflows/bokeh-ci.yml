@@ -158,15 +158,15 @@ jobs:
         run: |
           python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
+      - name: Run bokehjs codebase checks
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make build:all lint --emit-error
+
       - name: Run codebase checks
         shell: bash
         run: |
-          pushd bokehjs
-          node make scripts:compile --emit-error
-          node make test:compile --emit-error
-          PARSER_NO_WATCH=true node make lint --emit-error
-          popd
-
           py.test --color=yes tests/codebase
 
       - name: MyPy

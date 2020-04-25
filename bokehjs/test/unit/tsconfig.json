@@ -33,6 +33,6 @@
   "include": [
     "../framework.ts",
     "../*.d.ts",
-    "./**/*.ts",
+    "./**/*.ts"
   ]
 }

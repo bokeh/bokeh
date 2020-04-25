@@ -21,4 +21,4 @@ task("examples:compile", async () => {
 
 task("examples:build", ["examples:compile"])
 
-task("examples", ["scripts:build", "styles:build", "examples:build"])
+task("examples", ["lib:build", "examples:build"])
