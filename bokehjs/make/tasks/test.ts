@@ -346,6 +346,8 @@ task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_p
   return success(undefined)
 })
 
-task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integration:bundle"])
+task("test:bundle", ["test:unit:bundle", "test:integration:bundle"])
 task("test:build", ["test:bundle"])
-task("test", ["test:size", "test:defaults", "test:unit", "test:integration"])
+
+task("test:lib", ["test:unit", "test:integration"])
+task("test", ["test:size", "test:defaults", "test:lib"])

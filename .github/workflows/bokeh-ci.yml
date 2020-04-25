@@ -299,7 +299,6 @@ jobs:
 
 
   js-test:
-    needs: build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -313,40 +312,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Download bokehjs artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: bokehjs-build
-
-      - name: Unpack bokehjs artifacts
-        shell: bash
-        run: |
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
       - name: Install node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Get npm cache directory
-        id: npm-cache
-        shell: bash
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
-
-      - name: Reset npm cache
-        shell: bash
-        run: |
-          # https://github.com/actions/virtual-environments/issues/427
-          rm -rf ${{ steps.npm-cache.outputs.dir }}
-
-      - name: Cache npm modules
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.npm-cache.outputs.dir }}
-          key: ${{ runner.os }}-npm-${{ hashFiles('bokehjs/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
 
       - name: Upgrade npm
         shell: bash
@@ -359,11 +328,17 @@ jobs:
         run: |
           npm ci --no-progress
 
+      - name: Build bokehjs
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make lib:build
+
       - name: Run tests
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make test
+          node make test:lib
 
       - name: Collect results
         if: always()
@@ -371,7 +346,7 @@ jobs:
         run: |
           OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
           SRC="bokehjs/test/baselines/${OS}"
-          DST="integration-report/${SRC}"
+          DST="bokehjs-report/${SRC}"
           mkdir -p ${DST}
           if [[ -e ${SRC}/report.json ]];
           then
@@ -383,8 +358,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v1
         with:
-          name: integration-report
-          path: integration-report
+          name: bokehjs-report
+          path: bokehjs-report
 
 
 

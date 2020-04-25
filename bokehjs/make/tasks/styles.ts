@@ -35,7 +35,3 @@ task("styles:compile", async () => {
       process.exit(1)
   }
 })
-
-task("styles:build", ["styles:compile"])
-
-task("styles", ["styles:build"])
