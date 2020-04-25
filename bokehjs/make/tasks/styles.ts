@@ -2,6 +2,7 @@ import lesscss from "less"
 
 import chalk from "chalk"
 import {argv} from "yargs"
+import {basename} from "path"
 
 import {task, log} from "../task"
 import {scan, read, write, rename} from "@compiler/sys"
@@ -10,6 +11,10 @@ import * as paths from "../paths"
 task("styles:compile", async () => {
   const errors = []
   for (const src of scan(paths.src_dir.less, [".less"])) {
+    if (basename(src).startsWith("_")) {
+      continue
+    }
+
     try {
       const less = read(src)!
       const {css} = await lesscss.render(less, {filename: src})

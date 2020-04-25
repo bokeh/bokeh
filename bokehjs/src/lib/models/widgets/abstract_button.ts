@@ -7,6 +7,7 @@ import {Control, ControlView} from "./control"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 
 import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
+import buttons_css from "styles/buttons.css"
 
 export abstract class AbstractButtonView extends ControlView {
   model: AbstractButton
@@ -33,6 +34,10 @@ export abstract class AbstractButtonView extends ControlView {
     if (this.icon_view != null)
       this.icon_view.remove()
     super.remove()
+  }
+
+  styles(): string[] {
+    return [...super.styles(), buttons_css]
   }
 
   _render_button(...children: (string | HTMLElement)[]): HTMLButtonElement {

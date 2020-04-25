@@ -362,15 +362,19 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
 
 export class StyleSheet {
   private readonly style: HTMLStyleElement
+  private readonly known: Set<string> = new Set()
 
-  constructor() {
+  constructor(readonly root: HTMLElement) {
     this.style = style({type: "text/css"})
-    prepend(document.head, this.style)
+    prepend(root, this.style)
   }
 
   append(css: string): void {
-    this.style.appendChild(document.createTextNode(css))
+    if (!this.known.has(css)) {
+      this.style.appendChild(document.createTextNode(css))
+      this.known.add(css)
+    }
   }
 }
 
-export const styles = new StyleSheet()
+export const stylesheet = new StyleSheet(document.head)

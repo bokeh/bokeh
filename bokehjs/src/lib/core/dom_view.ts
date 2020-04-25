@@ -1,6 +1,7 @@
 import {View} from "./view"
+import {StyleSheet, stylesheet} from "./dom"
 import * as DOM from "./dom"
-import {bk_root} from "styles/root"
+import root_css from "styles/root.css"
 
 export namespace DOMView {
   export type Options = View.Options
@@ -14,9 +15,16 @@ export class DOMView extends View {
 
   el: HTMLElement
 
+  /** @override */
+  root: DOMView
+
   initialize(): void {
     super.initialize()
     this._has_finished = false
+    if (this.is_root) {
+      this._stylesheet = stylesheet
+    }
+    this._inject_styles()
     this.el = this._createElement()
   }
 
@@ -27,6 +35,10 @@ export class DOMView extends View {
 
   css_classes(): string[] {
     return []
+  }
+
+  styles(): string[] {
+    return [root_css]
   }
 
   cursor(_sx: number, _sy: number): string | null {
@@ -46,12 +58,24 @@ export class DOMView extends View {
     return this._has_finished
   }
 
-  protected get _root_element(): HTMLElement {
-    return DOM.parent(this.el, `.${bk_root}`) || document.body
-  }
-
   get is_idle(): boolean {
     return this.has_finished()
+  }
+
+  private _stylesheet: StyleSheet
+
+  get stylesheet(): StyleSheet {
+    if (this.is_root)
+      return this._stylesheet
+    else
+      return this.root.stylesheet
+  }
+
+  protected _inject_styles(): void {
+    const {stylesheet} = this
+    for (const style of this.styles()) {
+      stylesheet.append(style)
+    }
   }
 
   protected _createElement(): HTMLElement {
