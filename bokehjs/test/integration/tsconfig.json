@@ -26,13 +26,13 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "@bokehjs/*": ["../build/js/lib/*", "../build/js/types/*"]
+      "@bokehjs/*": ["../../build/js/lib/*", "../../build/js/types/*"]
     },
-    "outDir": "../build/test"
+    "outDir": "../../build/test"
   },
   "include": [
-    "./*.ts",
-    "./unit/**/*.ts",
-    "./integration/**/*.ts"
+    "../framework.ts",
+    "../*.d.ts",
+    "./**/*.ts",
   ]
 }

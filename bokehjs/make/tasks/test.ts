@@ -110,25 +110,6 @@ task("test:size", ["test:codebase:compile"], async () => {
   await mocha(["./build/test/codebase/size.js"])
 })
 
-function bundle(name: string): void {
-  const linker = new Linker({
-    entries: [join(paths.build_dir.test, name, "index.js")],
-    bases: [paths.build_dir.test, "./node_modules"],
-    cache: join(paths.build_dir.test, `${name}.json`),
-    target: "ES2020",
-    minify: false,
-    externals: [/^@bokehjs\//],
-    prelude: () => default_prelude({global: "Tests"}),
-    shims: ["fs", "module"],
-  })
-
-  if (!argv.rebuild) linker.load_cache()
-  const [bundle] = linker.link()
-  linker.store_cache()
-
-  bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
-}
-
 function sys_path(): string {
   const path = [process.env.PATH]
 
@@ -315,44 +296,56 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-task("test:compile", async () => {
-  const success = compile_typescript("./test/tsconfig.json", {log})
+function compile(name: string) {
+  const success = compile_typescript(`./test/${name}/tsconfig.json`, {log})
 
   if (argv.emitError && !success)
     process.exit(1)
-})
+}
 
-task("test:bundle", ["test:unit:bundle", "test:integration:bundle"])
+function bundle(name: string): void {
+  const linker = new Linker({
+    entries: [join(paths.build_dir.test, name, "index.js")],
+    bases: [paths.build_dir.test, "./node_modules"],
+    cache: join(paths.build_dir.test, `${name}.json`),
+    target: "ES2020",
+    minify: false,
+    externals: [/^@bokehjs\//],
+    prelude: () => default_prelude({global: "Tests"}),
+    shims: ["fs", "module"],
+  })
 
-task("test:build", ["test:bundle"])
+  if (!argv.rebuild) linker.load_cache()
+  const [bundle] = linker.link()
+  linker.store_cache()
 
-const unit_bundle = task("test:unit:bundle", ["test:compile"], async () => {
-  bundle("unit")
-})
+  bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
+}
+
+task("test:compile:unit", async () => compile("unit"))
+const unit_bundle = task("test:unit:bundle", ["test:compile:unit"], async () => bundle("unit"))
+
 task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
   return success(undefined)
 })
 
-const integration_bundle = task("test:integration:bundle", ["test:compile"], async () => {
-  bundle("integration")
-})
+task("test:compile:integration", async () => compile("integration"))
+const integration_bundle = task("test:integration:bundle", ["test:compile:integration"], async () => bundle("integration"))
+
 task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "integration", "test/baselines")
   return success(undefined)
 })
 
-task("test", ["test:size", "test:unit", "test:integration"])
-
-task("test:defaults:compile", ["defaults:generate"], async () => {
-  const success = compile_typescript("./test/defaults/tsconfig.json", {log})
-
-  if (argv.emitError && !success)
-    process.exit(1)
-})
+task("test:defaults:compile", ["defaults:generate"], async () => compile("defaults"))
 const defaults_bundle = task("test:defaults:bundle", ["test:defaults:compile"], async () => bundle("defaults"))
 
 task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "defaults")
   return success(undefined)
 })
+
+task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integration:bundle"])
+task("test:build", ["test:bundle"])
+task("test", ["test:size", "test:defaults", "test:unit", "test:integration"])
