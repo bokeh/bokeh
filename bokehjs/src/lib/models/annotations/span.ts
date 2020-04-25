@@ -3,7 +3,6 @@ import {Scale} from "../scales/scale"
 import {LineScalar} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
-import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {CoordinateTransform} from "core/util/bbox"
 
@@ -11,42 +10,17 @@ export class SpanView extends AnnotationView {
   model: Span
   visuals: Span.Visuals
 
-  initialize(): void {
-    super.initialize()
-    this.plot_view.canvas_view.add_overlay(this.el)
-    this.el.style.position = "absolute"
-    undisplay(this.el)
-  }
-
   connect_signals(): void {
     super.connect_signals()
-    if (this.model.for_hover)
-      this.connect(this.model.properties.computed_location.change, () => this._draw_span())
-    else {
-      if (this.model.render_mode == 'canvas') {
-        this.connect(this.model.change, () => this.plot_view.request_render())
-        this.connect(this.model.properties.location.change, () => this.plot_view.request_render())
-      } else {
-        this.connect(this.model.change, () => this.render())
-        this.connect(this.model.properties.location.change, () => this._draw_span())
-      }
-    }
+    this.connect(this.model.change, () => this.plot_view.request_paint(this))
   }
 
   render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
-
     if (!this.model.visible)
       return
 
-    this._draw_span()
-  }
-
-  protected _draw_span(): void {
-    const loc = this.model.for_hover ? this.model.computed_location : this.model.location
-    if (loc == null) {
-      undisplay(this.el)
+    const {location} = this.model
+    if (location == null) {
       return
     }
 
@@ -56,14 +30,10 @@ export class SpanView extends AnnotationView {
     const yscale = frame.yscales[this.model.y_range_name]
 
     const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
-      if (this.model.for_hover)
-        return this.model.computed_location!
-      else {
-        if (this.model.location_units == 'data')
-          return scale.compute(loc)
-        else
-          return view.compute(loc)
-      }
+      if (this.model.location_units == 'data')
+        return scale.compute(location)
+      else
+        return this.model.for_hover ? location : view.compute(location)
     }
 
     let height: number, sleft: number, stop: number, width: number
@@ -79,30 +49,20 @@ export class SpanView extends AnnotationView {
       height = frame._height.value
     }
 
-    if (this.model.render_mode == "css") {
-      this.el.style.top = `${stop}px`
-      this.el.style.left = `${sleft}px`
-      this.el.style.width = `${width}px`
-      this.el.style.height = `${height}px`
-      this.el.style.backgroundColor = this.model.properties.line_color.value()
-      this.el.style.opacity = this.model.properties.line_alpha.value()
-      display(this.el)
-    } else if (this.model.render_mode == "canvas") {
-      const {ctx} = this.plot_view.canvas_view
-      ctx.save()
+    const {ctx} = this.layer
+    ctx.save()
 
-      ctx.beginPath()
-      this.visuals.line.set_value(ctx)
-      ctx.moveTo(sleft, stop)
-      if (this.model.dimension == "width") {
-        ctx.lineTo(sleft + width, stop)
-      } else {
-        ctx.lineTo(sleft, stop + height)
-      }
-      ctx.stroke()
-
-      ctx.restore()
+    ctx.beginPath()
+    this.visuals.line.set_value(ctx)
+    ctx.moveTo(sleft, stop)
+    if (this.model.dimension == "width") {
+      ctx.lineTo(sleft + width, stop)
+    } else {
+      ctx.lineTo(sleft, stop + height)
     }
+    ctx.stroke()
+
+    ctx.restore()
   }
 }
 
@@ -117,7 +77,6 @@ export namespace Span {
     location_units: p.Property<SpatialUnits>
     dimension: p.Property<Dimension>
     for_hover: p.Property<boolean>
-    computed_location: p.Property<number | null>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line}
@@ -152,7 +111,6 @@ export class Span extends Annotation {
 
     this.internal({
       for_hover: [ p.Boolean, false ],
-      computed_location: [ p.Number, null ], // absolute screen coordinate
     })
   }
 }

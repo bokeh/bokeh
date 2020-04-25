@@ -152,7 +152,6 @@ export class BoxZoomToolView extends GestureToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    render_mode: "css",
     top_units: "screen",
     left_units: "screen",
     bottom_units: "screen",

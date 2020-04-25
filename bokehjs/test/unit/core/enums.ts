@@ -134,7 +134,7 @@ describe("enums module", () => {
   })
 
   it("should have RenderLevel", () => {
-    expect(enums.RenderLevel).to.be.deep.equal(["image", "underlay", "glyph", "annotation", "overlay"])
+    expect(enums.RenderLevel).to.be.deep.equal(["image", "underlay", "glyph", "guide", "annotation", "overlay"])
   })
 
   it("should have RenderMode", () => {

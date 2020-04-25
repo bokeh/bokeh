@@ -89,7 +89,7 @@ export class TitleView extends TextAnnotationView {
     const angle = this.panel!.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)
+    draw(this.layer.ctx, text, sx, sy, angle)
   }
 
   protected _get_size(): Size {
@@ -97,8 +97,8 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.ctx)
-      const {width, ascent} = this.ctx.measureText(text)
+      this.visuals.text.set_value(this.layer.ctx)
+      const {width, ascent} = this.layer.ctx.measureText(text)
       return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
     }
   }

@@ -211,7 +211,6 @@ export class RangeToolView extends GestureToolView {
 const DEFAULT_RANGE_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    render_mode: "canvas",
     fill_color: "lightgrey",
     fill_alpha: {value: 0.5},
     line_color: {value: "black"},

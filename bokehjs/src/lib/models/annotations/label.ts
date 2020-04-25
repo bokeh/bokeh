@@ -15,7 +15,7 @@ export class LabelView extends TextAnnotationView {
   }
 
   protected _get_size(): Size {
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
 
     const {width, ascent} = ctx.measureText(this.model.text)
@@ -54,7 +54,7 @@ export class LabelView extends TextAnnotationView {
     sy -= this.model.y_offset
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.plot_view.canvas_view.ctx, this.model.text, sx, sy, angle)
+    draw(this.layer.ctx, this.model.text, sx, sy, angle)
   }
 }
 

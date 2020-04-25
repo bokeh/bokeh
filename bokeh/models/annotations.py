@@ -619,6 +619,9 @@ class BoxAnnotation(Annotation):
     Specifies whether the box is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
 
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
@@ -988,6 +991,9 @@ class Span(Annotation):
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the span is rendered as a canvas element or as a
     CSS element overlaid on the canvas. The default mode is "canvas".
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
 
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if

@@ -69,7 +69,7 @@ export class ArrowView extends AnnotationView {
     if (!this.model.visible)
       return
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     // Order in this function is important. First we draw all the arrow heads.

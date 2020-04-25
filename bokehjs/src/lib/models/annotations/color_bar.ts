@@ -194,7 +194,7 @@ export class ColorBarView extends AnnotationView {
     if (!this.model.visible || this.model.color_mapper == null)
       return
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     const {sx, sy} = this.compute_legend_location()
@@ -335,7 +335,7 @@ export class ColorBarView extends AnnotationView {
 
     let label_extent: number
     if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !isEmpty(major_labels)) {
-      const {ctx} = this.plot_view.canvas_view
+      const {ctx} = this.layer
       ctx.save()
       this.visuals.major_label_text.set_value(ctx)
       switch (this.model.orientation) {

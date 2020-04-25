@@ -30,7 +30,7 @@ export class PolyAnnotationView extends AnnotationView {
       return
 
     const {frame} = this.plot_view
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx: number

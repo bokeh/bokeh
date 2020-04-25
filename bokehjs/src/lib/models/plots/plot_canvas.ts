@@ -1,5 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView} from "../canvas/canvas"
+import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
@@ -31,8 +31,6 @@ import {HStack, VStack} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
-
-export type FrameBox = [number, number, number, number]
 
 export type RangeInfo = {
   xrs: {[key: string]: Interval}
@@ -128,6 +126,8 @@ export class PlotView extends LayoutDOMView {
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
+  protected _invalidated_painters: Set<RendererView> = new Set()
+  protected _invalidate_all: boolean = true
 
   state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
@@ -182,7 +182,13 @@ export class PlotView extends LayoutDOMView {
     this.request_paint()
   }
 
-  request_paint(): void {
+  request_paint(to_invalidate?: RendererView): void {
+    if (to_invalidate != null) {
+      this._invalidated_painters.add(to_invalidate)
+    } else {
+      this._invalidate_all = true
+    }
+
     if (!this.is_paused) {
       const promise = this.throttled_paint()
       this._ready = this._ready.then(() => promise)
@@ -236,10 +242,8 @@ export class PlotView extends LayoutDOMView {
 
     this.state = {history: [], index: -1}
 
-    this.canvas = new Canvas({
-      use_hidpi: this.model.hidpi,
-      output_backend: this.model.output_backend,
-    })
+    const {hidpi, output_backend} = this.model
+    this.canvas = new Canvas({hidpi, output_backend})
 
     this.frame = new CartesianFrame(
       this.model.x_scale,
@@ -430,59 +434,6 @@ export class PlotView extends LayoutDOMView {
       callback(visible)
   }
 
-  prepare_webgl(ratio: number, frame_box: FrameBox): void {
-    // Prepare WebGL for a drawing pass
-    const {webgl} = this.canvas_view
-    if (webgl != null) {
-      // Sync canvas size
-      const {width, height} = this.canvas_view.bbox
-      const {pixel_ratio} = this.canvas_view.model
-      webgl.canvas.width = pixel_ratio*width
-      webgl.canvas.height = pixel_ratio*height
-      const {gl} = webgl
-      // Clipping
-      gl.enable(gl.SCISSOR_TEST)
-      const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.canvas_view.bbox
-      const vx = xview.compute(sx)
-      const vy = yview.compute(sy + h)
-      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
-      // Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
-    }
-  }
-
-  clear_webgl(): void {
-    const {webgl} = this.canvas_view
-    if (webgl != null) {
-      // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
-    }
-  }
-
-  blit_webgl(): void {
-    // This should be called when the ctx has no state except the HIDPI transform
-    const {ctx, webgl} = this.canvas_view
-    if (webgl != null) {
-      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      // to remove the hidpi transform, then blit, then restore.
-      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('drawing with WebGL')
-      ctx.restore()
-      ctx.drawImage(webgl.canvas, 0, 0)
-      // Set back hidpi transform
-      ctx.save()
-      if (this.model.hidpi) {
-        const ratio = this.canvas.pixel_ratio
-        ctx.scale(ratio, ratio)
-        ctx.translate(0.5, 0.5)
-      }
-    }
-  }
 
   update_dataranges(): void {
     // Update any DataRange1ds here
@@ -939,7 +890,7 @@ export class PlotView extends LayoutDOMView {
 
     if (!this._outer_bbox.equals(this.layout.bbox)) {
       const {width, height} = this.layout.bbox
-      this.canvas_view.prepare_canvas(width, height)
+      this.canvas_view.resize(width, height)
       this._outer_bbox = this.layout.bbox
       this._needs_paint = true
     }
@@ -993,15 +944,25 @@ export class PlotView extends LayoutDOMView {
       }
     }
 
-    const {ctx} = this.canvas_view
-    const ratio = this.canvas.pixel_ratio
+    let do_primary = false
+    let do_overlays = false
 
-    // Set hidpi-transform
-    ctx.save()   // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
-    if (this.model.hidpi) {
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
+    if (this._invalidate_all) {
+      do_primary = true
+      do_overlays = true
+    } else {
+      for (const painter of this._invalidated_painters) {
+        const {level} = painter.model
+        if (level != "overlay")
+          do_primary = true
+        else
+          do_overlays = true
+        if (do_primary && do_overlays)
+          break
+      }
     }
+    this._invalidated_painters.clear()
+    this._invalidate_all = false
 
     const frame_box: FrameBox = [
       this.frame._left.value,
@@ -1010,12 +971,78 @@ export class PlotView extends LayoutDOMView {
       this.frame._height.value,
     ]
 
-    this._map_hook(ctx, frame_box)
-    this._paint_empty(ctx, frame_box)
+    const {primary, overlays} = this.canvas_view
 
-    this.prepare_webgl(ratio, frame_box)
-    this.clear_webgl()
+    if (do_primary) {
+      primary.prepare()
+      this.canvas_view.prepare_webgl(frame_box)
+      this.canvas_view.clear_webgl()
 
+      this._map_hook(primary.ctx, frame_box)
+      this._paint_empty(primary.ctx, frame_box)
+      this._paint_outline(primary.ctx, frame_box)
+
+      this._paint_levels(primary.ctx, "image", frame_box, true)
+      this._paint_levels(primary.ctx, "underlay", frame_box, true)
+      this._paint_levels(primary.ctx, "glyph", frame_box, true)
+      this._paint_levels(primary.ctx, "guide", frame_box, false)
+      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      primary.finish()
+    }
+
+    if (do_overlays) {
+      overlays.prepare()
+      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      overlays.finish()
+    }
+
+    if (this._initial_state_info.range == null)
+      this.set_initial_range()
+  }
+
+  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+    for (const renderer of this.computed_renderers) {
+      if (renderer.level != level)
+        continue
+
+      const renderer_view = this.renderer_views[renderer.id]
+
+      ctx.save()
+      if (global_clip || renderer_view.needs_clip) {
+        ctx.beginPath()
+        ctx.rect(...clip_region)
+        ctx.clip()
+      }
+
+      renderer_view.render()
+      ctx.restore()
+
+      if (renderer_view.has_webgl) {
+        this.canvas_view.blit_webgl(ctx)
+        this.canvas_view.clear_webgl()
+      }
+    }
+  }
+
+  protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
+
+  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
+    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
+    const [fx, fy, fw, fh] = frame_box
+
+    if (this.visuals.border_fill.doit) {
+      this.visuals.border_fill.set_value(ctx)
+      ctx.fillRect(cx, cy, cw, ch)
+      ctx.clearRect(fx, fy, fw, fh)
+    }
+
+    if (this.visuals.background_fill.doit) {
+      this.visuals.background_fill.set_value(ctx)
+      ctx.fillRect(fx, fy, fw, fh)
+    }
+  }
+
+  protected _paint_outline(ctx: Context2d, frame_box: FrameBox): void {
     if (this.visuals.outline_line.doit) {
       ctx.save()
       this.visuals.outline_line.set_value(ctx)
@@ -1030,61 +1057,6 @@ export class PlotView extends LayoutDOMView {
       }
       ctx.strokeRect(x0, y0, w, h)
       ctx.restore()
-    }
-
-    this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
-    this._paint_levels(ctx, ['annotation'], frame_box, false)
-    this._paint_levels(ctx, ['overlay'], frame_box, false)
-
-    if (this._initial_state_info.range == null)
-      this.set_initial_range()
-
-    ctx.restore()   // Restore to default state
-  }
-
-  protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {
-    for (const level of levels) {
-      for (const renderer of this.computed_renderers) {
-        if (renderer.level != level)
-          continue
-
-        const renderer_view = this.renderer_views[renderer.id]
-
-        ctx.save()
-        if (global_clip || renderer_view.needs_clip) {
-          ctx.beginPath()
-          ctx.rect(...clip_region)
-          ctx.clip()
-        }
-
-        renderer_view.render()
-        ctx.restore()
-
-        if (renderer_view.has_webgl) {
-          this.blit_webgl()
-          this.clear_webgl()
-        }
-      }
-    }
-  }
-
-  protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
-
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
-    const [fx, fy, fw, fh] = frame_box
-
-    ctx.clearRect(cx, cy, cw, ch)
-
-    if (this.visuals.border_fill.doit) {
-      this.visuals.border_fill.set_value(ctx)
-      ctx.fillRect(cx, cy, cw, ch)
-      ctx.clearRect(fx, fy, fw, fh)
-    }
-
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fillRect(fx, fy, fw, fh)
     }
   }
 

@@ -2,7 +2,6 @@ import {SidePanel} from "core/layout/side_panel"
 import {Size} from "core/layout"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
-import {Context2d} from "core/util/canvas"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -33,10 +32,6 @@ export abstract class AnnotationView extends RendererView {
 
   protected _get_size(): Size {
     throw new Error("not implemented")
-  }
-
-  get ctx(): Context2d {
-    return this.plot_view.canvas_view.ctx
   }
 
   set_data(source: ColumnarDataSource): void {

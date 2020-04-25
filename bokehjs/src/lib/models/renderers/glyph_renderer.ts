@@ -226,7 +226,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     const dtmask = Date.now() - tmask
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     // selected is in full set space

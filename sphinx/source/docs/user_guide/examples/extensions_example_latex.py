@@ -47,7 +47,7 @@ export class LatexLabelView extends LabelView {
     //--- End of copied section from ``Label.render`` implementation
     // Must render as superpositioned div (not on canvas) so that KaTex
     // css can properly style the text
-    this._css_text(this.plot_view.canvas_view.ctx, "", sx, sy, angle)
+    this._css_text(this.layer.ctx, "", sx, sy, angle)
 
     // ``katex`` is loaded into the global window at runtime
     // katex.renderToString returns a html ``span`` element

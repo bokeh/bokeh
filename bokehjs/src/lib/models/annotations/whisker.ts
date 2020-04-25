@@ -92,7 +92,7 @@ export class WhiskerView extends AnnotationView {
 
     this._map_data()
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     if (this.visuals.line.doit) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {

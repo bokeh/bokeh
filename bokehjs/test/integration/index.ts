@@ -20,7 +20,7 @@ import {Matrix} from "@bokehjs/core/util/data_structures"
 import {range} from "@bokehjs/core/util/array"
 import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
-import {Anchor, Location, RenderMode} from "@bokehjs/core/enums"
+import {Anchor, Location} from "@bokehjs/core/enums"
 
 function grid(items: Matrix<LayoutDOM> | LayoutDOM[][], opts?: Partial<GridBox.Attrs>): GridBox {
   const children = Matrix.from(items).to_sparse()
@@ -784,13 +784,12 @@ describe("Bug", () => {
   })
 
   describe("in issue #9877", () => {
-    function plot(fill: Color | null, line: Color | null, render_mode: RenderMode) {
+    function plot(fill: Color | null, line: Color | null) {
       const p = fig([200, 200], {x_range: [0, 3], y_range: [0, 3]})
       p.circle({x: [1, 1, 2, 2], y: [1, 2, 1, 2], radius: 0.5, line_color: null, fill_color: "red"})
 
       const box = new BoxAnnotation({
         bottom: 1, top: 2, left: 1, right: 2,
-        render_mode,
         fill_color: fill, fill_alpha: 0.5,
         line_color: line, line_alpha: 1.0, line_width: 4,
       })
@@ -798,27 +797,15 @@ describe("Bug", () => {
       return p
     }
 
-    it("disallows BoxAnnotation to respect fill_color == null in canvas mode", async () => {
-      const p0 = plot("blue", "green", "canvas")
-      const p1 = plot(null, "green", "canvas")
+    it("disallows BoxAnnotation to respect fill_color == null", async () => {
+      const p0 = plot("blue", "green")
+      const p1 = plot(null, "green")
       await display(row([p0, p1]), [450, 250])
     })
 
-    it("disallows BoxAnnotation to respect line_color == null in canvas mode", async () => {
-      const p0 = plot("blue", "green", "canvas")
-      const p1 = plot("blue", null, "canvas")
-      await display(row([p0, p1]), [450, 250])
-    })
-
-    it("disallows BoxAnnotation to respect fill_color == null in CSS mode", async () => {
-      const p0 = plot("blue", "green", "css")
-      const p1 = plot(null, "green", "css")
-      await display(row([p0, p1]), [450, 250])
-    })
-
-    it("disallows BoxAnnotation to respect line_color == null in CSS mode", async () => {
-      const p0 = plot("blue", "green", "css")
-      const p1 = plot("blue", null, "css")
+    it("disallows BoxAnnotation to respect line_color == null", async () => {
+      const p0 = plot("blue", "green")
+      const p1 = plot("blue", null)
       await display(row([p0, p1]), [450, 250])
     })
   })

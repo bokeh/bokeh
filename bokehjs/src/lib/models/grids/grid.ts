@@ -16,7 +16,7 @@ export class GridView extends GuideRendererView {
     if (!this.model.visible)
       return
 
-    const ctx = this.plot_view.canvas_view.ctx
+    const ctx = this.layer.ctx
     ctx.save()
     this._draw_regions(ctx)
     this._draw_minor_grids(ctx)
