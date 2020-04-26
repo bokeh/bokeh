@@ -5,8 +5,8 @@ import {Line} from "core/visuals"
 import {Arrayable, Rect} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {keys} from "core/util/object"
 import {min, max} from "core/util/array"
+import {to_object} from "core/util/object"
 import {isStrictNaN} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -80,14 +80,14 @@ export class MultiLineView extends GlyphView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const result = hittest.create_empty_hit_test_result()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
 
-    const hits: {[key: string]: number[]} = {}
+    const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = this.sxs.length; i < end; i++) {
       const threshold = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2)
-      let points = null
+
+      let points: number[] | null = null
       for (let j = 0, endj = this.sxs[i].length-1; j < endj; j++) {
         const p0 = {x: this.sxs[i][j],   y: this.sys[i][j]  }
         const p1 = {x: this.sxs[i][j+1], y: this.sys[i][j+1]}
@@ -97,19 +97,19 @@ export class MultiLineView extends GlyphView {
           points = [j]
         }
       }
-      if (points)
-        hits[i] = points
+      if (points != null) {
+        hits.set(i, points)
+      }
     }
 
-    result.indices = keys(hits).map((x) => parseInt(x, 10))
-    result.multiline_indices = hits
-
-    return result
+    return new Selection({
+      indices: [...hits.keys()],
+      multiline_indices: to_object(hits), // TODO: remove to_object()
+    })
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const result = hittest.create_empty_hit_test_result()
 
     let val: number
     let values: Arrayable<Arrayable<number>>
@@ -121,21 +121,22 @@ export class MultiLineView extends GlyphView {
       values = this._xs
     }
 
-    const hits: {[key: string]: number[]} = {}
+    const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = values.length; i < end; i++) {
-      const points = []
+      const points: number[] = []
       for (let j = 0, endj = values[i].length-1; j < endj; j++) {
         if (values[i][j] <= val && val <= values[i][j+1])
           points.push(j)
       }
-      if (points.length > 0)
-        hits[i] = points
+      if (points.length > 0) {
+        hits.set(i, points)
+      }
     }
 
-    result.indices = keys(hits).map((x) => parseInt(x, 10))
-    result.multiline_indices = hits
-
-    return result
+    return new Selection({
+      indices: [...hits.keys()],
+      multiline_indices: to_object(hits), // TODO: remove to_object()
+    })
   }
 
   get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry): [number, number] {

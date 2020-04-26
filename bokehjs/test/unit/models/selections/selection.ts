@@ -1,15 +1,12 @@
 import {expect} from "chai"
 
 import {Selection} from "@bokehjs/models/selections/selection"
-import * as hittest from "@bokehjs/core/hittest"
 
-const some_1d_selection = hittest.create_hit_test_result_from_hits([[4, 1], [5, 2]])
-const other_1d_selection = hittest.create_hit_test_result_from_hits([[0, 1], [1, 2]])
+const some_1d_selection = new Selection({indices: [4, 5]})
+const other_1d_selection = new Selection({indices: [0, 1]})
 
-const some_2d_selection = hittest.create_empty_hit_test_result()
-some_2d_selection.multiline_indices = {2: [2, 3]}
-const other_2d_selection = hittest.create_empty_hit_test_result()
-other_2d_selection.multiline_indices = {2: [0, 1]}
+const some_2d_selection = new Selection({multiline_indices: {2: [2, 3]}})
+const other_2d_selection = new Selection({multiline_indices: {2: [0, 1]}})
 
 describe("Selection", () => {
 

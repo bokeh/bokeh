@@ -3,7 +3,6 @@ import {Arrayable, Rect} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {is_ie} from "core/util/compat"
@@ -114,7 +113,7 @@ export class AnnulusView extends XYGlyphView {
         hits.push([i, dist])
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return Selection.from_hits(hits)
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {

@@ -4,7 +4,6 @@ import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, Rect} from "core/types"
 import {Line, Fill} from "core/visuals"
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
@@ -128,7 +127,7 @@ export class AnnularWedgeView extends XYGlyphView {
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return Selection.from_hits(hits)
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

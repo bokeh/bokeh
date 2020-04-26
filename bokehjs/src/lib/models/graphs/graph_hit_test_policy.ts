@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import {indexOf} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
-import {create_empty_hit_test_result, HitTestResult} from "core/hittest"
+import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -131,8 +131,8 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
         edge_indices.push(i)
     }
 
-    const linked_edges = create_empty_hit_test_result()
-    for (const i of edge_indices){
+    const linked_edges = new Selection()
+    for (const i of edge_indices) {
       linked_edges.multiline_indices[i] = [0] //currently only supports 2-element multilines, so this is all of it
     }
     linked_edges.indices = edge_indices
@@ -208,9 +208,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     }
 
     const node_indices = uniq(nodes).map((i) => indexOf(node_source.data.index, i))
-    const linked_nodes = create_empty_hit_test_result()
-    linked_nodes.indices = node_indices
-    return linked_nodes
+    return new Selection({indices: node_indices})
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {

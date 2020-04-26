@@ -66,7 +66,7 @@ export class LineView extends XYGlyphView {
           * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
     */
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
@@ -89,7 +89,7 @@ export class LineView extends XYGlyphView {
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
 
     let val: number
     let values: Arrayable<number>

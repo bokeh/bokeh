@@ -110,7 +110,7 @@ export class TextView extends XYGlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const hits = []
+    const indices = []
 
     for (let i = 0; i < this._sxs.length; i++) {
       const sxs = this._sxs[i]
@@ -119,13 +119,12 @@ export class TextView extends XYGlyphView {
       for (let j = 0, endj = n; j < endj; j++) {
         const [sxr, syr] = this._rotate_point(sx, sy, sxs[n-1][0], sys[n-1][0], -this._angle[i])
         if (hittest.point_in_poly(sxr, syr, sxs[j], sys[j])) {
-          hits.push(i)
+          indices.push(i)
         }
       }
     }
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+
+    return new Selection({indices})
   }
 
   private _scenterxy(i: number): {x: number, y: number} {

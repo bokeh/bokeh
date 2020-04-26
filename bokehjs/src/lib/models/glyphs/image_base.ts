@@ -2,7 +2,6 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import * as hittest from "core/hittest"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
@@ -134,17 +133,16 @@ export class ImageBaseView extends XYGlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
     const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
 
-    result.image_indices = []
     for (const index of candidates) {
-      if ((sx != Infinity) && (sy != Infinity)) {
+      if (sx != Infinity && sy != Infinity) {
         result.image_indices.push(this._image_index(index, x, y))
       }
     }
+
     return result
   }
-
 }
 
 export namespace ImageBase {
