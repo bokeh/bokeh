@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment, Side} from "core/enums"
-import {div, display, undisplay, empty} from "core/dom"
+import {div, display, undisplay, empty, remove} from "core/dom"
 import * as p from "core/properties"
 
 import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
@@ -22,11 +22,19 @@ export function compute_side(attachment: TooltipAttachment, sx: number, sy: numb
 export class TooltipView extends AnnotationView {
   model: Tooltip
 
+  protected el: HTMLElement
+
   initialize(): void {
     super.initialize()
     // TODO (bev) really probably need multiple divs
-    this.plot_view.canvas_view.add_overlay(this.el)
+    this.el = div({class: bk_tooltip})
     undisplay(this.el)
+    this.plot_view.canvas_view.add_overlay(this.el)
+  }
+
+  remove(): void {
+    remove(this.el)
+    super.remove()
   }
 
   connect_signals(): void {
@@ -36,10 +44,6 @@ export class TooltipView extends AnnotationView {
 
   styles(): string[] {
     return [...super.styles(), tooltips_css]
-  }
-
-  css_classes(): string[] {
-    return super.css_classes().concat(bk_tooltip)
   }
 
   render(): void {

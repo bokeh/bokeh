@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Text, Line, Fill} from "core/visuals"
-import {display, undisplay} from "core/dom"
+import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {measure_font} from "core/util/text"
@@ -13,12 +13,20 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   readonly rotate: boolean = true
 
+  protected el: HTMLElement
+
   initialize(): void {
     super.initialize()
 
     if (this.model.render_mode == 'css') {
+      this.el = div()
       this.plot_view.canvas_view.add_overlay(this.el)
     }
+  }
+
+  remove(): void {
+    remove(this.el)
+    super.remove()
   }
 
   connect_signals(): void {

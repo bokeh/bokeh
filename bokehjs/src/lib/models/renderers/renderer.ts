@@ -1,4 +1,4 @@
-import {DOMView} from "core/dom_view"
+import {View} from "core/view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import {Arrayable} from "core/types"
@@ -9,8 +9,7 @@ import {BBox} from "core/util/bbox"
 import {Plot, PlotView} from "../plots/plot"
 import {CanvasLayer} from "../canvas/canvas"
 
-// This shouldn't be a DOMView, but annotations create a mess.
-export abstract class RendererView extends DOMView {
+export abstract class RendererView extends View {
   model: Renderer
   visuals: Renderer.Visuals
 
@@ -39,6 +38,10 @@ export abstract class RendererView extends DOMView {
     this.plot_view.request_render()
   }
 
+  notify_finished(): void {
+    this.plot_view.notify_finished()
+  }
+
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
     return this.plot_view.map_to_screen(x, y, (this.model as any).x_range_name, (this.model as any).y_range_name)
   }
@@ -51,13 +54,11 @@ export abstract class RendererView extends DOMView {
     return false
   }
 
-  notify_finished(): void {
-    this.plot_view.notify_finished()
-  }
-
   get has_webgl(): boolean {
     return false
   }
+
+  render(): void {}
 }
 
 export namespace Renderer {

@@ -6,8 +6,6 @@ import {extend} from "core/util/object"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-import annotations_css from "styles/annotations.css"
-
 export abstract class AnnotationView extends RendererView {
   model: Annotation
 
@@ -22,10 +20,6 @@ export abstract class AnnotationView extends RendererView {
 
     const p = this.model.properties
     this.on_change(p.visible, () => this.plot_view.request_layout())
-  }
-
-  styles(): string[] {
-    return [...super.styles(), annotations_css]
   }
 
   get_size(): Size {

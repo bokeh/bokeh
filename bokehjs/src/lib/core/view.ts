@@ -1,7 +1,10 @@
 import type {HasProps} from "./has_props"
 import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
+import {StyleSheet, stylesheet} from "./dom"
 import {isArray} from "./util/types"
+
+import root_css from "styles/root.css"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -25,6 +28,8 @@ export class View implements ISignalable {
     return this._ready
   }
 
+  protected _has_finished: boolean
+
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
     const new_slot = (args: Args, sender: Sender): void => {
       const promise = Promise.resolve(slot.call(this, args, sender))
@@ -47,7 +52,15 @@ export class View implements ISignalable {
     this._parent = options.parent
   }
 
-  initialize(): void {}
+  initialize(): void {
+    this._has_finished = false
+    if (this.is_root) {
+      this._stylesheet = stylesheet
+    }
+    for (const style of this.styles()) {
+      this.stylesheet.append(style)
+    }
+  }
 
   async lazy_initialize(): Promise<void> {}
 
@@ -85,6 +98,14 @@ export class View implements ISignalable {
       throw new Error(`${this.toString()} is not a root layout`)
   }
 
+  has_finished(): boolean {
+    return this._has_finished
+  }
+
+  get is_idle(): boolean {
+    return this.has_finished()
+  }
+
   connect_signals(): void {}
 
   disconnect_signals(): void {
@@ -95,5 +116,24 @@ export class View implements ISignalable {
     for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
     }
+  }
+
+  cursor(_sx: number, _sy: number): string | null {
+    return null
+  }
+
+  on_hit?(sx: number, sy: number): boolean
+
+  private _stylesheet: StyleSheet
+
+  get stylesheet(): StyleSheet {
+    if (this.is_root)
+      return this._stylesheet
+    else
+      return this.root.stylesheet
+  }
+
+  styles(): string[] {
+    return [root_css]
   }
 }
