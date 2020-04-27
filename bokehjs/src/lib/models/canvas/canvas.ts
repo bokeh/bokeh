@@ -5,9 +5,13 @@ import * as p from "core/properties"
 import {div, canvas, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
+import {LODStart, LODEnd} from "core/bokeh_events"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {SVGRenderingContext2D} from "core/util/svg"
+
+import type {Plot} from "../plots/plot"
+export type InteractiveRenderer = Plot
 
 export type FrameBox = [number, number, number, number]
 
@@ -283,6 +287,36 @@ export class CanvasView extends DOMView {
 
   save(name: string): void {
     this.compose().save(name)
+  }
+
+  protected _interactive_state: {renderer: InteractiveRenderer, timestamp: number} | null = null
+
+  interactive_start(renderer: InteractiveRenderer): void {
+    const state = this._interactive_state
+    const timestamp = Date.now()
+
+    if (state == null) {
+      this._interactive_state = {renderer, timestamp}
+      renderer.trigger_event(new LODStart())
+    } else {
+      state.timestamp = timestamp
+    }
+  }
+
+  interactive_stop(renderer: InteractiveRenderer): void {
+    const state = this._interactive_state
+    if (state != null && state.renderer == renderer) {
+      renderer.trigger_event(new LODEnd())
+    }
+    this._interactive_state = null
+  }
+
+  interactive_duration(): number {
+    const state = this._interactive_state
+    if (state == null)
+      return -1
+    else
+      return Date.now() - state.timestamp
   }
 }
 

@@ -232,7 +232,7 @@ export class GlyphRendererView extends DataRendererView {
     let glyph: GlyphView
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
-    if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
+    if (this.plot_view.canvas_view.interactive_duration() > 0
         && !glsupport && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
       indices = [...this.decimated]

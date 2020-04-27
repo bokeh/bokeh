@@ -1,7 +1,7 @@
 import {Models} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
-import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
+import {BokehEvent, DocumentReady, ModelEvent} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
@@ -78,8 +78,6 @@ export class Document {
   protected _callbacks: Map<(event: DocumentEvent) => void, boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
-  protected _interactive_timestamp: number | null
-  protected _interactive_plot: Model | null
 
   constructor() {
     documents.push(this)
@@ -93,8 +91,6 @@ export class Document {
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
-    this._interactive_timestamp = null
-    this._interactive_plot = null
   }
 
   get layoutables(): LayoutDOM[] {
@@ -127,29 +123,6 @@ export class Document {
     } finally {
       this._pop_all_models_freeze()
     }
-  }
-
-  interactive_start(plot: Model): void {
-    if (this._interactive_plot == null) {
-      this._interactive_plot = plot
-      this._interactive_plot.trigger_event(new LODStart())
-    }
-    this._interactive_timestamp = Date.now()
-  }
-
-  interactive_stop(plot: Model): void {
-    if (this._interactive_plot != null && this._interactive_plot.id === plot.id) {
-      this._interactive_plot.trigger_event(new LODEnd())
-    }
-    this._interactive_plot = null
-    this._interactive_timestamp = null
-  }
-
-  interactive_duration(): number {
-    if (this._interactive_timestamp == null)
-      return -1
-    else
-      return Date.now() - this._interactive_timestamp
   }
 
   destructively_move(dest_doc: Document): void {

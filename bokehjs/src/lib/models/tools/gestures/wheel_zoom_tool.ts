@@ -47,8 +47,7 @@ export class WheelZoomToolView extends GestureToolView {
     this.plot_view.push_state('wheel_zoom', {range: zoom_info})
     this.plot_view.update_range(zoom_info, false, true, this.model.maintain_focus)
 
-    if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model)
+    this.plot_view.canvas_view.interactive_start(this.plot_model)
   }
 }
 
