@@ -89,6 +89,12 @@ validation checks.
 1024 *(CDSVIEW_FILTERS_WITH_CONNECTED)*
     ``CDSView`` filters are not compatible with glyphs with connected topology such as Line or Patch.
 
+1025 *(INCOMPATIBLE_LINE_EDIT_RENDERER)*
+    The ``LineEditTool`` renderers may only reference ``MultiLine`` and ``Line`` glyph models.
+
+1026 *(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)*
+    The ``LineEditTool`` intersection_enderer may only reference ``LineGlyph`` models.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -133,6 +139,8 @@ codes = {
     1022: ("MIN_PREFERRED_MAX_WIDTH",                            "Expected min_width <= width <= max_width"),
     1023: ("MIN_PREFERRED_MAX_HEIGHT",                           "Expected min_height <= height <= max_height"),
     1024: ("CDSVIEW_FILTERS_WITH_CONNECTED",                     "CDSView filters are not compatible with glyphs with connected topology such as Line or Patch"),
+    1025: ("INCOMPATIBLE_LINE_EDIT_RENDERER",                    "LineEditTool renderers may only reference MultiLine and Line glyph models"),
+    1026: ("INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER",       "LineEditTool intersection_renderer may only reference LineGlyph models"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
 

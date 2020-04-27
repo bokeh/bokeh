@@ -77,13 +77,15 @@ from ..core.validation.errors import (
     INCOMPATIBLE_POLY_DRAW_RENDERER,
     INCOMPATIBLE_POLY_EDIT_RENDERER,
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import MultiLine, Patches, Rect, XYGlyph
+from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import GlyphRenderer, Renderer
@@ -108,6 +110,7 @@ __all__ = (
     'Inspection',
     'Gesture',
     'LassoSelectTool',
+    'LineEditTool', #simon
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -1506,6 +1509,53 @@ class PolyEditTool(EditTool, Drag, Tap):
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
+
+class LineEditTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |line_edit_icon|
+
+    The LineEditTool allows editing the intersection points of one or more ``Line`` or
+    ``MultiLine``? glyphs. Glyphs to be edited are defined via the ``renderers``
+    property and a renderer for the intersections is set via the ``intersection_renderer``
+    property (must render a point-like Glyph (a subclass of ``XYGlyph``).
+
+    The tool will modify the columns on the data source corresponding to the
+    ``x`` and ``y`` values of the glyph. Any additional columns in the data
+    source will be padded with the declared``empty_value``, when adding a new
+    point.
+
+    The supported actions include:
+
+    * Show intersections: Double tap an existing line or multi-line
+
+    * Move point: Drag an existing point and let go of the mouse button to
+      release it.
+
+    .. |line_edit_icon| image:: /_images/icons/LineEdit.png
+        :height: 24px
+     '''
+
+    vertex_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the intersections of a selected line
+    """)
+
+    @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
+    def _check_compatible_intersection_renderer(self):
+        glyph = self.vertex_renderer.glyph
+        if not isinstance(glyph, LineGlyph):
+            return "glyph type %s found." % type(glyph).__name__
+
+    @error(INCOMPATIBLE_LINE_EDIT_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (MultiLine, Line)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join(type(renderer.glyph).__name__
+                                    for renderer in incompatible_renderers)
+            return "%s glyph type(s) found." % glyph_types
+
+#
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -1549,6 +1599,7 @@ Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())
 Tool.register_alias("help", lambda: HelpTool())
 Tool.register_alias("box_edit", lambda: BoxEditTool())
+Tool.register_alias("line_edit", lambda: LineEditTool())
 Tool.register_alias("point_draw", lambda: PointDrawTool())
 Tool.register_alias("poly_draw", lambda: PolyDrawTool())
 Tool.register_alias("poly_edit", lambda: PolyEditTool())
