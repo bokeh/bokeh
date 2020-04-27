@@ -7,6 +7,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
+import {assert} from "core/util/assert"
 import {Selection} from "../selections/selection"
 
 export interface TextData extends XYGlyphData {
@@ -41,10 +42,10 @@ export class TextView extends XYGlyphView {
     this._sys = []
     this._sxs = []
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + _angle[i]) || _text[i] == null)
-        continue
       this._sxs[i] = []
       this._sys[i] = []
+      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + _angle[i]) || _text[i] == null)
+        continue
       if (this.visuals.text.doit) {
         const text = `${_text[i]}`
 
@@ -56,7 +57,7 @@ export class TextView extends XYGlyphView {
         const font = this.visuals.text.cache_select("font", i)
         const {height} = measure_font(font)
         const line_height = this.visuals.text.text_line_height.value()*height
-        if (text.indexOf("\n") == -1){
+        if (text.indexOf("\n") == -1) {
           ctx.fillText(text, 0, 0)
           const x0 = sx[i] + _x_offset[i]
           const y0 = sy[i] + _y_offset[i]
@@ -128,10 +129,13 @@ export class TextView extends XYGlyphView {
   }
 
   private _scenterxy(i: number): {x: number, y: number} {
-    const sx0 = this._sxs[i][0][0]
-    const sy0 = this._sys[i][0][0]
-    const sxc = (this._sxs[i][0][2] + sx0) / 2
-    const syc = (this._sys[i][0][2] + sy0) / 2
+    const sxs = this._sxs[i]
+    const sys = this._sys[i]
+    assert(sxs.length != 0 && sys.length != 0)
+    const sx0 = sxs[0][0]
+    const sy0 = sys[0][0]
+    const sxc = (sxs[0][2] + sx0) / 2
+    const syc = (sys[0][2] + sy0) / 2
     const [sxcr, sycr] = this._rotate_point(sxc, syc, sx0, sy0, this._angle[i])
     return {x: sxcr, y:sycr}
   }
