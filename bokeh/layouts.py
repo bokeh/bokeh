@@ -298,10 +298,12 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
+    from .models.plots import GridPlot
+    GridCls = GridBox # GridPlot
     if not merge_tools or not toolbar_location:
-        return GridBox(children=items, sizing_mode=sizing_mode)
+        return GridCls(children=items, sizing_mode=sizing_mode)
 
-    grid = GridBox(children=items)
+    grid = GridCls(children=items)
     tools = sum([ toolbar.tools for toolbar in toolbars ], [])
     proxy = ProxyToolbar(toolbars=toolbars, tools=tools, **toolbar_options)
     toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)

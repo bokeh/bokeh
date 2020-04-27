@@ -26,6 +26,7 @@ from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import (
     Bool,
     Dict,
+    Either,
     Enum,
     Float,
     Include,
@@ -33,6 +34,7 @@ from ..core.properties import (
     Int,
     List,
     Override,
+    Tuple,
     String,
 )
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
@@ -56,7 +58,7 @@ from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .layouts import LayoutDOM
+from .layouts import LayoutDOM, QuickTrackSizing, RowSizing, ColSizing, IntOrString
 from .ranges import DataRange1d, FactorRange, Range, Range1d
 from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import CategoricalScale, LinearScale, LogScale, Scale
@@ -717,6 +719,58 @@ class Plot(LayoutDOM):
     @error(FIXED_HEIGHT_POLICY)
     def _check_fixed_height_policy(self):
         pass
+
+class GridPlot(LayoutDOM):
+
+    children = List(Either(
+        Tuple(Instance(Plot), Int, Int),
+        Tuple(Instance(Plot), Int, Int, Int, Int)), default=[], help="""
+    A list of children with their associated position in the grid (row, column).
+    """)
+
+    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the grid should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
+    """)
+
+    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the grid should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
+    """)
+
+    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    The gap between children (in pixels).
+
+    Either a number, if spacing is the same for both dimensions, or a pair
+    of numbers indicating spacing in the vertical and horizontal dimensions
+    respectively.
+    """)
+
+    output_backend = Enum(OutputBackend, default="canvas", help="""
+    Specify the output backend for the plot area. Default is HTML5 Canvas.
+
+    .. note::
+        When set to ``webgl``, glyphs without a WebGL rendering implementation
+        will fall back to rendering onto 2D canvas.
+    """)
+
+    hidpi = Bool(default=True, help="""
+    Whether to use HiDPI mode when available.
+    """)
+
+    background_props = Include(ScalarFillProps, help="""
+    The %s for the plot background style.
+    """)
+
+    background_fill_color = Override(default='#ffffff')
 
 #-----------------------------------------------------------------------------
 # Dev API
