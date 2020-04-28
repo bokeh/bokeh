@@ -12,10 +12,9 @@ function _one_line(ctx: Context2d, r: number): void {
 }
 
 function _one_x(ctx: Context2d, r: number): void {
-  ctx.moveTo(-r,  r)
-  ctx.lineTo(r, -r)
-  ctx.moveTo(-r, -r)
-  ctx.lineTo(r,  r)
+  ctx.rotate(Math.PI/4)
+  _one_cross(ctx, r)
+  ctx.rotate(-Math.PI/4)
 }
 
 function _one_y(ctx: Context2d, r: number): void {
@@ -74,10 +73,8 @@ function _one_tri(ctx: Context2d, r: number): void {
 }
 
 function asterisk(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
-  const r2 = r*0.65
-
   _one_cross(ctx, r)
-  _one_x(ctx, r2)
+  _one_x(ctx, r)
 
   if (line.doit) {
     line.set_vectorize(ctx, i)
@@ -148,9 +145,7 @@ function circle_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
 
   if (line.doit) {
     line.set_vectorize(ctx, i)
-    ctx.rotate(Math.PI/4)
-    _one_cross(ctx, r)
-    ctx.rotate(-Math.PI/4)
+    _one_x(ctx, r)
     ctx.stroke()
   }
 
@@ -295,10 +290,13 @@ function square_pin(ctx: Context2d, i: number, r: number, line: Line, fill: Fill
   const a = 3*r/8
 
   ctx.moveTo(-r, -r)
+  /* eslint-disable space-in-parens */
   ctx.quadraticCurveTo( 0, -a,  r, -r)
   ctx.quadraticCurveTo( a,  0,  r,  r)
   ctx.quadraticCurveTo( 0,  a, -r,  r)
   ctx.quadraticCurveTo(-a,  0, -r, -r)
+  /* eslint-ensable space-in-parens */
+
   ctx.closePath()
 
   if (fill.doit) {
@@ -348,7 +346,10 @@ function square_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
 
   if (line.doit) {
     line.set_vectorize(ctx, i)
-    _one_x(ctx, r)
+    ctx.moveTo(-r,  r)
+    ctx.lineTo(r, -r)
+    ctx.moveTo(-r, -r)
+    ctx.lineTo(r,  r)
     ctx.stroke()
   }
 
