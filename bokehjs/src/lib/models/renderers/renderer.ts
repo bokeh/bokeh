@@ -1,13 +1,14 @@
 import {View} from "core/view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
+import {Box} from "core/types"
 import * as p from "core/properties"
 import {Model} from "../../model"
 import {BBox} from "core/util/bbox"
 
 import type {Plot, PlotView} from "../plots/plot"
-import type {CanvasLayer} from "../canvas/canvas"
 import {CoordinateTransform} from "../canvas/coordinates"
+import type {CanvasView, CanvasLayer} from "../canvas/canvas"
 
 export abstract class RendererView extends View {
   model: Renderer
@@ -40,6 +41,10 @@ export abstract class RendererView extends View {
     this._coordinates = new CoordinateTransform(x_scale, y_scale)
   }
 
+  get canvas_view(): CanvasView {
+    return this.parent.canvas_view
+  }
+
   get plot_view(): PlotView {
     return this.parent
   }
@@ -49,7 +54,7 @@ export abstract class RendererView extends View {
   }
 
   get layer(): CanvasLayer {
-    const {overlays, primary} = this.plot_view.canvas_view
+    const {overlays, primary} = this.canvas_view
     return this.model.level == "overlay" ? overlays : primary
   }
 
@@ -65,12 +70,23 @@ export abstract class RendererView extends View {
 
   interactive_hit?(sx: number, sy: number): boolean
 
-  get needs_clip(): boolean {
+  get has_webgl(): boolean {
     return false
   }
 
-  get has_webgl(): boolean {
-    return false
+  get needs_clip(): boolean {
+    switch (this.model.level) {
+      case "image":
+      case "underlay":
+      case "glyph":
+        return true
+      default:
+        return false
+    }
+  }
+
+  get clip_box(): Box | null {
+    return this.needs_clip ? this.plot_view.frame.bbox.box : null
   }
 
   render(): void {

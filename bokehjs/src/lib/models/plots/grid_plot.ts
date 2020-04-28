@@ -76,7 +76,7 @@ export class GridPlotView extends LayoutDOMView {
 
     if (this._needs_paint) {
       this._needs_paint = false
-      this.paint()
+      this.canvas_view.repaint()
     }
   }
 
@@ -94,11 +94,6 @@ export class GridPlotView extends LayoutDOMView {
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx)
       ctx.fillRect(x, y, width, height)
-    }
-
-    for (const child_view of this.child_views) {
-      const plot_view = child_view as PlotView
-      plot_view.paint()
     }
   }
 

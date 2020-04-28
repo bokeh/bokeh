@@ -12,7 +12,7 @@ export class SpanView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_paint(this))
+    this.connect(this.model.change, () => this.canvas_view.request_paint(this))
   }
 
   protected _render(): void {

@@ -39,8 +39,6 @@ export class GMapPlotView extends PlotView {
   protected map_types: any
 
   initialize(): void {
-    this.pause()
-
     super.initialize()
 
     this._tiles_loaded = false
@@ -58,8 +56,6 @@ export class GMapPlotView extends PlotView {
       }
       gmaps_ready.connect(() => this.request_render())
     }
-
-    this.unpause()
   }
 
   remove(): void {
@@ -89,7 +85,7 @@ export class GMapPlotView extends PlotView {
       }
       this.zoom_count = 0
 
-      this.pause()
+      this.canvas_view.pause()
 
       super.update_range(range_info)
 
@@ -109,7 +105,7 @@ export class GMapPlotView extends PlotView {
         }
       }
 
-      this.unpause()
+      this.canvas_view.unpause()
     }
 
     // Finally re-center

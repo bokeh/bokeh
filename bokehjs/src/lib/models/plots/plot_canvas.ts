@@ -20,8 +20,7 @@ import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
-import {Side, RenderLevel} from "core/enums"
-import {throttle} from "core/util/throttle"
+import {Side} from "core/enums"
 import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {Context2d} from "core/util/canvas"
@@ -64,13 +63,9 @@ export class PlotView extends LayoutDOMView {
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
-  protected _invalidated_painters: Set<RendererView> = new Set()
-  protected _invalidate_all: boolean = true
 
   state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
-
-  protected _is_paused?: number
 
   protected _initial_state_info: StateInfo
 
@@ -79,8 +74,6 @@ export class PlotView extends LayoutDOMView {
     index: number
   }
 
-  protected throttled_paint: () => void
-
   computed_renderers: Renderer[]
 
   /*protected*/ renderer_views: Map<Renderer, RendererView>
@@ -88,28 +81,8 @@ export class PlotView extends LayoutDOMView {
 
   protected range_update_timestamp?: number
 
-  get is_paused(): boolean {
-    return this._is_paused != null && this._is_paused !== 0
-  }
-
   get child_models(): LayoutDOM[] {
     return []
-  }
-
-  pause(): void {
-    if (this._is_paused == null)
-      this._is_paused = 1
-    else
-      this._is_paused += 1
-  }
-
-  unpause(no_render: boolean = false): void {
-    if (this._is_paused == null)
-      throw new Error("wasn't paused")
-
-    this._is_paused -= 1
-    if (this._is_paused == 0 && !no_render)
-      this.request_paint()
   }
 
   // TODO: this needs to be removed
@@ -117,17 +90,8 @@ export class PlotView extends LayoutDOMView {
     this.request_paint()
   }
 
-  request_paint(to_invalidate?: RendererView): void {
-    if (to_invalidate != null) {
-      this._invalidated_painters.add(to_invalidate)
-    } else {
-      this._invalidate_all = true
-    }
-
-    if (!this.is_paused) {
-      const promise = this.throttled_paint()
-      this._ready = this._ready.then(() => promise)
-    }
+  request_paint(): void {
+    this.canvas_view.request_paint() // TODO: this
   }
 
   request_layout(): void {
@@ -159,8 +123,6 @@ export class PlotView extends LayoutDOMView {
   }
 
   initialize(): void {
-    this.pause()
-
     super.initialize()
 
     this.state_changed = new Signal0(this, "state_changed")
@@ -187,8 +149,6 @@ export class PlotView extends LayoutDOMView {
       this.model.extra_y_ranges,
     )
 
-    this.throttled_paint = throttle(() => this.repaint(), 1000/60)
-
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
       this._title = title instanceof Title ? title : new Title({text: title})
@@ -212,9 +172,6 @@ export class PlotView extends LayoutDOMView {
     await this.build_tool_views()
 
     this.update_dataranges()
-    this.unpause(true)
-
-    logger.debug("PlotView initialized")
   }
 
   protected _width_policy(): SizingPolicy {
@@ -650,7 +607,7 @@ export class PlotView extends LayoutDOMView {
 
   update_range(range_info: RangeInfo | null,
                is_panning: boolean = false, is_scrolling: boolean = false, maintain_focus: boolean = true): void {
-    this.pause()
+    this.canvas_view.pause()
     const {x_ranges, y_ranges} = this.frame
     if (range_info == null) {
       for (const [, range] of x_ranges) {
@@ -673,7 +630,7 @@ export class PlotView extends LayoutDOMView {
       }
       this._update_ranges_individually(range_info_iter, is_panning, is_scrolling, maintain_focus)
     }
-    this.unpause()
+    this.canvas_view.unpause()
   }
 
   reset_range(): void {
@@ -732,10 +689,10 @@ export class PlotView extends LayoutDOMView {
     const {x_ranges, y_ranges} = this.frame
 
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
+      this.connect(range.change, () => this.request_layout())
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
+      this.connect(range.change, () => this.request_layout())
     }
 
     const {plot_width, plot_height} = this.model.properties
@@ -811,9 +768,9 @@ export class PlotView extends LayoutDOMView {
     }, {no_change: true})
 
     if (this.model.match_aspect !== false) {
-      this.pause()
+      this.canvas_view.pause()
       this.update_dataranges()
-      this.unpause(true)
+      this.canvas_view.unpause(true)
     }
 
     if (!this._outer_bbox.equals(this.layout.bbox)) {
@@ -833,7 +790,7 @@ export class PlotView extends LayoutDOMView {
       // XXX: can't be this.request_paint(), because it would trigger back-and-forth
       // layout recomputing feedback loop between plots. Plots are also much more
       // responsive this way, especially in interactive mode.
-      this.paint()
+      this.canvas_view.repaint()
     }
   }
 
@@ -844,22 +801,8 @@ export class PlotView extends LayoutDOMView {
   }
 
   paint(): void {
-    if (this.is_paused || !this.model.visible)
+    if (!this.model.visible)
       return
-
-    logger.trace(`PlotView.paint() for ${this.model.id}`)
-
-    const {canvas_view} = this
-    const interactive_duration = canvas_view.interactive_duration()
-    if (interactive_duration >= 0 && interactive_duration < this.model.lod_interval) {
-      setTimeout(() => {
-        if (canvas_view.interactive_duration() > this.model.lod_timeout) {
-          canvas_view.interactive_stop(this.model)
-        }
-        this.request_paint()
-      }, this.model.lod_timeout)
-    } else
-      canvas_view.interactive_stop(this.model)
 
     for (const [, renderer_view] of this.renderer_views) {
       if (this.range_update_timestamp == null ||
@@ -869,25 +812,8 @@ export class PlotView extends LayoutDOMView {
       }
     }
 
-    let do_primary = false
-    let do_overlays = false
-
-    if (this._invalidate_all) {
-      do_primary = true
-      do_overlays = true
-    } else {
-      for (const painter of this._invalidated_painters) {
-        const {level} = painter.model
-        if (level != "overlay")
-          do_primary = true
-        else
-          do_overlays = true
-        if (do_primary && do_overlays)
-          break
-      }
-    }
-    this._invalidated_painters.clear()
-    this._invalidate_all = false
+    if (this._initial_state_info.range == null)
+      this.set_initial_range()
 
     const frame_box: FrameBox = [
       this.frame.bbox.left,
@@ -896,59 +822,13 @@ export class PlotView extends LayoutDOMView {
       this.frame.bbox.height,
     ]
 
-    const {primary, overlays} = this.canvas_view
+    const {primary} = this.canvas_view
 
-    if (do_primary) {
-      primary.prepare()
-      this.canvas_view.prepare_webgl(frame_box)
-      this.canvas_view.clear_webgl()
-
-      this._map_hook(primary.ctx, frame_box)
-      this._paint_empty(primary.ctx, frame_box)
-      this._paint_outline(primary.ctx, frame_box)
-
-      this._paint_levels(primary.ctx, "image", frame_box, true)
-      this._paint_levels(primary.ctx, "underlay", frame_box, true)
-      this._paint_levels(primary.ctx, "glyph", frame_box, true)
-      this._paint_levels(primary.ctx, "guide", frame_box, false)
-      this._paint_levels(primary.ctx, "annotation", frame_box, false)
-      primary.finish()
-    }
-
-    if (do_overlays) {
-      overlays.prepare()
-      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
-      overlays.finish()
-    }
-
-    if (this._initial_state_info.range == null)
-      this.set_initial_range()
+    this._map_hook(primary.ctx, frame_box)
+    this._paint_empty(primary.ctx, frame_box)
+    this._paint_outline(primary.ctx, frame_box)
 
     this._needs_paint = false
-  }
-
-  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
-    for (const renderer of this.computed_renderers) {
-      if (renderer.level != level)
-        continue
-
-      const renderer_view = this.renderer_views.get(renderer)!
-
-      ctx.save()
-      if (global_clip || renderer_view.needs_clip) {
-        ctx.beginPath()
-        ctx.rect(...clip_region)
-        ctx.clip()
-      }
-
-      renderer_view.render()
-      ctx.restore()
-
-      if (renderer_view.has_webgl) {
-        this.canvas_view.blit_webgl(ctx)
-        this.canvas_view.clear_webgl()
-      }
-    }
   }
 
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}

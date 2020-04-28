@@ -3,15 +3,17 @@ import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas, append} from "core/dom"
-import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
+import {OutputBackend, RenderLevel} from "core/enums"
 import {UIEventBus} from "core/ui_events"
 import {LODStart, LODEnd} from "core/bokeh_events"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {SVGRenderingContext2D} from "core/util/svg"
 import {PlotView} from "../plots/plot"
-import {Renderer} from "../renderers/renderer"
+import {RendererView} from "../renderers/renderer"
+import {throttle} from "core/util/throttle"
+import {Box} from "core/types"
 
 import type {Plot} from "../plots/plot"
 export type InteractiveRenderer = Plot
@@ -201,6 +203,7 @@ export class CanvasView extends DOMView {
     append(this.el, ...elements)
 
     this.ui_event_bus = new UIEventBus(this)
+    this.throttled_paint = throttle(() => this.repaint(), 1000/60)
   }
 
   remove(): void {
@@ -229,28 +232,34 @@ export class CanvasView extends DOMView {
 
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
+    this.prepare_webgl(width, height)
   }
 
-  prepare_webgl(frame_box: FrameBox): void {
+  prepare_webgl(width: number, height: number): void {
     // Prepare WebGL for a drawing pass
     const {webgl} = this
     if (webgl != null) {
       // Sync canvas size
-      const {width, height} = this.bbox
       webgl.canvas.width = this.pixel_ratio*width
       webgl.canvas.height = this.pixel_ratio*height
       const {gl} = webgl
-      // Clipping
-      gl.enable(gl.SCISSOR_TEST)
-      const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.bbox
-      const vx = xview.compute(sx)
-      const vy = yview.compute(sy + h)
-      const ratio = this.pixel_ratio
-      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
       // Setup blending
       gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE) // premultipliedAlpha == true
+    }
+  }
+
+  clip_webgl(clip_box: Box): void {
+    const {webgl} = this
+    if (webgl != null) {
+      const {gl} = webgl
+      gl.enable(gl.SCISSOR_TEST)
+      const {x: sx, y: sy, width, height} = clip_box
+      const {xview, yview} = this.bbox
+      const vx = xview.compute(sx)
+      const vy = yview.compute(sy + height)
+      const ratio = this.pixel_ratio
+      gl.scissor(ratio*vx, ratio*vy, ratio*width, ratio*height) // lower left corner, width, height
     }
   }
 
@@ -335,6 +344,144 @@ export class CanvasView extends DOMView {
     return [] // XXX
   }
   */
+
+  protected throttled_paint: () => void
+
+  protected _invalidated_painters: Set<RendererView> = new Set()
+  protected _invalidate_all: boolean = true
+
+  repaint(): void {
+    if (this.is_paused)
+      return
+
+    /*
+    const interactive_duration = this.interactive_duration()
+    if (interactive_duration >= 0 && interactive_duration < this.model.lod_interval) {
+      setTimeout(() => {
+        if (this.interactive_duration() > this.model.lod_timeout) {
+          this.interactive_stop(this.model)
+        }
+        this.request_paint()
+      }, this.model.lod_timeout)
+    } else
+      this.interactive_stop(this.model)
+    */
+
+    let do_primary = false
+    let do_overlays = false
+
+    if (this._invalidate_all) {
+      do_primary = true
+      do_overlays = true
+    } else {
+      for (const painter of this._invalidated_painters) {
+        const {level} = painter.model
+        if (level != "overlay")
+          do_primary = true
+        else
+          do_overlays = true
+        if (do_primary && do_overlays)
+          break
+      }
+    }
+    this._invalidated_painters.clear()
+    this._invalidate_all = false
+
+    const {primary, overlays} = this
+
+    if (do_primary) {
+      primary.prepare()
+
+      for (const plot_view of this.plot_views) {
+        plot_view.paint()
+        this._paint_level(primary, "image", plot_view)
+        this._paint_level(primary, "underlay", plot_view)
+        this._paint_level(primary, "glyph", plot_view)
+        this._paint_level(primary, "guide", plot_view)
+        this._paint_level(primary, "annotation", plot_view)
+      }
+
+      primary.finish()
+    }
+
+    if (do_overlays) {
+      overlays.prepare()
+
+      for (const plot_view of this.plot_views) {
+        this._paint_level(overlays, "overlay", plot_view)
+      }
+
+      overlays.finish()
+    }
+  }
+
+  _paint_level(layer: CanvasLayer, level: RenderLevel, plot_view: PlotView): void {
+    const {ctx} = layer
+
+    for (const renderer of plot_view.computed_renderers) {
+      if (renderer.level != level)
+        continue
+
+      const renderer_view = plot_view.renderer_views.get(renderer)!
+
+      if (renderer_view.has_webgl) {
+        this.clear_webgl()
+      }
+
+      ctx.save()
+      const {clip_box} = renderer_view
+      if (clip_box != null) {
+        ctx.beginPath()
+        const {x, y, width, height} = clip_box
+        ctx.rect(x, y, width, height)
+        ctx.clip()
+      }
+
+      renderer_view.render()
+      ctx.restore()
+
+      if (renderer_view.has_webgl) {
+        this.blit_webgl(ctx)
+        this.clear_webgl()
+      }
+    }
+  }
+
+  request_paint(...to_invalidate: RendererView[]): void {
+    if (to_invalidate.length != 0) {
+      for (const renderer_view of to_invalidate) {
+        this._invalidated_painters.add(renderer_view)
+      }
+    } else {
+      this._invalidate_all = true
+    }
+
+    if (!this.is_paused) {
+      const promise = this.throttled_paint()
+      this._ready = this._ready.then(() => promise)
+    }
+  }
+
+  protected _is_paused?: number
+  get is_paused(): boolean {
+    return this._is_paused != null && this._is_paused != 0
+  }
+
+  pause(): void {
+    if (this._is_paused == null)
+      this._is_paused = 1
+    else
+      this._is_paused += 1
+  }
+
+  unpause(no_render: boolean = false): void {
+    if (this._is_paused == null)
+      throw new Error("wasn't paused")
+
+    this._is_paused -= 1
+    if (this._is_paused == 0 && !no_render)
+      this.request_paint()
+  }
 }
 
 export namespace Canvas {
