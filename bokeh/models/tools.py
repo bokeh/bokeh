@@ -1534,13 +1534,13 @@ class LineEditTool(EditTool, Drag, Tap):
         :height: 24px
      '''
 
-    vertex_renderer = Instance(GlyphRenderer, help="""
+    intersection_renderer = Instance(GlyphRenderer, help="""
     The renderer used to render the intersections of a selected line
     """)
 
     @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
     def _check_compatible_intersection_renderer(self):
-        glyph = self.vertex_renderer.glyph
+        glyph = self.intersection_renderer.glyph
         if not isinstance(glyph, LineGlyph):
             return "glyph type %s found." % type(glyph).__name__
 
