@@ -317,24 +317,6 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleY)
-    def circle_x(self, **kwargs):
-        """
-Examples:
-
-    .. bokeh-plot::
-        :source-position: above
-
-        from bokeh.plotting import figure, output_file, show
-
-        plot = figure(plot_width=300, plot_height=300)
-        plot.circle_y(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                      color="#DD1C77", fill_alpha=0.2)
-
-        show(plot)
-
-"""
-
     @glyph_method(markers.Cross)
     def cross(self, **kwargs):
         """
@@ -1554,7 +1536,6 @@ _MARKER_SHORTCUTS = {
     "*"  : "asterisk",
     "+"  : "cross",
     "o"  : "circle",
-    "o"  : "circle",
     "o+" : "circle_cross",
     "o." : "circle_dot",
     "ox" : "circle_x",
@@ -1563,7 +1544,7 @@ _MARKER_SHORTCUTS = {
     "."  : "dot",
     "v"  : "inverted_triangle",
     "^"  : "triangle",
-    "^."  : "triangle_dot",
+    "^." : "triangle_dot",
 }
 
 def markers():
