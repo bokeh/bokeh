@@ -16,7 +16,7 @@ import pytest ; pytest
 
 # Bokeh imports
 # Module under test
-from bokeh.models.markers import Marker, marker_types
+from bokeh.models.markers import Marker, marker_types, Scatter
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -25,7 +25,10 @@ from bokeh.models.markers import Marker, marker_types
 def test_all_markers_in_markers_dictionary() -> None:
     not_found = [marker for marker in Marker.__subclasses__()
                  if marker not in marker_types.values()]
-    assert len(not_found) == 0
+
+    # except Scatter, which is not a regular plain marker
+    assert len(not_found) == 1
+    assert not_found[0] == Scatter
 
 #-----------------------------------------------------------------------------
 # General API
