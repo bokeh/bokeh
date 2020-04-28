@@ -194,6 +194,15 @@ export class BBox implements Rect {
     })
   }
 
+  translate(tx: number, ty: number): BBox {
+    return new BBox({
+      x0: this.x0 + tx,
+      y0: this.y0 + ty,
+      x1: this.x1 + tx,
+      y1: this.y1 + ty,
+    })
+  }
+
   equals(that: Rect): boolean {
     return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }

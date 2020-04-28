@@ -31,8 +31,8 @@ export class GridPlotView extends LayoutDOMView {
   }
 
   async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
     this.canvas_view = await build_view(this.canvas, {parent: this})
+    await super.lazy_initialize()
     this.canvas_view.plot_views = this.child_views as PlotView[]
   }
 

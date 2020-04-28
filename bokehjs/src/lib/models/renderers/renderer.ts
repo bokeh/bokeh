@@ -89,6 +89,12 @@ export abstract class RendererView extends View {
     return this.needs_clip ? this.plot_view.frame.bbox.box : null
   }
 
+  dirty: boolean = true
+
+  paint(): void {
+    this.render()
+  }
+
   render(): void {
     if (this.model.visible) {
       this._render()

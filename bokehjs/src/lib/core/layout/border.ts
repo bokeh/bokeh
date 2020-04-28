@@ -12,6 +12,8 @@ export class BorderLayout extends Layoutable {
 
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
 
+  absolute: boolean = false
+
   protected _measure(viewport: Size): SizeHint {
     viewport = new Sizeable(viewport).bounded_to(this.sizing.size)
 
@@ -43,6 +45,10 @@ export class BorderLayout extends Layoutable {
 
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
+
+    if (this.absolute) {
+      inner = inner.translate(outer.left, outer.top)
+    }
 
     this.center_panel.set_geometry(inner)
 

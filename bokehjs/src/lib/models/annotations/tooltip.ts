@@ -102,7 +102,7 @@ export class TooltipView extends AnnotationView {
         break
       case "left":
         this.el.classList.add(bk_right)
-        right = (this.plot_view.layout.bbox.width - sx) + arrow_size
+        right = (this.canvas_view.bbox.width - sx) + arrow_size
         top = sy - this.el.offsetHeight/2
         break
       case "below":

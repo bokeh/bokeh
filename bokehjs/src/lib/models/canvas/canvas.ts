@@ -18,6 +18,8 @@ import {Box} from "core/types"
 import type {Plot} from "../plots/plot"
 export type InteractiveRenderer = Plot
 
+export type PaintableView = PlotView | RendererView
+
 export type FrameBox = [number, number, number, number]
 
 // Notes on WebGL support:
@@ -227,12 +229,18 @@ export class CanvasView extends DOMView {
     return this.primary.pixel_ratio // XXX: primary
   }
 
+  dirty: boolean = true
+
   resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
     this.primary.resize(width, height)
+    this.primary.prepare()
     this.overlays.resize(width, height)
+    this.overlays.prepare()
     this.prepare_webgl(width, height)
+
+    this.dirty = true
   }
 
   prepare_webgl(width: number, height: number): void {
@@ -347,8 +355,7 @@ export class CanvasView extends DOMView {
 
   protected throttled_paint: () => void
 
-  protected _invalidated_painters: Set<RendererView> = new Set()
-  protected _invalidate_all: boolean = true
+  protected _dirty_renderers: Set<PaintableView> = new Set()
 
   repaint(): void {
     if (this.is_paused)
@@ -370,11 +377,11 @@ export class CanvasView extends DOMView {
     let do_primary = false
     let do_overlays = false
 
-    if (this._invalidate_all) {
+    if (this.dirty) {
       do_primary = true
       do_overlays = true
     } else {
-      for (const painter of this._invalidated_painters) {
+      for (const painter of this._dirty_renderers) {
         const {level} = painter.model
         if (level != "overlay")
           do_primary = true
@@ -384,35 +391,63 @@ export class CanvasView extends DOMView {
           break
       }
     }
-    this._invalidated_painters.clear()
-    this._invalidate_all = false
+
+    function has_dirty(plot_view: PlotView): boolean {
+      for (const r of plot_view.computed_renderers) {
+        if (plot_view.renderer_views[r.id].dirty)
+          return true
+      }
+      return false
+    }
 
     const {primary, overlays} = this
 
     if (do_primary) {
-      primary.prepare()
+      if (this.dirty)
+        primary.clear()
 
+      const {ctx} = primary
       for (const plot_view of this.plot_views) {
+        if (!(plot_view.dirty || has_dirty(plot_view)))
+          continue
+        ctx.save()
+        const {x, y, width, height} = plot_view.layout.bbox
+        ctx.clearRect(x, y, width, height)
         plot_view.paint()
         this._paint_level(primary, "image", plot_view)
         this._paint_level(primary, "underlay", plot_view)
         this._paint_level(primary, "glyph", plot_view)
         this._paint_level(primary, "guide", plot_view)
         this._paint_level(primary, "annotation", plot_view)
+        ctx.restore()
       }
-
-      primary.finish()
     }
 
     if (do_overlays) {
-      overlays.prepare()
+      if (this.dirty)
+        overlays.clear()
 
+      const {ctx} = overlays
       for (const plot_view of this.plot_views) {
+        if (!(plot_view.dirty || has_dirty(plot_view)))
+          continue
+        ctx.save()
+        const {x, y, width, height} = plot_view.layout.bbox
+        ctx.clearRect(x, y, width, height)
         this._paint_level(overlays, "overlay", plot_view)
+        ctx.restore()
       }
-
-      overlays.finish()
     }
+
+    for (const plot_view of this.plot_views) {
+      for (const renderer_view of plot_view.computed_renderers) {
+        plot_view.renderer_views[renderer_view.id].dirty = false
+      }
+      plot_view.dirty = false
+    }
+
+    this._dirty_renderers.clear()
+    this.dirty = false
   }
 
   _paint_level(layer: CanvasLayer, level: RenderLevel, plot_view: PlotView): void {
@@ -437,7 +472,7 @@ export class CanvasView extends DOMView {
         ctx.clip()
       }
 
-      renderer_view.render()
+      renderer_view.paint()
       ctx.restore()
 
       if (renderer_view.has_webgl) {
@@ -447,13 +482,14 @@ export class CanvasView extends DOMView {
     }
   }
 
-  request_paint(...to_invalidate: RendererView[]): void {
+  request_paint(...to_invalidate: PaintableView[]): void {
     if (to_invalidate.length != 0) {
       for (const renderer_view of to_invalidate) {
-        this._invalidated_painters.add(renderer_view)
+        this._dirty_renderers.add(renderer_view)
+        renderer_view.dirty = true
       }
     } else {
-      this._invalidate_all = true
+      this.dirty = true
     }
 
     if (!this.is_paused) {

@@ -30,6 +30,7 @@ import {BorderLayout} from "core/layout/border"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
+import {GridPlotView} from "./grid_plot"
 
 export type RangeInfo = {
   xrs: Map<string, Interval>
@@ -53,8 +54,16 @@ export class PlotView extends LayoutDOMView {
 
   frame: CartesianFrame
 
-  canvas: Canvas
-  canvas_view: CanvasView
+  _canvas: Canvas
+  _canvas_view: CanvasView
+
+  get canvas_view(): CanvasView {
+    return this.parent instanceof GridPlotView ? this.parent.canvas_view : this._canvas_view
+  }
+
+  get canvas(): Canvas {
+    return this.canvas_view.model
+  }
 
   protected _title: Title
   protected _toolbar: ToolbarPanel
@@ -91,7 +100,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   request_paint(): void {
-    this.canvas_view.request_paint() // TODO: this
+    this.canvas_view.request_paint(this)
   }
 
   request_layout(): void {
@@ -111,15 +120,17 @@ export class PlotView extends LayoutDOMView {
   remove(): void {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
-    this.canvas_view.remove()
+    if (!(this.parent instanceof GridPlotView)) {
+      this._canvas_view.remove()
+    }
     super.remove()
   }
 
   render(): void {
     super.render()
-
-    this.el.appendChild(this.canvas_view.el)
-    this.canvas_view.render()
+    if (!(this.parent instanceof GridPlotView)) {
+      this._canvas_view.renderTo(this.el)
+    }
   }
 
   initialize(): void {
@@ -138,7 +149,10 @@ export class PlotView extends LayoutDOMView {
     this.state = {history: [], index: -1}
 
     const {hidpi, output_backend} = this.model
-    this.canvas = new Canvas({hidpi, output_backend})
+
+    if (!(this.parent instanceof GridPlotView)) {
+      this._canvas = new Canvas({hidpi, output_backend})
+    }
 
     this.frame = new CartesianFrame(
       this.model.x_scale,
@@ -165,8 +179,10 @@ export class PlotView extends LayoutDOMView {
   }
 
   async lazy_initialize(): Promise<void> {
-    this.canvas_view = await build_view(this.canvas, {parent: this})
-    this.canvas_view.plot_views = [this]
+    if (!(this.parent instanceof GridPlotView)) {
+      this._canvas_view = await build_view(this._canvas, {parent: this})
+      this._canvas_view.plot_views = [this]
+    }
 
     await this.build_renderer_views()
     await this.build_tool_views()
@@ -184,6 +200,9 @@ export class PlotView extends LayoutDOMView {
 
   _update_layout(): void {
     this.layout = new BorderLayout()
+    if (this.parent instanceof GridPlotView) {
+      this.layout.absolute = true
+    }
     this.layout.set_sizing(this.box_sizing())
 
     const {frame_width, frame_height} = this.model
@@ -607,7 +626,7 @@ export class PlotView extends LayoutDOMView {
 
   update_range(range_info: RangeInfo | null,
                is_panning: boolean = false, is_scrolling: boolean = false, maintain_focus: boolean = true): void {
-    this.canvas_view.pause()
+    //this.canvas_view.pause()
     const {x_ranges, y_ranges} = this.frame
     if (range_info == null) {
       for (const [, range] of x_ranges) {
@@ -630,7 +649,7 @@ export class PlotView extends LayoutDOMView {
       }
       this._update_ranges_individually(range_info_iter, is_panning, is_scrolling, maintain_focus)
     }
-    this.canvas_view.unpause()
+    //this.canvas_view.unpause()
   }
 
   reset_range(): void {
@@ -755,6 +774,8 @@ export class PlotView extends LayoutDOMView {
     return true
   }
 
+  dirty: boolean = true
+
   after_layout(): void {
     super.after_layout()
 
@@ -768,29 +789,31 @@ export class PlotView extends LayoutDOMView {
     }, {no_change: true})
 
     if (this.model.match_aspect !== false) {
-      this.canvas_view.pause()
+      //this.canvas_view.pause()
       this.update_dataranges()
-      this.canvas_view.unpause(true)
+      //this.canvas_view.unpause(true)
     }
 
-    if (!this._outer_bbox.equals(this.layout.bbox)) {
-      const {width, height} = this.layout.bbox
-      this.canvas_view.resize(width, height)
-      this._outer_bbox = this.layout.bbox
-      this._invalidate_all = true
-      this._needs_paint = true
-    }
+    if (!(this.parent instanceof GridPlotView)) {
+      if (!this._outer_bbox.equals(this.layout.bbox)) {
+        const {width, height} = this.layout.bbox
+        this.canvas_view.resize(width, height)
+        this._outer_bbox = this.layout.bbox
+        this._invalidate_all = true
+        this._needs_paint = true
+      }
 
-    if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
-      this._inner_bbox = this.layout.inner_bbox
-      this._needs_paint = true
-    }
+      if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
+        this._inner_bbox = this.layout.inner_bbox
+        this._needs_paint = true
+      }
 
-    if (this._needs_paint) {
-      // XXX: can't be this.request_paint(), because it would trigger back-and-forth
-      // layout recomputing feedback loop between plots. Plots are also much more
-      // responsive this way, especially in interactive mode.
-      this.canvas_view.repaint()
+      if (this._needs_paint) {
+        // XXX: can't be this.request_paint(), because it would trigger back-and-forth
+        // layout recomputing feedback loop between plots. Plots are also much more
+        // responsive this way, especially in interactive mode.
+        this.canvas_view.repaint()
+      }
     }
   }
 
@@ -834,12 +857,12 @@ export class PlotView extends LayoutDOMView {
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.layout.bbox.width, this.layout.bbox.height]
+    const {x, y, width: w, height: h} = this.layout.bbox
     const [fx, fy, fw, fh] = frame_box
 
     if (this.visuals.border_fill.doit) {
       this.visuals.border_fill.set_value(ctx)
-      ctx.fillRect(cx, cy, cw, ch)
+      ctx.fillRect(x, y, w, h)
       ctx.clearRect(fx, fy, fw, fh)
     }
 
