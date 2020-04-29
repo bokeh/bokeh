@@ -108,8 +108,7 @@ export class LineEditToolView extends LineToolView {
   _pan(ev: PanEvent): void {
     if (this._basepoint == null)
       return
-    const freeze_x = true
-    this._drag_points(ev, [this.model.intersection_renderer], freeze_x)
+    this._drag_points(ev, [this.model.intersection_renderer], this.model.freeze_x)
     if (this._selected_renderer)
       this._selected_renderer.data_source.change.emit()
   }
@@ -170,20 +169,24 @@ export class LineEditToolView extends LineToolView {
 export namespace LineEditTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = LineTool.Props
+  export type Props = LineTool.Props & {
+    freeze_x: p.Property<boolean>
+  }
 }
 
 export interface LineEditTool extends LineEditTool.Attrs { }
 
 export class LineEditTool extends LineTool {
   properties: LineEditTool.Props
-
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
   }
 
   static init_LineEditTool(): void {
     this.prototype.default_view = LineEditToolView
+    this.define<LineEditTool.Props>({
+      freeze_x: [p.Boolean]
+    })
   }
 
   tool_name = "Line Edit Tool"
