@@ -73,12 +73,12 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_RENDERER,
     INCOMPATIBLE_POINT_DRAW_RENDERER,
     INCOMPATIBLE_POLY_DRAW_RENDERER,
     INCOMPATIBLE_POLY_EDIT_RENDERER,
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
-    INCOMPATIBLE_LINE_EDIT_RENDERER,
-    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
@@ -110,7 +110,7 @@ __all__ = (
     'Inspection',
     'Gesture',
     'LassoSelectTool',
-    'LineEditTool', #simon
+    'LineEditTool',
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -1513,8 +1513,8 @@ class PolyEditTool(EditTool, Drag, Tap):
 class LineEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |line_edit_icon|
 
-    The LineEditTool allows editing the intersection points of one or more ``Line`` or
-    ``MultiLine``? glyphs. Glyphs to be edited are defined via the ``renderers``
+    The LineEditTool allows editing the intersection points of one or more ``Line`` glyphs.
+    Glyphs to be edited are defined via the ``renderers``
     property and a renderer for the intersections is set via the ``intersection_renderer``
     property (must render a point-like Glyph (a subclass of ``XYGlyph``).
 
@@ -1525,7 +1525,7 @@ class LineEditTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Show intersections: Double tap an existing line or multi-line
+    * Show intersections: Double tap an existing line
 
     * Move point: Drag an existing point and let go of the mouse button to
       release it.
@@ -1553,7 +1553,7 @@ class LineEditTool(EditTool, Drag, Tap):
     def _check_compatible_renderers(self):
         incompatible_renderers = []
         for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Line)):
+            if not isinstance(renderer.glyph, (Line,)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
             glyph_types = ', '.join(type(renderer.glyph).__name__
