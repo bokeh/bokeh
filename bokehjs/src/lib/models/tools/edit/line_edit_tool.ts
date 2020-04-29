@@ -108,7 +108,8 @@ export class LineEditToolView extends LineToolView {
   _pan(ev: PanEvent): void {
     if (this._basepoint == null)
       return
-    this._drag_points(ev, [this.model.intersection_renderer])
+    const freeze_x = true
+    this._drag_points(ev, [this.model.intersection_renderer], freeze_x)
     if (this._selected_renderer)
       this._selected_renderer.data_source.change.emit()
   }
