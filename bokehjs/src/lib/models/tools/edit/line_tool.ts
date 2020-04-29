@@ -1,13 +1,12 @@
 import * as p from "core/properties"
-import { isArray } from "core/util/types"
-import { MultiLine } from "../../glyphs/multi_line"
-import { Line } from "../../glyphs/line"
-import { GlyphRenderer } from "../../renderers/glyph_renderer"
+import {isArray} from "core/util/types"
+import {Line} from "../../glyphs/line"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 
 import { EditTool, EditToolView, HasXYGlyph } from "./edit_tool"
 
 export interface HasLineGlyph {
-  glyph: MultiLine | Line
+  glyph: Line
 }
 
 export class LineToolView extends EditToolView {
@@ -21,13 +20,13 @@ export class LineToolView extends EditToolView {
       if (isArray(x))
         point_cds.data[pxkey] = x
       else
-        point_glyph.x = { value: x }
+        point_glyph.x = {value: x}
     }
     if (pykey) {
       if (isArray(y))
         point_cds.data[pykey] = y
       else
-        point_glyph.y = { value: y }
+        point_glyph.y = {value: y}
     }
     this._emit_cds_changes(point_cds, true, true, false)
   }
