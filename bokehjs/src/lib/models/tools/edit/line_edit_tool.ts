@@ -1,7 +1,8 @@
-import { Keys } from "core/dom"
+//import { Keys } from "core/dom"
 //import { PanEvent, MoveEvent, KeyEvent, UIEvent } from "core/ui_events"
 //import { PanEvent, TapEvent, MoveEvent, KeyEvent } from "core/ui_events"
-import { PanEvent, TapEvent, KeyEvent } from "core/ui_events"
+//import { PanEvent, TapEvent, KeyEvent } from "core/ui_events"
+import { PanEvent, TapEvent } from "core/ui_events"
 //import { isArray } from "core/util/types"
 import { MultiLine } from "../../glyphs/multi_line"
 //import { Line } from "../../glyphs/line"
@@ -26,42 +27,27 @@ export class LineEditToolView extends LineToolView {
     if (!this.model.active)
       return
     console.log(ev)
-  }
-  /*
-  const point = this._map_drag(ev.sx, ev.sy, this.model.intersection_renderer)
-  if (point == null)
-    return
-  const [x, y] = point
-  console.log("simon says" + x, + y)
-  // Perform hit testing
-  const point_selected = this._select_event(ev, false, [this.model.intersection_renderer])
-  console.log("point selected is " + point_selected)
-  const point_cds = this.model.intersection_renderer.data_source
+    console.log("in double tap")
 
-  // Type once dataspecs are typed
-  const point_glyph: any = this.model.intersection_renderer.glyph
-  const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
-  if (point_selected.length && this._selected_renderer != null) {
-    // Insert a new point after the selected vertex and enter draw mode
-    const index = point_cds.selected.indices[0]
-    if (this._drawing) {
-      this._drawing = false
-      point_cds.selection_manager.clear()
-    } else {
-      point_cds.selected.indices = [index + 1]
-      if (pxkey) point_cds.get_array(pxkey).splice(index + 1, 0, x)
-      if (pykey) point_cds.get_array(pykey).splice(index + 1, 0, y)
-      this._drawing = true
+    const renderers = this.model.renderers
+    for (const renderer of renderers) {
+      console.log(renderer)
+      const line_selected = this._select_event(ev, false, [renderer])
+      console.log(line_selected)
+      if (line_selected.length == 1) {
+        console.log("a line was selected", line_selected)
+        this._selected_renderer = renderer
+      }
     }
-    point_cds.change.emit()
-    this._emit_cds_changes(this._selected_renderer.data_source)
-  } else {
-    this._show_intersections(ev)
+    this._show_intersections()
+    this._update_line_cds()
   }
-}
-  */
+
   _show_intersections(): void {
     if (!this.model.active)
+      return
+
+    if (this._selected_renderer == null)
       return
 
     const renderers = this.model.renderers
@@ -72,13 +58,11 @@ export class LineEditToolView extends LineToolView {
       return
     }
 
-    const renderer = renderers[0]
-    const cds = renderer.data_source
+    const cds = this._selected_renderer.data_source
     let x: number[]
     let y: number[]
     x = Array.from(cds.data.x)
     y = Array.from(cds.data.y)
-    this._selected_renderer = renderer
     this._set_intersection(x, y)
   }
 
@@ -100,7 +84,7 @@ export class LineEditToolView extends LineToolView {
     this._select_event(ev, append, this.model.renderers)
   }
 
-  update_line_cds(): void {
+  _update_line_cds(): void {
     if (this._selected_renderer == null)
       return
     console.log("update line")
@@ -140,6 +124,7 @@ export class LineEditToolView extends LineToolView {
     this._basepoint = null
   }
 
+  /*
   _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
@@ -166,18 +151,15 @@ export class LineEditToolView extends LineToolView {
       }
     }
   }
-
+*/
   activate(): void {
     console.log("activate")
     this._drawing = true
-    this._show_intersections()
-    this.update_line_cds()
   }
   deactivate(): void {
     if (!this._selected_renderer) {
       return
     } else if (this._drawing) {
-      //this._remove_vertex()
       this._drawing = false
     }
     this._hide_intersections()
