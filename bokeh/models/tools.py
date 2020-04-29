@@ -1538,6 +1538,11 @@ class LineEditTool(EditTool, Drag, Tap):
     The renderer used to render the intersections of a selected line
     """)
 
+
+    freeze_x = Bool(default=False,  help="""
+    Determines if intersection points can move along the x-axis
+    """)
+
     @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
     def _check_compatible_intersection_renderer(self):
         glyph = self.intersection_renderer.glyph
