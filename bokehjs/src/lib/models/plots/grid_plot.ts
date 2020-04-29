@@ -82,7 +82,8 @@ export class GridPlotView extends LayoutDOMView {
 
   render(): void {
     super.render()
-    this.canvas_view.renderTo(this.el)
+    this.canvas_view.render()
+    this.el.appendChild(this.canvas_view.el)
   }
 
   paint(): void {

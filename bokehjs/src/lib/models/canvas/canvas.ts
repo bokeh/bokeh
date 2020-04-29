@@ -1,5 +1,3 @@
-import {HasProps} from "core/has_props"
-import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas, append} from "core/dom"
@@ -11,9 +9,11 @@ import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {SVGRenderingContext2D} from "core/util/svg"
 import {PlotView} from "../plots/plot"
-import {RendererView} from "../renderers/renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 import {throttle} from "core/util/throttle"
 import {Box} from "core/types"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {LayoutItem} from "core/layout/layoutable"
 
 import type {Plot} from "../plots/plot"
 export type InteractiveRenderer = Plot
@@ -164,7 +164,7 @@ export class CanvasLayer {
   }
 }
 
-export class CanvasView extends DOMView {
+export class CanvasView extends LayoutDOMView {
   model: Canvas
 
   bbox: BBox = new BBox()
@@ -192,17 +192,6 @@ export class CanvasView extends DOMView {
     this.overlays = new CanvasLayer(output_backend, hidpi)
     this.overlays_el = div({style})
     this.events_el = div({class: "bk-canvas-events", style})
-
-    const elements = [
-      this.underlays_el,
-      this.primary.el,
-      this.overlays.el,
-      this.overlays_el,
-      this.events_el,
-    ]
-
-    extend(this.el.style, style)
-    append(this.el, ...elements)
 
     this.ui_event_bus = new UIEventBus(this)
     this.throttled_paint = throttle(() => this.repaint(), 1000/60)
@@ -346,7 +335,7 @@ export class CanvasView extends DOMView {
       return Date.now() - state.timestamp
   }
 
-  plot_views: PlotView[]
+  plot_views: PlotView[] = []
   /*
   get plot_views(): PlotView[] {
     return [] // XXX
@@ -518,12 +507,43 @@ export class CanvasView extends DOMView {
     if (this._is_paused == 0 && !no_render)
       this.request_paint()
   }
+
+  get child_models() {
+    return []
+  }
+
+  _update_layout(): void {
+    this.layout = new LayoutItem()
+    this.layout.set_sizing(this.box_sizing())
+  }
+
+  render(): void {
+    super.render()
+
+    const elements = [
+      this.underlays_el,
+      this.primary.canvas,
+      this.overlays.canvas,
+      this.overlays_el,
+      this.events_el,
+    ]
+
+    extend(this.el.style, style)
+    append(this.el, ...elements)
+  }
+
+  after_layout(): void {
+    super.after_layout()
+    const {width, height} = this.layout.bbox
+    this.resize(width, height)
+  }
 }
 
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = HasProps.Props & {
+  export type Props = LayoutDOM.Props & {
+    renderers: p.Property<Renderer[]>
     hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
@@ -531,7 +551,7 @@ export namespace Canvas {
 
 export interface Canvas extends Canvas.Attrs {}
 
-export class Canvas extends HasProps {
+export class Canvas extends LayoutDOM {
   properties: Canvas.Props
   __view_type__: CanvasView
 
@@ -542,7 +562,8 @@ export class Canvas extends HasProps {
   static init_Canvas(): void {
     this.prototype.default_view = CanvasView
 
-    this.internal({
+    this.define<Canvas.Props>({
+      renderers:      [ p.Array,         []       ],
       hidpi:          [ p.Boolean,       true     ],
       output_backend: [ p.OutputBackend, "canvas" ],
     })
