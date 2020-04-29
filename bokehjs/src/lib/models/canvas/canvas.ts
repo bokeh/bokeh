@@ -8,7 +8,7 @@ import {LODStart, LODEnd} from "core/bokeh_events"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {SVGRenderingContext2D} from "core/util/svg"
-import {PlotView} from "../plots/plot"
+import {PlotCanvasView} from "../plots/plot_canvas"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {throttle} from "core/util/throttle"
 import {Box} from "core/types"
@@ -18,7 +18,7 @@ import {LayoutItem} from "core/layout/layoutable"
 import type {Plot} from "../plots/plot"
 export type InteractiveRenderer = Plot
 
-export type PaintableView = PlotView | RendererView
+export type PaintableView = PlotCanvasView | RendererView
 
 export type FrameBox = [number, number, number, number]
 
@@ -335,9 +335,9 @@ export class CanvasView extends LayoutDOMView {
       return Date.now() - state.timestamp
   }
 
-  plot_views: PlotView[] = []
+  plot_views: PlotCanvasView[] = []
   /*
-  get plot_views(): PlotView[] {
+  get plot_views(): PlotCanvasView[] {
     return [] // XXX
   }
   */
@@ -381,7 +381,7 @@ export class CanvasView extends LayoutDOMView {
       }
     }
 
-    function has_dirty(plot_view: PlotView): boolean {
+    function has_dirty(plot_view: PlotCanvasView): boolean {
       for (const r of plot_view.computed_renderers) {
         if (plot_view.renderer_views[r.id].dirty)
           return true
@@ -439,7 +439,7 @@ export class CanvasView extends LayoutDOMView {
     this.dirty = false
   }
 
-  _paint_level(layer: CanvasLayer, level: RenderLevel, plot_view: PlotView): void {
+  _paint_level(layer: CanvasLayer, level: RenderLevel, plot_view: PlotCanvasView): void {
     const {ctx} = layer
 
     for (const renderer of plot_view.computed_renderers) {

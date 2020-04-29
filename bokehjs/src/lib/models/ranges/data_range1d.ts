@@ -7,7 +7,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import {includes} from "core/util/array"
-import type {Plot} from "../plots/plot"
+import type {PlotCanvas} from "../plots/plot_canvas"
 
 export type Dim = 0 | 1
 export type Bounds = Map<Renderer, Rect>
@@ -65,7 +65,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number
   protected _initial_default_span: number
 
-  protected _plot_bounds: Map<Plot, Rect>
+  protected _plot_bounds: Map<PlotCanvas, Rect>
 
   have_updated_interactively: boolean = false
 
@@ -245,7 +245,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, plot: Plot, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, plot: PlotCanvas, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 

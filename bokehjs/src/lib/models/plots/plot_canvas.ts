@@ -8,7 +8,6 @@ import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
@@ -17,20 +16,36 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {Reset} from "core/bokeh_events"
 import {Interval} from "core/types"
 import {Signal0} from "core/signaling"
-import {build_view, build_views, remove_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side} from "core/enums"
 import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
+import {values} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
 import {HStack, VStack} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
-import {BBox} from "core/util/bbox"
-import {GridPlotView} from "./grid_plot"
+
+import {Location, Place, ResetPolicy} from "core/enums"
+import {concat, remove_by} from "core/util/array"
+
+import {Grid} from "../grids/grid"
+import {GuideRenderer} from "../renderers/guide_renderer"
+import {LinearScale} from "../scales/linear_scale"
+import {Toolbar} from "../tools/toolbar"
+
+import {Scale} from "../scales/scale"
+import {Glyph} from "../glyphs/glyph"
+import {DataSource} from "../sources/data_source"
+import {ColumnDataSource} from "../sources/column_data_source"
+
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
+import * as p from "core/properties"
 
 export type RangeInfo = {
   xrs: Map<string, Interval>
@@ -46,19 +61,16 @@ export type StateInfo = {
   }
 }
 
-export class PlotView extends LayoutDOMView {
-  model: Plot
-  visuals: Plot.Visuals
+export class PlotCanvasView extends LayoutDOMView {
+  model: PlotCanvas
+  visuals: PlotCanvas.Visuals
 
   layout: BorderLayout
 
   frame: CartesianFrame
 
-  _canvas: Canvas
-  _canvas_view: CanvasView
-
   get canvas_view(): CanvasView {
-    return this.parent instanceof GridPlotView ? this.parent.canvas_view : this._canvas_view
+    return (this.parent as any).canvas_view // XXX: parent must be a canvas provider
   }
 
   get canvas(): Canvas {
@@ -68,9 +80,6 @@ export class PlotView extends LayoutDOMView {
   protected _title: Title
   protected _toolbar: ToolbarPanel
 
-  protected _outer_bbox: BBox = new BBox()
-  protected _inner_bbox: BBox = new BBox()
-  protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
 
   state_changed: Signal0<this>
@@ -89,6 +98,8 @@ export class PlotView extends LayoutDOMView {
   /*protected*/ tool_views: Map<Tool, ToolView>
 
   protected range_update_timestamp?: number
+
+  protected _needs_paint: boolean = true
 
   get child_models(): LayoutDOM[] {
     return []
@@ -120,18 +131,7 @@ export class PlotView extends LayoutDOMView {
   remove(): void {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
-    if (!(this.parent instanceof GridPlotView)) {
-      this._canvas_view.remove()
-    }
     super.remove()
-  }
-
-  render(): void {
-    super.render()
-    if (!(this.parent instanceof GridPlotView)) {
-      this.canvas_view.render()
-      this.el.appendChild(this.canvas_view.el)
-    }
   }
 
   initialize(): void {
@@ -148,12 +148,6 @@ export class PlotView extends LayoutDOMView {
     this.visibility_callbacks = []
 
     this.state = {history: [], index: -1}
-
-    const {hidpi, output_backend} = this.model
-
-    if (!(this.parent instanceof GridPlotView)) {
-      this._canvas = new Canvas({hidpi, output_backend})
-    }
 
     this.frame = new CartesianFrame(
       this.model.x_scale,
@@ -180,11 +174,6 @@ export class PlotView extends LayoutDOMView {
   }
 
   async lazy_initialize(): Promise<void> {
-    if (!(this.parent instanceof GridPlotView)) {
-      this._canvas_view = await build_view(this._canvas, {parent: this})
-      this._canvas_view.plot_views = [this]
-    }
-
     await this.build_renderer_views()
     await this.build_tool_views()
 
@@ -201,9 +190,7 @@ export class PlotView extends LayoutDOMView {
 
   _update_layout(): void {
     this.layout = new BorderLayout()
-    if (this.parent instanceof GridPlotView) {
-      this.layout.absolute = true
-    }
+    this.layout.absolute = true
     this.layout.set_sizing(this.box_sizing())
 
     const {frame_width, frame_height} = this.model
@@ -332,10 +319,6 @@ export class PlotView extends LayoutDOMView {
         views.push(renderer_view)
     }
     return views
-  }
-
-  set_cursor(cursor: string = "default"): void {
-    this.canvas_view.el.style.cursor = cursor
   }
 
   set_toolbar_visibility(visible: boolean): void {
@@ -794,28 +777,6 @@ export class PlotView extends LayoutDOMView {
       this.update_dataranges()
       //this.canvas_view.unpause(true)
     }
-
-    if (!(this.parent instanceof GridPlotView)) {
-      if (!this._outer_bbox.equals(this.layout.bbox)) {
-        const {width, height} = this.layout.bbox
-        this.canvas_view.resize(width, height)
-        this._outer_bbox = this.layout.bbox
-        this._invalidate_all = true
-        this._needs_paint = true
-      }
-
-      if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
-        this._inner_bbox = this.layout.inner_bbox
-        this._needs_paint = true
-      }
-
-      if (this._needs_paint) {
-        // XXX: can't be this.request_paint(), because it would trigger back-and-forth
-        // layout recomputing feedback loop between plots. Plots are also much more
-        // responsive this way, especially in interactive mode.
-        this.canvas_view.repaint()
-      }
-    }
   }
 
   repaint(): void {
@@ -902,4 +863,208 @@ export class PlotView extends LayoutDOMView {
       .filter((item) => "bbox" in item)
     return {...state, children: [...(children as any), ...renderers]} // XXX
   }
+}
+
+export namespace PlotCanvas {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = LayoutDOM.Props & {
+    toolbar: p.Property<Toolbar>
+    toolbar_location: p.Property<Location | null>
+    toolbar_sticky: p.Property<boolean>
+
+    plot_width: p.Property<number>
+    plot_height: p.Property<number>
+
+    frame_width: p.Property<number | null>
+    frame_height: p.Property<number | null>
+
+    title: p.Property<Title | string | null>
+    title_location: p.Property<Location | null>
+
+    above: p.Property<(Annotation | Axis)[]>
+    below: p.Property<(Annotation | Axis)[]>
+    left: p.Property<(Annotation | Axis)[]>
+    right: p.Property<(Annotation | Axis)[]>
+    center: p.Property<(Annotation | Grid)[]>
+
+    renderers: p.Property<DataRenderer[]>
+
+    x_range: p.Property<Range>
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    y_range: p.Property<Range>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    x_scale: p.Property<Scale>
+    y_scale: p.Property<Scale>
+
+    min_border: p.Property<number | null>
+    min_border_top: p.Property<number | null>
+    min_border_left: p.Property<number | null>
+    min_border_bottom: p.Property<number | null>
+    min_border_right: p.Property<number | null>
+
+    inner_width: p.Property<number>
+    inner_height: p.Property<number>
+    outer_width: p.Property<number>
+    outer_height: p.Property<number>
+
+    match_aspect: p.Property<boolean>
+    aspect_scale: p.Property<number>
+
+    reset_policy: p.Property<ResetPolicy>
+  } & Mixins
+
+  export type Mixins =
+    mixins.OutlineLine    &
+    mixins.BackgroundFill &
+    mixins.BorderFill
+
+  export type Visuals = visuals.Visuals & {
+    outline_line: visuals.Line
+    background_fill: visuals.Fill
+    border_fill: visuals.Fill
+  }
+}
+
+export interface PlotCanvas extends PlotCanvas.Attrs {}
+
+export class PlotCanvas extends LayoutDOM {
+  properties: PlotCanvas.Props
+  __view_type__: PlotCanvasView
+
+  constructor(attrs?: Partial<PlotCanvas.Attrs>) {
+    super(attrs)
+  }
+
+  static init_PlotCanvas(): void {
+    this.prototype.default_view = PlotCanvasView
+
+    this.mixins<PlotCanvas.Mixins>([
+      ["outline_",    mixins.Line],
+      ["background_", mixins.Fill],
+      ["border_",     mixins.Fill],
+    ])
+
+    this.define<PlotCanvas.Props>({
+      toolbar:           [ p.Instance, () => new Toolbar()     ],
+      toolbar_location:  [ p.Location, "right"                 ],
+      toolbar_sticky:    [ p.Boolean,  true                    ],
+
+      plot_width:        [ p.Number,   600                     ],
+      plot_height:       [ p.Number,   600                     ],
+
+      frame_width:       [ p.Number,   null                    ],
+      frame_height:      [ p.Number,   null                    ],
+
+      title:             [ p.Any,      () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
+      title_location:    [ p.Location, "above"                 ],
+
+      above:             [ p.Array,    []                      ],
+      below:             [ p.Array,    []                      ],
+      left:              [ p.Array,    []                      ],
+      right:             [ p.Array,    []                      ],
+      center:            [ p.Array,    []                      ],
+
+      renderers:         [ p.Array,    []                      ],
+
+      x_range:           [ p.Instance, () => new DataRange1d() ],
+      extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+      y_range:           [ p.Instance, () => new DataRange1d() ],
+      extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+
+      x_scale:           [ p.Instance, () => new LinearScale() ],
+      y_scale:           [ p.Instance, () => new LinearScale() ],
+
+      min_border:        [ p.Number,   5                       ],
+      min_border_top:    [ p.Number,   null                    ],
+      min_border_left:   [ p.Number,   null                    ],
+      min_border_bottom: [ p.Number,   null                    ],
+      min_border_right:  [ p.Number,   null                    ],
+
+      inner_width:       [ p.Number                            ],
+      inner_height:      [ p.Number                            ],
+      outer_width:       [ p.Number                            ],
+      outer_height:      [ p.Number                            ],
+
+      match_aspect:      [ p.Boolean,  false                   ],
+      aspect_scale:      [ p.Number,   1                       ],
+
+      reset_policy:      [ p.ResetPolicy,  "standard"          ],
+    })
+
+    this.override({
+      outline_line_color: "#e5e5e5",
+      border_fill_color: "#ffffff",
+      background_fill_color: "#ffffff",
+    })
+  }
+
+  reset: Signal0<this>
+
+  initialize(): void {
+    super.initialize()
+
+    this.reset = new Signal0(this, "reset")
+
+    for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
+      let plots = xr.plots
+      if (isArray(plots)) {
+        plots = plots.concat(this)
+        xr.setv({plots}, {silent: true})
+      }
+    }
+
+    for (const yr of values(this.extra_y_ranges).concat(this.y_range)) {
+      let plots = yr.plots
+      if (isArray(plots)) {
+        plots = plots.concat(this)
+        yr.setv({plots}, {silent: true})
+      }
+    }
+  }
+
+  add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
+    const renderers = this.properties[side].get_value()
+    this.setv({[side]: [...renderers, renderer]})
+  }
+
+  remove_layout(renderer: Annotation | GuideRenderer): void {
+
+    const del = (items: (Annotation | GuideRenderer)[]): void => {
+      remove_by(items, (item) => item == renderer)
+    }
+
+    del(this.left)
+    del(this.right)
+    del(this.above)
+    del(this.below)
+    del(this.center)
+  }
+
+  add_renderers(...renderers: DataRenderer[]): void {
+    this.renderers = this.renderers.concat(renderers)
+  }
+
+  add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
+    const attrs = {...extra_attrs, data_source: source, glyph}
+    const renderer = new GlyphRenderer(attrs)
+    this.add_renderers(renderer)
+    return renderer
+  }
+
+  add_tools(...tools: Tool[]): void {
+    this.toolbar.tools = this.toolbar.tools.concat(tools)
+  }
+
+  get panels(): (Annotation | Axis | Grid)[] {
+    return [...this.side_panels, ...this.center]
+  }
+
+  get side_panels(): (Annotation | Axis)[] {
+    const {above, below, left, right} = this
+    return concat([above, below, left, right])
+  }
+
+  level = null
 }

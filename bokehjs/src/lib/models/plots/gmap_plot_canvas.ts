@@ -3,7 +3,8 @@ import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
-import {PlotView, RangeInfo} from "./plot_canvas"
+import {PlotView} from "./plot"
+import {RangeInfo} from "./plot_canvas"
 import {FrameBox} from "../canvas/canvas"
 
 declare global {

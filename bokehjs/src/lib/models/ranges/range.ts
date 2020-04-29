@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import {Plot} from "../plots/plot"
+import {PlotCanvas} from "../plots/plot_canvas"
 import * as p from "core/properties"
 
 export namespace Range {
@@ -9,7 +9,7 @@ export namespace Range {
     bounds: p.Property<[number, number] | "auto" | null>
     min_interval: p.Property<number>
     max_interval: p.Property<number>
-    plots: p.Property<Plot[]>
+    plots: p.Property<PlotCanvas[]>
   }
 }
 

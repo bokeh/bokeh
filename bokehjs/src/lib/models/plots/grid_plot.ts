@@ -1,9 +1,9 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {Plot, PlotView} from "./plot"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
 import {Canvas, CanvasView, CanvasLayer} from "../canvas/canvas"
 import {Grid, RowsSizing, ColsSizing} from "core/layout/grid"
 import {OutputBackend} from "core/enums"
-import {build_view} from "core/build_views"
+import {build_view, build_views} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 import * as mixins from "core/property_mixins"
@@ -12,7 +12,7 @@ import * as visuals from "core/visuals"
 export class GridPlotView extends LayoutDOMView {
   model: GridPlot
   layout: Grid
-  visuals: Plot.Visuals
+  visuals: PlotCanvas.Visuals
 
   canvas: Canvas
   canvas_view: CanvasView
@@ -22,7 +22,7 @@ export class GridPlotView extends LayoutDOMView {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model) as Plot.Visuals
+    this.visuals = new visuals.Visuals(this.model) as PlotCanvas.Visuals
 
     this.canvas = new Canvas({
       hidpi: this.model.hidpi,
@@ -33,7 +33,11 @@ export class GridPlotView extends LayoutDOMView {
   async lazy_initialize(): Promise<void> {
     this.canvas_view = await build_view(this.canvas, {parent: this})
     await super.lazy_initialize()
-    this.canvas_view.plot_views = this.child_views as PlotView[]
+    this.canvas_view.plot_views = this.child_views as PlotCanvasView[]
+  }
+
+  async build_child_views(): Promise<void> {
+    await build_views(this._child_views, this.child_models, {parent: this}, () => PlotCanvasView)
   }
 
   remove(): void {
@@ -46,7 +50,7 @@ export class GridPlotView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild())
   }
 
-  get child_models(): Plot[] {
+  get child_models(): PlotCanvas[] {
     return this.model.children.map(([child]) => child)
   }
 
@@ -107,7 +111,7 @@ export namespace GridPlot {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    children: p.Property<[Plot, number, number, number?, number?][]>
+    children: p.Property<[PlotCanvas, number, number, number?, number?][]>
     rows: p.Property<RowsSizing>
     cols: p.Property<ColsSizing>
     spacing: p.Property<number | [number, number]>
