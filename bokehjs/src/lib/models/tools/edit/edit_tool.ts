@@ -81,7 +81,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[]): void {
+  _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[], freeze_x?: boolean): void {
     if (this._basepoint == null)
       return
     const [bx, by] = this._basepoint
@@ -99,7 +99,7 @@ export abstract class EditToolView extends GestureToolView {
       const cds = renderer.data_source
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       for (const index of cds.selected.indices) {
-        if (xkey) cds.data[xkey][index] += dx
+        if (xkey && !freeze_x) cds.data[xkey][index] += dx
         if (ykey) cds.data[ykey][index] += dy
       }
       cds.change.emit()
