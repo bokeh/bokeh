@@ -66,7 +66,7 @@ def cumsum(field, include_zero=False):
 
         will generate a ``CumSum`` expressions that sum the ``"angle"`` column
         of a data source. For the ``start_angle`` value, the cumulative sums
-        will start with a zero value. For ``start_angle``, no initial zero will
+        will start with a zero value. For ``end_angle``, no initial zero will
         be added (i.e. the sums will start with the first angle value, and
         include the last).
 
