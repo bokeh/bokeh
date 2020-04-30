@@ -3,7 +3,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import * as p from "core/properties"
 import {bk_tool_icon_line_edit} from "styles/icons"
-import {LineGLGlyph} from "models/glyphs/webgl";
+import {LineGLGlyph} from "models/glyphs/webgl"
 
 export interface HasLineGlyph {
   glyph: LineGLGlyph
@@ -47,10 +47,8 @@ export class LineEditToolView extends LineToolView {
     }
 
     const cds = this._selected_renderer.data_source
-    let x: number[]
-    let y: number[]
-    x = Array.from(cds.data.x)
-    y = Array.from(cds.data.y)
+    const x = Array.from(cds.data.x)
+    const y = Array.from(cds.data.y)
     this._set_intersection(x, y)
   }
 
@@ -143,7 +141,7 @@ export class LineEditTool extends LineTool {
   static init_LineEditTool(): void {
     this.prototype.default_view = LineEditToolView
     this.define<LineEditTool.Props>({
-      freeze_x: [p.Boolean]
+      freeze_x: [p.Boolean, false],
     })
   }
 
