@@ -260,7 +260,7 @@ jobs:
         shell: bash
         run: |
           sudo apt update
-          sudo apt install chromium-browser
+          sudo apt install chromium-browser=0.80
 
       - name: Start chromium headless
         shell: bash
