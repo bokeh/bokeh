@@ -114,6 +114,14 @@ function description(suites: Suite[], test: Test, sep: string = " "): string {
 }
 
 export async function run_all(query?: string | RegExp): Promise<void> {
+  for await (const result of yield_all(query)) {
+    if (result.error != null) {
+      console.error(result.error)
+    }
+  }
+}
+
+export async function* yield_all(query?: string | RegExp): AsyncGenerator<PartialResult> {
   const matches: (d: string) => boolean =
     query == null ? (_d) => true : (isString(query) ? (d) => d.includes(query) : (d) => d.match(query) != null)
 
@@ -122,7 +130,7 @@ export async function run_all(query?: string | RegExp): Promise<void> {
       continue
     }
 
-    await _run_test(parents, test)
+    yield await _run_test(parents, test)
   }
 }
 
@@ -135,6 +143,7 @@ export async function clear_all(): Promise<void> {
 type Box = {x: number, y: number, width: number, height: number}
 type State = {type: string, bbox?: Box, children?: State[]}
 
+type PartialResult = {error: Error | null, time: number, state?: State, bbox?: Box}
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 type TestSeq = [number[], number]
 
@@ -151,9 +160,19 @@ function from_seq([si, ti]: TestSeq): [Suite[], Test] {
   return [suites, test]
 }
 
+function _handle_error(err: Error | null): {str: string, stack?: string} | null {
+  if (err instanceof Error)
+    return {str: err.toString(), stack: err.stack}
+  else if (err != null)
+    return {str: `${err}`}
+  else
+    return null
+}
+
 export async function run(seq: TestSeq): Promise<Result> {
   const [suites, test] = from_seq(seq)
-  return await _run_test(suites, test)
+  const result = await _run_test(suites, test)
+  return {...result, error: _handle_error(result.error)}
 }
 
 export async function clear(seq: TestSeq): Promise<void> {
@@ -177,31 +196,25 @@ function _clear_test(test: Test): void {
   }
 }
 
-async function _run_test(suites: Suite[], test: Test): Promise<Result> {
+async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const {fn} = test
   const start = Date.now()
-  let error: {str: string, stack?: string} | null = null
-  function _handle(err: unknown): void {
-    if (err instanceof Error) {
-      error = {str: err.toString(), stack: err.stack}
-    } else {
-      error = {str: `${err}`}
-    }
-  }
+  let error: Error | null = null
 
   for (const suite of suites) {
     for (const {fn} of suite.before_each)
       await fn()
   }
+
   current_test = test
   try {
     await fn()
     await defer()
   } catch (err) {
-    //throw err
-    _handle(err)
+    error = err
   } finally {
     current_test = null
+
     for (const suite of suites) {
       for (const {fn} of suite.after_each)
         await fn()
@@ -220,8 +233,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<Result> {
       const state = test.view.serializable_state() as any
       return {error, time, state, bbox}
     } catch (err) {
-      //throw err
-      _handle(err)
+      error = err
     }
   }
   return {error, time}
