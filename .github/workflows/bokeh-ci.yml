@@ -506,7 +506,7 @@ jobs:
         shell: bash
         run: |
           sudo apt update
-          sudo apt install chromium-browser=0.80 chromium-chromedriver
+          sudo apt install chromium-browser=80.0.3987.163-0ubuntu0.18.04.1 chromium-chromedriver
 
       - name: Run tests
         shell: bash
