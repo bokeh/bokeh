@@ -123,7 +123,7 @@ function _with_default<T>(value: T | undefined, default_value: T): T {
   return value === undefined ? default_value : value
 }
 
-export type AxisType = "auto" | "linear" | "datetime" | "log" | null
+export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | null
 
 export namespace Figure {
   export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
@@ -780,6 +780,7 @@ export class Figure extends Plot {
         case "auto":
         case "linear":
         case "datetime":
+        case "mercator":
           return new models.LinearScale()
         case "log":
           return new models.LogScale()
@@ -795,20 +796,18 @@ export class Figure extends Plot {
 
   _process_axis_and_grid(axis_type: AxisType, axis_location: Location,
                          minor_ticks: number | "auto" | undefined, axis_label: string, rng: Range, dim: 0 | 1): void {
-    const axiscls = this._get_axis_class(axis_type, rng)
-    if (axiscls != null) {
-      if (axiscls === models.LogAxis) {
-        if (dim === 0) {
+    const axis = this._get_axis(axis_type, rng, dim)
+    if (axis != null) {
+      if (axis instanceof models.LogAxis) {
+        if (dim == 0) {
           this.x_scale = new models.LogScale()
         } else {
           this.y_scale = new models.LogScale()
         }
       }
 
-      const axis = new axiscls()
-
       if (axis.ticker instanceof models.ContinuousTicker) {
-        axis.ticker.num_minor_ticks = this._get_num_minor_ticks(axiscls, minor_ticks)
+        axis.ticker.num_minor_ticks = this._get_num_minor_ticks(axis, minor_ticks)
       }
       if (axis_label.length !== 0) {
         axis.axis_label = axis_label
@@ -823,27 +822,34 @@ export class Figure extends Plot {
     }
   }
 
-  _get_axis_class(axis_type: AxisType, range: Range): Class<Axis> | null {
+  _get_axis(axis_type: AxisType, range: Range, dim: 0 | 1): Axis | null {
     switch (axis_type) {
       case null:
         return null
       case "linear":
-        return models.LinearAxis
+        return new models.LinearAxis()
       case "log":
-        return models.LogAxis
+        return new models.LogAxis()
       case "datetime":
-        return models.DatetimeAxis
+        return new models.DatetimeAxis()
+      case "mercator": {
+        const axis = new models.MercatorAxis()
+        const dimension = dim == 0 ? "lon" : "lat"
+        axis.ticker.dimension = dimension
+        axis.formatter.dimension = dimension
+        return axis
+      }
       case "auto":
         if (range instanceof models.FactorRange)
-          return models.CategoricalAxis
+          return new models.CategoricalAxis()
         else
-          return models.LinearAxis // TODO: return models.DatetimeAxis (Date type)
+          return new models.LinearAxis() // TODO: return models.DatetimeAxis (Date type)
       default:
         throw new Error("shouldn't have happened")
     }
   }
 
-  _get_num_minor_ticks(axis_class: Class<Axis>, num_minor_ticks?: number | "auto"): number {
+  _get_num_minor_ticks(axis: Axis, num_minor_ticks?: number | "auto"): number {
     if (isNumber(num_minor_ticks)) {
       if (num_minor_ticks <= 1) {
         throw new Error("num_minor_ticks must be > 1")
@@ -853,11 +859,8 @@ export class Figure extends Plot {
     if (num_minor_ticks == null) {
       return 0
     }
-    if (num_minor_ticks === 'auto') {
-      if (axis_class === models.LogAxis) {
-        return 10
-      }
-      return 5
+    if (num_minor_ticks === "auto") {
+      return axis instanceof models.LogAxis ? 10 : 5
     }
     throw new Error("shouldn't have happened")
   }
