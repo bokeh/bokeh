@@ -686,9 +686,12 @@ export class Figure extends Plot {
     if (args.length == 0) {
       attrs = {}
     } else if (args.length == 1) {
-      attrs = clone(args[0] as Attrs)
+      attrs = {...args[0] as Attrs}
     } else {
-      attrs = clone(args[args.length - 1] as Attrs)
+      if (args.length == params.length)
+        attrs = {}
+      else
+        attrs = {...args[args.length - 1] as Attrs}
 
       for (let i = 0; i < params.length; i++) {
         const param = params[i]
