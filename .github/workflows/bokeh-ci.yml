@@ -256,16 +256,10 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chromium
+      - name: Start chrome headless
         shell: bash
         run: |
-          sudo apt update
-          sudo apt install chromium-browser
-
-      - name: Start chromium headless
-        shell: bash
-        run: |
-          chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
+          google-chrome --headless --no-sandbox --remote-debugging-port=9222 &
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -469,12 +463,6 @@ jobs:
           npm ci --no-progress
           popd
           python setup.py --install-js
-
-      - name: Install chromium(-chromedriver)
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install chromium-browser chromium-chromedriver
 
       - name: Run tests
         shell: bash
