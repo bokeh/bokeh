@@ -1,1 +1,3 @@
-/report.json
+/baselines/linux/report.json
+/baselines/macos/report.json
+/baselines/windows/report.json

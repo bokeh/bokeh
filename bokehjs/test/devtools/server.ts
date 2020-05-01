@@ -5,6 +5,8 @@ import {argv} from "yargs"
 import express from "express"
 import nunjucks from "nunjucks"
 
+import {platform} from "./sys"
+
 const app = express()
 
 nunjucks.configure(__dirname, {
@@ -19,6 +21,9 @@ app.use("/fonts", express.static("test/fonts/"))
 app.get("/unit", (_req, res) => {
   res.render("template.html", {title: "Unit Tests", main: "unit.js"})
 })
+app.get("/defaults", (_req, res) => {
+  res.render("template.html", {title: "Defaults Tests", main: "defaults.js"})
+})
 app.get("/integration", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js"})
 })
@@ -26,12 +31,16 @@ app.get("/integration", (_req, res) => {
 app.get("/unit/run", (_req, res) => {
   res.render("template.html", {title: "Unit Tests", main: "unit.js", run: true})
 })
+app.get("/defaults/run", (_req, res) => {
+  res.render("template.html", {title: "Defaults Tests", main: "defaults.js", run: true})
+})
 app.get("/integration/run", (_req, res) => {
   res.render("template.html", {title: "Integration Tests", main: "integration.js", run: true})
 })
 
-app.get("/integration/report", async (_req, res) => {
-  const json = await fs.promises.readFile(join("test", "report.json"), {encoding: "utf-8"})
+app.get("/integration/report", async (req, res) => {
+  const report_path = join("test", "baselines", req.query.platform ?? platform, "report.json")
+  const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
   res.render("report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
 })
 

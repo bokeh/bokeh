@@ -158,15 +158,15 @@ jobs:
         run: |
           python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
+      - name: Run bokehjs codebase checks
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make build:all lint --emit-error
+
       - name: Run codebase checks
         shell: bash
         run: |
-          pushd bokehjs
-          node make scripts:compile --emit-error
-          node make test:compile --emit-error
-          PARSER_NO_WATCH=true node make lint --emit-error
-          popd
-
           py.test --color=yes tests/codebase
 
       - name: MyPy
@@ -300,16 +300,10 @@ jobs:
 
   js-test:
     needs: build
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      max-parallel: 3
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
+      - uses: actions/checkout@v2
 
       - name: Install Miniconda
         shell: bash
@@ -387,43 +381,17 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
+        working-directory: ./bokehjs
+        shell: bash
         run: |
-          pushd bokehjs
           npm install -g npm
           npm ci --no-progress
-          popd
-          python setup.py --install-js
 
       - name: Run tests
-        shell: bash
         working-directory: ./bokehjs
-        run: |
-          node make test --screenshot=save
-
-      - name: Collect results
-        if: always()
         shell: bash
         run: |
-          SRC="bokehjs/test"
-          DST="integration-report/$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')"
-          mkdir -p $DST
-          if [[ -e $SRC/report.json ]];
-          then
-            if [[ "${{ runner.os }}" = "Windows" ]]; then
-              COPY="cp --parents"
-            else
-              COPY="rsync -R"
-            fi
-            CHANGED=$(git status --short $SRC/baselines | cut -c4-)
-            $COPY $SRC/report.json $CHANGED $DST
-          fi
-
-      - name: Upload report
-        if: always()
-        uses: actions/upload-artifact@v1
-        with:
-          name: integration-report
-          path: integration-report
+          node make test --screenshot=skip
 
 
 

@@ -77,14 +77,17 @@ export function diff_image(existing: Buffer, current: Buffer, verbose: boolean =
       if (!(h0 == h1 && s0 == s1 && l0 == l1 && _a0 == _a1)) {
         const d = (a: number, b: number) => Math.abs(a - b)
 
+        const hd = d(h0, h1)
+        const sd = d(s0, s1)
+        const ld = d(l0, l1)
 
-        if (!(h0 == h1 && s0 == s1 && /*l0 == l1*/ d(l0, l1) <= 5 && _a0 == _a1)) {
+        if (!(hd <= 0) || !(sd <= 0) || !(ld <= 0)) {
           if (verbose) {
             const [x, y] = [i % width, Math.floor(i / width)]
             console.log("")
             console.log(`existing(${x}, ${y}) = RGBA(${r0}, ${g0}, ${b0}, ${a0}) HSLA(${h0}, ${s0}, ${l0}, ${_a0})`)
             console.log(`current(${x}, ${y})  = RGBA(${r1}, ${g1}, ${b1}, ${a1}) HSLA(${h1}, ${s1}, ${l1}, ${_a1})`)
-            console.log(`d(h0, h1) = ${d(h0, h1)} d(s0, s1) = ${d(s0, s1)} d(l0, l1) = ${d(l0, l1)}`)
+            console.log(`d(h0, h1) = ${hd} d(s0, s1) = ${sd} d(l0, l1) = ${ld}`)
           }
           pixels++
           c32[i] = encode(0, 0, 255)

@@ -1,1 +1,1 @@
-declare module "path-browserify"
+declare module "path-browserify" {}

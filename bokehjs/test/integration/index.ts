@@ -525,13 +525,13 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it("should allow Dropdown", async () => {
+  it.allowing(31)("should allow Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
     await display(obj, [500, 100])
   })
 
-  it("should allow split Dropdown", async () => {
+  it.allowing(33)("should allow split Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 2", button_type: "primary", menu, split: true})
     await display(obj, [500, 100])
@@ -547,33 +547,33 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it("should allow CheckboxButtonGroup", async () => {
+  it.allowing(7)("should allow CheckboxButtonGroup", async () => {
     const obj = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
     await display(obj, [500, 100])
   })
 
-  it("should allow RadioButtonGroup", async () => {
+  it.allowing(9)("should allow RadioButtonGroup", async () => {
     const obj = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
     await display(obj, [500, 100])
   })
 
-  it("should allow TextInput", async () => {
+  it.allowing(8)("should allow TextInput", async () => {
     const obj = new TextInput({placeholder: "Enter value ..."})
     await display(obj, [500, 100])
   })
 
-  it("should allow AutocompleteInput", async () => {
+  it.allowing(8)("should allow AutocompleteInput", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = new AutocompleteInput({placeholder: "Enter value ...", completions})
     await display(obj, [500, 100])
   })
 
-  it("should allow Select", async () => {
+  it.allowing(8)("should allow Select", async () => {
     const obj = new Select({options: ["Option 1", "Option 2", "Option 3"]})
     await display(obj, [500, 100])
   })
 
-  it("should allow MultiSelect", async () => {
+  it.allowing(8)("should allow MultiSelect", async () => {
     const options = range(16).map((i) => `Option ${i+1}`)
     const obj = new MultiSelect({options, size: 6})
     await display(obj, [500, 150])
@@ -607,7 +607,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it("should allow DatePicker", async () => {
+  it.allowing(8)("should allow DatePicker", async () => {
     const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
     await display(obj, [500, 100])
   })
@@ -630,7 +630,7 @@ describe("Widgets", () => {
 
 describe("Rows of widgets", () => {
 
-  it("should allow different content and fixed height", async () => {
+  it.allowing(7)("should allow different content and fixed height", async () => {
     const w0 = new TextInput({value: "Widget 1"})
     const w1 = new TextInput({value: "Widget 2", height: 50})
     const row = new Row({children: [w0, w1]})

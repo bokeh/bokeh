@@ -333,7 +333,7 @@ describe("ColorBar module", () => {
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
       }, "right")
 
-      expect(view._get_label_extent()).to.be.closeTo(17.2353, 10**-2)
+      expect(view._get_label_extent()).to.be.closeTo(17.3535, 10**-2)
     })
 
     it("ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", async () => {
@@ -367,7 +367,7 @@ describe("ColorBar module", () => {
       }, "right")
 
       const {width, height} = view.compute_legend_dimensions()
-      expect(width).to.be.closeTo(62.2353, 10**-2)
+      expect(width).to.be.closeTo(62.3535, 10**-2)
       expect(height).to.be.equal(120)
     })
 

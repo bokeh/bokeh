@@ -1,0 +1,76 @@
+name: BokehJS-CI
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'bokehjs/**'
+  pull_request:
+    paths:
+      - 'bokehjs/**'
+
+jobs:
+
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [12.x]
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Install node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Upgrade npm
+        shell: bash
+        run: |
+          npm install -g npm
+
+      - name: Install dependencies
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          npm ci --no-progress
+
+      - name: Build bokehjs
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make lib:build
+
+      - name: Run tests
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make test:lib
+
+      - name: Collect results
+        if: always()
+        shell: bash
+        run: |
+          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
+          SRC="bokehjs/test/baselines/${OS}"
+          DST="bokehjs-report/${SRC}"
+          mkdir -p ${DST}
+          if [[ -e ${SRC}/report.json ]];
+          then
+            CHANGED=$(git status --short ${SRC}/*.png | cut -c4-)
+            cp ${SRC}/report.json ${CHANGED} ${DST}
+          fi
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: bokehjs-report
+          path: bokehjs-report

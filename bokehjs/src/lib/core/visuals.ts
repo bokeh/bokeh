@@ -229,6 +229,11 @@ export abstract class ContextProperties {
   }
 
   protected abstract _set_vectorize(ctx: Context2d, i: number): void
+
+  protected _color_value(color: string, alpha: number): string {
+    const [r, g, b, a] = color2rgba(color, alpha)
+    return `rgba(${r*255},${g*255},${b*255},${a})`
+  }
 }
 
 export class Line extends ContextProperties {
@@ -288,8 +293,7 @@ export class Line extends ContextProperties {
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.line_color.value(), this.line_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
+    return this._color_value(this.line_color.value(), this.line_alpha.value())
   }
 }
 
@@ -321,8 +325,7 @@ export class Fill extends ContextProperties {
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.fill_color.value(), this.fill_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
+    return this._color_value(this.fill_color.value(), this.fill_alpha.value())
   }
 }
 
@@ -388,7 +391,6 @@ export class Hatch extends ContextProperties {
       this.set_vectorize(ctx, i)
       ready_func()
     }
-
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -401,8 +403,7 @@ export class Hatch extends ContextProperties {
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.hatch_color.value(), this.hatch_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
+    return this._color_value(this.hatch_color.value(), this.hatch_alpha.value())
   }
 }
 
@@ -419,31 +420,34 @@ export class Text extends ContextProperties {
   readonly text_baseline:    p.Property<TextBaseline>
   readonly text_line_height: p.Number
 
+  color_value(): string {
+    return this._color_value(this.text_color.value(), this.text_alpha.value())
+  }
+
+  font_value(): string {
+    const text_font       = this.text_font.value()
+    const text_font_size  = this.text_font_size.value()
+    const text_font_style = this.text_font_style.value()
+    return `${text_font_style} ${text_font_size} ${text_font}`
+  }
+
+  v_font_value(i: number): string {
+    super.cache_select("text_font_style", i)
+    super.cache_select("text_font_size",  i)
+    super.cache_select("text_font",       i)
+
+    const {text_font_style, text_font_size, text_font} = this.cache
+    return `${text_font_style} ${text_font_size} ${text_font}`
+  }
+
   cache_select(name: string, i: number): any {
     let value: any
     if (name == "font") {
-      super.cache_select("text_font_style", i)
-      super.cache_select("text_font_size",  i)
-      super.cache_select("text_font",       i)
-
-      const {text_font_style, text_font_size, text_font} = this.cache
-      this.cache.font = value = `${text_font_style} ${text_font_size} ${text_font}`
+      this.cache.font = value = this.v_font_value(i)
     } else
       value = super.cache_select(name, i)
 
     return value
-  }
-
-  font_value(): string {
-    const font       = this.text_font.value()
-    const font_size  = this.text_font_size.value()
-    const font_style = this.text_font_style.value()
-    return font_style + " " + font_size + " " + font
-  }
-
-  color_value(): string {
-    const [r, g, b, a] = color2rgba(this.text_color.value(), this.text_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
   }
 
   set_value(ctx: Context2d): void {

@@ -9,6 +9,7 @@ import {Bar, Presets} from "cli-progress"
 
 import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 import {diff_image} from "./image"
+import {platform} from "./sys"
 
 const url = argv._[0]
 const port = parseInt(argv.port as string | undefined ?? "9222")
@@ -52,7 +53,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean}
+type Test = {description: string, skip: boolean, threshold?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -63,7 +64,7 @@ async function run_tests(): Promise<void> {
   let handle_exceptions = true
   try {
     client = await CDP({port})
-    const {Network, Page, Runtime, Log} = client
+    const {Emulation, Network, Page, Runtime, Log} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -159,6 +160,13 @@ async function run_tests(): Promise<void> {
       await Runtime.enable()
       await Page.enable()
       await Log.enable()
+
+      await Emulation.setDeviceMetricsOverride({
+        width: 1000,
+        height: 1000,
+        deviceScaleFactor: 1,
+        mobile: false,
+      })
 
       const {errorText} = await Page.navigate({url})
 
@@ -260,8 +268,6 @@ async function run_tests(): Promise<void> {
       }, Presets.shades_classic)
 
       const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
-
-      path.join("test", "baselines")
       const baseline_names = new Set<string>()
 
       let skipped = 0
@@ -313,91 +319,115 @@ async function run_tests(): Promise<void> {
           if (test.skip) {
             status.skipped = true
           } else {
-            const seq = JSON.stringify(to_seq(suites, test))
-            const output = await evaluate<Result>(`Tests.run(${seq})`)
-            try {
-              const errors = entries.filter((entry) => entry.level == "error")
-              if (errors.length != 0) {
-                status.errors.push(...errors.map((entry) => entry.text))
-                // status.failure = true // XXX: too chatty right now
-              }
+            async function run_test(i: number | null, status: Status): Promise<boolean> {
+              let may_retry = false
+              const seq = JSON.stringify(to_seq(suites, test))
+              const output = await evaluate<Result>(`Tests.run(${seq})`)
+              try {
+                const errors = entries.filter((entry) => entry.level == "error")
+                if (errors.length != 0) {
+                  status.errors.push(...errors.map((entry) => entry.text))
+                  // status.failure = true // XXX: too chatty right now
+                }
 
-              if (output instanceof Failure) {
-                status.errors.push(output.text)
-                status.failure = true
-              } else if (output instanceof Timeout) {
-                status.errors.push("timeout")
-                status.timeout = true
-              } else {
-                const result = output.value
-                if (result.error != null) {
-                  const {str, stack} = result.error
-                  status.errors.push(stack ?? str)
+                if (output instanceof Failure) {
+                  status.errors.push(output.text)
                   status.failure = true
-                } else if (baselines_root != null) {
-                  if (result.state == null) {
-                    status.errors.push("state not present in output")
+                } else if (output instanceof Timeout) {
+                  status.errors.push("timeout")
+                  status.timeout = true
+                } else {
+                  const result = output.value
+                  if (result.error != null) {
+                    const {str, stack} = result.error
+                    status.errors.push(stack ?? str)
                     status.failure = true
-                  } else {
-                    const baseline_path = path.join(baselines_root, baseline_name)
-
-                    const {bbox} = result
-                    if (bbox != null) {
-                      const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                      const current = Buffer.from(image.data, "base64")
-                      status.image = current
-
-                      const image_path = `${baseline_path}.png`
-                      const write_image = async () => fs.promises.writeFile(image_path, current)
-                      const existing = load_baseline_image(image_path)
-
-                      switch (argv.screenshot) {
-                        case undefined:
-                        case "test":
-                          if (existing == null) {
-                            status.failure = true
-                            status.errors.push("missing baseline image")
-                            await write_image()
-                          } else {
-                            status.reference = existing
-                            const result = diff_image(existing, current)
-                            if (result != null) {
-                              await write_image()
-                              status.failure = true
-                              status.image_diff = result.diff
-                              status.errors.push(`images differ by ${result.pixels}px (${result.percent.toFixed(2)}%)`)
-                            }
-                          }
-                          break
-                        case "save":
-                          await write_image()
-                          break
-                        case "skip":
-                          break
-                        default:
-                          throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
-                      }
-                    }
-
-                    const baseline = create_baseline([result.state])
-                    await fs.promises.writeFile(baseline_path, baseline)
-                    status.baseline = baseline
-
-                    const existing = load_baseline(baseline_path)
-                    if (existing != baseline) {
-                      if (existing == null) {
-                        status.errors.push("missing baseline")
-                      }
-                      const diff = diff_baseline(baseline_path)
+                  } else if (baselines_root != null) {
+                    const {state} = result
+                    if (state == null) {
+                      status.errors.push("state not present in output")
                       status.failure = true
-                      status.baseline_diff = diff
-                      status.errors.push(diff)
+                    } else {
+                      await (async () => {
+                        const baseline_path = path.join(baselines_root, baseline_name)
+
+                        const baseline = create_baseline([state])
+                        await fs.promises.writeFile(baseline_path, baseline)
+                        status.baseline = baseline
+
+                        const existing = load_baseline(baseline_path)
+                        if (existing != baseline) {
+                          if (existing == null) {
+                            status.errors.push("missing baseline")
+                          }
+                          const diff = diff_baseline(baseline_path)
+                          status.failure = true
+                          status.baseline_diff = diff
+                          status.errors.push(diff)
+                        }
+                      })()
+
+                      await (async () => {
+                        const baseline_path = path.join(baselines_root, platform, baseline_name)
+
+                        const {bbox} = result
+                        if (bbox != null) {
+                          const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                          const current = Buffer.from(image.data, "base64")
+                          status.image = current
+
+                          const image_path = `${baseline_path}.png`
+                          const write_image = async () => fs.promises.writeFile(image_path, current)
+                          const existing = load_baseline_image(image_path)
+
+                          switch (argv.screenshot) {
+                            case undefined:
+                            case "test":
+                              if (existing == null) {
+                                status.failure = true
+                                status.errors.push("missing baseline image")
+                                await write_image()
+                              } else {
+                                status.reference = existing
+                                const diff_result = diff_image(existing, current)
+                                if (diff_result != null) {
+                                  may_retry = true
+                                  const {diff, pixels, percent} = diff_result
+                                  const threshold = test.threshold ?? 0
+                                  if (pixels > threshold) {
+                                    await write_image()
+                                    status.failure = true
+                                    status.image_diff = diff
+                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                  }
+                                }
+                              }
+                              break
+                            case "save":
+                              await write_image()
+                              break
+                            case "skip":
+                              break
+                            default:
+                              throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                          }
+                        }
+                      })()
                     }
                   }
                 }
+              } finally {
+                await evaluate(`Tests.clear(${seq})`)
               }
-            } finally {
-              await evaluate(`Tests.clear(${seq})`)
+
+              return may_retry
+            }
+
+            const retry = await run_test(null, status)
+            if (retry) {
+              for (let i = 0; i < 10; i++) {
+                await run_test(i, status)
+              }
             }
           }
 
@@ -429,23 +459,26 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
-        const {failure, image, image_diff, reference} = status
-        return [descriptions(suites, test), {failure, image, image_diff, reference}]
-      }), (_key, value) => {
-        if (value?.type == "Buffer")
-          return Buffer.from(value.data).toString("base64")
-        else
-          return value
-      })
-      await fs.promises.writeFile(path.join("test", "report.json"), json)
+      if (baselines_root != null) {
+        const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
+          const {failure, image, image_diff, reference} = status
+          return [descriptions(suites, test), {failure, image, image_diff, reference}]
+        }), (_key, value) => {
+          if (value?.type == "Buffer")
+            return Buffer.from(value.data).toString("base64")
+          else
+            return value
+        })
+        await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
 
-      if (baselines_root != null && baseline_names.size != 0) {
         const files = new Set(await fs.promises.readdir(baselines_root))
+
+        files.delete("linux")
+        files.delete("macos")
+        files.delete("windows")
 
         for (const name of baseline_names) {
           files.delete(name)
-          files.delete(`${name}.png`)
         }
 
         if (files.size != 0) {
