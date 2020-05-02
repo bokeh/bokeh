@@ -33,18 +33,17 @@ async function eslint(dir: string): Promise<void> {
   }
 }
 
-task("eslint:make", async () => await eslint(paths.make_dir))
-task("eslint:lib", async () => await eslint(paths.src_dir.lib))
-task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
-task("eslint:test", ["eslint:test:unit", "eslint:test:defaults", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools"])
-task("eslint:examples", async () => await eslint(paths.src_dir.examples))
-
-
 task("eslint:test:unit", async () => await eslint(join(paths.src_dir.test, "unit")))
 task("eslint:test:defaults", async () => await eslint(join(paths.src_dir.test, "defaults")))
 task("eslint:test:integration", async () => await eslint(join(paths.src_dir.test, "integration")))
 task("eslint:test:codebase", async () => await eslint(join(paths.src_dir.test, "codebase")))
 task("eslint:test:devtools", async () => await eslint(join(paths.src_dir.test, "devtools")))
+
+task("eslint:make", async () => await eslint(paths.make_dir))
+task("eslint:lib", async () => await eslint(paths.src_dir.lib))
+task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
+task("eslint:test", ["eslint:test:unit", "eslint:test:defaults", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools"])
+task("eslint:examples", async () => await eslint(paths.src_dir.examples))
 
 task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:test", "eslint:examples"])
 

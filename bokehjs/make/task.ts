@@ -64,7 +64,7 @@ export function show_error(error: Error): void {
   if (error instanceof BuildError) {
     log(`${chalk.red("failed:")} ${error.message}`)
   } else {
-    print(error.stack ?? error.toString())
+    print(`${chalk.red("failed:")} ${error.stack ?? error.toString()}`)
   }
 }
 
@@ -72,22 +72,8 @@ export type Fn<T> = (...args: unknown[]) => Promise<Result<T> | void>
 
 class Task<T = unknown> {
   constructor(readonly name: string,
-              readonly deps: string[],
+              readonly deps: Dependency[],
               readonly fn?: Fn<T>) {}
-
-  get task_deps(): Dependency[] {
-    return this.deps.map((name) => {
-      const passthrough = name.endsWith("!")
-      if (passthrough) {
-        name = name.slice(0, -1)
-      }
-      const task = tasks.get(name)
-      if (task != null)
-        return new Dependency(task, passthrough)
-      else
-        throw new Error(`can't resolve ${name} task`)
-    })
-  }
 
   toString(): string {
     return this.name
@@ -104,51 +90,53 @@ export function task2<T, Args extends unknown[]>(name: string, deps: Task<unknow
   return task(name, deps.map((dep) => dep.name), fn)
 }
 
-export function task<T>(name: string, deps: string[] | Fn<T>, fn?: Fn<T>): Task<T> {
+export type TaskLike = string | Task
+export type DependencyLike = TaskLike | Dependency
+
+function _resolve_dep(dep: DependencyLike): Dependency {
+  if (dep instanceof Dependency)
+    return dep
+  else
+    return new Dependency(_resolve_task(dep))
+}
+
+function _resolve_task(dep: TaskLike): Task {
+  if (dep instanceof Task)
+    return dep
+  else {
+    const task = tasks.get(dep)
+    if (task != null)
+      return task
+    else
+      throw new BuildError("tasks", `can't resolve ${dep} task`)
+  }
+}
+
+export function task<T>(name: string, deps: DependencyLike[] | Fn<T>, fn?: Fn<T>): Task<T> {
   if (!Array.isArray(deps)) {
     fn = deps
     deps = []
   }
 
-  const task = new Task<T>(name, deps, fn)
+  const task = new Task<T>(name, deps.map(_resolve_dep), fn)
   tasks.set(name, task)
   return task
 }
-
 export function task_names(): string[] {
   return Array.from(tasks.keys())
+}
+
+export function passthrough(dep: TaskLike): Dependency {
+  return new Dependency(_resolve_task(dep), true)
 }
 
 class Dependency {
   constructor(readonly task: Task, readonly passthrough: boolean = false) {}
 }
 
-function* resolve_dep(name: string, parent?: Task): Iterable<Dependency> {
-  const passthrough = name.endsWith("!")
-  if (passthrough) {
-    name = name.slice(0, -1)
-  }
-
-  const [prefix, suffix] = name.split(":", 2)
-  if (prefix == "*") {
-    for (const task of tasks.values()) {
-      if (task.name.endsWith(`:${suffix}`)) {
-        yield new Dependency(task, passthrough)
-      }
-    }
-  } else if (tasks.has(name)) {
-    const task = tasks.get(name)!
-    yield new Dependency(task, passthrough)
-  } else {
-    let message = `unknown task '${chalk.cyan(name)}'`
-    if (parent != null)
-      message += ` referenced from '${chalk.cyan(parent.name)}'`
-    throw new BuildError("build", message)
-  }
-}
-
 export async function run(task: Task): Promise<Result> {
   const finished = new Map<Task, Result>()
+  const failures: Task[] = []
 
   async function exec_task(task: Task): Promise<Result> {
     if (task.fn == null) {
@@ -158,7 +146,7 @@ export async function run(task: Task): Promise<Result> {
       log(`Starting '${chalk.cyan(task.name)}'...`)
 
       const args = []
-      for (const dep of task.task_deps) {
+      for (const dep of task.deps) {
         const result = finished.get(dep.task)
         if (result != null && result.is_Success())
           args.push(result.value)
@@ -179,50 +167,54 @@ export async function run(task: Task): Promise<Result> {
       const end = Date.now()
       const diff = end - start
       const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
-      log(`${result.is_Success() ? "Finished" : chalk.red("Failed")} '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
+      log(`Finished '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
       return result
     }
   }
 
-  async function _run(task: Task): Promise<Result> {
+  function fail(failures: Task[]): Result {
+    const names = join(failures.map((dep_task) => `'${chalk.cyan(dep_task.name)}'`), ", ", " and ")
+    return failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed because ${names} failed`))
+  }
+
+  async function _run(task: Task, passthrough: boolean): Promise<Result> {
     if (finished.has(task)) {
       return finished.get(task)!
     } else {
-      const failures = []
+      const failed_deps = []
 
-      for (const name of task.deps) {
-        for (const dep of resolve_dep(name, task)) {
-          const result = await _run(dep.task)
-          if (result.is_Failure())
-            failures.push(dep)
+      for (const dep of task.deps) {
+        const result = await _run(dep.task, dep.passthrough)
+        if (result.is_Failure()) {
+          show_failure(result)
+          failed_deps.push(dep.task)
         }
       }
 
       let result: Result
-      if (failures.length == 0) {
+      if (failed_deps.length == 0) {
         result = await exec_task(task)
       } else {
-        if (failures.every((dep) => dep.passthrough)) {
-          const result = await exec_task(task)
-
-          if (result.is_Failure()) {
-            show_failure(result)
-          }
-        }
-
-        const failed = join(failures.map((dep) => `'${chalk.cyan(dep.task.name)}'`), ", ", " and ")
-        result = failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed because ${failed} failed`))
+        result = fail(failed_deps)
       }
-
-      finished.set(task, result)
 
       if (result.is_Failure()) {
         show_failure(result)
+
+        if (passthrough) {
+          result = success(undefined)
+          failures.push(task)
+        }
       }
 
+      finished.set(task, result)
       return result
     }
   }
 
-  return await _run(task)
+  const result = await _run(task, false)
+  if (result.is_Success && failures.length != 0)
+    return fail(failures)
+  else
+    return result
 }

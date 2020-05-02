@@ -1,7 +1,7 @@
 import {join, relative} from "path"
 import {argv} from "yargs"
 
-import {task} from "../task"
+import {task, passthrough} from "../task"
 import {rename, read, write, scan} from "@compiler/sys"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
@@ -51,7 +51,7 @@ function min_js(js: string): string {
   return rename(js, {ext: '.min.js'})
 }
 
-task("scripts:bundle", ["scripts:compile!"], async () => {
+task("scripts:bundle", [passthrough("scripts:compile")], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib
   const packages = [bokehjs, gl, api, widgets, tables]
 
@@ -81,7 +81,7 @@ task("scripts:bundle", ["scripts:compile!"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:bundle-legacy", ["scripts:compile!"], async () => {
+task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
   const {bokehjs, gl, api, widgets, tables} = paths.lib_legacy
   const packages = [bokehjs, gl, api, widgets, tables]
 
