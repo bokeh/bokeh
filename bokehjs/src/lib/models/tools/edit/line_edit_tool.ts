@@ -3,10 +3,10 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import * as p from "core/properties"
 import {bk_tool_icon_line_edit} from "styles/icons"
-import {LineGLGlyph} from "models/glyphs/webgl"
+import {Line} from "models/glyphs/line"
 
 export interface HasLineGlyph {
-  glyph: LineGLGlyph
+  glyph: Line
 }
 
 export class LineEditToolView extends LineToolView {
