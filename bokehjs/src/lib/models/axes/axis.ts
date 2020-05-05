@@ -140,22 +140,23 @@ export class AxisView extends GuideRendererView {
     let sx: number
     let sy: number
 
+    const {bbox} = this.panel
     switch (this.panel.side) {
       case "above":
-        sx = this.panel._hcenter.value
-        sy = this.panel._bottom.value
+        sx = bbox.hcenter
+        sy = bbox.bottom
         break
       case "below":
-        sx = this.panel._hcenter.value
-        sy = this.panel._top.value
+        sx = bbox.hcenter
+        sy = bbox.top
         break
       case "left":
-        sx = this.panel._right.value
-        sy = this.panel._vcenter.value
+        sx = bbox.right
+        sy = bbox.vcenter
         break
       case "right":
-        sx = this.panel._left.value
-        sy = this.panel._vcenter.value
+        sx = bbox.left
+        sy = bbox.vcenter
         break
       default:
         throw new Error(`unknown side: ${this.panel.side}`)
@@ -344,16 +345,16 @@ export class AxisView extends GuideRendererView {
 
     switch (this.panel.side) {
       case "below":
-        yoff = abs(this.panel._top.value - frame._bottom.value)
+        yoff = abs(this.panel.bbox.top - frame.bbox.bottom)
         break
       case "above":
-        yoff = abs(this.panel._bottom.value - frame._top.value)
+        yoff = abs(this.panel.bbox.bottom - frame.bbox.top)
         break
       case "right":
-        xoff = abs(this.panel._left.value - frame._right.value)
+        xoff = abs(this.panel.bbox.left - frame.bbox.right)
         break
       case "left":
-        xoff = abs(this.panel._right.value - frame._left.value)
+        xoff = abs(this.panel.bbox.right - frame.bbox.left)
         break
     }
 

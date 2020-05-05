@@ -36,14 +36,14 @@ export class SpanView extends AnnotationView {
     let height: number, sleft: number, stop: number, width: number
     if (this.model.dimension == 'width') {
       stop = _calc_dim(yscale, frame.yview)
-      sleft = frame._left.value
-      width = frame._width.value
+      sleft = frame.bbox.left
+      width = frame.bbox.width
       height = this.model.properties.line_width.value()
     } else {
-      stop = frame._top.value
+      stop = frame.bbox.top
       sleft = _calc_dim(xscale, frame.xview)
       width = this.model.properties.line_width.value()
-      height = frame._height.value
+      height = frame.bbox.height
     }
 
     const {ctx} = this.layer

@@ -249,8 +249,8 @@ export class GMapPlotView extends PlotView {
 
   // this overrides the standard _paint_empty to make the inner canvas transparent
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const ow = this.layout._width.value
-    const oh = this.layout._height.value
+    const ow = this.layout.bbox.width
+    const oh = this.layout.bbox.height
     const [left, top, iw, ih] = frame_box
 
     ctx.clearRect(0, 0, ow, oh)
