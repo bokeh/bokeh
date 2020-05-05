@@ -14,6 +14,7 @@ import {throttle} from "core/util/throttle"
 import {Box} from "core/types"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {LayoutItem} from "core/layout/layoutable"
+import {build_views, remove_views} from "core/build_views"
 
 import type {Plot} from "../plots/plot"
 export type InteractiveRenderer = Plot
@@ -179,8 +180,11 @@ export class CanvasView extends LayoutDOMView {
 
   ui_event_bus: UIEventBus
 
+  renderer_views: Map<Renderer, RendererView>
+
   initialize(): void {
     super.initialize()
+    this.renderer_views = new Map()
 
     const {output_backend, hidpi} = this.model
     if (output_backend == "webgl") {
@@ -197,7 +201,13 @@ export class CanvasView extends LayoutDOMView {
     this.throttled_paint = throttle(() => this.repaint(), 1000/60)
   }
 
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await build_views(this.renderer_views, this.model.renderers, {parent: this})
+  }
+
   remove(): void {
+    remove_views(this.renderer_views)
     this.ui_event_bus.destroy()
     super.remove()
   }
@@ -383,7 +393,7 @@ export class CanvasView extends LayoutDOMView {
 
     function has_dirty(plot_view: PlotCanvasView): boolean {
       for (const r of plot_view.computed_renderers) {
-        if (plot_view.renderer_views[r.id].dirty)
+        if (plot_view.renderer_views.get(r)!.dirty)
           return true
       }
       return false
@@ -396,6 +406,14 @@ export class CanvasView extends LayoutDOMView {
         primary.clear()
 
       const {ctx} = primary
+
+      for (const renderer of this.model.renderers) {
+        if (renderer.level == "overlay")
+          continue
+        const renderer_view = this.renderer_views.get(renderer)!
+        renderer_view.paint()
+      }
+
       for (const plot_view of this.plot_views) {
         if (!(plot_view.dirty || has_dirty(plot_view)))
           continue
@@ -417,6 +435,14 @@ export class CanvasView extends LayoutDOMView {
         overlays.clear()
 
       const {ctx} = overlays
+
+      for (const renderer of this.model.renderers) {
+        if (renderer.level != "overlay")
+          continue
+        const renderer_view = this.renderer_views.get(renderer)!
+        renderer_view.paint()
+      }
+
       for (const plot_view of this.plot_views) {
         if (!(plot_view.dirty || has_dirty(plot_view)))
           continue
@@ -430,7 +456,7 @@ export class CanvasView extends LayoutDOMView {
 
     for (const plot_view of this.plot_views) {
       for (const renderer_view of plot_view.computed_renderers) {
-        plot_view.renderer_views[renderer_view.id].dirty = false
+        plot_view.renderer_views.get(renderer_view)!.dirty = false
       }
       plot_view.dirty = false
     }
@@ -536,6 +562,7 @@ export class CanvasView extends LayoutDOMView {
     super.after_layout()
     const {width, height} = this.layout.bbox
     this.resize(width, height)
+    this.request_paint()
   }
 }
 
