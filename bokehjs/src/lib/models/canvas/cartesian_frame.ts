@@ -6,15 +6,26 @@ import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-
-import {LayoutItem} from "core/layout"
-import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
+import {BBox, CoordinateMapper} from "core/util/bbox"
 
 type Ranges = {[key: string]: Range}
 
-export class CartesianFrame extends LayoutItem {
+export class CartesianFrame {
+
+  protected _bbox: BBox = new BBox()
+  get bbox(): BBox {
+    return this._bbox
+  }
+
+  get xview(): CoordinateMapper {
+    return this.bbox.xview
+  }
+
+  get yview(): CoordinateMapper {
+    return this.bbox.yview
+  }
 
   constructor(private readonly in_x_scale: Scale,
               private readonly in_y_scale: Scale,
@@ -22,7 +33,6 @@ export class CartesianFrame extends LayoutItem {
               readonly y_range: Range,
               private readonly extra_x_ranges: Ranges = {},
               private readonly extra_y_ranges: Ranges = {}) {
-    super()
     assert(in_x_scale.source_range == null && in_x_scale.target_range == null)
     assert(in_y_scale.source_range == null && in_y_scale.target_range == null)
     this._configure_scales()
@@ -95,8 +105,8 @@ export class CartesianFrame extends LayoutItem {
     }
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
-    super._set_geometry(outer, inner)
+  recompute(bbox: BBox): void {
+    this._bbox = bbox
     this._update_scales()
   }
 

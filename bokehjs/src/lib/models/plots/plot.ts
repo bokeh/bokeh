@@ -58,7 +58,7 @@ export class PlotView extends PlotCanvasView {
       this._needs_paint = true
     }
 
-    if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
+    if (!this._inner_bbox.equals(this.layout.center_panel.inner_bbox)) {
       this._inner_bbox = this.layout.inner_bbox
       this._needs_paint = true
     }
