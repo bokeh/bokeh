@@ -208,9 +208,9 @@
 
 /* Assigned h[n]::before styling to role main to account for both content and footer headers, https://github.com/bokeh/bokeh/issues/9915 */
 /* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
-[role=main]h2::before, h3::before,
-  h4::before, h5::before,
-  h6::before  {
+  main h2::before, main h3::before,
+  main h4::before, main h5::before,
+  main h6::before  {
     display: block;
     content: "";
     height: 80px;
