@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'bokehjs/**'
+    #paths:
+    #  - 'bokehjs/**'
   pull_request:
-    paths:
-      - 'bokehjs/**'
+    #paths:
+    #  - 'bokehjs/**'
 
 jobs:
 
@@ -46,7 +46,7 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
-          node make lib:build
+          node make build:all
 
       - name: Run tests
         working-directory: ./bokehjs
