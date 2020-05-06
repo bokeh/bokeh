@@ -2,7 +2,8 @@ import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
-export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
+export type HTMLItem = string | HTMLElement | null | undefined
+export type HTMLChild = HTMLItem | HTMLItem[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
@@ -45,7 +46,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
       element.setAttribute(attr, value)
     }
 
-    function append(child: HTMLElement | string) {
+    function append(child: HTMLItem) {
       if (child instanceof HTMLElement)
         element.appendChild(child)
       else if (isString(child))
@@ -122,10 +123,15 @@ export function prepend(element: HTMLElement, ...nodes: Node[]): void {
 }
 
 export function empty(element: HTMLElement): void {
-  let child
+  let child: ChildNode | null
   while (child = element.firstChild) {
     element.removeChild(child)
   }
+  /*
+  for (const attr of element.attributes) {
+    element.removeAttributeNode(attr)
+  }
+  */
 }
 
 export function display(element: HTMLElement): void {

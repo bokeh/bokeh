@@ -126,6 +126,11 @@ export class ToolbarBaseView extends DOMView {
       this.el.appendChild(logo)
     }
 
+    for (const id in this._tool_button_views) {
+      const tool_view = this._tool_button_views[id]
+      tool_view.render()
+    }
+
     const bars: HTMLElement[][] = []
 
     const el = (tool: Tool) => {

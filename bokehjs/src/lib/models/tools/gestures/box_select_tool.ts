@@ -4,6 +4,7 @@ import * as p from "core/properties"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
+import {MenuItem} from "core/util/menus"
 import {bk_tool_icon_box_select} from "styles/icons"
 
 export class BoxSelectToolView extends SelectToolView {
@@ -97,7 +98,8 @@ export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 export class BoxSelectTool extends SelectTool {
   properties: BoxSelectTool.Props
 
-  /*override*/ overlay: BoxAnnotation
+  /** @override */
+  overlay: BoxAnnotation
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
@@ -125,5 +127,33 @@ export class BoxSelectTool extends SelectTool {
 
   get tooltip(): string {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
+  }
+
+  get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: "bk-tool-icon-replace-mode",
+        tooltip: "Replace the current selection",
+        handler: () => console.log("replace")
+      }, {
+        icon: "bk-tool-icon-append-mode",
+        tooltip: "Append to the current selection (Shift)",
+        handler: () => console.log("append"),
+      }, {
+        icon: "bk-tool-icon-intersect-mode",
+        tooltip: "Intersect with the current selection (Ctrl)",
+        handler: () => console.log("intersect"),
+      }, {
+        icon: "bk-tool-icon-subtract-mode",
+        tooltip: "Subtract from the current selection (Shift+Ctrl)",
+        handler: () => console.log("subtract"),
+      },
+      null,
+      {
+        icon: "bk-tool-icon-clear-selection",
+        tooltip: "Clear the current selection (Esc)",
+        handler: () => console.log("clear"),
+      },
+    ]
   }
 }

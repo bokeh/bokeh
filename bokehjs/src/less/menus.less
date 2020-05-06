@@ -1,6 +1,46 @@
 @import "./_mixins.less";
 
 .bk-root {
+  .bk-context-menu {
+    position: absolute;
+    .inline-flex();
+    .flex-wrap(nowrap);
+    .no-user-select();
+
+    &.bk-horizontal {
+      .flex-direction(row);
+    }
+    &.bk-vertical {
+      .flex-direction(column);
+    }
+
+    width: auto;
+    height: auto;
+
+    .bring-to-front();
+
+    cursor: pointer;
+    font-size: @font-size;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: @border-radius;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+
+    &.bk-horizontal > .bk-divider {
+      width: 1px;
+      margin: 5px 0;
+    }
+    &.bk-vertical > .bk-divider {
+      height: 1px;
+      margin: 0 5px;
+    }
+    & > .bk-divider {
+      cursor: default;
+      overflow: hidden;
+      background-color: #e5e5e5;
+    }
+  }
+
   .bk-menu {
     &.bk-above {
       bottom: 100%;

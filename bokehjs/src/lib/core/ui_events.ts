@@ -19,6 +19,8 @@ function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
 }
 
+export type ScreenCoord = {sx: number, sy: number}
+
 export type PanEvent = {
   type: "pan" | "panstart" | "panend"
   sx: number
@@ -47,7 +49,7 @@ export type RotateEvent = {
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
 
 export type TapEvent = {
-  type: "tap" | "doubletap" | "press" | "pressup"
+  type: "tap" | "doubletap" | "press" | "pressup" | "contextmenu"
   sx: number
   sy: number
   shiftKey: boolean
@@ -122,6 +124,7 @@ export class UIEvents implements EventListenerObject {
     this.hit_area.addEventListener("mousemove", (e) => this._mouse_move(e))
     this.hit_area.addEventListener("mouseenter", (e) => this._mouse_enter(e))
     this.hit_area.addEventListener("mouseleave", (e) => this._mouse_exit(e))
+    this.hit_area.addEventListener("contextmenu", (e) => this._context_menu(e))
     this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
 
     // But we MUST remove listeners registered on document or we'll leak memory: register
@@ -425,7 +428,7 @@ export class UIEvents implements EventListenerObject {
       this.plot_view.model.trigger_event(ev)
   }
 
-  private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
+  private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset(this.hit_area)
     return {
@@ -564,6 +567,19 @@ export class UIEvents implements EventListenerObject {
 
   private _mouse_wheel(e: WheelEvent): void {
     this._trigger(this.scroll, this._scroll_event(e), e)
+  }
+
+  //private menu = new ContextMenu(this.hit_area, ["A", "B", "C", null, "D"])
+
+  private _context_menu(e: MouseEvent): void {
+    e.stopPropagation()
+    /*
+    if (!this.menu.is_open) {
+      e.preventDefault()
+      const at = this._get_sxy(e)
+      this.menu.show(at)
+    }
+    */
   }
 
   private _key_down(e: KeyboardEvent): void {
