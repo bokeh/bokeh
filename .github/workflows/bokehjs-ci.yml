@@ -31,11 +31,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Upgrade npm
-        shell: bash
-        run: |
-          npm install -g npm
-
       - name: Install dependencies
         working-directory: ./bokehjs
         shell: bash
