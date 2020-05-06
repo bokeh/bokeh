@@ -206,15 +206,15 @@
     color: #542437;
   }
 
-/* reduce margin and height from 80px and -80px, https://github.com/bokeh/bokeh/issues/9915 */
+/* Assigned h[n]::before styling to role main to account for both content and footer headers, https://github.com/bokeh/bokeh/issues/9915 */
 /* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
-  h2::before, h3::before,
+[role=main]h2::before, h3::before,
   h4::before, h5::before,
   h6::before  {
     display: block;
     content: "";
-    height: 30px;
-    margin: -30px 0 0;
+    height: 80px;
+    margin: -80px 0 0;
 }
 
 /* add padding to body to avid overlap with navbar   */
