@@ -1538,9 +1538,11 @@ class LineEditTool(EditTool, Drag, Tap):
     The renderer used to render the intersections of a selected line
     """)
 
-
-    freeze_x = Bool(default=False,  help="""
-    Determines if intersection points can move along the x-axis
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions this edit tool is constrained to act in. By default
+    the line edit tool allows moving points in any dimension, but can be
+    configured to only allow horizontal movement across the width of the
+    plot, or vertical across the height of the plot.
     """)
 
     @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)

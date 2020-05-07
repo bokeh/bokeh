@@ -1,4 +1,5 @@
 import {PanEvent, TapEvent} from "core/ui_events"
+import {Dimensions} from "core/enums"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import * as p from "core/properties"
@@ -92,7 +93,7 @@ export class LineEditToolView extends LineToolView {
   _pan(ev: PanEvent): void {
     if (this._basepoint == null)
       return
-    this._drag_points(ev, [this.model.intersection_renderer], this.model.freeze_x)
+    this._drag_points(ev, [this.model.intersection_renderer], this.model.dimensions)
     if (this._selected_renderer)
       this._selected_renderer.data_source.change.emit()
   }
@@ -126,7 +127,7 @@ export namespace LineEditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LineTool.Props & {
-    freeze_x: p.Property<boolean>
+    dimensions: p.Property<Dimensions>
   }
 }
 
@@ -141,7 +142,7 @@ export class LineEditTool extends LineTool {
   static init_LineEditTool(): void {
     this.prototype.default_view = LineEditToolView
     this.define<LineEditTool.Props>({
-      freeze_x: [p.Boolean, false],
+      dimensions: [ p.Dimensions, "both" ],
     })
   }
 
@@ -149,4 +150,8 @@ export class LineEditTool extends LineTool {
   icon = bk_tool_icon_line_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
+
+  get tooltip(): string {
+    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+  }
 }
