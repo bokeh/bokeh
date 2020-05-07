@@ -1,7 +1,7 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
-import {Dimensions, BoxOrigin} from "core/enums"
+import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
 import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import {MenuItem} from "core/util/menus"
@@ -39,8 +39,7 @@ export class BoxSelectToolView extends SelectToolView {
     this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
 
     if (this.model.select_every_mousemove) {
-      const append = ev.shiftKey
-      this._do_select(sxlim, sylim, false, append)
+      this._do_select(sxlim, sylim, false, this._select_mode(ev))
     }
   }
 
@@ -49,8 +48,7 @@ export class BoxSelectToolView extends SelectToolView {
     const curpoint: [number, number] = [sx, sy]
 
     const [sxlim, sylim] = this._compute_limits(curpoint)
-    const append = ev.shiftKey
-    this._do_select(sxlim, sylim, true, append)
+    this._do_select(sxlim, sylim, true, this._select_mode(ev))
 
     this.model.overlay.update({left: null, right: null, top: null, bottom: null})
 
@@ -59,9 +57,9 @@ export class BoxSelectToolView extends SelectToolView {
     this.plot_view.push_state('box_select', {selection: this.plot_view.get_selection()})
   }
 
-  _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, append: boolean = false): void {
+  _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
     const geometry: RectGeometry = {type: 'rect', sx0, sx1, sy0, sy1}
-    this._select(geometry, final, append)
+    this._select(geometry, final, mode)
   }
 
 }

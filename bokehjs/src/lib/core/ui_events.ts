@@ -28,6 +28,7 @@ export type PanEvent = {
   deltaX: number
   deltaY: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type PinchEvent = {
@@ -36,6 +37,7 @@ export type PinchEvent = {
   sy: number
   scale: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type RotateEvent = {
@@ -44,6 +46,7 @@ export type RotateEvent = {
   sy: number
   rotation: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
@@ -53,12 +56,15 @@ export type TapEvent = {
   sx: number
   sy: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type MoveEvent = {
   type: "mousemove" | "mouseenter" | "mouseleave"
   sx: number
   sy: number
+  shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type ScrollEvent = {
@@ -66,6 +72,8 @@ export type ScrollEvent = {
   sx: number
   sy: number
   delta: number
+  shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
@@ -444,6 +452,7 @@ export class UIEvents implements EventListenerObject {
       deltaX: e.deltaX,
       deltaY: e.deltaY,
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -453,6 +462,7 @@ export class UIEvents implements EventListenerObject {
       ...this._get_sxy(e.srcEvent),
       scale: e.scale,
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -462,6 +472,7 @@ export class UIEvents implements EventListenerObject {
       ...this._get_sxy(e.srcEvent),
       rotation: e.rotation,
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -470,6 +481,7 @@ export class UIEvents implements EventListenerObject {
       type: e.type as TapEvent["type"],
       ...this._get_sxy(e.srcEvent),
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -477,13 +489,18 @@ export class UIEvents implements EventListenerObject {
     return {
       type: e.type as MoveEvent["type"],
       ...this._get_sxy(e),
+      shiftKey: e.shiftKey,
+      ctrlKey: e.ctrlKey,
     }
   }
 
   private _scroll_event(e: WheelEvent): ScrollEvent {
     return {
       type: e.type as ScrollEvent["type"],
-      ...this._get_sxy(e), delta: getDeltaY(e),
+      ...this._get_sxy(e),
+      delta: getDeltaY(e),
+      shiftKey: e.shiftKey,
+      ctrlKey: e.ctrlKey,
     }
   }
 

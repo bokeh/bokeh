@@ -26,7 +26,7 @@ describe("SelectionManager", () => {
       glyph_stub.returns(new Selection({indices: [0]}))
       const source = renderer_view.model.data_source
 
-      const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, false)
+      const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.true
       expect(source.selected.indices).to.be.deep.equal([0])
     })
@@ -38,7 +38,7 @@ describe("SelectionManager", () => {
       const filter = new IndexFilter({indices: [1]})
       renderer_view.model.view = new CDSView({filters: [filter]})
 
-      const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, false)
+      const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.true
       expect(source.selected.indices).to.be.deep.equal([1])
     })
@@ -49,7 +49,7 @@ describe("SelectionManager", () => {
       source.selected.indices = [0, 1]
       expect(source.selected.is_empty()).to.be.false
 
-      const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true, false)
+      const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.false
       expect(source.selected.is_empty()).to.be.true
     })

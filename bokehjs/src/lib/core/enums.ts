@@ -130,6 +130,9 @@ export const ResetPolicy: ResetPolicy[] = ["standard", "event_only"]
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
 
+export type SelectionMode = "replace" | "append" | "intersect" | "subtract"
+export const SelectionMode: SelectionMode[] = ["replace", "append", "intersect", "subtract"]
+
 export type Side = "above" | "below" | "left" | "right"
 export const Side: Side[] = ["above", "below", "left", "right"]
 

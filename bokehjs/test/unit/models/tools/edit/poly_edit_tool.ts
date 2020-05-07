@@ -127,7 +127,7 @@ describe("PolyEditTool", (): void => {
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([0, 1])
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([1, 0])
     })
 
     it("should delete selected patch on delete key", async () => {

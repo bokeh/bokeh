@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
+import {SelectionMode} from "core/enums"
 import {union, intersection, sort_by} from "core/util/array"
 import {merge} from "core/util/object"
 import {Glyph, GlyphView} from "../glyphs/glyph"
@@ -71,17 +72,30 @@ export class Selection extends Model {
     this.selected_glyphs.push(glyph)
   }
 
-  update(selection: Selection, final: boolean, append: boolean): void {
+  update(selection: Selection, final: boolean, mode: SelectionMode = "replace"): void {
     this.final = final
-    if (append)
-      this.update_through_union(selection)
-    else {
-      this.indices = selection.indices
-      this.line_indices = selection.line_indices
-      this.selected_glyphs = selection.selected_glyphs
-      this.get_view = selection.get_view
-      this.multiline_indices = selection.multiline_indices
-      this.image_indices = selection.image_indices
+    switch (mode) {
+      case "replace": {
+        this.indices = selection.indices
+        this.line_indices = selection.line_indices
+        this.selected_glyphs = selection.selected_glyphs
+        this.get_view = selection.get_view
+        this.multiline_indices = selection.multiline_indices
+        this.image_indices = selection.image_indices
+        break
+      }
+      case "append": {
+        this.update_through_union(selection)
+        break
+      }
+      case "intersect": {
+        this.update_through_intersection(selection)
+        break
+      }
+      case "subtract": {
+        this.update_through_subtraction(selection)
+        break
+      }
     }
   }
 
@@ -115,5 +129,9 @@ export class Selection extends Model {
     if(!this.get_view())
       this.get_view = other.get_view
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
+  }
+
+  update_through_subtraction(_other: Selection): void {
+    // TODO
   }
 }

@@ -5,6 +5,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {compute_renderers, RendererSpec} from "../util"
 import * as p from "core/properties"
 import {KeyEvent} from "core/ui_events"
+import {SelectionMode} from "core/enums"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry, GeometryData} from "core/geometry"
@@ -49,7 +50,7 @@ export abstract class SelectToolView extends GestureToolView {
     }
   }
 
-  _select(geometry: Geometry, final: boolean, append: boolean): void {
+  _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
     const renderers_by_source = this._computed_renderers_by_data_source()
 
     for (const id in renderers_by_source) {
@@ -61,7 +62,7 @@ export abstract class SelectToolView extends GestureToolView {
         if (r.id in this.plot_view.renderer_views)
           r_views.push(this.plot_view.renderer_views[r.id])
       }
-      sm.select(r_views, geometry, final, append)
+      sm.select(r_views, geometry, final, mode)
     }
 
     // XXX: messed up class structure

@@ -23,7 +23,7 @@ export class LineEditToolView extends LineToolView {
 
     const renderers = this.model.renderers
     for (const renderer of renderers) {
-      const line_selected = this._select_event(ev, false, [renderer])
+      const line_selected = this._select_event(ev, "replace", [renderer])
       if (line_selected.length == 1) {
         this._selected_renderer = renderer
       }
@@ -59,15 +59,15 @@ export class LineEditToolView extends LineToolView {
     if (point == null)
       return
     else if (this._drawing && this._selected_renderer) {
-      const append = ev.shiftKey
-      const selected_points = this._select_event(ev, append, [renderer])
+      const mode = this._select_mode(ev)
+      const selected_points = this._select_event(ev, mode, [renderer])
       if (selected_points.length == 0) {
         return
       }
     }
-    const append = ev.shiftKey
-    this._select_event(ev, append, [renderer])
-    this._select_event(ev, append, this.model.renderers)
+    const mode = this._select_mode(ev)
+    this._select_event(ev, mode, [renderer])
+    this._select_event(ev, mode, this.model.renderers)
   }
 
   _update_line_cds(): void {
@@ -86,7 +86,7 @@ export class LineEditToolView extends LineToolView {
   }
 
   _pan_start(ev: PanEvent): void {
-    this._select_event(ev, true, [this.model.intersection_renderer])
+    this._select_event(ev, "append", [this.model.intersection_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 

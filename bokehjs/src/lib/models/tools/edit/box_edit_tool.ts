@@ -20,8 +20,7 @@ export class BoxEditToolView extends EditToolView {
   _tap(ev: TapEvent): void {
     if ((this._draw_basepoint != null) || (this._basepoint != null))
       return
-    const append = ev.shiftKey
-    this._select_event(ev, append, this.model.renderers)
+    this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   _keyup(ev: KeyEvent): void {
@@ -91,7 +90,7 @@ export class BoxEditToolView extends EditToolView {
       this._draw_basepoint = null
     } else {
       this._draw_basepoint = [ev.sx, ev.sy]
-      this._select_event(ev, true, this.model.renderers)
+      this._select_event(ev, "append", this.model.renderers)
       this._update_box(ev, true, false)
     }
   }
@@ -109,7 +108,7 @@ export class BoxEditToolView extends EditToolView {
     } else {
       if (this._basepoint != null)
         return
-      this._select_event(ev, true, this.model.renderers)
+      this._select_event(ev, "append", this.model.renderers)
       this._basepoint = [ev.sx, ev.sy]
     }
   }

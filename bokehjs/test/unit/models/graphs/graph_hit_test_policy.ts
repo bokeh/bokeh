@@ -99,7 +99,7 @@ describe("GraphHitTestPolicy", () => {
 
       it("should return false if called with null hit_test_result", () => {
         const policy = new NodesOnly()
-        expect(policy.do_selection(null, gr, true, false)).to.be.false
+        expect(policy.do_selection(null, gr, true, "replace")).to.be.false
       })
 
       it("should return false and clear selections if hit_test_result is empty", () => {
@@ -108,7 +108,7 @@ describe("GraphHitTestPolicy", () => {
 
         const hit_test_result = new Selection()
         const policy = new NodesOnly()
-        const did_hit = policy.do_selection(hit_test_result, gr, true, false)
+        const did_hit = policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(did_hit).to.be.false
         expect(node_source.selected.is_empty()).to.be.true
@@ -118,7 +118,7 @@ describe("GraphHitTestPolicy", () => {
         const hit_test_result = new Selection({indices: [0, 1]})
         const policy = new NodesOnly()
 
-        expect(policy.do_selection(hit_test_result, gr, true, false)).to.be.true
+        expect(policy.do_selection(hit_test_result, gr, true, "replace")).to.be.true
         expect(node_source.selected.is_empty()).to.be.false
       })
     })
@@ -132,7 +132,7 @@ describe("GraphHitTestPolicy", () => {
 
         const hit_test_result = new Selection()
         const policy = new NodesOnly()
-        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
         expect(node_source.inspected.is_empty()).to.be.true
@@ -142,7 +142,7 @@ describe("GraphHitTestPolicy", () => {
         const hit_test_result = new Selection({indices: [0, 1]})
         const policy = new NodesOnly()
 
-        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
         expect(did_hit).to.be.true
         expect(node_source.inspected.is_empty()).to.be.false
       })
@@ -161,7 +161,7 @@ describe("GraphHitTestPolicy", () => {
 
         const hit_test_result = new Selection()
         const policy = new NodesAndLinkedEdges()
-        policy.do_selection(hit_test_result, gr, true, false)
+        policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(edge_source.selected.is_empty()).to.be.true
       })
@@ -170,7 +170,7 @@ describe("GraphHitTestPolicy", () => {
         const hit_test_result = new Selection({indices: [0]})
         const policy = new NodesAndLinkedEdges()
 
-        policy.do_selection(hit_test_result, gr, true, false)
+        policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(edge_source.selected.multiline_indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
       })
@@ -186,7 +186,7 @@ describe("GraphHitTestPolicy", () => {
 
         const hit_test_result = new Selection()
         const policy = new NodesAndLinkedEdges()
-        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
         expect(edge_source.inspected.is_empty()).to.be.true
@@ -195,7 +195,7 @@ describe("GraphHitTestPolicy", () => {
       it("should select linked edges if hit_test_result is not empty", () => {
         const hit_test_result = new Selection({indices: [0]})
         const policy = new NodesAndLinkedEdges()
-        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
         expect(edge_source.inspected.multiline_indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
@@ -214,7 +214,7 @@ describe("GraphHitTestPolicy", () => {
 
         const hit_test_result = new Selection()
         const policy = new EdgesAndLinkedNodes()
-        policy.do_selection(hit_test_result, gr, true, false)
+        policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.is_empty()).to.be.true
       })
@@ -224,7 +224,7 @@ describe("GraphHitTestPolicy", () => {
         hit_test_result.indices = [1]
 
         const policy = new EdgesAndLinkedNodes()
-        policy.do_selection(hit_test_result, gr, true, false)
+        policy.do_selection(hit_test_result, gr, true, "replace")
 
         expect(node_source.selected.indices).to.be.deep.equal([0, 2])
       })
@@ -238,7 +238,7 @@ describe("GraphHitTestPolicy", () => {
 
         const hit_test_result = new Selection()
         const policy = new EdgesAndLinkedNodes()
-        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.false
         expect(node_source.inspected.is_empty()).to.be.true
@@ -249,7 +249,7 @@ describe("GraphHitTestPolicy", () => {
         hit_test_result.indices = [1]
 
         const policy = new EdgesAndLinkedNodes()
-        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
         expect(node_source.inspected.indices).to.be.deep.equal([0, 2])
