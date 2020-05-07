@@ -1,6 +1,16 @@
 @import "./_mixins.less";
 
 .bk-root {
+  .bk-menu-icon {
+    width: 28px;
+    height: 28px;
+
+    background-size: 60%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
   .bk-context-menu {
     position: absolute;
     .inline-flex();
@@ -42,17 +52,21 @@
     & > :not(.bk-divider) {
       border: 1px solid transparent;
 
+      &:first-child {
+        border-top-left-radius: @border-radius;
+        border-bottom-left-radius: @border-radius;
+      }
+      &:last-child {
+        border-top-right-radius: @border-radius;
+        border-bottom-right-radius: @border-radius;
+      }
+
       &.bk-active {
         border-color: #26aae1; // TODO @activeToolHighlight;
+      }
 
-        &:first-child {
-          border-top-left-radius: @border-radius;
-          border-bottom-left-radius: @border-radius;
-        }
-        &:last-child {
-          border-top-right-radius: @border-radius;
-          border-bottom-right-radius: @border-radius;
-        }
+      &:hover {
+        background-color: #f9f9f9;
       }
     }
   }
