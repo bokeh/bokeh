@@ -213,8 +213,10 @@ export abstract class HasProps extends Signalable() {
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
 
-    if (!deferred)
+    if (!deferred) {
       this.finalize()
+      this.connect_signals()
+    }
   }
 
   finalize(): void {
@@ -235,7 +237,6 @@ export abstract class HasProps extends Signalable() {
     }
 
     this.initialize()
-    this.connect_signals()
   }
 
   initialize(): void {}
