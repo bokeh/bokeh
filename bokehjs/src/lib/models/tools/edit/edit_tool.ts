@@ -4,6 +4,7 @@ import {UIEvent, MoveEvent} from "core/ui_events"
 import {Dimensions, SelectionMode} from "core/enums"
 import {includes} from "core/util/array"
 import {isArray} from "core/util/types"
+import {unreachable} from "core/util/assert"
 import {XYGlyph} from "../../glyphs/xy_glyph"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -18,6 +19,21 @@ export abstract class EditToolView extends GestureToolView {
 
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
+
+  protected _select_mode(ev: UIEvent): SelectionMode {
+    const {shiftKey, ctrlKey} = ev
+
+    if (!shiftKey && !ctrlKey)
+      return "replace"
+    else if (shiftKey && !ctrlKey)
+      return "append"
+    else if (!shiftKey && ctrlKey)
+      return "intersect"
+    else if (shiftKey && ctrlKey)
+      return "subtract"
+    else
+      unreachable()
+  }
 
   _move_enter(_e: MoveEvent): void {
     this._mouse_in_frame = true

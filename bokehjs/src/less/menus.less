@@ -39,6 +39,22 @@
       overflow: hidden;
       background-color: #e5e5e5;
     }
+    & > :not(.bk-divider) {
+      border: 1px solid transparent;
+
+      &.bk-active {
+        border-color: #26aae1; // TODO @activeToolHighlight;
+
+        &:first-child {
+          border-top-left-radius: @border-radius;
+          border-bottom-left-radius: @border-radius;
+        }
+        &:last-child {
+          border-top-right-radius: @border-radius;
+          border-bottom-right-radius: @border-radius;
+        }
+      }
+    }
   }
 
   .bk-menu {

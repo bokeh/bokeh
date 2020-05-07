@@ -14,6 +14,7 @@ import {PlotView} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import * as events from "./bokeh_events"
+//import {ContextMenu} from "./util/menus"
 
 function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent

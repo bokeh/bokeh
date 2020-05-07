@@ -4,14 +4,22 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {compute_renderers, RendererSpec} from "../util"
 import * as p from "core/properties"
-import {KeyEvent} from "core/ui_events"
+import {KeyEvent, UIEvent} from "core/ui_events"
 import {SelectionMode} from "core/enums"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry, GeometryData} from "core/geometry"
+import {Signal0} from "core/signaling"
+import {MenuItem} from "core/util/menus"
+import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
   model: SelectTool
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.model.clear.connect(() => this._clear())
+  }
 
   get computed_renderers(): DataRenderer[] {
     const renderers = this.model.renderers
@@ -41,13 +49,32 @@ export abstract class SelectToolView extends GestureToolView {
     return renderers_by_source
   }
 
+  protected _select_mode(ev: UIEvent): SelectionMode {
+    const {shiftKey, ctrlKey} = ev
+
+    if (!shiftKey && !ctrlKey)
+      return this.model.mode
+    else if (shiftKey && !ctrlKey)
+      return "append"
+    else if (!shiftKey && ctrlKey)
+      return "intersect"
+    else if (shiftKey && ctrlKey)
+      return "subtract"
+    else
+      unreachable()
+  }
+
   _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Esc) {
-      for (const r of this.computed_renderers) {
-        r.get_selection_manager().clear()
-      }
-      this.plot_view.request_render()
+      this._clear()
     }
+  }
+
+  _clear(): void {
+    for (const renderer of this.computed_renderers) {
+      renderer.get_selection_manager().clear()
+    }
+    this.plot_view.request_render()
   }
 
   _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
@@ -119,6 +146,7 @@ export namespace SelectTool {
   export type Props = GestureTool.Props & {
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
+    mode: p.Property<SelectionMode>
   }
 }
 
@@ -127,8 +155,15 @@ export interface SelectTool extends SelectTool.Attrs {}
 export abstract class SelectTool extends GestureTool {
   properties: SelectTool.Props
 
+  clear: Signal0<this>
+
   constructor(attrs?: Partial<SelectTool.Attrs>) {
     super(attrs)
+  }
+
+  initialize(): void {
+    super.initialize()
+    this.clear = new Signal0(this, "clear")
   }
 
   static init_SelectTool(): void {
@@ -136,5 +171,55 @@ export abstract class SelectTool extends GestureTool {
       renderers: [ p.Any,   'auto' ],
       names:     [ p.Array, []     ],
     })
+
+    this.internal({
+      mode: [ p.Any, "replace" ],
+    })
+  }
+
+  get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: "bk-tool-icon-replace-mode",
+        tooltip: "Replace the current selection",
+        active: () => this.mode == "replace",
+        handler: () => {
+          this.mode = "replace"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-append-mode",
+        tooltip: "Append to the current selection (Shift)",
+        active: () => this.mode == "append",
+        handler: () => {
+          this.mode = "append"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-intersect-mode",
+        tooltip: "Intersect with the current selection (Ctrl)",
+        active: () => this.mode == "intersect",
+        handler: () => {
+          this.mode = "intersect"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-subtract-mode",
+        tooltip: "Subtract from the current selection (Shift+Ctrl)",
+        active: () => this.mode == "subtract",
+        handler: () => {
+          this.mode = "subtract"
+          this.active = true
+        },
+      },
+      null,
+      {
+        icon: "bk-tool-icon-clear-selection",
+        tooltip: "Clear the current selection (Esc)",
+        handler: () => {
+          this.clear.emit()
+        },
+      },
+    ]
   }
 }

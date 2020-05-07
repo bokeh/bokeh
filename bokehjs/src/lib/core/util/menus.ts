@@ -10,6 +10,7 @@ export type MenuItem = {
   icon?: string
   label?: string
   tooltip?: string
+  active?: () => boolean
   handler: () => void
 } | null
 
@@ -25,7 +26,7 @@ export class ContextMenu {
   constructor(readonly items: MenuItem[], readonly orientation: Orientation) {}
 
   protected _item_click = (i: number) => {
-    console.log(i)
+    this.items[i]?.handler()
     this.hide()
   }
 
@@ -88,7 +89,7 @@ export class ContextMenu {
       let el: HTMLElement
       if (item != null) {
         const icon = item.icon != null ? div({class: ["bk-toolbar-button", item.icon]}) : null
-        el = div({title: item.tooltip}, icon, item.label)
+        el = div({class: item.active?.() ? "bk-active": null, title: item.tooltip}, icon, item.label)
       } else {
         el = div({class: styles.bk_divider})
       }
