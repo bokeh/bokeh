@@ -6,6 +6,7 @@ import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnarDataSource, MultiLine, Scale} from "models"
 import {MoveEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import {intersection, union, transpose} from "core/util/array"
+import {SelectionMode} from "core/enums"
 import {Keys} from "core/dom"
 
 export interface HasRectCDS {
@@ -18,7 +19,7 @@ export interface HasMultiLineCDS {
   data_source: ColumnDataSource
 }
 
-type SelectionMode = "add" | "resize" | "drag"
+type Action = "add" | "resize" | "drag"
 
 type BoxParams = {
   x: number
@@ -73,7 +74,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
   private cds_data: ColumnDataSource
   private glyph_select: Rect
   private glyph_data: MultiLine
-  private selection_mode: SelectionMode = "add"
+  private action: Action = "add"
   private ind_active_box: null | number
   private panning: boolean = false
   private _base_box_parameters: BoxParams | null
@@ -204,7 +205,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
 
   _pan_start(ev: PanEvent) {
     this.panning = true
-    switch (this.selection_mode) {
+    switch (this.action) {
       case "add": {
         super._pan_start(ev)
         break
@@ -220,7 +221,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
   }
 
   _pan(ev: PanEvent) {
-    switch (this.selection_mode) {
+    switch (this.action) {
       case "add": {
         super._pan(ev)
         break
@@ -236,7 +237,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
   }
 
   _pan_end(ev: PanEvent) {
-    switch (this.selection_mode) {
+    switch (this.action) {
       case "add": {
         super._pan_end(ev)
         break
@@ -257,9 +258,9 @@ export class ParallelSelectionView extends BoxSelectToolView {
     if (this.panning) {return }
     this.ind_active_box = this._hit_test_boxes(ev.sx, ev.sy)
     if (this.ind_active_box != null) {
-      this.selection_mode = "drag"
+      this.action = "drag"
     } else {
-      this.selection_mode = "add"
+      this.action = "add"
     }
   }
 
@@ -333,7 +334,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     this._emit_cds_changes(this.cds_select)
   }
 
-  _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], _final: boolean = true, _append: boolean = true): void {
+  _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], _final: boolean = true, _mode: SelectionMode): void {
     // Get selection bbox in the data space
     const [x0, x1] = this.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.yscale.r_invert(sy0, sy1)
