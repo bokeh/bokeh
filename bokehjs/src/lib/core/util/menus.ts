@@ -1,4 +1,4 @@
-import {div, classes, display, undisplay, empty, append, Keys} from "../dom"
+import {div, classes, display, undisplay, empty, remove, append, Keys} from "../dom"
 import {Orientation} from "../enums"
 
 //import menus_css from "styles/menus.css"
@@ -14,6 +14,11 @@ export type MenuItem = {
   handler: () => void
 } | null
 
+export type MenuOptions = {
+  orientation?: Orientation
+  prevent_hide?: (event: MouseEvent) => boolean
+}
+
 export class ContextMenu {
 
   readonly el: HTMLElement = div()
@@ -23,7 +28,13 @@ export class ContextMenu {
     return this._open
   }
 
-  constructor(readonly items: MenuItem[], readonly orientation: Orientation) {}
+  get can_open(): boolean {
+    return this.items.length != 0
+  }
+
+  constructor(readonly items: MenuItem[], readonly options: MenuOptions = {}) {
+    undisplay(this.el)
+  }
 
   protected _item_click = (i: number) => {
     this.items[i]?.handler()
@@ -32,9 +43,13 @@ export class ContextMenu {
 
   protected _on_mousedown = (event: MouseEvent) => {
     const {target} = event
-    if (!(target instanceof Node && this.el.contains(target))) {
-      this.hide()
-    }
+    if (target instanceof Node && this.el.contains(target))
+      return
+
+    if (this.options.prevent_hide?.(event))
+      return
+
+    this.hide()
   }
 
   protected _on_keydown = (event: KeyboardEvent) => {
@@ -47,6 +62,7 @@ export class ContextMenu {
   }
 
   remove(): void {
+    remove(this.el)
     this._unlisten()
   }
 
@@ -80,10 +96,9 @@ export class ContextMenu {
   */
 
   render(): void {
-    empty(this.el)
-    undisplay(this.el)
-
-    classes(this.el).add("bk-context-menu", `bk-${this.orientation}`)
+    empty(this.el, true)
+    const orientation = this.options.orientation ?? "vertical"
+    classes(this.el).add("bk-context-menu", `bk-${orientation}`)
 
     append(this.el, ...this.items.map((item, i) => {
       let el: HTMLElement
@@ -100,10 +115,12 @@ export class ContextMenu {
   }
 
   show(at?: ScreenPoint): void {
+    if (this.items.length == 0)
+      return
+
     if (!this._open) {
-      if (at != null) {
-        this._position(at)
-      }
+      this.render()
+      this._position(at ?? {left: 0, top: 0})
       display(this.el)
       this._listen()
       this._open = true

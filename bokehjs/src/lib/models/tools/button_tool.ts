@@ -31,7 +31,10 @@ export abstract class ButtonToolButtonView extends DOMView {
     const items = this.model.menu
     if (items != null) {
       const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
-      this._menu = new ContextMenu(items, orientation)
+      this._menu = new ContextMenu(items, {
+        orientation,
+        prevent_hide: (event) => event.target == this.el,
+      })
     }
 
     this._hammer = new Hammer(this.el, {
@@ -40,6 +43,10 @@ export abstract class ButtonToolButtonView extends DOMView {
     })
     this.connect(this.model.change, () => this.render())
     this._hammer.on("tap", (e) => {
+      if (this._menu?.is_open) {
+        this._menu.hide()
+        return
+      }
       if (e.target == this.el) {
         this._clicked()
       }
@@ -74,7 +81,6 @@ export abstract class ButtonToolButtonView extends DOMView {
 
     if (this._menu != null) {
       this.root.el.appendChild(this._menu.el)
-      this._menu.render()
     }
   }
 
