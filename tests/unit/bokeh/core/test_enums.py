@@ -220,9 +220,10 @@ class Test_bce(object):
         assert tuple(bce.MapType) == ("satellite", "roadmap", "terrain", "hybrid")
 
     def test_MarkerType(self) -> None:
-        assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                                         "square", "square_cross", "square_x", "triangle", "x")
+        assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_dot", "circle_x", "circle_y", "cross",
+                                         "dash", "diamond", "diamond_cross", "diamond_dot", "dot", "hex", "hex_dot", "inverted_triangle",
+                                         "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+                                         "triangle_dot", "triangle_pin", "x", "y")
 
     def test_NamedColor(self) -> None:
         assert len(tuple(bce.NamedColor)) == 147

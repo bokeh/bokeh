@@ -74,11 +74,15 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.bezier`
         * :func:`~bokeh.plotting.figure.Figure.circle`
         * :func:`~bokeh.plotting.figure.Figure.circle_cross`
+        * :func:`~bokeh.plotting.figure.Figure.circle_dot`
         * :func:`~bokeh.plotting.figure.Figure.circle_x`
+        * :func:`~bokeh.plotting.figure.Figure.circle_y`
         * :func:`~bokeh.plotting.figure.Figure.cross`
         * :func:`~bokeh.plotting.figure.Figure.dash`
         * :func:`~bokeh.plotting.figure.Figure.diamond`
         * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+        * :func:`~bokeh.plotting.figure.Figure.diamond_dot`
+        * :func:`~bokeh.plotting.figure.Figure.dot`
         * :func:`~bokeh.plotting.figure.Figure.ellipse`
         * :func:`~bokeh.plotting.figure.Figure.harea`
         * :func:`~bokeh.plotting.figure.Figure.hbar`
@@ -94,6 +98,7 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.oval`
         * :func:`~bokeh.plotting.figure.Figure.patch`
         * :func:`~bokeh.plotting.figure.Figure.patches`
+        * :func:`~bokeh.plotting.figure.Figure.plus`
         * :func:`~bokeh.plotting.figure.Figure.quad`
         * :func:`~bokeh.plotting.figure.Figure.quadratic`
         * :func:`~bokeh.plotting.figure.Figure.ray`
@@ -101,14 +106,19 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.segment`
         * :func:`~bokeh.plotting.figure.Figure.square`
         * :func:`~bokeh.plotting.figure.Figure.square_cross`
+        * :func:`~bokeh.plotting.figure.Figure.square_dot`
+        * :func:`~bokeh.plotting.figure.Figure.square_pin`
         * :func:`~bokeh.plotting.figure.Figure.square_x`
         * :func:`~bokeh.plotting.figure.Figure.step`
         * :func:`~bokeh.plotting.figure.Figure.text`
         * :func:`~bokeh.plotting.figure.Figure.triangle`
+        * :func:`~bokeh.plotting.figure.Figure.triangle_dot`
+        * :func:`~bokeh.plotting.figure.Figure.triangle_pin`
         * :func:`~bokeh.plotting.figure.Figure.varea`
         * :func:`~bokeh.plotting.figure.Figure.vbar`
         * :func:`~bokeh.plotting.figure.Figure.wedge`
         * :func:`~bokeh.plotting.figure.Figure.x`
+        * :func:`~bokeh.plotting.figure.Figure.y`
 
     There is a scatter function that can be parameterized by marker type:
 
@@ -188,7 +198,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Arc)
     def arc(self, **kwargs):
@@ -210,7 +219,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Bezier)
     def bezier(self, **kwargs):
@@ -236,7 +244,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.CircleCross)
     def circle_cross(self, **kwargs):
@@ -255,7 +262,24 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.CircleCross)
+    def circle_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.circle_dot(x=[1,2,3], y=[4,5,6], size=20,
+                        color="#FB8072", fill_color=None)
+
+        show(plot)
+
+"""
 
     @glyph_method(markers.CircleX)
     def circle_x(self, **kwargs):
@@ -274,7 +298,24 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.CircleX)
+    def circle_y(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.circle_y(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                      color="#DD1C77", fill_alpha=0.2)
+
+        show(plot)
+
+"""
 
     @glyph_method(markers.Cross)
     def cross(self, **kwargs):
@@ -293,7 +334,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Dash)
     def dash(self, **kwargs):
@@ -312,7 +352,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Diamond)
     def diamond(self, **kwargs):
@@ -331,7 +370,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.DiamondCross)
     def diamond_cross(self, **kwargs):
@@ -350,7 +388,41 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.DiamondDot)
+    def diamond_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.diamond_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                         color="#386CB0", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @glyph_method(markers.Dot)
+    def dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.dot(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#386CB0")
+
+        show(plot)
+
+"""
 
     @glyph_method(glyphs.HArea)
     def harea(self, **kwargs):
@@ -369,7 +441,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.HBar)
     def hbar(self, **kwargs):
@@ -387,7 +458,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Ellipse)
     def ellipse(self, **kwargs):
@@ -406,7 +476,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Hex)
     def hex(self, **kwargs):
@@ -424,7 +493,24 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.Hex)
+    def hex_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.hex_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30],
+                     color="#74ADD1", fill_color=None)
+
+        show(plot)
+
+"""
 
     @glyph_method(glyphs.HexTile)
     def hex_tile(self, **kwargs):
@@ -442,7 +528,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Image)
     def image(self, **kwargs):
@@ -453,7 +538,6 @@ Examples:
     palette will be used as a default.
 
 """
-        pass
 
     @glyph_method(glyphs.ImageRGBA)
     def image_rgba(self, **kwargs):
@@ -463,7 +547,6 @@ Examples:
     values (encoded as 32-bit integers).
 
 """
-        pass
 
     @glyph_method(glyphs.ImageURL)
     def image_url(self, **kwargs):
@@ -485,7 +568,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Line)
     def line(self, **kwargs):
@@ -503,7 +585,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.MultiLine)
     def multi_line(self, **kwargs):
@@ -526,7 +607,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.MultiPolygons)
     def multi_polygons(self, **kwargs):
@@ -549,7 +629,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.Oval)
     def oval(self, **kwargs):
@@ -568,7 +647,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Patch)
     def patch(self, **kwargs):
@@ -586,7 +664,6 @@ Examples:
         show(p)
 
 """
-        pass
 
     @glyph_method(glyphs.Patches)
     def patches(self, **kwargs):
@@ -609,7 +686,23 @@ Examples:
         show(p)
 
 """
-        pass
+
+    @glyph_method(markers.Plus)
+    def plus(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.plus(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
 
     @glyph_method(glyphs.Quad)
     def quad(self, **kwargs):
@@ -628,7 +721,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Quadratic)
     def quadratic(self, **kwargs):
@@ -651,7 +743,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Rect)
     def rect(self, **kwargs):
@@ -670,7 +761,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Step)
     def step(self, **kwargs):
@@ -688,7 +778,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Segment)
     def segment(self, **kwargs):
@@ -708,7 +797,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.Square)
     def square(self, **kwargs):
@@ -726,7 +814,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.SquareCross)
     def square_cross(self, **kwargs):
@@ -745,7 +832,42 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.SquareDot)
+    def square_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.square_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                        color="#7FC97F", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @glyph_method(markers.SquarePin)
+    def square_pin(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.square_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                        color="#7FC97F",fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
 
     @glyph_method(markers.SquareX)
     def square_x(self, **kwargs):
@@ -764,7 +886,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Text)
     def text(self, **kwargs):
@@ -774,7 +895,6 @@ Examples:
     is indicated by the alignment and baseline text properties.
 
 """
-        pass
 
     @glyph_method(markers.Triangle)
     def triangle(self, **kwargs):
@@ -793,7 +913,42 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.TriangleDot)
+    def triangle_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.triangle_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                          color="#99D594", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @glyph_method(markers.TrianglePin)
+    def triangle_pin(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.triangle_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                      color="#99D594", line_width=2)
+
+        show(plot)
+
+"""
 
     @glyph_method(glyphs.VArea)
     def varea(self, **kwargs):
@@ -812,7 +967,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.VBar)
     def vbar(self, **kwargs):
@@ -830,7 +984,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(glyphs.Wedge)
     def wedge(self, **kwargs):
@@ -849,7 +1002,6 @@ Examples:
         show(plot)
 
 """
-        pass
 
     @glyph_method(markers.X)
     def x(self, **kwargs):
@@ -867,7 +1019,23 @@ Examples:
         show(plot)
 
 """
-        pass
+
+    @glyph_method(markers.Y)
+    def y(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.y(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
 
     # -------------------------------------------------------------------------
 
@@ -1368,11 +1536,15 @@ _MARKER_SHORTCUTS = {
     "*"  : "asterisk",
     "+"  : "cross",
     "o"  : "circle",
-    "ox" : "circle_x",
     "o+" : "circle_cross",
+    "o." : "circle_dot",
+    "ox" : "circle_x",
+    "oy" : "circle_y",
     "-"  : "dash",
+    "."  : "dot",
     "v"  : "inverted_triangle",
     "^"  : "triangle",
+    "^." : "triangle_dot",
 }
 
 def markers():

@@ -82,7 +82,10 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
             marker = marker['value']
         elif marker is None:
             marker = 'circle'
-        marker_type = marker_types.get(marker)
+        if marker == "scatter":
+            marker_type = Scatter
+        else:
+            marker_type = marker_types.get(marker)
     if marker_type is None:
         msg = "Could not determine marker type for node_marker={marker}".format(marker=repr(marker))
         raise ValueError(msg)

@@ -12,18 +12,29 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.Asterisk`
 * :class:`~bokeh.models.markers.Circle`
 * :class:`~bokeh.models.markers.CircleCross`
+* :class:`~bokeh.models.markers.CircleDot`
+* :class:`~bokeh.models.markers.CircleY`
 * :class:`~bokeh.models.markers.CircleX`
 * :class:`~bokeh.models.markers.Cross`
 * :class:`~bokeh.models.markers.Dash`
 * :class:`~bokeh.models.markers.Diamond`
 * :class:`~bokeh.models.markers.DiamondCross`
+* :class:`~bokeh.models.markers.DiamondDot`
+* :class:`~bokeh.models.markers.Dot`
 * :class:`~bokeh.models.markers.Hex`
+* :class:`~bokeh.models.markers.HexDot`
 * :class:`~bokeh.models.markers.InvertedTriangle`
+* :class:`~bokeh.models.markers.Plus`
 * :class:`~bokeh.models.markers.Square`
 * :class:`~bokeh.models.markers.SquareCross`
+* :class:`~bokeh.models.markers.SquareDot`
+* :class:`~bokeh.models.markers.SquarePin`
 * :class:`~bokeh.models.markers.SquareX`
 * :class:`~bokeh.models.markers.Triangle`
+* :class:`~bokeh.models.markers.TriangleDot`
+* :class:`~bokeh.models.markers.TrianglePin`
 * :class:`~bokeh.models.markers.X`
+* :class:`~bokeh.models.markers.Y`
 
 Markers are all subclasses of ``Glyph``. Additionally, they all share the
 same common interface providing fill and line properties provided by their
@@ -70,20 +81,31 @@ __all__ = (
     'Asterisk',
     'Circle',
     'CircleCross',
+    'CircleDot',
     'CircleX',
+    'CircleY',
     'Cross',
     'Dash',
     'Diamond',
     'DiamondCross',
+    'DiamondDot',
+    'Dot',
     'Hex',
+    'HexDot',
     'InvertedTriangle',
     'Marker',
+    'Plus',
     'Scatter',
     'Square',
     'SquareCross',
+    'SquareDot',
+    'SquarePin',
     'SquareX',
     'Triangle',
+    'TriangleDot',
+    'TrianglePin',
     'X',
+    'Y',
 )
 
 #-----------------------------------------------------------------------------
@@ -222,10 +244,20 @@ class CircleCross(Marker):
 
     __example__ = "examples/reference/models/CircleCross.py"
 
+class CircleDot(Marker):
+    ''' Render circle markers with center dots. '''
+
+    __example__ = "examples/reference/models/CircleDot.py"
+
 class CircleX(Marker):
     ''' Render circle markers with an 'X' cross through the center. '''
 
     __example__ = "examples/reference/models/CircleX.py"
+
+class CircleY(Marker):
+    ''' Render circle markers with an 'Y' cross through the center. '''
+
+    __example__ = "examples/reference/models/CircleY.py"
 
 class Cross(Marker):
     ''' Render '+' cross markers. '''
@@ -249,20 +281,50 @@ class DiamondCross(Marker):
 
     __example__ = "examples/reference/models/DiamondCross.py"
 
+class DiamondDot(Marker):
+    ''' Render diamond markers with center dots. '''
+
+    __example__ = "examples/reference/models/DiamondDot.py"
+
+class Dot(Marker):
+    ''' Render dots (one-quarter radius circles). '''
+
+    __example__ = "examples/reference/models/Dot.py"
+
 class Hex(Marker):
     ''' Render hexagon markers. '''
 
     __example__ = "examples/reference/models/Hex.py"
+
+class HexDot(Marker):
+    ''' Render hexagon markers with center dots. '''
+
+    __example__ = "examples/reference/models/HexDot.py"
 
 class InvertedTriangle(Marker):
     ''' Render upside-down triangle markers. '''
 
     __example__ = "examples/reference/models/InvertedTriangle.py"
 
+class Plus(Marker):
+    ''' Render filled plus markers '''
+
+    __example__ = "examples/reference/models/Plus.py"
+
 class Square(Marker):
-    ''' Render a square marker, optionally rotated. '''
+    ''' Render square markers. '''
 
     __example__ = "examples/reference/models/Square.py"
+
+class SquareDot(Marker):
+    ''' Render square markers with center dots. '''
+
+    __example__ = "examples/reference/models/SquareDot.py"
+
+class SquarePin(Marker):
+    ''' Render pin-cushion square markers. '''
+
+    __example__ = "examples/reference/models/SquarePin.py"
 
 class SquareCross(Marker):
     ''' Render square markers with a '+' cross through the center. '''
@@ -279,10 +341,25 @@ class Triangle(Marker):
 
     __example__ = "examples/reference/models/Triangle.py"
 
+class TriangleDot(Marker):
+    ''' Render triangle markers with center dots. '''
+
+    __example__ = "examples/reference/models/TriangleDot.py"
+
+class TrianglePin(Marker):
+    ''' Render pin-cushion triangle markers. '''
+
+    __example__ = "examples/reference/models/TrianglePin.py"
+
 class X(Marker):
-    ''' Render a 'X' cross markers. '''
+    ''' Render 'X' markers. '''
 
     __example__ = "examples/reference/models/X.py"
+
+class Y(Marker):
+    ''' Render 'Y' markers. '''
+
+    __example__ = "examples/reference/models/Y.py"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -292,19 +369,29 @@ marker_types = {
     "asterisk": Asterisk,
     "circle": Circle,
     "circle_cross": CircleCross,
+    "circle_dot": CircleDot,
     "circle_x": CircleX,
+    "circle_y": CircleY,
     "cross": Cross,
     "dash": Dash,
     "diamond": Diamond,
     "diamond_cross": DiamondCross,
+    "diamond_dot": DiamondDot,
+    "dot": Dot,
     "hex": Hex,
+    "hex_dot": HexDot,
     "inverted_triangle": InvertedTriangle,
-    "scatter": Scatter,
+    "plus": Plus,
     "square": Square,
     "square_cross": SquareCross,
+    "square_dot": SquareDot,
+    "square_pin": SquarePin,
     "square_x": SquareX,
     "triangle": Triangle,
-    "x": X
+    "triangle_dot": TriangleDot,
+    "triangle_pin": TrianglePin,
+    "x": X,
+    "y": Y,
 }
 
 #-----------------------------------------------------------------------------

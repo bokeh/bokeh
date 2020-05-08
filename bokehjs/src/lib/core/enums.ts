@@ -84,13 +84,17 @@ export type Logo = "normal" | "grey"
 export const Logo: Logo[] = ["normal", "grey"]
 
 export type MarkerType =
-  "asterisk" | "circle" | "circle_cross" | "circle_x" | "cross" |
-  "dash" | "diamond" | "diamond_cross" | "hex" | "inverted_triangle" |
-  "square" | "square_cross" | "square_x" | "triangle" | "x"
+  "asterisk" | "circle" | "circle_cross" | "circle_dot" | "circle_x" |
+  "circle_y" | "cross" | "dash" | "diamond" | "diamond_cross" | "diamond_dot" |
+  "dot" | "hex" | "hex_dot" | "inverted_triangle" | "plus" | "square" |
+  "square_cross" | "square_dot" | "square_pin" | "square_x" | "triangle" |
+  "triangle_dot" | "triangle_pin" | "x" | "y"
 export const MarkerType: MarkerType[] = [
-  "asterisk", "circle", "circle_cross", "circle_x", "cross",
-  "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-  "square", "square_cross", "square_x", "triangle", "x",
+  "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
+  "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
+  "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
+  "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+  "triangle_dot", "triangle_pin", "x", "y",
 ]
 
 export type MutedPolicy = "show" | "ignore"
