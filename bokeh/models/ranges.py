@@ -395,7 +395,7 @@ class FactorRange(Range):
     The start of the range, in synthetic coordinates.
 
         Synthetic coordinates are only computed in the browser, based on the
-        factors and various padding properties. The value of ``end`` will only
+        factors and various padding properties. The value of ``start`` will only
         be available in situations where bidirectional communication is
         available (e.g. server, notebook).
     """)
