@@ -18,6 +18,14 @@ export class Random {
   float(): number {
     return (this.integer() - 1) / (MAX_INT32 - 1)
   }
+
+  floats(n: number): number[] {
+    const result: number[] = new Array(n)
+    for (let i = 0; i < n; i++) {
+      result[i] = this.float()
+    }
+    return result
+  }
 }
 
 export const random = new Random(Date.now())
