@@ -3,7 +3,7 @@ from numpy.random import random
 from bokeh.models.markers import marker_types
 from bokeh.plotting import figure, output_file, show
 
-p = figure(title="Bokeh Markers", toolbar_location=None)
+p = figure(title="Bokeh Markers", toolbar_location=None, output_backend="webgl")
 p.grid.grid_line_color = None
 p.background_fill_color = "#eeeeee"
 p.axis.visible = False

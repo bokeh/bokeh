@@ -99,6 +99,7 @@ __all__ = (
     'Square',
     'SquareCross',
     'SquareDot',
+    'SquarePin',
     'SquareX',
     'Triangle',
     'TriangleDot',
@@ -256,7 +257,7 @@ class CircleX(Marker):
 class CircleY(Marker):
     ''' Render circle markers with an 'Y' cross through the center. '''
 
-    __example__ = "examples/reference/models/CircleX.py"
+    __example__ = "examples/reference/models/CircleY.py"
 
 class Cross(Marker):
     ''' Render '+' cross markers. '''
@@ -348,7 +349,7 @@ class TriangleDot(Marker):
 class TrianglePin(Marker):
     ''' Render pin-cushion triangle markers. '''
 
-    __example__ = "examples/reference/models/Triangle.py"
+    __example__ = "examples/reference/models/TrianglePin.py"
 
 class X(Marker):
     ''' Render 'X' markers. '''
