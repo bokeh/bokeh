@@ -168,12 +168,9 @@ export abstract class SelectTool extends GestureTool {
 
   static init_SelectTool(): void {
     this.define<SelectTool.Props>({
-      renderers: [ p.Any,   'auto' ],
-      names:     [ p.Array, []     ],
-    })
-
-    this.internal({
-      mode: [ p.Any, "replace" ],
+      renderers: [ p.Any,   'auto'    ],
+      names:     [ p.Array, []        ],
+      mode:      [ p.Any,   "replace" ],
     })
   }
 

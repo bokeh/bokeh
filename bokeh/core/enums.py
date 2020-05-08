@@ -116,6 +116,7 @@ __all__ = (
     'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
+    'SelectionMode',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -382,6 +383,9 @@ ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+#: Selection modes
+SelectionMode = enumeration("replace", "append", "intersect", "subtract")
 
 #: Sizing mode policies
 SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",

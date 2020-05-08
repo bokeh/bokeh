@@ -65,6 +65,7 @@ ALL  = (
     'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
+    'SelectionMode',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -259,6 +260,9 @@ class Test_bce(object):
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
+    def test_SelectionMode(self) -> None:
+        assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract")
+
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
@@ -338,6 +342,7 @@ def test_enums_contents() -> None:
         'RenderMode',
         'ResetPolicy',
         'RoundingFunction',
+        'SelectionMode',
         'SizingMode',
         'SizingPolicy',
         'SortDirection',
