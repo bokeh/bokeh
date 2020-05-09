@@ -81,7 +81,6 @@
   },
   "dependencies": {
     "tslib": "^1.11.0",
-    "@bokeh/canvas2svg": "^1.0.22",
     "es5-ext": "^0.10.53",
     "es6-promise": "4.2.8",
     "es6-weak-map": "^2.0.2",

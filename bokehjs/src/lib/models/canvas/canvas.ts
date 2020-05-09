@@ -6,6 +6,7 @@ import {div, canvas, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
+import canvas2svg, {SVGRenderingContext2D} from "core/util/svg"
 
 export type FrameBox = [number, number, number, number]
 
@@ -40,8 +41,6 @@ const global_webgl: WebGLState | undefined = (() => {
     return undefined
   }
 })()
-
-import canvas2svg, {SVGRenderingContext2D} from "@bokeh/canvas2svg"
 
 const style = {
   position: "absolute",
