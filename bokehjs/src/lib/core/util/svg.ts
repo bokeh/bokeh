@@ -2,8 +2,6 @@
  * Based on https://github.com/gliffy/canvas2svg
  */
 
-let ctx, CanvasGradient, CanvasPattern, namedEntities;
-
 //helper function that generates a random string
 function randomString(holder) {
     if (!holder) {
@@ -52,7 +50,7 @@ function getDominantBaseline(textBaseline) {
 
 // Unpack entities lookup where the numbers are in radix 32 to reduce the size
 // entity mapping courtesy of tinymce
-namedEntities = createNamedToNumberedLookup(
+const namedEntities = createNamedToNumberedLookup(
     '50,nbsp,51,iexcl,52,cent,53,pound,54,curren,55,yen,56,brvbar,57,sect,58,uml,59,copy,' +
         '5a,ordf,5b,laquo,5c,not,5d,shy,5e,reg,5f,macr,5g,deg,5h,plusmn,5i,sup2,5j,sup3,5k,acute,' +
         '5l,micro,5m,para,5n,middot,5o,cedil,5p,sup1,5q,ordm,5r,raquo,5s,frac14,5t,frac12,5u,frac34,' +
@@ -154,20 +152,19 @@ const STYLES = {
     }
 };
 
-/**
- *
- * @param gradientNode - reference to the gradient
- * @constructor
- */
-CanvasGradient = function (gradientNode, ctx) {
+class CanvasGradient {
+  __root: any
+  __ctx: any
+
+  constructor(gradientNode, ctx) {
     this.__root = gradientNode;
     this.__ctx = ctx;
-};
+  }
 
-/**
- * Adds a color stop to the gradient root
- */
-CanvasGradient.prototype.addColorStop = function (offset, color) {
+  /**
+   * Adds a color stop to the gradient root
+   */
+  addColorStop(offset, color): void {
     const stop = this.__ctx.__createElement("stop")
     stop.setAttribute("offset", offset);
     if (color.indexOf("rgba") !== -1) {
@@ -181,11 +178,17 @@ CanvasGradient.prototype.addColorStop = function (offset, color) {
         stop.setAttribute("stop-color", color);
     }
     this.__root.appendChild(stop);
-};
+  }
+}
 
-CanvasPattern = function (pattern, ctx) {
+class CanvasPattern {
+  __root: any
+  __ctx: any
+
+  constructor(pattern, ctx) {
     this.__root = pattern;
     this.__ctx = ctx;
+  }
 };
 
 /**
@@ -197,7 +200,8 @@ CanvasPattern = function (pattern, ctx) {
  * enableMirroring - enables canvas mirroring (get image data) (defaults to false)
  * document - the document object (defaults to the current document)
  */
-ctx = function (o) {
+export class SVGRenderingContext2d {
+  constructor(o) {
     const defaultOptions = { width:500, height:500, enableMirroring : false}
 
     //keep support for this way of calling C2S: new C2S(width,height)
@@ -210,11 +214,6 @@ ctx = function (o) {
         options = defaultOptions;
     } else {
         options = o;
-    }
-
-    if (!(this instanceof ctx)) {
-        //did someone call this without new?
-        return new ctx(options);
     }
 
     //setup options
@@ -256,14 +255,12 @@ ctx = function (o) {
     //also add a group child. the svg element can't use the transform attribute
     this.__currentElement = this.__document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.__root.appendChild(this.__currentElement);
-};
+  }
 
-
-/**
- * Creates the specified svg element
- * @private
- */
-ctx.prototype.__createElement = function (elementName, properties, resetFill) {
+  /**
+   * Creates the specified svg element
+   */
+  __createElement(elementName, properties, resetFill) {
     if (typeof properties === "undefined") {
         properties = {};
     }
@@ -280,40 +277,35 @@ ctx.prototype.__createElement = function (elementName, properties, resetFill) {
         element.setAttribute(key, properties[key]);
     }
     return element;
-};
+  }
 
-/**
- * Applies default canvas styles to the context
- * @private
- */
-ctx.prototype.__setDefaultStyles = function () {
+  /**
+   * Applies default canvas styles to the context
+   */
+  __setDefaultStyles(): void {
     //default 2d canvas context properties see:http://www.w3.org/TR/2dcontext/
     const keys = Object.keys(STYLES)
     for (let i=0; i<keys.length; i++) {
         const key = keys[i];
         this[key] = STYLES[key].canvas;
     }
-};
+  }
 
-/**
- * Applies styles on restore
- * @param styleState
- * @private
- */
-ctx.prototype.__applyStyleState = function (styleState) {
+  /**
+   * Applies styles on restore
+   */
+  __applyStyleState(styleState): void {
     const keys = Object.keys(styleState)
     for (let i=0; i<keys.length; i++) {
         const key = keys[i];
         this[key] = styleState[key];
     }
-};
+  }
 
-/**
- * Gets the current style state
- * @return {Object}
- * @private
- */
-ctx.prototype.__getStyleState = function () {
+  /**
+   * Gets the current style state
+   */
+  __getStyleState() {
     const keys = Object.keys(STYLES)
     const styleState = {}
     for (let i=0; i<keys.length; i++) {
@@ -321,23 +313,21 @@ ctx.prototype.__getStyleState = function () {
         styleState[key] = this[key];
     }
     return styleState;
-};
-
-/**
- * Apples the current styles to the current SVG element. On "ctx.fill" or "ctx.stroke"
- * @param type
- * @private
- */
-ctx.prototype.__applyStyleToCurrentElement = function (type) {
-  let currentElement = this.__currentElement;
-  const currentStyleGroup = this.__currentElementsToStyle;
-  if (currentStyleGroup) {
-    currentElement.setAttribute(type, "");
-    currentElement = currentStyleGroup.element;
-    currentStyleGroup.children.forEach(function (node) {
-      node.setAttribute(type, "");
-    })
   }
+
+  /**
+   * Apples the current styles to the current SVG element. On "ctx.fill" or "ctx.stroke"
+   */
+  __applyStyleToCurrentElement(type) {
+    let currentElement = this.__currentElement;
+    const currentStyleGroup = this.__currentElementsToStyle;
+    if (currentStyleGroup) {
+      currentElement.setAttribute(type, "");
+      currentElement = currentStyleGroup.element;
+      currentStyleGroup.children.forEach(function (node) {
+        node.setAttribute(type, "");
+      })
+    }
 
     const keys = Object.keys(STYLES)
     for (let i = 0; i < keys.length; i++) {
@@ -391,28 +381,27 @@ ctx.prototype.__applyStyleToCurrentElement = function (type) {
             }
         }
     }
-};
+  }
 
-/**
-  * Will return the closest group or svg node. May return the current element.
-  * @private
-  */
-ctx.prototype.__closestGroupOrSvg = function (node) {
+  /**
+    * Will return the closest group or svg node. May return the current element.
+    */
+  __closestGroupOrSvg(node) {
     node = node || this.__currentElement;
     if (node.nodeName === "g" || node.nodeName === "svg") {
         return node;
     } else {
         return this.__closestGroupOrSvg(node.parentNode);
     }
-};
+  }
 
-/**
-  * Returns the serialized value of the svg so far
-  * @param fixNamedEntities - Standalone SVG doesn't support named entities, which document.createTextNode encodes.
-  *                           If true, we attempt to find all named entities and encode it as a numeric entity.
-  * @return serialized svg
-  */
-ctx.prototype.getSerializedSvg = function (fixNamedEntities) {
+  /**
+    * Returns the serialized value of the svg so far
+    * @param fixNamedEntities - Standalone SVG doesn't support named entities, which document.createTextNode encodes.
+    *                           If true, we attempt to find all named entities and encode it as a numeric entity.
+    * @return serialized svg
+    */
+  getSerializedSvg(fixNamedEntities) {
     let serialized = new XMLSerializer().serializeToString(this.__root)
 
     //IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
@@ -435,31 +424,28 @@ ctx.prototype.getSerializedSvg = function (fixNamedEntities) {
     }
 
     return serialized;
-};
+  }
 
-
-/**
-  * Returns the root svg
-  * @return
-  */
-ctx.prototype.getSvg = function () {
+  getSvg() {
     return this.__root;
-};
-/**
-  * Will generate a group tag.
-  */
-ctx.prototype.save = function () {
+  }
+
+  /**
+    * Will generate a group tag.
+    */
+  save(): void {
     const group = this.__createElement("g");
     const parent = this.__closestGroupOrSvg();
     this.__groupStack.push(parent);
     parent.appendChild(group);
     this.__currentElement = group;
     this.__stack.push(this.__getStyleState());
-};
-/**
-  * Sets current element to parent, or just root if already root
-  */
-ctx.prototype.restore = function () {
+  }
+
+  /**
+    * Sets current element to parent, or just root if already root
+    */
+  restore() {
     this.__currentElement = this.__groupStack.pop();
     this.__currentElementsToStyle = null;
     //Clearing canvas will make the poped group invalid, currentElement is set to the root group node.
@@ -468,13 +454,12 @@ ctx.prototype.restore = function () {
     }
     const state = this.__stack.pop();
     this.__applyStyleState(state);
-};
+  }
 
-/**
-  * Helper method to add transform
-  * @private
-  */
-ctx.prototype.__addTransform = function (t) {
+  /**
+    * Helper method to add transform
+    */
+  __addTransform(t) {
     //if the current element has siblings, add another group
     const parent = this.__closestGroupOrSvg();
     if (parent.childNodes.length > 0) {
@@ -497,45 +482,45 @@ ctx.prototype.__addTransform = function (t) {
     }
     transform += t;
     this.__currentElement.setAttribute("transform", transform);
-};
+  }
 
-/**
-  *  scales the current element
-  */
-ctx.prototype.scale = function (x, y) {
+  /**
+    *  scales the current element
+    */
+  scale(x, y): void {
     if (y === undefined) {
         y = x;
     }
     this.__addTransform(`scale(${x},${y})`);
-};
+  }
 
-/**
-  * rotates the current element
-  */
-ctx.prototype.rotate = function (angle) {
+  /**
+    * rotates the current element
+    */
+  rotate(angle) {
     const degrees = (angle * 180 / Math.PI);
     const [cx, cy] = [0, 0]
     this.__addTransform(`rotate(${degrees},${cx},${cy})`);
-};
+  }
 
-/**
-  * translates the current element
-  */
-ctx.prototype.translate = function (x, y) {
+  /**
+    * translates the current element
+    */
+  translate(x, y): void {
     this.__addTransform(`translate(${x},${y})`);
-};
+  }
 
-/**
-  * applies a transform to the current element
-  */
-ctx.prototype.transform = function (a, b, c, d, e, f) {
+  /**
+    * applies a transform to the current element
+    */
+  transform(a, b, c, d, e, f): void {
     this.__addTransform(`matrix(${a},${b},${c},${d},${e},${f})`);
-};
+  }
 
-/**
-  * Create a new Path Element
-  */
-ctx.prototype.beginPath = function () {
+  /**
+    * Create a new Path Element
+    */
+  beginPath(): void {
     // Note that there is only one current default path, it is not part of the drawing state.
     // See also: https://html.spec.whatwg.org/multipage/scripting.html#current-default-path
     this.__currentDefaultPath = "";
@@ -545,35 +530,33 @@ ctx.prototype.beginPath = function () {
     const parent = this.__closestGroupOrSvg();
     parent.appendChild(path);
     this.__currentElement = path;
-};
+  }
 
-/**
-  * Helper function to apply currentDefaultPath to current path element
-  * @private
-  */
-ctx.prototype.__applyCurrentDefaultPath = function () {
-  const currentElement = this.__currentElement;
+  /**
+    * Helper function to apply currentDefaultPath to current path element
+    */
+  __applyCurrentDefaultPath(): void {
+    const currentElement = this.__currentElement;
     if (currentElement.nodeName === "path") {
-  currentElement.setAttribute("d", this.__currentDefaultPath);
+      currentElement.setAttribute("d", this.__currentDefaultPath);
     } else {
-  console.error("Attempted to apply path command to node", currentElement.nodeName);
+      console.error("Attempted to apply path command to node", currentElement.nodeName);
     }
-};
+  }
 
-/**
-  * Helper function to add path command
-  * @private
-  */
-ctx.prototype.__addPathCommand = function (command) {
+  /**
+    * Helper function to add path command
+    */
+  __addPathCommand(command): void {
     this.__currentDefaultPath += " ";
     this.__currentDefaultPath += command;
-};
+  }
 
-/**
-  * Adds the move command to the current path element,
-  * if the currentPathElement is not empty create a new path element
-  */
-ctx.prototype.moveTo = function (x,y) {
+  /**
+    * Adds the move command to the current path element,
+    * if the currentPathElement is not empty create a new path element
+    */
+  moveTo(x,y): void {
     if (this.__currentElement.nodeName !== "path") {
         this.beginPath();
     }
@@ -581,60 +564,60 @@ ctx.prototype.moveTo = function (x,y) {
     // creates a new subpath with the given point
     this.__currentPosition = {x: x, y: y};
     this.__addPathCommand(`M ${x} ${y}`);
-};
+  }
 
-/**
-  * Closes the current path
-  */
-ctx.prototype.closePath = function () {
+  /**
+    * Closes the current path
+    */
+  closePath(): void {
     if (this.__currentDefaultPath) {
         this.__addPathCommand("Z");
     }
-};
+  }
 
-/**
-  * Adds a line to command
-  */
-ctx.prototype.lineTo = function (x, y) {
+  /**
+    * Adds a line to command
+    */
+  lineTo(x, y): void {
     this.__currentPosition = {x: x, y: y};
     if (this.__currentDefaultPath.indexOf('M') > -1) {
         this.__addPathCommand(`L ${x} ${y}`);
     } else {
         this.__addPathCommand(`M ${x} ${y}`);
     }
-};
+  }
 
-/**
-  * Add a bezier command
-  */
-ctx.prototype.bezierCurveTo = function (cp1x, cp1y, cp2x, cp2y, x, y) {
+  /**
+    * Add a bezier command
+    */
+  bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
     this.__currentPosition = {x: x, y: y};
     this.__addPathCommand(`C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y}`);
-};
+  };
 
-/**
-  * Adds a quadratic curve to command
-  */
-ctx.prototype.quadraticCurveTo = function (cpx, cpy, x, y) {
+  /**
+    * Adds a quadratic curve to command
+    */
+  quadraticCurveTo(cpx, cpy, x, y) {
     this.__currentPosition = {x: x, y: y};
     this.__addPathCommand(`Q ${cpx} ${cpy} ${x} ${y}`);
 };
 
 
-/**
-  * Return a new normalized vector of given vector
-  */
-function normalize(vector) {
+  /**
+    * Return a new normalized vector of given vector
+    */
+  function normalize(vector) {
     const len = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
     return [vector[0] / len, vector[1] / len];
-};
+  };
 
-/**
-  * Adds the arcTo to the current path
-  *
-  * @see http://www.w3.org/TR/2015/WD-2dcontext-20150514/#dom-context-2d-arcto
-  */
-ctx.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+  /**
+    * Adds the arcTo to the current path
+    *
+    * @see http://www.w3.org/TR/2015/WD-2dcontext-20150514/#dom-context-2d-arcto
+    */
+  arcTo(x1, y1, x2, y2, radius) {
     // Let the point (x0, y0) be the last point in the subpath.
     const x0 = this.__currentPosition && this.__currentPosition.x;
     const y0 = this.__currentPosition && this.__currentPosition.y;
@@ -700,7 +683,7 @@ ctx.prototype.arcTo = function (x1, y1, x2, y2, radius) {
         unit_vec_p1_p2[1],
         -unit_vec_p1_p2[0]
     ];
-    const getAngle = function (vector) {
+    const getAngle(vector) {
         // get angle (clockwise) between vector and (1, 0)
         const x = vector[0];
         const y = vector[1];
@@ -720,12 +703,12 @@ ctx.prototype.arcTo = function (x1, y1, x2, y2, radius) {
     // Connect the start tangent point to the end tangent point by arc
     // and adding the end tangent point to the subpath.
     this.arc(x, y, radius, startAngle, endAngle);
-};
+  };
 
-/**
-  * Sets the stroke property on the current element
-  */
-ctx.prototype.stroke = function () {
+  /**
+    * Sets the stroke property on the current element
+    */
+  stroke() {
     if (this.__currentElement.nodeName === "path") {
         this.__currentElement.setAttribute("paint-order", "fill stroke markers");
     }
@@ -733,10 +716,10 @@ ctx.prototype.stroke = function () {
     this.__applyStyleToCurrentElement("stroke");
 };
 
-/**
-  * Sets fill properties on the current element
-  */
-ctx.prototype.fill = function () {
+  /**
+    * Sets fill properties on the current element
+    */
+  fill() {
     if (this.__currentElement.nodeName === "path") {
         this.__currentElement.setAttribute("paint-order", "stroke fill markers");
     }
@@ -744,10 +727,10 @@ ctx.prototype.fill = function () {
     this.__applyStyleToCurrentElement("fill");
 };
 
-/**
-  *  Adds a rectangle to the path.
-  */
-ctx.prototype.rect = function (x, y, width, height) {
+  /**
+    *  Adds a rectangle to the path.
+    */
+  rect(x, y, width, height) {
     if (this.__currentElement.nodeName !== "path") {
         this.beginPath();
     }
@@ -760,10 +743,10 @@ ctx.prototype.rect = function (x, y, width, height) {
 };
 
 
-/**
-  * adds a rectangle element
-  */
-ctx.prototype.fillRect = function (x, y, width, height) {
+  /**
+    * adds a rectangle element
+    */
+  fillRect(x, y, width, height) {
     const rect = this.__createElement("rect", {x, y, width, height}, true);
     const parent = this.__closestGroupOrSvg();
     parent.appendChild(rect);
@@ -771,14 +754,14 @@ ctx.prototype.fillRect = function (x, y, width, height) {
     this.__applyStyleToCurrentElement("fill");
 };
 
-/**
-  * Draws a rectangle with no fill
-  * @param x
-  * @param y
-  * @param width
-  * @param height
-  */
-ctx.prototype.strokeRect = function (x, y, width, height) {
+  /**
+    * Draws a rectangle with no fill
+    * @param x
+    * @param y
+    * @param width
+    * @param height
+    */
+  strokeRect(x, y, width, height) {
     const rect = this.__createElement("rect", {x, y, width, height}, true);
     const parent = this.__closestGroupOrSvg();
     parent.appendChild(rect);
@@ -787,12 +770,12 @@ ctx.prototype.strokeRect = function (x, y, width, height) {
 };
 
 
-/**
-  * Clear entire canvas:
-  * 1. save current transforms
-  * 2. remove all the childNodes of the root g element
-  */
-ctx.prototype.__clearCanvas = function () {
+  /**
+    * Clear entire canvas:
+    * 1. save current transforms
+    * 2. remove all the childNodes of the root g element
+    */
+  __clearCanvas() {
     const current = this.__closestGroupOrSvg()
     const transform = current.getAttribute("transform");
     const rootGroup = this.__root.childNodes[1];
@@ -810,10 +793,10 @@ ctx.prototype.__clearCanvas = function () {
     }
 };
 
-/**
-  * "Clears" a canvas by just drawing a white rectangle in the current group.
-  */
-ctx.prototype.clearRect = function (x, y, width, height) {
+  /**
+    * "Clears" a canvas by just drawing a white rectangle in the current group.
+    */
+  clearRect(x, y, width, height) {
     //clear entire canvas
     if (x === 0 && y === 0 && width === this.width && height === this.height) {
         this.__clearCanvas();
@@ -824,11 +807,11 @@ ctx.prototype.clearRect = function (x, y, width, height) {
     parent.appendChild(rect);
 };
 
-/**
-  * Adds a linear gradient to a defs tag.
-  * Returns a canvas gradient object that has a reference to it's parent def
-  */
-ctx.prototype.createLinearGradient = function (x1, y1, x2, y2) {
+  /**
+    * Adds a linear gradient to a defs tag.
+    * Returns a canvas gradient object that has a reference to it's parent def
+    */
+  createLinearGradient(x1, y1, x2, y2) {
     const grad = this.__createElement("linearGradient", {
         id : randomString(this.__ids),
         x1 : x1+"px",
@@ -841,11 +824,11 @@ ctx.prototype.createLinearGradient = function (x1, y1, x2, y2) {
     return new CanvasGradient(grad, this);
 };
 
-/**
-  * Adds a radial gradient to a defs tag.
-  * Returns a canvas gradient object that has a reference to it's parent def
-  */
-ctx.prototype.createRadialGradient = function (x0, y0, r0, x1, y1, r1) {
+  /**
+    * Adds a radial gradient to a defs tag.
+    * Returns a canvas gradient object that has a reference to it's parent def
+    */
+  createRadialGradient(x0, y0, r0, x1, y1, r1) {
     const grad = this.__createElement("radialGradient", {
         id : randomString(this.__ids),
         cx : x1+"px",
@@ -860,11 +843,10 @@ ctx.prototype.createRadialGradient = function (x0, y0, r0, x1, y1, r1) {
 
 };
 
-/**
-  * Parses the font string and returns svg mapping
-  * @private
-  */
-ctx.prototype.__parseFont = function () {
+  /**
+    * Parses the font string and returns svg mapping
+    */
+  __parseFont() {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i;
     const fontPart = regex.exec( this.font );
     const data = {
@@ -889,14 +871,10 @@ ctx.prototype.__parseFont = function () {
     return data;
 };
 
-/**
-  * Helper to link text fragments
-  * @param font
-  * @param element
-  * @return {*}
-  * @private
-  */
-ctx.prototype.__wrapTextLink = function (font, element) {
+  /**
+    * Helper to link text fragments
+    */
+  __wrapTextLink(font, element) {
     if (font.href) {
         const a = this.__createElement("a");
         a.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", font.href);
@@ -906,15 +884,10 @@ ctx.prototype.__wrapTextLink = function (font, element) {
     return element;
 };
 
-/**
-  * Fills or strokes text
-  * @param text
-  * @param x
-  * @param y
-  * @param action - stroke or fill
-  * @private
-  */
-ctx.prototype.__applyText = function (text, x, y, action) {
+  /**
+    * Fills or strokes text
+    */
+  __applyText(text, x, y, action) {
     const font = this.__parseFont()
     const parent = this.__closestGroupOrSvg()
     const textElement = this.__createElement("text", {
@@ -935,40 +908,29 @@ ctx.prototype.__applyText = function (text, x, y, action) {
     parent.appendChild(this.__wrapTextLink(font,textElement));
 };
 
-/**
-  * Creates a text element
-  * @param text
-  * @param x
-  * @param y
-  */
-ctx.prototype.fillText = function (text, x, y) {
+  /**
+    * Creates a text element
+    */
+  fillText(text, x, y) {
     this.__applyText(text, x, y, "fill");
 };
 
-/**
-  * Strokes text
-  * @param text
-  * @param x
-  * @param y
-  */
-ctx.prototype.strokeText = function (text, x, y) {
+  /**
+    * Strokes text
+    */
+  strokeText(text, x, y) {
     this.__applyText(text, x, y, "stroke");
 };
 
-/**
-  * No need to implement this for svg.
-  * @param text
-  * @return {TextMetrics}
-  */
-ctx.prototype.measureText = function (text) {
+  /**
+    * No need to implement this for svg.
+    */
+  measureText(text) {
     this.__ctx.font = this.font;
     return this.__ctx.measureText(text);
 };
 
-/**
-  *  Arc command!
-  */
-ctx.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockwise) {
+  arc(x, y, radius, startAngle, endAngle, counterClockwise) {
     // in canvas no circle is drawn if no angle is provided.
     if (startAngle === endAngle) {
         return;
@@ -1007,10 +969,10 @@ ctx.prototype.arc = function (x, y, radius, startAngle, endAngle, counterClockwi
     this.__currentPosition = {x: endX, y: endY};
 };
 
-/**
-  * Generates a ClipPath from the clip command.
-  */
-ctx.prototype.clip = function () {
+  /**
+    * Generates a ClipPath from the clip command.
+    */
+  clip() {
     const group = this.__closestGroupOrSvg()
     const clipPath = this.__createElement("clipPath")
     const id =  randomString(this.__ids)
@@ -1034,12 +996,12 @@ ctx.prototype.clip = function () {
 
 };
 
-/**
-  * Draws a canvas, image or mock context to this canvas.
-  * Note that all svg dom manipulation uses node.childNodes rather than node.children for IE support.
-  * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-drawimage
-  */
-ctx.prototype.drawImage = function () {
+  /**
+    * Draws a canvas, image or mock context to this canvas.
+    * Note that all svg dom manipulation uses node.childNodes rather than node.children for IE support.
+    * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-drawimage
+    */
+  drawImage() {
     //convert arguments to a real array
     const args = Array.prototype.slice.call(arguments)
     const image=args[0]
@@ -1145,10 +1107,10 @@ ctx.prototype.drawImage = function () {
     }
 };
 
-/**
-  * Generates a pattern tag
-  */
-ctx.prototype.createPattern = function (image, repetition) {
+  /**
+    * Generates a pattern tag
+    */
+  createPattern(image, repetition) {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
     const id = randomString(this.__ids)
     pattern.setAttribute("id", id);
@@ -1170,22 +1132,23 @@ ctx.prototype.createPattern = function (image, repetition) {
     return new CanvasPattern(pattern, this);
 };
 
-ctx.prototype.setLineDash = function (dashArray) {
+  setLineDash(dashArray) {
     if (dashArray && dashArray.length > 0) {
         this.lineDash = dashArray.join(",");
     } else {
         this.lineDash = null;
     }
-};
+  };
+}
 
 /**
   * Not yet implemented
   */
-ctx.prototype.drawFocusRing = function () {};
-ctx.prototype.createImageData = function () {};
-ctx.prototype.getImageData = function () {};
-ctx.prototype.putImageData = function () {};
-ctx.prototype.globalCompositeOperation = function () {};
-ctx.prototype.setTransform = function () {};
-
-export default ctx;
+/*
+drawFocusRing() {};
+createImageData() {};
+getImageData() {};
+putImageData() {};
+globalCompositeOperation() {};
+setTransform() {};
+*/
