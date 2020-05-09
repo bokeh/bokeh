@@ -1,5 +1,6 @@
 import {HasProps} from "./has_props"
 import {Geometry} from "./geometry"
+import {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
 import {Renderer, RendererView} from "models/renderers/renderer"
 import {GlyphRendererView} from "models/renderers/glyph_renderer"
@@ -33,7 +34,7 @@ export class SelectionManager extends HasProps {
 
   inspectors: {[key: string]: Selection} = {}
 
-  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
+  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
     // divide renderers into glyph_renderers or graph_renderers
     const glyph_renderer_views: GlyphRendererView[] = []
     const graph_renderer_views: GraphRendererView[] = []
@@ -49,12 +50,12 @@ export class SelectionManager extends HasProps {
     // graph renderer case
     for (const r of graph_renderer_views) {
       const hit_test_result = r.model.selection_policy.hit_test(geometry, r)
-      did_hit = did_hit || r.model.selection_policy.do_selection(hit_test_result, r.model, final, append)
+      did_hit = did_hit || r.model.selection_policy.do_selection(hit_test_result, r.model, final, mode)
     }
     // glyph renderers
     if (glyph_renderer_views.length > 0) {
       const hit_test_result = this.source.selection_policy.hit_test(geometry, glyph_renderer_views)
-      did_hit = did_hit || this.source.selection_policy.do_selection(hit_test_result, this.source, final, append)
+      did_hit = did_hit || this.source.selection_policy.do_selection(hit_test_result, this.source, final, mode)
     }
 
     return did_hit
@@ -68,13 +69,13 @@ export class SelectionManager extends HasProps {
       if (hit_test_result != null) {
         did_hit = !hit_test_result.is_empty()
         const inspection = this.get_or_create_inspector(renderer_view.model)
-        inspection.update(hit_test_result, true, false)
+        inspection.update(hit_test_result, true, "replace")
         this.source.setv({inspected: inspection}, {silent: true})
         this.source.inspect.emit([renderer_view, {geometry}])
       }
     } else if (renderer_view instanceof GraphRendererView) {
       const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
-      did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, false)
+      did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, "replace")
     }
 
     return did_hit

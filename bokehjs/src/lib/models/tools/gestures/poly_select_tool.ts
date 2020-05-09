@@ -1,5 +1,6 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
+import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
@@ -33,10 +34,8 @@ export class PolySelectToolView extends SelectToolView {
   }
 
   _doubletap(ev: TapEvent): void {
-    const append = ev.shiftKey
-    this._do_select(this.data.sx, this.data.sy, true, append)
+    this._do_select(this.data.sx, this.data.sy, true, this._select_mode(ev))
     this.plot_view.push_state('poly_select', {selection: this.plot_view.get_selection()})
-
     this._clear_data()
   }
 
@@ -58,9 +57,9 @@ export class PolySelectToolView extends SelectToolView {
     this.model.overlay.update({xs: copy(this.data.sx), ys: copy(this.data.sy)})
   }
 
-  _do_select(sx: number[], sy: number[], final: boolean, append: boolean): void {
+  _do_select(sx: number[], sy: number[], final: boolean, mode: SelectionMode): void {
     const geometry: PolyGeometry = {type: 'poly', sx, sy}
-    this._select(geometry, final, append)
+    this._select(geometry, final, mode)
   }
 
 }

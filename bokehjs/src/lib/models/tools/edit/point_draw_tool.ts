@@ -9,8 +9,7 @@ export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
 
   _tap(ev: TapEvent): void {
-    const append = ev.shiftKey
-    const renderers = this._select_event(ev, append, this.model.renderers)
+    const renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
     if (renderers.length || !this.model.add) {
       return
     }
@@ -51,7 +50,7 @@ export class PointDrawToolView extends EditToolView {
   _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
-    this._select_event(ev, true, this.model.renderers)
+    this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 

@@ -133,7 +133,7 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      async function evaluate<T>(expression: string, timeout: number = 5000): Promise<Value<T> | Failure | Timeout> {
+      async function evaluate<T>(expression: string, timeout: number = 10000): Promise<Value<T> | Failure | Timeout> {
         const output = await with_timeout(Runtime.evaluate({expression, returnByValue: true, awaitPromise: true}), timeout)
         if (output instanceof Timeout) {
           return output

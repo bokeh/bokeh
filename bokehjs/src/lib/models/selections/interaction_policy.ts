@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import {Geometry} from "core/geometry"
 import {HitTestResult} from "core/hittest"
+import {SelectionMode} from "core/enums"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
@@ -8,11 +9,11 @@ export abstract class SelectionPolicy extends Model {
 
   abstract hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult
 
-  do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, mode: SelectionMode): boolean {
     if (hit_test_result === null) {
       return false
     } else {
-      source.selected.update(hit_test_result, final, append)
+      source.selected.update(hit_test_result, final, mode)
       source._select.emit()
       return !source.selected.is_empty()
     }

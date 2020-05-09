@@ -47,6 +47,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     Location,
+    SelectionMode,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
@@ -198,6 +199,18 @@ class Tap(Gesture):
 
     '''
     pass
+
+@abstract
+class SelectTool(Gesture):
+    ''' A base class for tools that perfrom "selections", e.g. ``BoxSelectTool``.
+
+    '''
+
+    mode = Enum(SelectionMode, default="replace", help="""
+    Defines what should happen when a new selection is made. The default
+    is to replace the existing selection. Other options are to append to
+    the selection, intersect with it or subtract from it.
+    """)
 
 @abstract
 class Inspection(Gesture):
@@ -485,7 +498,7 @@ class ResetTool(Action):
 
     pass
 
-class TapTool(Tap):
+class TapTool(Tap, SelectTool):
     ''' *toolbar icon*: |tap_icon|
 
     The tap selection tool allows the user to select at single points by
@@ -704,7 +717,7 @@ class ZoomOutTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class BoxSelectTool(Drag):
+class BoxSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a Plot by showing
@@ -765,7 +778,7 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
     line_dash=[4, 4]
 )
 
-class LassoSelectTool(Drag):
+class LassoSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a Plot by
@@ -806,7 +819,7 @@ class LassoSelectTool(Drag):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class PolySelectTool(Tap):
+class PolySelectTool(Tap, SelectTool):
     ''' *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a

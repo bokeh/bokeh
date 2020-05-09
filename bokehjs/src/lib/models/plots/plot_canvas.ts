@@ -584,7 +584,7 @@ export class PlotView extends LayoutDOMView {
       const ds = renderer.data_source
       if (selection != null) {
         if (selection[renderer.id] != null)
-          ds.selected.update(selection[renderer.id], true, false)
+          ds.selected.update(selection[renderer.id], true)
       } else
         ds.selection_manager.clear()
     }

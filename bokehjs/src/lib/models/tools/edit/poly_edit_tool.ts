@@ -28,7 +28,7 @@ export class PolyEditToolView extends PolyToolView {
     const [x, y] = point
 
     // Perform hit testing
-    const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer])
+    const vertex_selected = this._select_event(ev, "replace", [this.model.vertex_renderer])
     const point_cds = this.model.vertex_renderer.data_source
     // Type once dataspecs are typed
     const point_glyph: any = this.model.vertex_renderer.glyph
@@ -56,7 +56,7 @@ export class PolyEditToolView extends PolyToolView {
     if (!this.model.active)
       return
 
-    const renderers = this._select_event(ev, false, this.model.renderers)
+    const renderers = this._select_event(ev, "replace", this.model.renderers)
     if (!renderers.length) {
       this._set_vertices([], [])
       this._selected_renderer = null
@@ -142,9 +142,9 @@ export class PolyEditToolView extends PolyToolView {
       this._emit_cds_changes(this._selected_renderer.data_source, true, false, true)
       return
     }
-    const append = ev.shiftKey
-    this._select_event(ev, append, [renderer])
-    this._select_event(ev, append, this.model.renderers)
+    const mode = this._select_mode(ev)
+    this._select_event(ev, mode, [renderer])
+    this._select_event(ev, mode, this.model.renderers)
   }
 
   _remove_vertex(): void {
@@ -163,7 +163,7 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   _pan_start(ev: PanEvent): void {
-    this._select_event(ev, true, [this.model.vertex_renderer])
+    this._select_event(ev, "append", [this.model.vertex_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 

@@ -1,5 +1,6 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
+import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {PanEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
@@ -47,15 +48,13 @@ export class LassoSelectToolView extends SelectToolView {
     overlay.update({xs: this.data!.sx, ys: this.data!.sy})
 
     if (this.model.select_every_mousemove) {
-      const append = ev.shiftKey
-      this._do_select(this.data!.sx, this.data!.sy, false, append)
+      this._do_select(this.data!.sx, this.data!.sy, false, this._select_mode(ev))
     }
   }
 
   _pan_end(ev: PanEvent): void {
     this._clear_overlay()
-    const append = ev.shiftKey
-    this._do_select(this.data!.sx, this.data!.sy, true, append)
+    this._do_select(this.data!.sx, this.data!.sy, true, this._select_mode(ev))
     this.plot_view.push_state('lasso_select', {selection: this.plot_view.get_selection()})
   }
 
@@ -63,9 +62,9 @@ export class LassoSelectToolView extends SelectToolView {
     this.model.overlay.update({xs: [], ys: []})
   }
 
-  _do_select(sx: number[], sy: number[], final: boolean, append: boolean): void {
+  _do_select(sx: number[], sy: number[], final: boolean, mode: SelectionMode): void {
     const geometry: PolyGeometry = {type: 'poly', sx, sy}
-    this._select(geometry, final, append)
+    this._select(geometry, final, mode)
   }
 
 }

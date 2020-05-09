@@ -3,6 +3,7 @@ import {indexOf} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
+import {SelectionMode} from "core/enums"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
@@ -25,9 +26,9 @@ export abstract class GraphHitTestPolicy extends Model {
 
   abstract hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult
 
-  abstract do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean
+  abstract do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean
 
-  abstract do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, append: boolean): boolean
+  abstract do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean
 
   _hit_test_nodes(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
     if(!graph_view.model.visible)
@@ -73,23 +74,23 @@ export class NodesOnly extends GraphHitTestPolicy {
     return this._hit_test_nodes(geometry, graph_view)
   }
 
-  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
     if(hit_test_result == null)
       return false
 
     const node_selection = graph.node_renderer.data_source.selected
-    node_selection.update(hit_test_result, final, append)
+    node_selection.update(hit_test_result, final, mode)
     graph.node_renderer.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
 
-  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
     if(hit_test_result == null)
       return false
 
     const node_inspection = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
-    node_inspection.update(hit_test_result, final, append)
+    node_inspection.update(hit_test_result, final, mode)
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
@@ -140,33 +141,33 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return linked_edges
   }
 
-  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
     if(hit_test_result == null)
       return false
 
     const node_selection = graph.node_renderer.data_source.selected
-    node_selection.update(hit_test_result, final, append)
+    node_selection.update(hit_test_result, final, mode)
 
     const edge_selection = graph.edge_renderer.data_source.selected
     const linked_edges_selection = this.get_linked_edges(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
-    edge_selection.update(linked_edges_selection, final, append)
+    edge_selection.update(linked_edges_selection, final, mode)
 
     graph.node_renderer.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
 
-  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
     if(hit_test_result == null)
       return false
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
-    node_inspection.update(hit_test_result, final, append)
+    node_inspection.update(hit_test_result, final, mode)
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
     const linked_edges = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'inspection')
-    edge_inspection.update(linked_edges, final, append)
+    edge_inspection.update(linked_edges, final, mode)
 
     //silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
@@ -211,33 +212,33 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return new Selection({indices: node_indices})
   }
 
-  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean {
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
     if(hit_test_result == null)
       return false
 
     const edge_selection = graph.edge_renderer.data_source.selected
-    edge_selection.update(hit_test_result, final, append)
+    edge_selection.update(hit_test_result, final, mode)
 
     const node_selection = graph.node_renderer.data_source.selected
     const linked_nodes = this.get_linked_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
-    node_selection.update(linked_nodes, final, append)
+    node_selection.update(linked_nodes, final, mode)
 
     graph.edge_renderer.data_source._select.emit()
 
     return !edge_selection.is_empty()
   }
 
-  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, append: boolean): boolean {
+  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
     if(hit_test_result == null)
       return false
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
-    edge_inspection.update(hit_test_result, final, append)
+    edge_inspection.update(hit_test_result, final, mode)
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
     const linked_nodes = this.get_linked_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'inspection')
-    node_inspection.update(linked_nodes, final, append)
+    node_inspection.update(linked_nodes, final, mode)
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})

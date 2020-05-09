@@ -1,9 +1,10 @@
 import * as p from "core/properties"
 import {PointGeometry} from "core/geometry"
 import {UIEvent, MoveEvent} from "core/ui_events"
-import {Dimensions} from "core/enums"
+import {Dimensions, SelectionMode} from "core/enums"
 import {includes} from "core/util/array"
 import {isArray} from "core/util/types"
+import {unreachable} from "core/util/assert"
 import {XYGlyph} from "../../glyphs/xy_glyph"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -18,6 +19,21 @@ export abstract class EditToolView extends GestureToolView {
 
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
+
+  protected _select_mode(ev: UIEvent): SelectionMode {
+    const {shiftKey, ctrlKey} = ev
+
+    if (!shiftKey && !ctrlKey)
+      return "replace"
+    else if (shiftKey && !ctrlKey)
+      return "append"
+    else if (!shiftKey && ctrlKey)
+      return "intersect"
+    else if (shiftKey && ctrlKey)
+      return "subtract"
+    else
+      unreachable()
+  }
 
   _move_enter(_e: MoveEvent): void {
     this._mouse_in_frame = true
@@ -120,7 +136,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _select_event(ev: UIEvent, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
+  _select_event(ev: UIEvent, mode: SelectionMode, renderers: GlyphRenderer[]): GlyphRenderer[] {
     // Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_view.frame
     const {sx, sy} = ev
@@ -133,7 +149,7 @@ export abstract class EditToolView extends GestureToolView {
       const sm = renderer.get_selection_manager()
       const cds = renderer.data_source
       const views = [this.plot_view.renderer_views[renderer.id]]
-      const did_hit = sm.select(views, geometry, true, append)
+      const did_hit = sm.select(views, geometry, true, mode)
       if (did_hit) {
         selected.push(renderer)
       }
