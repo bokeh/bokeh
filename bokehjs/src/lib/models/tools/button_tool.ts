@@ -100,7 +100,7 @@ export abstract class ButtonToolButtonView extends DOMView {
           return {left, bottom: top}
       }
     })()
-    this._menu?.show(at)
+    this._menu?.toggle(at)
   }
 }
 
