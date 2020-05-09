@@ -2,8 +2,19 @@
  * Based on https://github.com/gliffy/canvas2svg
  */
 
+type KV<T> = {[key: string]: T}
+
+type FontData = {
+  style: string
+  size: string
+  family: string
+  weight: string
+  decoration: string
+  href?: string
+}
+
 //helper function that generates a random string
-function randomString(holder) {
+function randomString(holder: KV<string>): string {
     if (!holder) {
         throw new Error("cannot create a random attribute name for an undefined object");
     }
@@ -19,32 +30,32 @@ function randomString(holder) {
 }
 
 //helper function to map named to numbered entities
-function createNamedToNumberedLookup(items, radix) {
-    const lookup = {}
-    items = items.split(',');
+function createNamedToNumberedLookup(input: string, radix: number): Map<string, string> {
+    const lookup = new Map()
+    const items = input.split(',');
     radix = radix || 10;
     // Map from named to numbered entities.
     for (let i = 0; i < items.length; i += 2) {
         const entity = '&' + items[i + 1] + ';';
         const base10 = parseInt(items[i], radix);
-        lookup[entity] = '&#'+base10+';';
+        lookup.set(entity, '&#'+base10+';')
     }
     //FF and IE need to create a regex from hex values ie &nbsp; == \xa0
-    lookup["\\xa0"] = '&#160;';
+    lookup.set("\\xa0", '&#160;')
     return lookup;
 }
 
 //helper function to map canvas-textAlign to svg-textAnchor
-function getTextAnchor(textAlign) {
+function getTextAnchor(textAlign: string) {
     //TODO: support rtl languages
-    const mapping = {"left":"start", "right":"end", "center":"middle", "start":"start", "end":"end"};
+    const mapping: KV<string> = {"left":"start", "right":"end", "center":"middle", "start":"start", "end":"end"};
     return mapping[textAlign] || mapping.start;
 }
 
 //helper function to map canvas-textBaseline to svg-dominantBaseline
-function getDominantBaseline(textBaseline) {
+function getDominantBaseline(textBaseline: string) {
     //INFO: not supported in all browsers
-    const mapping = {"alphabetic": "alphabetic", "hanging": "hanging", "top":"text-before-edge", "bottom":"text-after-edge", "middle":"central"};
+    const mapping: KV<string> = {"alphabetic": "alphabetic", "hanging": "hanging", "top":"text-before-edge", "bottom":"text-after-edge", "middle":"central"};
     return mapping[textBaseline] || mapping.alphabetic;
 }
 
@@ -79,7 +90,7 @@ const namedEntities = createNamedToNumberedLookup(
 
 
 //Some basic mappings for attributes and default values.
-const STYLES = {
+const STYLES: KV<KV<unknown>> = {
     "strokeStyle":{
         svgAttr : "stroke", //corresponding svg attribute
         canvas : "#000000", //canvas default
@@ -164,14 +175,14 @@ class CanvasGradient {
   /**
    * Adds a color stop to the gradient root
    */
-  addColorStop(offset, color): void {
+  addColorStop(offset: number, color: string): void {
     const stop = this.__ctx.__createElement("stop")
     stop.setAttribute("offset", offset);
     if (color.indexOf("rgba") !== -1) {
         //separate alpha value, since webkit can't handle it
         const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi;
         const matches = regex.exec(color);
-        const [, r, g, b, a] = matches
+        const [, r, g, b, a] = matches!
         stop.setAttribute("stop-color", `rgb(${r},${g},${b})`);
         stop.setAttribute("stop-opacity", a);
     } else {
@@ -191,6 +202,14 @@ class CanvasPattern {
   }
 };
 
+type Options = {
+  width?: number
+  height?: number
+  enableMirroring?: boolean
+  document?: Document
+  ctx?: CanvasRenderingContext2D
+}
+
 /**
  * The mock canvas context
  * @param o - options include:
@@ -201,36 +220,46 @@ class CanvasPattern {
  * document - the document object (defaults to the current document)
  */
 export class SVGRenderingContext2d {
-  constructor(o) {
-    const defaultOptions = { width:500, height:500, enableMirroring : false}
+  width: number
+  height: number
 
-    //keep support for this way of calling C2S: new C2S(width,height)
-    let options
-    if (arguments.length > 1) {
-        options = defaultOptions;
-        options.width = arguments[0];
-        options.height = arguments[1];
-    } else if ( !o ) {
-        options = defaultOptions;
-    } else {
-        options = o;
-    }
+  font: string
 
-    //setup options
-    this.width = options.width || defaultOptions.width;
-    this.height = options.height || defaultOptions.height;
-    this.enableMirroring = options.enableMirroring !== undefined ? options.enableMirroring : defaultOptions.enableMirroring;
+  __canvas: HTMLCanvasElement
+  __ctx: CanvasRenderingContext2D
 
-    this.canvas = this;   ///point back to this instance!
-    this.__document = options.document || document;
+  __root: SVGElement
+  __ids: KV<string>
+  __defs: SVGElement
+  __stack: any
+  __groupStack: any
+  __document: Document
+  __currentElement: SVGElement
+  __currentDefaultPath: string
+  __currentPosition: {x: number, y: number} | null = null
+  __currentElementsToStyle: any
+
+  enableMirroring: boolean
+
+  get canvas(): any {
+    // XXX: point back to this instance
+    return this
+  }
+
+  constructor(options?: Options) {
+    this.width = options?.width ?? 500
+    this.height = options?.height ?? 500
+    this.enableMirroring = options?.enableMirroring ?? false
+
+    this.__document = options?.document ?? document;
 
     // allow passing in an existing context to wrap around
     // if a context is passed in, we know a canvas already exist
-    if (options.ctx) {
+    if (options?.ctx) {
         this.__ctx = options.ctx;
     } else {
         this.__canvas = this.__document.createElement("canvas");
-        this.__ctx = this.__canvas.getContext("2d");
+        this.__ctx = this.__canvas.getContext("2d")!;
     }
 
     this.__setDefaultStyles();
@@ -239,11 +268,11 @@ export class SVGRenderingContext2d {
 
     //the root svg element
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.__root.setAttribute("version", 1.1);
+    this.__root.setAttribute("version", "1.1");
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-    this.__root.setAttribute("width", this.width);
-    this.__root.setAttribute("height", this.height);
+    this.__root.setAttribute("width", `${this.width}`);
+    this.__root.setAttribute("height", `${this.height}`);
 
     //make sure we don't generate the same ids in defs
     this.__ids = {};
@@ -260,21 +289,16 @@ export class SVGRenderingContext2d {
   /**
    * Creates the specified svg element
    */
-  __createElement(elementName, properties, resetFill) {
-    if (typeof properties === "undefined") {
-        properties = {};
-    }
-
+  __createElement(elementName: string, properties: KV<string | number> = {}, resetFill: boolean = false) {
     const element = this.__document.createElementNS("http://www.w3.org/2000/svg", elementName)
-    const keys = Object.keys(properties)
     if (resetFill) {
         //if fill or stroke is not specified, the svg element should not display. By default SVG's fill is black.
         element.setAttribute("fill", "none");
         element.setAttribute("stroke", "none");
     }
-    for (let i=0; i<keys.length; i++) {
-        const key = keys[i];
-        element.setAttribute(key, properties[key]);
+    const keys = Object.keys(properties)
+    for (const key of keys) {
+        element.setAttribute(key, `${properties[key]}`);
     }
     return element;
   }
@@ -294,7 +318,7 @@ export class SVGRenderingContext2d {
   /**
    * Applies styles on restore
    */
-  __applyStyleState(styleState): void {
+  __applyStyleState(styleState: KV<string>): void {
     const keys = Object.keys(styleState)
     for (let i=0; i<keys.length; i++) {
         const key = keys[i];
@@ -305,9 +329,9 @@ export class SVGRenderingContext2d {
   /**
    * Gets the current style state
    */
-  __getStyleState() {
+  __getStyleState(): KV<string> {
     const keys = Object.keys(STYLES)
-    const styleState = {}
+    const styleState: KV<string> = {}
     for (let i=0; i<keys.length; i++) {
         const key = keys[i];
         styleState[key] = this[key];
@@ -386,8 +410,7 @@ export class SVGRenderingContext2d {
   /**
     * Will return the closest group or svg node. May return the current element.
     */
-  __closestGroupOrSvg(node) {
-    node = node || this.__currentElement;
+  __closestGroupOrSvg(node: SVGElement = this.__currentElement): SVGElement {
     if (node.nodeName === "g" || node.nodeName === "svg") {
         return node;
     } else {
@@ -401,7 +424,7 @@ export class SVGRenderingContext2d {
     *                           If true, we attempt to find all named entities and encode it as a numeric entity.
     * @return serialized svg
     */
-  getSerializedSvg(fixNamedEntities) {
+  getSerializedSvg(fixNamedEntities: boolean = false): string {
     let serialized = new XMLSerializer().serializeToString(this.__root)
 
     //IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
@@ -411,11 +434,8 @@ export class SVGRenderingContext2d {
     }
 
     if (fixNamedEntities) {
-        const keys = Object.keys(namedEntities);
         //loop over each named entity and replace with the proper equivalent.
-        for (let i=0; i<keys.length; i++) {
-            const key = keys[i];
-            const value = namedEntities[key];
+        for (const [key, value] of namedEntities) {
             const regexp = new RegExp(key, "gi");
             if (regexp.test(serialized)) {
                 serialized = serialized.replace(regexp, value);
@@ -426,7 +446,7 @@ export class SVGRenderingContext2d {
     return serialized;
   }
 
-  getSvg() {
+  getSvg(): SVGElement {
     return this.__root;
   }
 
@@ -459,7 +479,7 @@ export class SVGRenderingContext2d {
   /**
     * Helper method to add transform
     */
-  __addTransform(t) {
+  __addTransform(t: string): void {
     //if the current element has siblings, add another group
     const parent = this.__closestGroupOrSvg();
     if (parent.childNodes.length > 0) {
@@ -487,17 +507,14 @@ export class SVGRenderingContext2d {
   /**
     *  scales the current element
     */
-  scale(x, y): void {
-    if (y === undefined) {
-        y = x;
-    }
-    this.__addTransform(`scale(${x},${y})`);
+  scale(x: number, y?: number): void {
+    this.__addTransform(`scale(${x},${y ?? x})`);
   }
 
   /**
     * rotates the current element
     */
-  rotate(angle) {
+  rotate(angle: number): void {
     const degrees = (angle * 180 / Math.PI);
     const [cx, cy] = [0, 0]
     this.__addTransform(`rotate(${degrees},${cx},${cy})`);
@@ -506,14 +523,14 @@ export class SVGRenderingContext2d {
   /**
     * translates the current element
     */
-  translate(x, y): void {
+  translate(x: number, y: number): void {
     this.__addTransform(`translate(${x},${y})`);
   }
 
   /**
     * applies a transform to the current element
     */
-  transform(a, b, c, d, e, f): void {
+  transform(a: number, b: number, c: number, d: number, e: number, f: number): void {
     this.__addTransform(`matrix(${a},${b},${c},${d},${e},${f})`);
   }
 
@@ -524,7 +541,7 @@ export class SVGRenderingContext2d {
     // Note that there is only one current default path, it is not part of the drawing state.
     // See also: https://html.spec.whatwg.org/multipage/scripting.html#current-default-path
     this.__currentDefaultPath = "";
-    this.__currentPosition = {};
+    this.__currentPosition = null;
 
     const path = this.__createElement("path", {}, true);
     const parent = this.__closestGroupOrSvg();
@@ -547,7 +564,7 @@ export class SVGRenderingContext2d {
   /**
     * Helper function to add path command
     */
-  __addPathCommand(command): void {
+  __addPathCommand(command: string): void {
     this.__currentDefaultPath += " ";
     this.__currentDefaultPath += command;
   }
@@ -556,13 +573,13 @@ export class SVGRenderingContext2d {
     * Adds the move command to the current path element,
     * if the currentPathElement is not empty create a new path element
     */
-  moveTo(x,y): void {
+  moveTo(x: number, y: number): void {
     if (this.__currentElement.nodeName !== "path") {
         this.beginPath();
     }
 
     // creates a new subpath with the given point
-    this.__currentPosition = {x: x, y: y};
+    this.__currentPosition = {x, y};
     this.__addPathCommand(`M ${x} ${y}`);
   }
 
@@ -578,8 +595,8 @@ export class SVGRenderingContext2d {
   /**
     * Adds a line to command
     */
-  lineTo(x, y): void {
-    this.__currentPosition = {x: x, y: y};
+  lineTo(x: number, y: number): void {
+    this.__currentPosition = {x, y};
     if (this.__currentDefaultPath.indexOf('M') > -1) {
         this.__addPathCommand(`L ${x} ${y}`);
     } else {
@@ -590,42 +607,33 @@ export class SVGRenderingContext2d {
   /**
     * Add a bezier command
     */
-  bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
-    this.__currentPosition = {x: x, y: y};
+  bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
+    this.__currentPosition = {x, y};
     this.__addPathCommand(`C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y}`);
   };
 
   /**
     * Adds a quadratic curve to command
     */
-  quadraticCurveTo(cpx, cpy, x, y) {
-    this.__currentPosition = {x: x, y: y};
+  quadraticCurveTo(cpx: number, cpy: number, x: number, y: number) {
+    this.__currentPosition = {x, y};
     this.__addPathCommand(`Q ${cpx} ${cpy} ${x} ${y}`);
 };
 
 
-  /**
-    * Return a new normalized vector of given vector
-    */
-  function normalize(vector) {
-    const len = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-    return [vector[0] / len, vector[1] / len];
-  };
 
   /**
     * Adds the arcTo to the current path
     *
     * @see http://www.w3.org/TR/2015/WD-2dcontext-20150514/#dom-context-2d-arcto
     */
-  arcTo(x1, y1, x2, y2, radius) {
+  arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void {
     // Let the point (x0, y0) be the last point in the subpath.
-    const x0 = this.__currentPosition && this.__currentPosition.x;
-    const y0 = this.__currentPosition && this.__currentPosition.y;
+    if (this.__currentPosition == null)
+      return
 
-    // First ensure there is a subpath for (x1, y1).
-    if (typeof x0 == "undefined" || typeof y0 == "undefined") {
-        return;
-    }
+    const x0 = this.__currentPosition.x
+    const y0 = this.__currentPosition.y
 
     // Negative values for radius must cause the implementation to throw an IndexSizeError exception.
     if (radius < 0) {
@@ -637,12 +645,15 @@ export class SVGRenderingContext2d {
     // or if the radius radius is zero,
     // then the method must add the point (x1, y1) to the subpath,
     // and connect that point to the previous point (x0, y0) by a straight line.
-    if (((x0 === x1) && (y0 === y1))
-        || ((x1 === x2) && (y1 === y2))
-        || (radius === 0)) {
+    if (((x0 === x1) && (y0 === y1)) || ((x1 === x2) && (y1 === y2)) || (radius === 0)) {
         this.lineTo(x1, y1);
         return;
     }
+
+    function normalize([x, y]: [number, number]): [number, number] {
+      const len = Math.sqrt(x**2 + y**2);
+      return [x/len, y/len];
+    };
 
     // Otherwise, if the points (x0, y0), (x1, y1), and (x2, y2) all lie on a single straight line,
     // then the method must add the point (x1, y1) to the subpath,
@@ -683,7 +694,7 @@ export class SVGRenderingContext2d {
         unit_vec_p1_p2[1],
         -unit_vec_p1_p2[0]
     ];
-    const getAngle(vector) {
+    function getAngle(vector: [number, number]): number {
         // get angle (clockwise) between vector and (1, 0)
         const x = vector[0];
         const y = vector[1];
@@ -708,7 +719,7 @@ export class SVGRenderingContext2d {
   /**
     * Sets the stroke property on the current element
     */
-  stroke() {
+  stroke(): void {
     if (this.__currentElement.nodeName === "path") {
         this.__currentElement.setAttribute("paint-order", "fill stroke markers");
     }
@@ -719,7 +730,7 @@ export class SVGRenderingContext2d {
   /**
     * Sets fill properties on the current element
     */
-  fill() {
+  fill(): void {
     if (this.__currentElement.nodeName === "path") {
         this.__currentElement.setAttribute("paint-order", "stroke fill markers");
     }
@@ -730,7 +741,7 @@ export class SVGRenderingContext2d {
   /**
     *  Adds a rectangle to the path.
     */
-  rect(x, y, width, height) {
+  rect(x: number, y: number, width: number, height: number): void {
     if (this.__currentElement.nodeName !== "path") {
         this.beginPath();
     }
@@ -746,7 +757,7 @@ export class SVGRenderingContext2d {
   /**
     * adds a rectangle element
     */
-  fillRect(x, y, width, height) {
+  fillRect(x: number, y: number, width: number, height: number): void {
     const rect = this.__createElement("rect", {x, y, width, height}, true);
     const parent = this.__closestGroupOrSvg();
     parent.appendChild(rect);
@@ -761,7 +772,7 @@ export class SVGRenderingContext2d {
     * @param width
     * @param height
     */
-  strokeRect(x, y, width, height) {
+  strokeRect(x: number, y: number, width: number, height: number): void {
     const rect = this.__createElement("rect", {x, y, width, height}, true);
     const parent = this.__closestGroupOrSvg();
     parent.appendChild(rect);
@@ -775,7 +786,7 @@ export class SVGRenderingContext2d {
     * 1. save current transforms
     * 2. remove all the childNodes of the root g element
     */
-  __clearCanvas() {
+  __clearCanvas(): void {
     const current = this.__closestGroupOrSvg()
     const transform = current.getAttribute("transform");
     const rootGroup = this.__root.childNodes[1];
@@ -796,8 +807,7 @@ export class SVGRenderingContext2d {
   /**
     * "Clears" a canvas by just drawing a white rectangle in the current group.
     */
-  clearRect(x, y, width, height) {
-    //clear entire canvas
+  clearRect(x: number, y: number, width: number, height: number): void {
     if (x === 0 && y === 0 && width === this.width && height === this.height) {
         this.__clearCanvas();
         return;
@@ -811,7 +821,7 @@ export class SVGRenderingContext2d {
     * Adds a linear gradient to a defs tag.
     * Returns a canvas gradient object that has a reference to it's parent def
     */
-  createLinearGradient(x1, y1, x2, y2) {
+  createLinearGradient(x1: number, y1: number, x2: number, y2: number): CanvasGradientj {
     const grad = this.__createElement("linearGradient", {
         id : randomString(this.__ids),
         x1 : x1+"px",
@@ -828,7 +838,7 @@ export class SVGRenderingContext2d {
     * Adds a radial gradient to a defs tag.
     * Returns a canvas gradient object that has a reference to it's parent def
     */
-  createRadialGradient(x0, y0, r0, x1, y1, r1) {
+  createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient {
     const grad = this.__createElement("radialGradient", {
         id : randomString(this.__ids),
         cx : x1+"px",
@@ -846,9 +856,9 @@ export class SVGRenderingContext2d {
   /**
     * Parses the font string and returns svg mapping
     */
-  __parseFont() {
+  __parseFont(): FontData {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i;
-    const fontPart = regex.exec( this.font );
+    const fontPart = regex.exec(this.font);
     const data = {
         style : fontPart[1] || 'normal',
         size : fontPart[4] || '10px',
@@ -887,7 +897,7 @@ export class SVGRenderingContext2d {
   /**
     * Fills or strokes text
     */
-  __applyText(text, x, y, action) {
+  __applyText(text: string, x: number, y: number, action) {
     const font = this.__parseFont()
     const parent = this.__closestGroupOrSvg()
     const textElement = this.__createElement("text", {
@@ -911,26 +921,26 @@ export class SVGRenderingContext2d {
   /**
     * Creates a text element
     */
-  fillText(text, x, y) {
+  fillText(text: string, x: number, y: number) {
     this.__applyText(text, x, y, "fill");
 };
 
   /**
     * Strokes text
     */
-  strokeText(text, x, y) {
+  strokeText(text: string, x: number, y: number) {
     this.__applyText(text, x, y, "stroke");
 };
 
   /**
     * No need to implement this for svg.
     */
-  measureText(text) {
+  measureText(text: string) {
     this.__ctx.font = this.font;
     return this.__ctx.measureText(text);
 };
 
-  arc(x, y, radius, startAngle, endAngle, counterClockwise) {
+  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockwise: boolean = false) {
     // in canvas no circle is drawn if no angle is provided.
     if (startAngle === endAngle) {
         return;
@@ -1001,43 +1011,27 @@ export class SVGRenderingContext2d {
     * Note that all svg dom manipulation uses node.childNodes rather than node.children for IE support.
     * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-drawimage
     */
-  drawImage() {
-    //convert arguments to a real array
-    const args = Array.prototype.slice.call(arguments)
-    const image=args[0]
-
+  drawImage(image: CanvasImageSource, ...args: number[]): void {
     let dx, dy, dw, dh, sx=0, sy=0, sw, sh
-    if (args.length === 3) {
-        dx = args[1];
-        dy = args[2];
+    if (args.length == 2) {
+        [dx, dy] = args
         sw = image.width;
         sh = image.height;
         dw = sw;
         dh = sh;
-    } else if (args.length === 5) {
-        dx = args[1];
-        dy = args[2];
-        dw = args[3];
-        dh = args[4];
+    } else if (args.length == 4) {
+        [dx, dy, dw, dh] = args
         sw = image.width;
         sh = image.height;
-    } else if (args.length === 9) {
-        sx = args[1];
-        sy = args[2];
-        sw = args[3];
-        sh = args[4];
-        dx = args[5];
-        dy = args[6];
-        dw = args[7];
-        dh = args[8];
+    } else if (args.length === 8) {
+        [sx, sy, sw, sh, dx, dy, dw, dh] = args
     } else {
-        throw new Error("Inavlid number of arguments passed to drawImage: " + arguments.length);
+        throw new Error(`Inavlid number of arguments passed to drawImage: ${arguments.length}`);
     }
 
      // parent, svg, defs, group, currentElement, svgImage, canvas, context, id;
 
     const parent = this.__closestGroupOrSvg();
-    const currentElement = this.__currentElement;
     const translateDirective = "translate(" + dx + ", " + dy + ")";
     if (image instanceof ctx) {
         //canvas2svg mock canvas context. In the future we may want to clone nodes instead.
@@ -1110,7 +1104,7 @@ export class SVGRenderingContext2d {
   /**
     * Generates a pattern tag
     */
-  createPattern(image, repetition) {
+  createPattern(image: CanvasImageSource, _repetition: string): CanvasPattern {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
     const id = randomString(this.__ids)
     pattern.setAttribute("id", id);
@@ -1132,7 +1126,7 @@ export class SVGRenderingContext2d {
     return new CanvasPattern(pattern, this);
 };
 
-  setLineDash(dashArray) {
+  setLineDash(dashArray: number[]): void {
     if (dashArray && dashArray.length > 0) {
         this.lineDash = dashArray.join(",");
     } else {
