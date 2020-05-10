@@ -188,7 +188,7 @@ export abstract class HasProps extends Signalable() {
     if (prop != null)
       return prop
     else
-      throw new Error(`unknown property ${name}`)
+      throw new Error(`unknown property ${this.type}.${name}`)
   }
 
   get attributes(): Attrs {
@@ -319,6 +319,11 @@ export abstract class HasProps extends Signalable() {
           this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
       }
     }
+  }
+
+  /** @deprecated */
+  getv(name: string): unknown {
+    return this.property(name).get_value()
   }
 
   ref(): Ref {
