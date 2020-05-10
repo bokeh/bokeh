@@ -662,10 +662,14 @@ export class Document {
     }
   }
 
-  apply_json_patch(patch: Patch, buffers: Buffers = new Map(), setter_id?: string): void {
+  apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map(), setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
     const references = Document._instantiate_references_json(references_json, this._all_models)
+
+    if (!(buffers instanceof Map)) {
+      buffers = new Map(buffers)
+    }
 
     // The model being changed isn't always in references so add it in
     for (const event_json of events_json) {
