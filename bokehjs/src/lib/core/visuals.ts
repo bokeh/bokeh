@@ -264,32 +264,25 @@ export class Line extends ContextProperties {
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("line_color", i)
-    if (ctx.strokeStyle !== this.cache.line_color)
-      ctx.strokeStyle = this.cache.line_color
+    ctx.strokeStyle = this.cache.line_color
 
     this.cache_select("line_alpha", i)
-    if (ctx.globalAlpha !== this.cache.line_alpha)
-      ctx.globalAlpha = this.cache.line_alpha
+    ctx.globalAlpha = this.cache.line_alpha
 
     this.cache_select("line_width", i)
-    if (ctx.lineWidth !== this.cache.line_width)
-      ctx.lineWidth = this.cache.line_width
+    ctx.lineWidth = this.cache.line_width
 
     this.cache_select("line_join", i)
-    if (ctx.lineJoin !== this.cache.line_join)
-      ctx.lineJoin = this.cache.line_join
+    ctx.lineJoin = this.cache.line_join
 
     this.cache_select("line_cap", i)
-    if (ctx.lineCap !== this.cache.line_cap)
-      ctx.lineCap = this.cache.line_cap
+    ctx.lineCap = this.cache.line_cap
 
     this.cache_select("line_dash", i)
-    if (ctx.getLineDash() !== this.cache.line_dash)
-      ctx.setLineDash(this.cache.line_dash)
+    ctx.setLineDash(this.cache.line_dash)
 
     this.cache_select("line_dash_offset", i)
-    if (ctx.getLineDashOffset() !== this.cache.line_dash_offset)
-      ctx.setLineDashOffset(this.cache.line_dash_offset)
+    ctx.setLineDashOffset(this.cache.line_dash_offset)
   }
 
   color_value(): string {
@@ -316,12 +309,10 @@ export class Fill extends ContextProperties {
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("fill_color", i)
-    if (ctx.fillStyle !== this.cache.fill_color)
-      ctx.fillStyle = this.cache.fill_color
+    ctx.fillStyle = this.cache.fill_color
 
     this.cache_select("fill_alpha", i)
-    if (ctx.globalAlpha !== this.cache.fill_alpha)
-      ctx.globalAlpha = this.cache.fill_alpha
+    ctx.globalAlpha = this.cache.fill_alpha
   }
 
   color_value(): string {
@@ -398,8 +389,7 @@ export class Hatch extends ContextProperties {
     ctx.fillStyle = this.cache.pattern(ctx)
 
     this.cache_select("hatch_alpha", i)
-    if (ctx.globalAlpha !== this.cache.hatch_alpha)
-      ctx.globalAlpha = this.cache.hatch_alpha
+    ctx.globalAlpha = this.cache.hatch_alpha
   }
 
   color_value(): string {
@@ -465,24 +455,19 @@ export class Text extends ContextProperties {
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("font", i)
-    if (ctx.font !== this.cache.font)
-      ctx.font = this.cache.font
+    ctx.font = this.cache.font
 
     this.cache_select("text_color", i)
-    if (ctx.fillStyle !== this.cache.text_color)
-      ctx.fillStyle = this.cache.text_color
+    ctx.fillStyle = this.cache.text_color
 
     this.cache_select("text_alpha", i)
-    if (ctx.globalAlpha !== this.cache.text_alpha)
-      ctx.globalAlpha = this.cache.text_alpha
+    ctx.globalAlpha = this.cache.text_alpha
 
     this.cache_select("text_align", i)
-    if (ctx.textAlign !== this.cache.text_align)
-      ctx.textAlign = this.cache.text_align
+    ctx.textAlign = this.cache.text_align
 
     this.cache_select("text_baseline", i)
-    if (ctx.textBaseline !== this.cache.text_baseline)
-      ctx.textBaseline = this.cache.text_baseline
+    ctx.textBaseline = this.cache.text_baseline
   }
 }
 
