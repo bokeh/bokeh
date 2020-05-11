@@ -1,6 +1,6 @@
 import * as mixins from "./property_mixins"
 import * as p from "./properties"
-import {color2rgba} from "./util/color"
+import {color2css} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
@@ -229,11 +229,6 @@ export abstract class ContextProperties {
   }
 
   protected abstract _set_vectorize(ctx: Context2d, i: number): void
-
-  protected _color_value(color: string, alpha: number): string {
-    const [r, g, b, a] = color2rgba(color, alpha)
-    return `rgba(${r*255},${g*255},${b*255},${a})`
-  }
 }
 
 export class Line extends ContextProperties {
@@ -286,7 +281,7 @@ export class Line extends ContextProperties {
   }
 
   color_value(): string {
-    return this._color_value(this.line_color.value(), this.line_alpha.value())
+    return color2css(this.line_color.value(), this.line_alpha.value())
   }
 }
 
@@ -316,7 +311,7 @@ export class Fill extends ContextProperties {
   }
 
   color_value(): string {
-    return this._color_value(this.fill_color.value(), this.fill_alpha.value())
+    return color2css(this.fill_color.value(), this.fill_alpha.value())
   }
 }
 
@@ -393,7 +388,7 @@ export class Hatch extends ContextProperties {
   }
 
   color_value(): string {
-    return this._color_value(this.hatch_color.value(), this.hatch_alpha.value())
+    return color2css(this.hatch_color.value(), this.hatch_alpha.value())
   }
 }
 
@@ -411,7 +406,7 @@ export class Text extends ContextProperties {
   readonly text_line_height: p.Number
 
   color_value(): string {
-    return this._color_value(this.text_color.value(), this.text_alpha.value())
+    return color2css(this.text_color.value(), this.text_alpha.value())
   }
 
   font_value(): string {

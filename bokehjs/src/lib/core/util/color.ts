@@ -54,6 +54,15 @@ export function color2rgba(color: string, alpha: number = 1.0): RGBA {
   return rgba.slice(0, 4) as RGBA
 }
 
+export function color2css(color: string, alpha: number = 1.0): string {
+  if (alpha == 1.0)
+    return color
+  else {
+    const [r, g, b, a] = color2rgba(color, alpha)
+    return `rgba(${r*255},${g*255},${b*255},${a})`
+  }
+}
+
 export function valid_rgb(value: string): boolean {
   let params: {start: string, len: number, alpha: boolean}
   switch (value.substring(0, 4)) {
