@@ -219,7 +219,7 @@ type Options = {
  * enableMirroring - enables canvas mirroring (get image data) (defaults to false)
  * document - the document object (defaults to the current document)
  */
-export class SVGRenderingContext2d {
+export class SVGRenderingContext2D {
   width: number
   height: number
 
@@ -228,7 +228,7 @@ export class SVGRenderingContext2d {
   __canvas: HTMLCanvasElement
   __ctx: CanvasRenderingContext2D
 
-  __root: SVGElement
+  __root: SVGSVGElement
   __ids: KV<string>
   __defs: SVGElement
   __stack: any
@@ -446,7 +446,7 @@ export class SVGRenderingContext2d {
     return serialized;
   }
 
-  getSvg(): SVGElement {
+  getSvg(): SVGSVGElement {
     return this.__root;
   }
 
