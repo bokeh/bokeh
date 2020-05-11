@@ -49,7 +49,7 @@ export class TableColumn extends Model {
     return {
       id: uniqueId(),
       field: this.field,
-      name: this.title,
+      name: this.title || this.field,
       width: this.width,
       formatter: this.formatter != null ? this.formatter.doFormat.bind(this.formatter) : undefined,
       model: this.editor,
