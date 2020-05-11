@@ -125,7 +125,9 @@ export class LineView extends XYGlyphView {
 export namespace Line {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector
+  export type Props = XYGlyph.Props & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
 }
@@ -142,6 +144,6 @@ export class Line extends XYGlyph {
   static init_Line(): void {
     this.prototype.default_view = LineView
 
-    this.mixins(['line'])
+    this.mixins<Line.Mixins>(LineVector)
   }
 }

@@ -56,12 +56,14 @@ export class ArcView extends XYGlyphView {
 export namespace Arc {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & {
+  export type Props = XYGlyph.Props & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line}
 }
@@ -78,7 +80,8 @@ export class Arc extends XYGlyph {
   static init_Arc(): void {
     this.prototype.default_view = ArcView
 
-    this.mixins(['line'])
+    this.mixins<Arc.Mixins>(LineVector)
+
     this.define<Arc.Props>({
       direction:   [ p.Direction,   'anticlock' ],
       radius:      [ p.DistanceSpec             ],

@@ -129,12 +129,14 @@ export class WedgeView extends XYGlyphView {
 export namespace Wedge {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
@@ -151,7 +153,7 @@ export class Wedge extends XYGlyph {
   static init_Wedge(): void {
     this.prototype.default_view = WedgeView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<Wedge.Mixins>([LineVector, FillVector])
     this.define<Wedge.Props>({
       direction:    [ p.Direction,   'anticlock' ],
       radius:       [ p.DistanceSpec             ],

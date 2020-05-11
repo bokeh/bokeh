@@ -253,12 +253,14 @@ export class CircleView extends XYGlyphView {
 export namespace Circle {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     angle: p.AngleSpec
     size: p.DistanceSpec
     radius: p.DistanceSpec // XXX: null
     radius_dimension: p.Property<RadiusDimension>
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
@@ -275,7 +277,8 @@ export class Circle extends XYGlyph {
   static init_Circle(): void {
     this.prototype.default_view = CircleView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<Circle.Mixins>([LineVector, FillVector])
+
     this.define<Circle.Props>({
       angle:            [ p.AngleSpec,       0                             ],
       size:             [ p.DistanceSpec,    { units: "screen", value: 4 } ],

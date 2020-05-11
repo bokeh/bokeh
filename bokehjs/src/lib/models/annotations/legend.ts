@@ -334,10 +334,13 @@ export namespace Legend {
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
-  } & mixins.LabelText
-    & mixins.InactiveFill
-    & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.LabelText      &
+    mixins.InactiveFill   &
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     label_text: visuals.Text
@@ -368,12 +371,12 @@ export class Legend extends Annotation {
   static init_Legend(): void {
     this.prototype.default_view = LegendView
 
-    this.mixins([
-      'text:label_',
-      'text:title_',
-      'fill:inactive_',
-      'line:border_',
-      'fill:background_',
+    this.mixins<Legend.Mixins>([
+      ["label_",      mixins.Text],
+      ["title_",      mixins.Text],
+      ["inactive_",   mixins.Fill],
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
     ])
 
     this.define<Legend.Props>({

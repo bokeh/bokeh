@@ -22,7 +22,9 @@ export abstract class AreaView extends GlyphView {
 export namespace Area {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & HatchVector
+  export type Props = Glyph.Props & Mixins
+
+  export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {fill: Fill, hatch: Hatch}
 }
@@ -37,6 +39,6 @@ export class Area extends Glyph {
   }
 
   static init_Area(): void {
-    this.mixins(['fill', 'hatch'])
+    this.mixins<Area.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

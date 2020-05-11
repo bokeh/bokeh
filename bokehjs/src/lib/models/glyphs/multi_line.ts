@@ -160,10 +160,12 @@ export class MultiLineView extends GlyphView {
 export namespace MultiLine {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: Line}
 }
@@ -181,6 +183,6 @@ export class MultiLine extends Glyph {
     this.prototype.default_view = MultiLineView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line'])
+    this.mixins<MultiLine.Mixins>(LineVector)
   }
 }

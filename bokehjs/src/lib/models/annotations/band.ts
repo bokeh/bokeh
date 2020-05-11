@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {LineScalar, FillScalar} from "core/property_mixins"
+import * as mixins from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable} from "core/types"
 import {Dimension} from "core/enums"
@@ -141,7 +141,7 @@ export class BandView extends AnnotationView {
 export namespace Band {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineScalar & FillScalar & {
+  export type Props = Annotation.Props & {
     lower: p.DistanceSpec
     upper: p.DistanceSpec
     base: p.DistanceSpec
@@ -149,7 +149,9 @@ export namespace Band {
     source: p.Property<ColumnarDataSource>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  }
+  } & Mixins
+
+  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
 
   export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
 }
@@ -166,7 +168,7 @@ export class Band extends Annotation {
   static init_Band(): void {
     this.prototype.default_view = BandView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<Band.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
     this.define<Band.Props>({
       lower:        [ p.DistanceSpec                               ],

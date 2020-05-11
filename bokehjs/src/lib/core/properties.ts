@@ -1,7 +1,8 @@
 import {Signal0} from "./signaling"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, Color as ColorType} from "./types"
+import {Arrayable} from "./types"
+import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {is_color} from "./util/color"
@@ -175,7 +176,7 @@ export class Boolean extends Property<boolean> {
   }
 }
 
-export class Color extends Property<ColorType> {
+export class Color extends Property<types.Color> {
   valid(value: unknown): boolean {
     return isString(value) && is_color(value)
   }
@@ -208,6 +209,12 @@ export class Percent extends Number {
 export class String extends Property<string> {
   valid(value: unknown): boolean {
     return isString(value)
+  }
+}
+
+export class NullString extends Property<string | null> {
+  valid(value: unknown): boolean {
+    return value === null || isString(value)
   }
 }
 
@@ -308,7 +315,7 @@ export const VerticalAlign = Enum(enums.VerticalAlign)
 // DataSpec properties
 //
 
-export /*abstract*/ class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
+export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
   __value__: T
   __scalar__: S
 
@@ -327,6 +334,19 @@ export /*abstract*/ class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends
       this.validate(this.spec.value)
   }
 }
+
+export class AnyScalar extends ScalarSpec<any> {}
+export class ColorScalar extends ScalarSpec<types.Color | null> {}
+export class NumberScalar extends ScalarSpec<number> {}
+export class StringScalar extends ScalarSpec<string> {}
+export class NullStringScalar extends ScalarSpec<string | null> {}
+export class ArrayScalar extends ScalarSpec<any[]> {}
+export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
+export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
+export class FontSizeScalar extends ScalarSpec<string> {}
+export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
+export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
+export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
   __value__: T
@@ -410,7 +430,7 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
 
 export class BooleanSpec extends DataSpec<boolean> {}
 
-export class ColorSpec extends DataSpec<ColorType | null> {}
+export class ColorSpec extends DataSpec<types.Color | null> {}
 
 export class CoordinateSpec extends DataSpec<number | Factor> {}
 

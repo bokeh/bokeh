@@ -149,14 +149,16 @@ export class GearView extends XYGlyphView {
 export namespace Gear {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     angle:          p.AngleSpec
     module:         p.NumberSpec
     pressure_angle: p.NumberSpec
     shaft_size:     p.NumberSpec
     teeth:          p.NumberSpec
     internal:       p.BooleanSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
@@ -173,7 +175,8 @@ export class Gear extends XYGlyph {
   static init_Gear(): void {
     this.prototype.default_view = GearView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<Gear.Mixins>([LineVector, FillVector])
+
     this.define<Gear.Props>({
       angle:          [ p.AngleSpec,   0     ],
       module:         [ p.NumberSpec         ],

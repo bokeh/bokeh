@@ -3,14 +3,14 @@ import {View} from "./view"
 import {Class} from "./class"
 import {Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
-import * as property_mixins from "./property_mixins"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
+import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {values, clone, isEmpty} from "./util/object"
-import {isPlainObject, isObject, isArray, isFunction} from "./util/types"
+import {values, clone, isEmpty, extend} from "./util/object"
+import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
@@ -67,22 +67,25 @@ export abstract class HasProps extends Signalable() {
 
   static init_HasProps(): void {
     this.prototype._props = {}
-    this.prototype.mixins = []
+    this.prototype._mixins = []
 
     this.define<HasProps.Props>({
       id: [ p.String, () => uniqueId() ],
     })
   }
 
-  // {{{ prototype
+  /** @prototype */
   default_view: Class<View, [View.Options]>
+
+  /** @prototype */
   _props: {[key: string]: {
     type: p.PropertyConstructor<unknown>
     default_value?: () => unknown   // T
     options: p.PropertyOptions
   }}
-  mixins: string[]
-  // }}}
+
+  /** @prototype */
+  _mixins: string[]
 
   private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
     if (default_value === undefined)
@@ -147,14 +150,58 @@ export abstract class HasProps extends Signalable() {
     this.define(_object)
   }
 
-  static mixin(...names: string[]): void {
-    this.define(property_mixins.create(names) as any)
-    const mixins = this.prototype.mixins.concat(names)
-    this.prototype.mixins = mixins
-  }
+  static mixins<_T>(defs: Attrs | string[] | (Attrs | [string, Attrs])[]): void {
+    if (!isArray(defs))
+      defs = [defs]
 
-  static mixins(names: string[]): void {
-    this.mixin(...names)
+    function resolve(kind: string): any {
+      switch (kind) {
+        case "line":  return mixins.LineVector
+        case "fill":  return mixins.FillVector
+        case "hatch": return mixins.HatchVector
+        case "text":  return mixins.TextVector
+        default:
+          throw new Error(`Unknown property mixin kind '${kind}'`)
+      }
+    }
+
+    function rename(prefix: string, mixin: Attrs): Attrs {
+      const result: Attrs = {}
+      for (const name in mixin) {
+        const prop = mixin[name]
+        result[prefix + name] = prop
+      }
+      return result
+    }
+
+    function kind_of(mixin: Attrs): string {
+      const [key] = Object.keys(mixin)
+      const [kind] = key.split("_", 1)
+      return kind
+    }
+
+    const mixin_defs: Attrs = {}
+    const names: string[] = []
+    for (const def of defs) {
+      if (isString(def)) {
+        // TODO: remove this branch in 3.0
+        const [kind, prefix = ""] = def.split(":")
+        const mixin = resolve(kind)
+        names.push(def)
+        extend(mixin_defs, rename(prefix, mixin))
+      } else if (isArray(def)) {
+        const [prefix, mixin] = def
+        names.push(`${kind_of(mixin)}:${prefix}`)
+        extend(mixin_defs, rename(prefix, mixin))
+      } else {
+        const mixin = def
+        names.push(kind_of(mixin))
+        extend(mixin_defs, mixin)
+      }
+    }
+
+    this.define(mixin_defs as any)
+    this.prototype._mixins = [...this.prototype._mixins, ...names]
   }
 
   static override(obj: any): void {

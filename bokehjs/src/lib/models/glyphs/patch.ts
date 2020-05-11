@@ -67,7 +67,9 @@ export class PatchView extends XYGlyphView {
 export namespace Patch {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & HatchVector
+  export type Props = XYGlyph.Props & Mixins
+
+  export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
@@ -84,6 +86,6 @@ export class Patch extends XYGlyph {
   static init_Patch(): void {
     this.prototype.default_view = PatchView
 
-    this.mixins(['line', 'fill', 'hatch'])
+    this.mixins<Patch.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

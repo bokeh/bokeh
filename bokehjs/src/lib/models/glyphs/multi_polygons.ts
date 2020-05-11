@@ -287,10 +287,12 @@ export class MultiPolygonsView extends GlyphView {
 export namespace MultiPolygons {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & HatchVector & {
+  export type Props = Glyph.Props & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
@@ -308,6 +310,6 @@ export class MultiPolygons extends Glyph {
     this.prototype.default_view = MultiPolygonsView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line', 'fill', 'hatch'])
+    this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

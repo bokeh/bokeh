@@ -110,7 +110,7 @@ export namespace Title {
   export type Props = TextAnnotation.Props & {
     text: p.Property<string>
     text_font: p.Property<string> // XXX: Font
-    text_font_size: p.FontSizeSpec
+    text_font_size: p.StringSpec
     text_font_style: p.Property<FontStyle>
     text_color: p.ColorSpec
     text_alpha: p.NumberSpec
@@ -120,8 +120,11 @@ export namespace Title {
     offset: p.Property<number>
     text_align: p.Property<TextAlign>
     text_baseline: p.Property<TextBaseline>
-  } & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -138,12 +141,15 @@ export class Title extends TextAnnotation {
   static init_Title(): void {
     this.prototype.default_view = TitleView
 
-    this.mixins(['line:border_', 'fill:background_'])
+    this.mixins<Title.Mixins>([
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
 
     this.define<Title.Props>({
       text:             [ p.String                     ],
       text_font:        [ p.Font,          'helvetica' ],
-      text_font_size:   [ p.FontSizeSpec,  '13px'      ],
+      text_font_size:   [ p.StringSpec,    '13px'      ],
       text_font_style:  [ p.FontStyle,     'bold'      ],
       text_color:       [ p.ColorSpec,     '#444444'   ],
       text_alpha:       [ p.NumberSpec,    1.0         ],

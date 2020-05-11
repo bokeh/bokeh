@@ -200,14 +200,16 @@ export class HexTileView extends GlyphView {
 export namespace HexTile {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & {
+  export type Props = Glyph.Props & {
     r: p.NumberSpec
     q: p.NumberSpec
     size: p.Property<number>
     aspect_scale: p.Property<number>
     scale: p.NumberSpec
     orientation: p.Property<HexTileOrientation>
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector
 
   export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
 }
@@ -225,7 +227,7 @@ export class HexTile extends Glyph {
     this.prototype.default_view = HexTileView
 
     this.coords([['r', 'q']])
-    this.mixins(['line', 'fill'])
+    this.mixins<HexTile.Mixins>([LineVector, FillVector])
     this.define<HexTile.Props>({
       size:         [ p.Number,             1.0         ],
       aspect_scale: [ p.Number,             1.0         ],

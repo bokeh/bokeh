@@ -150,12 +150,14 @@ export class SegmentView extends GlyphView {
 export namespace Segment {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     x0: p.CoordinateSpec
     y0: p.CoordinateSpec
     x1: p.CoordinateSpec
     y1: p.CoordinateSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: Line}
 }
@@ -173,6 +175,6 @@ export class Segment extends Glyph {
     this.prototype.default_view = SegmentView
 
     this.coords([['x0', 'y0'], ['x1', 'y1']])
-    this.mixins(['line'])
+    this.mixins<Segment.Mixins>(LineVector)
   }
 }

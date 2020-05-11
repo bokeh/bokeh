@@ -42,7 +42,9 @@ export abstract class ArrowHead extends Annotation {
 export namespace OpenHead {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ArrowHead.Props & LineVector
+  export type Props = ArrowHead.Props & Mixins
+
+  export type Mixins = LineVector
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
@@ -55,7 +57,7 @@ export class OpenHead extends ArrowHead {
   }
 
   static init_OpenHead(): void {
-    this.mixins(['line'])
+    this.mixins<OpenHead.Mixins>(LineVector)
   }
 
   visuals: Visuals & {line: Line}
@@ -87,7 +89,9 @@ export class OpenHead extends ArrowHead {
 export namespace NormalHead {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ArrowHead.Props & LineVector & FillVector
+  export type Props = ArrowHead.Props & Mixins
+
+  export type Mixins = LineVector & FillVector
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
@@ -100,7 +104,7 @@ export class NormalHead extends ArrowHead {
   }
 
   static init_NormalHead(): void {
-    this.mixins(['line', 'fill'])
+    this.mixins<NormalHead.Mixins>([LineVector, FillVector])
 
     this.override({
       fill_color: 'black',
@@ -145,7 +149,9 @@ export class NormalHead extends ArrowHead {
 export namespace VeeHead {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ArrowHead.Props & LineVector & FillVector
+  export type Props = ArrowHead.Props & Mixins
+
+  export type Mixins = LineVector & FillVector
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
@@ -158,7 +164,7 @@ export class VeeHead extends ArrowHead {
   }
 
   static init_VeeHead(): void {
-    this.mixins(['line', 'fill'])
+    this.mixins<VeeHead.Mixins>([LineVector, FillVector])
 
     this.override({
       fill_color: 'black',
@@ -205,7 +211,9 @@ export class VeeHead extends ArrowHead {
 export namespace TeeHead {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ArrowHead.Props & LineVector
+  export type Props = ArrowHead.Props & Mixins
+
+  export type Mixins = LineVector
 }
 
 export interface TeeHead extends TeeHead.Attrs {}
@@ -218,7 +226,7 @@ export class TeeHead extends ArrowHead {
   }
 
   static init_TeeHead(): void {
-    this.mixins(['line'])
+    this.mixins<TeeHead.Mixins>(LineVector)
   }
 
   visuals: Visuals & {line: Line}

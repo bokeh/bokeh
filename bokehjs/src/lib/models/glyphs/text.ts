@@ -152,12 +152,14 @@ export class TextView extends XYGlyphView {
 export namespace Text {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & TextVector & {
+  export type Props = XYGlyph.Props & {
     text: p.NullStringSpec
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
-  }
+  } & Mixins
+
+  export type Mixins = TextVector
 
   export type Visuals = XYGlyph.Visuals & {text: visuals.Text}
 }
@@ -174,7 +176,7 @@ export class Text extends XYGlyph {
   static init_Text(): void {
     this.prototype.default_view = TextView
 
-    this.mixins(['text'])
+    this.mixins<Text.Mixins>(TextVector)
     this.define<Text.Props>({
       text:     [ p.NullStringSpec, {field: "text"} ],
       angle:    [ p.AngleSpec,      0               ],

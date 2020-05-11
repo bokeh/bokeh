@@ -155,9 +155,12 @@ export namespace CategoricalAxis {
     formatter: p.Property<CategoricalTickFormatter>
     group_label_orientation: p.Property<TickLabelOrientation | number>
     subgroup_label_orientation: p.Property<TickLabelOrientation | number>
-  } & mixins.SeparatorLine
-    & mixins.GroupText
-    & mixins.SubGroupText
+  } & Mixins
+
+  export type Mixins =
+    mixins.SeparatorLine &
+    mixins.GroupText     &
+    mixins.SubGroupText
 
   export type Visuals = Axis.Visuals & {
     separator_line: visuals.Line
@@ -181,10 +184,10 @@ export class CategoricalAxis extends Axis {
   static init_CategoricalAxis(): void {
     this.prototype.default_view = CategoricalAxisView
 
-    this.mixins([
-      "line:separator_",
-      "text:group_",
-      "text:subgroup_",
+    this.mixins<CategoricalAxis.Mixins>([
+      ["separator_", mixins.Line],
+      ["group_",     mixins.Text],
+      ["subgroup_",  mixins.Text],
     ])
 
     this.define<CategoricalAxis.Props>({
