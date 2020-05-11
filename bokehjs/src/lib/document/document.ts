@@ -419,63 +419,56 @@ export class Document {
   // model instances, set the properties on the models from the
   // JSON
   static _initialize_references_json(references_json: Struct[], old_references: References, new_references: References): void {
-    const to_update: {[key: string]: [HasProps, Attrs, boolean]} = {}
-    for (const obj of references_json) {
-      const obj_id = obj.id
-      const obj_attrs = obj.attributes
-
-      const was_new = !(obj_id in old_references)
-      const instance = !was_new ? old_references[obj_id] : new_references[obj_id]
+    type ID = string
+    const to_update = new Map<ID, {instance: HasProps, is_new: boolean}>()
+    for (const {id, attributes} of references_json) {
+      const is_new = !(id in old_references)
+      const instance = is_new ? new_references[id] : old_references[id]
 
       // replace references with actual instances in obj_attrs
-      const resolved_attrs = Document._resolve_refs(obj_attrs, old_references, new_references)
-      to_update[instance.id] = [instance, resolved_attrs, was_new]
+      const resolved_attrs = Document._resolve_refs(attributes, old_references, new_references)
+      instance.setv(resolved_attrs, {silent: true})
+      to_update.set(id, {instance, is_new})
     }
-    // this is so that, barring cycles, when an instance gets its
-    // refs resolved, the values for those refs also have their
-    // refs resolved.
-    type Fn = (instance: HasProps, attrs: Attrs, was_new: boolean) => void
-    function foreach_depth_first(items: typeof to_update, f: Fn): void {
-      const already_started: {[key: string]: boolean} = {}
-      function foreach_value(v: unknown) {
-        if (v instanceof HasProps) {
-          // note that we ignore instances that aren't updated (not in to_update)
-          if (!(v.id in already_started) && v.id in items) {
-            already_started[v.id] = true
-            const [, attrs, was_new] = items[v.id]
-            for (const a in attrs) {
-              const e = attrs[a]
-              foreach_value(e)
-            }
-            f(v, attrs, was_new)
-          }
-        } else if (isArray(v)) {
-          for (const e of v)
-            foreach_value(e)
-        } else if (isPlainObject(v)) {
-          for (const k in v) {
-            const e = v[k]
-            foreach_value(e)
+
+    const ordered_instances: HasProps[] = []
+    const handled = new Set<ID>()
+    const finalize_all_by_dfs = (v: unknown) => {
+      if (v instanceof HasProps) {
+        // note that we ignore instances that aren't updated (not in to_update)
+        if (to_update.has(v.id) && !handled.has(v.id)) {
+          handled.add(v.id)
+          const {instance, is_new} = to_update.get(v.id)!
+          const {attributes} = instance
+          for (const a in attributes)
+            finalize_all_by_dfs(attributes[a])
+          if (is_new) {
+            // Finalizing here just to avoid iterating
+            // over `ordered_instances` twice.
+            instance.finalize()
+            // Preserving an ordered collection of instances
+            // to avoid having to go through DFS again.
+            ordered_instances.push(instance)
           }
         }
-      }
-      for (const k in items) {
-        const [instance,, ] = items[k]
-        foreach_value(instance)
+      } else if (isArray(v)) {
+        for (const e of v)
+          finalize_all_by_dfs(e)
+      } else if (isPlainObject(v)) {
+        for (const k in v)
+          finalize_all_by_dfs(v[k])
       }
     }
 
-    // this first pass removes all 'refs' replacing them with real instances
-    foreach_depth_first(to_update, function(instance, attrs, was_new) {
-      if (was_new)
-        instance.setv(attrs, {silent: true})
-    })
+    for (const item of to_update.values())
+      finalize_all_by_dfs(item.instance)
 
-    // after removing all the refs, we can run the initialize code safely
-    foreach_depth_first(to_update, function(instance, _attrs, was_new) {
-      if (was_new)
-        instance.finalize()
-    })
+    // `connect_signals` has to be executed last because it
+    // may rely on properties of dependencies that are initialized
+    // only in `finalize`. It's a problem that appears when
+    // there are circular references, e.g. as in
+    // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
+    ordered_instances.forEach(i => { i.connect_signals() })
   }
 
   static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: {[key: string]: HasProps}): ModelChanged | null {
