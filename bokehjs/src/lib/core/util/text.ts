@@ -1,7 +1,7 @@
 import {Size} from "../types"
 import {div, span, offset} from "../dom"
 
-const cache: {[key: string]: FontMetrics} = {}
+const _font_cache: Map<string, FontMetrics> = new Map()
 
 export interface FontMetrics {
   height: number
@@ -10,8 +10,9 @@ export interface FontMetrics {
 }
 
 export function measure_font(font: string): FontMetrics {
-  if (cache[font] != null)
-    return cache[font]
+  const metrics = _font_cache.get(font)
+  if (metrics != null)
+    return metrics
 
   const text = span({style: {font}}, "Hg")
   const block = div({style: {display: "inline-block", width: "1px", height: "0px"}})
@@ -27,7 +28,7 @@ export function measure_font(font: string): FontMetrics {
     const height = offset(block).top - offset(text).top
 
     const result = {height, ascent, descent: height - ascent}
-    cache[font] = result
+    _font_cache.set(font, result)
 
     return result
   } finally {
@@ -35,23 +36,25 @@ export function measure_font(font: string): FontMetrics {
   }
 }
 
-const _cache: {[key: string]: {[key: string]: Size}} = {}
+const _text_cache: Map<string, Map<string, Size>> = new Map()
 
 export function measure_text(text: string, font: string): Size {
-  const text_cache = _cache[font]
-  if (text_cache != null) {
-    const size = text_cache[text]
+  let size_cache = _text_cache.get(font)
+  if (size_cache != null) {
+    const size = size_cache.get(text)
     if (size != null)
       return size
-  } else
-    _cache[font] = {}
+  } else {
+    size_cache = new Map()
+    _text_cache.set(font, size_cache)
+  }
 
   const el = div({style: {display: "inline-block", "white-space": "nowrap", font}}, text)
   document.body.appendChild(el)
 
   try {
     const {width, height} = el.getBoundingClientRect()
-    _cache[font][text] = {width, height}
+    size_cache.set(text, {width, height})
     return {width, height}
   } finally {
     document.body.removeChild(el)
