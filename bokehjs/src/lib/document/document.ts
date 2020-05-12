@@ -3,7 +3,7 @@ import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
-import {Attrs} from "core/types"
+import {Attrs, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data, Buffers} from "core/util/serialization"
@@ -78,7 +78,7 @@ export class Document {
   protected readonly _init_timestamp: number
   protected _title: string
   protected _roots: Model[]
-  /*protected*/ _all_models: Map<string, HasProps>
+  /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: ((event: DocumentChangedEvent) => void)[]
@@ -397,8 +397,8 @@ export class Document {
       return results
     }
 
-    function resolve_dict(dict: {[key: string]: unknown}) {
-      const resolved: {[key: string]: unknown} = {}
+    function resolve_dict(dict: PlainObject) {
+      const resolved: PlainObject = {}
       for (const k in dict) {
         const v = dict[k]
         resolved[k] = resolve_ref(v)
@@ -532,26 +532,26 @@ export class Document {
   static _compute_patch_since_json(from_json: DocJson, to_doc: Document): Patch {
     const to_json = to_doc.to_json(false) // include_defaults=false
 
-    function refs(json: DocJson): {[key: string]: Struct} {
-      const result: {[key: string]: Struct} = {}
+    function refs(json: DocJson): Map<ID, Struct> {
+      const result = new Map<ID, Struct>()
       for (const obj of json.roots.references)
-        result[obj.id] = obj
+        result.set(obj.id, obj)
       return result
     }
 
     const from_references = refs(from_json)
-    const from_roots: {[key: string]: Struct} = {}
-    const from_root_ids: string[] = []
+    const from_roots: Map<ID, Struct> = new Map()
+    const from_root_ids: ID[] = []
     for (const r of from_json.roots.root_ids) {
-      from_roots[r] = from_references[r]
+      from_roots.set(r, from_references.get(r)!)
       from_root_ids.push(r)
     }
 
     const to_references = refs(to_json)
-    const to_roots: {[key: string]: Struct} = {}
-    const to_root_ids: string[] = []
+    const to_roots: Map<ID, Struct> = new Map()
+    const to_root_ids: ID[] = []
     for (const r of to_json.roots.root_ids) {
-      to_roots[r] = to_references[r]
+      to_roots.set(r, to_references.get(r)!)
       to_root_ids.push(r)
     }
 
@@ -569,8 +569,8 @@ export class Document {
     let events: DocumentChanged[] = []
 
     for (const id of to_doc._all_models.keys()) {
-      if (id in from_references) {
-        const update_model_events = Document._events_to_sync_objects(from_references[id], to_references[id], to_doc, value_refs)
+      if (from_references.has(id)) {
+        const update_model_events = Document._events_to_sync_objects(from_references.get(id)!, to_references.get(id)!, to_doc, value_refs)
         events = events.concat(update_model_events)
       }
     }

@@ -21,6 +21,8 @@ export type Data = {[key: string]: Arrayable<unknown>}
 
 export type Attrs = {[key: string]: unknown}
 
+export type PlainObject = Attrs
+
 export type Size = {
   width: number
   height: number
