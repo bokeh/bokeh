@@ -5,6 +5,7 @@ import {Arrayable, Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
+import * as k from "./kinds"
 import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
@@ -280,10 +281,14 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
-      if (type != null)
-        this.properties[name] = new type(this, name, default_value, get(name), options)
+      let property: p.Property<unknown>
+
+      if (type instanceof k.Kind)
+        property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
       else
-        throw new Error(`undefined property type for ${this.type}.${name}`)
+        property = new type(this, name, k.Any, default_value, get(name), options)
+
+      this.properties[name] = property
     }
 
     // allowing us to defer initialization when loading many models
