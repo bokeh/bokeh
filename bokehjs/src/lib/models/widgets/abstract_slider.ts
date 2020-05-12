@@ -14,8 +14,6 @@ import {bk_input_group} from "styles/widgets/inputs"
 import nouislider_css from "styles/widgets/nouislider.css"
 import sliders_css from "styles/widgets/sliders.css"
 
-const prefix = 'bk-noUi-'
-
 export interface SliderSpec {
   start: number
   end: number
@@ -83,7 +81,7 @@ abstract class AbstractBaseSliderView extends ControlView {
 
   protected _set_bar_color(): void {
     if (!this.model.disabled) {
-      const connect_el = this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
+      const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
       connect_el.style.backgroundColor = this.model.bar_color
     }
   }
@@ -145,7 +143,6 @@ abstract class AbstractBaseSliderView extends ControlView {
       this.slider_el = div() as any
 
       noUiSlider.create(this.slider_el, {
-        cssPrefix: prefix,
         range: {min: start, max: end},
         start: value,
         step,
@@ -154,7 +151,7 @@ abstract class AbstractBaseSliderView extends ControlView {
         tooltips,
         orientation: this.model.orientation,
         direction: this.model.direction,
-      } as any) // XXX: bad typings; no cssPrefix
+      })
 
       this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
       this.noUiSlider.on('change', (_, __, values) => this._change(values))
@@ -164,8 +161,8 @@ abstract class AbstractBaseSliderView extends ControlView {
       const toggleTooltip = (i: number, show: boolean): void => {
         if (!tooltips)
           return
-        const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)[i]
-        const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)!
+        const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
+        const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!
         tooltip.style.display = show ? 'block' : ''
       }
 
@@ -223,7 +220,7 @@ export abstract class AbstractSliderView extends AbstractBaseSliderView{
 
   protected _set_keypress_handles(): void{
     // Add single cursor event
-    const handle = this.slider_el.querySelector(`.${prefix}handle`)!
+    const handle = this.slider_el.querySelector(".noUi-handle")!
     handle.setAttribute('tabindex', '0')
     handle.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e))
   }
@@ -245,8 +242,8 @@ export abstract class AbstractRangeSliderView extends AbstractBaseSliderView{
   }
 
   protected _set_keypress_handles(): void{
-    const handle_lower = this.slider_el.querySelector(`.${prefix}handle-lower`)!
-    const handle_upper = this.slider_el.querySelector(`.${prefix}handle-upper`)!
+    const handle_lower = this.slider_el.querySelector(".noUi-handle-lower")!
+    const handle_upper = this.slider_el.querySelector(".noUi-handle-upper")!
     handle_lower.setAttribute('tabindex', '0')
     handle_lower.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 0))
     handle_upper.setAttribute('tabindex', '1')
