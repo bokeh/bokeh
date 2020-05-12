@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Bokeh imports
 #External imports
 from tornado.web import RequestHandler
 
