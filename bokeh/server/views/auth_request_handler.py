@@ -18,12 +18,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+#External imports
+from tornado.web import RequestHandler
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'AuthMixin',
+    'BokehAuthRequestHandler',
 )
 
 #-----------------------------------------------------------------------------
@@ -34,7 +37,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class AuthMixin(object):
+class BokehAuthRequestHandler(RequestHandler):
     ''' This mixin adds the expected Tornado authorization hooks:
 
     * get_login_url

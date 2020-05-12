@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # External imports
-from tornado.web import HTTPError, RequestHandler, authenticated
+from tornado.web import HTTPError, authenticated
 
 # Bokeh imports
 from bokeh.util.token import (
@@ -30,7 +30,7 @@ from bokeh.util.token import (
 )
 
 # Bokeh imports
-from .auth_mixin import AuthMixin
+from .auth_request_handler import BokehAuthRequestHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,7 +48,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class SessionHandler(AuthMixin, RequestHandler):
+class SessionHandler(BokehAuthRequestHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
@@ -121,11 +121,11 @@ class SessionHandler(AuthMixin, RequestHandler):
 
         return session
 
-    # NOTE: The methods below exist on both AuthMixin and RequestHandler. This
+    # NOTE: The methods below exist on both BokehAuthRequestHandler and RequestHandler. This
     # makes it explicit which of the versions is intended to be called.
-    get_login_url = AuthMixin.get_login_url
-    get_current_user = AuthMixin.get_current_user
-    prepare = AuthMixin.prepare
+    get_login_url = BokehAuthRequestHandler.get_login_url
+    get_current_user = BokehAuthRequestHandler.get_current_user
+    prepare = BokehAuthRequestHandler.prepare
 
 #-----------------------------------------------------------------------------
 # Private API

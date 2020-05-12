@@ -20,10 +20,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # External imports
-from tornado.web import RequestHandler, authenticated
+from tornado.web import authenticated
 
 # Bokeh imports
-from .auth_mixin import AuthMixin
+from .auth_request_handler import BokehAuthRequestHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,7 +41,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class RootHandler(AuthMixin, RequestHandler):
+class RootHandler(BokehAuthRequestHandler):
     ''' Implements a custom Tornado handler to display the available applications
     If only one application it redirects to that application route
     '''
@@ -63,11 +63,11 @@ class RootHandler(AuthMixin, RequestHandler):
             index = "app_index.html" if self.index is None else self.index
             self.render(index, prefix=prefix, items=sorted(self.applications.keys()))
 
-    # NOTE: The methods below exist on both AuthMixin and RequestHandler. This
+    # NOTE: The methods below exist on both BokehAuthRequestHandler and RequestHandler. This
     # makes it explicit which of the versions is intended to be called.
-    get_login_url = AuthMixin.get_login_url
-    get_current_user = AuthMixin.get_current_user
-    prepare = AuthMixin.prepare
+    get_login_url = BokehAuthRequestHandler.get_login_url
+    get_current_user = BokehAuthRequestHandler.get_current_user
+    prepare = BokehAuthRequestHandler.prepare
 
 #-----------------------------------------------------------------------------
 # Private API
