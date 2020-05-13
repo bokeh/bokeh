@@ -403,7 +403,7 @@ class Document(object):
                     if patched_id not in self._all_former_model_ids:
                         raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
                     else:
-                        log.warning("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
+                        log.debug("Cannot apply patch to %s which is not in the document anymore. This is usually harmless" % (str(patched_id)))
                         break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
