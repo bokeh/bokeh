@@ -116,6 +116,9 @@ class LayoutDOM(Model):
 
     margin = Tuple(Int, Int, Int, Int, default=(0, 0, 0, 0), help="""
     Allows to create additional space around the component.
+    The values in the tuple are ordered as follows - Margin-Top, Margin-Right, Margin-Bottom and Margin-Left,
+    similar to CSS standards.
+    Negative margin values may be used to shrink the space from any direction.
     """).accepts(Tuple(Int, Int), lambda v_h: (v_h[0], v_h[1], v_h[0], v_h[1])) \
         .accepts(Int, lambda m: (m, m, m, m))
 
