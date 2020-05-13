@@ -2,13 +2,13 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
 import type {LineGLGlyph} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
-import {LineVector} from "core/property_mixins"
 import {Arrayable, Rect} from "core/types"
+import * as p from "core/properties"
+import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import * as p from "core/properties"
 
 export interface LineData extends XYGlyphData {}
 
@@ -127,7 +127,7 @@ export namespace Line {
 
   export type Props = XYGlyph.Props & Mixins
 
-  export type Mixins = LineVector
+  export type Mixins = mixins.Line/*Scalar*/
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
 }
@@ -144,6 +144,6 @@ export class Line extends XYGlyph {
   static init_Line(): void {
     this.prototype.default_view = LineView
 
-    this.mixins<Line.Mixins>(LineVector)
+    this.mixins<Line.Mixins>(mixins.Line/*Scalar*/)
   }
 }

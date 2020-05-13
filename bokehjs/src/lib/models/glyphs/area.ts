@@ -1,10 +1,10 @@
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
-import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Fill, Hatch} from "core/visuals"
 import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as p from "core/properties"
+import * as mixins from "core/property_mixins"
 
 export interface AreaData extends GlyphData {}
 
@@ -24,7 +24,7 @@ export namespace Area {
 
   export type Props = Glyph.Props & Mixins
 
-  export type Mixins = LineVector & FillVector & HatchVector
+  export type Mixins = mixins.Fill/*Scalar*/ & mixins.HatchVector
 
   export type Visuals = Glyph.Visuals & {fill: Fill, hatch: Hatch}
 }
@@ -39,6 +39,6 @@ export class Area extends Glyph {
   }
 
   static init_Area(): void {
-    this.mixins<Area.Mixins>([LineVector, FillVector, HatchVector])
+    this.mixins<Area.Mixins>([mixins.Fill/*Scalar*/, mixins.HatchVector])
   }
 }
