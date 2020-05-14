@@ -168,12 +168,12 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json): any {
     const attributes: Attrs = {} // Object.create(null)
-    for (const [name, prop] of this) {
+    for (const prop of this) {
       if (prop.syncable && (include_defaults || prop.dirty)) {
         let value = prop.get_value()
-        if (name === "data")
+        if (prop.attr === "data")
           value = encode_column_data(value as Data, this._shapes)
-        attributes[name] = value
+        attributes[prop.attr] = value
       }
     }
     return value_to_json("attributes", attributes, this)

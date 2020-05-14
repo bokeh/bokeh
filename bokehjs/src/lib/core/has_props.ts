@@ -42,7 +42,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
-export type PropertyGenerator = Generator<[string, Property], void>
+export type PropertyGenerator = Generator<Property, void>
 
 export abstract class HasProps extends Signalable() {
   __view_type__: View
@@ -240,8 +240,8 @@ export abstract class HasProps extends Signalable() {
 
   get attributes(): Attrs {
     const attrs: Attrs = {} // Object.create(null)
-    for (const [name, prop] of this) {
-      attrs[name] = prop.get_value()
+    for (const prop of this) {
+      attrs[prop.attr] = prop.get_value()
     }
     return attrs
   }
@@ -399,16 +399,14 @@ export abstract class HasProps extends Signalable() {
 
   *[Symbol.iterator](): PropertyGenerator {
     for (const name in this.properties) {
-      yield [name, this.properties[name]]
+      yield this.properties[name]
     }
   }
 
   *syncable_properties(): PropertyGenerator {
-    for (const entry of this) {
-      const [, prop] = entry
-      if (prop.syncable) {
-        yield entry
-      }
+    for (const prop of this) {
+      if (prop.syncable)
+        yield prop
     }
   }
 
@@ -437,9 +435,9 @@ export abstract class HasProps extends Signalable() {
   // are included as just references)
   attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): Attrs {
     const attributes: Attrs = {} // Object.create(null)
-    for (const [name, prop] of this) {
+    for (const prop of this) {
       if (prop.syncable && (include_defaults || prop.dirty)) {
-        attributes[name] = value_to_json(name, prop.get_value(), this)
+        attributes[prop.attr] = value_to_json(prop.attr, prop.get_value(), this)
       }
     }
     return attributes
@@ -470,7 +468,7 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, refs: Set<HasProps>, options: {recursive: boolean}): void {
+  static _value_record_references(v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
     const {recursive} = options
     if (v instanceof HasProps) {
       if (!refs.has(v)) {
@@ -498,7 +496,7 @@ export abstract class HasProps extends Signalable() {
   // (do not recurse, do not include ourselves)
   protected _immediate_references(): HasProps[] {
     const refs = new Set<HasProps>()
-    for (const [, prop] of this.syncable_properties()) {
+    for (const prop of this.syncable_properties()) {
       const value = prop.get_value()
       HasProps._value_record_references(value, refs, {recursive: false})
     }
@@ -565,14 +563,16 @@ export abstract class HasProps extends Signalable() {
   materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
     // Note: this should be moved to a function separate from HasProps
     const data: {[key: string]: unknown[] | number} = {}
-    for (const [name, prop] of this) {
+    for (const prop of this) {
       if (!(prop instanceof p.VectorSpec))
         continue
       // this skips optional properties like radius for circles
       if (prop.optional && prop.spec.value == null && !prop.dirty)
         continue
 
+      const name = prop.attr
       const array = prop.array(source)
+
       data[`_${name}`] = array
       // the shapes are indexed by the column name, but when we materialize the dataspec, we should
       // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
