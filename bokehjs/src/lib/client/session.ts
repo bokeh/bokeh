@@ -59,10 +59,6 @@ export class ClientSession {
     if ((event as any).setter_id === this.id) // XXX: not all document events define this
       return
 
-    // Filter out changes to attributes that aren't server-visible
-    if (event instanceof ModelChangedEvent && !event.model.property(event.attr).syncable)
-      return
-
     // TODO (havocp) the connection may be closed here, which will
     // cause this send to throw an error - need to deal with it more cleanly.
     const message = Message.create('PATCH-DOC', {}, this.document.create_json_patch([event]))
