@@ -42,7 +42,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
-export type PropertyGenerator = Generator<[string, Property<unknown>], void>
+export type PropertyGenerator = Generator<[string, Property], void>
 
 export abstract class HasProps extends Signalable() {
   __view_type__: View
@@ -228,9 +228,9 @@ export abstract class HasProps extends Signalable() {
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
-  readonly properties: {[key: string]: Property<unknown>} = {} // Object.create(null)
+  readonly properties: {[key: string]: Property} = {} // Object.create(null)
 
-  property(name: string): Property<unknown> {
+  property(name: string): Property {
     const prop = this.properties[name]
     if (prop != null)
       return prop
@@ -302,29 +302,26 @@ export abstract class HasProps extends Signalable() {
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  private _setv(attrs: Attrs, options: HasProps.SetOptions): void {
+  private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
     // Extract attributes and options.
     const check_eq   = options.check_eq
     const silent     = options.silent
-    const changes    = []
+    const changed    = []
     const changing   = this._changing
     this._changing = true
 
-    for (const attr in attrs) {
-      const prop = this.properties[attr]
-      const val = attrs[attr]
-
-      if (check_eq === false || !isEqual(prop.get_value(), val)) {
-        prop.set_value(val)
-        changes.push(prop)
+    for (const [prop, value] of changes) {
+      if (check_eq === false || !isEqual(prop.get_value(), value)) {
+        prop.set_value(value)
+        changed.push(prop)
       }
     }
 
     // Trigger all relevant attribute changes.
     if (!silent) {
-      if (changes.length > 0)
+      if (changed.length > 0)
         this._pending = true
-      for (const prop of changes) {
+      for (const prop of changed) {
         prop.change.emit()
       }
     }
@@ -344,25 +341,31 @@ export abstract class HasProps extends Signalable() {
     this._changing = false
   }
 
-  setv(attrs: Attrs, options: HasProps.SetOptions = {}): void {
-    if (isEmpty(attrs))
+  setv(changes: Attrs, options: HasProps.SetOptions = {}): void {
+    if (isEmpty(changes))
       return
 
-    for (const attr in attrs) {
-      if (!attrs.hasOwnProperty(attr))
+    const changed = new Map<Property, unknown>()
+    const previous = new Map<Property, unknown>()
+
+    for (const attr in changes) {
+      if (!changes.hasOwnProperty(attr))
         continue
 
-      if (this.properties[attr] == null)
+      const prop = this.properties[attr]
+      if (prop == null)
         throw new Error(`property ${this.type}.${attr} wasn't declared`)
+
+      const value = changes[attr]
+      changed.set(prop, value)
+      previous.set(prop, prop.get_value())
     }
 
-    const old = this.attributes
-    this._setv(attrs, options)
+    this._setv(changed, options)
 
-    const silent = options.silent
-    if (silent !== true) {
-      for (const key in attrs) {
-        this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
+    if (options.silent !== true) {
+      for (const [prop, value] of previous) {
+        this._tell_document_about_change(prop, value, prop.get_value(), options)
       }
     }
   }
@@ -524,8 +527,8 @@ export abstract class HasProps extends Signalable() {
     this.document = null
   }
 
-  protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string}): void {
-    if (!this.properties[attr].syncable)
+  protected _tell_document_about_change(prop: Property, old: unknown, new_: unknown, options: {setter_id?: string}): void {
+    if (!prop.syncable)
       return
 
     if (this.document != null) {
@@ -555,7 +558,7 @@ export abstract class HasProps extends Signalable() {
       if (need_invalidate)
         this.document._invalidate_all_models()
 
-      this.document._notify_change(this, attr, old, new_, options)
+      this.document._notify_change(this, prop.attr, old, new_, options)
     }
   }
 
