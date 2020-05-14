@@ -7,7 +7,7 @@ import {Attrs, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data, Buffers} from "core/util/serialization"
-import {MultiDict, Set as OurSet} from "core/util/data_structures"
+import {Set as OurSet} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {isEqual} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
@@ -79,7 +79,6 @@ export class Document {
   protected _title: string
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
-  protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: ((event: DocumentChangedEvent) => void)[]
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
@@ -93,7 +92,6 @@ export class Document {
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
-    this._all_models_by_name = new MultiDict()
     this._all_models_freeze_count = 0
     this._callbacks = []
     this._message_callbacks = new Map()
@@ -219,13 +217,9 @@ export class Document {
     }
     for (const d of to_detach.values) {
       d.detach_document()
-      if (d instanceof Model && d.name != null)
-        this._all_models_by_name.remove_value(d.name, d)
     }
     for (const a of to_attach.values) {
       a.attach_document(this)
-      if (a instanceof Model && a.name != null)
-        this._all_models_by_name.add_value(a.name, a)
     }
     this._all_models = recomputed
   }
@@ -278,7 +272,20 @@ export class Document {
   }
 
   get_model_by_name(name: string): HasProps | null {
-    return this._all_models_by_name.get_one(name, `Multiple models are named '${name}'`)
+    const found = []
+    for (const model of this._all_models.values()) {
+      if (model instanceof Model && model.name == name)
+        found.push(model)
+    }
+
+    switch (found.length) {
+      case 0:
+        return null
+      case 1:
+        return found[0]
+      default:
+        throw new Error(`Multiple models are named '${name}'`)
+    }
   }
 
   on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
@@ -321,14 +328,7 @@ export class Document {
 
   // called by the model
   _notify_change(model: HasProps, attr: string, old: unknown, new_: unknown, options?: {setter_id?: string, hint?: unknown}): void {
-    if (attr === 'name') {
-      this._all_models_by_name.remove_value(old as string, model)
-      if (new_ != null)
-        this._all_models_by_name.add_value(new_ as string, model)
-    }
-    const setter_id = options != null ? options.setter_id : void 0
-    const hint = options != null ? options.hint : void 0
-    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id, hint))
+    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, options?.setter_id, options?.hint))
   }
 
   static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {

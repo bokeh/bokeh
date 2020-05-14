@@ -342,14 +342,7 @@ describe("Document", () => {
     const m2 = new AnotherModel({ name: "foo" })
     d.add_root(m)
     d.add_root(m2)
-    let got_error = false
-    try {
-      d.get_model_by_name('foo')
-    } catch (e) {
-      got_error = true
-      expect(e.message).to.include('Multiple models')
-    }
-    expect(got_error).to.equal(true)
+    expect(() => d.get_model_by_name('foo')).to.throw(Error, /Multiple models/)
   })
 
   it("can have all_models with multiple references", () => {
