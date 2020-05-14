@@ -345,25 +345,24 @@ export abstract class HasProps extends Signalable() {
   }
 
   setv(attrs: Attrs, options: HasProps.SetOptions = {}): void {
-    for (const key in attrs) {
-      if (!attrs.hasOwnProperty(key))
+    if (isEmpty(attrs))
+      return
+
+    for (const attr in attrs) {
+      if (!attrs.hasOwnProperty(attr))
         continue
 
-      const prop_name = key
-      if (this.properties[prop_name] == null)
-        throw new Error(`property ${this.type}.${prop_name} wasn't declared`)
+      if (this.properties[attr] == null)
+        throw new Error(`property ${this.type}.${attr} wasn't declared`)
     }
 
-    if (!isEmpty(attrs)) {
-      const old: typeof attrs = {}
-      for (const key in attrs)
-        old[key] = this.properties[key].get_value()
-      this._setv(attrs, options)
+    const old = this.attributes
+    this._setv(attrs, options)
 
-      const silent = options.silent
-      if (silent == null || !silent) {
-        for (const key in attrs)
-          this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
+    const silent = options.silent
+    if (silent !== true) {
+      for (const key in attrs) {
+        this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
       }
     }
   }
