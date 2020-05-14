@@ -1,7 +1,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {TextVector} from "core/property_mixins"
+import * as mixins from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
 import {div, display, undisplay} from "core/dom"
@@ -189,7 +189,7 @@ export class LabelSetView extends TextAnnotationView {
 export namespace LabelSet {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = TextAnnotation.Props & TextVector & {
+  export type Props = TextAnnotation.Props & {
     x: p.NumberSpec
     y: p.NumberSpec
     x_units: p.Property<SpatialUnits>
@@ -214,7 +214,9 @@ export namespace LabelSet {
     // fill:background_ v
     background_fill_color: p.ColorSpec
     background_fill_alpha: p.NumberSpec
-  }
+  } & Mixins
+
+  export type Mixins = mixins.TextVector
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -231,7 +233,11 @@ export class LabelSet extends TextAnnotation {
   static init_LabelSet(): void {
     this.prototype.default_view = LabelSetView
 
-    this.mixins(['text', 'line:border_', 'fill:background_'])
+    this.mixins<LabelSet.Mixins>([
+      mixins.TextVector,
+      ["border_",     mixins.LineVector],
+      ["background_", mixins.FillVector],
+    ])
 
     this.define<LabelSet.Props>({
       x:            [ p.NumberSpec                      ],

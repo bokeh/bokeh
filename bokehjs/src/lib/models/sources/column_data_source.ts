@@ -7,7 +7,6 @@ import {Shape, encode_column_data, decode_column_data} from "core/util/serializa
 import {isTypedArray, isArray, isNumber, isPlainObject} from "core/util/types"
 import {TypedArray} from "core/types"
 import * as typed_array from "core/util/typed_array"
-import {keys} from "core/util/object"
 import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
 
 //exported for testing
@@ -168,19 +167,16 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json): any {
-    const attrs: Attrs = {}
-    const obj = this.serializable_attributes()
-    for (const key of keys(obj)) {
-      let value = obj[key]
-      if (key === 'data')
-        value = encode_column_data(value as Data, this._shapes)
-
-      if (include_defaults)
-        attrs[key] = value
-      else if (key in this._set_after_defaults)
-        attrs[key] = value
+    const attributes: Attrs = {} // Object.create(null)
+    for (const [name, prop] of this) {
+      if (prop.syncable && (include_defaults || prop.dirty)) {
+        let value = prop.get_value()
+        if (name === "data")
+          value = encode_column_data(value as Data, this._shapes)
+        attributes[name] = value
+      }
     }
-    return value_to_json("attributes", attrs, this)
+    return value_to_json("attributes", attributes, this)
   }
 
   static _value_to_json(key: string, value: any, optional_parent_object: any): any {

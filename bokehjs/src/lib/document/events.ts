@@ -71,7 +71,7 @@ export class MessageSentEvent extends DocumentChangedEvent {
     const value = this.msg_data
     const value_json = HasProps._value_to_json("", value, null)
     const value_refs: {[key: string]: HasProps} = {}
-    HasProps._value_record_references(value, value_refs, true)
+    HasProps._value_record_references(value, value_refs, {recursive: true})
     /* XXX: this will cause all referenced models to be reinitialized
     for (const id in value_refs) {
       references[id] = value_refs[id]
@@ -108,7 +108,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     const value = this.new_
     const value_json = HasProps._value_to_json(this.attr, value, this.model)
     const value_refs: {[key: string]: HasProps} = {}
-    HasProps._value_record_references(value, value_refs, true) // true = recurse
+    HasProps._value_record_references(value, value_refs, {recursive: true})
     if (this.model.id in value_refs && this.model !== value) {
       // we know we don't want a whole new copy of the obj we're
       // patching unless it's also the value itself
@@ -183,7 +183,7 @@ export class RootAddedEvent extends DocumentChangedEvent {
   }
 
   json(references: References): RootAdded {
-    HasProps._value_record_references(this.model, references, true)
+    HasProps._value_record_references(this.model, references, {recursive: true})
     return {
       kind: "RootAdded",
       model: this.model.ref(),

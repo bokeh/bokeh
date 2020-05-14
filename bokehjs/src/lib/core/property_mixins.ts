@@ -1,8 +1,12 @@
 import * as p from "./properties"
-import {Attrs, Color} from "./types"
-import {extend} from "./util/object"
+import {Color} from "./types"
 import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import {Texture} from "models/textures/texture"
+
+export type HatchPattern = HatchPatternType | string
+export type HatchExtra = {[key: string]: Texture}
+
+// Primitive
 
 export type Line = {
   line_color: p.Property<Color | null>
@@ -19,15 +23,13 @@ export type Fill = {
   fill_alpha: p.Property<number>
 }
 
-export type HatchPattern = HatchPatternType | string
-
 export type Hatch = {
   hatch_color: p.Property<Color | null>
   hatch_alpha: p.Property<number>
   hatch_scale: p.Property<number>
-  hatch_pattern: p.Property<HatchPattern>
+  hatch_pattern: p.Property<HatchPattern | null>
   hatch_weight: p.Property<number>
-  hatch_extra: p.Property<{[key: string]: Texture}>
+  hatch_extra: p.Property<HatchExtra>
 }
 
 export type Text = {
@@ -40,6 +42,43 @@ export type Text = {
   text_baseline: p.Property<TextBaseline>
   text_line_height: p.Property<number>
 }
+
+export const Line: p.DefineOf<Line> = {
+  line_color:       [ p.Color,        "black"     ],
+  line_alpha:       [ p.Number,       1.0         ],
+  line_width:       [ p.Number,       1           ],
+  line_join:        [ p.LineJoin,     "bevel"     ],
+  line_cap:         [ p.LineCap,      "butt"      ],
+  line_dash:        [ p.Array,        []          ],
+  line_dash_offset: [ p.Number,       0           ],
+}
+
+export const Fill: p.DefineOf<Fill> = {
+  fill_color:       [ p.Color,        "gray"      ],
+  fill_alpha:       [ p.Number,       1.0         ],
+}
+
+export const Hatch: p.DefineOf<Hatch> = {
+  hatch_color:      [ p.Color,        "black"     ],
+  hatch_alpha:      [ p.Number,       1.0         ],
+  hatch_scale:      [ p.Number,       12.0        ],
+  hatch_pattern:    [ p.NullString,   null        ],
+  hatch_weight:     [ p.Number,       1.0         ],
+  hatch_extra:      [ p.Any,          {}          ],
+}
+
+export const Text: p.DefineOf<Text> = {
+  text_color:       [ p.Color,        "#444444"   ],
+  text_alpha:       [ p.Number,       1.0         ],
+  text_font:        [ p.Font,         "helvetica" ],
+  text_font_size:   [ p.FontSize,     "16px"      ],
+  text_font_style:  [ p.FontStyle,    "normal"    ],
+  text_align:       [ p.TextAlign,    "left"      ],
+  text_baseline:    [ p.TextBaseline, "bottom"    ],
+  text_line_height: [ p.Number,       1.2         ],
+}
+
+// Scalar
 
 export type LineScalar = {
   line_color: p.ScalarSpec<Color | null>
@@ -60,9 +99,9 @@ export type HatchScalar = {
   hatch_color: p.ScalarSpec<Color | null>
   hatch_alpha: p.ScalarSpec<number>
   hatch_scale: p.ScalarSpec<number>
-  hatch_pattern: p.ScalarSpec<string>
+  hatch_pattern: p.ScalarSpec<string | null>
   hatch_weight: p.ScalarSpec<number>
-  hatch_extra: p.Any
+  hatch_extra: p.ScalarSpec<HatchExtra>
 }
 
 export type TextScalar = {
@@ -75,6 +114,43 @@ export type TextScalar = {
   text_baseline: p.ScalarSpec<TextBaseline>
   text_line_height: p.ScalarSpec<number>
 }
+
+export const LineScalar: p.DefineOf<LineScalar> = {
+  line_color:       [ p.ColorScalar,        "black"     ],
+  line_alpha:       [ p.NumberScalar,       1.0         ],
+  line_width:       [ p.NumberScalar,       1           ],
+  line_join:        [ p.LineJoinScalar,     "bevel"     ],
+  line_cap:         [ p.LineCapScalar,      "butt"      ],
+  line_dash:        [ p.ArrayScalar,        []          ],
+  line_dash_offset: [ p.NumberScalar,       0           ],
+}
+
+export const FillScalar: p.DefineOf<FillScalar> = {
+  fill_color:       [ p.ColorScalar,        "gray"      ],
+  fill_alpha:       [ p.NumberScalar,       1.0         ],
+}
+
+export const HatchScalar: p.DefineOf<HatchScalar> = {
+  hatch_color:      [ p.ColorScalar,        "black"     ],
+  hatch_alpha:      [ p.NumberScalar,       1.0         ],
+  hatch_scale:      [ p.NumberScalar,       12.0        ],
+  hatch_pattern:    [ p.NullStringScalar,   null        ],
+  hatch_weight:     [ p.NumberScalar,       1.0         ],
+  hatch_extra:      [ p.AnyScalar,          {}          ],
+}
+
+export const TextScalar: p.DefineOf<TextScalar> = {
+  text_color:       [ p.ColorScalar,        "#444444"   ],
+  text_alpha:       [ p.NumberScalar,       1.0         ],
+  text_font:        [ p.Font,               "helvetica" ],
+  text_font_size:   [ p.FontSizeScalar,     "16px"      ],
+  text_font_style:  [ p.FontStyleScalar,    "normal"    ],
+  text_align:       [ p.TextAlignScalar,    "left"      ],
+  text_baseline:    [ p.TextBaselineScalar, "bottom"    ],
+  text_line_height: [ p.NumberScalar,       1.2         ],
+}
+
+// Vectorized
 
 export type LineVector = {
   line_color: p.VectorSpec<Color | null>
@@ -95,8 +171,9 @@ export type HatchVector = {
   hatch_color: p.VectorSpec<Color | null>
   hatch_alpha: p.VectorSpec<number>
   hatch_scale: p.VectorSpec<number>
-  hatch_pattern: p.VectorSpec<string>
+  hatch_pattern: p.VectorSpec<HatchPattern | null>
   hatch_weight: p.VectorSpec<number>
+  hatch_extra: p.VectorSpec<HatchExtra>
 }
 
 export type TextVector = {
@@ -110,76 +187,39 @@ export type TextVector = {
   text_line_height: p.ScalarSpec<number>
 }
 
-function _gen_mixin(mixin: Attrs, prefix: string): Attrs {
-  const result: Attrs = {}
-  for (const name in mixin) {
-    const prop = mixin[name]
-    result[prefix + name] = prop
-  }
-  return result
+export const LineVector: p.DefineOf<LineVector> = {
+  line_color:       [ p.ColorSpec,          "black"     ],
+  line_alpha:       [ p.NumberSpec,         1.0         ],
+  line_width:       [ p.NumberSpec,         1           ],
+  line_join:        [ p.LineJoinScalar,     "bevel"     ],
+  line_cap:         [ p.LineCapScalar,      "butt"      ],
+  line_dash:        [ p.ArrayScalar,        []          ],
+  line_dash_offset: [ p.NumberScalar,       0           ],
 }
 
-const _line_mixin = {
-  line_color:       [ p.ColorSpec,  'black'   ],
-  line_width:       [ p.NumberSpec, 1         ],
-  line_alpha:       [ p.NumberSpec, 1.0       ],
-  line_join:        [ p.LineJoin,   'bevel'   ],
-  line_cap:         [ p.LineCap,    'butt'    ],
-  line_dash:        [ p.Array,      []        ],
-  line_dash_offset: [ p.Number,     0         ],
+export const FillVector: p.DefineOf<FillVector> = {
+  fill_color:       [ p.ColorSpec,         "gray"      ],
+  fill_alpha:       [ p.NumberSpec,        1.0         ],
 }
 
-export const line = (prefix: string = "") => _gen_mixin(_line_mixin, prefix)
-
-const _fill_mixin = {
-  fill_color: [ p.ColorSpec,  'gray' ],
-  fill_alpha: [ p.NumberSpec, 1.0    ],
+export const HatchVector: p.DefineOf<HatchVector> = {
+  hatch_color:      [ p.ColorSpec,          "black"     ],
+  hatch_alpha:      [ p.NumberSpec,         1.0         ],
+  hatch_scale:      [ p.NumberSpec,         12.0        ],
+  hatch_pattern:    [ p.NullStringSpec,     null        ],
+  hatch_weight:     [ p.NumberSpec,         1.0         ],
+  hatch_extra:      [ p.AnyScalar,          {}          ],
 }
 
-export const fill = (prefix: string = "") => _gen_mixin(_fill_mixin, prefix)
-
-const _hatch_mixin = {
-  hatch_color:   [ p.ColorSpec,  'black' ],
-  hatch_alpha:   [ p.NumberSpec, 1.0     ],
-  hatch_scale:   [ p.NumberSpec, 12.0    ],
-  hatch_pattern: [ p.StringSpec, null    ],
-  hatch_weight:  [ p.NumberSpec, 1.0     ],
-  hatch_extra:   [ p.Any,        {}      ],
-}
-
-export const hatch = (prefix: string = "") => _gen_mixin(_hatch_mixin, prefix)
-
-const _text_mixin = {
-  text_font:        [ p.Font,         'helvetica' ],
-  text_font_size:   [ p.FontSizeSpec, '16px'      ],
-  text_font_style:  [ p.FontStyle,    'normal'    ],
-  text_color:       [ p.ColorSpec,    '#444444'   ],
-  text_alpha:       [ p.NumberSpec,   1.0         ],
-  text_align:       [ p.TextAlign,    'left'      ],
-  text_baseline:    [ p.TextBaseline, 'bottom'    ],
-  text_line_height: [ p.Number,       1.2         ],
-}
-
-export const text = (prefix: string = "") => _gen_mixin(_text_mixin, prefix)
-
-export function create(configs: string[]): Attrs {
-  const result: Attrs = {}
-
-  for (const config of configs) {
-    const [kind, prefix] = config.split(":")
-    let mixin: any
-    switch (kind) {
-      case "line":  mixin = line;  break
-      case "fill":  mixin = fill;  break
-      case "hatch": mixin = hatch; break
-      case "text":  mixin = text;  break
-      default:
-        throw new Error(`Unknown property mixin kind '${kind}'`)
-    }
-    extend(result, mixin(prefix))
-  }
-
-  return result
+export const TextVector: p.DefineOf<TextVector> = {
+  text_color:       [ p.ColorSpec,          "#444444"   ],
+  text_alpha:       [ p.NumberSpec,         1.0         ],
+  text_font:        [ p.Font,               "helvetica" ],
+  text_font_size:   [ p.FontSizeSpec,       "16px"      ],
+  text_font_style:  [ p.FontStyleScalar,    "normal"    ],
+  text_align:       [ p.TextAlignScalar,    "left"      ],
+  text_baseline:    [ p.TextBaselineScalar, "bottom"    ],
+  text_line_height: [ p.NumberScalar,       1.2         ],
 }
 
 // Common property mixins used in models. This duplication is currently unavoidable.

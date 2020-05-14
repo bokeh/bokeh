@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import {Signal0} from "core/signaling"
-import {LineScalar, FillScalar} from "core/property_mixins"
+import * as mixins from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
@@ -112,7 +112,7 @@ export class BoxAnnotationView extends AnnotationView {
 export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineScalar & FillScalar & {
+  export type Props = Annotation.Props & {
     render_mode: p.Property<RenderMode>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
@@ -128,7 +128,9 @@ export namespace BoxAnnotation {
     ew_cursor: p.Property<string | null>
     ns_cursor: p.Property<string | null>
     in_cursor: p.Property<string | null>
-  }
+  } & Mixins
+
+  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
 
   export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
 }
@@ -145,7 +147,7 @@ export class BoxAnnotation extends Annotation {
   static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<BoxAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
     this.define<BoxAnnotation.Props>({
       render_mode:  [ p.RenderMode,   'canvas'  ],

@@ -523,11 +523,14 @@ export namespace Axis {
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
     fixed_location: p.Property<number | Factor | null>
-  } & mixins.AxisLine
-    & mixins.MajorTickLine
-    & mixins.MinorTickLine
-    & mixins.MajorLabelText
-    & mixins.AxisLabelText
+  } & Mixins
+
+  export type Mixins =
+    mixins.AxisLine       &
+    mixins.MajorTickLine  &
+    mixins.MinorTickLine  &
+    mixins.MajorLabelText &
+    mixins.AxisLabelText
 
   export type Visuals = GuideRenderer.Visuals & {
     axis_line: visuals.Line
@@ -552,12 +555,12 @@ export class Axis extends GuideRenderer {
   static init_Axis(): void {
     this.prototype.default_view = AxisView
 
-    this.mixins([
-      'line:axis_',
-      'line:major_tick_',
-      'line:minor_tick_',
-      'text:major_label_',
-      'text:axis_label_',
+    this.mixins<Axis.Mixins>([
+      ["axis_",        mixins.Line],
+      ["major_tick_",  mixins.Line],
+      ["minor_tick_",  mixins.Line],
+      ["major_label_", mixins.Text],
+      ["axis_label_",  mixins.Text],
     ])
 
     this.define<Axis.Props>({

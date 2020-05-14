@@ -154,7 +154,9 @@ export abstract class BoxView extends GlyphView {
 export namespace Box {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & HatchVector
+  export type Props = Glyph.Props & Mixins
+
+  export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
@@ -169,6 +171,6 @@ export abstract class Box extends Glyph {
   }
 
   static init_Box(): void {
-    this.mixins(['line', 'fill', 'hatch'])
+    this.mixins<Box.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

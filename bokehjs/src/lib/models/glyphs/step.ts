@@ -91,9 +91,11 @@ export class StepView extends XYGlyphView {
 export namespace Step {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & {
+  export type Props = XYGlyph.Props & {
     mode: p.Property<StepMode>
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line}
 }
@@ -110,7 +112,7 @@ export class Step extends XYGlyph {
   static init_Step(): void {
     this.prototype.default_view = StepView
 
-    this.mixins(['line'])
+    this.mixins<Step.Mixins>(LineVector)
     this.define<Step.Props>({
       mode: [ p.StepMode, "before"],
     })

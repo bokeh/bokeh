@@ -244,10 +244,12 @@ export class PatchesView extends GlyphView {
 export namespace Patches {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & HatchVector & {
+  export type Props = Glyph.Props & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
@@ -265,6 +267,6 @@ export class Patches extends Glyph {
     this.prototype.default_view = PatchesView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line', 'fill', 'hatch'])
+    this.mixins<Patches.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

@@ -162,10 +162,12 @@ export abstract class MarkerView extends XYGlyphView {
 export namespace Marker {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     size: p.DistanceSpec
     angle: p.AngleSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
@@ -180,7 +182,7 @@ export abstract class Marker extends XYGlyph {
   }
 
   static init_Marker(): void {
-    this.mixins(['line', 'fill'])
+    this.mixins<Marker.Mixins>([LineVector, FillVector])
     this.define<Marker.Props>({
       size:  [ p.DistanceSpec, { units: "screen", value: 4 } ],
       angle: [ p.AngleSpec,    0                             ],

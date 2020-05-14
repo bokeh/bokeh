@@ -4,7 +4,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
-import {keys, extend} from "@bokehjs/core/util/object"
+import {keys} from "@bokehjs/core/util/object"
 
 class TestModel extends HasProps {}
 
@@ -25,13 +25,13 @@ SubSubclassWithProps.define<any>({
 })
 
 class SubclassWithMixins extends HasProps {}
-SubclassWithMixins.mixin('line')
+SubclassWithMixins.mixins(['line'])
 
 class SubSubclassWithMixins extends SubclassWithMixins {}
-SubSubclassWithMixins.mixin('fill:foo_')
+SubSubclassWithMixins.mixins(['fill:foo_'])
 
 class SubclassWithMultipleMixins extends HasProps {}
-SubclassWithMultipleMixins.mixin('line', 'text:bar_')
+SubclassWithMultipleMixins.mixins(['line', 'text:bar_'])
 
 class SubclassWithNumberSpec extends HasProps {
   foo: any // XXX
@@ -66,7 +66,7 @@ class SubclassWithOptionalSpec extends HasProps {
   baz: any // XXX
 }
 SubclassWithOptionalSpec.define<any>({
-  foo: [ p.NumberSpec, {value: null}      ],
+  foo: [ p.NumberSpec, {value: null}, {optional: true} ],
   bar: [ p.Boolean,    true               ],
   baz: [ p.NumberSpec, {field: 'colname'} ],
 })
@@ -100,19 +100,19 @@ describe("has_properties module", () => {
 
     it("should combine mixins from subclasses", () => {
       const obj = new SubclassWithMixins()
-      const props = keys(mixins.line(""))
+      const props = keys(mixins.Line)
       expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
     })
 
     it("should combine mixins from sub-subclasses", () => {
       const obj = new SubSubclassWithMixins()
-      const props = keys(extend(mixins.line(""), mixins.fill("foo_")))
+      const props = [...keys(mixins.Line), ...keys(mixins.Fill).map((key) => `foo_${key}`)]
       expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
     })
 
     it("should combine multiple mixins from subclasses", () => {
       const obj = new SubclassWithMultipleMixins()
-      const props = keys(extend(mixins.line(""), mixins.text("bar_")))
+      const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
       expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
     })
   })
@@ -148,7 +148,6 @@ describe("has_properties module", () => {
     it("should collect ignore optional specs with null values", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
       const obj = new SubclassWithOptionalSpec()
-      obj.properties.foo.optional = true
       const data = obj.materialize_dataspecs(r)
       expect(data).to.be.deep.equal({_baz: [1, 2, 3, 4]})
     })

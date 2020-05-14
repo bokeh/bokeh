@@ -212,10 +212,10 @@ const DEFAULT_RANGE_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
     fill_color: "lightgrey",
-    fill_alpha: {value: 0.5},
-    line_color: {value: "black"},
-    line_alpha: {value: 1.0},
-    line_width: {value: 0.5},
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 0.5,
     line_dash: [2, 2],
   })
 }

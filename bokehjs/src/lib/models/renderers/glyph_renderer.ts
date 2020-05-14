@@ -64,8 +64,8 @@ export class GlyphRendererView extends DataRendererView {
     await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
-    const has_fill = includes(base_glyph.mixins, "fill")
-    const has_line = includes(base_glyph.mixins, "line")
+    const has_fill = includes(base_glyph._mixins, "fill")
+    const has_line = includes(base_glyph._mixins, "line")
     const glyph_attrs = clone(base_glyph.attributes)
     delete glyph_attrs.id
 

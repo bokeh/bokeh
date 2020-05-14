@@ -578,13 +578,16 @@ export namespace ColorBar {
     major_tick_out: p.Property<number>
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
-  } & mixins.MajorLabelText
-    & mixins.TitleText
-    & mixins.MajorTickLine
-    & mixins.MinorTickLine
-    & mixins.BorderLine
-    & mixins.BarLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.MajorLabelText &
+    mixins.TitleText      &
+    mixins.MajorTickLine  &
+    mixins.MinorTickLine  &
+    mixins.BorderLine     &
+    mixins.BarLine        &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     major_label_text: visuals.Text
@@ -609,14 +612,14 @@ export class ColorBar extends Annotation {
   static init_ColorBar(): void {
     this.prototype.default_view = ColorBarView
 
-    this.mixins([
-      'text:major_label_',
-      'text:title_',
-      'line:major_tick_',
-      'line:minor_tick_',
-      'line:border_',
-      'line:bar_',
-      'fill:background_',
+    this.mixins<ColorBar.Mixins>([
+      ["major_label_", mixins.Text],
+      ["title_",       mixins.Text],
+      ["major_tick_",  mixins.Line],
+      ["minor_tick_",  mixins.Line],
+      ["border_",      mixins.Line],
+      ["bar_",         mixins.Line],
+      ["background_",  mixins.Fill],
     ])
 
     this.define<ColorBar.Props>({

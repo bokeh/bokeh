@@ -184,9 +184,8 @@ function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Co
 
 export abstract class ContextProperties {
 
-  // prototype {
+  /** @prototype */
   attrs: string[]
-  // }
 
   readonly cache: {[key: string]: any} = {}
 
@@ -204,7 +203,7 @@ export abstract class ContextProperties {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
         this.cache[attr] = prop.spec.value
-      else if (source != null)
+      else if (source != null && prop instanceof p.VectorSpec)
         this.cache[attr + "_array"] = prop.array(source)
       else
         throw new Error("source is required with a vectorized visual property")
@@ -285,7 +284,7 @@ export class Line extends ContextProperties {
   }
 }
 
-Line.prototype.attrs = Object.keys(mixins.line())
+Line.prototype.attrs = Object.keys(mixins.LineVector)
 
 export class Fill extends ContextProperties {
 
@@ -315,7 +314,7 @@ export class Fill extends ContextProperties {
   }
 }
 
-Fill.prototype.attrs = Object.keys(mixins.fill())
+Fill.prototype.attrs = Object.keys(mixins.FillVector)
 
 export class Hatch extends ContextProperties {
 
@@ -392,12 +391,12 @@ export class Hatch extends ContextProperties {
   }
 }
 
-Hatch.prototype.attrs = Object.keys(mixins.hatch())
+Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
 
 export class Text extends ContextProperties {
 
   readonly text_font:        p.Font
-  readonly text_font_size:   p.FontSizeSpec
+  readonly text_font_size:   p.StringSpec
   readonly text_font_style:  p.Property<FontStyle>
   readonly text_color:       p.ColorSpec
   readonly text_alpha:       p.NumberSpec
@@ -466,12 +465,12 @@ export class Text extends ContextProperties {
   }
 }
 
-Text.prototype.attrs = Object.keys(mixins.text())
+Text.prototype.attrs = Object.keys(mixins.TextVector)
 
 export class Visuals {
 
   constructor(model: HasProps) {
-    for (const mixin of model.mixins) {
+    for (const mixin of model._mixins) {
       const [name, prefix=""] = mixin.split(":")
       let cls: Class<ContextProperties>
       switch (name) {

@@ -136,7 +136,7 @@ export class ArrowView extends AnnotationView {
 export namespace Arrow {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineVector & {
+  export type Props = Annotation.Props & {
     x_start: p.NumberSpec
     y_start: p.NumberSpec
     start_units: p.Property<SpatialUnits>
@@ -148,7 +148,9 @@ export namespace Arrow {
     source: p.Property<ColumnarDataSource>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Annotation.Visuals & {line: Line}
 }
@@ -165,7 +167,7 @@ export class Arrow extends Annotation {
   static init_Arrow(): void {
     this.prototype.default_view = ArrowView
 
-    this.mixins(['line'])
+    this.mixins<Arrow.Mixins>(LineVector)
 
     this.define<Arrow.Props>({
       x_start:      [ p.NumberSpec                           ],
