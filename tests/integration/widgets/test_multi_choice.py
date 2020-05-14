@@ -80,6 +80,7 @@ class Test_MultiChoice(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_displays_menu(self, bokeh_model_page) -> None:
         text_input = MultiChoice(title="title", css_classes=["foo"], options = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
