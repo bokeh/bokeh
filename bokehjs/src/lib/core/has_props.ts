@@ -9,7 +9,7 @@ import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {values, clone, isEmpty, extend} from "./util/object"
+import {clone, extend, isEmpty} from "./util/object"
 import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -410,7 +410,7 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  static _value_to_json(_key: string, value: any, _optional_parent_object: any): any {
+  static _value_to_json(_key: string, value: unknown, _optional_parent_object: any): unknown {
     if (value instanceof HasProps)
       return value.ref()
     else if (isArray(value)) {
@@ -433,33 +433,33 @@ export abstract class HasProps extends Signalable() {
 
   // Convert attributes to "shallow" JSON (values which are themselves models
   // are included as just references)
-  attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): any {
+  attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): Attrs {
     const attributes: Attrs = {} // Object.create(null)
     for (const [name, prop] of this) {
       if (prop.syncable && (include_defaults || prop.dirty)) {
-        attributes[name] = prop.get_value()
+        attributes[name] = value_to_json(name, prop.get_value(), this)
       }
     }
-    return value_to_json("attributes", attributes, this)
+    return attributes
   }
 
   // this is like _value_record_references but expects to find refs
   // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, options: {recursive: boolean}): void {
+  static _json_record_references(doc: Document, v: any, refs: Set<HasProps>, options: {recursive: boolean}): void {
     const {recursive} = options
     if (is_ref(v)) {
-      if (!(v.id in result)) {
-        const model = doc.get_model_by_id(v.id)
-        HasProps._value_record_references(model, result, {recursive})
+      const model = doc.get_model_by_id(v.id)
+      if (model != null && !refs.has(model)) {
+        HasProps._value_record_references(model, refs, {recursive})
       }
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._json_record_references(doc, elem, result, {recursive})
+        HasProps._json_record_references(doc, elem, refs, {recursive})
     } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
-          HasProps._json_record_references(doc, elem, result, {recursive})
+          HasProps._json_record_references(doc, elem, refs, {recursive})
         }
       }
     }
@@ -468,25 +468,25 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, result: Attrs, options: {recursive: boolean}): void {
+  static _value_record_references(v: any, refs: Set<HasProps>, options: {recursive: boolean}): void {
     const {recursive} = options
     if (v instanceof HasProps) {
-      if (!(v.id in result)) {
-        result[v.id] = v
+      if (!refs.has(v)) {
+        refs.add(v)
         if (recursive) {
           const immediate = v._immediate_references()
           for (const obj of immediate)
-            HasProps._value_record_references(obj, result, {recursive: true})
+            HasProps._value_record_references(obj, refs, {recursive: true})
         }
       }
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._value_record_references(elem, result, {recursive})
+        HasProps._value_record_references(elem, refs, {recursive})
     } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
-          HasProps._value_record_references(elem, result, {recursive})
+          HasProps._value_record_references(elem, refs, {recursive})
         }
       }
     }
@@ -495,18 +495,18 @@ export abstract class HasProps extends Signalable() {
   // Get models that are immediately referenced by our properties
   // (do not recurse, do not include ourselves)
   protected _immediate_references(): HasProps[] {
-    const result = {}
+    const refs = new Set<HasProps>()
     for (const [, prop] of this.syncable_properties()) {
       const value = prop.get_value()
-      HasProps._value_record_references(value, result, {recursive: false})
+      HasProps._value_record_references(value, refs, {recursive: false})
     }
-    return values(result)
+    return [...refs.values()]
   }
 
   references(): HasProps[] {
-    const references = {}
-    HasProps._value_record_references(this, references, {recursive: true})
-    return values(references)
+    const refs = new Set<HasProps>()
+    HasProps._value_record_references(this, refs, {recursive: true})
+    return [...refs.values()]
   }
 
   protected _doc_attached(): void {}
@@ -530,23 +530,23 @@ export abstract class HasProps extends Signalable() {
       return
 
     if (this.document != null) {
-      const new_refs: {[key: string]: HasProps} = {}
+      const new_refs = new Set<HasProps>()
       HasProps._value_record_references(new_, new_refs, {recursive: false})
 
-      const old_refs: {[key: string]: HasProps} = {}
+      const old_refs = new Set<HasProps>()
       HasProps._value_record_references(old, old_refs, {recursive: false})
 
       let need_invalidate = false
-      for (const new_id in new_refs) {
-        if (!(new_id in old_refs)) {
+      for (const new_id of new_refs) {
+        if (!old_refs.has(new_id)) {
           need_invalidate = true
           break
         }
       }
 
       if (!need_invalidate) {
-        for (const old_id in old_refs) {
-          if (!(old_id in new_refs)) {
+        for (const old_id of old_refs) {
+          if (!new_refs.has(old_id)) {
             need_invalidate = true
             break
           }
