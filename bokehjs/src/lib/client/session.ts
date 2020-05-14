@@ -1,11 +1,13 @@
-import {Document, DocumentChangedEvent, ModelChangedEvent} from "document"
+import {Document, DocumentChangedEvent} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
 import {logger} from "core/logging"
 
 export class ClientSession {
 
-  protected _document_listener: (event: DocumentChangedEvent) => void = (event) => this._document_changed(event)
+  protected _document_listener = (event: DocumentChangedEvent) => {
+    this._document_changed(event)
+  }
 
   constructor(protected readonly _connection: ClientConnection, readonly document: Document, readonly id: string) {
     this.document.on_change(this._document_listener)

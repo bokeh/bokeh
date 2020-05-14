@@ -16,18 +16,17 @@ import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
 import {Model} from "model"
 import {
-  DocumentChanged, DocumentChangedEvent,
-  ModelChanged, ModelChangedEvent,
-  RootAddedEvent, RootRemovedEvent,
-  TitleChangedEvent,
-  MessageSentEvent,
+  DocumentEvent, ModelChangedEvent, RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
+  DocumentChanged, ModelChanged, RootAddedEvent,
 } from "./events"
+
+export type ID = string
 
 export class EventManager {
   // Dispatches events to the subscribed models
 
   session: ClientSession | null = null
-  subscribed_models: Set<string> = new Set()
+  subscribed_models: Set<ID> = new Set()
 
   constructor(readonly document: Document) {}
 
@@ -61,7 +60,6 @@ export interface Patch {
   events: DocumentChanged[]
 }
 
-export type ID = string
 export type RefMap = Map<ID, HasProps>
 
 export const documents: Document[] = []
@@ -80,7 +78,7 @@ export class Document {
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_freeze_count: number
-  protected _callbacks: ((event: DocumentChangedEvent) => void)[]
+  protected _callbacks: ((event: DocumentEvent) => void)[]
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
@@ -309,26 +307,25 @@ export class Document {
     }
   }
 
-  on_change(callback: (event: DocumentChangedEvent) => void): void {
+  on_change(callback: (event: DocumentEvent) => void): void {
     if (!includes(this._callbacks, callback))
       this._callbacks.push(callback)
   }
 
-  remove_on_change(callback: (event: DocumentChangedEvent) => void): void {
+  remove_on_change(callback: (event: DocumentEvent) => void): void {
     const i = this._callbacks.indexOf(callback)
     if (i >= 0)
       this._callbacks.splice(i, 1)
   }
 
-  _trigger_on_change(event: DocumentChangedEvent): void {
+  _trigger_on_change(event: DocumentEvent): void {
     for (const cb of this._callbacks) {
       cb(event)
     }
   }
 
-  // called by the model
-  _notify_change(model: HasProps, attr: string, old: unknown, new_: unknown, options?: {setter_id?: string, hint?: unknown}): void {
-    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, options?.setter_id, options?.hint))
+  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: unknown}): void {
+    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
   static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {
@@ -641,11 +638,11 @@ export class Document {
     replacement.destructively_move(this)
   }
 
-  create_json_patch_string(events: DocumentChangedEvent[]): string {
+  create_json_patch_string(events: DocumentEvent[]): string {
     return JSON.stringify(this.create_json_patch(events))
   }
 
-  create_json_patch(events: DocumentChangedEvent[]): Patch {
+  create_json_patch(events: DocumentEvent[]): Patch {
     const references = new Set<HasProps>()
     const json_events: DocumentChanged[] = []
     for (const event of events) {
@@ -653,7 +650,11 @@ export class Document {
         logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", this)
         throw new Error("Cannot create a patch using events from a different document")
       }
-      json_events.push(event.json(references))
+      const events = event.json(references)
+      if (isArray(events))
+        json_events.push(...events)
+      else
+        json_events.push(events)
     }
     return {
       events: json_events,

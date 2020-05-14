@@ -441,7 +441,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(1)
     expect(m.bar).to.equal(1)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     m.bar = 42
@@ -486,7 +486,7 @@ describe("Document", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     const m = new AnotherModel({bar:1})
@@ -525,7 +525,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(0)
     expect(d.title()).to.equal(DEFAULT_TITLE)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     d.set_title('Foo')

@@ -200,8 +200,10 @@ export class Plot extends LayoutDOM {
 
   protected _doc_attached(): void {
     super._doc_attached()
-    this._tell_document_about_change(this.properties.inner_height, null, this.inner_height, {})
-    this._tell_document_about_change(this.properties.inner_width, null, this.inner_width, {})
+    this._push_changes([
+      [this.properties.inner_height, null, this.inner_height],
+      [this.properties.inner_width, null, this.inner_width],
+    ])
   }
 
   initialize(): void {

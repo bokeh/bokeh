@@ -13,7 +13,7 @@ import {clone, extend, isEmpty} from "./util/object"
 import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {Document} from "../document"
+import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -363,9 +363,22 @@ export abstract class HasProps extends Signalable() {
 
     this._setv(changed, options)
 
-    if (options.silent !== true) {
+    const {document} = this
+    if (document != null) {
+      const changed: [Property, unknown, unknown][] = []
       for (const [prop, value] of previous) {
-        this._tell_document_about_change(prop, value, prop.get_value(), options)
+        changed.push([prop, value, prop.get_value()])
+      }
+
+      for (const [, old_value, new_value] of changed) {
+        if (this._needs_invalidate(old_value, new_value)) {
+          document._invalidate_all_models()
+          break
+        }
+      }
+
+      if (options.silent !== true) {
+        this._push_changes(changed, options)
       }
     }
   }
@@ -525,38 +538,46 @@ export abstract class HasProps extends Signalable() {
     this.document = null
   }
 
-  protected _tell_document_about_change(prop: Property, old: unknown, new_: unknown, options: {setter_id?: string}): void {
-    if (!prop.syncable)
+  protected _needs_invalidate(old_value: unknown, new_value: unknown): boolean {
+    const new_refs = new Set<HasProps>()
+    HasProps._value_record_references(new_value, new_refs, {recursive: false})
+
+    const old_refs = new Set<HasProps>()
+    HasProps._value_record_references(old_value, old_refs, {recursive: false})
+
+    for (const new_id of new_refs) {
+      if (!old_refs.has(new_id))
+        return true
+    }
+
+    for (const old_id of old_refs) {
+      if (!new_refs.has(old_id))
+        return true
+    }
+
+    return false
+  }
+
+  protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+    const {document} = this
+    if (document == null)
       return
 
-    if (this.document != null) {
-      const new_refs = new Set<HasProps>()
-      HasProps._value_record_references(new_, new_refs, {recursive: false})
+    const {setter_id} = options
 
-      const old_refs = new Set<HasProps>()
-      HasProps._value_record_references(old, old_refs, {recursive: false})
+    const events = []
+    for (const [prop, old_value, new_value] of changes) {
+      if (prop.syncable)
+        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value, setter_id))
+    }
 
-      let need_invalidate = false
-      for (const new_id of new_refs) {
-        if (!old_refs.has(new_id)) {
-          need_invalidate = true
-          break
-        }
-      }
-
-      if (!need_invalidate) {
-        for (const old_id of old_refs) {
-          if (!new_refs.has(old_id)) {
-            need_invalidate = true
-            break
-          }
-        }
-      }
-
-      if (need_invalidate)
-        this.document._invalidate_all_models()
-
-      this.document._notify_change(this, prop.attr, old, new_, options)
+    if (events.length != 0) {
+      let event: DocumentEvent
+      if (events.length == 1)
+        [event] = events
+      else
+        event = new DocumentEventBatch(document, events, setter_id)
+      document._trigger_on_change(event)
     }
   }
 

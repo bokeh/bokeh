@@ -56,9 +56,23 @@ export interface ColumnsPatched {
 export type DocumentChanged =
   ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
 
-export abstract class DocumentChangedEvent {
+export abstract class DocumentEvent {
   constructor(readonly document: Document) {}
 
+  abstract json(references: Set<HasProps>): DocumentChanged | DocumentChanged[]
+}
+
+export class DocumentEventBatch extends DocumentEvent {
+  constructor(document: Document, readonly events: DocumentChangedEvent[], readonly setter_id?: string) {
+    super(document)
+  }
+
+  json(references: Set<HasProps>): DocumentChanged[] {
+    return this.events.map((event) => event.json(references))
+  }
+}
+
+export abstract class DocumentChangedEvent extends DocumentEvent {
   abstract json(references: Set<HasProps>): DocumentChanged
 }
 
