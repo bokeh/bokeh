@@ -4,6 +4,7 @@ import defer from "./defer"
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {div} from "@bokehjs/core/dom"
+import {ViewOf} from "@bokehjs/core/view"
 import {isString} from "@bokehjs/core/util/types"
 
 export type Func = () => void
@@ -239,7 +240,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000]): Promise<LayoutDOMView> {
+export async function display<T extends LayoutDOM>(obj: T, viewport: [number, number] = [1000, 1000]): Promise<ViewOf<T>> {
   const [width, height] = viewport
   const el = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}})
   document.body.appendChild(el)
