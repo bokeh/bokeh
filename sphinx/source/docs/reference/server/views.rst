@@ -2,7 +2,7 @@ bokeh.server.views
 ------------------
 
 auth_request_handler
-~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: bokeh.server.views.auth_request_handler
    :members:
