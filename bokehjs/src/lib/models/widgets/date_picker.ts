@@ -4,29 +4,29 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
 import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
-import {isString, isArray} from "core/util/types"
+import {isString} from "core/util/types"
 
 import {bk_input} from "styles/widgets/inputs"
 import flatpickr_css from "styles/widgets/flatpickr.css"
 
-type Date = string
-type DatesList = (Date | [Date, Date])[]
+type DateStr= string
+type DatesList = (DateStr | [DateStr, DateStr])[]
 
-function _convert_date_list(value: DatesList): any[] {
-  const result: any[] = []
+function _convert_date_list(value: DatesList): flatpickr.Options.DateLimit[] {
+  const result: flatpickr.Options.DateLimit[] = []
   for (const item of value) {
     if (isString(item))
       result.push(item)
-    else if (isArray(item) && item.length == 2)
-      result.push({from: item[0], to: item[1]})
+    else {
+      const [from, to] = item
+      result.push({from, to})
+    }
   }
   return result
 }
 
 export class DatePickerView extends InputWidgetView {
   model: DatePicker
-
-  protected input_el: HTMLInputElement
 
   private _picker: flatpickr.Instance
 
@@ -41,7 +41,6 @@ export class DatePickerView extends InputWidgetView {
     this.connect(enabled_dates.change, () => this._picker?.set("enable", enabled_dates.value()))
     this.connect(position.change, () => this._picker?.set("position", position.value()))
     this.connect(inline.change, () => this._picker?.set("inline", inline.value()))
-
   }
 
   styles(): string[] {
@@ -68,7 +67,7 @@ export class DatePickerView extends InputWidgetView {
     })
   }
 
-  _on_change(_selected_dates: any, date_string: string, _instance: flatpickr.Instance): void {
+  protected _on_change(_selected_dates: Date[], date_string: string, _instance: flatpickr.Instance): void {
     this.model.value = date_string
     this.change_input()
   }

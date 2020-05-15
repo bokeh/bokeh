@@ -6,6 +6,11 @@ import inputs_css from "styles/widgets/inputs.css"
 export abstract class InputGroupView extends ControlView {
   model: InputGroup
 
+  protected _inputs: HTMLInputElement[]
+  *controls() {
+    yield* this._inputs
+  }
+
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())

@@ -28,6 +28,10 @@ abstract class AbstractBaseSliderView extends ControlView {
   protected slider_el: HTMLElement
   protected title_el: HTMLElement
 
+  *controls() {
+    yield this.slider_el as any
+  }
+
   private get noUiSlider(): noUiSlider.noUiSlider {
     return (this.slider_el as noUiSlider.Instance).noUiSlider
   }
