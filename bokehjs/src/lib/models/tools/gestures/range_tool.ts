@@ -236,6 +236,7 @@ export interface RangeTool extends RangeTool.Attrs {}
 
 export class RangeTool extends GestureTool {
   properties: RangeTool.Props
+  __view_type__: RangeToolView
 
   /*override*/ overlay: BoxAnnotation
 

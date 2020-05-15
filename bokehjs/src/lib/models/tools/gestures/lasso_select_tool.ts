@@ -96,6 +96,7 @@ export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
   properties: LassoSelectTool.Props
+  __view_type__: LassoSelectToolView
 
   /*override*/ overlay: PolyAnnotation
 

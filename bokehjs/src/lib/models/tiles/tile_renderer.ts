@@ -393,6 +393,7 @@ export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends DataRenderer {
   properties: TileRenderer.Props
+  __view_type__: TileRendererView
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)

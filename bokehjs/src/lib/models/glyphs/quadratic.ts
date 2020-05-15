@@ -115,6 +115,7 @@ export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
   properties: Quadratic.Props
+  __view_type__: QuadraticView
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)

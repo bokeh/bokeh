@@ -174,6 +174,7 @@ export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
   properties: MultiLine.Props
+  __view_type__: MultiLineView
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)

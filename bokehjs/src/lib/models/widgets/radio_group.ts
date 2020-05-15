@@ -52,6 +52,7 @@ export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends InputGroup {
   properties: RadioGroup.Props
+  __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)

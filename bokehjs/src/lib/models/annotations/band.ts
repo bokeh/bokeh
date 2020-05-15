@@ -160,6 +160,7 @@ export interface Band extends Band.Attrs {}
 
 export class Band extends Annotation {
   properties: Band.Props
+  __view_type__: BandView
 
   constructor(attrs?: Partial<Band.Attrs>) {
     super(attrs)

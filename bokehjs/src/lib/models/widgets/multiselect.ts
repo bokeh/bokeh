@@ -92,6 +92,7 @@ export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
   properties: MultiSelect.Props
+  __view_type__: MultiSelectView
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
     super(attrs)

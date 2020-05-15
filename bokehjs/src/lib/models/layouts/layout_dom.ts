@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import {Color} from "core/types"
-import {Class} from "core/class"
 import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
@@ -394,8 +393,6 @@ export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
   properties: LayoutDOM.Props
-  default_view: Class<LayoutDOMView, [LayoutDOMView.Options]>
-
   __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {

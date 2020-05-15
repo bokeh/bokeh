@@ -1,6 +1,5 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
-import {Class} from "core/class"
 import {classes} from "core/dom"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
@@ -41,7 +40,7 @@ export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends ButtonGroup {
   properties: CheckboxButtonGroup.Props
-  default_view: Class<CheckboxButtonGroupView>
+  __view_type__: CheckboxButtonGroupView
 
   constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)

@@ -15,6 +15,7 @@ export interface WidgetBox extends Column.Attrs {}
 
 export class WidgetBox extends Column {
   properties: WidgetBox.Props
+  __view_type__: WidgetBoxView
 
   constructor(attrs?: Partial<WidgetBox.Attrs>) {
     super(attrs)

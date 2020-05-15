@@ -8,7 +8,6 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Scale} from "../scales/scale"
 import {CDSView} from "../sources/cds_view"
 import {Color} from "core/types"
-import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {indexOf, filter} from "core/util/arrayable"
@@ -401,7 +400,7 @@ export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends DataRenderer {
   properties: GlyphRenderer.Props
-  default_view: Class<GlyphRendererView>
+  __view_type__: GlyphRendererView
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)

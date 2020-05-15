@@ -130,6 +130,7 @@ export interface MultiChoice extends MultiChoice.Attrs {}
 
 export class MultiChoice extends InputWidget {
   properties: MultiChoice.Props
+  __view_type__: MultiChoiceView
 
   constructor(attrs?: Partial<MultiChoice.Attrs>) {
     super(attrs)

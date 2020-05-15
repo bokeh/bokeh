@@ -225,6 +225,7 @@ export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
   properties: LabelSet.Props
+  __view_type__: LabelSetView
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)

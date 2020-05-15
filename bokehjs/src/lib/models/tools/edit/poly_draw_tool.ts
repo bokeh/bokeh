@@ -248,6 +248,7 @@ export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends PolyTool {
   properties: PolyDrawTool.Props
+  __view_type__: PolyDrawToolView
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)

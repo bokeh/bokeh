@@ -76,6 +76,7 @@ export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
   properties: TapTool.Props
+  __view_type__: TapToolView
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)

@@ -335,6 +335,7 @@ export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
   properties: DataTable.Props
+  __view_type__: DataTableView
 
   private _sort_columns: any[] = []
   get sort_columns(): any[] { return this._sort_columns }

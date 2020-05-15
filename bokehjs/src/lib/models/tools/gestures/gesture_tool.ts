@@ -16,6 +16,7 @@ export interface GestureTool extends GestureTool.Attrs {}
 
 export abstract class GestureTool extends ButtonTool {
   properties: GestureTool.Props
+  __view_type__: GestureToolView
 
   constructor(attrs?: Partial<GestureTool.Attrs>) {
     super(attrs)

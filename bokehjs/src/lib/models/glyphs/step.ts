@@ -104,6 +104,7 @@ export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
   properties: Step.Props
+  __view_type__: StepView
 
   constructor(attrs?: Partial<Step.Attrs>) {
     super(attrs)

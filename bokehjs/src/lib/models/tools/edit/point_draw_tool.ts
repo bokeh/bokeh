@@ -85,6 +85,7 @@ export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
   properties: PointDrawTool.Props
+  __view_type__: PointDrawToolView
 
   renderers: (GlyphRenderer & HasXYGlyph)[]
 

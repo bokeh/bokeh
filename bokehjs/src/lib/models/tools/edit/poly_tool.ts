@@ -71,6 +71,7 @@ export interface PolyTool extends PolyTool.Attrs {}
 
 export class PolyTool extends EditTool {
   properties: PolyTool.Props
+  __view_type__: PolyToolView
 
   renderers: (GlyphRenderer & HasPolyGlyph)[]
 

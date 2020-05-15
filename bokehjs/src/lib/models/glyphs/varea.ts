@@ -117,6 +117,7 @@ export interface VArea extends VArea.Attrs {}
 
 export class VArea extends Area {
   properties: VArea.Props
+  __view_type__: VAreaView
 
   constructor(attrs?: Partial<VArea.Attrs>) {
     super(attrs)

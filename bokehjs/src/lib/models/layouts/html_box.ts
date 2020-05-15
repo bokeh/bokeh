@@ -29,6 +29,7 @@ export interface HTMLBox extends HTMLBox.Attrs {}
 
 export abstract class HTMLBox extends LayoutDOM {
   properties: HTMLBox.Props
+  __view_type__: HTMLBoxView
 
   constructor(attrs?: Partial<HTMLBox.Attrs>) {
     super(attrs)

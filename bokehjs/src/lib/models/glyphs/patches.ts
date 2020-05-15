@@ -258,6 +258,7 @@ export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
   properties: Patches.Props
+  __view_type__: PatchesView
 
   constructor(attrs?: Partial<Patches.Attrs>) {
     super(attrs)

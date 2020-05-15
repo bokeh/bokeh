@@ -446,6 +446,7 @@ export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
   properties: HoverTool.Props
+  __view_type__: HoverToolView
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)

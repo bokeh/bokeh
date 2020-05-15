@@ -75,6 +75,7 @@ export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
   properties: Select.Props
+  __view_type__: SelectView
 
   constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)

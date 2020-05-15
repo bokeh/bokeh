@@ -166,6 +166,7 @@ export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
   properties: Segment.Props
+  __view_type__: SegmentView
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)

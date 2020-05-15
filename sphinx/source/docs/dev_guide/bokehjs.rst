@@ -231,6 +231,7 @@ module looks like this:
 
     export class SomeModel extends BaseModel {
       properties: SomeModel.Props
+      __view_type__: SomeModelView
 
       // do not remove this constructor, or you won't be
       // able to use `new SomeModel({some_property: 1})`

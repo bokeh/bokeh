@@ -88,6 +88,7 @@ export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
   properties: Span.Props
+  __view_type__: SpanView
 
   constructor(attrs?: Partial<Span.Attrs>) {
     super(attrs)

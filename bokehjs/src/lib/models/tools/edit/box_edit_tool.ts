@@ -151,6 +151,7 @@ export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
   properties: BoxEditTool.Props
+  __view_type__: BoxEditToolView
 
   renderers: (GlyphRenderer & HasRectCDS)[]
 

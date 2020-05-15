@@ -242,6 +242,7 @@ export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends LayoutDOM {
   properties: Tabs.Props
+  __view_type__: TabsView
 
   constructor(attrs?: Partial<Tabs.Attrs>) {
     super(attrs)

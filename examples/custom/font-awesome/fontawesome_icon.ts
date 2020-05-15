@@ -44,6 +44,7 @@ export interface FontAwesomeIcon extends FontAwesomeIcon.Attrs {}
 
 export class FontAwesomeIcon extends AbstractIcon {
   properties: FontAwesomeIcon.Props
+  __view_type__: FontAwesomeIconView
 
   constructor(attrs?: Partial<FontAwesomeIcon.Attrs>) {
     super(attrs)

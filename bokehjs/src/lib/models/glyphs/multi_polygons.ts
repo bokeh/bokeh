@@ -301,6 +301,7 @@ export interface MultiPolygons extends MultiPolygons.Attrs {}
 
 export class MultiPolygons extends Glyph {
   properties: MultiPolygons.Props
+  __view_type__: MultiPolygonsView
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
     super(attrs)

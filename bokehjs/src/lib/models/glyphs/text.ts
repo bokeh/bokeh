@@ -168,6 +168,7 @@ export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
   properties: Text.Props
+  __view_type__: TextView
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)

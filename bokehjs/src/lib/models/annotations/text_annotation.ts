@@ -157,6 +157,7 @@ export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
   properties: TextAnnotation.Props
+  __view_type__: TextAnnotationView
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)

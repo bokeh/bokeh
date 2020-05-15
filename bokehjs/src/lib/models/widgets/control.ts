@@ -22,6 +22,7 @@ export interface Control extends Control.Attrs {}
 
 export abstract class Control extends Widget {
   properties: Control.Props
+  __view_type__: ControlView
 
   constructor(attrs?: Partial<Control.Attrs>) {
     super(attrs)

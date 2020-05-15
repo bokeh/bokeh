@@ -131,6 +131,7 @@ export interface Tool extends Tool.Attrs {
 
 export abstract class Tool extends Model {
   properties: Tool.Props
+  __view_type__: ToolView
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)

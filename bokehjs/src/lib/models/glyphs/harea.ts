@@ -117,6 +117,7 @@ export interface HArea extends HArea.Attrs {}
 
 export class HArea extends Area {
   properties: HArea.Props
+  __view_type__: HAreaView
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)

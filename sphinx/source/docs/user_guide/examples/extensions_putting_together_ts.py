@@ -59,6 +59,7 @@ export interface Custom extends Custom.Attrs {}
 
 export class Custom extends HTMLBox {
   properties: Custom.Props
+  __view_type__: CustomView
 
   constructor(attrs?: Partial<Custom.Attrs>) {
     super(attrs)

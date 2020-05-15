@@ -84,6 +84,7 @@ export interface IonRangeSlider extends IonRangeSlider.Attrs {}
 
 export class IonRangeSlider extends InputWidget {
   properties: IonRangeSlider.Props
+  __view_type__: IonRangeSliderView
 
   constructor(attrs?: Partial<IonRangeSlider.Attrs>) {
     super(attrs)

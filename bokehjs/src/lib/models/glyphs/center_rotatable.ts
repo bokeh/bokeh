@@ -44,6 +44,7 @@ export interface CenterRotatable extends CenterRotatable.Attrs {}
 
 export abstract class CenterRotatable extends XYGlyph {
   properties: CenterRotatable.Props
+  __view_type__: CenterRotatableView
 
   constructor(attrs?: Partial<CenterRotatable.Attrs>) {
     super(attrs)

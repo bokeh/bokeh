@@ -169,6 +169,7 @@ export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
   properties: AnnularWedge.Props
+  __view_type__: AnnularWedgeView
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {
     super(attrs)

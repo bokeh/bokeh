@@ -53,6 +53,7 @@ export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
   properties: CrosshairTool.Props
+  __view_type__: CrosshairToolView
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)

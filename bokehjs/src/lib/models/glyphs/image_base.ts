@@ -163,6 +163,7 @@ export interface ImageBase extends ImageBase.Attrs {}
 
 export class ImageBase extends XYGlyph {
   properties: ImageBase.Props
+  __view_type__: ImageBaseView
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)

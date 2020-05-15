@@ -165,6 +165,7 @@ export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
   properties: Box.Props
+  __view_type__: BoxView
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)

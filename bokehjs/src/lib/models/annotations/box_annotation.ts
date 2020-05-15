@@ -139,6 +139,7 @@ export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
   properties: BoxAnnotation.Props
+  __view_type__: BoxAnnotationView
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)

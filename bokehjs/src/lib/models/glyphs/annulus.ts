@@ -152,6 +152,7 @@ export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
   properties: Annulus.Props
+  __view_type__: AnnulusView
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)

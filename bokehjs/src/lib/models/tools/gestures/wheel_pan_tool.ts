@@ -95,6 +95,7 @@ export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
   properties: WheelPanTool.Props
+  __view_type__: WheelPanToolView
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
     super(attrs)

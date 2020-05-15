@@ -211,6 +211,7 @@ export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
   properties: Grid.Props
+  __view_type__: GridView
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)

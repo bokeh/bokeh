@@ -25,9 +25,8 @@ export namespace InputGroup {
 export interface InputGroup extends InputGroup.Attrs {}
 
 export abstract class InputGroup extends Control {
-  properties: InputGroup.Props & {
-    active: p.Property<unknown>
-  }
+  properties: InputGroup.Props & {active: p.Property<unknown>}
+  __view_type__: InputGroupView
 
   constructor(attrs?: Partial<InputGroup.Attrs>) {
     super(attrs)

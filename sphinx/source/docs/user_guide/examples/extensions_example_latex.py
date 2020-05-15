@@ -65,6 +65,7 @@ export interface LatexLabel extends LatexLabel.Attrs {}
 
 export class LatexLabel extends Label {
   properties: LatexLabel.Props
+  __view_type__: LatexLabelView
 
   constructor(attrs?: Partial<LatexLabel.Attrs>) {
     super(attrs)

@@ -23,6 +23,7 @@ export interface Paragraph extends Paragraph.Attrs {}
 
 export class Paragraph extends Markup {
   properties: Paragraph.Props
+  __view_type__: ParagraphView
 
   constructor(attrs?: Partial<Paragraph.Attrs>) {
     super(attrs)

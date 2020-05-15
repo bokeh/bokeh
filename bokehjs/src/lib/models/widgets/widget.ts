@@ -1,5 +1,4 @@
 import {HTMLBox, HTMLBoxView} from "../layouts/html_box"
-import {Class} from "core/class"
 import {Orientation} from "core/enums"
 import {BoxSizing, SizingPolicy} from "core/layout"
 import * as p from "core/properties"
@@ -10,7 +9,6 @@ export namespace WidgetView {
 
 export abstract class WidgetView extends HTMLBoxView {
   model: Widget
-  default_view: Class<WidgetView, [WidgetView.Options]>
 
   protected _width_policy(): SizingPolicy {
     return this.model.orientation == "horizontal" ? super._width_policy() : "fixed"
@@ -46,6 +44,7 @@ export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends HTMLBox {
   properties: Widget.Props
+  __view_type__: WidgetView
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)

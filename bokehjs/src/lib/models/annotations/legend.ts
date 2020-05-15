@@ -6,7 +6,6 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import {Class} from "core/class"
 import {Size} from "core/layout"
 import {measure_font} from "core/util/text"
 import {BBox} from "core/util/bbox"
@@ -355,7 +354,7 @@ export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
   properties: Legend.Props
-  default_view: Class<LegendView>
+  __view_type__: LegendView
 
   item_change: Signal0<this>
 

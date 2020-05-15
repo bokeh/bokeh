@@ -234,6 +234,7 @@ export interface PolyEditTool extends PolyEditTool.Attrs {}
 
 export class PolyEditTool extends PolyTool {
   properties: PolyEditTool.Props
+  __view_type__: PolyEditToolView
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)

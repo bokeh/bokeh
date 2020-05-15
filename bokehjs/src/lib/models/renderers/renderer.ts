@@ -75,6 +75,7 @@ export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
   properties: Renderer.Props
+  __view_type__: RendererView
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)

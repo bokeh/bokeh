@@ -39,6 +39,7 @@ export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
   properties: Toggle.Props
+  __view_type__: ToggleView
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
     super(attrs)

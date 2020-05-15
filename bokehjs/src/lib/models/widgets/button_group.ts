@@ -60,9 +60,8 @@ export namespace ButtonGroup {
 export interface ButtonGroup extends ButtonGroup.Attrs {}
 
 export abstract class ButtonGroup extends Control {
-  properties: ButtonGroup.Props & {
-    active: p.Property<unknown>
-  }
+  properties: ButtonGroup.Props & {active: p.Property<unknown>}
+  __view_type__: ButtonGroupView
 
   constructor(attrs?: Partial<ButtonGroup.Attrs>) {
     super(attrs)

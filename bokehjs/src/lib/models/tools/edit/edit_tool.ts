@@ -174,6 +174,7 @@ export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
   properties: EditTool.Props
+  __view_type__: EditToolView
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)

@@ -45,6 +45,7 @@ export interface GridBox extends GridBox.Attrs {}
 
 export class GridBox extends LayoutDOM {
   properties: GridBox.Props
+  __view_type__: GridBoxView
 
   constructor(attrs?: Partial<GridBox.Attrs>) {
     super(attrs)

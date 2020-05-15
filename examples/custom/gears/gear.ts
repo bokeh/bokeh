@@ -167,6 +167,7 @@ export interface Gear extends Gear.Attrs {}
 
 export class Gear extends XYGlyph {
   properties: Gear.Props
+  __view_type__: GearView
 
   constructor(attrs?: Partial<Gear.Attrs>) {
     super(attrs)

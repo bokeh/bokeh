@@ -159,6 +159,7 @@ export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
   properties: Arrow.Props
+  __view_type__: ArrowView
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)

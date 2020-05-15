@@ -920,10 +920,10 @@ export function figure(attributes?: Partial<Figure.Attrs>): Figure {
 
 declare const $: any
 
-export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>>
-export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>[]>
+export async function show<T extends LayoutDOM>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
+export async function show<T extends LayoutDOM>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
 
-export async function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<LayoutDOM>[]> {
+export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<T>[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])

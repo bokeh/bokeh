@@ -80,6 +80,7 @@ export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
   properties: HBar.Props
+  __view_type__: HBarView
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)

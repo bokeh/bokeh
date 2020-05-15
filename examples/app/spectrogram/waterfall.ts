@@ -123,6 +123,7 @@ export interface WaterfallRenderer extends WaterfallRenderer.Attrs {}
 
 export class WaterfallRenderer extends Renderer {
   properties: WaterfallRenderer.Props
+  __view_type__: WaterfallRendererView
 
   constructor(attrs?: Partial<WaterfallRenderer.Attrs>) {
     super(attrs)

@@ -90,6 +90,7 @@ export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
   properties: PolySelectTool.Props
+  __view_type__: PolySelectToolView
 
   /*override*/ overlay: PolyAnnotation
 

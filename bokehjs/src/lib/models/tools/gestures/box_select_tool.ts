@@ -93,6 +93,7 @@ export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
   properties: BoxSelectTool.Props
+  __view_type__: BoxSelectToolView
 
   /** @override */
   overlay: BoxAnnotation

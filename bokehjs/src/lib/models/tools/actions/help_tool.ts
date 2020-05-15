@@ -23,6 +23,7 @@ export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
   properties: HelpTool.Props
+  __view_type__: HelpToolView
 
   constructor(attrs?: Partial<HelpTool.Attrs>) {
     super(attrs)
