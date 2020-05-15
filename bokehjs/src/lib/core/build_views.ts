@@ -1,11 +1,9 @@
 import {HasProps} from "./has_props"
-import {View} from "./view"
+import {View, ViewOf} from "./view"
 import {difference} from "./util/array"
 
 export type ViewStorage = {[key: string]: View}
 export type Options = {parent: View | null}
-
-export type ViewOf<T extends HasProps> = InstanceType<T["default_view"]>
 
 async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options): Promise<ViewOf<T>> {
   const view = new view_cls({...options, model}) as ViewOf<T>

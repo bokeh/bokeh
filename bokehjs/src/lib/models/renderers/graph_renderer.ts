@@ -6,7 +6,6 @@ import {Scale} from "../scales/scale"
 import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
-import {Class} from "core/class"
 
 export class GraphRendererView extends DataRendererView {
   model: GraphRenderer
@@ -105,7 +104,6 @@ export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends DataRenderer {
   properties: GraphRenderer.Props
-  default_view: Class<GraphRendererView>
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)

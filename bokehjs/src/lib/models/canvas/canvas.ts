@@ -296,7 +296,6 @@ export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
   properties: Canvas.Props
-  default_view: typeof CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)

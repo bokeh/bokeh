@@ -1,6 +1,5 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
-import {Class} from "core/class"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
@@ -36,7 +35,6 @@ export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends ButtonGroup {
   properties: RadioButtonGroup.Props
-  default_view: Class<RadioButtonGroupView>
 
   constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
     super(attrs)

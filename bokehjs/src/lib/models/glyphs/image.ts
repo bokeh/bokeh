@@ -1,7 +1,6 @@
 import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
-import {Class} from "core/class"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
@@ -107,7 +106,6 @@ export interface Image extends Image.Attrs {}
 
 export class Image extends ImageBase {
   properties: Image.Props
-  default_view: Class<ImageView>
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)

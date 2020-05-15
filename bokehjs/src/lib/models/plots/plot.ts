@@ -1,7 +1,6 @@
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
-import {Class} from "core/class"
 import {Signal0} from "core/signaling"
 import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
@@ -105,7 +104,6 @@ export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
   properties: Plot.Props
-  default_view: Class<PlotView, [PlotView.Options]>
 
   use_map?: boolean
 

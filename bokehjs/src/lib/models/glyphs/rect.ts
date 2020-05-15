@@ -3,7 +3,6 @@ import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable} from "core/types"
-import {Class} from "core/class"
 import * as types from "core/types"
 import * as p from "core/properties"
 import {max} from "core/util/arrayable"
@@ -243,7 +242,6 @@ export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
   properties: Rect.Props
-  default_view: Class<RectView>
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)

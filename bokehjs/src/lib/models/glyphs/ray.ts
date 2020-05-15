@@ -3,7 +3,6 @@ import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Rect} from "core/types"
-import {Class} from "core/class"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -80,7 +79,6 @@ export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
   properties: Ray.Props
-  default_view: Class<RayView>
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)

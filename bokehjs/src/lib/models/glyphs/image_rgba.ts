@@ -1,6 +1,5 @@
 import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
 import {Arrayable, TypedArray} from "core/types"
-import {Class} from "core/class"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
@@ -95,7 +94,6 @@ export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends ImageBase {
   properties: ImageRGBA.Props
-  default_view: Class<ImageRGBAView>
 
   constructor(attrs?: Partial<ImageRGBA.Attrs>) {
     super(attrs)

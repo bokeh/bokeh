@@ -8,7 +8,7 @@ describe("SliderView", () => {
 
   it("_calc_from should return integer if start/end/step all integers", async () => {
     const s = new Slider({start: 0, end: 10, step: 1})
-    const sv = (await build_view(s)).build() as any // XXX: default_view
+    const sv = (await build_view(s)).build()
 
     const r = sv._calc_from([5.0])
     expect(r).to.be.equal(5)
