@@ -131,6 +131,7 @@ export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
   properties: PanTool.Props
+  __view_type__: PanToolView
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
     super(attrs)

@@ -78,6 +78,7 @@ export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
   properties: Patch.Props
+  __view_type__: PatchView
 
   constructor(attrs?: Partial<Patch.Attrs>) {
     super(attrs)

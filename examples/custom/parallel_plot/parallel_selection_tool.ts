@@ -362,6 +362,7 @@ export interface ParallelSelectionTool extends ParallelSelectionTool.Attrs {}
 
 export class ParallelSelectionTool extends BoxSelectTool {
   properties: ParallelSelectionTool.Props
+  __view_type__: ParallelSelectionView
 
   static init_ParallelSelectionTool(): void {
     this.prototype.default_view = ParallelSelectionView

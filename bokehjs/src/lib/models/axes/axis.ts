@@ -547,6 +547,7 @@ export interface Axis extends Axis.Attrs {
 
 export class Axis extends GuideRenderer {
   properties: Axis.Props
+  __view_type__: AxisView
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)

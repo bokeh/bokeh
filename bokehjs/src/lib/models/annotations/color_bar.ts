@@ -604,6 +604,7 @@ export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
   properties: ColorBar.Props
+  __view_type__: ColorBarView
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)

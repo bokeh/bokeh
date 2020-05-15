@@ -145,6 +145,7 @@ export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
   properties: Tooltip.Props
+  __view_type__: TooltipView
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
     super(attrs)

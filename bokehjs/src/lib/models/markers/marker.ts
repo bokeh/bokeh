@@ -176,6 +176,7 @@ export interface Marker extends Marker.Attrs {}
 
 export abstract class Marker extends XYGlyph {
   properties: Marker.Props
+  __view_type__: MarkerView
 
   constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)

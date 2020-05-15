@@ -393,7 +393,6 @@ export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
   properties: LayoutDOM.Props
-
   __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {

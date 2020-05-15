@@ -26,6 +26,7 @@ export interface Column extends Column.Attrs {}
 
 export class Column extends Box {
   properties: Column.Props
+  __view_type__: ColumnView
 
   constructor(attrs?: Partial<Column.Attrs>) {
     super(attrs)

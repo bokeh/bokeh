@@ -104,6 +104,7 @@ export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
   properties: Plot.Props
+  __view_type__: PlotView
 
   use_map?: boolean
 
@@ -259,7 +260,7 @@ export class Plot extends LayoutDOM {
   }
 
   get panels(): (Annotation | Axis | Grid)[] {
-    return this.side_panels.concat(this.center)
+    return [...this.side_panels, ...this.center]
   }
 
   get side_panels(): (Annotation | Axis)[] {

@@ -49,6 +49,7 @@ export interface ColorPicker extends ColorPicker.Attrs {}
 
 export class ColorPicker extends InputWidget {
   properties: ColorPicker.Props
+  __view_type__: ColorPickerView
 
   constructor(attrs?: Partial<ColorPicker.Attrs>) {
     super(attrs)

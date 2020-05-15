@@ -145,6 +145,7 @@ export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
   properties: Wedge.Props
+  __view_type__: WedgeView
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)

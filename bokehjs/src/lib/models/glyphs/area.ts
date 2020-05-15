@@ -33,6 +33,7 @@ export interface Area extends Area.Attrs {}
 
 export class Area extends Glyph {
   properties: Area.Props
+  __view_type__: AreaView
 
   constructor(attrs?: Partial<Area.Attrs>) {
     super(attrs)

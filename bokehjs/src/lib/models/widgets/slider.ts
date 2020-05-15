@@ -19,6 +19,7 @@ export interface Slider extends Slider.Attrs {}
 
 export class Slider extends AbstractSlider {
   properties: Slider.Props
+  __view_type__: SliderView
 
   constructor(attrs?: Partial<Slider.Attrs>) {
     super(attrs)

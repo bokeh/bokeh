@@ -400,6 +400,7 @@ export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends DataRenderer {
   properties: GlyphRenderer.Props
+  __view_type__: GlyphRendererView
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)

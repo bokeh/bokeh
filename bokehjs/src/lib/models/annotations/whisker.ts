@@ -152,6 +152,7 @@ export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
   properties: Whisker.Props
+  __view_type__: WhiskerView
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)

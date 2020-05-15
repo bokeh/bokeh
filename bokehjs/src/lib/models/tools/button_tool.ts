@@ -120,6 +120,7 @@ export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
   properties: ButtonTool.Props
+  __view_type__: ButtonToolView
 
   constructor(attrs?: Partial<ButtonTool.Attrs>) {
     super(attrs)

@@ -144,6 +144,7 @@ export interface EllipseOval extends EllipseOval.Attrs {}
 
 export abstract class EllipseOval extends CenterRotatable {
   properties: EllipseOval.Props
+  __view_type__: EllipseOvalView
 
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)

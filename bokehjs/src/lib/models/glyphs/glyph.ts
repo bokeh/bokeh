@@ -368,6 +368,7 @@ export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
   properties: Glyph.Props
+  __view_type__: GlyphView
 
   /* prototype */ _coords: [string, string][]
 

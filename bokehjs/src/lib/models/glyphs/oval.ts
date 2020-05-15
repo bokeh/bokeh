@@ -34,6 +34,7 @@ export interface Oval extends Oval.Attrs {}
 
 export class Oval extends EllipseOval {
   properties: Oval.Props
+  __view_type__: OvalView
 
   constructor(attrs?: Partial<Oval.Attrs>) {
     super(attrs)

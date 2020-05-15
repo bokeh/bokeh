@@ -20,6 +20,7 @@ export interface DatetimeAxis extends DatetimeAxis.Attrs {}
 
 export class DatetimeAxis extends LinearAxis {
   properties: DatetimeAxis.Props
+  __view_type__: DatetimeAxisView
 
   constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
     super(attrs)

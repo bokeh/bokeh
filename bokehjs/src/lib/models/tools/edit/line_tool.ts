@@ -49,6 +49,7 @@ export interface LineTool extends LineTool.Attrs { }
 
 export class LineTool extends EditTool {
   properties: LineTool.Props
+  __view_type__: LineToolView
 
   renderers: (GlyphRenderer & HasLineGlyph)[]
 

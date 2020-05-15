@@ -72,6 +72,7 @@ export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
   properties: Arc.Props
+  __view_type__: ArcView
 
   constructor(attrs?: Partial<Arc.Attrs>) {
     super(attrs)

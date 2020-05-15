@@ -20,6 +20,7 @@ export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
   properties: SaveTool.Props
+  __view_type__: SaveToolView
 
   constructor(attrs?: Partial<SaveTool.Attrs>) {
     super(attrs)

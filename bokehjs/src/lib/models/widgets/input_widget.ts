@@ -48,6 +48,7 @@ export interface InputWidget extends InputWidget.Attrs {}
 
 export abstract class InputWidget extends Control {
   properties: InputWidget.Props
+  __view_type__: InputWidgetView
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
     super(attrs)

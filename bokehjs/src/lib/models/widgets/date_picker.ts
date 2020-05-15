@@ -92,6 +92,7 @@ export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
   properties: DatePicker.Props
+  __view_type__: DatePickerView
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
     super(attrs)

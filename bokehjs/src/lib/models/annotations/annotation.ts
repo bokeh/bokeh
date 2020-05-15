@@ -75,6 +75,7 @@ export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
   properties: Annotation.Props
+  __view_type__: AnnotationView
 
   constructor(attrs?: Partial<Annotation.Attrs>) {
     super(attrs)

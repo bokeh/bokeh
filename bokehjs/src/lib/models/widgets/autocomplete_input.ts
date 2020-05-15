@@ -168,6 +168,7 @@ export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
   properties: AutocompleteInput.Props
+  __view_type__: AutocompleteInputView
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
     super(attrs)

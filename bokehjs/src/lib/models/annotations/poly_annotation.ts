@@ -89,6 +89,7 @@ export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
   properties: PolyAnnotation.Props
+  __view_type__: PolyAnnotationView
 
   data_update: Signal0<this>
 

@@ -39,6 +39,7 @@ export interface ZoomOutTool extends ZoomOutTool.Attrs {}
 
 export class ZoomOutTool extends ActionTool {
   properties: ZoomOutTool.Props
+  __view_type__: ZoomOutToolView
 
   constructor(attrs?: Partial<ZoomOutTool.Attrs>) {
     super(attrs)

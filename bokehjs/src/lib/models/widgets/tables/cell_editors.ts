@@ -137,6 +137,7 @@ export interface CellEditor extends CellEditor.Attrs {}
 
 export abstract class CellEditor extends Model {
   properties: CellEditor.Props
+  __view_type__: CellEditorView
 }
 
 export class StringEditorView extends CellEditorView {

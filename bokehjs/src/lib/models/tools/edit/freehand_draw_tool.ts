@@ -90,6 +90,7 @@ export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
   properties: FreehandDrawTool.Props
+  __view_type__: FreehandDrawToolView
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)

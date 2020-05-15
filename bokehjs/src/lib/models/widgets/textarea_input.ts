@@ -1,5 +1,4 @@
-import {TextInput} from "./text_input"
-import {InputWidgetView} from "./input_widget"
+import {InputWidget, InputWidgetView} from "./input_widget"
 
 import {textarea} from "core/dom"
 import * as p from "core/properties"
@@ -48,7 +47,10 @@ export class TextAreaInputView extends InputWidgetView {
 export namespace TextAreaInput {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = TextInput.Props & {
+  export type Props = InputWidget.Props & {
+    value: p.Property<string>
+    value_input: p.Property<string>
+    placeholder: p.Property<string>
     cols: p.Property<number>
     rows: p.Property<number>
     max_length: p.Property<number>
@@ -57,8 +59,9 @@ export namespace TextAreaInput {
 
 export interface TextAreaInput extends TextAreaInput.Attrs {}
 
-export class TextAreaInput extends TextInput {
+export class TextAreaInput extends InputWidget {
   properties: TextAreaInput.Props
+  __view_type__: TextAreaInputView
 
   constructor(attrs?: Partial<TextAreaInput.Attrs>) {
     super(attrs)
@@ -68,9 +71,12 @@ export class TextAreaInput extends TextInput {
     this.prototype.default_view = TextAreaInputView
 
     this.define<TextAreaInput.Props>({
-      cols:       [ p.Number, 20  ],
-      rows:       [ p.Number, 2   ],
-      max_length: [ p.Number, 500 ],
+      value:       [ p.String, ""  ],
+      value_input: [ p.String, ""  ],
+      placeholder: [ p.String, ""  ],
+      cols:        [ p.Number, 20  ],
+      rows:        [ p.Number, 2   ],
+      max_length:  [ p.Number, 500 ],
     })
   }
 }

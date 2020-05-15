@@ -242,6 +242,7 @@ export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
   properties: Rect.Props
+  __view_type__: RectView
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)

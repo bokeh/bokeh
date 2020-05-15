@@ -128,6 +128,7 @@ export interface Surface3d extends Surface3d.Attrs {}
 
 export class Surface3d extends LayoutDOM {
   properties: Surface3d.Props
+  __view_type__: Surface3dView
 
   constructor(attrs?: Partial<Surface3d.Attrs>) {
     super(attrs)

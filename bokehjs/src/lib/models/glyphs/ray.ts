@@ -79,6 +79,7 @@ export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
   properties: Ray.Props
+  __view_type__: RayView
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)

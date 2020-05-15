@@ -173,6 +173,7 @@ export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
   properties: CategoricalAxis.Props
+  __view_type__: CategoricalAxisView
 
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter

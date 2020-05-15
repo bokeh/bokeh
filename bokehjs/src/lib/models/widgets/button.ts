@@ -25,6 +25,7 @@ export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
   properties: Button.Props
+  __view_type__: ButtonView
 
   constructor(attrs?: Partial<Button.Attrs>) {
     super(attrs)

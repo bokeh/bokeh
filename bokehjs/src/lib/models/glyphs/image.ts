@@ -106,6 +106,7 @@ export interface Image extends Image.Attrs {}
 
 export class Image extends ImageBase {
   properties: Image.Props
+  __view_type__: ImageView
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)

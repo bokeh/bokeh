@@ -154,6 +154,7 @@ export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
   properties: SelectTool.Props
+  __view_type__: SelectToolView
 
   clear: Signal0<this>
 

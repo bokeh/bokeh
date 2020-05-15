@@ -87,6 +87,7 @@ export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
   properties: Label.Props
+  __view_type__: LabelView
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)

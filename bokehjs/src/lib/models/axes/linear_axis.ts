@@ -21,6 +21,7 @@ export interface LinearAxis extends LinearAxis.Attrs {}
 
 export class LinearAxis extends ContinuousAxis {
   properties: LinearAxis.Props
+  __view_type__: LinearAxisView
 
   ticker: BasicTicker
   formatters: BasicTickFormatter

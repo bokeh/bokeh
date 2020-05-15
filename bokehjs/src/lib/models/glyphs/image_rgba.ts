@@ -94,6 +94,7 @@ export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends ImageBase {
   properties: ImageRGBA.Props
+  __view_type__: ImageRGBAView
 
   constructor(attrs?: Partial<ImageRGBA.Attrs>) {
     super(attrs)

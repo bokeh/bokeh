@@ -133,6 +133,7 @@ export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
   properties: Title.Props
+  __view_type__: TitleView
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)

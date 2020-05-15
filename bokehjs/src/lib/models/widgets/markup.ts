@@ -50,6 +50,7 @@ export interface Markup extends Markup.Attrs {}
 
 export abstract class Markup extends Widget {
   properties: Markup.Props
+  __view_type__: MarkupView
 
   constructor(attrs?: Partial<Markup.Attrs>) {
     super(attrs)

@@ -121,6 +121,7 @@ export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
   properties: Dropdown.Props
+  __view_type__: DropdownView
 
   constructor(attrs?: Partial<Dropdown.Attrs>) {
     super(attrs)

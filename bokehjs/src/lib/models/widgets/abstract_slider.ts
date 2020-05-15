@@ -200,7 +200,7 @@ abstract class AbstractBaseSliderView extends ControlView {
   }
 }
 
-export abstract class AbstractSliderView extends AbstractBaseSliderView{
+export abstract class AbstractSliderView extends AbstractBaseSliderView {
 
   protected _calc_to(): SliderSpec {
     return {
@@ -226,7 +226,7 @@ export abstract class AbstractSliderView extends AbstractBaseSliderView{
   }
 }
 
-export abstract class AbstractRangeSliderView extends AbstractBaseSliderView{
+export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
 
   protected _calc_to(): SliderSpec {
     return {
@@ -273,6 +273,7 @@ export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Control {
   properties: AbstractSlider.Props
+  // TODO: __view_type__: AbstractSliderView
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {
     super(attrs)

@@ -218,6 +218,7 @@ export interface HexTile extends HexTile.Attrs { }
 
 export class HexTile extends Glyph {
   properties: HexTile.Props
+  __view_type__: HexTileView
 
   constructor(attrs?: Partial<HexTile.Attrs>) {
     super(attrs)

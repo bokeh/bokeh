@@ -44,6 +44,7 @@ export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends HTMLBox {
   properties: Widget.Props
+  __view_type__: WidgetView
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)

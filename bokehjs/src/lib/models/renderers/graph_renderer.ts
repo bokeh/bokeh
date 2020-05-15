@@ -104,6 +104,7 @@ export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends DataRenderer {
   properties: GraphRenderer.Props
+  __view_type__: GraphRendererView
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)

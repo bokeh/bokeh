@@ -168,6 +168,7 @@ export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
   properties: Bezier.Props
+  __view_type__: BezierView
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)

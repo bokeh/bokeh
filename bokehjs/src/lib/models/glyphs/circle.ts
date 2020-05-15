@@ -269,6 +269,7 @@ export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
   properties: Circle.Props
+  __view_type__: CircleView
 
   constructor(attrs?: Partial<Circle.Attrs>) {
     super(attrs)

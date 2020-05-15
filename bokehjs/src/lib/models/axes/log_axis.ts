@@ -21,6 +21,7 @@ export interface LogAxis extends LogAxis.Attrs {}
 
 export class LogAxis extends ContinuousAxis {
   properties: LogAxis.Props
+  __view_type__: LogAxisView
 
   ticker:    LogTicker
   formatter: LogTickFormatter

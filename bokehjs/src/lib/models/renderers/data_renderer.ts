@@ -22,6 +22,7 @@ export interface DataRenderer extends DataRenderer.Attrs {}
 
 export abstract class DataRenderer extends Renderer {
   properties: DataRenderer.Props
+  __view_type__: DataRendererView
 
   constructor(attrs?: Partial<DataRenderer.Attrs>) {
     super(attrs)

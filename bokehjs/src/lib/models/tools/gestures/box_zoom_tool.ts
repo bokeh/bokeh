@@ -180,6 +180,7 @@ export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
   properties: BoxZoomTool.Props
+  __view_type__: BoxZoomToolView
 
   /*override*/ overlay: BoxAnnotation
 

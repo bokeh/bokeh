@@ -240,6 +240,7 @@ export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
   properties: ImageURL.Props
+  __view_type__: ImageURLView
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)

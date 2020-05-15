@@ -83,6 +83,7 @@ export interface Slope extends Slope.Attrs {}
 
 export class Slope extends Annotation {
   properties: Slope.Props
+  __view_type__: SlopeView
 
   constructor(attrs?: Partial<Slope.Attrs>) {
     super(attrs)

@@ -10,7 +10,7 @@ describe("SliderView", () => {
     const s = new Slider({start: 0, end: 10, step: 1})
     const sv = (await build_view(s)).build()
 
-    const r = sv._calc_from([5.0])
+    const r = (sv as any /* XXX: protected */)._calc_from([5.0])
     expect(r).to.be.equal(5)
     expect(isInteger(r)).to.be.true
   })

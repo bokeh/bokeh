@@ -40,6 +40,7 @@ export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends ButtonGroup {
   properties: CheckboxButtonGroup.Props
+  __view_type__: CheckboxButtonGroupView
 
   constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)

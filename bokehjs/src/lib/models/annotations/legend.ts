@@ -354,6 +354,7 @@ export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
   properties: Legend.Props
+  __view_type__: LegendView
 
   item_change: Signal0<this>
 
