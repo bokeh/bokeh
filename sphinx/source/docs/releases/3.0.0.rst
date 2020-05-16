@@ -7,8 +7,8 @@ Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 
 .. _release-3-0-0-migration:
 
-`Migration Guide`__
--------------------
+`Migration Guide`
+-----------------
 
 ``auth_request_handler`` to improve ``AuthMixin`` hierarachy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
