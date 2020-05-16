@@ -46,7 +46,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it.allowing(7)("should allow CheckboxButtonGroup", async () => {
+  it.allowing(9)("should allow CheckboxButtonGroup", async () => {
     const obj = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
     await display(obj, [500, 100])
   })
