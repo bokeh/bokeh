@@ -3,7 +3,6 @@
  */
 
 import {isString} from "./types"
-import {assert} from "./assert"
 
 type KV<T> = {[key: string]: T}
 
@@ -127,7 +126,7 @@ const STYLES: StyleState = {
     svgAttr: "stroke", // corresponding svg attribute
     canvas: "#000000", // canvas default
     svg: "none",       // svg default
-    apply: "stroke",    // apply on stroke() or fill()
+    apply: "stroke",   // apply on stroke() or fill()
   },
   fillStyle:{
     svgAttr: "fill",
@@ -426,8 +425,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
         } else if (style.apply.indexOf(type)!==-1 && style.svg !== value) {
-          assert(isString(value))
-          if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && value.indexOf("rgba") !== -1) {
+          if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
             // separate alpha value, since illustrator can't handle it
             const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
             const matches = regex.exec(value)!
@@ -450,7 +448,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
               }
             }
             // otherwise only update attribute if right type, and not svg default
-            currentElement.setAttribute(attr, value)
+            currentElement.setAttribute(attr, `${value}`)
           }
         }
       }
