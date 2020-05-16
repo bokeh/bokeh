@@ -1015,7 +1015,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       largeArcFlag = diff > Math.PI ? 1 : 0
     }
 
-    this.lineTo(startX, startY)
+    this.moveTo(startX, startY)
     const rx = radius
     const ry = radius
     const xAxisRotation = 0
