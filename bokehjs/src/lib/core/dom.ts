@@ -322,6 +322,17 @@ export function classes(el: HTMLElement): ClassList {
   return new ClassList(el)
 }
 
+export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean): void {
+  if (state == null) {
+    state = !el.hasAttribute(attr)
+  }
+
+  if (state)
+    el.setAttribute(attr, "true")
+  else
+    el.removeAttribute(attr)
+}
+
 export enum Keys {
   Backspace = 8,
   Tab       = 9,

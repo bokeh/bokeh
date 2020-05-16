@@ -11,6 +11,9 @@ export abstract class ButtonGroupView extends ControlView {
   model: ButtonGroup
 
   protected _buttons: HTMLElement[]
+  *controls() {
+    yield* (this._buttons as any) // TODO: HTMLButtonElement[]
+  }
 
   connect_signals(): void {
     super.connect_signals()

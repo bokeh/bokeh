@@ -8,8 +8,6 @@ import {bk_input} from "styles/widgets/inputs"
 export class ColorPickerView extends InputWidgetView {
   model: ColorPicker
 
-  protected input_el: HTMLInputElement
-
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
