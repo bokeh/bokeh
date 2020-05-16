@@ -16,7 +16,8 @@ import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
 import {Model} from "model"
 import {
-  DocumentEvent, ModelChangedEvent, RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
+  DocumentEvent, DocumentEventBatch, DocumentChangedEvent, ModelChangedEvent,
+  RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
   DocumentChanged, ModelChanged, RootAddedEvent,
 } from "./events"
 
@@ -78,7 +79,7 @@ export class Document {
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_freeze_count: number
-  protected _callbacks: ((event: DocumentEvent) => void)[]
+  protected _callbacks: Map<(event: DocumentEvent) => void, boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
@@ -91,7 +92,7 @@ export class Document {
     this._roots = []
     this._all_models = new Map()
     this._all_models_freeze_count = 0
-    this._callbacks = []
+    this._callbacks = new Map()
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
@@ -307,20 +308,28 @@ export class Document {
     }
   }
 
-  on_change(callback: (event: DocumentEvent) => void): void {
-    if (!includes(this._callbacks, callback))
-      this._callbacks.push(callback)
+  on_change(callback: (event: DocumentEvent) => void, allow_batches: true): void
+  on_change(callback: (event: DocumentChangedEvent) => void, allow_batches?: false): void
+
+  on_change(callback: ((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), allow_batches: boolean = false): void {
+    if (!this._callbacks.has(callback)) {
+      this._callbacks.set(callback, allow_batches)
+    }
   }
 
   remove_on_change(callback: (event: DocumentEvent) => void): void {
-    const i = this._callbacks.indexOf(callback)
-    if (i >= 0)
-      this._callbacks.splice(i, 1)
+    this._callbacks.delete(callback)
   }
 
   _trigger_on_change(event: DocumentEvent): void {
-    for (const cb of this._callbacks) {
-      cb(event)
+    for (const [callback, allow_batches] of this._callbacks) {
+      if (!allow_batches && event instanceof DocumentEventBatch) {
+        for (const ev of event.events) {
+          callback(ev)
+        }
+      } else {
+        callback(event)
+      }
     }
   }
 
@@ -638,11 +647,11 @@ export class Document {
     replacement.destructively_move(this)
   }
 
-  create_json_patch_string(events: DocumentEvent[]): string {
+  create_json_patch_string(events: DocumentChangedEvent[]): string {
     return JSON.stringify(this.create_json_patch(events))
   }
 
-  create_json_patch(events: DocumentEvent[]): Patch {
+  create_json_patch(events: DocumentChangedEvent[]): Patch {
     const references = new Set<HasProps>()
     const json_events: DocumentChanged[] = []
     for (const event of events) {
@@ -650,11 +659,7 @@ export class Document {
         logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", this)
         throw new Error("Cannot create a patch using events from a different document")
       }
-      const events = event.json(references)
-      if (isArray(events))
-        json_events.push(...events)
-      else
-        json_events.push(events)
+      json_events.push(event.json(references))
     }
     return {
       events: json_events,

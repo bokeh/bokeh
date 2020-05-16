@@ -58,17 +58,11 @@ export type DocumentChanged =
 
 export abstract class DocumentEvent {
   constructor(readonly document: Document) {}
-
-  abstract json(references: Set<HasProps>): DocumentChanged | DocumentChanged[]
 }
 
-export class DocumentEventBatch extends DocumentEvent {
-  constructor(document: Document, readonly events: DocumentChangedEvent[], readonly setter_id?: string) {
+export class DocumentEventBatch<T extends DocumentChangedEvent> extends DocumentEvent {
+  constructor(document: Document, readonly events: T[], readonly setter_id?: string) {
     super(document)
-  }
-
-  json(references: Set<HasProps>): DocumentChanged[] {
-    return this.events.map((event) => event.json(references))
   }
 }
 

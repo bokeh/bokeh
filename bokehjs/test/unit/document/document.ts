@@ -1,6 +1,7 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
+import {assert} from "@bokehjs/core/util/assert"
 import {values} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
@@ -453,6 +454,27 @@ describe("Document", () => {
     expect(event.attr).to.equal('bar')
     expect(event.old).to.equal(1)
     expect(event.new_).to.equal(42)
+  })
+
+  it("can notify on changes in batches", () => {
+    const d = new Document()
+    const m = new SomeModel()
+    d.add_root(m)
+
+    const events0: ev.DocumentEvent[] = []
+    const events1: ev.DocumentChangedEvent[] = []
+
+    d.on_change((event) => events0.push(event), true)
+    d.on_change((event) => events1.push(event), false)
+
+    m.setv({foo: 3, child: new SomeModel()})
+
+    expect(events0).to.be.of.length(1)
+    expect(events1).to.be.of.length(2)
+
+    const [batch] = events0
+    assert(batch instanceof ev.DocumentEventBatch)
+    expect(batch.events).to.be.of.length(2)
   })
 
   it("can remove notification changes", () => {
