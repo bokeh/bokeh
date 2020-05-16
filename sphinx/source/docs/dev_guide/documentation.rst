@@ -94,6 +94,14 @@ before calling ``make``:
 
     BOKEH_DOCS_CDN=local make clean html serve
 
+Built docs require to setup the ``GOOGLE_API_KEY`` environment variable for geo maps.
+You can create a new API `create a new API Key <https://developers.google.com/maps/documentation/javascript/get-api-key>`_.
+Or if you don't mind of having broken maps, you can setup the variable with a fake value before calling ``make``:
+
+.. code-block:: sh
+
+    GOOGLE_API_KEY=foo make clean html serve
+
 Source Code Documentation
 -------------------------
 
