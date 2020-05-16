@@ -3,7 +3,7 @@ import defer from "./defer"
 
 import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
-import {div} from "@bokehjs/core/dom"
+import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString} from "@bokehjs/core/util/types"
 
@@ -195,6 +195,7 @@ function _clear_test(test: Test): void {
     test.el.remove()
     test.el = undefined
   }
+  empty(document.body)
 }
 
 async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
