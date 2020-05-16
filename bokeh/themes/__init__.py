@@ -114,7 +114,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import _caliber, _dark_minimal, _light_minimal, _night_sky, _contrast
+from . import _caliber, _contrast, _dark_minimal, _light_minimal, _night_sky
 from .theme import Theme
 
 #-----------------------------------------------------------------------------
