@@ -23,7 +23,7 @@ import logging
 from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
-from bokeh.server.views.auth_mixin import AuthMixin
+from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
@@ -52,8 +52,8 @@ async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
         assert caplog.text.endswith("Failed sending message as connection was closed\n")
         assert ret is None
 
-def test_uses_auth_mixin() -> None:
-    assert issubclass(WSHandler, AuthMixin)
+def test_uses_auth_request_handler() -> None:
+    assert issubclass(WSHandler, AuthRequestHandler)
 
 #-----------------------------------------------------------------------------
 # Dev API
