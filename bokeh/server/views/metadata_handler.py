@@ -28,7 +28,7 @@ import json
 from tornado.web import authenticated
 
 # Bokeh imports
-from .auth_mixin import AuthMixin
+from .auth_request_handler import AuthRequestHandler
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class MetadataHandler(SessionHandler, AuthMixin):
+class MetadataHandler(SessionHandler, AuthRequestHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
