@@ -668,7 +668,6 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     }
 
     if len(__version__.split("-")) > 1:
-        log.debug("Getting CDN URL for local dev version may not produce usable URL")
         result["messages"].append(
             {
                 "type": "warn",

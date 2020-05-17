@@ -11,10 +11,6 @@ import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {bk_root} from "styles/root"
 
-export namespace LayoutDOMView {
-  export type Options = DOMView.Options & {model: LayoutDOM}
-}
-
 export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
 
