@@ -1,10 +1,10 @@
 bokeh.server.views
 ------------------
 
-auth_mixin
-~~~~~~~~~~
+auth_request_handler
+~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: bokeh.server.views.auth_mixin
+.. automodule:: bokeh.server.views.auth_request_handler
    :members:
 
 autoload_js_handler

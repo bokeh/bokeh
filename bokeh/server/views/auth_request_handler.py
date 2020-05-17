@@ -20,12 +20,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from tornado.web import RequestHandler
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'AuthMixin',
+    'AuthRequestHandler',
 )
 
 #-----------------------------------------------------------------------------
@@ -36,7 +39,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class AuthMixin:
+class AuthRequestHandler(RequestHandler):
     ''' This mixin adds the expected Tornado authorization hooks:
 
     * get_login_url
