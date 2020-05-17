@@ -5,15 +5,16 @@ import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
+import {concat} from "core/util/array"
 
 export interface ImageDataBase extends XYGlyphData {
-  image_data: Arrayable<HTMLCanvasElement>
+  image_data: HTMLCanvasElement[]
 
-  _image: Arrayable<Arrayable<number> | number[][]>
+  _image: (Arrayable<number> | number[][])[]
   _dw: Arrayable<number>
   _dh: Arrayable<number>
 
-  _image_shape?: Arrayable<[number, number]>
+  _image_shape?: [number, number][]
 
   sw: Arrayable<number>
   sh: Arrayable<number>
@@ -21,14 +22,68 @@ export interface ImageDataBase extends XYGlyphData {
 
 export interface ImageBaseView extends ImageDataBase {}
 
-export class ImageBaseView extends XYGlyphView {
+export abstract class ImageBaseView extends XYGlyphView {
   model: ImageBase
   visuals: ImageBase.Visuals
 
   protected _width: Arrayable<number>
   protected _height: Arrayable<number>
 
-  protected _render(_ctx: Context2d, _indices: number[], _data: ImageDataBase): void {}
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+  }
+
+  protected _render(ctx: Context2d, indices: number[], {image_data, sx, sy, sw, sh}: ImageDataBase): void {
+    const old_smoothing = ctx.getImageSmoothingEnabled()
+    ctx.setImageSmoothingEnabled(false)
+
+    ctx.globalAlpha = this.model.global_alpha
+
+    for (const i of indices) {
+      if (image_data[i] == null || isNaN(sx[i] + sy[i] + sw[i] + sh[i]))
+        continue
+
+      const y_offset = sy[i]
+
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
+      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
+    }
+
+    ctx.setImageSmoothingEnabled(old_smoothing)
+  }
+
+  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8Array
+
+  protected _set_data(indices: number[] | null): void {
+    this._set_width_heigh_data()
+
+    for (let i = 0, end = this._image.length; i < end; i++) {
+      if (indices != null && indices.indexOf(i) < 0)
+        continue
+
+      let img: Arrayable<number>
+      if (this._image_shape != null && this._image_shape[i].length > 0) {
+        img = this._image[i] as Arrayable<number>
+        const shape = this._image_shape[i]
+        this._height[i] = shape[0]
+        this._width[i] = shape[1]
+      } else {
+        const _image = this._image[i] as number[][]
+        img = concat(_image)
+        this._height[i] = _image.length
+        this._width[i] = _image[0].length
+      }
+
+      const buf8 = this._flat_img_to_buf8(img)
+      this._set_image_data_from_buffer(i, buf8)
+    }
+  }
 
   _index_data(): SpatialIndex {
     const points = []
@@ -161,7 +216,7 @@ export namespace ImageBase {
 
 export interface ImageBase extends ImageBase.Attrs {}
 
-export class ImageBase extends XYGlyph {
+export abstract class ImageBase extends XYGlyph {
   properties: ImageBase.Props
   __view_type__: ImageBaseView
 
@@ -170,8 +225,6 @@ export class ImageBase extends XYGlyph {
   }
 
   static init_ImageBase(): void {
-    this.prototype.default_view = ImageBaseView
-
     this.define<ImageBase.Props>({
       image:        [ p.NumberSpec       ], // TODO (bev) array spec?
       dw:           [ p.DistanceSpec     ],
