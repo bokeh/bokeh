@@ -7,7 +7,7 @@ import {Attrs, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data, Buffers} from "core/util/serialization"
-import {MultiDict, Set as OurSet} from "core/util/data_structures"
+import {Set as OurSet} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {isEqual} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
@@ -16,18 +16,18 @@ import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
 import {Model} from "model"
 import {
-  DocumentChanged, DocumentChangedEvent,
-  ModelChanged, ModelChangedEvent,
-  RootAddedEvent, RootRemovedEvent,
-  TitleChangedEvent,
-  MessageSentEvent,
+  DocumentEvent, DocumentEventBatch, DocumentChangedEvent, ModelChangedEvent,
+  RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
+  DocumentChanged, ModelChanged, RootAddedEvent,
 } from "./events"
+
+export type ID = string
 
 export class EventManager {
   // Dispatches events to the subscribed models
 
   session: ClientSession | null = null
-  subscribed_models: Set<string> = new Set()
+  subscribed_models: Set<ID> = new Set()
 
   constructor(readonly document: Document) {}
 
@@ -61,7 +61,6 @@ export interface Patch {
   events: DocumentChanged[]
 }
 
-export type ID = string
 export type RefMap = Map<ID, HasProps>
 
 export const documents: Document[] = []
@@ -79,9 +78,8 @@ export class Document {
   protected _title: string
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
-  protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
-  protected _callbacks: ((event: DocumentChangedEvent) => void)[]
+  protected _callbacks: Map<(event: DocumentEvent) => void, boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
@@ -93,9 +91,8 @@ export class Document {
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
-    this._all_models_by_name = new MultiDict()
     this._all_models_freeze_count = 0
-    this._callbacks = []
+    this._callbacks = new Map()
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
@@ -219,13 +216,9 @@ export class Document {
     }
     for (const d of to_detach.values) {
       d.detach_document()
-      if (d instanceof Model && d.name != null)
-        this._all_models_by_name.remove_value(d.name, d)
     }
     for (const a of to_attach.values) {
       a.attach_document(this)
-      if (a instanceof Model && a.name != null)
-        this._all_models_by_name.add_value(a.name, a)
     }
     this._all_models = recomputed
   }
@@ -278,7 +271,20 @@ export class Document {
   }
 
   get_model_by_name(name: string): HasProps | null {
-    return this._all_models_by_name.get_one(name, `Multiple models are named '${name}'`)
+    const found = []
+    for (const model of this._all_models.values()) {
+      if (model instanceof Model && model.name == name)
+        found.push(model)
+    }
+
+    switch (found.length) {
+      case 0:
+        return null
+      case 1:
+        return found[0]
+      default:
+        throw new Error(`Multiple models are named '${name}'`)
+    }
   }
 
   on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
@@ -302,33 +308,33 @@ export class Document {
     }
   }
 
-  on_change(callback: (event: DocumentChangedEvent) => void): void {
-    if (!includes(this._callbacks, callback))
-      this._callbacks.push(callback)
-  }
+  on_change(callback: (event: DocumentEvent) => void, allow_batches: true): void
+  on_change(callback: (event: DocumentChangedEvent) => void, allow_batches?: false): void
 
-  remove_on_change(callback: (event: DocumentChangedEvent) => void): void {
-    const i = this._callbacks.indexOf(callback)
-    if (i >= 0)
-      this._callbacks.splice(i, 1)
-  }
-
-  _trigger_on_change(event: DocumentChangedEvent): void {
-    for (const cb of this._callbacks) {
-      cb(event)
+  on_change(callback: ((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), allow_batches: boolean = false): void {
+    if (!this._callbacks.has(callback)) {
+      this._callbacks.set(callback, allow_batches)
     }
   }
 
-  // called by the model
-  _notify_change(model: HasProps, attr: string, old: unknown, new_: unknown, options?: {setter_id?: string, hint?: unknown}): void {
-    if (attr === 'name') {
-      this._all_models_by_name.remove_value(old as string, model)
-      if (new_ != null)
-        this._all_models_by_name.add_value(new_ as string, model)
+  remove_on_change(callback: (event: DocumentEvent) => void): void {
+    this._callbacks.delete(callback)
+  }
+
+  _trigger_on_change(event: DocumentEvent): void {
+    for (const [callback, allow_batches] of this._callbacks) {
+      if (!allow_batches && event instanceof DocumentEventBatch) {
+        for (const ev of event.events) {
+          callback(ev)
+        }
+      } else {
+        callback(event)
+      }
     }
-    const setter_id = options != null ? options.setter_id : void 0
-    const hint = options != null ? options.hint : void 0
-    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id, hint))
+  }
+
+  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: unknown}): void {
+    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
   static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {

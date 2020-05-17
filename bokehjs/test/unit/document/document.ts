@@ -1,6 +1,7 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
+import {assert} from "@bokehjs/core/util/assert"
 import {values} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
@@ -342,14 +343,7 @@ describe("Document", () => {
     const m2 = new AnotherModel({ name: "foo" })
     d.add_root(m)
     d.add_root(m2)
-    let got_error = false
-    try {
-      d.get_model_by_name('foo')
-    } catch (e) {
-      got_error = true
-      expect(e.message).to.include('Multiple models')
-    }
-    expect(got_error).to.equal(true)
+    expect(() => d.get_model_by_name('foo')).to.throw(Error, /Multiple models/)
   })
 
   it("can have all_models with multiple references", () => {
@@ -448,7 +442,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(1)
     expect(m.bar).to.equal(1)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     m.bar = 42
@@ -460,6 +454,27 @@ describe("Document", () => {
     expect(event.attr).to.equal('bar')
     expect(event.old).to.equal(1)
     expect(event.new_).to.equal(42)
+  })
+
+  it("can notify on changes in batches", () => {
+    const d = new Document()
+    const m = new SomeModel()
+    d.add_root(m)
+
+    const events0: ev.DocumentEvent[] = []
+    const events1: ev.DocumentChangedEvent[] = []
+
+    d.on_change((event) => events0.push(event), true)
+    d.on_change((event) => events1.push(event), false)
+
+    m.setv({foo: 3, child: new SomeModel()})
+
+    expect(events0).to.be.of.length(1)
+    expect(events1).to.be.of.length(2)
+
+    const [batch] = events0
+    assert(batch instanceof ev.DocumentEventBatch)
+    expect(batch.events).to.be.of.length(2)
   })
 
   it("can remove notification changes", () => {
@@ -493,7 +508,7 @@ describe("Document", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     const m = new AnotherModel({bar:1})
@@ -532,7 +547,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(0)
     expect(d.title()).to.equal(DEFAULT_TITLE)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     d.set_title('Foo')

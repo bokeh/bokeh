@@ -49,7 +49,7 @@ export interface PropertyConstructor<T> {
   readonly prototype: Property<T>
 }
 
-export abstract class Property<T> {
+export abstract class Property<T = unknown> {
   __value__: T
 
   get syncable(): boolean {

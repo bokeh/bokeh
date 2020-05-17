@@ -13,7 +13,7 @@ import {clone, extend, isEmpty} from "./util/object"
 import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {Document} from "../document"
+import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -42,7 +42,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
-export type PropertyGenerator = Generator<[string, Property<unknown>], void>
+export type PropertyGenerator = Generator<Property, void>
 
 export abstract class HasProps extends Signalable() {
   __view_type__: View
@@ -228,9 +228,9 @@ export abstract class HasProps extends Signalable() {
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
-  readonly properties: {[key: string]: Property<unknown>} = {} // Object.create(null)
+  readonly properties: {[key: string]: Property} = {} // Object.create(null)
 
-  property(name: string): Property<unknown> {
+  property(name: string): Property {
     const prop = this.properties[name]
     if (prop != null)
       return prop
@@ -240,8 +240,8 @@ export abstract class HasProps extends Signalable() {
 
   get attributes(): Attrs {
     const attrs: Attrs = {} // Object.create(null)
-    for (const [name, prop] of this) {
-      attrs[name] = prop.get_value()
+    for (const prop of this) {
+      attrs[prop.attr] = prop.get_value()
     }
     return attrs
   }
@@ -302,29 +302,26 @@ export abstract class HasProps extends Signalable() {
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  private _setv(attrs: Attrs, options: HasProps.SetOptions): void {
+  private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
     // Extract attributes and options.
     const check_eq   = options.check_eq
     const silent     = options.silent
-    const changes    = []
+    const changed    = []
     const changing   = this._changing
     this._changing = true
 
-    for (const attr in attrs) {
-      const prop = this.properties[attr]
-      const val = attrs[attr]
-
-      if (check_eq === false || !isEqual(prop.get_value(), val)) {
-        prop.set_value(val)
-        changes.push(prop)
+    for (const [prop, value] of changes) {
+      if (check_eq === false || !isEqual(prop.get_value(), value)) {
+        prop.set_value(value)
+        changed.push(prop)
       }
     }
 
     // Trigger all relevant attribute changes.
     if (!silent) {
-      if (changes.length > 0)
+      if (changed.length > 0)
         this._pending = true
-      for (const prop of changes) {
+      for (const prop of changed) {
         prop.change.emit()
       }
     }
@@ -344,26 +341,44 @@ export abstract class HasProps extends Signalable() {
     this._changing = false
   }
 
-  setv(attrs: Attrs, options: HasProps.SetOptions = {}): void {
-    for (const key in attrs) {
-      if (!attrs.hasOwnProperty(key))
+  setv(changes: Attrs, options: HasProps.SetOptions = {}): void {
+    if (isEmpty(changes))
+      return
+
+    const changed = new Map<Property, unknown>()
+    const previous = new Map<Property, unknown>()
+
+    for (const attr in changes) {
+      if (!changes.hasOwnProperty(attr))
         continue
 
-      const prop_name = key
-      if (this.properties[prop_name] == null)
-        throw new Error(`property ${this.type}.${prop_name} wasn't declared`)
+      const prop = this.properties[attr]
+      if (prop == null)
+        throw new Error(`property ${this.type}.${attr} wasn't declared`)
+
+      const value = changes[attr]
+      changed.set(prop, value)
+      previous.set(prop, prop.get_value())
     }
 
-    if (!isEmpty(attrs)) {
-      const old: typeof attrs = {}
-      for (const key in attrs)
-        old[key] = this.properties[key].get_value()
-      this._setv(attrs, options)
+    this._setv(changed, options)
 
-      const silent = options.silent
-      if (silent == null || !silent) {
-        for (const key in attrs)
-          this._tell_document_about_change(key, old[key], this.properties[key].get_value(), options)
+    const {document} = this
+    if (document != null) {
+      const changed: [Property, unknown, unknown][] = []
+      for (const [prop, value] of previous) {
+        changed.push([prop, value, prop.get_value()])
+      }
+
+      for (const [, old_value, new_value] of changed) {
+        if (this._needs_invalidate(old_value, new_value)) {
+          document._invalidate_all_models()
+          break
+        }
+      }
+
+      if (options.silent !== true) {
+        this._push_changes(changed, options)
       }
     }
   }
@@ -397,16 +412,14 @@ export abstract class HasProps extends Signalable() {
 
   *[Symbol.iterator](): PropertyGenerator {
     for (const name in this.properties) {
-      yield [name, this.properties[name]]
+      yield this.properties[name]
     }
   }
 
   *syncable_properties(): PropertyGenerator {
-    for (const entry of this) {
-      const [, prop] = entry
-      if (prop.syncable) {
-        yield entry
-      }
+    for (const prop of this) {
+      if (prop.syncable)
+        yield prop
     }
   }
 
@@ -435,9 +448,9 @@ export abstract class HasProps extends Signalable() {
   // are included as just references)
   attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): Attrs {
     const attributes: Attrs = {} // Object.create(null)
-    for (const [name, prop] of this) {
+    for (const prop of this) {
       if (prop.syncable && (include_defaults || prop.dirty)) {
-        attributes[name] = value_to_json(name, prop.get_value(), this)
+        attributes[prop.attr] = value_to_json(prop.attr, prop.get_value(), this)
       }
     }
     return attributes
@@ -468,7 +481,7 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, refs: Set<HasProps>, options: {recursive: boolean}): void {
+  static _value_record_references(v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
     const {recursive} = options
     if (v instanceof HasProps) {
       if (!refs.has(v)) {
@@ -496,7 +509,7 @@ export abstract class HasProps extends Signalable() {
   // (do not recurse, do not include ourselves)
   protected _immediate_references(): HasProps[] {
     const refs = new Set<HasProps>()
-    for (const [, prop] of this.syncable_properties()) {
+    for (const prop of this.syncable_properties()) {
       const value = prop.get_value()
       HasProps._value_record_references(value, refs, {recursive: false})
     }
@@ -525,52 +538,62 @@ export abstract class HasProps extends Signalable() {
     this.document = null
   }
 
-  protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string}): void {
-    if (!this.properties[attr].syncable)
+  protected _needs_invalidate(old_value: unknown, new_value: unknown): boolean {
+    const new_refs = new Set<HasProps>()
+    HasProps._value_record_references(new_value, new_refs, {recursive: false})
+
+    const old_refs = new Set<HasProps>()
+    HasProps._value_record_references(old_value, old_refs, {recursive: false})
+
+    for (const new_id of new_refs) {
+      if (!old_refs.has(new_id))
+        return true
+    }
+
+    for (const old_id of old_refs) {
+      if (!new_refs.has(old_id))
+        return true
+    }
+
+    return false
+  }
+
+  protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+    const {document} = this
+    if (document == null)
       return
 
-    if (this.document != null) {
-      const new_refs = new Set<HasProps>()
-      HasProps._value_record_references(new_, new_refs, {recursive: false})
+    const {setter_id} = options
 
-      const old_refs = new Set<HasProps>()
-      HasProps._value_record_references(old, old_refs, {recursive: false})
+    const events = []
+    for (const [prop, old_value, new_value] of changes) {
+      if (prop.syncable)
+        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value, setter_id))
+    }
 
-      let need_invalidate = false
-      for (const new_id of new_refs) {
-        if (!old_refs.has(new_id)) {
-          need_invalidate = true
-          break
-        }
-      }
-
-      if (!need_invalidate) {
-        for (const old_id of old_refs) {
-          if (!new_refs.has(old_id)) {
-            need_invalidate = true
-            break
-          }
-        }
-      }
-
-      if (need_invalidate)
-        this.document._invalidate_all_models()
-
-      this.document._notify_change(this, attr, old, new_, options)
+    if (events.length != 0) {
+      let event: DocumentEvent
+      if (events.length == 1)
+        [event] = events
+      else
+        event = new DocumentEventBatch(document, events, setter_id)
+      document._trigger_on_change(event)
     }
   }
 
   materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
     // Note: this should be moved to a function separate from HasProps
     const data: {[key: string]: unknown[] | number} = {}
-    for (const [name, prop] of this) {
+    for (const prop of this) {
       if (!(prop instanceof p.VectorSpec))
         continue
       // this skips optional properties like radius for circles
       if (prop.optional && prop.spec.value == null && !prop.dirty)
         continue
 
+      const name = prop.attr
       const array = prop.array(source)
+
       data[`_${name}`] = array
       // the shapes are indexed by the column name, but when we materialize the dataspec, we should
       // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
