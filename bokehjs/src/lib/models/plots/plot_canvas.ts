@@ -104,10 +104,6 @@ export class PlotLayout extends Layoutable {
   }
 }
 
-export namespace PlotView {
-  export type Options = LayoutDOMView.Options & {model: Plot}
-}
-
 export class PlotView extends LayoutDOMView {
   model: Plot
   visuals: Plot.Visuals

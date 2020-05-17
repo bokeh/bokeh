@@ -3,10 +3,6 @@ import {Orientation} from "core/enums"
 import {BoxSizing, SizingPolicy} from "core/layout"
 import * as p from "core/properties"
 
-export namespace WidgetView {
-  export type Options = HTMLBoxView.Options & {model: Widget}
-}
-
 export abstract class WidgetView extends HTMLBoxView {
   model: Widget
 

@@ -3,10 +3,6 @@ import {StyleSheet, stylesheet} from "./dom"
 import * as DOM from "./dom"
 import root_css from "styles/root.css"
 
-export namespace DOMView {
-  export type Options = View.Options
-}
-
 export class DOMView extends View {
 
   tagName: keyof HTMLElementTagNameMap
