@@ -16,7 +16,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import re
 from pathlib import Path
 from typing import Callable, List, Union
 
