@@ -1,12 +1,35 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
 import {bk_tool_icon_save} from "styles/icons"
+import {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
   model: SaveTool
 
-  doit(): void {
-    this.plot_view.save("bokeh_plot")
+  async copy(): Promise<void> {
+    const blob = await this.plot_view.to_blob()
+    const item = new ClipboardItem({[blob.type]: blob})
+    await navigator.clipboard.write([item])
+  }
+
+  async save(name: string): Promise<void> {
+    const blob = await this.plot_view.to_blob()
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(blob)
+    link.download = name // + ".png" | "svg" (inferred from MIME type)
+    link.target = "_blank"
+    link.dispatchEvent(new MouseEvent("click"))
+  }
+
+  doit(action: "save" | "copy" = "save"): void {
+    switch (action) {
+      case "save":
+        this.save("bokeh_plot")
+        break
+      case "copy":
+        this.copy()
+        break
+    }
   }
 }
 
@@ -34,4 +57,17 @@ export class SaveTool extends ActionTool {
 
   tool_name = "Save"
   icon = bk_tool_icon_save
+
+  get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: "bk-tool-icon-copy-to-clipboard",
+        tooltip: "Copy image to clipboard",
+        if: () => typeof ClipboardItem !== "undefined",
+        handler: () => {
+          this.do.emit("copy")
+        },
+      },
+    ]
+  }
 }

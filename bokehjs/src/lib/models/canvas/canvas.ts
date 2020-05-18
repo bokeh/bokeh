@@ -124,31 +124,21 @@ export class CanvasLayer {
     this.ctx.restore()
   }
 
-  save(name: string): void {
+  to_blob(): Promise<Blob> {
     const {_canvas} = this
     if (_canvas instanceof HTMLCanvasElement) {
       if (_canvas.msToBlob != null) {
-        const blob = _canvas.msToBlob()
-        window.navigator.msSaveBlob(blob, name)
+        return Promise.resolve(_canvas.msToBlob())
       } else {
-        const link = document.createElement("a")
-        link.href = _canvas.toDataURL("image/png")
-        link.download = name + ".png"
-        link.target = "_blank"
-        link.dispatchEvent(new MouseEvent("click"))
+        return new Promise((resolve, reject) => {
+          _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
+        })
       }
     } else {
       const ctx = this._ctx as SVGRenderingContext2D
       const svg = ctx.get_serialized_svg(true)
-      const svgblob = new Blob([svg], {type: "text/plain"})
-      const downloadLink = document.createElement("a")
-      downloadLink.download = name + ".svg"
-      downloadLink.innerHTML = "Download svg"
-      downloadLink.href = window.URL.createObjectURL(svgblob)
-      downloadLink.onclick = (event) => document.body.removeChild(event.target as HTMLElement)
-      downloadLink.style.display = "none"
-      document.body.appendChild(downloadLink)
-      downloadLink.click()
+      const blob = new Blob([svg], {type: "image/svg+xml"})
+      return Promise.resolve(blob)
     }
   }
 }
@@ -281,8 +271,8 @@ export class CanvasView extends DOMView {
     return composite
   }
 
-  save(name: string): void {
-    this.compose().save(name)
+  to_blob(): Promise<Blob> {
+    return this.compose().to_blob()
   }
 }
 

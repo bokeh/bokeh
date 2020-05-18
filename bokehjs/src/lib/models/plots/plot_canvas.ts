@@ -995,8 +995,8 @@ export class PlotView extends LayoutDOMView {
     }
   }
 
-  save(name: string): void {
-    this.canvas_view.save(name)
+  to_blob(): Promise<Blob> {
+    return this.canvas_view.to_blob()
   }
 
   serializable_state(): {[key: string]: unknown} {
