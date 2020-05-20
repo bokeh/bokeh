@@ -77,7 +77,8 @@ export abstract class GlyphView extends View {
     }
   }
 
-  set_visuals(source: ColumnarDataSource): void {
+  set_visuals(source: ColumnarDataSource, indices: number[]): void {
+    this.visuals.set_all_indices(indices)
     this.visuals.warm_cache(source)
 
     if (this.glglyph != null)
@@ -227,13 +228,12 @@ export abstract class GlyphView extends View {
   set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
     let data = this.model.materialize_dataspecs(source)
 
-    this.visuals.set_all_indices(indices)
     if (indices && !(this instanceof LineView)) {
       const data_subset: {[key: string]: any} = {}
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => (v as any)[i])
+          data_subset[k] = indices.map((i) => (v as Arrayable)[i])
         else
           data_subset[k] = v
       }

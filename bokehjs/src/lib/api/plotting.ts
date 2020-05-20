@@ -13,8 +13,9 @@ import {some, every, includes} from "../core/util/array"
 import {clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 import {ViewOf} from "core/view"
+import {enumerate} from "core/util/iterator"
 
-import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
+import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
 import {ToolAliases} from "../models/tools/tool"
 
 import {LayoutDOM} from "models/layouts/layout_dom"
@@ -75,6 +76,7 @@ export type AuxText = {
 
 export type AuxGlyph = {
   source: ColumnarDataSource
+  view: CDSView
   legend: string
 }
 
@@ -693,15 +695,17 @@ export class Figure extends Plot {
       else
         attrs = {...args[args.length - 1] as Attrs}
 
-      for (let i = 0; i < params.length; i++) {
-        const param = params[i]
+      for (const [param, i] of enumerate(params)) {
         attrs[param] = args[i]
       }
     }
 
-    const source = attrs.source != null ? (attrs.source as AuxGlyph["source"]) : new models.ColumnDataSource()
+    const source = attrs.source != null ? attrs.source as AuxGlyph["source"] : new models.ColumnDataSource()
     const data = clone(source.data)
     delete attrs.source
+
+    const view = attrs.view != null ? attrs.view as AuxGlyph["view"] : new CDSView({source})
+    delete attrs.view
 
     const legend = this._process_legend(attrs.legend as AuxGlyph["legend"], source)
     delete attrs.legend
@@ -734,6 +738,7 @@ export class Figure extends Plot {
 
     const glyph_renderer = new GlyphRenderer({
       data_source:        source,
+      view,
       glyph,
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,

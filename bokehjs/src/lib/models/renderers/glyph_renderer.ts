@@ -173,18 +173,18 @@ export class GlyphRendererView extends DataRendererView {
                            y_range_name: this.model.y_range_name}, {silent: true})
     this.glyph.set_data(source, this.all_indices, indices)
 
-    this.glyph.set_visuals(source)
-    this.decimated_glyph.set_visuals(source)
+    this.glyph.set_visuals(source, this.all_indices)
+    this.decimated_glyph.set_visuals(source, this.all_indices)
     if (this.have_selection_glyphs()) {
-      this.selection_glyph.set_visuals(source)
-      this.nonselection_glyph.set_visuals(source)
+      this.selection_glyph.set_visuals(source, this.all_indices)
+      this.nonselection_glyph.set_visuals(source, this.all_indices)
     }
 
     if (this.hover_glyph != null)
-      this.hover_glyph.set_visuals(source)
+      this.hover_glyph.set_visuals(source, this.all_indices)
 
     if (this.muted_glyph != null)
-      this.muted_glyph.set_visuals(source)
+      this.muted_glyph.set_visuals(source, this.all_indices)
 
     const {lod_factor} = this.plot_model
     this.decimated = []
