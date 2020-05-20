@@ -3,6 +3,8 @@ import * as p from "./properties"
 import {color2css} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
+import {Arrayable} from "./types"
+import {map} from "./util/arrayable"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {HasProps} from "./has_props"
@@ -191,7 +193,7 @@ export abstract class ContextProperties {
 
   abstract get doit(): boolean
 
-  all_indices: number[]
+  all_indices?: number[]
 
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
     for (const attr of this.attrs)
@@ -218,6 +220,15 @@ export abstract class ContextProperties {
     else
       this.cache[attr] = value = this.cache[attr + "_array"][i]
     return value
+  }
+
+  get_array(attr: string): Arrayable {
+    const array = this.cache[attr + "_array"] as Arrayable
+    if (this.all_indices != null) {
+      return map(this.all_indices, (i) => array[i])
+    } else {
+      return array
+    }
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

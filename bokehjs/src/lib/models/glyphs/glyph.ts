@@ -233,7 +233,7 @@ export abstract class GlyphView extends View {
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => (v as any)[i])
+          data_subset[k] = indices.map((i) => (v as Arrayable)[i])
         else
           data_subset[k] = v
       }

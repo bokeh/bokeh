@@ -124,7 +124,7 @@ export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}
     prog.set_attribute(att_name, 'float', visual[name].value())
   } else {
     vbo.used = true
-    const a = new Float32Array(visual.cache[name + '_array'])
+    const a = new Float32Array(visual.get_array(name))
     vbo.set_size(n*4)
     vbo.set_data(0, a)
     prog.set_attribute(att_name, 'float', vbo)
@@ -163,13 +163,13 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
         return result
       })())
     } else {
-      colors = visual.cache[colorname+'_array']
+      colors = visual.get_array(colorname)
     }
     // Get array of alphas
     if (visual_prop_is_singular(visual, alphaname)) {
       alphas = fill_array_with_float(n, visual[alphaname].value())
     } else {
-      alphas = visual.cache[alphaname+'_array']
+      alphas = visual.get_array(alphaname)
     }
     // Create array of rgbs
     const a = new Float32Array(n*m)
