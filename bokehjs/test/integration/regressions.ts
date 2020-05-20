@@ -1,14 +1,15 @@
-import {display, fig, row} from "./utils"
+import {display, fig, row, column} from "./utils"
 
 import {
   Arrow, ArrowHead, NormalHead, BoxAnnotation,
   DataRange1d, FactorRange,
-  ColumnDataSource,
+  ColumnDataSource, CDSView, BooleanFilter, Selection,
+  Plot,
 } from "@bokehjs/models"
 
 import {Color} from "@bokehjs/core/types"
-import {Anchor} from "@bokehjs/core/enums"
-
+import {Anchor, OutputBackend} from "@bokehjs/core/enums"
+import {subsets} from "@bokehjs/core/util/iterator"
 
 describe("Bug", () => {
   describe("in issue #9879", () => {
@@ -145,6 +146,39 @@ describe("Bug", () => {
       const p0 = plot("blue", "green")
       const p1 = plot("blue", null)
       await display(row([p0, p1]), [450, 250])
+    })
+  })
+
+  describe("in issue #9230", () => {
+    function plot(output_backend: OutputBackend, selected?: Selection) {
+      const p = fig([200, 200], {tools: "box_select", output_backend})
+      const x = [0, 1, 2, 3]
+      const y = [0, 1, 2, 3]
+      const c = ["black", "red", "green", "blue"]
+      const source = new ColumnDataSource({data: {x, y, c}, selected})
+      const view = new CDSView({source, filters: [new BooleanFilter({booleans: [false, true, true, true]})]})
+      p.circle({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
+      return p
+    }
+
+    it("makes GlyphRenderer use incorrect subset indices", async () => {
+      const p0 = plot("canvas")
+      const p1 = plot("webgl")
+      await display(row([p0, p1]), [200, 200])
+    })
+
+    it("makes GlyphRenderer use incorrect subset indices after selection", async () => {
+      const plots: {[key: number]: Plot[]} = {1: [], 2: []}
+      for (const indices of subsets([1, 2, 3])) {
+        const selection = new Selection({indices})
+        const p0 = plot("canvas", selection)
+        const p1 = plot("webgl", selection)
+        const n = indices.length
+        if (n in plots)
+          plots[n].push(p0, p1)
+      }
+      const rows = [row(plots[1]), row(plots[2])]
+      await display(column(rows), [200*Math.max(plots[1].length, plots[2].length), 200*rows.length])
     })
   })
 })
