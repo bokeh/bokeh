@@ -21,7 +21,6 @@ export namespace Selection {
 
   export type Props = Model.Props & {
     indices: p.Property<Indices>
-    final: p.Property<boolean>
     line_indices: p.Property<Indices>
     selected_glyphs: p.Property<Glyph[]>
     get_view: p.Property<() => GlyphView | null>
@@ -47,7 +46,6 @@ export class Selection extends Model {
     })
 
     this.internal({
-      final:             [ p.Boolean     ],
       selected_glyphs:   [ p.Array,   [] ],
       get_view:          [ p.Any         ],
       image_indices:     [ p.Array,   [] ], // Used internally to support hover tool for now. Python API TBD
@@ -72,8 +70,7 @@ export class Selection extends Model {
     this.selected_glyphs.push(glyph)
   }
 
-  update(selection: Selection, final: boolean, mode: SelectionMode = "replace"): void {
-    this.final = final
+  update(selection: Selection, _final: boolean = true, mode: SelectionMode = "replace"): void {
     switch (mode) {
       case "replace": {
         this.indices = selection.indices
@@ -100,7 +97,6 @@ export class Selection extends Model {
   }
 
   clear(): void {
-    this.final = true
     this.indices = []
     this.line_indices = []
     this.multiline_indices = {}
