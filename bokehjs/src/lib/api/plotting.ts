@@ -13,6 +13,7 @@ import {some, every, includes} from "../core/util/array"
 import {clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 import {ViewOf} from "core/view"
+import {enumerate} from "core/util/iterator"
 
 import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
 import {ToolAliases} from "../models/tools/tool"
@@ -694,8 +695,7 @@ export class Figure extends Plot {
       else
         attrs = {...args[args.length - 1] as Attrs}
 
-      for (let i = 0; i < params.length; i++) {
-        const param = params[i]
+      for (const [param, i] of enumerate(params)) {
         attrs[param] = args[i]
       }
     }
