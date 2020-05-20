@@ -203,6 +203,8 @@ class LegendItem(Model):
 class Legend(Annotation):
     ''' Render informational legends for a plot.
 
+    See :ref:`userguide_plotting_legends` for information on plotting legends.
+
     '''
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
@@ -334,6 +336,8 @@ class Legend(Annotation):
 
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
+
+    See :ref:`userguide_plotting_color_bars` for information on plotting color bars.
 
     '''
 
@@ -482,6 +486,8 @@ class ColorBar(Annotation):
 class Arrow(Annotation):
     ''' Render arrows as an annotation.
 
+    See :ref:`userguide_plotting_arrows` for information on plotting arrows.
+
     '''
 
     x_start = NumberSpec(help="""
@@ -538,6 +544,8 @@ class Arrow(Annotation):
 
 class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
+
+    See :ref:`userguide_plotting_box_annotations` for information on plotting box annotations.
 
     '''
 
@@ -631,6 +639,8 @@ class BoxAnnotation(Annotation):
 class Band(Annotation):
     ''' Render a filled area band along a dimension.
 
+    See :ref:`userguide_plotting_bands` for information on plotting bands.
+
     '''
     lower = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
@@ -694,6 +704,8 @@ class Label(TextAnnotation):
     There are also standard text, fill, and line properties to control the
     appearance of the text, its background, as well as the rectangular bounding
     box border.
+
+    See :ref:`userguide_plotting_labels` for information on plotting labels.
 
     '''
 
@@ -932,6 +944,8 @@ class PolyAnnotation(Annotation):
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
 
+    See :ref:`userguide_plotting_slope` for information on plotting slopes.
+
     """
 
     gradient = Float(help="""
@@ -958,6 +972,8 @@ class Slope(Annotation):
 
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
+
+    See :ref:`userguide_plotting_spans` for information on plotting spans.
 
     """
 
@@ -1007,6 +1023,8 @@ class Span(Annotation):
 
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
+
+    See :ref:`userguide_plotting_titles` for information on plotting titles.
 
     '''
 
@@ -1118,6 +1136,8 @@ class Tooltip(Annotation):
 
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
+
+    See :ref:`userguide_plotting_whiskers` for information on plotting whiskers.
 
     '''
 
