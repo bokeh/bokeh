@@ -521,7 +521,7 @@ def encode_binary_dict(array, buffers):
         '__buffer__'  : buffer_id,
         'shape'       : array.shape,
         'dtype'       : array.dtype.name,
-        'order'       : sys.byteorder
+        'order'       : sys.byteorder,
     }
 
 def encode_base64_dict(array):
@@ -546,9 +546,10 @@ def encode_base64_dict(array):
 
     '''
     return {
-        '__ndarray__'  : base64.b64encode(array.data).decode('utf-8'),
-        'shape'        : array.shape,
-        'dtype'        : array.dtype.name
+        '__ndarray__' : base64.b64encode(array.data).decode('utf-8'),
+        'shape'       : array.shape,
+        'dtype'       : array.dtype.name,
+        'order'       : sys.byteorder,
     }
 
 def decode_base64_dict(data):

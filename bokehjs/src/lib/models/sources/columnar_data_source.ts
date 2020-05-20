@@ -7,7 +7,6 @@ import {Arrayable, ArrayableNew} from "core/types"
 import {isArray} from "core/util/types"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
-import {Shape} from "core/util/serialization"
 import {Selection} from "../selections/selection"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 
@@ -22,7 +21,6 @@ export namespace ColumnarDataSource {
     selection_policy: p.Property<SelectionPolicy>
     selection_manager: p.Property<SelectionManager>
     inspected: p.Property<Selection>
-    _shapes: p.Property<{[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}>
   }
 }
 
@@ -62,7 +60,6 @@ export abstract class ColumnarDataSource extends DataSource {
     this.internal({
       selection_manager: [ p.Instance, (self: ColumnarDataSource) => new SelectionManager({source: self}) ],
       inspected:         [ p.Instance, () => new Selection() ],
-      _shapes:           [ p.Any, {}],
     })
   }
 

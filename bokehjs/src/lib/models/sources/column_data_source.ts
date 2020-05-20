@@ -1,10 +1,10 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import {HasProps} from "core/has_props"
-import {Arrayable, Attrs, Data} from "core/types"
+import {Arrayable, Data} from "core/types"
 import * as p from "core/properties"
-import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
-import {isTypedArray, isArray, isNumber, isPlainObject} from "core/util/types"
+import {isTypedArray, isArray, isNumber} from "core/util/types"
 import {TypedArray} from "core/types"
+import {NDArray} from "core/util/ndarray"
+import {entries} from "core/util/object"
 import * as typed_array from "core/util/typed_array"
 import {union} from "core/util/set"
 import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
@@ -72,26 +72,27 @@ export function slice(ind: number | Slice, length: number): [number, number, num
   return [start, stop, step]
 }
 
-export type Patch = [number, unknown] | [[number, number | Slice] | [number, number | Slice, number | Slice], unknown[]] | [Slice, unknown[]]
+export type Patch<T> = [number, T] | [[number, number | Slice] | [number, number | Slice, number | Slice], T[]] | [Slice, T[]]
 
-export type PatchSet = {[key: string]: Patch[]}
+export type PatchSet<T> = {[key: string]: Patch<T>[]}
 
 // exported for testing
-export function patch_to_column(col: Arrayable, patch: Patch[], shapes: Shape[]): Set<number> {
+export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]): Set<number> {
   const patched: Set<number> = new Set()
   let patched_range = false
 
   for (const [ind, val] of patch) {
 
     // make the single index case look like the length-3 multi-index case
-    let item: Arrayable, shape: Shape
+    let shape: number[]
+    let item: Arrayable
     let index: [number, number | Slice, number | Slice]
     let value: unknown[]
     if (isArray(ind)) {
       const [i] = ind
       patched.add(i)
-      shape = shapes[i]
-      item = col[i]
+      shape = (col[i] as NDArray).shape
+      item = col[i] as NDArray
       value = val as unknown[]
 
       // this is basically like NumPy's "newaxis", inserting an empty dimension
@@ -102,7 +103,7 @@ export function patch_to_column(col: Arrayable, patch: Patch[], shapes: Shape[])
         index = [ind[0], 0, ind[1]]
       } else
         index = ind
-    } else  {
+    } else {
       if (isNumber(ind)) {
         value = [val]
         patched.add(ind)
@@ -126,7 +127,7 @@ export function patch_to_column(col: Arrayable, patch: Patch[], shapes: Shape[])
         if (patched_range) {
           patched.add(j)
         }
-        item[(i*shape[1]) + j] = value[flat_index]
+        item[i*shape[1] + j] = value[flat_index]
         flat_index++
       }
     }
@@ -161,31 +162,6 @@ export class ColumnDataSource extends ColumnarDataSource {
     })
   }
 
-  initialize(): void {
-    super.initialize();
-    [this.data, this._shapes] = decode_column_data(this.data)
-  }
-
-  attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json): any {
-    const attributes: Attrs = {} // Object.create(null)
-    for (const prop of this) {
-      if (prop.syncable && (include_defaults || prop.dirty)) {
-        let value = prop.get_value()
-        if (prop.attr === "data")
-          value = encode_column_data(value as Data, this._shapes)
-        attributes[prop.attr] = value
-      }
-    }
-    return value_to_json("attributes", attributes, this)
-  }
-
-  static _value_to_json(key: string, value: any, optional_parent_object: any): any {
-    if (isPlainObject(value) && key === 'data')
-      return encode_column_data(value as any, optional_parent_object._shapes) // XXX: unknown vs. any
-    else
-      return HasProps._value_to_json(key, value, optional_parent_object)
-  }
-
   stream(new_data: Data, rollover?: number, setter_id?: string): void {
     const {data} = this
     for (const k in new_data) {
@@ -199,12 +175,11 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
   }
 
-  patch(patches: PatchSet, setter_id?: string): void {
+  patch(patches: PatchSet<unknown>, setter_id?: string): void {
     const {data} = this
     let patched: Set<number> = new Set()
-    for (const k in patches) {
-      const patch = patches[k]
-      patched = union(patched, patch_to_column(data[k], patch, this._shapes[k] as Shape[]))
+    for (const [column, patch] of entries(patches)) {
+      patched = union(patched, patch_to_column(data[column] as any, patch)) // XXX
     }
     this.setv({data}, {silent: true})
     this.patching.emit([...patched])

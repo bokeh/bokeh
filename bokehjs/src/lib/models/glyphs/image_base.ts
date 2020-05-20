@@ -6,15 +6,14 @@ import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
 import {concat} from "core/util/array"
+import {NDArray, is_NDArray} from "core/util/ndarray"
 
 export interface ImageDataBase extends XYGlyphData {
   image_data: HTMLCanvasElement[]
 
-  _image: (Arrayable<number> | number[][])[]
+  _image: (NDArray | number[][])[]
   _dw: Arrayable<number>
   _dh: Arrayable<number>
-
-  _image_shape?: [number, number][]
 
   sw: Arrayable<number>
   sh: Arrayable<number>
@@ -67,20 +66,19 @@ export abstract class ImageBaseView extends XYGlyphView {
       if (indices != null && indices.indexOf(i) < 0)
         continue
 
-      let img: Arrayable<number>
-      if (this._image_shape != null && this._image_shape[i].length > 0) {
-        img = this._image[i] as Arrayable<number>
-        const shape = this._image_shape[i]
-        this._height[i] = shape[0]
-        this._width[i] = shape[1]
+      const img = this._image[i]
+      let flat_img: Arrayable<number>
+      if (is_NDArray(img)) {
+        flat_img = img
+        this._height[i] = img.shape[0]
+        this._width[i] = img.shape[1]
       } else {
-        const _image = this._image[i] as number[][]
-        img = concat(_image)
-        this._height[i] = _image.length
-        this._width[i] = _image[0].length
+        flat_img = concat(img)
+        this._height[i] = img.length
+        this._width[i] = img[0].length
       }
 
-      const buf8 = this._flat_img_to_buf8(img)
+      const buf8 = this._flat_img_to_buf8(flat_img)
       this._set_image_data_from_buffer(i, buf8)
     }
   }
