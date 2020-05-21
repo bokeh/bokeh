@@ -67,7 +67,10 @@ export class ClientSession {
   }
 
   protected _handle_patch(message: Message): void {
-    this.document.apply_json_patch(message.content, message.buffers)
+    const {document} = this
+    document.no_sync(() => {
+      document.apply_json_patch(message.content, message.buffers)
+    })
   }
 
   protected _handle_ok(message: Message): void {

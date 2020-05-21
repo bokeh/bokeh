@@ -82,6 +82,7 @@ export class Document {
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
+  protected _sync: boolean
 
   constructor() {
     documents.push(this)
@@ -97,6 +98,7 @@ export class Document {
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
     this._interactive_timestamp = null
     this._interactive_plot = null
+    this._sync = true
   }
 
   get layoutables(): LayoutDOM[] {
@@ -319,6 +321,9 @@ export class Document {
   }
 
   _trigger_on_change(event: DocumentEvent): void {
+    if (!this._sync)
+      return
+
     for (const [callback, allow_batches] of this._callbacks) {
       if (!allow_batches && event instanceof DocumentEventBatch) {
         for (const ev of event.events) {
@@ -332,6 +337,18 @@ export class Document {
 
   _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {hint?: unknown}): void {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.hint))
+  }
+
+  no_sync(fn: () => void): void {
+    const {_sync} = this
+    this._sync = false
+    try {
+      fn()
+    } finally {
+      if (_sync) {
+        this._sync = true
+      }
+    }
   }
 
   static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {
