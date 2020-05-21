@@ -132,12 +132,6 @@ jobs:
           conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
           conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
-      # XXX: until channels is available on conda-forge
-      - name: Install pip packages
-        shell: bash
-        run: |
-          pip install channels
-
       - name: Cache node modules
         uses: actions/cache@v1
         with:

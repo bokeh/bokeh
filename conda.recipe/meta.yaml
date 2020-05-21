@@ -55,6 +55,7 @@ test:
     # tests
     - beautifulsoup4
     - colorama
+    - channels
     - coverage
     - firefox
     - flake8
