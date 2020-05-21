@@ -26,7 +26,6 @@ export module HasProps {
     check_eq?: boolean
     silent?: boolean
     no_change?: boolean
-    setter_id?: string
   }
 }
 
@@ -378,7 +377,7 @@ export abstract class HasProps extends Signalable() {
       }
 
       if (options.silent !== true) {
-        this._push_changes(changed, options)
+        this._push_changes(changed)
       }
     }
   }
@@ -558,17 +557,15 @@ export abstract class HasProps extends Signalable() {
     return false
   }
 
-  protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+  protected _push_changes(changes: [Property, unknown, unknown][]): void {
     const {document} = this
     if (document == null)
       return
 
-    const {setter_id} = options
-
     const events = []
     for (const [prop, old_value, new_value] of changes) {
       if (prop.syncable)
-        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value, setter_id))
+        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value))
     }
 
     if (events.length != 0) {
@@ -576,7 +573,7 @@ export abstract class HasProps extends Signalable() {
       if (events.length == 1)
         [event] = events
       else
-        event = new DocumentEventBatch(document, events, setter_id)
+        event = new DocumentEventBatch(document, events)
       document._trigger_on_change(event)
     }
   }

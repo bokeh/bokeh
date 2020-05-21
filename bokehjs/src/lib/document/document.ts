@@ -225,8 +225,7 @@ export class Document {
     return this._roots
   }
 
-  add_root(model: Model, setter_id?: string): void {
-    logger.debug(`Adding root: ${model}`)
+  add_root(model: Model): void {
     if (includes(this._roots, model))
       return
 
@@ -236,10 +235,10 @@ export class Document {
     } finally {
       this._pop_all_models_freeze()
     }
-    this._trigger_on_change(new RootAddedEvent(this, model, setter_id))
+    this._trigger_on_change(new RootAddedEvent(this, model))
   }
 
-  remove_root(model: Model, setter_id?: string): void {
+  remove_root(model: Model): void {
     const i = this._roots.indexOf(model)
     if (i < 0)
       return
@@ -250,17 +249,17 @@ export class Document {
     } finally {
       this._pop_all_models_freeze()
     }
-    this._trigger_on_change(new RootRemovedEvent(this, model, setter_id))
+    this._trigger_on_change(new RootRemovedEvent(this, model))
   }
 
   title(): string {
     return this._title
   }
 
-  set_title(title: string, setter_id?: string): void {
+  set_title(title: string): void {
     if (title !== this._title) {
       this._title = title
-      this._trigger_on_change(new TitleChangedEvent(this, title, setter_id))
+      this._trigger_on_change(new TitleChangedEvent(this, title))
     }
   }
 
@@ -331,8 +330,8 @@ export class Document {
     }
   }
 
-  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: unknown}): void {
-    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
+  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {hint?: unknown}): void {
+    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.hint))
   }
 
   static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {
@@ -665,7 +664,7 @@ export class Document {
     }
   }
 
-  apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map(), setter_id?: string): void {
+  apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map()): void {
     const references_json = patch.references
     const events_json = patch.events
     const references = Document._instantiate_references_json(references_json, this._all_models)
@@ -734,10 +733,10 @@ export class Document {
           // XXXX currently still need this first branch, some updates (initial?) go through here
           if (attr === 'data' && patched_obj.type === 'ColumnDataSource') {
             const [data, shapes] = decode_column_data(event_json.new, buffers)
-            patched_obj.setv({_shapes: shapes, data}, {setter_id})
+            patched_obj.setv({_shapes: shapes, data})
           } else {
             const value = Document._resolve_refs(event_json.new, old_references, new_references)
-            patched_obj.setv({[attr]: value}, {setter_id})
+            patched_obj.setv({[attr]: value})
           }
           break
         }
@@ -760,13 +759,7 @@ export class Document {
               }
             }
           }
-          column_source.setv({
-            _shapes: shapes,
-            data,
-          }, {
-            setter_id,
-            check_eq: false,
-          })
+          column_source.setv({_shapes: shapes, data}, {check_eq: false})
           break
         }
         case 'ColumnsStreamed': {
@@ -780,7 +773,7 @@ export class Document {
           }
           const data = event_json.data
           const rollover = event_json.rollover
-          column_source.stream(data, rollover, setter_id)
+          column_source.stream(data, rollover)
           break
         }
         case 'ColumnsPatched': {
@@ -793,23 +786,23 @@ export class Document {
             throw new Error("Cannot patch non-ColumnDataSource")
           }
           const patches = event_json.patches
-          column_source.patch(patches, setter_id)
+          column_source.patch(patches)
           break
         }
         case 'RootAdded': {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
-          this.add_root(root_obj as Model, setter_id) // XXX: HasProps
+          this.add_root(root_obj as Model) // XXX: HasProps
           break
         }
         case 'RootRemoved': {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
-          this.remove_root(root_obj as Model, setter_id) // XXX: HasProps
+          this.remove_root(root_obj as Model) // XXX: HasProps
           break
         }
         case 'TitleChanged': {
-          this.set_title(event_json.title, setter_id)
+          this.set_title(event_json.title)
           break
         }
         default:

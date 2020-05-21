@@ -134,7 +134,7 @@ describe("events module", () => {
       const d = new Document()
       const m = new TestModel()
       const hint = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
-      const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2, undefined, hint)
+      const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2, hint)
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
       expect(json).to.be.deep.equal({

@@ -61,7 +61,7 @@ export abstract class DocumentEvent {
 }
 
 export class DocumentEventBatch<T extends DocumentChangedEvent> extends DocumentEvent {
-  constructor(document: Document, readonly events: T[], readonly setter_id?: string) {
+  constructor(document: Document, readonly events: T[]) {
     super(document)
   }
 }
@@ -100,7 +100,6 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       readonly attr: string,
       readonly old: unknown,
       readonly new_: unknown,
-      readonly setter_id?: string,
       readonly hint?: any) {
     super(document)
   }
@@ -172,7 +171,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
 
 export class TitleChangedEvent extends DocumentChangedEvent {
 
-  constructor(document: Document, readonly title: string, readonly setter_id?: string) {
+  constructor(document: Document, readonly title: string) {
     super(document)
   }
 
@@ -186,7 +185,7 @@ export class TitleChangedEvent extends DocumentChangedEvent {
 
 export class RootAddedEvent extends DocumentChangedEvent {
 
-  constructor(document: Document, readonly model: HasProps, readonly setter_id?: string) {
+  constructor(document: Document, readonly model: HasProps) {
     super(document)
   }
 
@@ -201,7 +200,7 @@ export class RootAddedEvent extends DocumentChangedEvent {
 
 export class RootRemovedEvent extends DocumentChangedEvent {
 
-  constructor(document: Document, readonly model: HasProps, readonly setter_id?: string) {
+  constructor(document: Document, readonly model: HasProps) {
     super(document)
   }
 

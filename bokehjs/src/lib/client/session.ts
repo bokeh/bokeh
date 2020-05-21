@@ -57,10 +57,6 @@ export class ClientSession {
   }
 
   protected _document_changed(event: DocumentEvent): void {
-    // Filter out events that were initiated by the ClientSession itself
-    if ((event as any).setter_id === this.id) // XXX: not all document events define this
-      return
-
     const events = event instanceof DocumentEventBatch ? event.events : [event]
     const patch = this.document.create_json_patch(events)
 
@@ -71,7 +67,7 @@ export class ClientSession {
   }
 
   protected _handle_patch(message: Message): void {
-    this.document.apply_json_patch(message.content, message.buffers, this.id)
+    this.document.apply_json_patch(message.content, message.buffers)
   }
 
   protected _handle_ok(message: Message): void {

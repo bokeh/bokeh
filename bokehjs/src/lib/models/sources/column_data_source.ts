@@ -186,7 +186,7 @@ export class ColumnDataSource extends ColumnarDataSource {
       return HasProps._value_to_json(key, value, optional_parent_object)
   }
 
-  stream(new_data: Data, rollover?: number, setter_id?: string): void {
+  stream(new_data: Data, rollover?: number): void {
     const {data} = this
     for (const k in new_data) {
       data[k] = stream_to_column(data[k], new_data[k], rollover)
@@ -195,11 +195,11 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.streaming.emit()
     if (this.document != null) {
       const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
-      this.document._notify_change(this, 'data', null, null, {setter_id, hint})
+      this.document._notify_change(this, 'data', null, null, {hint})
     }
   }
 
-  patch(patches: PatchSet, setter_id?: string): void {
+  patch(patches: PatchSet): void {
     const {data} = this
     let patched: Set<number> = new Set()
     for (const k in patches) {
@@ -210,7 +210,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.patching.emit([...patched])
     if (this.document != null) {
       const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
-      this.document._notify_change(this, 'data', null, null, {setter_id, hint})
+      this.document._notify_change(this, 'data', null, null, {hint})
     }
   }
 }
