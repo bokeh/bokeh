@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import dirname, exists, join
+import json
+from os.path import abspath, basename, dirname, exists, join, normpath
+from typing import Dict, List, NamedTuple, Optional
 from warnings import warn
 
 # Bokeh imports
@@ -80,7 +82,7 @@ class Bundle(object):
         self.js_raw = kwargs.get("js_raw", [])
         self.css_files = kwargs.get("css_files", [])
         self.css_raw = kwargs.get("css_raw", [])
-        self.hashes = kwargs.get("hashes", None)
+        self.hashes = kwargs.get("hashes", {})
 
     def __iter__(self):
         yield self._render_js()
@@ -176,14 +178,24 @@ def bundle_for_objs_and_resources(objs, resources):
         css_files.extend(css_resources.css_files)
         css_raw.extend(css_resources.css_raw)
 
-    js_raw.extend(_bundle_extensions(objs, resources))
+    if js_resources:
+        extensions = _bundle_extensions(objs, js_resources)
+        mode = js_resources.mode if resources is not None else "inline"
+        if mode == "inline":
+            js_raw.extend([ Resources._inline(bundle.artifact_path) for bundle in extensions ])
+        elif mode == "server":
+            js_files.extend([ bundle.server_url for bundle in extensions ])
+        elif mode == "cdn":
+            js_files.extend([ bundle.cdn_url for bundle in extensions if bundle.cdn_url is not None ])
+        else:
+            js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
     models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
 
-    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else None)
+    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else {})
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -209,9 +221,20 @@ def _query_extensions(objs, query):
 
     return False
 
-def _bundle_extensions(objs, resources):
+_default_cdn_host = "https://unpkg.com"
+
+class ExtensionEmbed(NamedTuple):
+    artifact_path: str
+    server_url: str
+    cdn_url: Optional[str] = None
+
+extension_dirs: Dict[str, str] = {} # name -> path
+
+def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
     names = set()
-    extensions = []
+    bundles = []
+
+    extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
     for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
         if hasattr(obj, "__implementation__"):
@@ -223,13 +246,58 @@ def _bundle_extensions(objs, resources):
             continue
         names.add(name)
         module = __import__(name)
-        ext = ".min.js" if resources is None or resources.minified else ".js"
-        artifact = join(dirname(module.__file__), "dist", name + ext)
-        if exists(artifact):
-            bundle = BaseResources._inline(artifact)
-            extensions.append(bundle)
+        this_file = abspath(module.__file__)
+        base_dir = dirname(this_file)
+        dist_dir = join(base_dir, "dist")
 
-    return extensions
+        ext_path = join(base_dir, "bokeh.ext.json")
+        if not exists(ext_path):
+            continue
+
+        server_prefix = f"{resources.root_url}static/extensions"
+        package_path = join(base_dir, "package.json")
+
+        pkg: Optional[str] = None
+
+        if exists(package_path):
+            with open(package_path) as io:
+                try:
+                    pkg = json.load(io)
+                except json.decoder.JSONDecodeError:
+                    pass
+
+        artifact_path: str
+        server_url: str
+        cdn_url: Optional[str] = None
+
+        if pkg is not None:
+            pkg_name = pkg["name"]
+            pkg_version = pkg.get("version", "latest")
+            pkg_main = pkg.get("module", pkg.get("main", None))
+            if pkg_main is not None:
+                cdn_url = f"{_default_cdn_host}/{pkg_name}@^{pkg_version}/{pkg_main}"
+            else:
+                pkg_main = join(dist_dir, f"{name}.js")
+            artifact_path = join(base_dir, normpath(pkg_main))
+            artifacts_dir = dirname(artifact_path)
+            artifact_name = basename(artifact_path)
+            server_path = f"{name}/{artifact_name}"
+        else:
+            for ext in extensions:
+                artifact_path = join(dist_dir, f"{name}{ext}")
+                artifacts_dir = dist_dir
+                server_path = f"{name}/{name}{ext}"
+                if exists(artifact_path):
+                    break
+            else:
+                raise ValueError(f"can't resolve artifact path for '{name}' extension")
+
+        extension_dirs[name] = artifacts_dir
+        server_url = f"{server_prefix}/{server_path}"
+        embed = ExtensionEmbed(artifact_path, server_url, cdn_url)
+        bundles.append(embed)
+
+    return bundles
 
 def _all_objs(objs):
     all_objs = set()

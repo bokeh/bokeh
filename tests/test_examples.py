@@ -18,7 +18,7 @@ from bokeh._testing.util.screenshot import run_in_chrome
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from bokeh.util.terminal import fail, info, ok, red, warn, white
+from bokeh.util.terminal import fail, info, red, warn, white
 
 is_windows = platform.system() == "Windows"
 
@@ -181,22 +181,11 @@ def _run_in_browser(example, url, verbose=False):
                     fail(line)
 
     example.store_img(image["data"])
-    ref = example.fetch_ref()
-
-    if not ref:
-        warn("reference image %s doesn't exist" % example.ref_url)
 
     if example.no_diff:
         warn("skipping image diff for %s" % example.relpath)
     elif not has_image:
         fail("no image data was produced for comparison with the reference image")
-    elif ref:
-        pixels = example.image_diff()
-        if pixels != 0:
-            comment = white("%.02f%%" % pixels) + " of pixels"
-            warn("generated and reference images differ: %s" % comment)
-        else:
-            ok("generated and reference images match")
 
     assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
     assert has_state, "%s didn't produce state data" % example.relpath

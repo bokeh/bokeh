@@ -131,6 +131,7 @@ export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
   properties: PanTool.Props
+  __view_type__: PanToolView
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
     super(attrs)
@@ -142,6 +143,10 @@ export class PanTool extends GestureTool {
     this.define<PanTool.Props>({
       dimensions: [ p.Dimensions, "both" ],
     })
+
+    this.register_alias("pan", () => new PanTool({dimensions: 'both'}))
+    this.register_alias("xpan", () => new PanTool({dimensions: 'width'}))
+    this.register_alias("ypan", () => new PanTool({dimensions: 'height'}))
   }
 
   tool_name = "Pan"

@@ -148,7 +148,7 @@ export class BezierView extends GlyphView {
 export namespace Bezier {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     x0: p.CoordinateSpec
     y0: p.CoordinateSpec
     x1: p.CoordinateSpec
@@ -157,7 +157,9 @@ export namespace Bezier {
     cy0: p.CoordinateSpec
     cx1: p.CoordinateSpec
     cy1: p.CoordinateSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: Line}
 }
@@ -166,6 +168,7 @@ export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
   properties: Bezier.Props
+  __view_type__: BezierView
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)
@@ -175,6 +178,6 @@ export class Bezier extends Glyph {
     this.prototype.default_view = BezierView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']])
-    this.mixins(['line'])
+    this.mixins<Bezier.Mixins>(LineVector)
   }
 }

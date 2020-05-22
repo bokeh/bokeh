@@ -2,7 +2,8 @@ import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
-export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
+export type HTMLItem = string | HTMLElement | null | undefined
+export type HTMLChild = HTMLItem | HTMLItem[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
@@ -45,7 +46,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
       element.setAttribute(attr, value)
     }
 
-    function append(child: HTMLElement | string) {
+    function append(child: HTMLItem) {
       if (child instanceof HTMLElement)
         element.appendChild(child)
       else if (isString(child))
@@ -121,10 +122,15 @@ export function prepend(element: HTMLElement, ...nodes: Node[]): void {
   }
 }
 
-export function empty(element: HTMLElement): void {
-  let child
+export function empty(element: HTMLElement, attrs: boolean = false): void {
+  let child: ChildNode | null
   while (child = element.firstChild) {
     element.removeChild(child)
+  }
+  if (attrs) {
+    for (const attr of element.attributes) {
+      element.removeAttributeNode(attr)
+    }
   }
 }
 
@@ -316,6 +322,17 @@ export function classes(el: HTMLElement): ClassList {
   return new ClassList(el)
 }
 
+export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean): void {
+  if (state == null) {
+    state = !el.hasAttribute(attr)
+  }
+
+  if (state)
+    el.setAttribute(attr, "true")
+  else
+    el.removeAttribute(attr)
+}
+
 export enum Keys {
   Backspace = 8,
   Tab       = 9,
@@ -362,15 +379,19 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
 
 export class StyleSheet {
   private readonly style: HTMLStyleElement
+  private readonly known: Set<string> = new Set()
 
-  constructor() {
+  constructor(readonly root: HTMLElement) {
     this.style = style({type: "text/css"})
-    prepend(document.head, this.style)
+    prepend(root, this.style)
   }
 
   append(css: string): void {
-    this.style.appendChild(document.createTextNode(css))
+    if (!this.known.has(css)) {
+      this.style.appendChild(document.createTextNode(css))
+      this.known.add(css)
+    }
   }
 }
 
-export const styles = new StyleSheet()
+export const stylesheet = new StyleSheet(document.head)

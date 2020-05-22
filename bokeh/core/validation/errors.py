@@ -87,7 +87,13 @@ validation checks.
     Expected min_height <= height <= max_height
 
 1024 *(CDSVIEW_FILTERS_WITH_CONNECTED)*
-    ``CDSView`` filters are not compatible with glyphs with connected topology suchs as Line and Patch.
+    ``CDSView`` filters are not compatible with glyphs with connected topology such as Line or Patch.
+
+1025 *(INCOMPATIBLE_LINE_EDIT_RENDERER)*
+    The ``LineEditTool`` renderers may only reference ``MultiLine`` and ``Line`` glyph models.
+
+1026 *(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)*
+    The ``LineEditTool`` intersection_enderer may only reference ``LineGlyph`` models.
 
 9999 *(EXT)*
     Indicates that a custom error check has failed.
@@ -127,12 +133,14 @@ codes = {
     1016: ("INCOMPATIBLE_POLY_EDIT_RENDERER",                    "PolyEditTool renderers may only reference MultiLine and Patches glyph models"),
     1017: ("INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER",             "PolyEditTool vertex_renderer may only reference XYGlyph models"),
     1018: ("NO_RANGE_TOOL_RANGES",                               "RangeTool must have at least one of x_range or y_range configured"),
-    1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
+    1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specify a unique list of categorical factors for an axis"),
     1020: ("BAD_EXTRA_RANGE_NAME",                               "An extra range name is configued with a name that does not correspond to any range"),
     1021: ("EQUAL_SLIDER_START_END",                             "Slider 'start' and 'end' cannot be equal"),
     1022: ("MIN_PREFERRED_MAX_WIDTH",                            "Expected min_width <= width <= max_width"),
     1023: ("MIN_PREFERRED_MAX_HEIGHT",                           "Expected min_height <= height <= max_height"),
-    1024: ("CDSVIEW_FILTERS_WITH_CONNECTED",                     "CDSView filters are not compatible with glyphs with connected topology suchs as Line and Patch"),
+    1024: ("CDSVIEW_FILTERS_WITH_CONNECTED",                     "CDSView filters are not compatible with glyphs with connected topology such as Line or Patch"),
+    1025: ("INCOMPATIBLE_LINE_EDIT_RENDERER",                    "LineEditTool renderers may only reference MultiLine and Line glyph models"),
+    1026: ("INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER",       "LineEditTool intersection_renderer may only reference LineGlyph models"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
 

@@ -6,7 +6,9 @@ import {div, canvas, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
-import {bk_canvas, bk_canvas_underlays, bk_canvas_overlays, bk_canvas_events} from "styles/canvas"
+import {SVGRenderingContext2D} from "core/util/svg"
+
+export type FrameBox = [number, number, number, number]
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -40,110 +42,95 @@ const global_webgl: WebGLState | undefined = (() => {
   }
 })()
 
-import canvas2svg, {SVGRenderingContext2D} from "@bokeh/canvas2svg"
+const style = {
+  position: "absolute",
+  top: "0",
+  left: "0",
+  width: "100%",
+  height: "100%",
+}
 
-export class CanvasView extends DOMView {
-  model: Canvas
+export class CanvasLayer {
+  private readonly _canvas: HTMLCanvasElement | SVGSVGElement
+  get canvas(): HTMLCanvasElement {
+    return this._canvas as HTMLCanvasElement
+  }
 
-  bbox: BBox
-
-  webgl?: WebGLState
-
-  private _ctx: CanvasRenderingContext2D | SVGRenderingContext2D
-
+  private readonly _ctx: CanvasRenderingContext2D | SVGRenderingContext2D
   get ctx(): Context2d {
     return this._ctx as Context2d
   }
 
-  protected underlays_el: HTMLElement
-  protected canvas_el: HTMLCanvasElement | SVGSVGElement
-  protected overlays_el: HTMLElement
-  /*protected*/ events_el: HTMLElement
+  readonly pixel_ratio: number = 1
 
-  initialize(): void {
-    super.initialize()
+  bbox: BBox = new BBox()
 
-    const style = {
-      position: "absolute",
-      top: "0",
-      left: "0",
-      width: "100%",
-      height: "100%",
-    }
-
-    switch (this.model.output_backend) {
+  constructor(readonly backend: OutputBackend, readonly hidpi: boolean) {
+    switch (backend) {
       case "webgl":
-        this.webgl = global_webgl
       case "canvas": {
-        this.canvas_el = canvas({class: bk_canvas, style})
-        const ctx = this.canvas_el.getContext('2d')
+        this._canvas = canvas({style})
+        const ctx = this.canvas.getContext('2d')
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
         this._ctx = ctx
+        if (hidpi) {
+          this.pixel_ratio = devicePixelRatio
+        }
         break
       }
       case "svg": {
-        const ctx = new canvas2svg() as SVGRenderingContext2D
+        const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
-        this.canvas_el = ctx.getSvg()
+        this._canvas = ctx.getSvg()
         break
       }
     }
 
-    this.underlays_el = div({class: bk_canvas_underlays, style})
-    this.overlays_el = div({class: bk_canvas_overlays, style})
-    this.events_el = div({class: bk_canvas_events, style})
-
-    append(this.el, this.underlays_el, this.canvas_el, this.overlays_el, this.events_el)
-
     fixup_ctx(this._ctx)
-
-    logger.debug("CanvasView initialized")
   }
 
-  add_underlay(el: HTMLElement): void {
-    this.underlays_el.appendChild(el)
-  }
-
-  add_overlay(el: HTMLElement): void {
-    this.overlays_el.appendChild(el)
-  }
-
-  add_event(el: HTMLElement): void {
-    this.events_el.appendChild(el)
-  }
-
-  prepare_canvas(width: number, height: number): void {
+  resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
-
-    const {use_hidpi, output_backend} = this.model
-    const pixel_ratio = use_hidpi && output_backend != "svg" ? devicePixelRatio : 1
-    this.model.pixel_ratio = pixel_ratio
-
-    this.canvas_el.style.width = `${width}px`
-    this.canvas_el.style.height = `${height}px`
+    this.canvas.style.width = `${width}px`
+    this.canvas.style.height = `${height}px`
 
     // XXX: io.export and canvas2svg don't like this
-    // this.canvas_el.width = width*pixel_ratio
-    // this.canvas_el.height = height*pixel_ratio
-    this.canvas_el.setAttribute("width", `${width*pixel_ratio}`)
-    this.canvas_el.setAttribute("height", `${height*pixel_ratio}`)
+    // this.canvas.width = width*pixel_ratio
+    // this.canvas.height = height*pixel_ratio
+    this.canvas.setAttribute("width", `${width*this.pixel_ratio}`)
+    this.canvas.setAttribute("height", `${height*this.pixel_ratio}`)
+  }
 
-    logger.debug(`Rendering CanvasView with width: ${width}, height: ${height}, pixel ratio: ${pixel_ratio}`)
+  prepare(): void {
+    const {ctx, hidpi, pixel_ratio} = this
+    ctx.save()
+    if (hidpi) {
+      ctx.scale(pixel_ratio, pixel_ratio)
+      ctx.translate(0.5, 0.5)
+    }
+    this.clear()
+  }
+
+  clear(): void {
+    const {x, y, width, height} = this.bbox
+    this.ctx.clearRect(x, y, width, height)
+  }
+
+  finish(): void {
+    this.ctx.restore()
   }
 
   save(name: string): void {
-    if (this.canvas_el instanceof HTMLCanvasElement) {
-      const canvas = this.canvas_el
-      if (canvas.msToBlob != null) {
-        const blob = canvas.msToBlob()
+    const {_canvas} = this
+    if (_canvas instanceof HTMLCanvasElement) {
+      if (_canvas.msToBlob != null) {
+        const blob = _canvas.msToBlob()
         window.navigator.msSaveBlob(blob, name)
       } else {
         const link = document.createElement("a")
-        link.href = canvas.toDataURL("image/png")
+        link.href = _canvas.toDataURL("image/png")
         link.download = name + ".png"
         link.target = "_blank"
         link.dispatchEvent(new MouseEvent("click"))
@@ -164,12 +151,142 @@ export class CanvasView extends DOMView {
   }
 }
 
+export class CanvasView extends DOMView {
+  model: Canvas
+
+  bbox: BBox
+
+  webgl?: WebGLState
+
+  underlays_el: HTMLElement
+  primary: CanvasLayer
+  overlays: CanvasLayer
+  overlays_el: HTMLElement
+  events_el: HTMLElement
+
+  initialize(): void {
+    super.initialize()
+
+    const {output_backend, hidpi} = this.model
+    if (output_backend == "webgl") {
+      this.webgl = global_webgl
+    }
+
+    this.underlays_el = div({style})
+    this.primary = new CanvasLayer(output_backend, hidpi)
+    this.overlays = new CanvasLayer(output_backend, hidpi)
+    this.overlays_el = div({style})
+    this.events_el = div({class: "bk-canvas-events", style})
+
+    const elements = [
+      this.underlays_el,
+      this.primary.canvas,
+      this.overlays.canvas,
+      this.overlays_el,
+      this.events_el,
+    ]
+
+    append(this.el, ...elements)
+
+    logger.debug("CanvasView initialized")
+  }
+
+  add_underlay(el: HTMLElement): void {
+    this.underlays_el.appendChild(el)
+  }
+
+  add_overlay(el: HTMLElement): void {
+    this.overlays_el.appendChild(el)
+  }
+
+  add_event(el: HTMLElement): void {
+    this.events_el.appendChild(el)
+  }
+
+  get pixel_ratio(): number {
+    return this.primary.pixel_ratio // XXX: primary
+  }
+
+  resize(width: number, height: number): void {
+    this.bbox = new BBox({left: 0, top: 0, width, height})
+
+    this.el.style.width = `${width}px`
+    this.el.style.height = `${height}px`
+
+    this.primary.resize(width, height)
+    this.overlays.resize(width, height)
+  }
+
+  prepare_webgl(frame_box: FrameBox): void {
+    // Prepare WebGL for a drawing pass
+    const {webgl} = this
+    if (webgl != null) {
+      // Sync canvas size
+      const {width, height} = this.bbox
+      webgl.canvas.width = this.pixel_ratio*width
+      webgl.canvas.height = this.pixel_ratio*height
+      const {gl} = webgl
+      // Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      const [sx, sy, w, h] = frame_box
+      const {xview, yview} = this.bbox
+      const vx = xview.compute(sx)
+      const vy = yview.compute(sy + h)
+      const ratio = this.pixel_ratio
+      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
+      // Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
+    }
+  }
+
+  clear_webgl(): void {
+    const {webgl} = this
+    if (webgl != null) {
+      // Prepare GL for drawing
+      const {gl, canvas} = webgl
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+    }
+  }
+
+  blit_webgl(ctx: Context2d): void {
+    // This should be called when the ctx has no state except the HIDPI transform
+    const {webgl} = this
+    if (webgl != null) {
+      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      // to remove the hidpi transform, then blit, then restore.
+      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+      logger.debug('drawing with WebGL')
+      ctx.restore()
+      ctx.drawImage(webgl.canvas, 0, 0)
+      // Set back hidpi transform
+      ctx.save()
+      if (this.model.hidpi) {
+        const ratio = this.pixel_ratio
+        ctx.scale(ratio, ratio)
+        ctx.translate(0.5, 0.5)
+      }
+    }
+  }
+
+  save(name: string): void {
+    const {output_backend} = this.model
+    const {width, height} = this.bbox
+    const composite = new CanvasLayer(output_backend, false)
+    composite.resize(width, height)
+    composite.ctx.drawImage(this.primary.canvas, 0, 0)
+    composite.ctx.drawImage(this.overlays.canvas, 0, 0)
+    composite.save(name)
+  }
+}
+
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HasProps.Props & {
-    use_hidpi: p.Property<boolean>
-    pixel_ratio: p.Property<number>
+    hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
 }
@@ -178,7 +295,7 @@ export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
   properties: Canvas.Props
-  default_view: typeof CanvasView
+  __view_type__: CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)
@@ -188,8 +305,7 @@ export class Canvas extends HasProps {
     this.prototype.default_view = CanvasView
 
     this.internal({
-      use_hidpi:      [ p.Boolean,       true     ],
-      pixel_ratio:    [ p.Number,        1        ],
+      hidpi:          [ p.Boolean,       true     ],
       output_backend: [ p.OutputBackend, "canvas" ],
     })
   }

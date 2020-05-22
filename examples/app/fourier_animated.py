@@ -18,7 +18,6 @@ in your browser.
 from collections import OrderedDict
 
 import numpy as np
-from numpy import pi
 
 from bokeh.driving import repeat
 from bokeh.io import curdoc
@@ -26,6 +25,7 @@ from bokeh.layouts import column
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 
+pi = np.pi
 N = 100
 newx = x = np.linspace(0, 2*pi, N)
 shift = 2.2

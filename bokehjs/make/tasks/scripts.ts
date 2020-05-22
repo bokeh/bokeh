@@ -1,17 +1,50 @@
-import {join} from "path"
+import {join, relative} from "path"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {rename} from "@compiler/sys"
+import {rename, read, write, scan} from "@compiler/sys"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
+import * as preludes from "@compiler/prelude"
 import * as paths from "../paths"
 
-task("scripts:compile", ["styles:compile"], async () => {
+import pkg from "../../package.json"
+
+task("scripts:version", async () => {
+  const js = `export const version = "${pkg.version}";\n`
+  const dts = `export declare const version: string;\n`
+
+  write(join(paths.build_dir.lib, "version.js"), js)
+  write(join(paths.build_dir.types, "version.d.ts"), dts)
+})
+
+task("scripts:styles", ["styles:compile"], async () => {
+  const css_base = paths.build_dir.css
+
+  const js_base = join(paths.build_dir.lib, "styles")
+  const dts_base = join(paths.build_dir.types, "styles")
+
+  for (const css_path of scan(css_base, [".css"])) {
+    const sub_path = relative(css_base, css_path)
+
+    const js = `\
+const css = \`\n${read(css_path)}\`;
+export default css;
+`
+    const dts = `\
+declare const css: string;
+export default css;
+`
+
+    write(rename(join(js_base, sub_path), {ext: ".css.js"}), js)
+    write(rename(join(dts_base, sub_path), {ext: ".css.dts"}), dts)
+  }
+})
+
+task("scripts:compile", ["scripts:styles", "scripts:version"], async () => {
   const success = compile_typescript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
     out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
-    css_dir: paths.build_dir.css,
   })
 
   if (argv.emitError && !success)
@@ -30,7 +63,9 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    transpile: "ES2017",
+    prelude: preludes.prelude,
+    plugin_prelude: () => preludes.plugin_prelude({version: pkg.version}),
+    target: "ES2017",
     exports: ["tslib"],
   })
 
@@ -58,7 +93,7 @@ task("scripts:bundle-legacy", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.legacy.json") : undefined,
-    transpile: "ES5",
+    target: "ES5",
   })
 
   if (!argv.rebuild) linker.load_cache()
@@ -77,8 +112,6 @@ task("scripts:bundle-legacy", ["scripts:compile"], async () => {
   bundle(true, outputs.map(min_js))
 })
 
-task("scripts:dev-build", ["scripts:bundle"])
+task("lib:build", ["scripts:bundle"])
 
-task("scripts:build", ["scripts:bundle", "scripts:bundle-legacy"])
-
-task("scripts", ["scripts:build"])
+task("scripts:build", ["lib:build", "scripts:bundle-legacy"])

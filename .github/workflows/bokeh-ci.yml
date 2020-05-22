@@ -24,7 +24,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -107,7 +107,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -132,12 +132,6 @@ jobs:
           conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
           conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
 
-      # XXX: until channels is available on conda-forge
-      - name: Install pip packages
-        shell: bash
-        run: |
-          pip install channels
-
       - name: Cache node modules
         uses: actions/cache@v1
         with:
@@ -158,21 +152,22 @@ jobs:
         run: |
           python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
+      - name: Run bokehjs codebase checks
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make build:all lint --emit-error
+
       - name: Run codebase checks
         shell: bash
         run: |
-          pushd bokehjs
-          node make scripts:compile --emit-error
-          node make test:compile --emit-error
-          PARSER_NO_WATCH=true node make lint --emit-error
-          popd
-
           py.test --color=yes tests/codebase
 
       - name: MyPy
         shell: bash
         run: |
           mypy bokeh
+          mypy release
 
 
 
@@ -196,7 +191,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -255,19 +250,10 @@ jobs:
           popd
           python setup.py --install-js
 
-      - name: Install chrome
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository ppa:canonical-chromium-builds/stage
-          sudo apt-get update
-          sudo apt-get install chromium-browser
-
       - name: Start chrome headless
         shell: bash
         run: |
-          chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
+          google-chrome --headless --no-sandbox --remote-debugging-port=9222 &
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -305,22 +291,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
+      - uses: actions/checkout@v2
 
       - name: Install Miniconda
         shell: bash
         run: |
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
+            ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
-      - name: Setup paths
+      - name: Setup paths (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "::add-path::$HOME\miniconda3"
+          echo "::add-path::$HOME\miniconda3\DLLs"
+          echo "::add-path::$HOME\miniconda3\Scripts"
+          echo "::add-path::$HOME\miniconda3\Library\bin"
+          echo "::add-path::$HOME\miniconda3\Library\usr\bin"
+          echo "::add-path::$HOME\miniconda3\Library\mingw-w64\bin"
+
+      - name: Setup paths (Linux or macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           echo "::add-path::$HOME/miniconda3/bin"
@@ -328,7 +330,7 @@ jobs:
       - name: Configure conda
         shell: bash
         env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+          CONDA_REQS: "conda=4.8.1 jinja2 pyyaml"
         run: |
           conda config --set auto_update_conda off
           conda config --append channels bokeh
@@ -358,8 +360,7 @@ jobs:
       - name: Install conda packages
         shell: bash
         run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+          conda install --yes --quiet --use-local python=${{ matrix.python-version }} bokeh "nodejs=12.*"
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -368,27 +369,17 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
+        working-directory: ./bokehjs
+        shell: bash
         run: |
-          pushd bokehjs
           npm install -g npm
           npm ci --no-progress
-          popd
-          python setup.py --install-js
-
-      - name: Install chrome
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository ppa:canonical-chromium-builds/stage
-          sudo apt-get update
-          sudo apt-get install chromium-browser
 
       - name: Run tests
+        working-directory: ./bokehjs
         shell: bash
         run: |
-          py.test -s --color=yes tests/test_bokehjs.py
-
+          node make test --screenshot=skip
 
 
 
@@ -409,7 +400,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -466,18 +457,6 @@ jobs:
           npm ci --no-progress
           popd
           python setup.py --install-js
-
-      - name: Install chromedriver
-        shell: bash
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install unzip xvfb libxi6 libgconf-2-4
-          sudo apt-get -y install google-chrome-stable
-          curl -o  chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/bin/chromedriver
-          sudo chown root:root /usr/bin/chromedriver
-          sudo chmod +x /usr/bin/chromedriver
 
       - name: Run tests
         shell: bash
@@ -506,15 +485,15 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" = "Linux" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "macOS" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+            curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
             ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
           fi
 
@@ -621,7 +600,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -710,7 +689,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths
@@ -809,7 +788,7 @@ jobs:
           elif [[ "${{ runner.os }}" = "Windows" ]]; then
             MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
           fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
+          curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
 
       - name: Setup paths

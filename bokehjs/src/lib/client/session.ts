@@ -1,14 +1,16 @@
-import {Document, DocumentChangedEvent, ModelChangedEvent} from "document"
+import {Document, DocumentEvent, DocumentEventBatch} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
 import {logger} from "core/logging"
 
 export class ClientSession {
 
-  protected _document_listener: (event: DocumentChangedEvent) => void = (event) => this._document_changed(event)
+  protected _document_listener = (event: DocumentEvent) => {
+    this._document_changed(event)
+  }
 
   constructor(protected readonly _connection: ClientConnection, readonly document: Document, readonly id: string) {
-    this.document.on_change(this._document_listener)
+    this.document.on_change(this._document_listener, true)
   }
 
   handle(message: Message): void {
@@ -54,18 +56,17 @@ export class ClientSession {
     await this.request_server_info()
   }
 
-  protected _document_changed(event: DocumentChangedEvent): void {
+  protected _document_changed(event: DocumentEvent): void {
     // Filter out events that were initiated by the ClientSession itself
     if ((event as any).setter_id === this.id) // XXX: not all document events define this
       return
 
-    // Filter out changes to attributes that aren't server-visible
-    if (event instanceof ModelChangedEvent && !(event.attr in event.model.serializable_attributes()))
-      return
+    const events = event instanceof DocumentEventBatch ? event.events : [event]
+    const patch = this.document.create_json_patch(events)
 
     // TODO (havocp) the connection may be closed here, which will
     // cause this send to throw an error - need to deal with it more cleanly.
-    const message = Message.create('PATCH-DOC', {}, this.document.create_json_patch([event]))
+    const message = Message.create('PATCH-DOC', {}, patch)
     this._connection.send(message)
   }
 

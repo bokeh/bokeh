@@ -20,7 +20,7 @@ export class PolyDrawToolView extends PolyToolView {
     if (this._drawing)
       this._draw(ev, 'add', true)
     else
-      this._select_event(ev, ev.shiftKey, this.model.renderers)
+      this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
@@ -160,7 +160,7 @@ export class PolyDrawToolView extends PolyToolView {
   _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
-    this._select_event(ev, true, this.model.renderers)
+    this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
@@ -248,6 +248,7 @@ export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends PolyTool {
   properties: PolyDrawTool.Props
+  __view_type__: PolyDrawToolView
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)

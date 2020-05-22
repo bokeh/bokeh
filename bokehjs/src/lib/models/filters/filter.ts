@@ -30,7 +30,7 @@ export class Filter extends Model {
 
   compute_indices(_source: DataSource): number[] | null {
     const filter = this.filter
-    if (filter != null && filter.length >= 0) {
+    if (filter != null) {
       if (isArrayOf(filter, isBoolean)) {
         return range(0, filter.length).filter((i) => filter[i] === true)
       }

@@ -413,7 +413,7 @@ export class LineGLGlyph extends BaseGLGlyph {
     this.V_segment = (V_segment2 = new Float32Array(m*2))
     // Calculate vector lengths - with scale aspect ratio taken into account
     for (let i = 0, end = n-1; i < end; i++) {
-      N[i] = Math.sqrt(Math.pow(T[(i*2)+0] * sx, 2) + Math.pow(T[(i*2)+1] * sy, 2))
+      N[i] = Math.sqrt((T[(i*2)+0] * sx)**2 + (T[(i*2)+1] * sy)**2)
     }
     // Calculate Segments
     let cumsum = 0

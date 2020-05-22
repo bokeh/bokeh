@@ -1,8 +1,10 @@
 import * as mixins from "./property_mixins"
 import * as p from "./properties"
-import {color2rgba} from "./util/color"
+import {color2css} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
+import {Arrayable} from "./types"
+import {map} from "./util/arrayable"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {HasProps} from "./has_props"
@@ -184,15 +186,14 @@ function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Co
 
 export abstract class ContextProperties {
 
-  // prototype {
+  /** @prototype */
   attrs: string[]
-  // }
 
   readonly cache: {[key: string]: any} = {}
 
   abstract get doit(): boolean
 
-  all_indices: number[]
+  all_indices?: number[]
 
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
     for (const attr of this.attrs)
@@ -204,7 +205,7 @@ export abstract class ContextProperties {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
         this.cache[attr] = prop.spec.value
-      else if (source != null)
+      else if (source != null && prop instanceof p.VectorSpec)
         this.cache[attr + "_array"] = prop.array(source)
       else
         throw new Error("source is required with a vectorized visual property")
@@ -219,6 +220,15 @@ export abstract class ContextProperties {
     else
       this.cache[attr] = value = this.cache[attr + "_array"][i]
     return value
+  }
+
+  get_array(attr: string): Arrayable {
+    const array = this.cache[attr + "_array"] as Arrayable
+    if (this.all_indices != null) {
+      return map(this.all_indices, (i) => array[i])
+    } else {
+      return array
+    }
   }
 
   set_vectorize(ctx: Context2d, i: number): void {
@@ -259,41 +269,33 @@ export class Line extends ContextProperties {
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("line_color", i)
-    if (ctx.strokeStyle !== this.cache.line_color)
-      ctx.strokeStyle = this.cache.line_color
+    ctx.strokeStyle = this.cache.line_color
 
     this.cache_select("line_alpha", i)
-    if (ctx.globalAlpha !== this.cache.line_alpha)
-      ctx.globalAlpha = this.cache.line_alpha
+    ctx.globalAlpha = this.cache.line_alpha
 
     this.cache_select("line_width", i)
-    if (ctx.lineWidth !== this.cache.line_width)
-      ctx.lineWidth = this.cache.line_width
+    ctx.lineWidth = this.cache.line_width
 
     this.cache_select("line_join", i)
-    if (ctx.lineJoin !== this.cache.line_join)
-      ctx.lineJoin = this.cache.line_join
+    ctx.lineJoin = this.cache.line_join
 
     this.cache_select("line_cap", i)
-    if (ctx.lineCap !== this.cache.line_cap)
-      ctx.lineCap = this.cache.line_cap
+    ctx.lineCap = this.cache.line_cap
 
     this.cache_select("line_dash", i)
-    if (ctx.getLineDash() !== this.cache.line_dash)
-      ctx.setLineDash(this.cache.line_dash)
+    ctx.setLineDash(this.cache.line_dash)
 
     this.cache_select("line_dash_offset", i)
-    if (ctx.getLineDashOffset() !== this.cache.line_dash_offset)
-      ctx.setLineDashOffset(this.cache.line_dash_offset)
+    ctx.setLineDashOffset(this.cache.line_dash_offset)
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.line_color.value(), this.line_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
+    return color2css(this.line_color.value(), this.line_alpha.value())
   }
 }
 
-Line.prototype.attrs = Object.keys(mixins.line())
+Line.prototype.attrs = Object.keys(mixins.LineVector)
 
 export class Fill extends ContextProperties {
 
@@ -301,7 +303,7 @@ export class Fill extends ContextProperties {
   readonly fill_alpha: p.NumberSpec
 
   set_value(ctx: Context2d): void {
-    ctx.fillStyle   = this.fill_color.value()
+    ctx.fillStyle = this.fill_color.value()
     ctx.globalAlpha = this.fill_alpha.value()
   }
 
@@ -312,21 +314,18 @@ export class Fill extends ContextProperties {
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("fill_color", i)
-    if (ctx.fillStyle !== this.cache.fill_color)
-      ctx.fillStyle = this.cache.fill_color
+    ctx.fillStyle = this.cache.fill_color
 
     this.cache_select("fill_alpha", i)
-    if (ctx.globalAlpha !== this.cache.fill_alpha)
-      ctx.globalAlpha = this.cache.fill_alpha
+    ctx.globalAlpha = this.cache.fill_alpha
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.fill_color.value(), this.fill_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
+    return color2css(this.fill_color.value(), this.fill_alpha.value())
   }
 }
 
-Fill.prototype.attrs = Object.keys(mixins.fill())
+Fill.prototype.attrs = Object.keys(mixins.FillVector)
 
 export class Hatch extends ContextProperties {
 
@@ -388,7 +387,6 @@ export class Hatch extends ContextProperties {
       this.set_vectorize(ctx, i)
       ready_func()
     }
-
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -396,22 +394,20 @@ export class Hatch extends ContextProperties {
     ctx.fillStyle = this.cache.pattern(ctx)
 
     this.cache_select("hatch_alpha", i)
-    if (ctx.globalAlpha !== this.cache.hatch_alpha)
-      ctx.globalAlpha = this.cache.hatch_alpha
+    ctx.globalAlpha = this.cache.hatch_alpha
   }
 
   color_value(): string {
-    const [r, g, b, a] = color2rgba(this.hatch_color.value(), this.hatch_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
+    return color2css(this.hatch_color.value(), this.hatch_alpha.value())
   }
 }
 
-Hatch.prototype.attrs = Object.keys(mixins.hatch())
+Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
 
 export class Text extends ContextProperties {
 
   readonly text_font:        p.Font
-  readonly text_font_size:   p.FontSizeSpec
+  readonly text_font_size:   p.StringSpec
   readonly text_font_style:  p.Property<FontStyle>
   readonly text_color:       p.ColorSpec
   readonly text_alpha:       p.NumberSpec
@@ -419,31 +415,34 @@ export class Text extends ContextProperties {
   readonly text_baseline:    p.Property<TextBaseline>
   readonly text_line_height: p.Number
 
+  color_value(): string {
+    return color2css(this.text_color.value(), this.text_alpha.value())
+  }
+
+  font_value(): string {
+    const text_font       = this.text_font.value()
+    const text_font_size  = this.text_font_size.value()
+    const text_font_style = this.text_font_style.value()
+    return `${text_font_style} ${text_font_size} ${text_font}`
+  }
+
+  v_font_value(i: number): string {
+    super.cache_select("text_font_style", i)
+    super.cache_select("text_font_size",  i)
+    super.cache_select("text_font",       i)
+
+    const {text_font_style, text_font_size, text_font} = this.cache
+    return `${text_font_style} ${text_font_size} ${text_font}`
+  }
+
   cache_select(name: string, i: number): any {
     let value: any
     if (name == "font") {
-      super.cache_select("text_font_style", i)
-      super.cache_select("text_font_size",  i)
-      super.cache_select("text_font",       i)
-
-      const {text_font_style, text_font_size, text_font} = this.cache
-      this.cache.font = value = `${text_font_style} ${text_font_size} ${text_font}`
+      this.cache.font = value = this.v_font_value(i)
     } else
       value = super.cache_select(name, i)
 
     return value
-  }
-
-  font_value(): string {
-    const font       = this.text_font.value()
-    const font_size  = this.text_font_size.value()
-    const font_style = this.text_font_style.value()
-    return font_style + " " + font_size + " " + font
-  }
-
-  color_value(): string {
-    const [r, g, b, a] = color2rgba(this.text_color.value(), this.text_alpha.value())
-    return `rgba(${r*255},${g*255},${b*255},${a})`
   }
 
   set_value(ctx: Context2d): void {
@@ -461,33 +460,28 @@ export class Text extends ContextProperties {
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("font", i)
-    if (ctx.font !== this.cache.font)
-      ctx.font = this.cache.font
+    ctx.font = this.cache.font
 
     this.cache_select("text_color", i)
-    if (ctx.fillStyle !== this.cache.text_color)
-      ctx.fillStyle = this.cache.text_color
+    ctx.fillStyle = this.cache.text_color
 
     this.cache_select("text_alpha", i)
-    if (ctx.globalAlpha !== this.cache.text_alpha)
-      ctx.globalAlpha = this.cache.text_alpha
+    ctx.globalAlpha = this.cache.text_alpha
 
     this.cache_select("text_align", i)
-    if (ctx.textAlign !== this.cache.text_align)
-      ctx.textAlign = this.cache.text_align
+    ctx.textAlign = this.cache.text_align
 
     this.cache_select("text_baseline", i)
-    if (ctx.textBaseline !== this.cache.text_baseline)
-      ctx.textBaseline = this.cache.text_baseline
+    ctx.textBaseline = this.cache.text_baseline
   }
 }
 
-Text.prototype.attrs = Object.keys(mixins.text())
+Text.prototype.attrs = Object.keys(mixins.TextVector)
 
 export class Visuals {
 
   constructor(model: HasProps) {
-    for (const mixin of model.mixins) {
+    for (const mixin of model._mixins) {
       const [name, prefix=""] = mixin.split(":")
       let cls: Class<ContextProperties>
       switch (name) {

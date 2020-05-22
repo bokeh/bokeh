@@ -5,7 +5,9 @@
       "./make/tsconfig.json",
       "./src/lib/tsconfig.json",
       "./src/compiler/tsconfig.json",
-      "./test/tsconfig.json",
+      "./test/unit/tsconfig.json",
+      "./test/defaults/tsconfig.json",
+      "./test/integration/tsconfig.json",
       "./test/codebase/tsconfig.json",
       "./test/devtools/tsconfig.json",
       "./examples/tsconfig.json"
@@ -16,7 +18,24 @@
   "plugins": ["@typescript-eslint"],
   "extends": [],
   "rules": {
-    "semi": ["error", "never"],
+    "@typescript-eslint/ban-types": "error",
+    "@typescript-eslint/consistent-type-assertions": "error",
+    "@typescript-eslint/member-delimiter-style": ["error", {
+      "multiline": {
+        "delimiter": "none",
+        "requireLast": true
+      },
+      "singleline": {
+        "delimiter": "comma",
+        "requireLast": false
+      }
+    }],
+    "@typescript-eslint/semi": ["error", "never"],
+    "@typescript-eslint/type-annotation-spacing": ["error"],
+    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+    "comma-dangle": ["error", "always-multiline"],
+    "comma-spacing": ["error", {"before": false, "after": true}],
+    "dot-notation": "error",
     "eol-last": ["error", "always"],
     "indent": ["error", 2, {
       "SwitchCase": 1,
@@ -30,12 +49,18 @@
       "FunctionExpression": {"body": 1, "parameters": "off"},
       "ignoredNodes": ["ConditionalExpression"]
     }],
-    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
-    "comma-spacing": ["error", {"before": false, "after": true}],
-    "comma-dangle": ["error", "always-multiline"],
-    "no-trailing-spaces": ["error"],
-    "@typescript-eslint/type-annotation-spacing": ["error"],
+    "no-debugger": "error",
     "no-floating-decimal": ["error"],
+    "no-multiple-empty-lines": "error",
+    "no-new-wrappers": "error",
+    "no-template-curly-in-string": "error",
+    "no-throw-literal": "error",
+    "no-trailing-spaces": ["error"],
+    "no-var": "error",
+    "object-shorthand": "error",
+    "prefer-const": ["error", {"destructuring": "all"}],
+    "prefer-exponentiation-operator": "error",
+    "quote-props": ["error", "as-needed"],
     "space-before-function-paren": ["error", {
       "anonymous": "never",
       "named": "never",

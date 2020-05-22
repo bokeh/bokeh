@@ -147,7 +147,7 @@ class Axis(GuideRenderer):
     The %s of the axis label.
     """)
 
-    axis_label_text_font_size = Override(default="10pt")
+    axis_label_text_font_size = Override(default="13px")
 
     axis_label_text_font_style = Override(default="italic")
 
@@ -174,7 +174,7 @@ class Axis(GuideRenderer):
 
     major_label_text_baseline = Override(default="alphabetic")
 
-    major_label_text_font_size = Override(default="8pt")
+    major_label_text_font_size = Override(default="11px")
 
     axis_props = Include(ScalarLineProps, help="""
     The %s of the axis line.
@@ -282,7 +282,7 @@ class CategoricalAxis(Axis):
     property has no effect.
     """)
 
-    group_text_font_size = Override(default="8pt")
+    group_text_font_size = Override(default="11px")
     group_text_font_style = Override(default="bold")
     group_text_color = Override(default="grey")
 
@@ -304,7 +304,7 @@ class CategoricalAxis(Axis):
     then this property has no effect.
     """)
 
-    subgroup_text_font_size = Override(default="8pt")
+    subgroup_text_font_size = Override(default="11px")
     subgroup_text_font_style = Override(default="bold")
 
 class DatetimeAxis(LinearAxis):

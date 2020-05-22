@@ -89,7 +89,7 @@ export class TitleView extends TextAnnotationView {
     const angle = this.panel!.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)
+    draw(this.layer.ctx, text, sx, sy, angle)
   }
 
   protected _get_size(): Size {
@@ -97,8 +97,8 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.ctx)
-      const {width, ascent} = this.ctx.measureText(text)
+      this.visuals.text.set_value(this.layer.ctx)
+      const {width, ascent} = this.layer.ctx.measureText(text)
       return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
     }
   }
@@ -110,7 +110,7 @@ export namespace Title {
   export type Props = TextAnnotation.Props & {
     text: p.Property<string>
     text_font: p.Property<string> // XXX: Font
-    text_font_size: p.FontSizeSpec
+    text_font_size: p.StringSpec
     text_font_style: p.Property<FontStyle>
     text_color: p.ColorSpec
     text_alpha: p.NumberSpec
@@ -120,8 +120,11 @@ export namespace Title {
     offset: p.Property<number>
     text_align: p.Property<TextAlign>
     text_baseline: p.Property<TextBaseline>
-  } & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -130,6 +133,7 @@ export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
   properties: Title.Props
+  __view_type__: TitleView
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)
@@ -138,12 +142,15 @@ export class Title extends TextAnnotation {
   static init_Title(): void {
     this.prototype.default_view = TitleView
 
-    this.mixins(['line:border_', 'fill:background_'])
+    this.mixins<Title.Mixins>([
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
 
     this.define<Title.Props>({
       text:             [ p.String                     ],
       text_font:        [ p.Font,          'helvetica' ],
-      text_font_size:   [ p.FontSizeSpec,  '10pt'      ],
+      text_font_size:   [ p.StringSpec,    '13px'      ],
       text_font_style:  [ p.FontStyle,     'bold'      ],
       text_color:       [ p.ColorSpec,     '#444444'   ],
       text_alpha:       [ p.NumberSpec,    1.0         ],

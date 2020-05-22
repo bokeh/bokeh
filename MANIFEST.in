@@ -1,15 +1,14 @@
-# Tests
+# Include only unit tests
 prune tests
 graft tests/unit
 
-# sphinx
+# Don't include documentation
 prune sphinx
 
 # Things to always exclude
 global-exclude .git*
 global-exclude .ipynb_checkpoints
 global-exclude *.py[co]
-global-exclude *.js.map
 global-exclude __pycache__/**
 
 # Top-level Config
@@ -21,6 +20,15 @@ include setup.cfg
 include versioneer.py
 include _setup_support.py
 
-# Static assets
+# Package files and data
+include bokeh/LICENSE.txt
+graft bokeh/core/_templates
+graft bokeh/sampledata/_data
+graft bokeh/sphinxext/_templates
+graft bokeh/server/static
 exclude bokeh/server/static/js/*.json
+global-exclude *.js.map
 include bokeh/server/static/js/bokeh.json
+include bokeh/server/views/*.html
+include bokeh/util/sampledata.json
+include bokeh/_sri.json

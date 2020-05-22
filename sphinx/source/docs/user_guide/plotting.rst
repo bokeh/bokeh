@@ -37,17 +37,29 @@ example plots for all of them by clicking on entries in the list below:
     * |asterisk|
     * |circle|
     * |circle_cross|
+    * |circle_dot|
     * |circle_x|
+    * |circle_y|
     * |cross|
     * |dash|
+    * |dot|
     * |diamond|
     * |diamond_cross|
+    * |diamond_dot|
+    * |hex|
+    * |hex_dot|
     * |inverted_triangle|
+    * |plus|
     * |square|
     * |square_cross|
+    * |square_dot|
+    * |square_pin|
     * |square_x|
     * |triangle|
+    * |triangle_dot|
+    * |triangle_pin|
     * |x|
+    * |y|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
 :ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by
@@ -603,16 +615,22 @@ below:
 .. |bezier|            replace:: :func:`~bokeh.plotting.figure.Figure.bezier`
 .. |circle|            replace:: :func:`~bokeh.plotting.figure.Figure.circle`
 .. |circle_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.circle_cross`
+.. |circle_dot|        replace:: :func:`~bokeh.plotting.figure.Figure.circle_dot`
 .. |circle_x|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_x`
+.. |circle_y|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_y`
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
 .. |dash|              replace:: :func:`~bokeh.plotting.figure.Figure.dash`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+.. |diamond_dot|       replace:: :func:`~bokeh.plotting.figure.Figure.diamond_dot`
+.. |dot|               replace:: :func:`~bokeh.plotting.figure.Figure.dot`
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
 .. |harea|             replace:: :func:`~bokeh.plotting.figure.Figure.harea`
 .. |harea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.harea_stack`
 .. |hbar|              replace:: :func:`~bokeh.plotting.figure.Figure.hbar`
 .. |hbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.hbar_stack`
+.. |hex|               replace:: :func:`~bokeh.plotting.figure.Figure.hex`
+.. |hex_dot|           replace:: :func:`~bokeh.plotting.figure.Figure.hex_dot`
 .. |hline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.hline_stack`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
@@ -624,6 +642,7 @@ below:
 .. |oval|              replace:: :func:`~bokeh.plotting.figure.Figure.oval`
 .. |patch|             replace:: :func:`~bokeh.plotting.figure.Figure.patch`
 .. |patches|           replace:: :func:`~bokeh.plotting.figure.Figure.patches`
+.. |plus|              replace:: :func:`~bokeh.plotting.figure.Figure.plus`
 .. |quad|              replace:: :func:`~bokeh.plotting.figure.Figure.quad`
 .. |quadratic|         replace:: :func:`~bokeh.plotting.figure.Figure.quadratic`
 .. |ray|               replace:: :func:`~bokeh.plotting.figure.Figure.ray`
@@ -632,8 +651,12 @@ below:
 .. |step|              replace:: :func:`~bokeh.plotting.figure.Figure.step`
 .. |square|            replace:: :func:`~bokeh.plotting.figure.Figure.square`
 .. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
+.. |square_dot|        replace:: :func:`~bokeh.plotting.figure.Figure.square_dot`
+.. |square_pin|        replace:: :func:`~bokeh.plotting.figure.Figure.square_pin`
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
+.. |triangle_dot|      replace:: :func:`~bokeh.plotting.figure.Figure.triangle_dot`
+.. |triangle_pin|      replace:: :func:`~bokeh.plotting.figure.Figure.triangle_pin`
 .. |varea|             replace:: :func:`~bokeh.plotting.figure.Figure.varea`
 .. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.varea_stack`
 .. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.vbar`
@@ -641,3 +664,4 @@ below:
 .. |vline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.vline_stack`
 .. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`
+.. |y|                 replace:: :func:`~bokeh.plotting.figure.Figure.y`

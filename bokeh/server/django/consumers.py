@@ -108,7 +108,8 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
             self.application_context._loop = IOLoop.current()
 
     async def _get_session(self) -> ServerSession:
-        session_id = generate_session_id(secret_key=None, signed=False)
+        session_id = self.arguments.get('bokeh-session-id',
+                                        generate_session_id(secret_key=None, signed=False))
         payload = {'headers': {k.decode('utf-8'): v.decode('utf-8')
                                for k, v in self.request.headers},
                    'cookies': dict(self.request.cookies)}
@@ -196,7 +197,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             self.close()
             raise RuntimeError("No token received in subprotocol header")
 
-        now = calendar.timegm(dt.datetime.now().utctimetuple())
+        now = calendar.timegm(dt.datetime.utcnow().utctimetuple())
         payload = get_token_payload(token)
         if 'session_expiry' not in payload:
             self.close()

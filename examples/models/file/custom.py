@@ -64,6 +64,7 @@ export interface MyPlot extends MyPlot.Attrs {
 
 export class MyPlot extends Plot {
   properties: MyPlot.Props
+  __view_type__: MyPlotView
 
   static init_MyPlot(): void {
     this.prototype.default_view = MyPlotView

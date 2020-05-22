@@ -180,7 +180,7 @@ in more detail:
     p.grid.grid_line_color = None
 
     # add a text renderer to our plot (no data yet)
-    r = p.text(x=[], y=[], text=[], text_color=[], text_font_size="20pt",
+    r = p.text(x=[], y=[], text=[], text_color=[], text_font_size="26px",
                text_baseline="middle", text_align="center")
 
     i = 0

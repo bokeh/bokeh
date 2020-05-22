@@ -16,9 +16,14 @@ import pytest ; pytest
 
 # Standard library imports
 import os
+from os.path import dirname, join
 
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.embed.bundle import extension_dirs
+from bokeh.ext import build
+from bokeh.model import Model
+from bokeh.models import Plot
 from bokeh.resources import INLINE
 
 # Module under test
@@ -87,6 +92,41 @@ class Test_bundle_for_objs_and_resources(object):
         # this is a cheap test that a BokehJS file is NOT inline
         assert all(len(x) < 5000 for x in b.js_raw)
 
+class Test_bundle_custom_extensions:
+
+    @classmethod
+    def setup_class(cls):
+        base_dir = dirname(__file__)
+        build(join(base_dir, "latex_label"), rebuild=True)
+
+    @classmethod
+    def teardown_class(cls):
+        del Model.model_class_reverse_map["latex_label.LatexLabel"]
+        extension_dirs.clear()
+
+    def test_with_INLINE_resources(self) -> None:
+        from latex_label import LatexLabel
+        plot = Plot()
+        plot.add_layout(LatexLabel())
+        bundle = beb.bundle_for_objs_and_resources([plot], "inline")
+        assert len(bundle.js_raw) == 3
+        assert "class LatexLabelView" in bundle.js_raw[2]
+
+    def test_with_CDN_resources(self) -> None:
+        from latex_label import LatexLabel
+        plot = Plot()
+        plot.add_layout(LatexLabel())
+        bundle = beb.bundle_for_objs_and_resources([plot], "cdn")
+        assert len(bundle.js_files) == 2
+        assert bundle.js_files[1] == "https://unpkg.com/latex_label@^0.0.1/dist/latex_label.js"
+
+    def test_with_Server_resources(self) -> None:
+        from latex_label import LatexLabel
+        plot = Plot()
+        plot.add_layout(LatexLabel())
+        bundle = beb.bundle_for_objs_and_resources([plot], "server")
+        assert len(bundle.js_files) == 2
+        assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
 
 #-----------------------------------------------------------------------------
 # Private API

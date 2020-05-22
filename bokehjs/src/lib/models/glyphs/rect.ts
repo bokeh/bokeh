@@ -3,9 +3,7 @@ import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable} from "core/types"
-import {Class} from "core/class"
 import * as types from "core/types"
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
@@ -142,7 +140,7 @@ export class RectView extends CenterRotatableView {
     const y0 = y - max_y2_ddist
     const y1 = y + max_y2_ddist
 
-    const hits = []
+    const indices = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       let height_in: boolean, width_in: boolean
@@ -160,13 +158,12 @@ export class RectView extends CenterRotatableView {
         height_in = (sy - this.sy1[i] <= this.sh[i]) && (sy - this.sy1[i] >= 0)
       }
 
-      if (height_in && width_in)
-        hits.push(i)
+      if (height_in && width_in) {
+        indices.push(i)
+      }
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: Arrayable<number>,
@@ -245,7 +242,7 @@ export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
   properties: Rect.Props
-  default_view: Class<RectView>
+  __view_type__: RectView
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)

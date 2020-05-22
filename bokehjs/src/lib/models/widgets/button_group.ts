@@ -5,11 +5,15 @@ import {div} from "core/dom"
 import * as p from "core/properties"
 
 import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
+import buttons_css from "styles/buttons.css"
 
 export abstract class ButtonGroupView extends ControlView {
   model: ButtonGroup
 
   protected _buttons: HTMLElement[]
+  *controls() {
+    yield* (this._buttons as any) // TODO: HTMLButtonElement[]
+  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -18,6 +22,10 @@ export abstract class ButtonGroupView extends ControlView {
     this.on_change(p.button_type, () => this.render())
     this.on_change(p.labels,      () => this.render())
     this.on_change(p.active,      () => this._update_active())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), buttons_css]
   }
 
   render(): void {
@@ -55,9 +63,8 @@ export namespace ButtonGroup {
 export interface ButtonGroup extends ButtonGroup.Attrs {}
 
 export abstract class ButtonGroup extends Control {
-  properties: ButtonGroup.Props & {
-    active: p.Property<unknown>
-  }
+  properties: ButtonGroup.Props & {active: p.Property<unknown>}
+  __view_type__: ButtonGroupView
 
   constructor(attrs?: Partial<ButtonGroup.Attrs>) {
     super(attrs)

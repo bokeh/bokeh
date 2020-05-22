@@ -174,7 +174,7 @@ def test_all_builtin_models_default_constructible() -> None:
     for name, cls in Model.model_class_reverse_map.items():
         try:
             cls()
-        except:
+        except Exception:
             bad.append(name)
         assert bad == []
 

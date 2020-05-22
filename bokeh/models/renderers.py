@@ -277,7 +277,7 @@ class GuideRenderer(Renderer):
 
     '''
 
-    level = Override(default="overlay")
+    level = Override(default="guide")
 
 #-----------------------------------------------------------------------------
 # Private API

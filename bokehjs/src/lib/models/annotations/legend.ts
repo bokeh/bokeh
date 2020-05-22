@@ -6,7 +6,6 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import {Class} from "core/class"
 import {Size} from "core/layout"
 import {measure_font} from "core/util/text"
 import {BBox} from "core/util/bbox"
@@ -50,7 +49,7 @@ export class LegendView extends AnnotationView {
     )
 
     // this is to measure text properties
-    const { ctx } = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
     this.visuals.label_text.set_value(ctx)
     this.text_widths = {}
@@ -214,7 +213,7 @@ export class LegendView extends AnnotationView {
       item.legend = this.model
     }
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     const bbox = this.compute_legend_bbox()
 
     ctx.save()
@@ -322,8 +321,8 @@ export namespace Legend {
   export type Props = Annotation.Props & {
     orientation: p.Property<Orientation>
     location: p.Property<LegendLocation | [number, number]>
-    title: p.Property<string>,
-    title_standoff: p.Property<number>,
+    title: p.Property<string>
+    title_standoff: p.Property<number>
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
     glyph_width: p.Property<number>
@@ -334,10 +333,13 @@ export namespace Legend {
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
-  } & mixins.LabelText
-    & mixins.InactiveFill
-    & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.LabelText      &
+    mixins.InactiveFill   &
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     label_text: visuals.Text
@@ -352,7 +354,7 @@ export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
   properties: Legend.Props
-  default_view: Class<LegendView>
+  __view_type__: LegendView
 
   item_change: Signal0<this>
 
@@ -368,12 +370,12 @@ export class Legend extends Annotation {
   static init_Legend(): void {
     this.prototype.default_view = LegendView
 
-    this.mixins([
-      'text:label_',
-      'text:title_',
-      'fill:inactive_',
-      'line:border_',
-      'fill:background_',
+    this.mixins<Legend.Mixins>([
+      ["label_",      mixins.Text],
+      ["title_",      mixins.Text],
+      ["inactive_",   mixins.Fill],
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
     ])
 
     this.define<Legend.Props>({
@@ -401,9 +403,9 @@ export class Legend extends Annotation {
       background_fill_alpha: 0.95,
       inactive_fill_color: "white",
       inactive_fill_alpha: 0.7,
-      label_text_font_size: "10pt",
+      label_text_font_size: "13px",
       label_text_baseline: "middle",
-      title_text_font_size: "10pt",
+      title_text_font_size: "13px",
       title_text_font_style: "italic",
     })
   }

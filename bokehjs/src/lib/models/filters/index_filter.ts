@@ -29,7 +29,7 @@ export class IndexFilter extends Filter {
   }
 
   compute_indices(_source: DataSource): number[] | null {
-    if (this.indices != null && this.indices.length >= 0) {
+    if (this.indices != null) {
       if (every(this.indices, isInteger))
         return this.indices
       else {

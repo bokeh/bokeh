@@ -62,7 +62,7 @@ export class FreehandDrawToolView extends EditToolView {
   }
 
   _tap(ev: TapEvent): void {
-    this._select_event(ev, ev.shiftKey, this.model.renderers)
+    this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   _keyup(ev: KeyEvent): void {
@@ -90,6 +90,7 @@ export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
   properties: FreehandDrawTool.Props
+  __view_type__: FreehandDrawToolView
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)

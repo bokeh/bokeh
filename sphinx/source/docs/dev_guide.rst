@@ -25,8 +25,8 @@ The software development process for Bokeh is outlined in
 `Bokeh Enhancement Proposal 1`_. All changes, enhancements,
 and bugfixes should generally go through the process outlined there.
 
-The process for creating, distributing, and announcing final releases
-of Bokeh is outlined in `Bokeh Enhancement Proposal 2`_.
+Everyone interacting in the Bokeh project's codebases, issue trackers and
+discussion forums is expected to follow the `Code of Conduct`_.
 
 ------
 
@@ -55,5 +55,5 @@ of Bokeh is outlined in `Bokeh Enhancement Proposal 2`_.
     Information specific to developing BokehJS.
 
 .. _Bokeh Enhancement Proposal 1: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
-.. _Bokeh Enhancement Proposal 2: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
+.. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md
 .. _contact the developers: https://discourse.bokeh.org/c/development

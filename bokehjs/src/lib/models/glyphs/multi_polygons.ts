@@ -135,11 +135,11 @@ export class MultiPolygonsView extends GlyphView {
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     const candidates = this.index.indices({x0, x1, y0, y1})
-    const hits = []
+    const indices = []
     for (let i = 0, end = candidates.length; i < end; i++) {
-      const idx = candidates[i]
-      const sxss = this.sxs[idx]
-      const syss = this.sys[idx]
+      const index = candidates[i]
+      const sxss = this.sxs[index]
+      const syss = this.sys[index]
       let hit = true
       for (let j = 0, endj = sxss.length; j < endj; j++) {
         for (let k = 0, endk = sxss[j][0].length; k < endk; k++) {
@@ -153,12 +153,11 @@ export class MultiPolygonsView extends GlyphView {
         if (!hit)
           break
       }
-      if (hit)
-        hits.push(idx)
+      if (hit) {
+        indices.push(index)
+      }
     }
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
@@ -170,19 +169,19 @@ export class MultiPolygonsView extends GlyphView {
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
     const hole_candidates = this.hole_index.indices({x0: x, y0: y, x1: x, y1: y})
 
-    const hits = []
+    const indices = []
     for (let i = 0, end = candidates.length; i < end; i++) {
-      const idx = candidates[i]
-      const sxs = this.sxs[idx]
-      const sys = this.sys[idx]
+      const index = candidates[i]
+      const sxs = this.sxs[index]
+      const sys = this.sys[index]
       for (let j = 0, endj = sxs.length; j < endj; j++) {
         const nk = sxs[j].length
 
         if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[]))) {
           if (nk == 1) {
-            hits.push(idx)
-          } else if (hole_candidates.indexOf(idx) == -1) {
-            hits.push(idx)
+            indices.push(index)
+          } else if (hole_candidates.indexOf(index) == -1) {
+            indices.push(index)
           } else if (nk > 1) {
             let in_a_hole = false
             for (let k = 1; k < nk; k++) {
@@ -196,16 +195,14 @@ export class MultiPolygonsView extends GlyphView {
               }
             }
             if (!in_a_hole) {
-              hits.push(idx)
+              indices.push(index)
             }
           }
         }
       }
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {
@@ -290,10 +287,12 @@ export class MultiPolygonsView extends GlyphView {
 export namespace MultiPolygons {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & HatchVector & {
+  export type Props = Glyph.Props & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
@@ -302,6 +301,7 @@ export interface MultiPolygons extends MultiPolygons.Attrs {}
 
 export class MultiPolygons extends Glyph {
   properties: MultiPolygons.Props
+  __view_type__: MultiPolygonsView
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
     super(attrs)
@@ -311,6 +311,6 @@ export class MultiPolygons extends Glyph {
     this.prototype.default_view = MultiPolygonsView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line', 'fill', 'hatch'])
+    this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

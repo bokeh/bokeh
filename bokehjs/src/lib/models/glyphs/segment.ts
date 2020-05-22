@@ -71,25 +71,24 @@ export class SegmentView extends GlyphView {
     const {sx, sy} = geometry
     const point = {x: sx, y: sy}
 
-    const hits = []
     const lw_voffset = 2 // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
 
     const [x0, x1] = this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
     const [y0, y1] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
     const candidates = this.index.indices({x0, y0, x1, y1})
 
+    const indices = []
     for (const i of candidates) {
-      const threshold2 = Math.pow(Math.max(2, this.visuals.line.cache_select('line_width', i) / 2), 2)
+      const threshold2 = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2)**2
       const p0 = {x: this.sx0[i], y: this.sy0[i]}
       const p1 = {x: this.sx1[i], y: this.sy1[i]}
       const dist2 = hittest.dist_to_segment_squared(point, p0, p1)
-      if (dist2 < threshold2)
-        hits.push(i)
+      if (dist2 < threshold2) {
+        indices.push(i)
+      }
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
@@ -107,7 +106,7 @@ export class SegmentView extends GlyphView {
       ;[v0, v1] = [this._x0, this._x1]
     }
 
-    const hits = []
+    const indices = []
 
     const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
     const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
@@ -115,12 +114,24 @@ export class SegmentView extends GlyphView {
 
     for (const i of candidates) {
       if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i]))
-        hits.push(i)
+        indices.push(i)
+
+      const threshold = 1.5 + (this.visuals.line.cache_select('line_width', i) / 2)// Maximum pixel difference to detect hit
+
+      if (v0[i] == v1[i]) {
+        if (geometry.direction == 'h') {
+          if (Math.abs(this.sx0[i] - sx) <= threshold) {
+            indices.push(i)
+          }
+        } else {
+          if (Math.abs(this.sy0[i] - sy) <= threshold) {
+            indices.push(i)
+          }
+        }
+      }
     }
 
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = hits
-    return result
+    return new Selection({indices})
   }
 
   scenterx(i: number): number {
@@ -139,12 +150,14 @@ export class SegmentView extends GlyphView {
 export namespace Segment {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     x0: p.CoordinateSpec
     y0: p.CoordinateSpec
     x1: p.CoordinateSpec
     y1: p.CoordinateSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: Line}
 }
@@ -153,6 +166,7 @@ export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
   properties: Segment.Props
+  __view_type__: SegmentView
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)
@@ -162,6 +176,6 @@ export class Segment extends Glyph {
     this.prototype.default_view = SegmentView
 
     this.coords([['x0', 'y0'], ['x1', 'y1']])
-    this.mixins(['line'])
+    this.mixins<Segment.Mixins>(LineVector)
   }
 }

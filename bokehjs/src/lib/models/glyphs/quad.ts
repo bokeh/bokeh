@@ -59,6 +59,7 @@ export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
   properties: Quad.Props
+  __view_type__: QuadView
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)

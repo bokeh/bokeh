@@ -1,5 +1,3 @@
-import "mixins.css"
-
 export const bk_active = "bk-active"
 
 export const bk_inline = "bk-inline"

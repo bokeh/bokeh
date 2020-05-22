@@ -38,6 +38,7 @@ export interface ZoomInTool extends ZoomInTool.Attrs {}
 
 export class ZoomInTool extends ActionTool {
   properties: ZoomInTool.Props
+  __view_type__: ZoomInToolView
 
   constructor(attrs?: Partial<ZoomInTool.Attrs>) {
     super(attrs)
@@ -50,6 +51,10 @@ export class ZoomInTool extends ActionTool {
       factor:     [ p.Percent,    0.1    ],
       dimensions: [ p.Dimensions, "both" ],
     })
+
+    this.register_alias("zoom_in", () => new ZoomInTool({dimensions: 'both'}))
+    this.register_alias("xzoom_in", () => new ZoomInTool({dimensions: 'width'}))
+    this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: 'height'}))
   }
 
   tool_name = "Zoom In"

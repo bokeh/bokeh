@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
 import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Filter} from "@bokehjs/models/filters/filter"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
-import * as hittest from "@bokehjs/core/hittest"
 
 describe("CDSView", () => {
 
@@ -56,15 +56,13 @@ describe("CDSView", () => {
 
     it("convert_selection_from_subset", () => {
       const view = new CDSView({source: cds, filters: [filter1, filter2]})
-      const selection = hittest.create_empty_hit_test_result()
-      selection.indices = [0]
+      const selection = new Selection({indices: [0]})
       expect(view.convert_selection_from_subset(selection).indices).to.be.deep.equal([1])
     })
 
     it("convert_selection_to_subset", () => {
       const view = new CDSView({source: cds, filters: [filter1, filter2]})
-      const selection = hittest.create_empty_hit_test_result()
-      selection.indices = [1]
+      const selection = new Selection({indices: [1]})
       expect(view.convert_selection_to_subset(selection).indices).to.be.deep.equal([0])
     })
 

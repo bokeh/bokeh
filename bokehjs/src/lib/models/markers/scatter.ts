@@ -70,6 +70,7 @@ export interface Scatter extends Scatter.Attrs {}
 
 export class Scatter extends Marker {
   properties: Scatter.Props
+  __view_type__: ScatterView
 
   constructor(attrs?: Partial<Scatter.Attrs>) {
     super(attrs)

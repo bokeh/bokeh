@@ -40,7 +40,7 @@ export class PolyToolView extends EditToolView {
   _snap_to_vertex(ev: UIEvent, x: number, y: number): [number, number] {
     if (this.model.vertex_renderer) {
       // If an existing vertex is hit snap to it
-      const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer])
+      const vertex_selected = this._select_event(ev, "replace", [this.model.vertex_renderer])
       const point_ds = this.model.vertex_renderer.data_source
       // Type once dataspecs are typed
       const point_glyph: any = this.model.vertex_renderer.glyph
@@ -71,6 +71,7 @@ export interface PolyTool extends PolyTool.Attrs {}
 
 export class PolyTool extends EditTool {
   properties: PolyTool.Props
+  __view_type__: PolyToolView
 
   renderers: (GlyphRenderer & HasPolyGlyph)[]
 

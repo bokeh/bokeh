@@ -17,13 +17,6 @@ const root_path = process.cwd()
 
 const cache_version = 3
 
-export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
-  let i = 0
-  for (const item of iter) {
-    yield fn(item, i++)
-  }
-}
-
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
 export type Parent = {
@@ -191,11 +184,13 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  transpile?: "ES2017" | "ES5"
+  target?: "ES2020" | "ES2017" | "ES5"
+  es_modules?: boolean
   minify?: boolean
   plugin?: boolean
   exports?: string[]
-  prelude?: string
+  prelude?: () => string
+  plugin_prelude?: () => string
   shims?: string[]
 }
 
@@ -209,11 +204,13 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly transpile: "ES2017" | "ES5" | null
+  readonly target: "ES2020" | "ES2017" | "ES5" | null
+  readonly es_modules: boolean
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
-  readonly prelude: string | null
+  readonly prelude: string
+  readonly plugin_prelude: string
   readonly shims: Set<string>
 
   constructor(opts: LinkerOpts) {
@@ -226,7 +223,8 @@ export class Linker {
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false
     this.exports = new Set(opts.exports ?? [])
-    this.prelude = opts.prelude ?? null
+    this.prelude = (opts.prelude ?? preludes.prelude)()
+    this.plugin_prelude = (opts.plugin_prelude ?? preludes.plugin_prelude)()
 
     if (this.builtins) {
       this.external_modules.add("module")
@@ -249,9 +247,10 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.transpile = opts.transpile != null ? opts.transpile : null
-    this.minify = opts.minify != null ? opts.minify : true
-    this.plugin = opts.plugin != null ? opts.plugin : false
+    this.target = opts.target ?? null
+    this.es_modules = opts.es_modules ?? true
+    this.minify = opts.minify ?? true
+    this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
   }
@@ -292,31 +291,14 @@ export class Linker {
     const transformers = (module: ModuleInfo): Transformers => {
       const transformers = []
 
-      switch (module.type) {
-        case "js": {
-          const remove_use_strict = transforms.remove_use_strict()
-          transformers.push(remove_use_strict)
+      const remove_use_strict = transforms.remove_use_strict()
+      transformers.push(remove_use_strict)
 
-          // TODO: don't remove __esModule, just make it more space efficient
-          // const remove_esmodule = transforms.remove_esmodule()
-          // transformers.push(remove_esmodule)
-
-          const rewrite_deps = transforms.rewrite_deps((dep) => {
-            const module_dep = module.dependencies.get(dep)
-            return module_dep != null ? module_dep.id : undefined
-          })
-          transformers.push(rewrite_deps)
-          break
-        }
-        case "json": {
-          transformers.push(transforms.add_json_export())
-          break
-        }
-        case "css": {
-          // ???
-          break
-        }
-      }
+      const rewrite_deps = transforms.rewrite_deps((dep) => {
+        const module_dep = module.dependencies.get(dep)
+        return module_dep != null ? module_dep.id : undefined
+      })
+      transformers.push(rewrite_deps)
 
       transformers.push(transforms.wrap_in_function(module.base_path))
       return transformers
@@ -348,7 +330,8 @@ export class Linker {
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
           const source = print(module)
-          const minified = this.minify ? minify(module, source) : {min_source: source}
+          const ecma = this.target == "ES2020" ? 2020 : (this.target == "ES2017" ? 2017 : 5)
+          const minified = this.minify ? minify(module, source, ecma) : {min_source: source}
           code = {source, ...minified}
         } else
           code = cached!.code
@@ -357,14 +340,14 @@ export class Linker {
       })
     }
 
-    const main_prelude = this.prelude != null ? this.prelude : (!this.plugin ? preludes.prelude : preludes.plugin_prelude)
+    const main_prelude = !this.plugin ? this.prelude : this.plugin_prelude
     const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
 
     const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, main_prelude, main_assembly)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, preludes.plugin_prelude, sparse_assembly)
+      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, this.plugin_prelude, sparse_assembly)
       plugin_bundles.push(plugin_bundle)
     }
 
@@ -452,7 +435,7 @@ export class Linker {
       const pkg_path = join(dir, "package.json")
       if (file_exists(pkg_path)) {
         const pkg = JSON.parse(read(pkg_path)!)
-        if (this.transpile != null && pkg.module != null)
+        if (this.target != null && pkg.module != null)
           return pkg.module
         if (pkg.main != null)
           return pkg.main
@@ -559,13 +542,15 @@ export class Linker {
       return this.resolve_absolute(dep, parent)
   }
 
-  private parse_module({file, source, type}: {file: Path, source: string, type: ModuleType}): ts.SourceFile {
-    const {ES2017, JSON} = ts.ScriptTarget
-    return transforms.parse_es(file, source, type == "json" ? JSON : ES2017)
+  private parse_module({file, source}: {file: Path, source: string}): ts.SourceFile {
+    return transforms.parse_es(file, source)
   }
 
   new_module(file: Path): ModuleInfo {
-    let source = read(file)!
+    let source = read(file)
+    if (source == null) {
+      throw new Error(`'${file} doesn't exist`)
+    }
     const hash = crypto.createHash("sha256").update(source).digest("hex")
     const type = (() => {
       switch (extname(file)) {
@@ -577,6 +562,23 @@ export class Linker {
           throw new Error(`unsupported extension of ${file}`)
       }
     })()
+
+    const export_type = this.es_modules ? "default" : "="
+    switch (type) {
+      case "json":
+        source = `\
+const json = ${source};
+export ${export_type} json;
+`
+        break
+      case "css":
+        source = `\
+const css = \`${source}\`;
+export ${export_type} css;
+`
+        break
+    }
+
     const [base, base_path, canonical, resolution] = ((): [string, string, string | undefined, ResoType] => {
       const [primary, ...secondary] = this.bases
 
@@ -608,13 +610,17 @@ export class Linker {
       for (const base of secondary) {
         const path = relative(base, file)
         if (!path.startsWith("..")) {
-          const {dir, pkg} = get_package(base, path)
-          const reso =  pkg.module != null ? "ESM" : "CJS"
-          const entry = pkg.module ?? pkg.name
-          const primary = join(dir, entry) == join(base, path)
-          const name = canonicalize(primary ? basename(dir) : path)
-          const exported = this.exports.has(name)
-          return [base, path, exported ? name : undefined, reso]
+          if (type == "js") {
+            const {dir, pkg} = get_package(base, path)
+            const reso = pkg.module != null ? "ESM" : "CJS"
+            const entry = pkg.module ?? pkg.name
+            const primary = join(dir, entry) == join(base, path)
+            const name = canonicalize(primary ? basename(dir) : path)
+            const exported = this.exports.has(name)
+            return [base, path, exported ? name : undefined, reso]
+          } else {
+            return [base, path, undefined, "ESM"]
+          }
         }
       }
 
@@ -631,23 +637,22 @@ export class Linker {
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       let collected: string[] | null = null
-      if (type == "js") {
-        if (this.transpile != null && resolution == "ESM") {
-          const {ES2017, ES5} = ts.ScriptTarget
-          const target = this.transpile == "ES2017" ? ES2017 : ES5
-          const imports = new Set<string>(["tslib"])
-          const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
-          const {output, error} = transpile(file, source, target, transform)
-          if (error)
-            throw new Error(error)
-          else {
-            source = output
-            collected = [...imports]
-          }
+      if ((this.target != null && resolution == "ESM") || type == "json") {
+        const {ES2020, ES2017, ES5} = ts.ScriptTarget
+        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
+        const imports = new Set<string>(["tslib"])
+        const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
+        // XXX: .json extension will cause an internal error
+        const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
+        if (error)
+          throw new Error(error)
+        else {
+          source = output
+          collected = [...imports]
         }
       }
 
-      ast = this.parse_module({file, source, type})
+      ast = this.parse_module({file, source})
 
       if (collected == null)
         collected = transforms.collect_deps(ast)
@@ -760,12 +765,13 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
   }
 }
 
-export function minify(module: ModuleInfo, source: string): {min_source: string, min_map?: string} {
+export function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): {min_source: string, min_map?: string} {
   const name = basename(module.file)
   const min_js = rename(name, {ext: '.min.js'})
   const min_js_map = rename(name, {ext: '.min.js.map'})
 
   const minify_opts: terser.MinifyOptions = {
+    ecma,
     output: {
       comments: /^!|copyright|license|\(c\)/i,
     },

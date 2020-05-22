@@ -39,6 +39,7 @@ export interface ZoomOutTool extends ZoomOutTool.Attrs {}
 
 export class ZoomOutTool extends ActionTool {
   properties: ZoomOutTool.Props
+  __view_type__: ZoomOutToolView
 
   constructor(attrs?: Partial<ZoomOutTool.Attrs>) {
     super(attrs)
@@ -51,6 +52,10 @@ export class ZoomOutTool extends ActionTool {
       factor:     [ p.Percent,    0.1    ],
       dimensions: [ p.Dimensions, "both" ],
     })
+
+    this.register_alias("zoom_out", () => new ZoomOutTool({dimensions: 'both'}))
+    this.register_alias("xzoom_out", () => new ZoomOutTool({dimensions: 'width'}))
+    this.register_alias("yzoom_out", () => new ZoomOutTool({dimensions: 'height'}))
   }
 
   tool_name = "Zoom Out"

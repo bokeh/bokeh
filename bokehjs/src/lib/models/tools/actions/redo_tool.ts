@@ -25,6 +25,7 @@ export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
   properties: RedoTool.Props
+  __view_type__: RedoToolView
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)
@@ -36,6 +37,8 @@ export class RedoTool extends ActionTool {
     this.override({
       disabled: true,
     })
+
+    this.register_alias("redo", () => new RedoTool())
   }
 
   tool_name = "Redo"

@@ -5,8 +5,11 @@
 <title>Complete Example</title>
 {% for css_file in css_files %}
 <link rel="stylesheet" href="{{css_file}}" type="text/css" />{% endfor %}
-{% for js_file in js_files %}
-<script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
+{%- for js_file in js_files %}
+<script type="text/javascript" src="{{ js_file }}"
+{%- if hashes %} integrity="sha384-{{ hashes[js_file] }}" crossorigin="anonymous"{%- endif -%}
+></script>
+{%- endfor %}
 
 <script>
 //The order of CSS and JS imports above is important.

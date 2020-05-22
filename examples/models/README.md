@@ -13,7 +13,7 @@ interface whenever a particular need arises.
 #### Examples that use the server
 
 Any examples in this directory whose filenames contain `_animate` or `_server` make use of the Bokeh
-server, and you must first start the Bokeh server to view them. To start the server, execute
+server, and you must first start the Bokeh server to view them. To start the server, execute:
 
     bokeh serve
 

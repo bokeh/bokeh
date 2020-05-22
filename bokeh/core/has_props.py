@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
+from typing import Any, Dict
 from warnings import warn
 
 # Bokeh imports
@@ -486,7 +487,7 @@ class HasProps(object, metaclass=MetaHasProps):
         '''
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
-    def properties_with_values(self, include_defaults=True):
+    def properties_with_values(self, include_defaults: bool = True) -> Dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes

@@ -41,7 +41,6 @@ from py.xml import html
 # Bokeh imports
 from bokeh._testing.util.examples import Flags, collect_examples
 from bokeh._testing.util.git import __version__
-from bokeh._testing.util.s3 import connect_to_s3, upload_file_to_s3_by_job_id
 from bokeh.util.terminal import warn
 
 #-----------------------------------------------------------------------------
@@ -72,7 +71,6 @@ def get_all_examples(config):
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref
-            example._upload = config.option.upload
 
             if config.option.no_js:
                 example.flags |= Flags.no_js
@@ -223,19 +221,6 @@ class ExamplesTestReport(object):
 
     def pytest_sessionfinish(self, session):
         self._write_report()
-
-        if self.config.option.upload:
-            if self.config.option.verbose:
-                print()
-
-            if connect_to_s3() is None:
-                return
-
-            for (example, _, _) in self.entries:
-                example.upload_imgs()
-
-            upload_file_to_s3_by_job_id(session.config.option.report_path, "text/html", "EXAMPLES REPORT SUCCESSFULLY UPLOADED")
-            upload_file_to_s3_by_job_id(session.config.option.log_file, "text/text", "EXAMPLES LOG SUCCESSFULLY UPLOADED")
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(self.report_path))

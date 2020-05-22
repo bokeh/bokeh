@@ -15,7 +15,7 @@ import {color2hex} from "core/util/color"
 import {values, isEmpty} from "core/util/object"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
-import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment} from "core/enums"
+import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
@@ -188,6 +188,9 @@ export class HoverToolView extends InspectToolView {
 
     const {model: renderer} = renderer_view
 
+    if (this.model.muted_policy == 'ignore' && renderer instanceof GlyphRenderer && renderer.muted)
+      return
+
     const tooltip = this.ttmodels[renderer.id]
     if (tooltip == null)
       return
@@ -264,7 +267,7 @@ export class HoverToolView extends InspectToolView {
     for (const i of indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (!isEmpty(indices.multiline_indices)) {
-        for (const j of indices.multiline_indices[i.toString()]) {
+        for (const j of indices.multiline_indices[i.toString()]) { // TODO: indices.multiline_indices.get(i)
           let data_x = glyph._xs[i][j]
           let data_y = glyph._ys[i][j]
           let jj = j
@@ -429,6 +432,7 @@ export namespace HoverTool {
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
     mode: p.Property<HoverMode>
+    muted_policy: p.Property<MutedPolicy>
     point_policy: p.Property<PointPolicy>
     line_policy: p.Property<LinePolicy>
     show_arrow: p.Property<boolean>
@@ -442,6 +446,7 @@ export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
   properties: HoverTool.Props
+  __view_type__: HoverToolView
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)
@@ -460,6 +465,7 @@ export class HoverTool extends InspectTool {
       renderers:    [ p.Any,               'auto'         ],
       names:        [ p.Array,             []             ],
       mode:         [ p.HoverMode,         'mouse'        ],
+      muted_policy: [ p.MutedPolicy,       'show'         ],
       point_policy: [ p.PointPolicy,       'snap_to_data' ],
       line_policy:  [ p.LinePolicy,        'nearest'      ],
       show_arrow:   [ p.Boolean,           true           ],
@@ -467,6 +473,8 @@ export class HoverTool extends InspectTool {
       attachment:   [ p.TooltipAttachment, 'horizontal'   ],
       callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
+
+    this.register_alias("hover", () => new HoverTool())
   }
 
   tool_name = "Hover"

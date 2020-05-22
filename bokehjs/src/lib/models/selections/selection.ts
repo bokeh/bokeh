@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
-import {union, intersection} from "core/util/array"
+import {SelectionMode} from "core/enums"
+import {union, intersection, difference, sort_by} from "core/util/array"
 import {merge} from "core/util/object"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 
@@ -20,7 +21,6 @@ export namespace Selection {
 
   export type Props = Model.Props & {
     indices: p.Property<Indices>
-    final: p.Property<boolean>
     line_indices: p.Property<Indices>
     selected_glyphs: p.Property<Glyph[]>
     get_view: p.Property<() => GlyphView | null>
@@ -46,7 +46,6 @@ export class Selection extends Model {
     })
 
     this.internal({
-      final:             [ p.Boolean     ],
       selected_glyphs:   [ p.Array,   [] ],
       get_view:          [ p.Any         ],
       image_indices:     [ p.Array,   [] ], // Used internally to support hover tool for now. Python API TBD
@@ -58,6 +57,11 @@ export class Selection extends Model {
     this.get_view = () => null
   }
 
+  static from_hits(hits: [number, number][]): Selection {
+    const indices = sort_by(hits, ([, dist]) => dist).map(([i]) => i)
+    return new Selection({indices})
+  }
+
   get selected_glyph(): Glyph | null {
     return this.selected_glyphs.length > 0 ? this.selected_glyphs[0] : null
   }
@@ -66,22 +70,33 @@ export class Selection extends Model {
     this.selected_glyphs.push(glyph)
   }
 
-  update(selection: Selection, final: boolean, append: boolean): void {
-    this.final = final
-    if (append)
-      this.update_through_union(selection)
-    else {
-      this.indices = selection.indices
-      this.line_indices = selection.line_indices
-      this.selected_glyphs = selection.selected_glyphs
-      this.get_view = selection.get_view
-      this.multiline_indices = selection.multiline_indices
-      this.image_indices = selection.image_indices
+  update(selection: Selection, _final: boolean = true, mode: SelectionMode = "replace"): void {
+    switch (mode) {
+      case "replace": {
+        this.indices = selection.indices
+        this.line_indices = selection.line_indices
+        this.selected_glyphs = selection.selected_glyphs
+        this.get_view = selection.get_view
+        this.multiline_indices = selection.multiline_indices
+        this.image_indices = selection.image_indices
+        break
+      }
+      case "append": {
+        this.update_through_union(selection)
+        break
+      }
+      case "intersect": {
+        this.update_through_intersection(selection)
+        break
+      }
+      case "subtract": {
+        this.update_through_subtraction(selection)
+        break
+      }
     }
   }
 
   clear(): void {
-    this.final = true
     this.indices = []
     this.line_indices = []
     this.multiline_indices = {}
@@ -94,7 +109,7 @@ export class Selection extends Model {
   }
 
   update_through_union(other: Selection): void {
-    this.indices = union(other.indices, this.indices)
+    this.indices = union(this.indices, other.indices)
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)
     if(!this.get_view())
@@ -103,7 +118,17 @@ export class Selection extends Model {
   }
 
   update_through_intersection(other: Selection): void {
-    this.indices = intersection(other.indices, this.indices)
+    this.indices = intersection(this.indices, other.indices)
+    // TODO: think through and fix any logic below
+    this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
+    this.line_indices = union(other.line_indices, this.line_indices)
+    if(!this.get_view())
+      this.get_view = other.get_view
+    this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
+  }
+
+  update_through_subtraction(other: Selection): void {
+    this.indices = difference(this.indices, other.indices)
     // TODO: think through and fix any logic below
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)

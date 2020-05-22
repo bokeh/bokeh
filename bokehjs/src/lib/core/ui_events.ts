@@ -14,10 +14,13 @@ import {PlotView} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import * as events from "./bokeh_events"
+import {ContextMenu} from "./util/menus"
 
 function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
 }
+
+export type ScreenCoord = {sx: number, sy: number}
 
 export type PanEvent = {
   type: "pan" | "panstart" | "panend"
@@ -26,6 +29,7 @@ export type PanEvent = {
   deltaX: number
   deltaY: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type PinchEvent = {
@@ -34,6 +38,7 @@ export type PinchEvent = {
   sy: number
   scale: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type RotateEvent = {
@@ -42,21 +47,25 @@ export type RotateEvent = {
   sy: number
   rotation: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
 
 export type TapEvent = {
-  type: "tap" | "doubletap" | "press" | "pressup"
+  type: "tap" | "doubletap" | "press" | "pressup" | "contextmenu"
   sx: number
   sy: number
   shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type MoveEvent = {
   type: "mousemove" | "mouseenter" | "mouseleave"
   sx: number
   sy: number
+  shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type ScrollEvent = {
@@ -64,6 +73,8 @@ export type ScrollEvent = {
   sx: number
   sy: number
   delta: number
+  shiftKey: boolean
+  ctrlKey: boolean
 }
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
@@ -110,6 +121,8 @@ export class UIEvents implements EventListenerObject {
     inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
 
+  private menu: ContextMenu
+
   constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
               readonly hit_area: HTMLElement) {
@@ -122,6 +135,7 @@ export class UIEvents implements EventListenerObject {
     this.hit_area.addEventListener("mousemove", (e) => this._mouse_move(e))
     this.hit_area.addEventListener("mouseenter", (e) => this._mouse_enter(e))
     this.hit_area.addEventListener("mouseleave", (e) => this._mouse_exit(e))
+    this.hit_area.addEventListener("contextmenu", (e) => this._context_menu(e))
     this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
 
     // But we MUST remove listeners registered on document or we'll leak memory: register
@@ -129,9 +143,15 @@ export class UIEvents implements EventListenerObject {
     // instead of an anonymous function so we can easily refer back to it for removing
     document.addEventListener("keydown", this)
     document.addEventListener("keyup", this)
+
+    this.menu = new ContextMenu([], {
+      prevent_hide: (event) => event.button == 2 && event.target == this.hit_area,
+    })
+    this.hit_area.appendChild(this.menu.el)
   }
 
   destroy(): void {
+    this.menu.remove()
     this.hammer.destroy()
     document.removeEventListener("keydown", this)
     document.removeEventListener("keyup", this)
@@ -425,7 +445,7 @@ export class UIEvents implements EventListenerObject {
       this.plot_view.model.trigger_event(ev)
   }
 
-  private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
+  private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset(this.hit_area)
     return {
@@ -441,6 +461,7 @@ export class UIEvents implements EventListenerObject {
       deltaX: e.deltaX,
       deltaY: e.deltaY,
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -450,6 +471,7 @@ export class UIEvents implements EventListenerObject {
       ...this._get_sxy(e.srcEvent),
       scale: e.scale,
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -459,6 +481,7 @@ export class UIEvents implements EventListenerObject {
       ...this._get_sxy(e.srcEvent),
       rotation: e.rotation,
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -467,6 +490,7 @@ export class UIEvents implements EventListenerObject {
       type: e.type as TapEvent["type"],
       ...this._get_sxy(e.srcEvent),
       shiftKey: e.srcEvent.shiftKey,
+      ctrlKey: e.srcEvent.ctrlKey,
     }
   }
 
@@ -474,13 +498,18 @@ export class UIEvents implements EventListenerObject {
     return {
       type: e.type as MoveEvent["type"],
       ...this._get_sxy(e),
+      shiftKey: e.shiftKey,
+      ctrlKey: e.ctrlKey,
     }
   }
 
   private _scroll_event(e: WheelEvent): ScrollEvent {
     return {
       type: e.type as ScrollEvent["type"],
-      ...this._get_sxy(e), delta: getDeltaY(e),
+      ...this._get_sxy(e),
+      delta: getDeltaY(e),
+      shiftKey: e.shiftKey,
+      ctrlKey: e.ctrlKey,
     }
   }
 
@@ -564,6 +593,15 @@ export class UIEvents implements EventListenerObject {
 
   private _mouse_wheel(e: WheelEvent): void {
     this._trigger(this.scroll, this._scroll_event(e), e)
+  }
+
+  private _context_menu(e: MouseEvent): void {
+    if (!this.menu.is_open && this.menu.can_open) {
+      e.preventDefault()
+    }
+
+    const {sx, sy} = this._get_sxy(e)
+    this.menu.toggle({left: sx, top: sy})
   }
 
   private _key_down(e: KeyboardEvent): void {

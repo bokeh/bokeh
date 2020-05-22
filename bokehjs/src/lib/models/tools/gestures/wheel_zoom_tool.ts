@@ -11,7 +11,7 @@ export class WheelZoomToolView extends GestureToolView {
 
   _pinch(ev: PinchEvent): void {
     // TODO (bev) this can probably be done much better
-    const {sx, sy, scale} = ev
+    const {sx, sy, scale, ctrlKey, shiftKey} = ev
 
     let delta: number
     if (scale >= 1)
@@ -19,7 +19,7 @@ export class WheelZoomToolView extends GestureToolView {
     else
       delta = -20.0/scale
 
-    this._scroll({type: "wheel", sx, sy, delta})
+    this._scroll({type: "wheel", sx, sy, delta, ctrlKey, shiftKey})
   }
 
   _scroll(ev: ScrollEvent): void {
@@ -67,6 +67,7 @@ export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
   properties: WheelZoomTool.Props
+  __view_type__: WheelZoomToolView
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
     super(attrs)
@@ -82,6 +83,9 @@ export class WheelZoomTool extends GestureTool {
       speed:          [ p.Number,     1/600  ],
     })
 
+    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: 'both'}))
+    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: 'width'}))
+    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: 'height'}))
   }
 
   tool_name = "Wheel Zoom"

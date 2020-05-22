@@ -19,6 +19,7 @@ export interface RangeSlider extends RangeSlider.Attrs {}
 
 export class RangeSlider extends AbstractSlider {
   properties: RangeSlider.Props
+  __view_type__: RangeSliderView
 
   constructor(attrs?: Partial<RangeSlider.Attrs>) {
     super(attrs)

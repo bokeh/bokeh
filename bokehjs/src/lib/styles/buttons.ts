@@ -1,6 +1,3 @@
-import "./root"
-import "buttons.css"
-
 export const bk_btn = "bk-btn"
 export const bk_btn_group = "bk-btn-group"
 

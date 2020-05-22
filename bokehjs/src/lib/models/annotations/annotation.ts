@@ -2,10 +2,11 @@ import {SidePanel} from "core/layout/side_panel"
 import {Size} from "core/layout"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
-import {Context2d} from "core/util/canvas"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+
+import annotations_css from "styles/annotations.css"
 
 export abstract class AnnotationView extends RendererView {
   model: Annotation
@@ -16,6 +17,17 @@ export abstract class AnnotationView extends RendererView {
     return this.layout
   }
 
+  connect_signals(): void {
+    super.connect_signals()
+
+    const p = this.model.properties
+    this.on_change(p.visible, () => this.plot_view.request_layout())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), annotations_css]
+  }
+
   get_size(): Size {
     if (this.model.visible) {
       const {width, height} = this._get_size()
@@ -24,19 +36,8 @@ export abstract class AnnotationView extends RendererView {
       return {width: 0, height: 0}
   }
 
-  connect_signals(): void {
-    super.connect_signals()
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
-  }
-
   protected _get_size(): Size {
     throw new Error("not implemented")
-  }
-
-  get ctx(): Context2d {
-    return this.plot_view.canvas_view.ctx
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -74,6 +75,7 @@ export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
   properties: Annotation.Props
+  __view_type__: AnnotationView
 
   constructor(attrs?: Partial<Annotation.Attrs>) {
     super(attrs)

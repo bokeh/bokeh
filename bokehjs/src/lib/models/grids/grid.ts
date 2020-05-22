@@ -16,7 +16,7 @@ export class GridView extends GuideRendererView {
     if (!this.model.visible)
       return
 
-    const ctx = this.plot_view.canvas_view.ctx
+    const ctx = this.layer.ctx
     ctx.save()
     this._draw_regions(ctx)
     this._draw_minor_grids(ctx)
@@ -191,10 +191,13 @@ export namespace Grid {
     ticker: p.Property<Ticker<any>>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  } & mixins.GridLine
-    & mixins.MinorGridLine
-    & mixins.BandFill
-    & mixins.BandHatch
+  } & Mixins
+
+  export type Mixins =
+    mixins.GridLine      &
+    mixins.MinorGridLine &
+    mixins.BandFill      &
+    mixins.BandHatch
 
   export type Visuals = GuideRenderer.Visuals & {
     grid_line: visuals.Line
@@ -208,6 +211,7 @@ export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
   properties: Grid.Props
+  __view_type__: GridView
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)
@@ -216,7 +220,12 @@ export class Grid extends GuideRenderer {
   static init_Grid(): void {
     this.prototype.default_view = GridView
 
-    this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_', 'hatch:band_'])
+    this.mixins<Grid.Mixins>([
+      ["grid_",       mixins.Line],
+      ["minor_grid_", mixins.Line],
+      ["band_",       mixins.Fill],
+      ["band_",       mixins.Hatch],
+    ])
 
     this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)

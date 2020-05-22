@@ -65,8 +65,6 @@ export class HAreaView extends AreaView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const result = hittest.create_empty_hit_test_result()
-
     const L = this.sy.length
     const sx = new Float64Array(2*L)
     const sy = new Float64Array(2*L)
@@ -77,6 +75,8 @@ export class HAreaView extends AreaView {
       sx[L+i] = this.sx2[L-i-1]
       sy[L+i] = this.sy[L-i-1]
     }
+
+    const result = new Selection()
 
     if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
       result.add_to_selected_glyphs(this.model)
@@ -117,6 +117,7 @@ export interface HArea extends HArea.Attrs {}
 
 export class HArea extends Area {
   properties: HArea.Props
+  __view_type__: HAreaView
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)

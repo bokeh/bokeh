@@ -66,6 +66,7 @@ export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
   properties: ToolbarPanel.Props
+  __view_type__: ToolbarPanelView
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)

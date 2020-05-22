@@ -26,7 +26,6 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   protected _map_data(): void {
-
     if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
     else
@@ -91,12 +90,12 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       if (cond) {
         [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+        dist = (sx0-sx1)**2 + (sy0-sy1)**2
         hits.push([i, dist])
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return Selection.from_hits(hits)
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
@@ -145,6 +144,7 @@ export interface EllipseOval extends EllipseOval.Attrs {}
 
 export abstract class EllipseOval extends CenterRotatable {
   properties: EllipseOval.Props
+  __view_type__: EllipseOvalView
 
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)

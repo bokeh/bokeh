@@ -19,6 +19,7 @@ export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
   properties: InspectTool.Props
+  __view_type__: InspectToolView
 
   constructor(attrs?: Partial<InspectTool.Attrs>) {
     super(attrs)

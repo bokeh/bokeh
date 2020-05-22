@@ -12,8 +12,10 @@
 
   <script>
     const BOKEH_CURRENT_VERSION = "{{ VERSION }}"
+
     $(document).ready(function () {
-       $.getJSON('/versions.json', function (data) {
+      const randid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      $.getJSON('/versions.json?v=' + randid , function (data) {
           if (BOKEH_CURRENT_VERSION != data.latest) {
             let msg
             if (data.all.indexOf(BOKEH_CURRENT_VERSION) < 0 ) {

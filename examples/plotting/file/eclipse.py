@@ -28,7 +28,7 @@ p.grid.grid_line_color = None
 
 p.title.text = "Google Search Trends and the Path of Solar Eclipse, 21 August 2017"
 p.title.align = "center"
-p.title.text_font_size = "16pt"
+p.title.text_font_size = "21px"
 p.title.text_color = "#333344"
 
 mapper = LinearColorMapper(palette=list(reversed(YlOrRd5)), low=0, high=100)
@@ -55,14 +55,14 @@ path = Label(
     x=-76.3, y=31.4,
     angle=-36.5, angle_units="deg",
     text="Solar eclipse path of totality",
-    text_baseline="middle", text_font_size="8pt", text_color="silver")
+    text_baseline="middle", text_font_size="11px", text_color="silver")
 p.add_layout(path)
 
 color_bar = ColorBar(
     color_mapper=mapper,
     location="bottom_left", orientation="horizontal",
     title="Popularity of \"solar eclipse\" search term",
-    title_text_font_size="12pt", title_text_font_style="bold",
+    title_text_font_size="16px", title_text_font_style="bold",
     title_text_color="lightgrey", major_label_text_color="lightgrey",
     background_fill_alpha=0.0)
 p.add_layout(color_bar)
@@ -72,7 +72,7 @@ notes = Label(
     x_offset=40, y_offset=20,
     text="Source: Google Trends, NASA Scientific Visualization Studio",
     level="overlay",
-    text_font_size="8pt", text_color="gray")
+    text_font_size="11px", text_color="gray")
 p.add_layout(notes)
 
 show(p)

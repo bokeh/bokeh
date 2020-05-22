@@ -92,7 +92,7 @@ export class WhiskerView extends AnnotationView {
 
     this._map_data()
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     if (this.visuals.line.doit) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {
@@ -131,7 +131,7 @@ export class WhiskerView extends AnnotationView {
 export namespace Whisker {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineVector & {
+  export type Props = Annotation.Props & {
     lower: p.DistanceSpec
     lower_head: p.Property<ArrowHead>
     upper: p.DistanceSpec
@@ -141,7 +141,9 @@ export namespace Whisker {
     source: p.Property<ColumnarDataSource>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Annotation.Visuals & {line: Line}
 }
@@ -150,6 +152,7 @@ export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
   properties: Whisker.Props
+  __view_type__: WhiskerView
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)
@@ -158,7 +161,7 @@ export class Whisker extends Annotation {
   static init_Whisker(): void {
     this.prototype.default_view = WhiskerView
 
-    this.mixins(['line'])
+    this.mixins<Whisker.Mixins>(LineVector)
 
     this.define<Whisker.Props>({
       lower:        [ p.DistanceSpec                    ],

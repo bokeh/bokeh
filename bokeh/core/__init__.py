@@ -18,7 +18,7 @@ custom extensions to Bokeh. These are listed below:
 
 :ref:`bokeh.core.properties`
     The fundamental building block of Bokeh apps and documents is the Bokeh
-    models, for instance plots, ranges, axes, etc. Bokeh models are comrpised
+    models, for instance plots, ranges, axes, etc. Bokeh models are comprised
     of properties, which are named attributes with specified types. Model
     properties can automatically validate and serialize themselves. This
     section describes all the property types that can be attached to Bokeh

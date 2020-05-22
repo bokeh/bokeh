@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import {Color} from "core/types"
-import {Class} from "core/class"
 import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
@@ -11,10 +10,6 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {bk_root} from "styles/root"
-
-export namespace LayoutDOMView {
-  export type Options = DOMView.Options & {model: LayoutDOM}
-}
 
 export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
@@ -394,8 +389,6 @@ export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
   properties: LayoutDOM.Props
-  default_view: Class<LayoutDOMView, [LayoutDOMView.Options]>
-
   __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {

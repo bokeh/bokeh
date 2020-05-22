@@ -1,18 +1,24 @@
 import {Document} from "document"
 import {Receiver} from "protocol/receiver"
 import {logger} from "core/logging"
+import {stylesheet} from "core/dom"
 import {size, values} from "core/util/object"
 
 import {add_document_standalone} from "./standalone"
 import {DocsJson, RenderItem} from "./json"
 import {_resolve_element, _resolve_root_elements} from "./dom"
 
-import "styles/logo"
-import "styles/notebook"
+import root_css from "styles/root.css"
+import logo_css from "styles/logo.css"
+import notebook_css from "styles/notebook.css"
+
+stylesheet.append(root_css)
+stylesheet.append(logo_css)
+stylesheet.append(notebook_css)
 
 // This exists to allow the @bokeh/jupyter_bokeh extension to store the
 // notebook kernel so that _init_comms can register the comms target.
-// This has to be available at window.Bokeh.embed.kernels in JupyterLab.
+// This has to be available at Bokeh.embed.kernels in JupyterLab.
 export const kernels: {[key: string]: unknown} = {}
 
 function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {

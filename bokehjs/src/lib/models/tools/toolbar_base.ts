@@ -16,9 +16,13 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
+
 import {bk_toolbar, bk_toolbar_hidden, bk_button_bar} from "styles/toolbar"
 import {bk_logo, bk_logo_small, bk_grey} from "styles/logo"
 import {bk_side} from "styles/mixins"
+
+import toolbar_css from "styles/toolbar.css"
+import logo_css from "styles/logo.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -79,6 +83,10 @@ export class ToolbarBaseView extends DOMView {
     this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
   }
 
+  styles(): string[] {
+    return [...super.styles(), toolbar_css, logo_css]
+  }
+
   remove(): void {
     remove_views(this._tool_button_views)
     super.remove()
@@ -118,6 +126,11 @@ export class ToolbarBaseView extends DOMView {
       this.el.appendChild(logo)
     }
 
+    for (const id in this._tool_button_views) {
+      const tool_view = this._tool_button_views[id]
+      tool_view.render()
+    }
+
     const bars: HTMLElement[][] = []
 
     const el = (tool: Tool) => {
@@ -150,16 +163,16 @@ export class ToolbarBaseView extends DOMView {
 }
 
 export type GesturesMap = {
-  pan:       { tools: GestureTool[], active: Tool | null },
-  scroll:    { tools: GestureTool[], active: Tool | null },
-  pinch:     { tools: GestureTool[], active: Tool | null },
-  tap:       { tools: GestureTool[], active: Tool | null },
-  doubletap: { tools: GestureTool[], active: Tool | null },
-  press:     { tools: GestureTool[], active: Tool | null },
-  pressup:   { tools: GestureTool[], active: Tool | null },
-  rotate:    { tools: GestureTool[], active: Tool | null },
-  move:      { tools: GestureTool[], active: Tool | null },
-  multi:     { tools: GestureTool[], active: Tool | null },
+  pan:       { tools: GestureTool[], active: Tool | null }
+  scroll:    { tools: GestureTool[], active: Tool | null }
+  pinch:     { tools: GestureTool[], active: Tool | null }
+  tap:       { tools: GestureTool[], active: Tool | null }
+  doubletap: { tools: GestureTool[], active: Tool | null }
+  press:     { tools: GestureTool[], active: Tool | null }
+  pressup:   { tools: GestureTool[], active: Tool | null }
+  rotate:    { tools: GestureTool[], active: Tool | null }
+  move:      { tools: GestureTool[], active: Tool | null }
+  multi:     { tools: GestureTool[], active: Tool | null }
 }
 
 export type GestureType = keyof GesturesMap
@@ -170,7 +183,7 @@ export namespace ToolbarBase {
   export type Props = Model.Props & {
     tools: p.Property<Tool[]>
     logo: p.Property<Logo>
-    gestures: p.Property<GesturesMap>,
+    gestures: p.Property<GesturesMap>
     actions: p.Property<ActionTool[]>
     inspectors: p.Property<InspectTool[]>
     help: p.Property<HelpTool[]>

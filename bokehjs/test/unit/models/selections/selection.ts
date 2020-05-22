@@ -1,55 +1,52 @@
 import {expect} from "chai"
 
 import {Selection} from "@bokehjs/models/selections/selection"
-import * as hittest from "@bokehjs/core/hittest"
 
-const some_1d_selection = hittest.create_hit_test_result_from_hits([[4, 1], [5, 2]])
-const other_1d_selection = hittest.create_hit_test_result_from_hits([[0, 1], [1, 2]])
+const some_1d_selection = new Selection({indices: [4, 5]})
+const other_1d_selection = new Selection({indices: [0, 1]})
 
-const some_2d_selection = hittest.create_empty_hit_test_result()
-some_2d_selection.multiline_indices = {2: [2, 3]}
-const other_2d_selection = hittest.create_empty_hit_test_result()
-other_2d_selection.multiline_indices = {2: [0, 1]}
+const some_2d_selection = new Selection({multiline_indices: {2: [2, 3]}})
+const other_2d_selection = new Selection({multiline_indices: {2: [0, 1]}})
 
 describe("Selection", () => {
 
   it("should be updatable", () => {
     const s = new Selection()
-    s.update(some_1d_selection, true, false)
+    s.update(some_1d_selection, true, "replace")
     expect(s.indices).to.deep.equal([4, 5])
   })
 
-  it("should be updatable with append=false", () => {
+  it("should be updatable with 'replace' mode", () => {
     const s = new Selection()
-    s.update(some_1d_selection, true, false)
-    s.update(other_1d_selection, true, false)
+    s.update(some_1d_selection, true, "replace")
+    s.update(other_1d_selection, true, "replace")
     expect(s.indices).to.be.deep.equal([0, 1])
   })
 
-  it("should be updatable with append=true", () => {
+  it("should be updatable with 'append' mode", () => {
     const s = new Selection()
-    s.update(some_1d_selection, true, true)
-    s.update(other_1d_selection, true, true)
-    expect(s.indices).to.be.deep.equal([0, 1, 4, 5])
+    s.update(some_1d_selection, true, "append")
+    s.update(other_1d_selection, true, "append")
+    expect(s.indices).to.be.deep.equal([4, 5, 0, 1])
   })
 
-  it("should update 2d selections with append=false", () => {
+  it("should update 2d selections with 'replace' mode", () => {
     const s = new Selection()
-    s.update(some_2d_selection, true, false)
-    s.update(other_2d_selection, true, false)
+    s.update(some_2d_selection, true, "replace")
+    s.update(other_2d_selection, true, "replace")
     expect(s.multiline_indices).to.be.deep.equal({2: [0, 1]})
   })
 
-  it("should merge 2d selections with append=true", () => {
+  it("should merge 2d selections with 'append' mode", () => {
     const s = new Selection()
-    s.update(some_2d_selection, true, true)
-    s.update(other_2d_selection, true, true)
+    s.update(some_2d_selection, true, "append")
+    s.update(other_2d_selection, true, "append")
     expect(s.multiline_indices).to.be.deep.equal({2: [0, 1, 2, 3]})
   })
 
   it("should be clearable", () => {
     const s = new Selection()
-    s.update(some_1d_selection, true, false)
+    s.update(some_1d_selection, true, "replace")
     s.clear()
     expect(s.indices).to.deep.equal([])
   })

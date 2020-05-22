@@ -22,9 +22,10 @@ task("compiler:build", ["compiler:ts"], async () => {
   const externals = ["@microsoft/typescript-etw", "fsevents"]
   const builtins = true
   const minify = false
+  const es_modules = false
   const cache = argv.cache !== false ? join(build_dir.js, "compiler.json") : undefined
 
-  const linker = new Linker({entries, bases, externals, builtins, minify, cache})
+  const linker = new Linker({entries, bases, externals, builtins, minify, es_modules, cache})
 
   if (!argv.rebuild) linker.load_cache()
   const [bundle] = linker.link()

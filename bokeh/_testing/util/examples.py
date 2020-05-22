@@ -27,7 +27,6 @@ from os.path import (
     dirname,
     exists,
     isdir,
-    isfile,
     join,
     normpath,
     pardir,
@@ -37,14 +36,11 @@ from os.path import (
 from subprocess import PIPE, Popen
 
 # External imports
-import requests
 import yaml
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
 from bokeh._testing.util.images import image_diff
-from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
-from bokeh.util.terminal import green, trace
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -81,7 +77,6 @@ class Example(object):
         self.flags = flags
         self.examples_dir = examples_dir
         self._diff_ref = None
-        self._upload = False
         self.pixels = 0
         self._has_ref = None
         self._has_baseline = None
@@ -209,18 +204,6 @@ class Example(object):
         return diff.decode("utf-8").strip()
 
     @property
-    def img_path_or_url(self):
-        return self.img_path if not self._upload else self.img_url
-
-    @property
-    def ref_path_or_url(self):
-        return self.ref_path if not self._upload else self.ref_url
-
-    @property
-    def diff_path_or_url(self):
-        return self.diff_path if not self._upload else self.diff_url
-
-    @property
     def img_path(self):
         return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, JOB_ID))
 
@@ -233,54 +216,11 @@ class Example(object):
         return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
-    def img_url(self):
-        return join(S3_URL, self.img_url_path)
-
-    @property
-    def ref_url(self):
-        return join(S3_URL, self.ref_url_path)
-
-    @property
-    def diff_url(self):
-        return join(S3_URL, self.diff_url_path)
-
-    @property
-    def img_url_path(self):
-        return join("github-ci", "image_refs", __version__, self.relpath_no_ext) + '.png'
-
-    @property
-    def ref_url_path(self):
-        return join("github-ci", "image_refs", self._diff_ref, self.relpath_no_ext) + '.png'
-
-    @property
-    def diff_url_path(self):
-        return join("github-ci", "image_refs", __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
-
-    @property
     def has_ref(self):
-        return self._has_ref
-
-    def fetch_ref(self):
-        if self._has_ref is None:
-            response = requests.get(self.ref_url)
-            self._has_ref = response.ok
-
-            if response.ok:
-                _store_binary(self.ref_path, response.content)
-
         return self._has_ref
 
     def store_img(self, img_data):
         _store_binary(self.img_path, b64decode(img_data))
-
-    def upload_imgs(self):
-        if isfile(self.img_path):
-            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_path))
-            upload_file_to_s3(self.img_path, self.img_url_path, "image/png")
-        if isfile(self.diff_path):
-            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_path))
-            upload_file_to_s3(self.diff_path, self.diff_url_path, "image/png")
-
 
     @property
     def images_differ(self):

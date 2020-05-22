@@ -26,9 +26,9 @@ export function get_info(scales: {[key: string]: Scale}, [sxy0, sxy1]: [number, 
 
 export function scale_range(frame: CartesianFrame, factor: number,
     h_axis: boolean = true, v_axis: boolean = true, center?: {x: number, y: number}): {
-      xrs: {[key: string]: Interval},
-      yrs: {[key: string]: Interval},
-      factor: number,
+      xrs: {[key: string]: Interval}
+      yrs: {[key: string]: Interval}
+      factor: number
     } {
   /*
    * Utility function for zoom tools to calculate/create the zoom_info object

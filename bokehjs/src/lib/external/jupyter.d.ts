@@ -13,9 +13,9 @@ declare interface Comm {
 
 declare interface Kernel {
   comm_manager: {
-    register_target: (target: string, fn: (comm: Comm) => void) => void,
-  },
-  registerCommTarget: (target: string, fn: (comm: Comm) => void) => void,
+    register_target: (target: string, fn: (comm: Comm) => void) => void
+  }
+  registerCommTarget: (target: string, fn: (comm: Comm) => void) => void
 }
 
 declare interface Jupyter {
@@ -24,4 +24,4 @@ declare interface Jupyter {
   }
 }
 
-declare var Jupyter: Jupyter | undefined
+declare const Jupyter: Jupyter | undefined

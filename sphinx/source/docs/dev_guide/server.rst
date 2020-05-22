@@ -30,8 +30,8 @@ session; the application fills in the session's document with whatever plots,
 widgets, or other content it desires. The application can also set up
 callbacks, to run periodically or to run when the document changes.
 
-Applications are represented by the ``Application`` class. This class is
-contains list of ``Handler`` instances and optional metadata. Handlers
+Applications are represented by the ``Application`` class. This class
+contains a list of ``Handler`` instances and optional metadata. Handlers
 can be created in lots of ways; from JSON files, from Python functions, from
 Python files, and perhaps many more ways in the future.  The optional metadata
 is available as a JSON blob via the ``/metadata`` endpoint.  For example,

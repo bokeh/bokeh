@@ -3,9 +3,9 @@ import {expect} from "chai"
 import {CustomJSTransform} from "@bokehjs/models/transforms/customjs_transform"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
-describe("customjs_transform module", () => {
+describe("CustomJSTransform", () => {
 
-  describe("default creation", () => {
+  describe("default constructor", () => {
     const r = new CustomJSTransform()
 
     it("should have empty args", () => {

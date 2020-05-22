@@ -286,13 +286,13 @@ describe("serialization module", () => {
   describe("process_array", () => {
     it("should return arrays as-is", () => {
       const arr = [1, 2, 3.4]
-      expect(ser.process_array(arr, [])).to.be.deep.equal([ arr, [] ])
+      expect(ser.process_array(arr, new Map())).to.be.deep.equal([arr, []])
     })
 
     it("should return typed arrays as-is", () => {
       for (const typ of GOOD_TYPES) {
         const arr = new typ([1, 2, 3.4])
-        expect(ser.process_array(arr, [])).to.be.deep.equal([ arr, [] ])
+        expect(ser.process_array(arr, new Map())).to.be.deep.equal([arr, []])
       }
     })
   })

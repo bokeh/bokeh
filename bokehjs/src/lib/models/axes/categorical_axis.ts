@@ -155,14 +155,17 @@ export namespace CategoricalAxis {
     formatter: p.Property<CategoricalTickFormatter>
     group_label_orientation: p.Property<TickLabelOrientation | number>
     subgroup_label_orientation: p.Property<TickLabelOrientation | number>
-  } & mixins.SeparatorLine
-    & mixins.GroupText
-    & mixins.SubGroupText
+  } & Mixins
+
+  export type Mixins =
+    mixins.SeparatorLine &
+    mixins.GroupText     &
+    mixins.SubGroupText
 
   export type Visuals = Axis.Visuals & {
-    separator_line: visuals.Line,
-    group_text: visuals.Text,
-    subgroup_text: visuals.Text,
+    separator_line: visuals.Line
+    group_text: visuals.Text
+    subgroup_text: visuals.Text
   }
 }
 
@@ -170,6 +173,7 @@ export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
   properties: CategoricalAxis.Props
+  __view_type__: CategoricalAxisView
 
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter
@@ -181,10 +185,10 @@ export class CategoricalAxis extends Axis {
   static init_CategoricalAxis(): void {
     this.prototype.default_view = CategoricalAxisView
 
-    this.mixins([
-      "line:separator_",
-      "text:group_",
-      "text:subgroup_",
+    this.mixins<CategoricalAxis.Mixins>([
+      ["separator_", mixins.Line],
+      ["group_",     mixins.Text],
+      ["subgroup_",  mixins.Text],
     ])
 
     this.define<CategoricalAxis.Props>({
@@ -198,10 +202,10 @@ export class CategoricalAxis extends Axis {
       separator_line_color: "lightgrey",
       separator_line_width: 2,
       group_text_font_style: "bold",
-      group_text_font_size: "8pt",
+      group_text_font_size: "11px",
       group_text_color: "grey",
       subgroup_text_font_style: "bold",
-      subgroup_text_font_size: "8pt",
+      subgroup_text_font_size: "11px",
     })
   }
 }

@@ -1,7 +1,8 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {values, size} from "@bokehjs/core/util/object"
+import {assert} from "@bokehjs/core/util/assert"
+import {values} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -229,28 +230,28 @@ describe("Document", () => {
   it("tracks all_models", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
     const m = new SomeModel()
     const m2 = new AnotherModel()
     m.child = m2
     expect(m.child).to.equal(m2)
     d.add_root(m)
     expect(d.roots().length).to.equal(1)
-    expect(Object.keys(d._all_models).length).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     m.child = null
-    expect(Object.keys(d._all_models).length).to.equal(1)
+    expect(d._all_models.size).to.equal(1)
     m.child = m2
-    expect(Object.keys(d._all_models).length).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
     d.remove_root(m)
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
   })
 
   it("tracks all_models with list property", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
     const m = new SomeModelWithChildren()
     const m2 = new AnotherModel()
     m.children = [m2]
@@ -258,26 +259,26 @@ describe("Document", () => {
     // check that we get the right all_models on initial add_root
     d.add_root(m)
     expect(d.roots().length).to.equal(1)
-    expect(Object.keys(d._all_models).length).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     // check that removing children list drops the models beneath it
     m.children = []
-    expect(Object.keys(d._all_models).length).to.equal(1)
+    expect(d._all_models.size).to.equal(1)
 
     // check that adding children back re-adds the models
     m.children = [m2]
-    expect(Object.keys(d._all_models).length).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     // check that removing root removes the models
     d.remove_root(m)
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
   })
 
   it("tracks all_models with list property where list elements have a child", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
     const m = new SomeModelWithChildren()
     const m3 = new AnotherModel()
     const m2 = new SomeModel({ child: m3 })
@@ -287,20 +288,20 @@ describe("Document", () => {
     // check that we get the right all_models on initial add_root
     d.add_root(m)
     expect(d.roots().length).to.equal(1)
-    expect(Object.keys(d._all_models).length).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     // check that removing children list drops the models beneath it
     m.children = []
-    expect(Object.keys(d._all_models).length).to.equal(1)
+    expect(d._all_models.size).to.equal(1)
 
     // check that adding children back re-adds the models
     m.children = [m2]
-    expect(Object.keys(d._all_models).length).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     // check that removing root removes the models
     d.remove_root(m)
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
   })
 
   it("lets us get_model_by_id", () => {
@@ -342,20 +343,13 @@ describe("Document", () => {
     const m2 = new AnotherModel({ name: "foo" })
     d.add_root(m)
     d.add_root(m2)
-    let got_error = false
-    try {
-      d.get_model_by_name('foo')
-    } catch (e) {
-      got_error = true
-      expect(e.message).to.include('Multiple models')
-    }
-    expect(got_error).to.equal(true)
+    expect(() => d.get_model_by_name('foo')).to.throw(Error, /Multiple models/)
   })
 
   it("can have all_models with multiple references", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(size(d._all_models)).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModel()
     const root2 = new SomeModel()
@@ -365,31 +359,31 @@ describe("Document", () => {
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal(2)
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root1.child = null
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root2.child = null
-    expect(size(d._all_models)).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     root1.child = child1
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root2.child = child1
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     d.remove_root(root1)
-    expect(size(d._all_models)).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     d.remove_root(root2)
-    expect(size(d._all_models)).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
   })
 
   it("can have all_models with cycles", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(size(d._all_models)).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModel()
     const root2 = new SomeModel()
@@ -400,22 +394,22 @@ describe("Document", () => {
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal(2)
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root1.child = null
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root2.child = null
-    expect(size(d._all_models)).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     root1.child = child1
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
   })
 
   it("can have all_models with cycles through lists", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(size(d._all_models)).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModelWithChildren()
     const root2 = new SomeModelWithChildren()
@@ -426,16 +420,16 @@ describe("Document", () => {
     d.add_root(root1)
     d.add_root(root2)
     expect(d.roots().length).to.equal(2)
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root1.children = []
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
 
     root2.children = []
-    expect(size(d._all_models)).to.equal(2)
+    expect(d._all_models.size).to.equal(2)
 
     root1.children = [child1]
-    expect(size(d._all_models)).to.equal(3)
+    expect(d._all_models.size).to.equal(3)
   })
 
   it("can notify on changes", () => {
@@ -448,7 +442,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(1)
     expect(m.bar).to.equal(1)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     m.bar = 42
@@ -460,6 +454,27 @@ describe("Document", () => {
     expect(event.attr).to.equal('bar')
     expect(event.old).to.equal(1)
     expect(event.new_).to.equal(42)
+  })
+
+  it("can notify on changes in batches", () => {
+    const d = new Document()
+    const m = new SomeModel()
+    d.add_root(m)
+
+    const events0: ev.DocumentEvent[] = []
+    const events1: ev.DocumentChangedEvent[] = []
+
+    d.on_change((event) => events0.push(event), true)
+    d.on_change((event) => events1.push(event), false)
+
+    m.setv({foo: 3, child: new SomeModel()})
+
+    expect(events0).to.be.of.length(1)
+    expect(events1).to.be.of.length(2)
+
+    const [batch] = events0
+    assert(batch instanceof ev.DocumentEventBatch)
+    expect(batch.events).to.be.of.length(2)
   })
 
   it("can remove notification changes", () => {
@@ -493,7 +508,7 @@ describe("Document", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     const m = new AnotherModel({bar:1})
@@ -532,7 +547,7 @@ describe("Document", () => {
     expect(d.roots().length).to.equal(0)
     expect(d.title()).to.equal(DEFAULT_TITLE)
 
-    const events: ev.DocumentChangedEvent[] = []
+    const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
     d.set_title('Foo')
@@ -555,7 +570,7 @@ describe("Document", () => {
     expect(d.title()).to.equal('Foo')
     d.clear()
     expect(d.roots().length).to.equal(0)
-    expect(size(d._all_models)).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
     // does not reset title
     expect(d.title()).to.equal('Foo')
   })
@@ -710,7 +725,7 @@ describe("Document", () => {
   it("can patch an integer property", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModel({ foo: 42 })
     const root2 = new SomeModel({ foo: 43 })
@@ -737,7 +752,7 @@ describe("Document", () => {
   it("can patch a reference property", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModel({ foo: 42 })
     const root2 = new SomeModel({ foo: 43 })
@@ -750,9 +765,9 @@ describe("Document", () => {
     d.add_root(root2)
     expect(d.roots().length).to.equal(2)
 
-    expect(d._all_models).to.have.property(child1.id)
-    expect(d._all_models).to.not.have.property(child2.id)
-    expect(d._all_models).to.not.have.property(child3.id)
+    expect([...d._all_models.keys()]).to.include(child1.id)
+    expect([...d._all_models.keys()]).to.not.include(child2.id)
+    expect([...d._all_models.keys()]).to.not.include(child3.id)
 
     const event1 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child3)
     const patch1 = d.create_json_patch_string([event1])
@@ -762,9 +777,9 @@ describe("Document", () => {
     expect(root1.child).to.be.instanceof(SomeModel)
     const root1_child0 = root1.child as SomeModel
     expect(root1_child0.child!.id).to.equal(child2.id)
-    expect(d._all_models).to.have.property(child1.id)
-    expect(d._all_models).to.have.property(child2.id)
-    expect(d._all_models).to.have.property(child3.id)
+    expect([...d._all_models.keys()]).to.include(child1.id)
+    expect([...d._all_models.keys()]).to.include(child2.id)
+    expect([...d._all_models.keys()]).to.include(child3.id)
 
     // put it back how it was before
     const event2 = new ev.ModelChangedEvent(d, root1, 'child', child1.child, child1)
@@ -775,15 +790,15 @@ describe("Document", () => {
     expect(root1.child).to.be.instanceof(SomeModel)
     const root1_child1 = root1.child as SomeModel
     expect(root1_child1.child).to.be.equal(null)
-    expect(d._all_models).to.have.property(child1.id)
-    expect(d._all_models).to.not.have.property(child2.id)
-    expect(d._all_models).to.not.have.property(child3.id)
+    expect([...d._all_models.keys()]).to.include(child1.id)
+    expect([...d._all_models.keys()]).to.not.include(child2.id)
+    expect([...d._all_models.keys()]).to.not.include(child3.id)
   })
 
   it("can patch two properties at once", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModel({ foo: 42 })
     const child1 = new SomeModel({ foo: 43 })
@@ -807,7 +822,7 @@ describe("Document", () => {
   it("sets proper document on models added during patching", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new SomeModel({ foo: 42 })
     const child1 = new SomeModel({ foo: 44 })
@@ -833,7 +848,7 @@ describe("Document", () => {
   it("sets proper document on models added during construction", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new ModelWithConstructTimeChanges()
     // change it so it doesn't match what initialize() does
@@ -862,7 +877,7 @@ describe("Document", () => {
   it("computes patch for models added during construction", () => {
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new ModelWithConstructTimeChanges()
     // change it so it doesn't match what initialize() does
@@ -891,7 +906,7 @@ describe("Document", () => {
     // changes while constructing the parsed document.
     const d = new Document()
     expect(d.roots().length).to.equal(0)
-    expect(Object.keys(d._all_models).length).to.equal(0)
+    expect(d._all_models.size).to.equal(0)
 
     const root1 = new ComplicatedModelWithConstructTimeChanges()
     // change it so it doesn't match what initialize() does
@@ -920,7 +935,7 @@ describe("Document", () => {
     // document should have the values we set above
     for (const key in serialized_values) {
       const value = (serialized_values as any)[key] // XXX: own
-      expect(root1.getv(key)).to.deep.equal(value)
+      expect(root1.property(key).get_value()).to.deep.equal(value)
     }
 
     expect(root1.list_prop[0].bar).to.equal(42)

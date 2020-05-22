@@ -31,6 +31,7 @@ export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
   properties: ActionTool.Props
+  __view_type__: ActionToolView
 
   constructor(attrs?: Partial<ActionTool.Attrs>) {
     super(attrs)

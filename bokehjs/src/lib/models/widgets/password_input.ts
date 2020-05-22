@@ -20,6 +20,7 @@ export interface PasswordInput extends PasswordInput.Attrs {}
 
 export class PasswordInput extends TextInput {
   properties: PasswordInput.Props
+  __view_type__: PasswordInputView
 
   constructor(attrs?: Partial<PasswordInput.Attrs>) {
     super(attrs)

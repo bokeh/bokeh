@@ -25,6 +25,7 @@ export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
   properties: Div.Props
+  __view_type__: DivView
 
   constructor(attrs?: Partial<Div.Attrs>) {
     super(attrs)

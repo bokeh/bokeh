@@ -18,7 +18,6 @@ export class IonRangeSliderView extends InputWidgetView {
   model: IonRangeSlider
 
   private value_el?: HTMLInputElement
-  private slider_el: HTMLInputElement
 
   render(): void {
     // BokehJS Views create <div> elements by default, accessible as @el.
@@ -32,8 +31,8 @@ export class IonRangeSliderView extends InputWidgetView {
       this.group_el.appendChild(this.value_el)
     }
 
-    this.slider_el = input({type: "text"})
-    this.group_el.appendChild(div({style: {width: "100%"}}, this.slider_el))
+    this.input_el = input({type: "text"})
+    this.group_el.appendChild(div({style: {width: "100%"}}, this.input_el))
 
     // Set up parameters
     const max = this.model.end
@@ -52,7 +51,7 @@ export class IonRangeSliderView extends InputWidgetView {
       onFinish: (data: SliderData) => this.slidestop(data),
     }
 
-    jQuery(this.slider_el).ionRangeSlider(opts)
+    jQuery(this.input_el).ionRangeSlider(opts)
     if (this.value_el != null)
       this.value_el.value = `${from} - ${to}`
   }
@@ -84,6 +83,7 @@ export interface IonRangeSlider extends IonRangeSlider.Attrs {}
 
 export class IonRangeSlider extends InputWidget {
   properties: IonRangeSlider.Props
+  __view_type__: IonRangeSliderView
 
   constructor(attrs?: Partial<IonRangeSlider.Attrs>) {
     super(attrs)

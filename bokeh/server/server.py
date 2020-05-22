@@ -36,7 +36,7 @@ import signal
 import sys
 
 # External imports
-import tornado
+from tornado import version as tornado_version
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -339,7 +339,7 @@ class Server(BaseServer):
         ``BokehTornado``.
 
         '''
-        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
+        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado_version))
 
         from bokeh.application.handlers.function import FunctionHandler
         from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler

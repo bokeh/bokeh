@@ -119,13 +119,13 @@ describe("Text", () => {
     ]) {
       it(`should set canvas context ${attr} value from ${spec} spec value`, () =>{
         const ctx = {} as any
-        const attrs = {text_font: 'times', text_font_size: "12pt", text_font_style: "bold"} as any
+        const attrs = {text_font: 'times', text_font_size: "16px", text_font_style: "bold"} as any
         attrs[spec] = {value}
         const model = new text_glyph.Text(attrs)
         const text = new Text(model)
         text.set_value(ctx)
         expect(ctx[attr]).to.be.equal(value)
-        expect(ctx.font).to.be.equal("bold 12pt times")
+        expect(ctx.font).to.be.equal("bold 16px times")
       })
     }
   })

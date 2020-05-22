@@ -19,9 +19,11 @@ export class CheckboxGroupView extends InputGroupView {
 
     const {active, labels} = this.model
 
+    this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const checkbox = input({type: `checkbox`, value: `${i}`})
       checkbox.addEventListener("change", () => this.change_active(i))
+      this._inputs.push(checkbox)
 
       if (this.model.disabled)
         checkbox.disabled = true
@@ -55,6 +57,7 @@ export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends InputGroup {
   properties: CheckboxGroup.Props
+  __view_type__: CheckboxGroupView
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)

@@ -25,6 +25,7 @@ export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
   properties: UndoTool.Props
+  __view_type__: UndoToolView
 
   constructor(attrs?: Partial<UndoTool.Attrs>) {
     super(attrs)
@@ -36,6 +37,8 @@ export class UndoTool extends ActionTool {
     this.override({
       disabled: true,
     })
+
+    this.register_alias("undo", () => new UndoTool())
   }
 
   tool_name = "Undo"

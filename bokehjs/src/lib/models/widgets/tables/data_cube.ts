@@ -9,9 +9,9 @@ import {RowAggregator} from './row_aggregators'
 import {Model} from 'model'
 
 interface GroupDataContext {
-  collapsed: boolean,
-  level: number,
-  title: string,
+  collapsed: boolean
+  level: number
+  title: string
 }
 
 function groupCellFormatter(_row: number, _cell: number, _value: unknown, _columnDef: Column<Item>, dataContext: GroupDataContext): string {
@@ -311,8 +311,8 @@ export namespace DataCube {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataTable.Props & {
-    grouping: p.Property<GroupingInfo[]>,
-    target:   p.Property<ColumnDataSource>,
+    grouping: p.Property<GroupingInfo[]>
+    target:   p.Property<ColumnDataSource>
   }
 }
 

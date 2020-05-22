@@ -65,6 +65,7 @@ ALL  = (
     'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
+    'SelectionMode',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -220,9 +221,10 @@ class Test_bce(object):
         assert tuple(bce.MapType) == ("satellite", "roadmap", "terrain", "hybrid")
 
     def test_MarkerType(self) -> None:
-        assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                                         "square", "square_cross", "square_x", "triangle", "x")
+        assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_dot", "circle_x", "circle_y", "cross",
+                                         "dash", "diamond", "diamond_cross", "diamond_dot", "dot", "hex", "hex_dot", "inverted_triangle",
+                                         "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+                                         "triangle_dot", "triangle_pin", "x", "y")
 
     def test_NamedColor(self) -> None:
         assert len(tuple(bce.NamedColor)) == 147
@@ -247,7 +249,7 @@ class Test_bce(object):
         assert tuple(bce.Palette) == tuple(__palettes__)
 
     def test_RenderLevel(self) -> None:
-        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "annotation", "overlay")
+        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
     def test_RenderMode(self) -> None:
         assert tuple(bce.RenderMode) == ("canvas", "css")
@@ -257,6 +259,9 @@ class Test_bce(object):
 
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+    def test_SelectionMode(self) -> None:
+        assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract")
 
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
@@ -337,6 +342,7 @@ def test_enums_contents() -> None:
         'RenderMode',
         'ResetPolicy',
         'RoundingFunction',
+        'SelectionMode',
         'SizingMode',
         'SizingPolicy',
         'SortDirection',

@@ -5,9 +5,9 @@ import {MultiPolygons, MultiPolygonsView} from "@bokehjs/models/glyphs/multi_pol
 import {Geometry} from "@bokehjs/core/geometry"
 import {assert} from "@bokehjs/core/util/assert"
 
-describe("Glyph (using  as a concrete Glyph)", () => {
+describe("MultiPolygons", () => {
 
-  describe("GlyphView", () => {
+  describe("MultiPolygonsView", () => {
     it("should hit test rects for containment", async () => {
       const data = {xs: [[[[0, 10, 5]]], [[[5, 10, 10, 5]]]], ys: [[[[0, 0, 10]]], [[[10, 10, 20, 20]]]]}
       const glyph = new MultiPolygons({

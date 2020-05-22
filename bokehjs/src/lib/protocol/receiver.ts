@@ -1,4 +1,5 @@
-import {Message, Header} from "protocol/message"
+import {Message} from "protocol/message"
+import {isString} from "core/util/types"
 
 export type Fragment = string | ArrayBuffer
 
@@ -10,7 +11,7 @@ export class Receiver {
 
   protected _fragments: Fragment[] = []
 
-  protected _buf_header: Header | null = null
+  protected _buf_header: string | null = null
 
   protected _current_consumer: (fragment: Fragment) => void = this._HEADER
 
@@ -44,7 +45,7 @@ export class Receiver {
 
   _BUFFER_HEADER(fragment: Fragment): void {
     this._assume_text(fragment)
-    this._buf_header = fragment as any // XXX: assume text but Header is expected
+    this._buf_header = fragment
     this._current_consumer = this._BUFFER_PAYLOAD
   }
 
@@ -55,7 +56,7 @@ export class Receiver {
   }
 
   private _assume_text(fragment: Fragment): asserts fragment is string {
-    if (fragment instanceof ArrayBuffer)
+    if (!isString(fragment))
       throw new Error("Expected text fragment but received binary fragment")
   }
 

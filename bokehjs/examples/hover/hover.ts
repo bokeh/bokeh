@@ -41,7 +41,7 @@ export namespace HoverfulScatter {
   })
 
   p.text({field: "x"}, {field: "y"}, indices, {
-    source, alpha: 0.5, text_font_size: "5pt", text_baseline: "middle", text_align: "center",
+    source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
   const hover = p.toolbar.select_one(Bokeh.HoverTool)

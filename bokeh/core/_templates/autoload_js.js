@@ -8,9 +8,6 @@ calls it with the rendered model.
 :param elementid: the unique id for the script tag
 :type elementid: str
 
-:param hashes: a map of filenames for to SRI hashes
-:type hases: dict[str, str]
-
 :param js_urls: URLs of JS files making up Bokeh library
 :type js_urls: list
 
@@ -34,6 +31,12 @@ calls it with the rendered model.
   {% endblock %}
 
   {% block autoload_init %}
+    {%- if elementid -%}
+    var element = document.getElementById({{ elementid|json }});
+    if (element == null) {
+      console.warn("Bokeh: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found.")
+    }
+    {%- endif %}
   {% endblock %}
 
   function run_callbacks() {
@@ -88,7 +91,7 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
-    const hashes = {{ hashes }};
+    const hashes = {{ bundle.hashes|json }};
 
     for (var i = 0; i < js_urls.length; i++) {
       var url = js_urls[i];
@@ -98,21 +101,13 @@ calls it with the rendered model.
       element.async = false;
       element.src = url;
       if (url in hashes) {
-        element.crossOrigin="anonymous";
-        element.integrity="sha384-" + hashes[url];
+        element.crossOrigin = "anonymous";
+        element.integrity = "sha384-" + hashes[url];
       }
       console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
       document.head.appendChild(element);
     }
   };
-
-  {%- if elementid -%}
-  var element = document.getElementById({{ elementid|json }});
-  if (element == null) {
-    console.error("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
-    return false;
-  }
-  {%- endif %}
 
   function inject_raw_css(css) {
     const element = document.createElement("style");

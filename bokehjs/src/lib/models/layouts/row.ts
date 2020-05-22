@@ -26,6 +26,7 @@ export interface Row extends Row.Attrs {}
 
 export class Row extends Box {
   properties: Row.Props
+  __view_type__: RowView
 
   constructor(attrs?: Partial<Row.Attrs>) {
     super(attrs)

@@ -1,5 +1,3 @@
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
-
 export type Color = string
 
 export type TypedArray =
@@ -22,6 +20,8 @@ export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 export type Data = {[key: string]: Arrayable<unknown>}
 
 export type Attrs = {[key: string]: unknown}
+
+export type PlainObject = Attrs
 
 export type Size = {
   width: number

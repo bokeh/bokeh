@@ -2,7 +2,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
-import {Omit, Color, Data, Attrs} from "../core/types"
+import {Color, Data, Attrs} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
@@ -13,8 +13,10 @@ import {some, every, includes} from "../core/util/array"
 import {clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 import {ViewOf} from "core/view"
+import {enumerate} from "core/util/iterator"
 
-import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
+import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
+import {ToolAliases} from "../models/tools/tool"
 
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {Legend} from "models/annotations/legend"
@@ -22,62 +24,9 @@ import {Legend} from "models/annotations/legend"
 export {gridplot} from "./gridplot"
 export {rgb2hex as color} from "../core/util/color"
 
-const _default_tooltips: [string, string][] = [
-  ["index",         "$index"    ],
-  ["data (x, y)",   "($x, $y)"  ],
-  ["screen (x, y)", "($sx, $sy)"],
-]
-
-export type ToolName =
-  "pan" | "xpan" | "ypan" |
-  "xwheel_pan" | "ywheel_pan" | "wheel_zoom" |
-  "xwheel_zoom" | "ywheel_zoom" |
-  "zoom_in" | "xzoom_in" | "yzoom_in" |
-  "zoom_out" | "xzoom_out" | "yzoom_out" |
-  "click" | "tap" |
-  "box_select" | "xbox_select" | "ybox_select" |
-  "poly_select" | "lasso_select" |
-  "box_zoom" | "xbox_zoom" | "ybox_zoom" |
-  "crosshair" | "hover" |
-  "save" |
-  "undo" | "redo" | "reset" |
-  "help"
+export type ToolName = keyof ToolAliases
 
 const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
-
-const _known_tools: {[key in ToolName]: () => Tool} = {
-  pan:          () => new models.PanTool({dimensions: 'both'}),
-  xpan:         () => new models.PanTool({dimensions: 'width'}),
-  ypan:         () => new models.PanTool({dimensions: 'height'}),
-  xwheel_pan:   () => new models.WheelPanTool({dimension: "width"}),
-  ywheel_pan:   () => new models.WheelPanTool({dimension: "height"}),
-  wheel_zoom:   () => new models.WheelZoomTool({dimensions: 'both'}),
-  xwheel_zoom:  () => new models.WheelZoomTool({dimensions: 'width'}),
-  ywheel_zoom:  () => new models.WheelZoomTool({dimensions: 'height'}),
-  zoom_in:      () => new models.ZoomInTool({dimensions: 'both'}),
-  xzoom_in:     () => new models.ZoomInTool({dimensions: 'width'}),
-  yzoom_in:     () => new models.ZoomInTool({dimensions: 'height'}),
-  zoom_out:     () => new models.ZoomOutTool({dimensions: 'both'}),
-  xzoom_out:    () => new models.ZoomOutTool({dimensions: 'width'}),
-  yzoom_out:    () => new models.ZoomOutTool({dimensions: 'height'}),
-  click:        () => new models.TapTool({behavior: "inspect"}),
-  tap:          () => new models.TapTool(),
-  crosshair:    () => new models.CrosshairTool(),
-  box_select:   () => new models.BoxSelectTool(),
-  xbox_select:  () => new models.BoxSelectTool({dimensions: 'width'}),
-  ybox_select:  () => new models.BoxSelectTool({dimensions: 'height'}),
-  poly_select:  () => new models.PolySelectTool(),
-  lasso_select: () => new models.LassoSelectTool(),
-  box_zoom:     () => new models.BoxZoomTool({dimensions: 'both'}),
-  xbox_zoom:    () => new models.BoxZoomTool({dimensions: 'width'}),
-  ybox_zoom:    () => new models.BoxZoomTool({dimensions: 'height'}),
-  hover:        () => new models.HoverTool({tooltips: _default_tooltips}),
-  save:         () => new models.SaveTool(),
-  undo:         () => new models.UndoTool(),
-  redo:         () => new models.RedoTool(),
-  reset:        () => new models.ResetTool(),
-  help:         () => new models.HelpTool(),
-}
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 
@@ -127,6 +76,7 @@ export type AuxText = {
 
 export type AuxGlyph = {
   source: ColumnarDataSource
+  view: CDSView
   legend: string
 }
 
@@ -175,20 +125,22 @@ function _with_default<T>(value: T | undefined, default_value: T): T {
   return value === undefined ? default_value : value
 }
 
-export type AxisType = "auto" | "linear" | "datetime" | "log" | null
+export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | null
 
-export type FigureAttrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
-  x_range: Range | [number, number] | string[]
-  y_range: Range | [number, number] | string[]
-  x_axis_type: AxisType
-  y_axis_type: AxisType
-  x_axis_location: Location
-  y_axis_location: Location
-  x_axis_label: string
-  y_axis_label: string
-  x_minor_ticks: number | "auto"
-  y_minor_ticks: number | "auto"
-  tools: (Tool | ToolName)[] | string
+export namespace Figure {
+  export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
+    x_range: Range | [number, number] | string[]
+    y_range: Range | [number, number] | string[]
+    x_axis_type: AxisType
+    y_axis_type: AxisType
+    x_axis_location: Location
+    y_axis_location: Location
+    x_axis_label: string
+    y_axis_label: string
+    x_minor_ticks: number | "auto"
+    y_minor_ticks: number | "auto"
+    tools: (Tool | ToolName)[] | string
+  }
 }
 
 export class Figure extends Plot {
@@ -221,7 +173,7 @@ export class Figure extends Plot {
     }
   }
 
-  constructor(attrs: Partial<FigureAttrs> = {}) {
+  constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
     const tools = _with_default(attrs.tools, _default_tools)
@@ -639,8 +591,7 @@ export class Figure extends Plot {
       if (fta.length==2) { return fta } else { return fta.concat(['']) }
     }
     const _is_visual = function(ft: string): boolean {
-      let feature, trait
-      [feature, trait] = _split_feature_trait(ft)
+      const [feature, trait] = _split_feature_trait(ft)
       return includes(['line', 'fill', 'text', 'global'], feature) && (trait!=='')
     }
 
@@ -658,13 +609,13 @@ export class Figure extends Plot {
 
     const result: Attrs = {}
     const traits = new Set()
-    for (const pname in cls.prototype.props) {
+    for (const pname in cls.prototype._props) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
         if (props.hasOwnProperty(prefix+pname)) {
           result[pname] = props[prefix+pname]
           delete props[prefix+pname]
-        } else if (!cls.prototype.props.hasOwnProperty(trait)
+        } else if (!cls.prototype._props.hasOwnProperty(trait)
                  && props.hasOwnProperty(prefix+trait)) {
           result[pname] = props[prefix+trait]
         } else if (override_defaults.hasOwnProperty(trait)) {
@@ -674,7 +625,7 @@ export class Figure extends Plot {
         } else if (trait_defaults.hasOwnProperty(trait)) {
           result[pname] = trait_defaults[trait]
         }
-        if (!cls.prototype.props.hasOwnProperty(trait)) {
+        if (!cls.prototype._props.hasOwnProperty(trait)) {
           traits.add(trait)
         }
       }
@@ -701,7 +652,7 @@ export class Figure extends Plot {
   _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
     for (const name in attrs) {
       const value = attrs[name]
-      const prop = cls.prototype.props[name]
+      const prop = cls.prototype._props[name]
 
       if (prop != null) {
         if (prop.type.prototype instanceof VectorSpec) {
@@ -737,19 +688,24 @@ export class Figure extends Plot {
     if (args.length == 0) {
       attrs = {}
     } else if (args.length == 1) {
-      attrs = clone(args[0] as Attrs)
+      attrs = {...args[0] as Attrs}
     } else {
-      attrs = clone(args[args.length - 1] as Attrs)
+      if (args.length == params.length)
+        attrs = {}
+      else
+        attrs = {...args[args.length - 1] as Attrs}
 
-      for (let i = 0; i < params.length; i++) {
-        const param = params[i]
+      for (const [param, i] of enumerate(params)) {
         attrs[param] = args[i]
       }
     }
 
-    const source = attrs.source != null ? (attrs.source as AuxGlyph["source"]) : new models.ColumnDataSource()
+    const source = attrs.source != null ? attrs.source as AuxGlyph["source"] : new models.ColumnDataSource()
     const data = clone(source.data)
     delete attrs.source
+
+    const view = attrs.view != null ? attrs.view as AuxGlyph["view"] : new CDSView({source})
+    delete attrs.view
 
     const legend = this._process_legend(attrs.legend as AuxGlyph["legend"], source)
     delete attrs.legend
@@ -782,6 +738,7 @@ export class Figure extends Plot {
 
     const glyph_renderer = new GlyphRenderer({
       data_source:        source,
+      view,
       glyph,
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,
@@ -828,6 +785,7 @@ export class Figure extends Plot {
         case "auto":
         case "linear":
         case "datetime":
+        case "mercator":
           return new models.LinearScale()
         case "log":
           return new models.LogScale()
@@ -843,20 +801,18 @@ export class Figure extends Plot {
 
   _process_axis_and_grid(axis_type: AxisType, axis_location: Location,
                          minor_ticks: number | "auto" | undefined, axis_label: string, rng: Range, dim: 0 | 1): void {
-    const axiscls = this._get_axis_class(axis_type, rng)
-    if (axiscls != null) {
-      if (axiscls === models.LogAxis) {
-        if (dim === 0) {
+    const axis = this._get_axis(axis_type, rng, dim)
+    if (axis != null) {
+      if (axis instanceof models.LogAxis) {
+        if (dim == 0) {
           this.x_scale = new models.LogScale()
         } else {
           this.y_scale = new models.LogScale()
         }
       }
 
-      const axis = new axiscls()
-
       if (axis.ticker instanceof models.ContinuousTicker) {
-        axis.ticker.num_minor_ticks = this._get_num_minor_ticks(axiscls, minor_ticks)
+        axis.ticker.num_minor_ticks = this._get_num_minor_ticks(axis, minor_ticks)
       }
       if (axis_label.length !== 0) {
         axis.axis_label = axis_label
@@ -871,27 +827,34 @@ export class Figure extends Plot {
     }
   }
 
-  _get_axis_class(axis_type: AxisType, range: Range): Class<Axis> | null {
+  _get_axis(axis_type: AxisType, range: Range, dim: 0 | 1): Axis | null {
     switch (axis_type) {
       case null:
         return null
       case "linear":
-        return models.LinearAxis
+        return new models.LinearAxis()
       case "log":
-        return models.LogAxis
+        return new models.LogAxis()
       case "datetime":
-        return models.DatetimeAxis
+        return new models.DatetimeAxis()
+      case "mercator": {
+        const axis = new models.MercatorAxis()
+        const dimension = dim == 0 ? "lon" : "lat"
+        axis.ticker.dimension = dimension
+        axis.formatter.dimension = dimension
+        return axis
+      }
       case "auto":
         if (range instanceof models.FactorRange)
-          return models.CategoricalAxis
+          return new models.CategoricalAxis()
         else
-          return models.LinearAxis // TODO: return models.DatetimeAxis (Date type)
+          return new models.LinearAxis() // TODO: return models.DatetimeAxis (Date type)
       default:
         throw new Error("shouldn't have happened")
     }
   }
 
-  _get_num_minor_ticks(axis_class: Class<Axis>, num_minor_ticks?: number | "auto"): number {
+  _get_num_minor_ticks(axis: Axis, num_minor_ticks?: number | "auto"): number {
     if (isNumber(num_minor_ticks)) {
       if (num_minor_ticks <= 1) {
         throw new Error("num_minor_ticks must be > 1")
@@ -901,11 +864,8 @@ export class Figure extends Plot {
     if (num_minor_ticks == null) {
       return 0
     }
-    if (num_minor_ticks === 'auto') {
-      if (axis_class === models.LogAxis) {
-        return 10
-      }
-      return 5
+    if (num_minor_ticks === "auto") {
+      return axis instanceof models.LogAxis ? 10 : 5
     }
     throw new Error("shouldn't have happened")
   }
@@ -913,26 +873,7 @@ export class Figure extends Plot {
   _process_tools(tools: (Tool | string)[] | string): Tool[] {
     if (isString(tools))
       tools = tools.split(/\s*,\s*/).filter((tool) => tool.length > 0)
-
-    function isToolName(tool: string): tool is ToolName {
-      return _known_tools.hasOwnProperty(tool)
-    }
-
-    const objs = (() => {
-      const result = []
-      for (const tool of tools) {
-        if (isString(tool)) {
-          if (isToolName(tool))
-            result.push(_known_tools[tool]())
-          else
-            throw new Error(`unknown tool type: ${tool}`)
-        } else
-          result.push(tool)
-      }
-      return result
-    })()
-
-    return objs
+    return tools.map((tool) => isString(tool) ? Tool.from_string(tool) : tool)
   }
 
   _process_legend(legend: string | Vector<string> | undefined, source: ColumnarDataSource): Vector<string> | null {
@@ -978,16 +919,16 @@ export class Figure extends Plot {
   }
 }
 
-export function figure(attributes?: Partial<FigureAttrs>): Figure {
+export function figure(attributes?: Partial<Figure.Attrs>): Figure {
   return new Figure(attributes)
 }
 
-declare var $: any
+declare const $: any
 
-export async function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>>
-export async function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM>[]>
+export async function show<T extends LayoutDOM>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
+export async function show<T extends LayoutDOM>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
 
-export async function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<LayoutDOM>[]> {
+export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<T>[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])

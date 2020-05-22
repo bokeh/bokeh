@@ -42,7 +42,7 @@ p.circle("atomic mass", "density", size=12, source=source,
          color='melting_colors', line_color="black", fill_alpha=0.8)
 
 labels = LabelSet(x="atomic mass", y="density", text="symbol", y_offset=8,
-                  text_font_size="8pt", text_color="#555555",
+                  text_font_size="11px", text_color="#555555",
                   source=source, text_align='center')
 p.add_layout(labels)
 

@@ -152,17 +152,16 @@ export class BoxZoomToolView extends GestureToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    render_mode: "css",
     top_units: "screen",
     left_units: "screen",
     bottom_units: "screen",
     right_units: "screen",
-    fill_color: {value: "lightgrey"},
-    fill_alpha: {value: 0.5},
-    line_color: {value: "black"},
-    line_alpha: {value: 1.0},
-    line_width: {value: 2},
-    line_dash: {value: [4, 4]},
+    fill_color: "lightgrey",
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 2,
+    line_dash: [4, 4],
   })
 }
 
@@ -181,6 +180,7 @@ export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
   properties: BoxZoomTool.Props
+  __view_type__: BoxZoomToolView
 
   /*override*/ overlay: BoxAnnotation
 
@@ -197,6 +197,10 @@ export class BoxZoomTool extends GestureTool {
       match_aspect: [ p.Boolean,    false               ],
       origin:       [ p.BoxOrigin,  "corner"            ],
     })
+
+    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: 'both'}))
+    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: 'width'}))
+    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: 'height'}))
   }
 
   tool_name = "Box Zoom"

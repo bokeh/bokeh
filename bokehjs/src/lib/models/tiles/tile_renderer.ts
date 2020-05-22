@@ -15,7 +15,9 @@ import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {SelectionManager} from "core/selection_manager"
 import {ColumnDataSource} from "../sources/column_data_source"
+
 import {bk_tile_attribution} from "styles/tiles"
+import tiles_css from "styles/tiles.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -53,6 +55,10 @@ export class TileRendererView extends DataRendererView {
     this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
+  styles(): string[] {
+    return [...super.styles(), tiles_css]
+  }
+
   get_extent(): Extent {
     return [this.x_range.start, this.y_range.start, this.x_range.end, this.y_range.end]
   }
@@ -62,7 +68,7 @@ export class TileRendererView extends DataRendererView {
   }
 
   private get map_canvas(): Context2d {
-    return this.plot_view.canvas_view.ctx
+    return this.layer.ctx
   }
 
   private get map_frame(): CartesianFrame {
@@ -103,7 +109,7 @@ export class TileRendererView extends DataRendererView {
           'max-width': `${max_width - 4 /*padding*/}px`,
           padding: "2px",
           'background-color': 'rgba(255,255,255,0.5)',
-          'font-size': '7pt',
+          'font-size': '9px',
           'line-height': '1.05',
           'white-space': 'nowrap',
           overflow: 'hidden',
@@ -387,6 +393,7 @@ export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends DataRenderer {
   properties: TileRenderer.Props
+  __view_type__: TileRendererView
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)

@@ -122,10 +122,13 @@ def create_renderer(glyphclass, plot, **kwargs):
         muted_glyph=make_glyph(glyphclass, kwargs, muted_visuals),
         **renderer_kws)
 
-    if legend_kwarg:
-        update_legend(plot, legend_kwarg, glyph_renderer)
-
     plot.renderers.append(glyph_renderer)
+
+    if legend_kwarg:
+        # It must be after the renderer is added because
+        # if it creates a new `LegendItem`, the referenced
+        # renderer must already be present.
+        update_legend(plot, legend_kwarg, glyph_renderer)
 
     return glyph_renderer
 

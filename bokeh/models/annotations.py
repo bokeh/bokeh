@@ -203,6 +203,8 @@ class LegendItem(Model):
 class Legend(Annotation):
     ''' Render informational legends for a plot.
 
+    See :ref:`userguide_plotting_legends` for information on plotting legends.
+
     '''
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
@@ -225,7 +227,7 @@ class Legend(Annotation):
     The %s values for the title text.
     """)
 
-    title_text_font_size = Override(default="10pt")
+    title_text_font_size = Override(default="13px")
 
     title_text_font_style = Override(default="italic")
 
@@ -269,7 +271,7 @@ class Legend(Annotation):
 
     label_text_baseline = Override(default='middle')
 
-    label_text_font_size = Override(default='10pt')
+    label_text_font_size = Override(default='13px')
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
@@ -335,6 +337,8 @@ class Legend(Annotation):
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
 
+    See :ref:`userguide_plotting_color_bars` for information on plotting color bars.
+
     '''
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float),
@@ -373,7 +377,7 @@ class ColorBar(Annotation):
     The %s values for the title text.
     """)
 
-    title_text_font_size = Override(default="10pt")
+    title_text_font_size = Override(default="13px")
 
     title_text_font_style = Override(default="italic")
 
@@ -421,7 +425,7 @@ class ColorBar(Annotation):
 
     major_label_text_baseline = Override(default="middle")
 
-    major_label_text_font_size = Override(default="8pt")
+    major_label_text_font_size = Override(default="11px")
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the tick labels from the color bar.
@@ -482,6 +486,8 @@ class ColorBar(Annotation):
 class Arrow(Annotation):
     ''' Render arrows as an annotation.
 
+    See :ref:`userguide_plotting_arrows` for information on plotting arrows.
+
     '''
 
     x_start = NumberSpec(help="""
@@ -538,6 +544,8 @@ class Arrow(Annotation):
 
 class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
+
+    See :ref:`userguide_plotting_box_annotations` for information on plotting box annotations.
 
     '''
 
@@ -619,6 +627,9 @@ class BoxAnnotation(Annotation):
     Specifies whether the box is rendered as a canvas element or as an
     css element overlaid on the canvas. The default mode is "canvas".
 
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
@@ -627,6 +638,8 @@ class BoxAnnotation(Annotation):
 
 class Band(Annotation):
     ''' Render a filled area band along a dimension.
+
+    See :ref:`userguide_plotting_bands` for information on plotting bands.
 
     '''
     lower = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
@@ -691,6 +704,8 @@ class Label(TextAnnotation):
     There are also standard text, fill, and line properties to control the
     appearance of the text, its background, as well as the rectangular bounding
     box border.
+
+    See :ref:`userguide_plotting_labels` for information on plotting labels.
 
     '''
 
@@ -929,6 +944,8 @@ class PolyAnnotation(Annotation):
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
 
+    See :ref:`userguide_plotting_slope` for information on plotting slopes.
+
     """
 
     gradient = Float(help="""
@@ -955,6 +972,8 @@ class Slope(Annotation):
 
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
+
+    See :ref:`userguide_plotting_spans` for information on plotting spans.
 
     """
 
@@ -989,6 +1008,9 @@ class Span(Annotation):
     Specifies whether the span is rendered as a canvas element or as a
     CSS element overlaid on the canvas. The default mode is "canvas".
 
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
         the render_mode is set to "css"
@@ -1001,6 +1023,8 @@ class Span(Annotation):
 
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
+
+    See :ref:`userguide_plotting_titles` for information on plotting titles.
 
     '''
 
@@ -1039,7 +1063,7 @@ class Title(TextAnnotation):
 
     """)
 
-    text_font_size = FontSizeSpec(default="10pt")
+    text_font_size = FontSizeSpec(default="13px")
 
     text_font_style = Enum(FontStyle, default="bold", help="""
     A style to use for rendering text.
@@ -1112,6 +1136,8 @@ class Tooltip(Annotation):
 
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
+
+    See :ref:`userguide_plotting_whiskers` for information on plotting whiskers.
 
     '''
 

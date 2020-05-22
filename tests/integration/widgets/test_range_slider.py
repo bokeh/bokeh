@@ -120,8 +120,8 @@ class Test_RangeSlider(object):
         slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
         el = page.driver.find_element_by_css_selector('.foo')
-        handle_lower = el.find_element_by_css_selector('.bk-noUi-handle-lower')
-        handle_upper = el.find_element_by_css_selector('.bk-noUi-handle-upper')
+        handle_lower = el.find_element_by_css_selector('.noUi-handle-lower')
+        handle_upper = el.find_element_by_css_selector('.noUi-handle-upper')
         select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=1)
         assert get_slider_title_value(page.driver, ".foo") == "2 .. 5"
         select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_LEFT, press_number=5)
@@ -212,7 +212,7 @@ class Test_RangeSlider(object):
 
         # XXX (bev) skip keypress part of test until it can be fixed
         # el = page.driver.find_element_by_css_selector('.foo')
-        # handle = el.find_element_by_css_selector('.bk-noUi-handle-lower')
+        # handle = el.find_element_by_css_selector('.noUi-handle-lower')
         # select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
 
         # page.click_custom_action()
