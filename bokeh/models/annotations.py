@@ -96,7 +96,6 @@ __all__ = (
     'PolyAnnotation',
     'Slope',
     'Span',
-    'SpanSet',
     'TextAnnotation',
     'Title',
     'Tooltip',
@@ -1011,56 +1010,6 @@ class Span(Annotation):
 
     .. note:
         This property is deprecated and will be removed in bokeh 3.0.
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-
-    """)
-
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the span.
-    """)
-
-class SpanSet(Annotation):
-    """ Render multiple horizontal or vertical line spans.
-
-    """
-
-    location = NumberSpec(help="""
-    The location of the spans, along ``dimension``.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
-    """).accepts(Datetime, convert_datetime_type)
-
-    location_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the location attribute. Interpreted as "data space"
-    units by default.
-    """)
-
-    dimension = Enum(Dimension, default='width', help="""
-    The direction of the span can be specified by setting this property
-    to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
-    """)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
-    """)
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the span is rendered as a canvas element or as a
-    CSS element overlaid on the canvas. The default mode is "canvas".
 
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
