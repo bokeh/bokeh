@@ -4,7 +4,7 @@ import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {ToolView} from "../tools/tool"
+import {Tool, ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
@@ -144,8 +144,8 @@ export class PlotView extends LayoutDOMView {
 
   computed_renderers: Renderer[]
 
-  /*protected*/ renderer_views: {[key: string]: RendererView}
-  /*protected*/ tool_views: {[key: string]: ToolView}
+  /*protected*/ renderer_views: Map<Renderer, RendererView>
+  /*protected*/ tool_views: Map<Tool, ToolView>
 
   protected range_update_timestamp?: number
 
@@ -263,8 +263,8 @@ export class PlotView extends LayoutDOMView {
       toolbar.toolbar_location = toolbar_location
     }
 
-    this.renderer_views = {}
-    this.tool_views = {}
+    this.renderer_views = new Map()
+    this.tool_views = new Map()
   }
 
   async lazy_initialize(): Promise<void> {
@@ -345,7 +345,7 @@ export class PlotView extends LayoutDOMView {
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
-      const view = this.renderer_views[model.id] as AnnotationView | AxisView
+      const view = this.renderer_views.get(model)! as AnnotationView | AxisView
       return view.layout = new SidePanel(side, view)
     }
 
@@ -413,10 +413,9 @@ export class PlotView extends LayoutDOMView {
 
   get axis_views(): AxisView[] {
     const views = []
-    for (const id in this.renderer_views) {
-      const child_view = this.renderer_views[id]
-      if (child_view instanceof AxisView)
-        views.push(child_view)
+    for (const [, renderer_view] of this.renderer_views) {
+      if (renderer_view instanceof AxisView)
+        views.push(renderer_view)
     }
     return views
   }
@@ -444,17 +443,16 @@ export class PlotView extends LayoutDOMView {
       }
     }
 
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (view instanceof GlyphRendererView) {
-        const bds = view.glyph.bounds()
+    for (const [renderer, renderer_view] of this.renderer_views) {
+      if (renderer_view instanceof GlyphRendererView) {
+        const bds = renderer_view.glyph.bounds()
         if (bds != null)
-          bounds[id] = bds
+          bounds[renderer.id] = bds
 
         if (calculate_log_bounds) {
-          const log_bds = view.glyph.log_bounds()
+          const log_bds = renderer_view.glyph.log_bounds()
           if (log_bds != null)
-            log_bounds[id] = log_bds
+            log_bounds[renderer.id] = log_bds
         }
       }
     }
@@ -753,7 +751,7 @@ export class PlotView extends LayoutDOMView {
   protected _invalidate_layout(): void {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
-        const view = this.renderer_views[panel.id] as AnnotationView | AxisView
+        const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout.has_size_changed())
           return true
       }
@@ -765,7 +763,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views[r.id])
+    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
   }
 
   async build_renderer_views(): Promise<void> {
@@ -857,9 +855,8 @@ export class PlotView extends LayoutDOMView {
     if (!super.has_finished())
       return false
 
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (!view.has_finished())
+    for (const [, renderer_view] of this.renderer_views) {
+      if (!renderer_view.has_finished())
         return false
     }
 
@@ -931,10 +928,9 @@ export class PlotView extends LayoutDOMView {
         document.interactive_stop(this.model)
     }
 
-    for (const id in this.renderer_views) {
-      const v = this.renderer_views[id]
+    for (const [, renderer_view] of this.renderer_views) {
       if (this.range_update_timestamp == null ||
-          (v instanceof GlyphRendererView && v.set_data_timestamp > this.range_update_timestamp)) {
+          (renderer_view instanceof GlyphRendererView && renderer_view.set_data_timestamp > this.range_update_timestamp)) {
         this.update_dataranges()
         break
       }
@@ -1001,7 +997,7 @@ export class PlotView extends LayoutDOMView {
       if (renderer.level != level)
         continue
 
-      const renderer_view = this.renderer_views[renderer.id]
+      const renderer_view = this.renderer_views.get(renderer)!
 
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {

@@ -84,12 +84,13 @@ describe("Plot module", () => {
     it("should rebuild renderer views after add_layout", async () => {
       const view = await new_plot_view()
       for (const side of Place) {
-        view.model.add_layout(new Label({x: 0, y: 0, text: side, id: side}), side)
+        const label = new Label({x: 0, y: 0, text: side})
+        view.model.add_layout(label, side)
         // We need to do this for each side separately because otherwise
         // even if only e.g. `center.change` is connected, all other changes
         // will be taken into account by `build_renderer_views`.
         await view.ready
-        expect(view.renderer_views[side]).to.be.instanceof(LabelView)
+        expect(view.renderer_views.get(label)).to.be.instanceof(LabelView)
       }
     })
 

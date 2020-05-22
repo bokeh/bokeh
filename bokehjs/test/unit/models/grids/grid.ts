@@ -23,7 +23,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.computed_bounds()).to.be.deep.equal([2, 8])
   })
@@ -40,7 +40,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.computed_bounds()).to.be.deep.equal([0, 10])
   })
@@ -57,7 +57,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker, bounds: [1, 9]})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.computed_bounds()).to.be.deep.equal([1, 9])
   })
@@ -74,7 +74,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.grid_coords('major')).to.be.deep.equal([
       [[2, 2],     [4, 4],     [6, 6],     [8, 8]    ],
@@ -94,7 +94,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
@@ -114,7 +114,7 @@ describe("Grid", () => {
     const grid = new Grid({axis})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
@@ -137,7 +137,7 @@ describe("Grid", () => {
     const grid = new Grid({axis, ticker})
     plot.add_layout(grid, 'center')
     const plot_view = (await build_view(plot)).build()
-    const grid_view = plot_view.renderer_views[grid.id] as GridView
+    const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
     expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],

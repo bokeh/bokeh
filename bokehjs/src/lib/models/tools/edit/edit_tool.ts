@@ -148,7 +148,7 @@ export abstract class EditToolView extends GestureToolView {
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager()
       const cds = renderer.data_source
-      const views = [this.plot_view.renderer_views[renderer.id]]
+      const views = [this.plot_view.renderer_views.get(renderer)!]
       const did_hit = sm.select(views, geometry, true, mode)
       if (did_hit) {
         selected.push(renderer)

@@ -22,7 +22,7 @@ export class GridBoxView extends LayoutDOMView {
     this.layout.spacing = this.model.spacing
 
     for (const [child, row, col, row_span, col_span] of this.model.children) {
-      const child_view = this._child_views[child.id]
+      const child_view = this._child_views.get(child)!
       this.layout.items.push({layout: child_view.layout, row, col, row_span, col_span})
     }
 

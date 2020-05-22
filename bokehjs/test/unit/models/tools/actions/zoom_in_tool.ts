@@ -40,7 +40,7 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool()
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
@@ -56,7 +56,7 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'width'})
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
@@ -72,7 +72,7 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'height'})
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()

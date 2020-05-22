@@ -1,3 +1,5 @@
+export type ID = string
+
 export type Color = string
 
 export type TypedArray =
