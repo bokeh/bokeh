@@ -87,7 +87,7 @@ export abstract class SelectToolView extends GestureToolView {
       const r_views = []
       for (const r of renderers) {
         if (r.id in this.plot_view.renderer_views)
-          r_views.push(this.plot_view.renderer_views[r.id])
+          r_views.push(this.plot_view.renderer_views.get(r)!)
       }
       sm.select(r_views, geometry, final, mode)
     }

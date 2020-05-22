@@ -3,7 +3,7 @@ import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
-import {Attrs, PlainObject} from "core/types"
+import {ID, Attrs, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data, Buffers} from "core/util/serialization"
@@ -20,8 +20,6 @@ import {
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
   DocumentChanged, ModelChanged, RootAddedEvent,
 } from "./events"
-
-export type ID = string
 
 export class EventManager {
   // Dispatches events to the subscribed models

@@ -40,7 +40,7 @@ describe("ZoomOutTool", () => {
       const zoom_out_tool = new ZoomOutTool()
       const plot_view = await mkplot(zoom_out_tool)
 
-      const zoom_out_tool_view = plot_view.tool_views[zoom_out_tool.id] as ZoomOutToolView
+      const zoom_out_tool_view = plot_view.tool_views.get(zoom_out_tool)! as ZoomOutToolView
 
       // perform the tool action
       zoom_out_tool_view.doit()
@@ -56,7 +56,7 @@ describe("ZoomOutTool", () => {
       const zoom_out_tool = new ZoomOutTool({dimensions: 'width'})
       const plot_view = await mkplot(zoom_out_tool)
 
-      const zoom_out_tool_view = plot_view.tool_views[zoom_out_tool.id] as ZoomOutToolView
+      const zoom_out_tool_view = plot_view.tool_views.get(zoom_out_tool)! as ZoomOutToolView
 
       // perform the tool action
       zoom_out_tool_view.doit()
@@ -72,7 +72,7 @@ describe("ZoomOutTool", () => {
       const zoom_out_tool = new ZoomOutTool({dimensions: 'height'})
       const plot_view = await mkplot(zoom_out_tool)
 
-      const zoom_out_tool_view = plot_view.tool_views[zoom_out_tool.id] as ZoomOutToolView
+      const zoom_out_tool_view = plot_view.tool_views.get(zoom_out_tool)! as ZoomOutToolView
 
       // perform the tool action
       zoom_out_tool_view.doit()

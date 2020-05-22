@@ -28,7 +28,7 @@ async function color_bar_view(attrs: Partial<ColorBar.Attrs> = {}, place: Place 
   plot.add_layout(color_bar, place)
 
   const plot_view = (await build_view(plot)).build()
-  return plot_view.renderer_views[color_bar.id] as ColorBarView
+  return plot_view.renderer_views.get(color_bar)! as ColorBarView
 }
 
 describe("ColorBar module", () => {

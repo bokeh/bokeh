@@ -40,7 +40,7 @@ describe("BoxZoomTool", () => {
       const box_zoom = new BoxZoomTool()
       const plot_view = await mkplot(box_zoom)
 
-      const box_zoom_view = plot_view.tool_views[box_zoom.id] as BoxZoomToolView
+      const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
 
       // perform the tool action
       const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
@@ -62,7 +62,7 @@ describe("BoxZoomTool", () => {
       const box_zoom = new BoxZoomTool({match_aspect: true})
       const plot_view = await mkplot(box_zoom)
 
-      const box_zoom_view = plot_view.tool_views[box_zoom.id] as BoxZoomToolView
+      const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
 
       // perform the tool action
       const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}

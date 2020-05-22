@@ -32,7 +32,7 @@ export class SelectionManager extends HasProps {
     })
   }
 
-  inspectors: {[key: string]: Selection} = {}
+  inspectors: Map<Renderer, Selection> = new Map()
 
   select(renderer_views: RendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
     // divide renderers into glyph_renderers or graph_renderers
@@ -87,9 +87,12 @@ export class SelectionManager extends HasProps {
       this.get_or_create_inspector(rview.model).clear()
   }
 
-  get_or_create_inspector(rmodel: Renderer): Selection {
-    if (this.inspectors[rmodel.id] == null)
-      this.inspectors[rmodel.id] = new Selection()
-    return this.inspectors[rmodel.id]
+  get_or_create_inspector(renderer: Renderer): Selection {
+    let selection = this.inspectors.get(renderer)
+    if (selection == null) {
+      selection = new Selection()
+      this.inspectors.set(renderer, selection)
+    }
+    return selection
   }
 }

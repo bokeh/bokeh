@@ -4,7 +4,7 @@ import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import {Scale} from "../scales/scale"
 import * as p from "core/properties"
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 
 export class GraphRendererView extends DataRendererView {
@@ -16,7 +16,7 @@ export class GraphRendererView extends DataRendererView {
   xscale: Scale
   yscale: Scale
 
-  protected _renderer_views: {[key: string]: GlyphRendererView}
+  protected _renderer_views: Map<GlyphRenderer, GlyphRendererView>
 
   initialize(): void {
     super.initialize()
@@ -24,7 +24,7 @@ export class GraphRendererView extends DataRendererView {
     this.xscale = this.plot_view.frame.xscales.default
     this.yscale = this.plot_view.frame.yscales.default
 
-    this._renderer_views = {}
+    this._renderer_views = new Map()
   }
 
   async lazy_initialize(): Promise<void> {
@@ -34,6 +34,11 @@ export class GraphRendererView extends DataRendererView {
     ], {parent: this.parent})
 
     this.set_data()
+  }
+
+  remove(): void {
+    remove_views(this._renderer_views)
+    super.remove()
   }
 
   connect_signals(): void {

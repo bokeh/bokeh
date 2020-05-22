@@ -3,7 +3,7 @@ import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {Renderer, RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
-import {GraphRenderer, GraphRendererView} from "../../renderers/graph_renderer"
+import {GraphRenderer/*, GraphRendererView*/} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
@@ -12,7 +12,7 @@ import {replace_placeholders, Vars} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
-import {values, isEmpty} from "core/util/object"
+import {isEmpty} from "core/util/object"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
@@ -58,19 +58,20 @@ export function _line_hit(xs: number[], ys: number[], ind: number): [[number, nu
 export class HoverToolView extends InspectToolView {
   model: HoverTool
 
-  protected ttviews: {[key: string]: TooltipView}
+  protected _ttviews: Map<Tooltip, TooltipView>
 
-  protected _ttmodels: {[key: string]: Tooltip} | null
+  protected _ttmodels: Map<GlyphRenderer, Tooltip> | null
 
   protected _computed_renderers: DataRenderer[] | null
 
   initialize(): void {
     super.initialize()
-    this.ttviews = {}
+    this._ttmodels = null
+    this._ttviews = new Map()
   }
 
   remove(): void {
-    remove_views(this.ttviews)
+    remove_views(this._ttviews)
     super.remove()
   }
 
@@ -92,33 +93,28 @@ export class HoverToolView extends InspectToolView {
     this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
   }
 
-  protected _compute_ttmodels(): {[key: string]: Tooltip} {
-    const ttmodels: {[key: string]: Tooltip} = {}
+  protected _compute_ttmodels(): Map<GlyphRenderer, Tooltip> {
+    const ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
     const tooltips = this.model.tooltips
 
     if (tooltips != null) {
       for (const r of this.computed_renderers) {
+        const tooltip = new Tooltip({
+          custom: isString(tooltips) || isFunction(tooltips),
+          attachment: this.model.attachment,
+          show_arrow: this.model.show_arrow,
+        })
+
         if (r instanceof GlyphRenderer) {
-          const tooltip = new Tooltip({
-            custom: isString(tooltips) || isFunction(tooltips),
-            attachment: this.model.attachment,
-            show_arrow: this.model.show_arrow,
-          })
-          ttmodels[r.id] = tooltip
+          ttmodels.set(r, tooltip)
         } else if (r instanceof GraphRenderer) {
-          const tooltip = new Tooltip({
-            custom: isString(tooltips) || isFunction(tooltips),
-            attachment: this.model.attachment,
-            show_arrow: this.model.show_arrow,
-          })
-          ttmodels[r.node_renderer.id] = tooltip
-          ttmodels[r.edge_renderer.id] = tooltip
+          ttmodels.set(r.node_renderer, tooltip)
+          ttmodels.set(r.edge_renderer, tooltip)
         }
       }
     }
 
-    build_views(this.ttviews, values(ttmodels), {parent: this.plot_view})
-
+    build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
     return ttmodels
   }
 
@@ -132,7 +128,7 @@ export class HoverToolView extends InspectToolView {
     return this._computed_renderers
   }
 
-  get ttmodels(): {[key: string]: Tooltip} {
+  get ttmodels(): Map<GlyphRenderer, Tooltip> {
     if (this._ttmodels == null)
       this._ttmodels = this._compute_ttmodels()
     return this._ttmodels
@@ -141,9 +137,8 @@ export class HoverToolView extends InspectToolView {
   _clear(): void {
     this._inspect(Infinity, Infinity)
 
-    for (const rid in this.ttmodels) {
-      const tt = this.ttmodels[rid]
-      tt.clear()
+    for (const [, tooltip] of this.ttmodels) {
+      tooltip.clear()
     }
   }
 
@@ -172,7 +167,7 @@ export class HoverToolView extends InspectToolView {
 
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()
-      sm.inspect(this.plot_view.renderer_views[r.id], geometry)
+      sm.inspect(this.plot_view.renderer_views.get(r)!, geometry)
     }
 
     if (this.model.callback != null)
@@ -183,7 +178,7 @@ export class HoverToolView extends InspectToolView {
     if (!this.model.active)
       return
 
-    if (!(renderer_view instanceof GlyphRendererView || renderer_view instanceof GraphRendererView))
+    if (!(renderer_view instanceof GlyphRendererView)) // || renderer_view instanceof GraphRendererView))
       return
 
     const {model: renderer} = renderer_view
@@ -191,14 +186,14 @@ export class HoverToolView extends InspectToolView {
     if (this.model.muted_policy == 'ignore' && renderer instanceof GlyphRenderer && renderer.muted)
       return
 
-    const tooltip = this.ttmodels[renderer.id]
+    const tooltip = this.ttmodels.get(renderer)
     if (tooltip == null)
       return
     tooltip.clear()
 
     const selection_manager = renderer.get_selection_manager()
 
-    let indices = selection_manager.inspectors[renderer.id]
+    let indices = selection_manager.inspectors.get(renderer)!
     if (renderer instanceof GlyphRenderer)
       indices = renderer.view.convert_selection_to_subset(indices)
 
