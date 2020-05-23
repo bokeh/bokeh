@@ -1,0 +1,10 @@
+name: bk-build
+channels:
+  - conda-forge
+dependencies:
+  - conda-build=3.18.10
+  - conda-verify=3.4.2
+  - nodejs>=10.13
+  - ripgrep=0.10.0
+  - setuptools
+  - yaml
