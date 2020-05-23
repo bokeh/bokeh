@@ -1,10 +1,8 @@
 import lesscss from "less"
-
 import chalk from "chalk"
-import {argv} from "yargs"
 import {basename} from "path"
 
-import {task, log} from "../task"
+import {task, BuildError} from "../task"
 import {scan, read, write, rename} from "@compiler/sys"
 import * as paths from "../paths"
 
@@ -30,8 +28,6 @@ task("styles:compile", async () => {
   }
 
   if (errors.length != 0) {
-    log(`There were ${chalk.red("" + errors.length)} Less errors:\n${errors.join("\n")}`)
-    if (argv.emitError)
-      process.exit(1)
+    throw new BuildError("less", `There were ${chalk.red("" + errors.length)} Less errors:\n${errors.join("\n")}`)
   }
 })

@@ -1,9 +1,10 @@
 import {argv} from "yargs"
 import {join, normalize} from "path"
 
-import * as es from "eslint"
+import es from "eslint"
+import chalk from "chalk"
 
-import {task, log} from "../task"
+import {task, log, BuildError} from "../task"
 import * as paths from "../paths"
 
 import {glob} from "@compiler/sys"
@@ -28,23 +29,21 @@ async function eslint(dir: string): Promise<void> {
     for (const line of output.trim().split("\n"))
       log(line)
 
-    if (argv.emitError)
-      process.exit(1)
+    throw new BuildError("eslint", `lint failed with ${chalk.red(report.errorCount)} errors`)
   }
 }
-
-task("eslint:make", async () => await eslint(paths.make_dir))
-task("eslint:lib", async () => await eslint(paths.src_dir.lib))
-task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
-task("eslint:test", ["eslint:test:unit", "eslint:test:defaults", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools"])
-task("eslint:examples", async () => await eslint(paths.src_dir.examples))
-
 
 task("eslint:test:unit", async () => await eslint(join(paths.src_dir.test, "unit")))
 task("eslint:test:defaults", async () => await eslint(join(paths.src_dir.test, "defaults")))
 task("eslint:test:integration", async () => await eslint(join(paths.src_dir.test, "integration")))
 task("eslint:test:codebase", async () => await eslint(join(paths.src_dir.test, "codebase")))
 task("eslint:test:devtools", async () => await eslint(join(paths.src_dir.test, "devtools")))
+
+task("eslint:make", async () => await eslint(paths.make_dir))
+task("eslint:lib", async () => await eslint(paths.src_dir.lib))
+task("eslint:compiler", async () => await eslint(paths.src_dir.compiler))
+task("eslint:test", ["eslint:test:unit", "eslint:test:defaults", "eslint:test:integration", "eslint:test:codebase", "eslint:test:devtools"])
+task("eslint:examples", async () => await eslint(paths.src_dir.examples))
 
 task("eslint", ["eslint:make", "eslint:lib", "eslint:compiler", "eslint:test", "eslint:examples"])
 

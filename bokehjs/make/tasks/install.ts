@@ -1,7 +1,7 @@
 import {spawn} from "child_process"
 import chalk from "chalk"
 
-import {task, log} from "../task"
+import {task, log, BuildError} from "../task"
 
 function outputLine(line: string) {
   const prefix = chalk.cyan("setup.py:")
@@ -26,8 +26,9 @@ task("install", ["build"], () => {
       if (code === 0) {
         outputLine("DONE!")
         resolve()
-      } else
-        reject(new Error(`setup.py exited code ${code}`))
+      } else {
+        reject(new BuildError("setup.py", `setup.py exited code ${code}`))
+      }
     })
   })
 })

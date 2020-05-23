@@ -235,7 +235,7 @@ def build_js():
     sys.stdout.flush()
     os.chdir('bokehjs')
 
-    cmd = ["node", "make", 'build', '--emit-error']
+    cmd = ["node", "make", "build"]
 
     t0 = time.time()
     try:

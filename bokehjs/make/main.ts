@@ -2,7 +2,7 @@ import yargs = require("yargs")
 
 const {argv} = yargs.help(false)
 
-import {run, log, task_names, Result, failure, show_failure} from "./task"
+import {task, run, log, task_names, show_error, show_failure} from "./task"
 import "./tasks"
 
 const {_} = argv
@@ -12,16 +12,16 @@ async function main(): Promise<void> {
     log("tasks: " + task_names().filter((name) => !name.includes(":")).join(", "))
   else {
     const tasks = _.length != 0 ? _ : ["default"]
+    const top_level = task("top-level", tasks)
 
-    let result: Result
     try {
-      result = await run(...tasks)
+      const result = await run(top_level)
+      if (result.is_Failure()) {
+        show_failure(result)
+        process.exit(1)
+      }
     } catch (error) {
-      result = failure(error)
-    }
-
-    if (result.is_Failure()) {
-      show_failure(result)
+      show_error(error)
       process.exit(1)
     }
   }
@@ -29,4 +29,4 @@ async function main(): Promise<void> {
   process.exit(0)
 }
 
-main() // TODO: top-level await (TS 3.8)
+main()
