@@ -66,83 +66,56 @@ jobs:
 
 
 
-  # codebase:
-  #   runs-on: ubuntu-latest
+  codebase:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v2-beta
+    steps:
+      - uses: actions/checkout@v2-beta
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: bk-test
+          environment-file: ci/environment-test.yml
+          miniconda-version: 'latest'
+          python-version: 3.6
+          use-only-tar-bz2: true
 
-  #     - name: Install Miniconda
-  #       shell: bash
-  #       run: |
-  #         if [[ "${{ runner.os }}" = "Linux" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-  #         elif [[ "${{ runner.os }}" = "macOS" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-  #         elif [[ "${{ runner.os }}" = "Windows" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-  #         fi
-  #         curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-  #         bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
-  #     - name: Setup paths
-  #       shell: bash
-  #       run: |
-  #         echo "::add-path::$HOME/miniconda3/bin"
+      - name: Install node modules
+        shell: bash -l {0}
+        run: |
+          pushd bokehjs
+          npm install -g npm
+          npm ci --no-progress
+          popd
 
-  #     - name: Configure conda
-  #       shell: bash
-  #       env:
-  #         CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-  #       run: |
-  #         conda config --set auto_update_conda off
-  #         conda config --append channels bokeh
-  #         conda config --append channels conda-forge
-  #         conda config --get channels
-  #         conda install --yes --quiet $CONDA_REQS
+      # Don't cache sampledata - want to test at least one real download
 
-  #     - name: Install conda packages
-  #       shell: bash
-  #       run: |
-  #         conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-  #         conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+      - name: Install sampledata
+        shell: bash -l {0}
+        run: |
+          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
-  #     - name: Cache node modules
-  #       uses: actions/cache@v1
-  #       with:
-  #         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-  #         key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+      # - name: Run bokehjs codebase checks
+      #   working-directory: ./bokehjs
+      #   shell: bash -l {0}
+      #   run: |
+      #     node make build:all lint --emit-error
 
-  #     - name: Install node modules
-  #       run: |
-  #         pushd bokehjs
-  #         npm install -g npm
-  #         npm ci --no-progress
-  #         popd
+      - name: Run codebase checks
+        shell: bash -l {0}
+        run: |
+          py.test --color=yes tests/codebase
 
-  #     # Don't cache sampledata - want to test at least one real download
-
-  #     - name: Install sampledata
-  #       shell: bash
-  #       run: |
-  #         python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
-
-  #     - name: Run bokehjs codebase checks
-  #       working-directory: ./bokehjs
-  #       shell: bash
-  #       run: |
-  #         node make build:all lint --emit-error
-
-  #     - name: Run codebase checks
-  #       shell: bash
-  #       run: |
-  #         py.test --color=yes tests/codebase
-
-  #     - name: MyPy
-  #       shell: bash
-  #       run: |
-  #         mypy bokeh
-  #         mypy release
+      - name: MyPy
+        shell: bash -l {0}
+        run: |
+          mypy bokeh
+          mypy release
 
 
 
