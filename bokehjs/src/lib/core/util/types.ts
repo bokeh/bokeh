@@ -24,10 +24,6 @@ export function isString(obj: unknown): obj is string {
   return toString.call(obj) === "[object String]"
 }
 
-export function isStrictNaN(obj: unknown): obj is number {
-  return isNumber(obj) && obj !== +obj
-}
-
 export function isFunction(obj: unknown): obj is Function {
   return toString.call(obj) === "[object Function]"
 }
