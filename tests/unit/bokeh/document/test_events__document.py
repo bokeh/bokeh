@@ -56,34 +56,30 @@ class TestDocumentChangedEvent(object):
     def test_init(self) -> None:
         e = bde.DocumentChangedEvent("doc")
         assert e.document == "doc"
-        assert e.setter == None
         assert e.callback_invoker == None
 
-        e = bde.DocumentChangedEvent("doc", "setter")
+        e = bde.DocumentChangedEvent("doc")
         assert e.document == "doc"
-        assert e.setter == "setter"
         assert e.callback_invoker == None
 
         e = bde.DocumentChangedEvent("doc", callback_invoker="invoker")
         assert e.document == "doc"
-        assert e.setter == None
         assert e.callback_invoker == "invoker"
 
-        e = bde.DocumentChangedEvent("doc", "setter", "invoker")
+        e = bde.DocumentChangedEvent("doc", "invoker")
         assert e.document == "doc"
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_dispatch(self) -> None:
-        e = bde.DocumentChangedEvent("doc", "setter", "invoker")
+        e = bde.DocumentChangedEvent("doc", "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
         assert d.called == ['_document_changed']
 
     def test_combine_ignores_all(self) -> None:
-        e = bde.DocumentChangedEvent("doc", "setter", "invoker")
-        e2 = bde.DocumentChangedEvent("doc", "setter", "invoker")
+        e = bde.DocumentChangedEvent("doc", "invoker")
+        e2 = bde.DocumentChangedEvent("doc", "invoker")
         assert e.combine(e2) == False
 
 # DocumentPatchedEvent --------------------------------------------------------
@@ -91,26 +87,25 @@ class TestDocumentChangedEvent(object):
 class TestDocumentPatchedEvent(object):
 
     def test_init(self) -> None:
-        e = bde.DocumentPatchedEvent("doc", "setter", "invoker")
+        e = bde.DocumentPatchedEvent("doc", "invoker")
         assert e.document == "doc"
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self) -> None:
-        e = bde.DocumentPatchedEvent("doc", "setter", "invoker")
+        e = bde.DocumentPatchedEvent("doc", "invoker")
         with pytest.raises(NotImplementedError):
             e.generate("refs", "bufs")
 
     def test_dispatch(self) -> None:
-        e = bde.DocumentPatchedEvent("doc", "setter", "invoker")
+        e = bde.DocumentPatchedEvent("doc", "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
         assert d.called == ['_document_changed', '_document_patched']
 
     def test_combine_ignores_all(self) -> None:
-        e = bde.DocumentPatchedEvent("doc", "setter", "invoker")
-        e2 = bde.DocumentPatchedEvent("doc", "setter", "invoker")
+        e = bde.DocumentPatchedEvent("doc", "invoker")
+        e2 = bde.DocumentPatchedEvent("doc", "invoker")
         assert e.combine(e2) == False
 
 # ModelChangedEvent -----------------------------------------------------------
@@ -120,7 +115,6 @@ class TestModelChangedEvent(object):
     def test_init_defaults(self) -> None:
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew")
         assert e.document == "doc"
-        assert e.setter == None
         assert e.callback_invoker == None
         assert e.model == "model"
         assert e.attr == "attr"
@@ -130,23 +124,9 @@ class TestModelChangedEvent(object):
         assert e.hint == None
         assert e.callback_invoker == None
 
-    def test_init_ignores_hint_with_setter(self) -> None:
-        e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", setter="setter", hint="hint", callback_invoker="invoker")
-        assert e.document == "doc"
-        assert e.setter == "setter"
-        assert e.callback_invoker == "invoker"
-        assert e.model == "model"
-        assert e.attr == "attr"
-        assert e.old == "old"
-        assert e.new == "new"
-        assert e.serializable_new == "snew"
-        assert e.hint == "hint"
-        assert e.callback_invoker == "invoker"
-
-    def test_init_uses_hint_with_no_setter(self) -> None:
+    def test_init_uses_hint_with(self) -> None:
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", hint="hint", callback_invoker="invoker")
         assert e.document == "doc"
-        assert e.setter == None
         assert e.callback_invoker == "invoker"
         assert e.model == "model"
         assert e.attr == "attr"
@@ -167,12 +147,7 @@ class TestModelChangedEvent(object):
 
     def test_combine_ignores_except_title_changd_event(self) -> None:
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew")
-        e2 = bde.DocumentPatchedEvent("doc", "setter", "invoker")
-        assert e.combine(e2) == False
-
-    def test_combine_ignores_different_setter(self) -> None:
-        e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", None, "setter")
-        e2  = bde.ModelChangedEvent("doc", "model", "attr", "old2", "new2", "snew2", None, "setter2")
+        e2 = bde.DocumentPatchedEvent("doc", "invoker")
         assert e.combine(e2) == False
 
     def test_combine_ignores_different_doc(self) -> None:
@@ -203,8 +178,8 @@ class TestModelChangedEvent(object):
     def test_combine_with_hint_defers(self, mock_combine) -> None:
         mock_combine.return_value = False
         m = FakeModel()
-        h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
-        h2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "setter", "invoker")
+        h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "invoker")
+        h2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "invoker")
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", hint=h, callback_invoker="invoker")
         e2 = bde.ModelChangedEvent("doc", "model", "attr", "old2", "new2", "snew2", hint=h2, callback_invoker="invoker2")
         assert e.combine(e2) == False
@@ -218,18 +193,17 @@ class TestColumnDataChangedEvent(object):
 
     def test_init(self) -> None:
         m = FakeModel()
-        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "invoker")
         assert e.document == "doc"
         assert e.column_source == m
         assert e.cols == [1,2]
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     @patch("bokeh.util.serialization.transform_column_source_data")
     def test_generate(self, mock_tcds) -> None:
         mock_tcds.return_value = "new"
         m = FakeModel()
-        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -239,7 +213,7 @@ class TestColumnDataChangedEvent(object):
 
     def test_dispatch(self) -> None:
         m = FakeModel()
-        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -247,8 +221,8 @@ class TestColumnDataChangedEvent(object):
 
     def test_combine_ignores_all(self) -> None:
         m = FakeModel()
-        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "setter", "invoker")
-        e2 = bde.ColumnDataChangedEvent("doc", m, [3,4], "setter", "invoker")
+        e = bde.ColumnDataChangedEvent("doc", m, [1,2], "invoker")
+        e2 = bde.ColumnDataChangedEvent("doc", m, [3,4], "invoker")
         assert e.combine(e2) == False
         assert e.cols == [1,2]
 
@@ -258,17 +232,16 @@ class TestColumnsStreamedEvent(object):
 
     def test_init(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "invoker")
         assert e.document == "doc"
         assert e.column_source == m
         assert e.data == dict(foo=1)
         assert e.rollover == 200
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -278,7 +251,7 @@ class TestColumnsStreamedEvent(object):
 
     def test_dispatch(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -286,8 +259,8 @@ class TestColumnsStreamedEvent(object):
 
     def test_combine_ignores_all(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
-        e2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "invoker")
+        e2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "invoker")
         assert e.combine(e2) == False
         assert e.column_source is m
         assert e.data == dict(foo=1)
@@ -296,7 +269,7 @@ class TestColumnsStreamedEvent(object):
     def test_pandas_data(self, pd) -> None:
         m = FakeModel()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
-        e = bde.ColumnsStreamedEvent("doc", m, df, 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, df, 200, "invoker")
         assert isinstance(e.data, dict)
         assert e.data == {c: df[c] for c in df.columns}
 
@@ -306,16 +279,15 @@ class TestColumnsPatchedEvent(object):
 
     def test_init(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "setter", "invoker")
+        e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "invoker")
         assert e.document == "doc"
         assert e.column_source == m
         assert e.patches == [1, 2]
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "setter", "invoker")
+        e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -325,7 +297,7 @@ class TestColumnsPatchedEvent(object):
 
     def test_dispatch(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "setter", "invoker")
+        e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -333,8 +305,8 @@ class TestColumnsPatchedEvent(object):
 
     def test_combine_ignores_all(self) -> None:
         m = FakeModel()
-        e = bde.ColumnsPatchedEvent("doc", m, [1,2], "setter", "invoker")
-        e2 = bde.ColumnsPatchedEvent("doc", m, [3,4], "setter", "invoker")
+        e = bde.ColumnsPatchedEvent("doc", m, [1,2], "invoker")
+        e2 = bde.ColumnsPatchedEvent("doc", m, [3,4], "invoker")
         assert e.combine(e2) == False
         assert e.patches == [1,2]
 
@@ -343,14 +315,13 @@ class TestColumnsPatchedEvent(object):
 class TestTitleChangedEvent(object):
 
     def test_init(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
+        e = bde.TitleChangedEvent("doc", "title", "invoker")
         assert e.document == "doc"
         assert e.title == "title"
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
+        e = bde.TitleChangedEvent("doc", "title", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -359,36 +330,29 @@ class TestTitleChangedEvent(object):
         assert bufs == set()
 
     def test_dispatch(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
+        e = bde.TitleChangedEvent("doc", "title", "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
         assert d.called == ['_document_changed', '_document_patched']
 
     def test_combine_ignores_except_title_changd_event(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
-        e2 = bde.DocumentPatchedEvent("doc", "setter", "invoker")
-        assert e.combine(e2) == False
-        assert e.title == "title"
-        assert e.callback_invoker == "invoker"
-
-    def test_combine_ignores_different_setter(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
-        e2 = bde.TitleChangedEvent("doc", "title2", "setter2", "invoker2")
+        e = bde.TitleChangedEvent("doc", "title", "invoker")
+        e2 = bde.DocumentPatchedEvent("doc", "invoker")
         assert e.combine(e2) == False
         assert e.title == "title"
         assert e.callback_invoker == "invoker"
 
     def test_combine_ignores_different_doc(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
-        e2 = bde.TitleChangedEvent("doc2", "title2", "setter2", "invoker2")
+        e = bde.TitleChangedEvent("doc", "title", "invoker")
+        e2 = bde.TitleChangedEvent("doc2", "title2", "invoker2")
         assert e.combine(e2) == False
         assert e.title == "title"
         assert e.callback_invoker == "invoker"
 
     def test_combine_with_title_changed_event(self) -> None:
-        e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
-        e2 = bde.TitleChangedEvent("doc", "title2", "setter", "invoker2")
+        e = bde.TitleChangedEvent("doc", "title", "invoker")
+        e2 = bde.TitleChangedEvent("doc", "title2", "invoker2")
         assert e.combine(e2) == True
         assert e.title == "title2"
         assert e.callback_invoker == "invoker2"
@@ -399,15 +363,14 @@ class TestRootAddedEvent(object):
 
     def test_init(self) -> None:
         m = FakeModel()
-        e = bde.RootAddedEvent("doc", m, "setter", "invoker")
+        e = bde.RootAddedEvent("doc", m, "invoker")
         assert e.document == "doc"
         assert e.model == m
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self) -> None:
         m = FakeModel()
-        e = bde.RootAddedEvent("doc", m, "setter", "invoker")
+        e = bde.RootAddedEvent("doc", m, "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -417,7 +380,7 @@ class TestRootAddedEvent(object):
 
     def test_dispatch(self) -> None:
         m = FakeModel()
-        e = bde.RootAddedEvent("doc", m, "setter", "invoker")
+        e = bde.RootAddedEvent("doc", m, "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -429,15 +392,14 @@ class TestRootRemovedEvent(object):
 
     def test_init(self) -> None:
         m = FakeModel()
-        e = bde.RootRemovedEvent("doc", m, "setter", "invoker")
+        e = bde.RootRemovedEvent("doc", m, "invoker")
         assert e.document == "doc"
         assert e.model == m
-        assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self) -> None:
         m = FakeModel()
-        e = bde.RootRemovedEvent("doc", m, "setter", "invoker")
+        e = bde.RootRemovedEvent("doc", m, "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -447,7 +409,7 @@ class TestRootRemovedEvent(object):
 
     def test_dispatch(self) -> None:
         m = FakeModel()
-        e = bde.RootRemovedEvent("doc", m, "setter", "invoker")
+        e = bde.RootRemovedEvent("doc", m, "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -461,7 +423,6 @@ class TestSessionCallbackAdded(object):
         e = bde.SessionCallbackAdded("doc", "callback")
         assert e.document == "doc"
         assert e.callback == "callback"
-        assert e.setter == None
         assert e.callback_invoker == None
 
     def test_dispatch(self) -> None:
@@ -472,8 +433,8 @@ class TestSessionCallbackAdded(object):
         assert d.called == ['_document_changed', '_session_callback_added']
 
     def test_combine_ignores_all(self) -> None:
-        e = bde.SessionCallbackAdded("doc", "setter")
-        e2 = bde.SessionCallbackAdded("doc", "setter")
+        e = bde.SessionCallbackAdded("doc")
+        e2 = bde.SessionCallbackAdded("doc")
         assert e.combine(e2) == False
 
 # SessionCallbackRemoved ------------------------------------------------------
@@ -484,7 +445,6 @@ class TestSessionCallbackRemoved(object):
         e = bde.SessionCallbackRemoved("doc", "callback")
         assert e.document == "doc"
         assert e.callback == "callback"
-        assert e.setter == None
         assert e.callback_invoker == None
 
     def test_dispatch(self) -> None:
@@ -495,8 +455,8 @@ class TestSessionCallbackRemoved(object):
         assert d.called == ['_document_changed', '_session_callback_removed']
 
     def test_combine_ignores_all(self) -> None:
-        e = bde.SessionCallbackAdded("doc", "setter")
-        e2 = bde.SessionCallbackAdded("doc", "setter")
+        e = bde.SessionCallbackAdded("doc")
+        e2 = bde.SessionCallbackAdded("doc")
         assert e.combine(e2) == False
 
 #-----------------------------------------------------------------------------

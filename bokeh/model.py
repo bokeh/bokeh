@@ -637,7 +637,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         # for example).
         return serialize_json(json_like)
 
-    def trigger(self, attr, old, new, hint=None, setter=None):
+    def trigger(self, attr, old, new, hint=None):
         '''
 
         '''
@@ -658,7 +658,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super().trigger(attr, old, new, hint=hint, setter=setter)
+        super().trigger(attr, old, new, hint=hint)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.

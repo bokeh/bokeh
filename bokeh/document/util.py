@@ -41,7 +41,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def initialize_references_json(references_json, references, setter=None):
+def initialize_references_json(references_json, references):
     ''' Given a JSON representation of the models in a graph, and new model
     objects, set the properties on the models from the JSON
 
@@ -57,17 +57,6 @@ def initialize_references_json(references_json, references, setter=None):
             **This is an "out" parameter**. The values it contains will be
             modified in-place.
 
-        setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
     '''
 
     for obj in references_json:
@@ -81,7 +70,7 @@ def initialize_references_json(references_json, references, setter=None):
         # general HasProps machinery that sets properties, so call it explicitly
         HasProps.__init__(instance)
 
-        instance.update_from_json(obj_attrs, models=references, setter=setter)
+        instance.update_from_json(obj_attrs, models=references)
 
 def instantiate_references_json(references_json):
     ''' Given a JSON representation of all the models in a graph, return a

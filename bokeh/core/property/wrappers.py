@@ -380,7 +380,7 @@ class PropertyValueColumnData(PropertyValueDict):
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc, source, new_data, rollover=None, setter=None):
+    def _stream(self, doc, source, new_data, rollover=None):
         ''' Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.
 
@@ -427,10 +427,10 @@ class PropertyValueColumnData(PropertyValueDict):
         from ...document.events import ColumnsStreamedEvent
 
         self._notify_owners(old,
-                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
+                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover))
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _patch(self, doc, source, patches, setter=None):
+    def _patch(self, doc, source, patches):
         ''' Internal implementation to handle special-casing patch events
         on ``ColumnDataSource`` columns.
 
@@ -466,9 +466,7 @@ class PropertyValueColumnData(PropertyValueDict):
                     self[name][ind[0]][tuple(ind[1:])] = np.array(value, copy=False).reshape(shape)
 
         from ...document.events import ColumnsPatchedEvent
-
-        self._notify_owners(old,
-                            hint=ColumnsPatchedEvent(doc, source, patches, setter))
+        self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, patches))
 
 #-----------------------------------------------------------------------------
 # Private API

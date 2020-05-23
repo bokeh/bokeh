@@ -158,13 +158,8 @@ class PropertyDescriptor(object):
         '''
         raise NotImplementedError("Implement __get__")
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value):
         ''' Implement the setter for the Python `descriptor protocol`_.
-
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
 
         Args:
             obj (HasProps) :
@@ -172,17 +167,6 @@ class PropertyDescriptor(object):
 
             value (obj) :
                 The new value to set the property to
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         Returns:
             None
@@ -289,7 +273,7 @@ class PropertyDescriptor(object):
         value = self.__get__(obj, obj.__class__)
         return self.property.serialize_value(value)
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, models=None):
         '''Sets the value of this property from a JSON value.
 
         Args:
@@ -303,22 +287,11 @@ class PropertyDescriptor(object):
                 This is needed in cases where the attributes to update also
                 have values that have references.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
-        self._internal_set(obj, json, setter=setter)
+        self._internal_set(obj, json)
 
     def trigger_if_changed(self, obj, old):
         ''' Send a change event notification if the property is set to a
@@ -390,7 +363,7 @@ class PropertyDescriptor(object):
         '''
         raise NotImplementedError("Implement serialized()")
 
-    def _internal_set(self, obj, value, hint=None, setter=None):
+    def _internal_set(self, obj, value, hint=None):
         ''' Internal implementation to set property values, that is used
         by __set__, set_from_json, etc.
 
@@ -408,17 +381,6 @@ class PropertyDescriptor(object):
                 Update event hints are usually used at times when better
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         Raises:
             NotImplementedError
@@ -498,13 +460,8 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             # called __get__ explicitly but in a bad way.
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value):
         ''' Implement the setter for the Python `descriptor protocol`_.
-
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
 
         Args:
             obj (HasProps) :
@@ -512,18 +469,6 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
             value (obj) :
                 The new value to set the property to
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
@@ -536,7 +481,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         if self.property._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
 
-        self._internal_set(obj, value, setter=setter)
+        self._internal_set(obj, value)
 
     def __delete__(self, obj):
         ''' Implement the deleter for the Python `descriptor protocol`_.
@@ -580,7 +525,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         '''
         return self.property.themed_default(obj.__class__, self.name, obj.themed_values())
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, models=None):
         ''' Sets the value of this property from a JSON value.
 
         This method first
@@ -592,24 +537,11 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
             models(seq[Model], optional) :
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
-        return super().set_from_json(obj,
-                                                        self.property.from_json(json, models),
-                                                        models, setter)
+        return super().set_from_json(obj, self.property.from_json(json, models), models)
 
     def trigger_if_changed(self, obj, old):
         ''' Send a change event notification if the property is set to a
@@ -720,7 +652,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         return default
 
-    def _internal_set(self, obj, value, hint=None, setter=None):
+    def _internal_set(self, obj, value, hint=None):
         ''' Internal implementation to set property values, that is used
         by __set__, set_from_json, etc.
 
@@ -742,17 +674,6 @@ class BasicPropertyDescriptor(PropertyDescriptor):
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
@@ -760,9 +681,9 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         value = self.property.prepare_value(obj, self.name, value)
 
         old = self.__get__(obj, obj.__class__)
-        self._real_set(obj, old, value, hint=hint, setter=setter)
+        self._real_set(obj, old, value, hint=hint)
 
-    def _real_set(self, obj, old, value, hint=None, setter=None):
+    def _real_set(self, obj, old, value, hint=None):
         ''' Internal implementation helper to set property values.
 
         This function handles bookkeeping around noting whether values have
@@ -782,17 +703,6 @@ class BasicPropertyDescriptor(PropertyDescriptor):
                 Update event hints are usually used at times when better
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         Returns:
             None
@@ -829,7 +739,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             obj._property_values[self.name] = value
 
         # for notification purposes, "old" should be the logical old
-        self._trigger(obj, old, value, hint=hint, setter=setter)
+        self._trigger(obj, old, value, hint=hint)
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers.
@@ -868,7 +778,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         self._real_set(obj, old, value, hint=hint)
 
-    def _trigger(self, obj, old, value, hint=None, setter=None):
+    def _trigger(self, obj, old, value, hint=None):
         ''' Unconditionally send a change event notification for the property.
 
         Args:
@@ -889,24 +799,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-
         Returns:
             None
 
         '''
         if hasattr(obj, 'trigger'):
-            obj.trigger(self.name, old, value, hint, setter)
+            obj.trigger(self.name, old, value, hint)
 
 
 _CDS_SET_FROM_CDS_ERROR = """
@@ -922,7 +820,7 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
 
     '''
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value):
         ''' Implement the setter for the Python `descriptor protocol`_.
 
         This method first separately extracts and removes any ``units`` field
@@ -930,28 +828,12 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         remaining value is then passed to the superclass ``__set__`` to
         be handled.
 
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
-
         Args:
             obj (HasProps) :
                 The instance to set a new property value on
 
             value (obj) :
                 The new value to set the property to
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         Returns:
             None
@@ -971,11 +853,11 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         from ...document.events import ColumnDataChangedEvent
 
         if obj.document:
-            hint = ColumnDataChangedEvent(obj.document, obj, setter=setter)
+            hint = ColumnDataChangedEvent(obj.document, obj)
         else:
             hint = None
 
-        self._internal_set(obj, value, hint=hint, setter=setter)
+        self._internal_set(obj, value, hint=hint)
 
 class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
     ''' A ``PropertyDescriptor`` for Bokeh |DataSpec| properties that serialize to
@@ -989,7 +871,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
         '''
         return self.property.to_serializable(obj, self.name, getattr(obj, self.name))
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, models=None):
         ''' Sets the value of this property from a JSON value.
 
         This method first
@@ -1000,17 +882,6 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
             json (JSON-dict) :
 
             models(seq[Model], optional) :
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         Returns:
             None
@@ -1030,7 +901,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
-        super().set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
     ''' A ``PropertyDecscriptor`` for Bokeh |UnitsSpec| properties that contribute
@@ -1055,18 +926,13 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
         super().__init__(name, property)
         self.units_prop = units_property
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value):
         ''' Implement the setter for the Python `descriptor protocol`_.
 
         This method first separately extracts and removes any ``units`` field
         in the JSON, and sets the associated units property directly. The
         remaining value is then passed to the superclass ``__set__`` to
         be handled.
-
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
 
         Args:
             obj (HasProps) :
@@ -1075,25 +941,14 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
             value (obj) :
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
         value = self._extract_units(obj, value)
-        super().__set__(obj, value, setter)
+        super().__set__(obj, value)
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, models=None):
         ''' Sets the value of this property from a JSON value.
 
         This method first separately extracts and removes any ``units`` field
@@ -1112,23 +967,12 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
                 This is needed in cases where the attributes to update also
                 have values that have references.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
         json = self._extract_units(obj, json)
-        super().set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models)
 
     def _extract_units(self, obj, value):
         ''' Internal helper for dealing with units associated units properties

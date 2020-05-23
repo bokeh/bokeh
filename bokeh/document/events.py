@@ -64,23 +64,12 @@ class DocumentChangedEvent(object):
 
     '''
 
-    def __init__(self, document, setter=None, callback_invoker=None):
+    def __init__(self, document, callback_invoker=None):
         '''
 
         Args:
             document (Document) :
                 A Bokeh document that is to be updated.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
@@ -89,7 +78,6 @@ class DocumentChangedEvent(object):
 
         '''
         self.document = document
-        self.setter = setter
         self.callback_invoker = callback_invoker
 
     def combine(self, event):
@@ -150,8 +138,8 @@ class DocumentPatchedEvent(DocumentChangedEvent):
 class MessageSentEvent(DocumentPatchedEvent):
     """ """
 
-    def __init__(self, document, msg_type: str, msg_data: Union[Any, bytes], setter=None, callback_invoker=None):
-        super(MessageSentEvent, self).__init__(document, setter, callback_invoker)
+    def __init__(self, document, msg_type: str, msg_data: Union[Any, bytes], callback_invoker=None):
+        super(MessageSentEvent, self).__init__(document, callback_invoker)
         self.msg_type = msg_type
         self.msg_data = msg_data
 
@@ -185,7 +173,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, setter=None, callback_invoker=None):
+    def __init__(self, document, model, attr, old, new, serializable_new, hint=None, callback_invoker=None):
         '''
 
         Args:
@@ -214,13 +202,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
                 to stream or patch data more efficiently than the standard
                 update mechanism.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
@@ -228,9 +209,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
-            setter = hint.setter
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.model = model
         self.attr = attr
         self.old = old
@@ -246,7 +225,6 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
         # If these are not true something weird is going on, maybe updates from
         # Python bokeh.client, don't try to combine
-        if self.setter != event.setter: return False
         if self.document != event.document: return False
 
         if self.hint:
@@ -328,7 +306,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, cols=None, setter=None, callback_invoker=None):
+    def __init__(self, document, column_source, cols=None, callback_invoker=None):
         '''
 
         Args:
@@ -341,13 +319,6 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
                 optional explicit list of column names to update. If None, all
                 columns will be updated (default: None)
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
@@ -355,7 +326,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.column_source = column_source
         self.cols = cols
 
@@ -414,7 +385,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, data, rollover, setter=None, callback_invoker=None):
+    def __init__(self, document, column_source, data, rollover, callback_invoker=None):
         '''
 
         Args:
@@ -434,20 +405,13 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
                 event. (default: None)
 
         '''
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.column_source = column_source
 
         if pd and isinstance(data, pd.DataFrame):
@@ -506,7 +470,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, patches, setter=None, callback_invoker=None):
+    def __init__(self, document, column_source, patches, callback_invoker=None):
         '''
 
         Args:
@@ -518,20 +482,13 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
 
             patches (list) :
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
                 event. (default: None)
 
         '''
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.column_source = column_source
         self.patches = patches
 
@@ -583,7 +540,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, title, setter=None, callback_invoker=None):
+    def __init__(self, document, title, callback_invoker=None):
         '''
 
         Args:
@@ -593,13 +550,6 @@ class TitleChangedEvent(DocumentPatchedEvent):
             title (str) :
                 The new title to set on the Document
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
@@ -607,7 +557,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.title = title
 
     def combine(self, event):
@@ -618,7 +568,6 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
         # If these are not true something weird is going on, maybe updates from
         # Python bokeh.client, don't try to combine
-        if self.setter != event.setter: return False
         if self.document != event.document: return False
 
         self.title = event.title
@@ -661,7 +610,7 @@ class RootAddedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, model, setter=None, callback_invoker=None):
+    def __init__(self, document, model, callback_invoker=None):
         '''
 
         Args:
@@ -671,20 +620,13 @@ class RootAddedEvent(DocumentPatchedEvent):
             model (Model) :
                 The Bokeh Model to add as a Document root.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
                 event. (default: None)
 
         '''
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):
@@ -724,7 +666,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, model, setter=None, callback_invoker=None):
+    def __init__(self, document, model, callback_invoker=None):
         '''
 
         Args:
@@ -734,13 +676,6 @@ class RootRemovedEvent(DocumentPatchedEvent):
             model (Model) :
                 The Bokeh Model to remove as a Document root.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                See :class:`~bokeh.document.events.DocumentChangedEvent`
-                for more details.
-
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
@@ -748,7 +683,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
 
         '''
-        super().__init__(document, setter, callback_invoker)
+        super().__init__(document, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):

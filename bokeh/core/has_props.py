@@ -307,7 +307,7 @@ class HasProps(object, metaclass=MetaHasProps):
         else:
             return self.properties_with_values() == other.properties_with_values()
 
-    def set_from_json(self, name, json, models=None, setter=None):
+    def set_from_json(self, name, json, models=None):
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -321,16 +321,6 @@ class HasProps(object, metaclass=MetaHasProps):
                 This is needed in cases where the attributes to update also
                 have values that have references.
 
-            setter(ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
@@ -338,7 +328,7 @@ class HasProps(object, metaclass=MetaHasProps):
         if name in self.properties():
             log.trace("Patching attribute %r of %r with %r", name, self, json)
             descriptor = self.lookup(name)
-            descriptor.set_from_json(self, json, models, setter)
+            descriptor.set_from_json(self, json, models)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -369,7 +359,7 @@ class HasProps(object, metaclass=MetaHasProps):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes, models=None, setter=None):
+    def update_from_json(self, json_attributes, models=None):
         ''' Updates the object's properties from a JSON attributes dictionary.
 
         Args:
@@ -381,22 +371,12 @@ class HasProps(object, metaclass=MetaHasProps):
                 This is needed in cases where the attributes to update also
                 have values that have references.
 
-            setter(ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
         for k, v in json_attributes.items():
-            self.set_from_json(k, v, models, setter)
+            self.set_from_json(k, v, models)
 
     @classmethod
     def lookup(cls, name):

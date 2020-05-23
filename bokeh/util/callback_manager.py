@@ -136,7 +136,7 @@ class PropertyCallbackManager(object):
         for callback in callbacks:
             _callbacks.remove(callback)
 
-    def trigger(self, attr, old, new, hint=None, setter=None):
+    def trigger(self, attr, old, new, hint=None):
         ''' Trigger callbacks for ``attr`` on this object.
 
         Args:
@@ -154,7 +154,7 @@ class PropertyCallbackManager(object):
                 for callback in callbacks:
                     callback(attr, old, new)
         if hasattr(self, '_document') and self._document is not None:
-            self._document._notify_change(self, attr, old, new, hint, setter, invoke)
+            self._document._notify_change(self, attr, old, new, hint, invoke)
         else:
             invoke()
 

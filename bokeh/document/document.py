@@ -283,7 +283,7 @@ class Document(object):
                               period_milliseconds)
         return self._add_session_callback(cb, callback, one_shot=False, originator=self.add_periodic_callback)
 
-    def add_root(self, model, setter=None):
+    def add_root(self, model):
         ''' Add a model as a root of this Document.
 
         Any changes to this model (including to other models referred to
@@ -293,17 +293,6 @@ class Document(object):
         Args:
             model (Model) :
                 The model to add as a root of this document.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         '''
         if model in self._roots:
@@ -317,7 +306,7 @@ class Document(object):
             self._roots.append(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootAddedEvent(self, model, setter))
+        self._trigger_on_change(RootAddedEvent(self, model))
 
     def add_timeout_callback(self, callback, timeout_milliseconds):
         ''' Add callback to be invoked once, after a specified timeout passes.
@@ -353,23 +342,12 @@ class Document(object):
             for model in subscribed:
                 model._trigger_event(event)
 
-    def apply_json_patch(self, patch, setter=None):
+    def apply_json_patch(self, patch):
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
             patch (JSON-data) :
                 The JSON-object containing the patch to apply.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
 
         Returns:
             None
@@ -391,7 +369,7 @@ class Document(object):
                 if model_id in self._all_models:
                     references[model_id] = self._all_models[model_id]
 
-        initialize_references_json(references_json, references, setter)
+        initialize_references_json(references_json, references)
 
         for event_json in events_json:
             if event_json['kind'] == 'MessageSent':
@@ -408,7 +386,7 @@ class Document(object):
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
                 value = event_json['new']
-                patched_obj.set_from_json(attr, value, models=references, setter=setter)
+                patched_obj.set_from_json(attr, value, models=references)
 
             elif event_json['kind'] == 'ColumnDataChanged':
                 source_id = event_json['column_source']['id']
@@ -416,7 +394,7 @@ class Document(object):
                     raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 value = event_json['new']
-                source.set_from_json('data', value, models=references, setter=setter)
+                source.set_from_json('data', value, models=references)
 
             elif event_json['kind'] == 'ColumnsStreamed':
                 source_id = event_json['column_source']['id']
@@ -425,7 +403,7 @@ class Document(object):
                 source = self._all_models[source_id]
                 data = event_json['data']
                 rollover = event_json.get('rollover', None)
-                source._stream(data, rollover, setter)
+                source._stream(data, rollover)
 
             elif event_json['kind'] == 'ColumnsPatched':
                 source_id = event_json['column_source']['id']
@@ -433,20 +411,20 @@ class Document(object):
                     raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 patches = event_json['patches']
-                source.patch(patches, setter)
+                source.patch(patches)
 
             elif event_json['kind'] == 'RootAdded':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.add_root(root_obj, setter)
+                self.add_root(root_obj)
 
             elif event_json['kind'] == 'RootRemoved':
                 root_id = event_json['model']['id']
                 root_obj = references[root_id]
-                self.remove_root(root_obj, setter)
+                self.remove_root(root_obj)
 
             elif event_json['kind'] == 'TitleChanged':
-                self._set_title(event_json['title'], setter)
+                self._set_title(event_json['title'])
 
             else:
                 raise RuntimeError("Unknown patch event " + repr(event_json))
@@ -752,7 +730,7 @@ class Document(object):
         '''
         self._remove_session_callback(callback_obj, self.add_periodic_callback)
 
-    def remove_root(self, model, setter=None):
+    def remove_root(self, model):
         ''' Remove a model as root model from this Document.
 
         Changes to this model may still trigger ``on_change`` callbacks
@@ -763,17 +741,6 @@ class Document(object):
             model (Model) :
                 The model to add as a root of this document.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         '''
         if model not in self._roots:
             return # TODO (bev) ValueError?
@@ -782,7 +749,7 @@ class Document(object):
             self._roots.remove(model)
         finally:
             self._pop_all_models_freeze()
-        self._trigger_on_change(RootRemovedEvent(self, model, setter))
+        self._trigger_on_change(RootRemovedEvent(self, model))
 
     def remove_timeout_callback(self, callback_obj):
         ''' Remove a callback added earlier with ``add_timeout_callback``.
@@ -1022,7 +989,7 @@ class Document(object):
             return False
         return isinstance(selector[field], str)
 
-    def _notify_change(self, model, attr, old, new, hint=None, setter=None, callback_invoker=None):
+    def _notify_change(self, model, attr, old, new, hint=None, callback_invoker=None):
         ''' Called by Model when it changes
 
         '''
@@ -1038,7 +1005,7 @@ class Document(object):
         else:
             serializable_new = None
 
-        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
+        event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, callback_invoker)
         self._trigger_on_change(event)
 
     def _push_all_models_freeze(self):
@@ -1107,7 +1074,7 @@ class Document(object):
         for callback_obj in callback_objs:
             self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))
 
-    def _set_title(self, title, setter=None):
+    def _set_title(self, title):
         '''
 
         '''
@@ -1115,7 +1082,7 @@ class Document(object):
             raise ValueError("Document title may not be None")
         if self._title != title:
             self._title = title
-            self._trigger_on_change(TitleChangedEvent(self, title, setter))
+            self._trigger_on_change(TitleChangedEvent(self, title))
 
     def _trigger_on_change(self, event):
         '''

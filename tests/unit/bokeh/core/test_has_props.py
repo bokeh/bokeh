@@ -157,14 +157,6 @@ def test_HasProps_update_from_json() -> None:
     assert c.ds2 ==  None
     assert c.lst2 == [1,2]
 
-@patch('bokeh.core.has_props.HasProps.set_from_json')
-def test_HasProps_update_from_json_passes_models_and_setter(mock_set) -> None:
-    c = Child()
-    c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
-    assert mock_set.called
-    assert mock_set.call_args[0] == ('lst1', [1, 2], 'foo', 'bar')
-    assert mock_set.call_args[1] == {}
-
 def test_HasProps_set() -> None:
     c = Child()
     c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))

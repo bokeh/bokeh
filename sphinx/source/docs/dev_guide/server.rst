@@ -377,14 +377,6 @@ socket connection. When a message is received by the client or server
 session it will extract the patch and apply it directly to the
 ``Document``.
 
-In order to avoid events bouncing back and forth between client and
-server (as each patch would generate new events, which would in turn
-be sent back), the session informs the ``Document`` that it was
-responsible for generating the patch and any subsequent events that
-are generated. In this way, when a ``Session`` is notified of a change
-to the document it can check whether the ``event.setter`` is identical
-with itself and therefore skip processing the event.
-
 Serialization
 ^^^^^^^^^^^^^
 

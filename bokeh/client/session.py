@@ -430,10 +430,6 @@ class ClientSession(object):
         self._callbacks.add_session_callbacks(self._document.session_callbacks)
 
     def _document_patched(self, event):
-        if event.setter is self:
-            log.debug("Not sending notification back to server for a change it requested")
-            return
-
         # TODO (havocp): our "change sync" protocol is flawed
         # because if both sides change the same attribute at the
         # same time, they will each end up with the state of the
@@ -447,7 +443,7 @@ class ClientSession(object):
         return session_id
 
     def _handle_patch(self, message):
-        message.apply_to_document(self.document, self)
+        message.apply_to_document(self.document)
 
     def _loop_until_closed(self):
         ''' Execute a blocking loop that runs and executes event callbacks

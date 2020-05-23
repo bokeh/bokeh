@@ -332,15 +332,14 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=dict(a=[10], b=[20]))
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
 
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._stream = mock
         # internal implementation of stream
-        ds._stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
-        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
+        ds._stream(dict(a=[11, 12], b=[21, 22]), "foo")
+        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo")
         assert stuff['kw'] == {}
 
     def test_stream_good_data(self) -> None:
@@ -363,7 +362,6 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=dict(index=dates, b=list(range(1, 10))))
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
 
         def mock(*args, **kw):
             stuff['args'] = args
@@ -371,7 +369,7 @@ Lime,Green,99,$0.39
         ds.data._stream = mock
         # internal implementation of stream
         new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
-        ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
+        ds._stream(dict(index=new_date, b=[10]), "foo")
         assert np.array_equal(stuff['args'][2]['index'], new_date)
 
     def test__stream_good_datetime64_data_transformed(self) -> None:
@@ -381,7 +379,6 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=dict(index=dates, b=list(range(1, 10))))
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
 
         def mock(*args, **kw):
             stuff['args'] = args
@@ -389,7 +386,7 @@ Lime,Green,99,$0.39
         ds.data._stream = mock
         # internal implementation of stream
         new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
-        ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
+        ds._stream(dict(index=new_date, b=[10]), "foo")
         transformed_date = convert_datetime_array(new_date)
         assert np.array_equal(stuff['args'][2]['index'], transformed_date)
 
@@ -402,7 +399,6 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=df)
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
 
         def mock(*args, **kw):
             stuff['args'] = args
@@ -413,7 +409,7 @@ Lime,Green,99,$0.39
             columns=df.columns,
             data=np.random.standard_normal(30)
         )
-        ds._stream(new_df, "foo", mock_setter)
+        ds._stream(new_df, "foo")
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
@@ -426,7 +422,6 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=df)
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
 
         def mock(*args, **kw):
             stuff['args'] = args
@@ -437,7 +432,7 @@ Lime,Green,99,$0.39
             columns=df.columns,
             data=np.random.standard_normal(30)
         )
-        ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
+        ds._stream({'index': new_df.index, 'A': new_df.A}, "foo")
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
@@ -451,7 +446,6 @@ Lime,Green,99,$0.39
                                     'A': df.A})
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
 
         def mock(*args, **kw):
             stuff['args'] = args
@@ -462,7 +456,7 @@ Lime,Green,99,$0.39
             columns=df.columns,
             data=np.random.standard_normal(30)
         )
-        ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
+        ds._stream({'index': new_df.index, 'A': new_df.A}, "foo")
         assert np.array_equal(stuff['args'][2]['index'], convert_datetime_array(new_df.index.values))
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
@@ -702,13 +696,12 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
-        assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
+        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]))
+        assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]))
         assert stuff['kw'] == {}
 
     def test_patch_bad_slice_indices(self) -> None:
@@ -731,13 +724,12 @@ Lime,Green,99,$0.39
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
         ds._document = "doc"
         stuff = {}
-        mock_setter = object()
         def mock(*args, **kw):
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
-        assert stuff['args'] == ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
+        ds.patch(dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]))
+        assert stuff['args'] == ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]))
         assert stuff['kw'] == {}
 
     def test_data_column_lengths(self) -> None:
