@@ -2,11 +2,11 @@ import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "core/has_props"
 import {Arrayable, Attrs, Data} from "core/types"
 import * as p from "core/properties"
-import {Set} from "core/util/data_structures"
 import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
 import {isTypedArray, isArray, isNumber, isPlainObject} from "core/util/types"
 import {TypedArray} from "core/types"
 import * as typed_array from "core/util/typed_array"
+import {union} from "core/util/set"
 import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
 
 //exported for testing
@@ -204,10 +204,10 @@ export class ColumnDataSource extends ColumnarDataSource {
     let patched: Set<number> = new Set()
     for (const k in patches) {
       const patch = patches[k]
-      patched = patched.union(patch_to_column(data[k], patch, this._shapes[k] as Shape[]))
+      patched = union(patched, patch_to_column(data[k], patch, this._shapes[k] as Shape[]))
     }
     this.setv({data}, {silent: true})
-    this.patching.emit(patched.values)
+    this.patching.emit([...patched])
     if (this.document != null) {
       const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
       this.document._notify_change(this, 'data', null, null, {setter_id, hint})

@@ -7,8 +7,8 @@ import {ID, Attrs, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {decode_column_data, Buffers} from "core/util/serialization"
-import {Set as OurSet} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
+import * as sets from "core/util/set"
 import {isEqual} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
@@ -201,21 +201,21 @@ export class Document {
   }
 
   protected _recompute_all_models(): void {
-    let new_all_models_set = new OurSet<HasProps>()
+    let new_all_models_set = new Set<HasProps>()
     for (const r of this._roots) {
-      new_all_models_set = new_all_models_set.union(r.references())
+      new_all_models_set = sets.union(new_all_models_set, r.references())
     }
-    const old_all_models_set = new OurSet(this._all_models.values())
-    const to_detach = old_all_models_set.diff(new_all_models_set)
-    const to_attach = new_all_models_set.diff(old_all_models_set)
+    const old_all_models_set = new Set(this._all_models.values())
+    const to_detach = sets.difference(old_all_models_set, new_all_models_set)
+    const to_attach = sets.difference(new_all_models_set, old_all_models_set)
     const recomputed: RefMap = new Map()
-    for (const model of new_all_models_set.values) {
+    for (const model of new_all_models_set) {
       recomputed.set(model.id, model)
     }
-    for (const d of to_detach.values) {
+    for (const d of to_detach) {
       d.detach_document()
     }
-    for (const a of to_attach.values) {
+    for (const a of to_attach) {
       a.attach_document(this)
     }
     this._all_models = recomputed

@@ -1,6 +1,5 @@
 import {select, option} from "core/dom"
 import {isString} from "core/util/types"
-import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -50,7 +49,7 @@ export class MultiSelectView extends InputWidgetView {
   render_selection(): void {
     const selected = new Set(this.model.value)
 
-    for (const el of Array.from(this.el.querySelectorAll('option')))
+    for (const el of this.el.querySelectorAll('option'))
       el.selected = selected.has(el.value)
 
     // Note that some browser implementations might not reduce
@@ -62,7 +61,7 @@ export class MultiSelectView extends InputWidgetView {
     const is_focused = this.el.querySelector('select:focus') != null
 
     const values = []
-    for (const el of Array.from(this.el.querySelectorAll('option'))) {
+    for (const el of this.el.querySelectorAll('option')) {
       if (el.selected)
         values.push(el.value)
     }
