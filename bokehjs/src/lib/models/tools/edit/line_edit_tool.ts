@@ -57,14 +57,12 @@ export class LineEditToolView extends LineToolView {
 
     if (xkey) {
       x = cds.get_array(xkey)
-    }
-    else {
+    } else {
       x = glyph.x.value
     }
     if (ykey) {
       y = cds.get_array(ykey)
-    }
-    else {
+    } else {
       y = glyph.y.value
     }
 
