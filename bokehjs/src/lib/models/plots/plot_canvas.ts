@@ -22,7 +22,7 @@ import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {throttle} from "core/util/throttle"
-import {isArray, isStrictNaN} from "core/util/types"
+import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d} from "core/util/canvas"
@@ -828,7 +828,7 @@ export class PlotView extends LayoutDOMView {
     const yrs: {[key: string]: Interval} = {}
     for (const name in x_ranges) {
       const {start, end} = x_ranges[name]
-      if (start == null || end == null || isStrictNaN(start + end)) {
+      if (start == null || end == null || isNaN(start + end)) {
         good_vals = false
         break
       }
@@ -837,7 +837,7 @@ export class PlotView extends LayoutDOMView {
     if (good_vals) {
       for (const name in y_ranges) {
         const {start, end} = y_ranges[name]
-        if (start == null || end == null || isStrictNaN(start + end)) {
+        if (start == null || end == null || isNaN(start + end)) {
           good_vals = false
           break
         }

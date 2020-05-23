@@ -1,7 +1,6 @@
 import {Ticker, TickSpec} from "./ticker"
 import * as p from "core/properties"
 import {range} from "core/util/array"
-import {isStrictNaN} from "core/util/types"
 
 // The base class for all Ticker objects.  It needs to be subclassed before
 // being used.  The simplest subclass is SingleIntervalTicker.
@@ -66,7 +65,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)
     let factors: number[]
-    if (isStrictNaN(start_factor) || isStrictNaN(end_factor))
+    if (isNaN(start_factor) || isNaN(end_factor))
       factors = []
     else
       factors = range(start_factor, end_factor + 1)
