@@ -4,12 +4,16 @@ import {
   Arrow, ArrowHead, NormalHead, BoxAnnotation,
   DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
+  CategoricalAxis,
   Plot,
 } from "@bokehjs/models"
+
+import {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Color} from "@bokehjs/core/types"
 import {Anchor, OutputBackend} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
+import {Random} from "@bokehjs/core/util/random"
 
 describe("Bug", () => {
   describe("in issue #9879", () => {
@@ -179,6 +183,29 @@ describe("Bug", () => {
       }
       const rows = [row(plots[1]), row(plots[2])]
       await display(column(rows), [200*Math.max(plots[1].length, plots[2].length), 200*rows.length])
+    })
+  })
+
+  describe("in issue #10042", () => {
+    it("disallows to set subgroup_label_orientation = 0", async () => {
+      const random = new Random(1)
+
+      const factors: Factor[] = [
+        ["A", "01", "AA"], ["A", "01", "AB"], ["A", "01", "AC"], ["A", "01", "AD"], ["A", "01", "AE"],
+        ["B", "02", "AA"], ["B", "02", "AB"], ["B", "02", "AC"], ["B", "02", "AD"], ["B", "02", "AE"],
+      ]
+      const y_range = new FactorRange({factors})
+
+      const p = fig([200, 300], {y_range})
+      p.hbar({
+        y: factors,
+        left: 0,
+        right: random.floats(factors.length),
+        height: 0.8,
+      })
+      p.yaxis.forEach((axis: CategoricalAxis) => axis.subgroup_label_orientation = 0)
+
+      await display(p, [200, 300])
     })
   })
 })
