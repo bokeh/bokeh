@@ -8,7 +8,7 @@
 
     AAPL, FB, GOOG, IBM, MSFT
 
-Each eries is available as an attribute on the module (e.g., ``stocks.AAPL``)
+Each series is available as an attribute on the module (e.g., ``stocks.AAPL``)
 and the value is a dictionary with the structure:
 
 .. code-block:: python
