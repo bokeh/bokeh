@@ -16,6 +16,7 @@ dependencies:
   # tests
   - beautifulsoup4
   - colorama
+  - colorcet
   - channels
   - coverage
   - firefox
@@ -40,6 +41,7 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
+  - sphinx
 
   # examples
   - flask >=1.0

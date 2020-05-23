@@ -76,7 +76,7 @@ jobs:
           activate-environment: bk-test
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
-          python-version: 3.6
+          python-version: 3.7
           use-only-tar-bz2: true
 
       - name: Cache node modules
