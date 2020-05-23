@@ -4,12 +4,23 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide U.S. marriage and divorce statistics between 1867 and 2014
+''' Provide U.S. marriage and divorce statistics between 1867 and 2011
 
 Data from the CDC's National Center for Health Statistics (NHCS) database
 (http://www.cdc.gov/nchs/).
 
 Data organized by Randal S. Olson (http://www.randalolson.com)
+
+The entire data is available as a DataFrame on an attribute on the module - "us_marriages_divorces.data"
+
+Basic Structure of the data:
+
+Year                   # list of int
+Marriages              # list of float
+Divorces               # list of float
+Population             # list of int
+Marriages_per_1000     # list of float
+Divorces_per_1000      # list of float
 
 '''
 
