@@ -1,7 +1,6 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
 import {classes} from "core/dom"
-import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {bk_active} from "styles/mixins"
@@ -15,8 +14,8 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
 
   change_active(i: number): void {
     const {active} = this
-    active.toggle(i)
-    this.model.active = active.values
+    active.has(i) ? active.delete(i) : active.add(i)
+    this.model.active = [...active].sort()
   }
 
   protected _update_active(): void {

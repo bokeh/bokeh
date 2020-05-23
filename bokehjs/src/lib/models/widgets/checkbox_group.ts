@@ -2,7 +2,6 @@ import {InputGroup, InputGroupView} from "./input_group"
 
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
-import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {bk_inline} from "styles/mixins"
@@ -38,8 +37,8 @@ export class CheckboxGroupView extends InputGroupView {
 
   change_active(i: number): void {
     const active = new Set(this.model.active)
-    active.toggle(i)
-    this.model.active = active.values
+    active.has(i) ? active.delete(i) : active.add(i)
+    this.model.active = [...active].sort()
   }
 }
 

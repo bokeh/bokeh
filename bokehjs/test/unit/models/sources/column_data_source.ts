@@ -1,9 +1,9 @@
 import {expect} from "chai"
 
-import {Set} from "@bokehjs/core/util/data_structures"
 import {with_log_level} from "@bokehjs/core/logging"
 
 import {keys} from "@bokehjs/core/util/object"
+import {difference} from "@bokehjs/core/util/set"
 import {ColumnDataSource, stream_to_column, slice, patch_to_column} from "@bokehjs/models/sources/column_data_source"
 
 import {trap} from "../../../util"
@@ -79,7 +79,7 @@ describe("column_data_source module", () => {
         const a = [1, 2, 3, 4, 5]
         const s = patch_to_column(a, [[3, 100], [0, 10], [4, -1]], [])
         expect(s).to.be.instanceof(Set)
-        expect(s.diff(new Set([0, 3, 4])).values).to.be.deep.equal([])
+        expect(difference(s, new Set([0, 3, 4]))).to.be.deep.equal(new Set())
       })
     })
 
@@ -127,7 +127,7 @@ describe("column_data_source module", () => {
         const a = [1, 2, 3, 4, 5]
         const s = patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]], [{stop:1, step:1}, [10]], [4, -1]], [])
         expect(s).to.be.instanceof(Set)
-        expect(s.diff(new Set([0, 2, 3, 4])).values).to.be.deep.equal([])
+        expect(difference(s, new Set([0, 2, 3, 4]))).to.be.deep.equal(new Set())
       })
     })
 
@@ -237,7 +237,7 @@ describe("column_data_source module", () => {
           [[1, 5], [6]],
         ], [[5], [6], [4]])
         expect(s).to.be.instanceof(Set)
-        expect(s.diff(new Set([0, 1])).values).to.be.deep.equal([])
+        expect(difference(s, new Set([0, 1]))).to.be.deep.equal(new Set())
       })
     })
 
@@ -345,7 +345,7 @@ describe("column_data_source module", () => {
           [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
         ], [[2, 3], [3, 2], [1, 2]])
         expect(s).to.be.instanceof(Set)
-        expect(s.diff(new Set([0, 1])).values).to.be.deep.equal([])
+        expect(difference(s, new Set([0, 1]))).to.be.deep.equal(new Set())
       })
     })
   })

@@ -1,5 +1,6 @@
 import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool, Toolbar} from "./models"
 import {SizingMode, Location} from "../core/enums"
+import {Matrix} from "../core/util/data_structures"
 
 export interface GridPlotOpts {
   toolbar_location?: Location | null
@@ -16,44 +17,36 @@ function or_else<T>(value: T | undefined, default_value: T): T {
     return value
 }
 
-export function gridplot(children: (LayoutDOM | null)[][], opts: GridPlotOpts = {}): LayoutDOM {
-  const toolbar_location = or_else(opts.toolbar_location, "above")
-  const merge_tools      = or_else(opts.merge_tools, true)
-  const sizing_mode      = or_else(opts.sizing_mode, null)
+export function gridplot(children: (Plot | null)[][] | Matrix<Plot | null>, options: GridPlotOpts = {}): LayoutDOM {
+  const toolbar_location = or_else(options.toolbar_location, "above")
+  const merge_tools      = or_else(options.merge_tools, true)
+  const sizing_mode      = or_else(options.sizing_mode, null)
 
+  const matrix = Matrix.from(children)
+
+  const items: [Plot, number, number][] = []
   const toolbars: Toolbar[] = []
-  const items: [LayoutDOM, number, number][] = []
 
-  for (let y = 0; y < children.length; y++) {
-    const row = children[y]
+  for (const [item, row, col] of matrix) {
+    if (item == null)
+      continue
 
-    for (let x = 0; x < row.length; x++) {
-      const item = row[x]
-
-      if (item == null)
-        continue
-      else {
-        if (item instanceof Plot) { // XXX: semantics differ
-          if (merge_tools) {
-            toolbars.push(item.toolbar)
-            item.toolbar_location = null
-          }
-
-          if (opts.plot_width != null)
-            item.plot_width = opts.plot_width
-          if (opts.plot_height != null)
-            item.plot_height = opts.plot_height
-        }
-
-        items.push([item, y, x])
-      }
+    if (merge_tools) {
+      toolbars.push(item.toolbar)
+      item.toolbar_location = null
     }
+
+    if (options.plot_width != null)
+      item.plot_width = options.plot_width
+    if (options.plot_height != null)
+      item.plot_height = options.plot_height
+
+    items.push([item, row, col])
   }
 
-  if (!merge_tools || toolbar_location == null)
-    return new GridBox({children: items, sizing_mode})
-
   const grid = new GridBox({children: items, sizing_mode})
+  if (!merge_tools || toolbar_location == null)
+    return grid
 
   const tools: Tool[] = []
   for (const toolbar of toolbars) {

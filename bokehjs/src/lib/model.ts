@@ -108,9 +108,9 @@ export class Model extends HasProps {
 
   select<T extends HasProps>(selector: Class<T> | string): T[] {
     if (isString(selector))
-      return this.references().filter((ref): ref is T => ref instanceof Model && ref.name === selector)
+      return [...this.references()].filter((ref): ref is T => ref instanceof Model && ref.name === selector)
     else if (selector.prototype instanceof HasProps)
-      return this.references().filter((ref): ref is T => ref instanceof selector)
+      return [...this.references()].filter((ref): ref is T => ref instanceof selector)
     else
       throw new Error("invalid selector")
   }

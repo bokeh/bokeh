@@ -516,10 +516,10 @@ export abstract class HasProps extends Signalable() {
     return [...refs.values()]
   }
 
-  references(): HasProps[] {
+  references(): Set<HasProps> {
     const refs = new Set<HasProps>()
     HasProps._value_record_references(this, refs, {recursive: true})
-    return [...refs.values()]
+    return refs
   }
 
   protected _doc_attached(): void {}
