@@ -54,13 +54,8 @@ export class LineEditToolView extends LineToolView {
 
     let x: number[]
     let y: number[]
-
-    if (xkey) {
-      x = cds.get_array(xkey)
-    }
-    if (ykey) {
-      y = cds.get_array(ykey)
-    }
+    x = cds.get_array(xkey)
+    y = cds.get_array(ykey)
 
     this._set_intersection(x, y)
   }
