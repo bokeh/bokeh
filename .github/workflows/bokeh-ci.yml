@@ -29,15 +29,11 @@ jobs:
 
       - name: Install node modules
         shell: bash -l {0}
-        run: ci/install_node_modules.sh
+        run: bash ci/install_node_modules.sh
 
       - name: Build BokehJS
         shell: bash -l {0}
-        run: |
-          pushd bokehjs
-          node make build
-          popd
-          tar czf bokehjs-build.tgz "bokehjs/build"
+        run: bash ci/build_bokehjs.sh
 
       - name: Upload BokehJS
         uses: actions/upload-artifact@v1
@@ -47,20 +43,13 @@ jobs:
 
       - name: Build conda package
         shell: bash -l {0}
-        run: |
-          conda build conda.recipe --quiet --no-test --no-anaconda-upload --no-verify
-          pushd $HOME
-          tar czf conda-bld-noarch.tgz "/usr/share/miniconda3/envs/bk-build/conda-bld/noarch"
-          popd
-          mv $HOME/conda-bld-noarch.tgz .
+        run: bash ci/build_conda_pacakge.sh
 
       - name: Upload conda package
         uses: actions/upload-artifact@v1
         with:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
-
-
 
   codebase:
     runs-on: ubuntu-latest
@@ -83,7 +72,7 @@ jobs:
 
       - name: Install node modules
         shell: bash -l {0}
-        run: ci/install_node_modules.sh
+        run: bash ci/install_node_modules.sh
 
       # Don't cache sampledata - want to test at least one real download
 
