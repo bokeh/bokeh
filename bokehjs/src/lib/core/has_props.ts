@@ -9,7 +9,7 @@ import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {clone, extend, isEmpty} from "./util/object"
+import {entries, clone, extend, isEmpty} from "./util/object"
 import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -106,8 +106,7 @@ export abstract class HasProps extends Signalable() {
 
   // TODO: don't use Partial<>, but exclude inherited properties
   static define<T>(obj: Partial<p.DefineOf<T>>): void {
-    for (const name in obj) {
-      const prop = obj[name]
+    for (const [name, prop] of entries(obj)) {
       if (this.prototype._props[name] != null)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
@@ -143,8 +142,8 @@ export abstract class HasProps extends Signalable() {
 
   static internal(obj: any): void {
     const _object: any = {}
-    for (const name in obj) {
-      const [type, default_value, options = {}] = obj[name]
+    for (const [name, entry] of entries(obj)) {
+      const [type, default_value, options = {}] = entry as any
       _object[name] = [type, default_value, {...options, internal: true}]
     }
     this.define(_object)
@@ -167,8 +166,7 @@ export abstract class HasProps extends Signalable() {
 
     function rename(prefix: string, mixin: Attrs): Attrs {
       const result: Attrs = {}
-      for (const name in mixin) {
-        const prop = mixin[name]
+      for (const [name, prop] of entries(mixin)) {
         result[prefix + name] = prop
       }
       return result
@@ -205,8 +203,8 @@ export abstract class HasProps extends Signalable() {
   }
 
   static override(obj: any): void {
-    for (const name in obj) {
-      const default_value = this._fix_default(obj[name], name)
+    for (const [name, prop] of entries(obj)) {
+      const default_value = this._fix_default(prop, name)
       const value = this.prototype._props[name]
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
@@ -251,8 +249,7 @@ export abstract class HasProps extends Signalable() {
 
     const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
 
-    for (const name in this._props) {
-      const {type, default_value, options} = this._props[name]
+    for (const [name, {type, default_value, options}] of entries(this._props)) {
       if (type != null)
         this.properties[name] = new type(this, name, default_value, get(name), options)
       else
@@ -269,8 +266,7 @@ export abstract class HasProps extends Signalable() {
   }
 
   finalize(): void {
-    for (const name in this.properties) {
-      const prop = this.properties[name]
+    for (const prop of this) {
       if (prop.spec.transform != null)
         this.connect(prop.spec.transform.change, () => this.transformchange.emit())
     }
