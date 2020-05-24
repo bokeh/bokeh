@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import {Extent, Bounds} from "./tile_utils"
+import {entries} from "core/util/object"
 import * as p from "core/properties"
 
 export type Tile = {
@@ -60,8 +61,7 @@ export abstract class TileSource extends Model {
 
   string_lookup_replace(str: string, lookup: {[key: string]: string}): string {
     let result_str = str
-    for (const key in lookup) {
-      const value = lookup[key]
+    for (const [key, value] of entries(lookup)) {
       result_str = result_str.replace(`{${key}}`, value)
     }
     return result_str
