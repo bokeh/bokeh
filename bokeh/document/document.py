@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from collections import defaultdict
+from contextlib import contextmanager
 from functools import wraps
 from inspect import isclass
 from json import loads
@@ -102,6 +103,8 @@ class Document(object):
 
     _message_callbacks: Dict[str, List[Callable[[Any], None]]]
 
+    _sync: bool
+
     def __init__(self, **kwargs):
         self._roots = list()
         self._theme = kwargs.pop('theme', default_theme)
@@ -121,6 +124,7 @@ class Document(object):
         self._template_variables = {}
         self._hold = None
         self._held_events = []
+        self._sync = True
 
         # set of models subscribed to user events
         self._subscribed_models = defaultdict(set)
@@ -1088,6 +1092,9 @@ class Document(object):
         '''
 
         '''
+        if not self._sync:
+            return
+
         if self._hold == "collect":
             self._held_events.append(event)
             return
@@ -1131,6 +1138,15 @@ class Document(object):
             return doc._with_self_as_curdoc(invoke)
         return wrapper
 
+    @contextmanager
+    def no_sync(self):
+        sync = self._sync
+        self._sync = False
+        try:
+            yield
+        finally:
+            if sync:
+                self._sync = True
 
 def _combine_document_events(new_event, old_events):
     ''' Attempt to combine a new event with a list of previous events.
