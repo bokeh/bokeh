@@ -16,9 +16,8 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
-import {min, max, range, reversed} from "core/util/array"
+import {min, max, range, reversed, is_empty} from "core/util/array"
 import {map} from "core/util/arrayable"
-import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Size} from "core/layout"
@@ -334,7 +333,7 @@ export class ColorBarView extends AnnotationView {
     const major_labels = this.tick_info().labels.major
 
     let label_extent: number
-    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !isEmpty(major_labels)) {
+    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !is_empty(major_labels)) {
       const {ctx} = this.layer
       ctx.save()
       this.visuals.major_label_text.set_value(ctx)

@@ -3,7 +3,7 @@ import {Class} from "./core/class"
 import {BokehEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
-import {isEmpty} from "./core/util/object"
+import {isEmpty, entries} from "./core/util/object"
 import {logger} from "./core/logging"
 import {CallbackLike0} from "./models/callbacks/callback"
 
@@ -75,7 +75,7 @@ export class Model extends HasProps {
       logger.warn('WARNING: Document not defined for updating event callbacks')
       return
     }
-    this.document.event_manager.subscribed_models.add(this.id)
+    this.document.event_manager.subscribed_models.add(this)
   }
 
   protected _update_property_callbacks(): void {
@@ -91,8 +91,7 @@ export class Model extends HasProps {
     }
     this._js_callbacks.clear()
 
-    for (const event in this.js_property_callbacks) {
-      const callbacks = this.js_property_callbacks[event]
+    for (const [event, callbacks] of entries(this.js_property_callbacks)) {
       const wrappers = callbacks.map((cb) => () => cb.execute(this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
@@ -102,8 +101,12 @@ export class Model extends HasProps {
   }
 
   protected _doc_attached(): void {
-    if (!isEmpty(this.js_event_callbacks) || !isEmpty(this.subscribed_events))
+    if (!isEmpty(this.js_event_callbacks) || this.subscribed_events.length != 0)
       this._update_event_callbacks()
+  }
+
+  protected _doc_detached(): void {
+    this.document!.event_manager.subscribed_models.delete(this)
   }
 
   select<T extends HasProps>(selector: Class<T> | string): T[] {

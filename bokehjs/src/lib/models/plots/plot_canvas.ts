@@ -1,7 +1,7 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Range} from "../ranges/range"
-import {DataRange1d} from "../ranges/data_range1d"
+import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
 import {Tool, ToolView} from "../tools/tool"
@@ -14,7 +14,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable, Rect, Interval} from "core/types"
+import {Arrayable, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
@@ -432,8 +432,8 @@ export class PlotView extends LayoutDOMView {
 
   update_dataranges(): void {
     // Update any DataRange1ds here
-    const bounds: {[key: string]: Rect} = {}
-    const log_bounds: {[key: string]: Rect} = {}
+    const bounds: Bounds = new Map()
+    const log_bounds: Bounds = new Map()
 
     let calculate_log_bounds = false
     for (const r of values(this.frame.x_ranges).concat(values(this.frame.y_ranges))) {
@@ -447,12 +447,12 @@ export class PlotView extends LayoutDOMView {
       if (renderer_view instanceof GlyphRendererView) {
         const bds = renderer_view.glyph.bounds()
         if (bds != null)
-          bounds[renderer.id] = bds
+          bounds.set(renderer, bds)
 
         if (calculate_log_bounds) {
           const log_bds = renderer_view.glyph.log_bounds()
           if (log_bds != null)
-            log_bounds[renderer.id] = log_bds
+            log_bounds.set(renderer, log_bds)
         }
       }
     }
@@ -468,7 +468,7 @@ export class PlotView extends LayoutDOMView {
     for (const xr of values(this.frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
-        xr.update(bounds_to_use, 0, this.model.id, r)
+        xr.update(bounds_to_use, 0, this.model, r)
         if (xr.follow) {
           follow_enabled = true
         }
@@ -480,7 +480,7 @@ export class PlotView extends LayoutDOMView {
     for (const yr of values(this.frame.y_ranges)) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
-        yr.update(bounds_to_use, 1, this.model.id, r)
+        yr.update(bounds_to_use, 1, this.model, r)
         if (yr.follow) {
           follow_enabled = true
         }

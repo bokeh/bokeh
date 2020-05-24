@@ -6,8 +6,8 @@
 import {randomIn} from "./math"
 import {assert} from "./assert"
 
-import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index} from "./arrayable"
-export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index}
+import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty} from "./arrayable"
+export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty}
 
 const slice = Array.prototype.slice
 

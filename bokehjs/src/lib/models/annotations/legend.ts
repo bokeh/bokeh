@@ -10,7 +10,6 @@ import {Size} from "core/layout"
 import {measure_font} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every} from "core/util/array"
-import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
@@ -20,7 +19,7 @@ export class LegendView extends AnnotationView {
   visuals: Legend.Visuals
 
   protected max_label_height: number
-  protected text_widths: {[key: string]: number}
+  protected text_widths: Map<string, number>
   protected title_height: number
   protected title_width: number
 
@@ -52,9 +51,9 @@ export class LegendView extends AnnotationView {
     const {ctx} = this.layer
     ctx.save()
     this.visuals.label_text.set_value(ctx)
-    this.text_widths = {}
+    this.text_widths = new Map()
     for (const name of legend_names) {
-      this.text_widths[name] = max([ctx.measureText(name).width, label_width])
+      this.text_widths.set(name, max([ctx.measureText(name).width, label_width]))
     }
 
     this.visuals.title_text.set_value(ctx)
@@ -63,7 +62,7 @@ export class LegendView extends AnnotationView {
 
     ctx.restore()
 
-    const max_label_width = Math.max(max(values(this.text_widths)), 0)
+    const max_label_width = Math.max(max([...this.text_widths.values()]), 0)
 
     const legend_margin = this.model.margin
     const {legend_padding} = this
@@ -76,8 +75,7 @@ export class LegendView extends AnnotationView {
       legend_width = max([(max_label_width + glyph_width + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
     } else {
       let item_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
-      for (const name in this.text_widths) {
-        const width = this.text_widths[name]
+      for (const [, width] of this.text_widths) {
         item_width += max([width, label_width]) + glyph_width + label_standoff
       }
       legend_width = max([this.title_width + 2*legend_padding, item_width])
@@ -170,7 +168,7 @@ export class LegendView extends AnnotationView {
         if (vertical)
           [w, h] = [legend_bbox.width - 2*legend_padding, this.max_label_height]
         else
-          [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]
+          [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
 
         const bbox = new BBox({left: x1, top: y1, width: w, height: h})
 
@@ -193,7 +191,7 @@ export class LegendView extends AnnotationView {
         if (vertical)
           yoffset += this.max_label_height + legend_spacing
         else
-          xoffset += this.text_widths[label] + glyph_width + label_standoff + legend_spacing
+          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
       }
     }
 
@@ -270,7 +268,7 @@ export class LegendView extends AnnotationView {
         if (vertical)
           yoffset += this.max_label_height + legend_spacing
         else
-          xoffset += this.text_widths[label] + glyph_width + label_standoff + legend_spacing
+          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
 
         this.visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
@@ -284,7 +282,7 @@ export class LegendView extends AnnotationView {
           if (vertical)
             [w, h] = [bbox.width - 2*legend_padding, this.max_label_height]
           else
-            [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]
+            [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
 
           ctx.beginPath()
           ctx.rect(x1, y1, w, h)

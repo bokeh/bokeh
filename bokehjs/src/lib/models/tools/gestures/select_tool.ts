@@ -2,6 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
+import {DataSource} from "../../sources/data_source"
 import {compute_renderers, RendererSpec} from "../util"
 import * as p from "core/properties"
 import {KeyEvent, UIEvent} from "core/ui_events"
@@ -28,22 +29,20 @@ export abstract class SelectToolView extends GestureToolView {
     return compute_renderers(renderers, all_renderers, names)
   }
 
-  _computed_renderers_by_data_source(): {[key: string]: DataRenderer[]} {
-    const renderers_by_source: {[key: string]: DataRenderer[]} = {}
+  _computed_renderers_by_data_source(): Map<DataSource, DataRenderer[]> {
+    const renderers_by_source: Map<DataSource, DataRenderer[]> = new Map()
 
     for (const r of this.computed_renderers) {
-      let source_id: string
+      let source: DataSource
       if (r instanceof GlyphRenderer)
-        source_id = r.data_source.id
+        source = r.data_source
       else if (r instanceof GraphRenderer)
-        source_id = r.node_renderer.data_source.id
+        source = r.node_renderer.data_source
       else
         continue
 
-      if (!(source_id in renderers_by_source))
-        renderers_by_source[source_id] = []
-
-      renderers_by_source[source_id].push(r)
+      const renderers = renderers_by_source.get(source) ?? []
+      renderers_by_source.set(source, [...renderers, r])
     }
 
     return renderers_by_source
@@ -80,14 +79,15 @@ export abstract class SelectToolView extends GestureToolView {
   _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
     const renderers_by_source = this._computed_renderers_by_data_source()
 
-    for (const id in renderers_by_source) {
-      const renderers = renderers_by_source[id]
+    for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
 
       const r_views = []
       for (const r of renderers) {
-        if (r.id in this.plot_view.renderer_views)
-          r_views.push(this.plot_view.renderer_views.get(r)!)
+        const r_view = this.plot_view.renderer_views.get(r)
+        if (r_view != null) {
+          r_views.push(r_view)
+        }
       }
       sm.select(r_views, geometry, final, mode)
     }
