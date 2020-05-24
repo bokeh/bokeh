@@ -3,12 +3,15 @@ import sys
 import threading
 import time
 import webbrowser
+import asyncio
 
 import flask
 import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
+
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
 
@@ -35,7 +38,7 @@ def send_alert():
 @app.route('/en/latest/<path:filename>')
 def send_docs(filename):
     return flask.send_from_directory(
-        os.path.join(_basedir, "sphinx/build/html/"), filename)
+        os.path.join(_basedir, "sphinx/_build/html/"), filename)
 
 def open_browser():
     # Child process
