@@ -1,7 +1,7 @@
 import {spawn} from "child_process"
 import {join} from "path"
 
-import {task, log} from "../task"
+import {task, log, BuildError} from "../task"
 import {build_dir} from "../paths"
 
 task("defaults:generate", () => {
@@ -22,7 +22,7 @@ task("defaults:generate", () => {
       if (code === 0)
         resolve()
       else
-        reject(new Error(`generate_defaults.py exited code ${code}`))
+        reject(new BuildError("defaults", `generate_defaults.py exited code ${code}`))
     })
   })
 })

@@ -1,6 +1,5 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import {Set} from "./util/data_structures"
 import {defer} from "./util/callback"
 import {find, remove_by} from "./util/array"
 
@@ -178,18 +177,18 @@ function findConnection(conns: Connection[], signal: Signal<any, any>, slot: Slo
   return find(conns, conn => conn.signal === signal && conn.slot === slot && conn.context === context)
 }
 
-const dirtySet = new Set<Connection[]>()
+const dirty_set = new Set<Connection[]>()
 
 function scheduleCleanup(connections: Connection[]): void {
-  if (dirtySet.size === 0) {
-    defer(cleanupDirtySet)
+  if (dirty_set.size === 0) {
+    defer(cleanup_dirty_set)
   }
-  dirtySet.add(connections)
+  dirty_set.add(connections)
 }
 
-function cleanupDirtySet(): void {
-  dirtySet.forEach((connections) => {
+function cleanup_dirty_set(): void {
+  for (const connections of dirty_set) {
     remove_by(connections, (connection) => connection.signal == null)
-  })
-  dirtySet.clear()
+  }
+  dirty_set.clear()
 }

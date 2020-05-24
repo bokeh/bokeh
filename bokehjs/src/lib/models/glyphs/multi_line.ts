@@ -7,7 +7,6 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {min, max} from "core/util/array"
 import {to_object} from "core/util/object"
-import {isStrictNaN} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
@@ -37,7 +36,7 @@ export class MultiLineView extends GlyphView {
       const xs: number[] = []
       for (let j = 0, n = _xsi.length; j < n; j++) {
         const x = _xsi[j]
-        if (!isStrictNaN(x))
+        if (!isNaN(x))
           xs.push(x)
       }
 
@@ -45,7 +44,7 @@ export class MultiLineView extends GlyphView {
       const ys: number[] = []
       for (let j = 0, n = _ysi.length; j < n; j++) {
         const y = _ysi[j]
-        if (!isStrictNaN(y))
+        if (!isNaN(y))
           ys.push(y)
       }
 

@@ -233,10 +233,7 @@ export class SidePanel extends ContentLayoutable {
       baseline = _baseline_lookup[side][orient]
       align = _align_lookup[side][orient]
     } else {
-      if (orient === 0) {
-        baseline = "whatever" as any // XXX: _baseline_lookup[side][orient]
-        align = "whatever" as any // XXX: _align_lookup[side][orient]
-      } else if (orient < 0) {
+      if (orient < 0) {
         baseline = 'middle'
         align = _align_lookup_negative[side]
       } else {

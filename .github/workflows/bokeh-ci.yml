@@ -96,7 +96,7 @@ jobs:
       #   working-directory: ./bokehjs
       #   shell: bash -l {0}
       #   run: |
-      #     node make build:all lint --emit-error
+      #     node make build:all lint
 
       - name: Run codebase checks
         shell: bash -l {0}
