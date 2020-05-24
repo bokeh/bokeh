@@ -29,11 +29,7 @@ jobs:
 
       - name: Install node modules
         shell: bash -l {0}
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
+        run: ci/install_node_modules.sh
 
       - name: Build BokehJS
         shell: bash -l {0}
@@ -87,11 +83,7 @@ jobs:
 
       - name: Install node modules
         shell: bash -l {0}
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
+        run: ci/install_node_modules.sh
 
       # Don't cache sampledata - want to test at least one real download
 
