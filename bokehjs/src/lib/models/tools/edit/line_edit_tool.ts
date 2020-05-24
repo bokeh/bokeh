@@ -52,10 +52,8 @@ export class LineEditToolView extends LineToolView {
     const glyph: any = this._selected_renderer.glyph
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
 
-    let x: number[]
-    let y: number[]
-    x = cds.get_array(xkey)
-    y = cds.get_array(ykey)
+    const x = cds.get_array(xkey) as number[]
+    const y = cds.get_array(ykey) as number[]
 
     this._set_intersection(x, y)
   }
