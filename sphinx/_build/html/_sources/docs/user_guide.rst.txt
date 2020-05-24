@@ -1,0 +1,118 @@
+.. _userguide:
+
+User Guide
+##########
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    user_guide/quickstart
+    user_guide/concepts
+    user_guide/plotting
+    user_guide/data
+    user_guide/layout
+    user_guide/categorical
+    user_guide/graph
+    user_guide/geo
+    user_guide/tools
+    user_guide/styling
+    user_guide/annotations
+    user_guide/interaction
+    user_guide/server
+    user_guide/jupyter
+    user_guide/export
+    user_guide/embed
+    user_guide/cli
+    user_guide/extensions
+    user_guide/webgl
+    user_guide/compat
+    user_guide/bokehjs
+
+This user guide is intended to walk you through many common tasks that
+you might want to accomplish using Bokeh. The guide is arranged by
+topic:
+
+:ref:`userguide_quickstart`
+    Get set up and running quickly.
+
+:ref:`userguide_concepts`
+    Learn important foundational concepts about how Bokeh is organized.
+
+:ref:`userguide_plotting`
+    Make different kinds of plots using the simple but flexible glyph
+    methods from the |bokeh.plotting| interface.
+
+:ref:`userguide_data`
+    Provide data or subsets of data for plots and tables and share data
+    between plots.
+
+:ref:`userguide_layout`
+    Combine multiple plots and widgets into specified layouts.
+
+:ref:`userguide_categorical`
+    Handle categorical data with a variety of different techniques such
+    as bar charts, categorical heatmaps, visual dodging, and jitter.
+
+:ref:`userguide_graph`
+    Create network graph visualizations with configurable node and edge interactions.
+
+:ref:`userguide_geo`
+    Working with geographical data---Google Maps, GeoJSON, Tile Rendering.
+
+:ref:`userguide_tools`
+    Make interactive tools (like pan, zoom, select, and others) available
+    on your plots.
+
+:ref:`userguide_styling`
+    Customize every visual aspect of Bokeh plots---axes, grids, labels,
+    glyphs, and more.
+
+:ref:`userguide_annotations`
+    Add informational annotations, such as labels, arrows, and legends to
+    plots.
+
+:ref:`userguide_interaction`
+    Create more sophisticated interactions including widgets or linked
+    panning and selection.
+
+:ref:`userguide_server`
+    Deploy the Bokeh Server to build and publish sophisticated data
+    applications.
+
+:ref:`userguide_jupyter`
+    Integrate with the Jupyter ecosystem.
+
+:ref:`userguide_export`
+    Learn how to export Bokeh layouts as PNGs and SVGs.
+
+:ref:`userguide_embed`
+    Embed static or server-based Bokeh plots and widgets into HTML documents
+    in a variety of ways.
+
+:ref:`userguide_cli`
+    Use Bokeh's capabilities from the command line with the ``bokeh``
+    command.
+
+:ref:`userguide_extensions`
+    Add new capability to Bokeh with custom user extensions.
+
+:ref:`userguide_webgl`
+    Improve performance for large datasets by using WebGL.
+
+:ref:`userguide_compat`
+    Use Bokeh together with libraries such as `Datashader`_ and  `HoloViews`_.
+
+:ref:`userguide_bokehjs`
+    Create plots in JavaScript by using BokehJS directly.
+
+The examples in the user guide are written to be as minimal as possible, while
+illustrating how to accomplish a single task within Bokeh. With a handful of
+exceptions, no outside libraries, such as NumPy or Pandas, are required to run the
+examples as written. However, Bokeh works well with NumPy, Pandas, or almost any
+array or table-like data structure.
+
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+
+.. _Datashader: http://datashader.readthedocs.io
+.. _HoloViews: http://holoviews.org
