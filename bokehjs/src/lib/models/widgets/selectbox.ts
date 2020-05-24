@@ -1,5 +1,6 @@
 import {select, option, optgroup} from "core/dom"
 import {isString, isArray} from "core/util/types"
+import {entries} from "core/util/object"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -38,8 +39,7 @@ export class SelectView extends InputWidgetView {
     else {
       contents = []
       const options = this.model.options
-      for (const key in options) {
-        const value = options[key]
+      for (const [key, value] of entries(options)) {
         contents.push(optgroup({label: key}, this.build_options(value)))
       }
     }

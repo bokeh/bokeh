@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Attrs} from "./types"
+import {Attrs, PlainObject} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
@@ -100,7 +100,7 @@ export abstract class HasProps extends Signalable() {
       if (isArray(default_value))
         return () => copy(default_value)
       else
-        return () => clone(default_value)
+        return () => clone(default_value as PlainObject)
     }
   }
 
