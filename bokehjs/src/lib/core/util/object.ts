@@ -1,22 +1,6 @@
 import {concat, union} from "./array"
 
-export const {keys, assign: extend} = Object
-
-export const values: <T>(object: {[key: string]: T}) => T[] = (() => {
-  if (typeof Object.values !== "undefined")
-    return Object.values
-  else {
-    return <T>(object: {[key: string]: T}): T[] => {
-      const keys = Object.keys(object)
-      const length = keys.length
-      const values = new Array<T>(length)
-      for (let i = 0; i < length; i++) {
-        values[i] = object[keys[i]]
-      }
-      return values
-    }
-  }
-})()
+export const {keys, values, entries, assign: extend} = Object
 
 export function clone<T extends object>(obj: T): T {
   return {...obj}

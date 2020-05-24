@@ -1,4 +1,5 @@
 import "es5-ext/object/assign/implement"
+import "es5-ext/object/entries/implement"
 import "es5-ext/number/is-integer/implement"
 import "es5-ext/string/#/repeat/implement"
 import "es5-ext/array/from/implement"
@@ -9,6 +10,12 @@ import "es6-map/implement"
 import "es6-weak-map/implement"
 
 import "es6-promise/auto"
+
+if (typeof Object.values === "undefined") {
+  Object.values = function(obj: {[key: string]: unknown}) {
+    return Object.keys(obj).map((key) => obj[key])
+  }
+}
 
 // fixes up a problem with some versions of IE11
 // ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
