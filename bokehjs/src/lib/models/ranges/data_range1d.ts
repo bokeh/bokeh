@@ -7,9 +7,10 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import {includes} from "core/util/array"
+import type {Plot} from "../plots/plot"
 
 export type Dim = 0 | 1
-export type Bounds = {[key: string]: Rect}
+export type Bounds = Map<Renderer, Rect>
 
 export namespace DataRange1d {
   export type Attrs = p.AttrsOf<Props>
@@ -64,7 +65,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number
   protected _initial_default_span: number
 
-  protected _plot_bounds: Bounds = {}
+  protected _plot_bounds: Map<Plot, Rect>
 
   have_updated_interactively: boolean = false
 
@@ -78,6 +79,8 @@ export class DataRange1d extends DataRange {
     this._initial_follow = this.follow
     this._initial_follow_interval = this.follow_interval
     this._initial_default_span = this.default_span
+
+    this._plot_bounds = new Map()
   }
 
   get min(): number {
@@ -115,8 +118,10 @@ export class DataRange1d extends DataRange {
     let result = bbox.empty()
 
     for (const r of renderers) {
-      if (bounds[r.id] != null && (r.visible || !this.only_visible))
-        result = bbox.union(result, bounds[r.id])
+      const rect = bounds.get(r)
+      if (rect != null && (r.visible || !this.only_visible)) {
+        result = bbox.union(result, rect)
+      }
     }
 
     return result
@@ -148,11 +153,10 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Iterable<Rect>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
-    for (const k in plot_bounds) {
-      const v = plot_bounds[k]
-      overall = bbox.union(overall, v)
+    for (const rect of plot_bounds) {
+      overall = bbox.union(overall, rect)
     }
 
     let min, max: number
@@ -241,7 +245,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, bounds_id: string, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, plot: Plot, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 
@@ -253,10 +257,10 @@ export class DataRange1d extends DataRange {
     if (ratio != null)
       total_bounds = this.adjust_bounds_for_aspect(total_bounds, ratio)
 
-    this._plot_bounds[bounds_id] = total_bounds
+    this._plot_bounds.set(plot, total_bounds)
 
     // compute the min/mix for our specified dimension
-    const [min, max] = this._compute_min_max(this._plot_bounds, dimension)
+    const [min, max] = this._compute_min_max(this._plot_bounds.values(), dimension)
 
     // derive start, end from bounds and data range config
     let [start, end] = this._compute_range(min, max)
