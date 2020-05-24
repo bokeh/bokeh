@@ -1,4 +1,4 @@
-name: bk-build
+name: bk-test
 channels:
   - conda-forge
 dependencies:
