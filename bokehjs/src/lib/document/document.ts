@@ -65,6 +65,15 @@ export const documents: Document[] = []
 
 export const DEFAULT_TITLE = "Bokeh Application"
 
+function no_sync() {
+  return (_target: unknown, _key: string, descriptor: PropertyDescriptor) => {
+    const fn = descriptor.value
+    descriptor.value = function(this: Document, ...args: unknown[]) {
+      this.no_sync(fn.bind(this, ...args))
+    }
+  }
+}
+
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document {
@@ -681,6 +690,7 @@ export class Document {
     }
   }
 
+  @no_sync()
   apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map()): void {
     const references_json = patch.references
     const events_json = patch.events
