@@ -523,6 +523,7 @@ export abstract class HasProps extends Signalable() {
   }
 
   protected _doc_attached(): void {}
+  protected _doc_detached(): void {}
 
   attach_document(doc: Document): void {
     // This should only be called by the Document implementation to set the document field
@@ -535,6 +536,7 @@ export abstract class HasProps extends Signalable() {
 
   detach_document(): void {
     // This should only be called by the Document implementation to unset the document field
+    this._doc_detached()
     this.document = null
   }
 
