@@ -64,7 +64,7 @@ rst_epilog = """
 
 autodoc_member_order = 'groupwise'
 
-bokeh_missing_google_api_key_ok = False
+bokeh_missing_google_api_key_ok = True #False
 
 bokeh_plot_pyfile_include_dirs = ['docs']
 
