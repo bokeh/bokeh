@@ -57,13 +57,9 @@ export class LineEditToolView extends LineToolView {
 
     if (xkey) {
       x = cds.get_array(xkey)
-    } else {
-      x = glyph.x.value
     }
     if (ykey) {
       y = cds.get_array(ykey)
-    } else {
-      y = glyph.y.value
     }
 
     this._set_intersection(x, y)
