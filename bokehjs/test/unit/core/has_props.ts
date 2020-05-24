@@ -5,6 +5,7 @@ import {HasProps} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 
 class TestModel extends HasProps {}
 
@@ -126,23 +127,24 @@ describe("has_properties module", () => {
     })
 
     it("should collect shapes when they are present", () => {
-      const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      r._shapes.colname = [2, 2]
+      const array = ndarray([1, 2, 3, 4], {shape: [2, 2]})
+      const r = new ColumnDataSource({data: {colname: array}})
       const obj = new SubclassWithNumberSpec()
       const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_foo: [1, 2, 3, 4], _foo_shape: [2, 2]})
+      expect(data).to.be.deep.equal({_foo: ndarray([1, 2, 3, 4], {shape: [2, 2]})})
     })
 
     it("should collect max vals for distance specs", () => {
-      const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4, 2]}})
+      const r0 = new ColumnDataSource({data: {colname: [1, 2, 3, 4, 2]}})
       const obj = new SubclassWithDistanceSpec()
 
-      const data0 = obj.materialize_dataspecs(r)
+      const data0 = obj.materialize_dataspecs(r0)
       expect(data0).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], max_foo: 4})
 
-      r._shapes.colname = [2, 2]
-      const data1 = obj.materialize_dataspecs(r)
-      expect(data1).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], _foo_shape: [2, 2], max_foo: 4})
+      const array1 = ndarray([1, 2, 3, 4, 2], {shape: [2, 2]})
+      const r1 = new ColumnDataSource({data: {colname: array1}})
+      const data1 = obj.materialize_dataspecs(r1)
+      expect(data1).to.be.deep.equal({_foo: ndarray([1, 2, 3, 4, 2], {shape: [2, 2]}), max_foo: 4})
     })
 
     it("should collect ignore optional specs with null values", () => {
