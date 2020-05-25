@@ -81,8 +81,10 @@ def save(obj, filename=None, resources=None, title=None, template=None, state=No
     if state is None:
         state = curstate()
 
+    theme = state.document.theme
+
     filename, resources, title = _get_save_args(state, filename, resources, title)
-    _save_helper(obj, filename, resources, title, template)
+    _save_helper(obj, filename, resources, title, template, theme)
     return abspath(filename)
 
 #-----------------------------------------------------------------------------
@@ -139,12 +141,12 @@ def _get_save_title(state, title, suppress_warning):
 
     return DEFAULT_TITLE
 
-def _save_helper(obj, filename, resources, title, template):
+def _save_helper(obj, filename, resources, title, template, theme=None):
     '''
 
     '''
     from ..embed import file_html
-    html = file_html(obj, resources, title=title, template=template)
+    html = file_html(obj, resources, title=title, template=template, theme=theme)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)
