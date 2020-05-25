@@ -126,7 +126,7 @@ jobs:
 
       - name: Install Bokeh package
         shell: bash -l {0}
-        run: conda install --yes --quiet --use-local bokeh
+        run: bash ci/install_bokeh_package.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
