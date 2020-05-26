@@ -469,4 +469,4 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        run: bash run_downstream_tests.sh
+        run: bash ci/run_downstream_tests.sh
