@@ -19,7 +19,6 @@ jobs:
           environment-file: ci/environment-build.yml
           miniconda-version: 'latest'
           python-version: 3.6
-          use-only-tar-bz2: true
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -62,7 +61,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.7
-          use-only-tar-bz2: true
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -108,7 +106,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.6
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -178,7 +175,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.7
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -225,7 +221,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.8
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -278,7 +273,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: ${{ matrix.python-version }}
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -336,7 +330,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.6
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -386,7 +379,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.6
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -442,7 +434,6 @@ jobs:
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
           python-version: 3.6
-          use-only-tar-bz2: true
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
