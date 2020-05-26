@@ -69,6 +69,7 @@ BJS_EPILOGUE = _env.get_template("bokehjs_content_epilogue.html")
 BJS_CODEPEN_INIT = _env.get_template("bokehjs_codepen_init.html")
 BJS_HTML = _env.get_template("bokehjs_html_template.html")
 
+BJS_SCRIPT_HTML = _env.get_template("bokehjs_script_template.html")
 
 COLOR_DETAIL = _env.get_template("color_detail.html")
 
