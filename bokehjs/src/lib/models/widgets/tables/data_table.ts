@@ -125,6 +125,11 @@ export class DataTableView extends WidgetView {
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
+  remove(): void {
+    this.grid?.destroy()
+    super.remove()
+  }
+
   styles(): string[] {
     return [...super.styles(), slickgrid_css, tables_css]
   }

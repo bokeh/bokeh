@@ -9,7 +9,7 @@ import {isString} from "core/util/types"
 import {bk_input} from "styles/widgets/inputs"
 import flatpickr_css from "styles/widgets/flatpickr.css"
 
-type DateStr= string
+type DateStr = string
 type DatesList = (DateStr | [DateStr, DateStr])[]
 
 function _convert_date_list(value: DatesList): flatpickr.Options.DateLimit[] {
@@ -41,6 +41,11 @@ export class DatePickerView extends InputWidgetView {
     this.connect(enabled_dates.change, () => this._picker?.set("enable", enabled_dates.value()))
     this.connect(position.change, () => this._picker?.set("position", position.value()))
     this.connect(inline.change, () => this._picker?.set("inline", inline.value()))
+  }
+
+  remove(): void {
+    this._picker?.destroy()
+    super.remove()
   }
 
   styles(): string[] {
