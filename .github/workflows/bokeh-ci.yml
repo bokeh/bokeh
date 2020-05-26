@@ -256,12 +256,8 @@ jobs:
         run: bash ci/install_node_modules.sh
 
       - name: Run tests
-        working-directory: tests
         shell: bash -l {0}
-        run: py.test -v --tb=short --driver chrome --color=yes integration
-
-
-
+        run: py.test -v --tb=short --driver chrome --color=yes tests/integration
 
   unit-test:
     needs: build
@@ -319,15 +315,15 @@ jobs:
           key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
+        working-directory: tests
         shell: bash -l {0}
         run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Run tests
-        working-directory: tests
         shell: bash -l {0}
         run: |
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          py.test --cov=bokeh --cov-config=.coveragerc --color=yes unit
+          py.test --cov=bokeh --cov-config=.coveragerc --color=yes tests/unit
 
 
 
