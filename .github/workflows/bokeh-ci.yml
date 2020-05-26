@@ -209,7 +209,7 @@ jobs:
         run: bash ci/install_node_modules.sh
 
       - name: Run tests
-        working-directory: ./bokehjs
+        working-directory: bokehjs
         shell: bash -l {0}
         run: node make test --screenshot=skip
 
@@ -256,125 +256,78 @@ jobs:
         run: bash ci/install_node_modules.sh
 
       - name: Run tests
+        working-directory: tests
         shell: bash -l {0}
-        run: py.test -v --tb=short --driver chrome --color=yes tests/integration
+        run: py.test -v --tb=short --driver chrome --color=yes integration
 
 
 
 
-  # unit-test:
-  #   needs: build
-  #   runs-on: ${{ matrix.os }}
+  unit-test:
+    needs: build
+    runs-on: ${{ matrix.os }}
 
-  #   strategy:
-  #     fail-fast: false
-  #     max-parallel: 6
-  #     matrix:
-  #       os: [ubuntu-latest, macos-latest, windows-latest]
-  #       python-version: [3.6, 3.7, 3.8]
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.6, 3.7, 3.8]
 
-  #   steps:
-  #     - uses: actions/checkout@v2-beta
+    steps:
+      - uses: actions/checkout@v2-beta
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: bk-test
+          environment-file: ci/environment-test.yml
+          miniconda-version: 'latest'
+          python-version: ${{ matrix.python-version }}
+          use-only-tar-bz2: true
 
-  #     - name: Install Miniconda
-  #       shell: bash
-  #       run: |
-  #         if [[ "${{ runner.os }}" = "Linux" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-  #           curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-  #           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-  #         elif [[ "${{ runner.os }}" = "macOS" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-  #           curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-  #           bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-  #         elif [[ "${{ runner.os }}" = "Windows" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-  #           curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-  #           ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
-  #         fi
+      - name: Download Bokehjs
+        uses: actions/download-artifact@v1
+        with:
+          name: bokehjs-build
 
-  #     - name: Setup paths
-  #       shell: bash
-  #       run: |
-  #         if [[ "${{ runner.os }}" = "Windows" ]]; then
-  #           echo "::add-path::$HOME/miniconda3"
-  #           echo "::add-path::$HOME/miniconda3/Scripts"
-  #         else
-  #           echo "::add-path::$HOME/miniconda3/bin"
-  #           echo "::add-path::$HOME/miniconda3/envs/test/bin"
-  #         fi
+      - name: Download conda package
+        uses: actions/download-artifact@v1
+        with:
+          name: conda-bld-noarch
 
-  #     - name: Configure conda
-  #       shell: bash
-  #       env:
-  #         CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 jinja2"
-  #       run: |
-  #         conda config --set auto_update_conda off
-  #         conda config --append channels bokeh
-  #         # XXX (bev) note C-F just for unit tests
-  #         conda config --append channels conda-forge
-  #         conda config --get channels
-  #         conda install --yes --quiet $CONDA_REQS
+      - name: Unpack artifacts
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
-  #     - name: Download Bokehjs
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: bokehjs-build
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
-  #     - name: Download conda package
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: conda-bld-noarch
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
-  #     - name: Unpack artifacts
-  #       shell: bash
-  #       run: |
-  #         mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-  #         pushd $HOME
-  #         tar xzf conda-bld-noarch.tgz
-  #         popd
-  #         tar xvzf bokehjs-build/bokehjs-build.tgz
+      - name: Install node modules
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
-  #     - name: Install conda packages
-  #       shell: bash
-  #       run: |
-  #         conda create -n test --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-  #         conda install -n test --yes --quiet --use-local bokeh `python scripts/deps.py run test` python=${{ matrix.python-version }}
+      - name: Cache sampledata
+        uses: actions/cache@v1
+        with:
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
-  #     - name: Cache node modules
-  #       uses: actions/cache@v1
-  #       with:
-  #         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-  #         key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+      - name: Install sampledata
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
-  #     - name: Install node modules
-  #       run: |
-  #         pushd bokehjs
-  #         npm install -g npm
-  #         npm ci --no-progress
-  #         popd
-  #         python setup.py --install-js
-
-  #     - name: Cache sampledata
-  #       uses: actions/cache@v1
-  #       with:
-  #         path: ~/.bokeh/data
-  #         key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
-
-  #     - name: Install sampledata
-  #       shell: bash
-  #       run: |
-  #         python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
-
-  #     - name: Run tests
-  #       shell: bash
-  #       run: |
-  #         if [[ "${{ runner.os }}" = "Windows" ]]; then
-  #           source activate test
-  #         fi
-  #         # verify python being used is the expected one
-  #         if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-  #         py.test --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+      - name: Run tests
+        working-directory: tests
+        shell: bash -l {0}
+        run: |
+          if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+          py.test --cov=bokeh --cov-config=.coveragerc --color=yes unit
 
 
 
