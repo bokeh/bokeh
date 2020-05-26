@@ -371,176 +371,111 @@ jobs:
         run: conda remove --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
 
       - name: Run tests
-        shell: bash
+        shell: bash -l {0}
         run: py.test -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
-  # documentation:
-  #   needs: build
-  #   runs-on: ubuntu-latest
+  documentation:
+    needs: build
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v2-beta
+    steps:
+      - uses: actions/checkout@v2-beta
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: bk-test
+          environment-file: ci/environment-test.yml
+          miniconda-version: 'latest'
+          python-version: 3.6
+          use-only-tar-bz2: true
 
-  #     - name: Install Miniconda
-  #       shell: bash
-  #       run: |
-  #         if [[ "${{ runner.os }}" = "Linux" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-  #         elif [[ "${{ runner.os }}" = "macOS" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-  #         elif [[ "${{ runner.os }}" = "Windows" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-  #         fi
-  #         curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-  #         bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
+      - name: Download Bokehjs
+        uses: actions/download-artifact@v1
+        with:
+          name: bokehjs-build
 
-  #     - name: Setup paths
-  #       shell: bash
-  #       run: |
-  #         echo "::add-path::$HOME/miniconda3/bin"
+      - name: Download conda package
+        uses: actions/download-artifact@v1
+        with:
+          name: conda-bld-noarch
 
-  #     - name: Configure conda
-  #       shell: bash
-  #       env:
-  #         CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-  #       run: |
-  #         conda config --set auto_update_conda off
-  #         conda config --append channels bokeh
-  #         conda config --append channels conda-forge
-  #         conda config --get channels
-  #         conda install --yes --quiet $CONDA_REQS
+      - name: Unpack artifacts
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
-  #     - name: Download Bokehjs
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: bokehjs-build
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
-  #     - name: Download conda package
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: conda-bld-noarch
+      - name: Install node modules
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
-  #     - name: Unpack artifacts
-  #       shell: bash
-  #       run: |
-  #         mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-  #         pushd $HOME
-  #         tar xzf conda-bld-noarch.tgz
-  #         popd
-  #         tar xvzf bokehjs-build/bokehjs-build.tgz
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
-  #     - name: Install conda packages
-  #       shell: bash
-  #       run: |
-  #         conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-  #         conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+      - name: Cache sampledata
+        uses: actions/cache@v1
+        with:
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
-  #     - name: Cache node modules
-  #       uses: actions/cache@v1
-  #       with:
-  #         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-  #         key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+      - name: Install sampledata
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
-  #     - name: Install node modules
-  #       run: |
-  #         pushd bokehjs
-  #         npm install -g npm
-  #         npm ci --no-progress
-  #         popd
-  #         python setup.py --install-js
+      - name: Build docs
+        shell: bash -l {0}
+        run: bash ci/build_docs.sh
 
-  #     - name: Cache sampledata
-  #       uses: actions/cache@v1
-  #       with:
-  #         path: ~/.bokeh/data
-  #         key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
+  downstream:
+    needs: build
+    runs-on: ubuntu-latest
 
-  #     - name: Install sampledata
-  #       shell: bash
-  #       run: |
-  #         python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+    steps:
+      - uses: actions/checkout@v2-beta
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: bk-test
+          environment-file: ci/environment-test.yml
+          miniconda-version: 'latest'
+          python-version: 3.6
+          use-only-tar-bz2: true
 
-  #     - name: Build docs
-  #       shell: bash
-  #       run: |
-  #         cd sphinx
-  #         export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
-  #         make SPHINXOPTS=-v all
+      - name: Download Bokehjs
+        uses: actions/download-artifact@v1
+        with:
+          name: bokehjs-build
 
-  # downstream:
-  #   needs: build
-  #   runs-on: ubuntu-latest
+      - name: Download conda package
+        uses: actions/download-artifact@v1
+        with:
+          name: conda-bld-noarch
 
-  #   steps:
-  #     - uses: actions/checkout@v2-beta
+      - name: Unpack artifacts
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
-  #     - name: Install Miniconda
-  #       shell: bash
-  #       run: |
-  #         if [[ "${{ runner.os }}" = "Linux" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-  #         elif [[ "${{ runner.os }}" = "macOS" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-  #         elif [[ "${{ runner.os }}" = "Windows" ]]; then
-  #           MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-  #         fi
-  #         curl -L -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
-  #         bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
-  #     - name: Setup paths
-  #       shell: bash
-  #       run: |
-  #         echo "::add-path::$HOME/miniconda3/bin"
+      - name: Install node modules
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
-  #     - name: Configure conda
-  #       shell: bash
-  #       env:
-  #         CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-  #       run: |
-  #         conda config --set auto_update_conda off
-  #         conda config --append channels bokeh
-  #         conda config --append channels conda-forge
-  #         conda config --get channels
-  #         conda install --yes --quiet $CONDA_REQS
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
-  #     - name: Download Bokehjs
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: bokehjs-build
+      - name: Install downstream packages
+        shell: bash -l {0}
+        run: bash ci/install_downstream_packages.sh
 
-  #     - name: Download conda package
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: conda-bld-noarch
-
-  #     - name: Unpack artifacts
-  #       shell: bash
-  #       run: |
-  #         mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-  #         pushd $HOME
-  #         tar xzf conda-bld-noarch.tgz
-  #         popd
-  #         tar xvzf bokehjs-build/bokehjs-build.tgz
-
-  #     - name: Install test packages
-  #       shell: bash
-  #       run: |
-  #         conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-  #         conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
-  #         conda install --yes --quiet distributed
-  #         conda install --yes --quiet -c pyviz/label/dev holoviews nose
-  #         pip install pandas_bokeh
-  #         pip install geopandas
-
-  #     - name: Run tests
-  #       shell: bash
-  #       run: |
-  #         set +e
-  #         pushd `python -c "import site; print(site.getsitepackages()[0])"`
-  #         py.test distributed/dashboard
-  #         nosetests holoviews/tests/plotting/bokeh
-  #         git clone https://github.com/PatrikHlobil/Pandas-Bokeh.git
-  #         pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
-  #         pytest Pandas-Bokeh/Tests/test_GeoPandasBokeh.py
-  #         popd
-  #         exit 0
+      - name: Run tests
+        shell: bash -l {0}
+        run: bash run_downstream_tests.sh
