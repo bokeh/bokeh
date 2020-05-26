@@ -124,10 +124,6 @@ jobs:
         shell: bash -l {0}
         run: bash ci/unpack_artifacts.sh
 
-      - name: Install Bokeh package
-        shell: bash -l {0}
-        run: bash ci/install_bokeh_package.sh
-
       - name: Cache node modules
         uses: actions/cache@v1
         with:
@@ -137,6 +133,10 @@ jobs:
       - name: Install node modules
         shell: bash -l {0}
         run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Start chrome headless
         shell: bash -l {0}
@@ -194,10 +194,6 @@ jobs:
         shell: bash -l {0}
         run: bash ci/unpack_artifacts.sh
 
-      - name: Install Bokeh package
-        shell: bash -l {0}
-        run: bash ci/install_bokeh_package.sh
-
       - name: Cache node modules
         uses: actions/cache@v1
         with:
@@ -207,6 +203,10 @@ jobs:
       - name: Install node modules
         shell: bash -l {0}
         run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Run tests
         working-directory: bokehjs
@@ -241,10 +241,6 @@ jobs:
         shell: bash -l {0}
         run: bash ci/unpack_artifacts.sh
 
-      - name: Install Bokeh package
-        shell: bash -l {0}
-        run: bash ci/install_bokeh_package.sh
-
       - name: Cache node modules
         uses: actions/cache@v1
         with:
@@ -254,6 +250,10 @@ jobs:
       - name: Install node modules
         shell: bash -l {0}
         run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Run tests
         shell: bash -l {0}
@@ -294,10 +294,6 @@ jobs:
         shell: bash -l {0}
         run: bash ci/unpack_artifacts.sh
 
-      - name: Install Bokeh package
-        shell: bash -l {0}
-        run: bash ci/install_bokeh_package.sh
-
       - name: Cache node modules
         uses: actions/cache@v1
         with:
@@ -307,6 +303,10 @@ jobs:
       - name: Install node modules
         shell: bash -l {0}
         run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Cache sampledata
         uses: actions/cache@v1
