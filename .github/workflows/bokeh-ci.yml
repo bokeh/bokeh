@@ -107,7 +107,7 @@ jobs:
           activate-environment: bk-test
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
-          python-version: 3.7
+          python-version: 3.8
           use-only-tar-bz2: true
 
       - name: Download Bokehjs
@@ -224,7 +224,7 @@ jobs:
           activate-environment: bk-test
           environment-file: ci/environment-test.yml
           miniconda-version: 'latest'
-          python-version: 3.6
+          python-version: 3.8
           use-only-tar-bz2: true
 
       - name: Download Bokehjs
@@ -315,7 +315,6 @@ jobs:
           key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
-        working-directory: tests
         shell: bash -l {0}
         run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
