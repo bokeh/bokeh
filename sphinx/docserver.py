@@ -11,7 +11,8 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# needs to be uncommented for a Windows 10 + Python 3.8 config
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
 
