@@ -6,8 +6,7 @@ import {DOMView} from "./dom_view"
 import {logger} from "./logging"
 import {offset, Keys} from "./dom"
 import {getDeltaY} from "./util/wheel"
-import {reversed} from "./util/array"
-import {isEmpty} from "./util/object"
+import {reversed, is_empty} from "./util/array"
 import {isString} from "./util/types"
 import {is_mobile} from "./util/compat"
 import {PlotView} from "../models/plots/plot"
@@ -325,14 +324,14 @@ export class UIEvents implements EventListenerObject {
         if (view != null) {
           cursor = view.cursor(e.sx, e.sy) || cursor
 
-          if (!isEmpty(active_inspectors)) {
+          if (!is_empty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
             signal = this.move_exit as any // XXX
           }
 
         // the event happened on the plot frame but off a renderer
         } else if (this._hit_test_frame(e.sx, e.sy)) {
-          if (!isEmpty(active_inspectors)) {
+          if (!is_empty(active_inspectors)) {
             cursor = "crosshair"
           }
         }

@@ -1,5 +1,9 @@
 import {Arrayable, ArrayableNew} from "../types"
 
+export function is_empty(array: Arrayable): boolean {
+  return array.length == 0
+}
+
 export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T> {
   const len = array.length
 

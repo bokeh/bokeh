@@ -21,11 +21,10 @@ import {
   DocumentChanged, ModelChanged, RootAddedEvent,
 } from "./events"
 
+// Dispatches events to the subscribed models
 export class EventManager {
-  // Dispatches events to the subscribed models
-
   session: ClientSession | null = null
-  subscribed_models: Set<ID> = new Set()
+  subscribed_models: Set<Model> = new Set()
 
   constructor(readonly document: Document) {}
 
@@ -35,12 +34,10 @@ export class EventManager {
   }
 
   trigger(event: BokehEvent): void {
-    for (const id of this.subscribed_models) {
-      if (event.origin != null && event.origin.id !== id)
+    for (const model of this.subscribed_models) {
+      if (event.origin != null && event.origin != model)
         continue
-      const model = this.document._all_models.get(id)
-      if (model != null && model instanceof Model)
-        model._process_event(event)
+      model._process_event(event)
     }
   }
 }

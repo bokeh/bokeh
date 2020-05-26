@@ -242,29 +242,29 @@ describe("datarange1d module", () => {
 
     it("should compute max/min for dimension of a single plot_bounds", () => {
       const r = new DataRange1d()
-      const bds = {
-        1: {x0: 0, x1: 10, y0: 5, y1:6},
-      }
-      expect(r._compute_min_max(bds, 0)).to.be.deep.equal([0, 10])
-      expect(r._compute_min_max(bds, 1)).to.be.deep.equal([5, 6])
+      const bounds = [
+        {x0: 0, x1: 10, y0: 5, y1: 6},
+      ]
+      expect(r._compute_min_max(bounds, 0)).to.be.deep.equal([0, 10])
+      expect(r._compute_min_max(bounds, 1)).to.be.deep.equal([5, 6])
     })
 
     it("should compute max/min for dimension of multiple plot_bounds", () => {
       const r = new DataRange1d()
-      const bds0 = {
-        1: {x0: 0, x1: 10, y0: 5, y1: 6},
-        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-      }
-      expect(r._compute_min_max(bds0, 0)).to.be.deep.equal([0, 15])
-      expect(r._compute_min_max(bds0, 1)).to.be.deep.equal([5, 6])
+      const bounds0 = [
+        {x0: 0, x1: 10, y0: 5, y1: 6},
+        {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
+      ]
+      expect(r._compute_min_max(bounds0, 0)).to.be.deep.equal([0, 15])
+      expect(r._compute_min_max(bounds0, 1)).to.be.deep.equal([5, 6])
 
-      const bds1 = {
-        1: {x0: 0, x1: 10, y0: 5, y1: 6},
-        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-        3: {x0: -10, x1: 15, y0: 0, y1: 2},
-      }
-      expect(r._compute_min_max(bds1, 0)).to.be.deep.equal([-10, 15])
-      expect(r._compute_min_max(bds1, 1)).to.be.deep.equal([0, 6])
+      const bounds1 = [
+        {x0: 0, x1: 10, y0: 5, y1: 6},
+        {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
+        {x0: -10, x1: 15, y0: 0, y1: 2},
+      ]
+      expect(r._compute_min_max(bounds1, 0)).to.be.deep.equal([-10, 15])
+      expect(r._compute_min_max(bounds1, 1)).to.be.deep.equal([0, 6])
     })
   })
 
@@ -273,49 +273,52 @@ describe("datarange1d module", () => {
     it("should compute bounds from configured renderers", () => {
       const r = new DataRange1d()
 
-      const g1 = new GlyphRenderer({id: "1"})
-      const g2 = new GlyphRenderer({id: "2"})
+      const g1 = new GlyphRenderer()
+      const g2 = new GlyphRenderer()
+      const g3 = new GlyphRenderer()
 
-      const bds = {
-        1: {x0: 0, x1: 10, y0: 5, y1: 6},
-        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-        3: {x0: -10, x1: 15, y0: 0, y1: 2},
-      }
+      const bounds = new Map([
+        [g1, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [g2, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+        [g3, {x0: -10, x1: 15, y0: 0, y1: 2}],
+      ])
 
-      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
-      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
 
     it("should use invisble renderers by default", () => {
       const r = new DataRange1d()
 
-      const g1 = new GlyphRenderer({id: "1", visible: false})
-      const g2 = new GlyphRenderer({id: "2"})
+      const g1 = new GlyphRenderer({visible: false})
+      const g2 = new GlyphRenderer()
+      const g3 = new GlyphRenderer()
 
-      const bds = {
-        1: {x0: 0, x1: 10, y0: 5, y1: 6},
-        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-        3: {x0: -10, x1: 15, y0: 0, y1: 2},
-      }
+      const bounds = new Map([
+        [g1, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [g2, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+        [g3, {x0: -10, x1: 15, y0: 0, y1: 2}],
+      ])
 
-      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
-      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
 
     it("should skip invisble renderers if only_visible=false", () => {
       const r = new DataRange1d({only_visible: true})
 
-      const g1 = new GlyphRenderer({id: "1"})
-      const g2 = new GlyphRenderer({id: "2", visible: false})
+      const g1 = new GlyphRenderer()
+      const g2 = new GlyphRenderer({visible: false})
+      const g3 = new GlyphRenderer()
 
-      const bds = {
-        1: {x0: 0, x1: 10, y0: 5, y1: 6},
-        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
-        3: {x0: -10, x1: 15, y0: 0, y1: 2},
-      }
+      const bounds = new Map([
+        [g1, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [g2, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+        [g3, {x0: -10, x1: 15, y0: 0, y1: 2}],
+      ])
 
-      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
-      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
     })
   })
 
@@ -326,11 +329,11 @@ describe("datarange1d module", () => {
       const p = new Plot({renderers: [g]})
       const r = new DataRange1d({plots: [p]})
 
-      const bds = {
-        id: {x0: -10, x1: -6, y0: 5, y1: 6},
-      }
+      const bounds = new Map([
+        [g, {x0: -10, x1: -6, y0: 5, y1: 6}],
+      ])
 
-      r.update(bds, 0, "id")
+      r.update(bounds, 0, p)
       expect(r.start).to.be.equal(-10.2)
     })
 
@@ -339,11 +342,11 @@ describe("datarange1d module", () => {
       const p = new Plot({renderers: [g]})
       const r = new DataRange1d({scale_hint: "log", plots: [p]})
 
-      const bds = {
-        id: {x0: Infinity, x1: -Infinity, y0: 5, y1: 6},
-      }
+      const bounds = new Map([
+        [g, {x0: Infinity, x1: -Infinity, y0: 5, y1: 6}],
+      ])
 
-      r.update(bds, 0, "id")
+      r.update(bounds, 0, p)
       expect(r.start).not.to.be.NaN
       expect(r.end).not.to.be.NaN
     })
@@ -356,22 +359,22 @@ describe("datarange1d module", () => {
   describe("adjust_bounds_for_aspect", () => {
     it("should preserve y axis when it is larger", () => {
       const r = new DataRange1d()
-      const bds = r.adjust_bounds_for_aspect({x0: 0, x1: 1, y0: 0, y1: 2}, 4)
+      const bounds = r.adjust_bounds_for_aspect({x0: 0, x1: 1, y0: 0, y1: 2}, 4)
 
-      expect(bds.x0).to.be.equal(-3.5)
-      expect(bds.x1).to.be.equal(4.5)
-      expect(bds.y0).to.be.equal(0)
-      expect(bds.y1).to.be.equal(2)
+      expect(bounds.x0).to.be.equal(-3.5)
+      expect(bounds.x1).to.be.equal(4.5)
+      expect(bounds.y0).to.be.equal(0)
+      expect(bounds.y1).to.be.equal(2)
     })
 
     it("should preserve x axis when it is larger", () => {
       const r = new DataRange1d()
-      const bds = r.adjust_bounds_for_aspect({x0: 0, x1: 8, y0: 0, y1: 1}, 4)
+      const bounds = r.adjust_bounds_for_aspect({x0: 0, x1: 8, y0: 0, y1: 1}, 4)
 
-      expect(bds.x0).to.be.equal(0)
-      expect(bds.x1).to.be.equal(8)
-      expect(bds.y0).to.be.equal(-0.5)
-      expect(bds.y1).to.be.equal(1.5)
+      expect(bounds.x0).to.be.equal(0)
+      expect(bounds.x1).to.be.equal(8)
+      expect(bounds.y0).to.be.equal(-0.5)
+      expect(bounds.y1).to.be.equal(1.5)
     })
   })
 })
