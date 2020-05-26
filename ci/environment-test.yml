@@ -1,17 +1,18 @@
 name: bk-test
 channels:
+  - defaults
   - conda-forge
 dependencies:
 
   # runtime
-  - jinja2>=2.7
-  - numpy>=1.11.3
-  - packaging>=16.8
-  - pillow>=4.0
-  - python-dateutil>=2.1
-  - pyyaml>=3.10
-  - tornado>=5
-  - typing_extensions>=3.7.4
+  - jinja2 >=2.7
+  - numpy >=1.11.3
+  - packaging >=16.8
+  - pillow >=4.0
+  - python-dateutil >=2.1
+  - pyyaml >=3.10
+  - tornado >=5
+  - typing_extensions >=3.7.4
 
   # tests
   - beautifulsoup4
@@ -33,6 +34,7 @@ dependencies:
   - numba
   - pandas
   - psutil
+  - pygments
   - pytest
   - pytest-asyncio
   - pytest-cov >=1.8.1
