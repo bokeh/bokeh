@@ -80,7 +80,7 @@ class bokehjs_script(nodes.General, nodes.Element):
 class BokehJSScript(CodeBlock):
 
     option_spec = CodeBlock.option_spec
-    option_spec.update(components=unchanged)
+    option_spec.update(js_files=unchanged)
 
     def run(self):
         env = self.state.document.settings.env
