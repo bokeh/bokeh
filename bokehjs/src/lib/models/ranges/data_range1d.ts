@@ -106,9 +106,9 @@ export class DataRange1d extends DataRange {
     if (names.length > 0)
       renderers = renderers.filter((r) => includes(names, r.name))
 
-    logger.debug(`computed ${renderers.length} renderers for DataRange1d ${this.id}`)
-    for (const r of renderers) {
-      logger.trace(` - ${r.type} ${r.id}`)
+    logger.debug(`computed ${renderers.length} renderers for ${this}`)
+    for (const renderer of renderers) {
+      logger.trace(` - ${renderer}`)
     }
 
     return renderers

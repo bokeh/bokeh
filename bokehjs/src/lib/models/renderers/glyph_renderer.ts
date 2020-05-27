@@ -193,7 +193,7 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     const dt = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} GlyphRenderer (${this.model.id}): set_data finished in ${dt}ms`)
+    logger.debug(`${this.glyph.model.type} ${this.model}): set_data finished in ${dt}ms`)
 
     this.set_data_timestamp = Date.now()
 
@@ -350,7 +350,7 @@ export class GlyphRendererView extends DataRendererView {
     this.last_dtrender = dtrender
 
     const dttot = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} GlyphRenderer (${this.model.id}): render finished in ${dttot}ms`)
+    logger.debug(`${this.glyph.model.type} ${this.model}: render finished in ${dttot}ms`)
     logger.trace(` - map_data finished in       : ${dtmap}ms`)
     logger.trace(` - mask_data finished in      : ${dtmask}ms`)
     if (dtselect != null) {

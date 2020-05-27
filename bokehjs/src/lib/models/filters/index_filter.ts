@@ -33,11 +33,11 @@ export class IndexFilter extends Filter {
       if (every(this.indices, isInteger))
         return this.indices
       else {
-        logger.warn(`IndexFilter ${this.id}: indices should be array of integers, defaulting to no filtering`)
+        logger.warn(`${this}: indices should be array of integers, defaulting to no filtering`)
         return null
       }
     } else {
-      logger.warn(`IndexFilter ${this.id}: indices was not set, defaulting to no filtering`)
+      logger.warn(`${this}: indices was not set, defaulting to no filtering`)
       return null
     }
   }

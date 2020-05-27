@@ -262,7 +262,7 @@ export class ToolbarBase extends Model {
     }
     const check_event_type = (et: EventType, tool: Tool) => {
       if (!(et in this.gestures)) {
-        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
+        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }
     }
     const new_gestures = createGestureMap()
@@ -310,11 +310,11 @@ export class ToolbarBase extends Model {
       if (tool.active) {
         const currently_active_tool = this.gestures[et].active
         if (currently_active_tool != null && tool != currently_active_tool) {
-          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool.type} (${currently_active_tool.id}) for event type '${et}'`)
+          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool} for event type '${et}'`)
           currently_active_tool.active = false
         }
         this.gestures[et].active = tool
-        logger.debug(`Toolbar: activating tool: ${tool.type} (${tool.id}) for event type '${et}'`)
+        logger.debug(`Toolbar: activating tool: ${tool} for event type '${et}'`)
       } else
         this.gestures[et].active = null
     }
