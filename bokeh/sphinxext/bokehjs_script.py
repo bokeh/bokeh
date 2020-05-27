@@ -50,7 +50,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.directives.code import CodeBlock
 
 # Bokeh imports
-from .templates import BJS_SCRIPT_HTML
+from .templates import BJS_SCRIPT_TAGS
 from .util import get_codeblock_node, get_sphinx_resources
 
 #-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ class BokehJSScript(CodeBlock):
         if js_components != 'all':
             resources = self.get_modified_resources(js_components, resources)
 
-        html_source = BJS_SCRIPT_HTML.render(
+        html_source = BJS_SCRIPT_TAGS.render(
             js_files=resources.js_files,
             hashes=resources.hashes)
 
