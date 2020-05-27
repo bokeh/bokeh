@@ -295,7 +295,7 @@ export class GlyphRendererView extends DataRendererView {
           glyph.render(ctx, this.all_indices, this.glyph)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
-            if (sglyph.id == this.glyph.model.id)
+            if (sglyph == this.glyph.model)
               this.hover_glyph.render(ctx, this.all_indices, this.glyph)
           }
         }
