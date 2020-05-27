@@ -5,7 +5,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-""" Provide U.S. marriage and divorce statistics between 1867 and 2011
+''' Provide U.S. marriage and divorce statistics between 1867 and 2011
 
 Data from the CDC's National Center for Health Statistics (NHCS) database (http://www.cdc.gov/nchs/)
 
@@ -36,7 +36,8 @@ us_marriages_divorces.head output:
 2  1869   348000.0   11000.0    38870000                 9.0                0.3
 3  1870   352000.0   11000.0    39905000                 8.8                0.3
 4  1871   359000.0   12000.0    41010000                 8.8                0.3
-"""
+
+'''
 
 
 #-----------------------------------------------------------------------------
