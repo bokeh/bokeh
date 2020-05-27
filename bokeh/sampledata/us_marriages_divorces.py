@@ -11,16 +11,32 @@ Data from the CDC's National Center for Health Statistics (NHCS) database
 
 Data organized by Randal S. Olson (http://www.randalolson.com)
 
+.. data:: data
+
 The entire data is available as a DataFrame on an attribute on the module - "us_marriages_divorces.data"
 
-Structure of the data:
+dtypes info
 
-Year                   # list of int
-Marriages              # list of float
-Divorces               # list of float
-Population             # list of int
-Marriages_per_1000     # list of float
-Divorces_per_1000      # list of float
+In [7]: us_marriages_divorces.data.dtypes
+Out[7]:
+Year                    int64
+Marriages             float64
+Divorces              float64
+Population              int64
+Marriages_per_1000    float64
+Divorces_per_1000     float64
+dtype: object  
+
+df.head output
+
+>>> data.head()
+   Year  Marriages  Divorces  Population  Marriages_per_1000  Divorces_per_1000
+0  1867   357000.0   10000.0    36970000                 9.7                0.3
+1  1868   345000.0   10000.0    37885000                 9.1                0.3
+2  1869   348000.0   11000.0    38870000                 9.0                0.3
+3  1870   352000.0   11000.0    39905000                 8.8                0.3
+4  1871   359000.0   12000.0    41010000                 8.8                0.3
+
 
 '''
 
