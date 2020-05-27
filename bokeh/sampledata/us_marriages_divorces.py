@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-# -*- coding: utf-8 -*-
+
 """ Provide U.S. marriage and divorce statistics between 1867 and 2011
 
 Data from the CDC's National Center for Health Statistics (NHCS) database (http://www.cdc.gov/nchs/)
