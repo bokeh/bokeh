@@ -164,12 +164,12 @@ built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
 and must be loaded *after* the core BokehJS library.
 
-As a concrete example, the links for version ``2.0.1`` are:
+As a concrete example, the links for the current version are:
 
-* https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-api-2.0.1.min.js
+* :bokehjs-link:`bokeh`
+* :bokehjs-link:`bokeh-widgets`
+* :bokehjs-link:`bokeh-tables`
+* :bokehjs-link:`bokeh-api`
 
 .. note::
     You should always set `crossorigin="anonymous"` on script tags that load

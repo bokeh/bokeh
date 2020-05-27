@@ -40,6 +40,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_settings',
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',
+    'bokeh.sphinxext.bokehjs_link',
     'bokeh.sphinxext.bokehjs_script',
     'bokeh.sphinxext.collapsible_code_block',
     'bokeh.sphinxext.theme',
