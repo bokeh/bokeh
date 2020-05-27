@@ -19,14 +19,14 @@ The following code:
 .. code-block:: rest
 
     The current version of BokehJS widgets and tables can be
-    downloaded at: 
+    downloaded at:
     * :bokehjs-link:`bokeh-widgets`
     * :bokehjs-link:`bokeh-tables`
 
 yields the output:
 
 The current version of BokehJS widgets and tables can be
-downloaded at: 
+downloaded at:
 * :bokehjs-link:`bokeh-widgets`
 * :bokehjs-link:`bokeh-tables`
 
