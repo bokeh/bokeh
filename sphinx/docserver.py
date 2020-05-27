@@ -1,9 +1,9 @@
+import asyncio
 import os
 import sys
 import threading
 import time
 import webbrowser
-import asyncio
 
 import flask
 import tornado
@@ -41,7 +41,7 @@ def send_alert():
 @app.route('/en/latest/<path:filename>')
 def send_docs(filename):
     return flask.send_from_directory(
-        os.path.join(_basedir, "sphinx/_build/html/"), filename)
+        os.path.join(_basedir, "sphinx/build/html/"), filename)
 
 def open_browser():
     # Child process
