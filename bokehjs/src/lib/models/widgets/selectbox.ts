@@ -48,7 +48,6 @@ export class SelectView extends InputWidgetView {
 
     this.input_el = select({
       class: bk_input,
-      id: this.model.id,
       name: this.model.name,
       disabled: this.model.disabled,
     }, this.options_el())
