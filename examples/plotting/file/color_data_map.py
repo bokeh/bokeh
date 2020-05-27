@@ -34,7 +34,7 @@ p3 = make_plot('linear', 'Viridis6')
 p4 = make_plot('log', 'Viridis6')
 
 p5 = figure(toolbar_location=None, tools='', title="", x_range=(1, 1000), plot_width=800, plot_height=300)
-p5.title.text = f"Viridis256 with linear mapping and low/high = 200/800 = pink/grey"
+p5.title.text = "Viridis256 with linear mapping and low/high = 200/800 = pink/grey"
 mapper = LinearColorMapper(palette="Viridis256", low=200, high=800, low_color="pink", high_color="darkgrey")
 p5.circle(x='x', y='y', alpha=0.8, source=source, size=6,
          fill_color=transform('x', mapper), line_color=None)
