@@ -64,7 +64,7 @@ def verify_npm_credentials(config: Config, system: System) -> str:
     token = os.environ["NPM_TOKEN"]
     system.run("npm set registry 'https://registry.npmjs.org'")
     system.run(f"npm set //registry.npmjs.org/:_authToken {token}")
-    out = system.run(f"npm whoami")
+    out = system.run("npm whoami")
     if out.strip() != "bokeh":
         raise ValueError()
 
