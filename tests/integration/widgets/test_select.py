@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2020, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -78,7 +78,6 @@ class Test_Select(object):
         for i, opt in enumerate(opts, 1):
             assert opt.text == "Option %d" % i
             assert opt.get_attribute('value') == "Option %d" % i
-            assert opt.get_attribute('selected') == 'true' if (i==1) else 'false'
 
         assert page.has_no_console_errors()
 
@@ -97,7 +96,6 @@ class Test_Select(object):
         for i, opt in enumerate(opts, 1):
             assert opt.text == "Option %d" % i
             assert opt.get_attribute('value') == "Option %d" % i
-            assert opt.get_attribute('selected') == 'true' if (i==3) else 'false'
 
         assert page.has_no_console_errors()
 
@@ -135,7 +133,6 @@ class Test_Select(object):
         for i, opt in enumerate(opts, 1):
             assert opt.text == "Option %d" % i
             assert opt.get_attribute('value') == "%d" % i
-            assert opt.get_attribute('selected') == 'true' if (i==3) else 'false'
 
         assert page.has_no_console_errors()
 
@@ -166,10 +163,12 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
-        assert el.text == ""
+        label_el = page.driver.find_element_by_css_selector('.foo label')
+        assert label_el.text == ""
 
-        el = page.driver.find_element_by_css_selector('.foo select')
+        select_el = page.driver.find_element_by_css_selector('.foo select')
+        assert select_el.get_attribute("value") == "Option 22"
+
         grps = page.driver.find_elements_by_tag_name('optgroup')
         assert len(grps) == 2
 
@@ -179,8 +178,7 @@ class Test_Select(object):
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
                 assert opt.text == "Option %d" % (i*10 + j)
-                assert opt.get_attribute('value') == "Option %d" % (i*10 + j)
-                assert opt.get_attribute('selected') == 'true' if (i*10 + j==22) else 'false'
+                assert opt.get_attribute('value') == f"Option {i*10 + j}"
 
         assert page.has_no_console_errors()
 
@@ -211,21 +209,22 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('.foo label')
-        assert el.text == ""
+        label_el = page.driver.find_element_by_css_selector('.foo label')
+        assert label_el.text == ""
 
-        el = page.driver.find_element_by_css_selector('.foo select')
+        select_el = page.driver.find_element_by_css_selector('.foo select')
+        assert select_el.get_attribute("value") == "22"
+
         grps = page.driver.find_elements_by_tag_name('optgroup')
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
-            assert grp.get_attribute('label') == "g%d" %i
+            assert grp.get_attribute('label') == f"g{i}"
             opts = grp.find_elements_by_tag_name('option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
                 assert opt.text == "Option %d" % (i*10 + j)
-                assert opt.get_attribute('value') == "%d" % (i*10 + j)
-                assert opt.get_attribute('selected') == 'true' if (i*10 + j==22) else 'false'
+                assert opt.get_attribute('value') == f"{i*10 + j}"
 
         assert page.has_no_console_errors()
 
