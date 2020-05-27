@@ -13,7 +13,7 @@ Data organized by Randal S. Olson (http://www.randalolson.com)
 
 The entire data is available as a DataFrame on an attribute on the module - "us_marriages_divorces.data"
 
-Basic Structure of the data:
+Structure of the data:
 
 Year                   # list of int
 Marriages              # list of float
