@@ -53,6 +53,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import basename, join
+from typing import TYPE_CHECKING
 
 # External imports
 from docutils import nodes
@@ -65,7 +66,7 @@ from sphinx.util import logging
 from .templates import BJS_CODEPEN_INIT, BJS_EPILOGUE, BJS_HTML, BJS_PROLOGUE
 from .util import get_codeblock_node, get_sphinx_resources
 
-if False:
+if TYPE_CHECKING:
     # For type annotation
     # from directives.code.CodeBlock.run
     from typing import Any, Dict, List, Tuple  # NOQA
