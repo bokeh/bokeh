@@ -1,3 +1,7 @@
+html{
+  width: 100%;
+}
+
 .navbar-brand img {
     max-height: 50px;
 }
@@ -84,6 +88,10 @@
     -ms-flex-order: 0;
     order: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  table {
+    margin: 0 auto;
   }
 
   @media (min-width: 768px) {
@@ -219,7 +227,8 @@
 
 /* add padding to body to avid overlap with navbar   */
 body {
-  padding-top: 80px
+  padding-top: 80px;
+  width:100%
 }
 
 
@@ -258,14 +267,6 @@ body {
 .bd-toc .nav > .active > ul {
   display: block;
 }
-
-
-
-
-
-
-
-
 
 ul.gallery li {
     list-style-type: none;
