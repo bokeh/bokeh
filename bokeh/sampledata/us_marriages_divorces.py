@@ -17,8 +17,7 @@ The entire data is available as a DataFrame on an attribute on the module - "us_
 
 dtypes info
 
-In [7]: us_marriages_divorces.data.dtypes
-Out[7]:
+>>> us_marriages_divorces.data.dtypes
 Year                    int64
 Marriages             float64
 Divorces              float64
@@ -27,9 +26,9 @@ Marriages_per_1000    float64
 Divorces_per_1000     float64
 dtype: object  
 
-df.head output
+us_marriages_divorces.head output
 
->>> data.head()
+>>> us_marriages_divorces.data.head()
    Year  Marriages  Divorces  Population  Marriages_per_1000  Divorces_per_1000
 0  1867   357000.0   10000.0    36970000                 9.7                0.3
 1  1868   345000.0   10000.0    37885000                 9.1                0.3
