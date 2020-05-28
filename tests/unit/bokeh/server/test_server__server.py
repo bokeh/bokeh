@@ -170,7 +170,7 @@ def test_prefix(ManagedServerLoop) -> None:
         assert server.prefix == ""
 
     with ManagedServerLoop(application, prefix="foo") as server:
-        assert server.prefix == "foo"
+        assert server.prefix == "/foo"
 
 def test_index(ManagedServerLoop) -> None:
     application = Application()
