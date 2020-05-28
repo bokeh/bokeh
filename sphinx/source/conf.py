@@ -6,8 +6,11 @@ from bokeh.settings import settings
 # -- Project configuration -----------------------------------------------------
 
 author = "Bokeh Contributors"
+
 year = date.today().year
+
 copyright = f"©{year} {author}."
+
 project = 'Bokeh'
 
 version = settings.docs_version() or __version__
