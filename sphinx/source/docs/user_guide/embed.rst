@@ -234,7 +234,7 @@ The necessary script tags with hashes can be obtained by calling
 
 .. bokehjs-script-tag::
 
-SRI hashes are only produced for full release versiones (i.e. not for dev builds
+SRI hashes are only produced for full release versions (i.e. not for dev builds
 or release candidates).
 
 In addition to a single Bokeh model (e.g. a plot), the |components| function
