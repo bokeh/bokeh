@@ -36,77 +36,77 @@ describe("factor_range module", () => {
     describe("with zero padding", () => {
 
       it("should evenly map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const r0 = map_one_level(['a'], 0)
-        expect(r0[0]).to.deep.equal({a: {value: 0.5}})
-        expect(r0[1]).to.be.equal(0)
+        const [m0, p0] = map_one_level(['a'], 0)
+        expect(m0).to.deep.equal(new Map([["a", {value: 0.5}]]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_one_level(['a', 'b'], 0)
-        expect(r1[0]).to.deep.equal({a: {value: 0.5}, b: {value: 1.5}})
-        expect(r1[1]).to.be.equal(0)
+        const [m1, p1] = map_one_level(['a', 'b'], 0)
+        expect(m1).to.deep.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}]]))
+        expect(p1).to.be.equal(0)
 
-        const r2 = map_one_level(['a', 'b', 'c'], 0)
-        expect(r2[0]).to.deep.equal({a: {value: 0.5}, b: {value: 1.5}, c: {value: 2.5}})
-        expect(r2[1]).to.be.equal(0)
+        const [m2, p2] = map_one_level(['a', 'b', 'c'], 0)
+        expect(m2).to.deep.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}], ["c", {value: 2.5}]]))
+        expect(p2).to.be.equal(0)
 
-        const r3 = map_one_level(['a', 'b', 'c', 'd'], 0)
-        expect(r3[0]).to.deep.equal({a: {value: 0.5}, b: {value: 1.5}, c: {value: 2.5}, d: {value: 3.5}})
-        expect(r3[1]).to.be.equal(0)
+        const [m3, p3] = map_one_level(['a', 'b', 'c', 'd'], 0)
+        expect(m3).to.deep.equal(new Map([["a", {value: 0.5}], ["b", {value: 1.5}], ["c", {value: 2.5}], ["d", {value: 3.5}]]))
+        expect(p3).to.be.equal(0)
       })
 
       it("should also apply an offset if provided", () => {
-        const r0 = map_one_level(['a'], 0, 1)
-        expect(r0[0]).to.deep.equal({a: {value: 1.5}})
-        expect(r0[1]).to.be.equal(0)
+        const [m0, p0] = map_one_level(['a'], 0, 1)
+        expect(m0).to.deep.equal(new Map([["a", {value: 1.5}]]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_one_level(['a', 'b'], 0, 1)
-        expect(r1[0]).to.deep.equal({a: {value: 1.5}, b: {value: 2.5}})
-        expect(r1[1]).to.be.equal(0)
+        const [m1, p1] = map_one_level(['a', 'b'], 0, 1)
+        expect(m1).to.deep.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}]]))
+        expect(p1).to.be.equal(0)
 
-        const r2 = map_one_level(['a', 'b', 'c'], 0, 1)
-        expect(r2[0]).to.deep.equal({a: {value: 1.5}, b: {value: 2.5}, c: {value: 3.5}})
-        expect(r2[1]).to.be.equal(0)
+        const [m2, p2] = map_one_level(['a', 'b', 'c'], 0, 1)
+        expect(m2).to.deep.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}], ["c", {value: 3.5}]]))
+        expect(p2).to.be.equal(0)
 
-        const r3 = map_one_level(['a', 'b', 'c', 'd'], 0, 1)
-        expect(r3[0]).to.deep.equal({a: {value: 1.5}, b: {value: 2.5}, c: {value: 3.5}, d: {value: 4.5}})
-        expect(r3[1]).to.be.equal(0)
+        const [m3, p3] = map_one_level(['a', 'b', 'c', 'd'], 0, 1)
+        expect(m3).to.deep.equal(new Map([["a", {value: 1.5}], ["b", {value: 2.5}], ["c", {value: 3.5}], ["d", {value: 4.5}]]))
+        expect(p3).to.be.equal(0)
       })
 
       describe("with positive padding", () => {
 
         it("should evenly map a list of factors, padded, starting at 0.5 (with no offset by default)", () => {
-          const r0 = map_one_level(['a'], 0.5)
-          expect(r0[0]).to.deep.equal({a: {value: 0.5}})
-          expect(r0[1]).to.be.equal(0)
+          const [m0, p0] = map_one_level(['a'], 0.5)
+          expect(m0).to.deep.equal(new Map([["a", {value: 0.5}]]))
+          expect(p0).to.be.equal(0)
 
-          const r1 = map_one_level(['a', 'b'], 0.5)
-          expect(r1[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}})
-          expect(r1[1]).to.be.equal(0.5)
+          const [m1, p1] = map_one_level(['a', 'b'], 0.5)
+          expect(m1).to.deep.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}]]))
+          expect(p1).to.be.equal(0.5)
 
-          const r2 = map_one_level(['a', 'b', 'c'], 0.5)
-          expect(r2[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}, c: {value: 3.5}})
-          expect(r2[1]).to.be.equal(1)
+          const [m2, p2] = map_one_level(['a', 'b', 'c'], 0.5)
+          expect(m2).to.deep.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}], ["c", {value: 3.5}]]))
+          expect(p2).to.be.equal(1)
 
-          const r3 = map_one_level(['a', 'b', 'c', 'd'], 0.5)
-          expect(r3[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}, c: {value: 3.5}, d: {value: 5}})
-          expect(r3[1]).to.be.equal(1.5)
+          const [m3, p3] = map_one_level(['a', 'b', 'c', 'd'], 0.5)
+          expect(m3).to.deep.equal(new Map([["a", {value: 0.5}], ["b", {value: 2}], ["c", {value: 3.5}], ["d", {value: 5}]]))
+          expect(p3).to.be.equal(1.5)
         })
 
         it("should also apply an offset if provided", () => {
-          const r0 = map_one_level(['a'], 0.5, 1)
-          expect(r0[0]).to.deep.equal({a: {value: 1.5}})
-          expect(r0[1]).to.be.equal(0)
+          const [m0, p0] = map_one_level(['a'], 0.5, 1)
+          expect(m0).to.deep.equal(new Map([["a", {value: 1.5}]]))
+          expect(p0).to.be.equal(0)
 
-          const r1 = map_one_level(['a', 'b'], 0.5, 1)
-          expect(r1[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}})
-          expect(r1[1]).to.be.equal(0.5)
+          const [m1, p1] = map_one_level(['a', 'b'], 0.5, 1)
+          expect(m1).to.deep.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}]]))
+          expect(p1).to.be.equal(0.5)
 
-          const r2 = map_one_level(['a', 'b', 'c'], 0.5, 1)
-          expect(r2[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}, c: {value: 4.5}})
-          expect(r2[1]).to.be.equal(1)
+          const [m2, p2] = map_one_level(['a', 'b', 'c'], 0.5, 1)
+          expect(m2).to.deep.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}], ["c", {value: 4.5}]]))
+          expect(p2).to.be.equal(1)
 
-          const r3 = map_one_level(['a', 'b', 'c', 'd'], 0.5, 1)
-          expect(r3[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}, c: {value: 4.5}, d: {value: 6}})
-          expect(r3[1]).to.be.equal(1.5)
+          const [m3, p3] = map_one_level(['a', 'b', 'c', 'd'], 0.5, 1)
+          expect(m3).to.deep.equal(new Map([["a", {value: 1.5}], ["b", {value: 3}], ["c", {value: 4.5}], ["d", {value: 6}]]))
+          expect(p3).to.be.equal(1.5)
         })
       })
     })
@@ -117,396 +117,348 @@ describe("factor_range module", () => {
     describe("with zero outer_padding and zero factor_padding", () => {
 
       it("should evenly map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const r0 = map_two_levels([['a', '1']], 0, 0)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {1: {value: 0.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 0, 0)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 0)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 1, mapping: {1: {value: 0.5}, 2: {value: 1.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(0)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 0, 0)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 1, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}]])}],
+        ]))
+        expect(p1).to.be.equal(0)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 0)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(0)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 0)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+        ]))
+        expect(p2).to.be.equal(0)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 0)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-          b: {value: 3.5, mapping: {1: {value: 3.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(0)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 0)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+          ["b", {value: 3.5, mapping: new Map([["1", {value: 3.5}]])}],
+        ]))
+        expect(p3).to.be.equal(0)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-          b: {value: 4,   mapping: {1: {value: 3.5}, 4: {value: 4.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(0)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+          ["b", {value: 4,   mapping: new Map([["1", {value: 3.5}], ["4", {value: 4.5}]])}],
+        ]))
+        expect(p4).to.be.equal(0)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-          b: {value: 4,   mapping: {1: {value: 3.5}, 4: {value: 4.5}}},
-          c: {value: 5.5, mapping: {0: {value: 5.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(0)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+          ["b", {value: 4,   mapping: new Map([["1", {value: 3.5}], ["4", {value: 4.5}]])}],
+          ["c", {value: 5.5, mapping: new Map([["0", {value: 5.5}]])}],
+        ]))
+        expect(p5).to.be.equal(0)
       })
 
       it("should also apply an offset if provided", () => {
-        const r0 = map_two_levels([['a', '1']], 0, 0, 1)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 1.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 0, 0, 1)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 0, 1)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 2, mapping: {1: {value: 1.5}, 2: {value: 2.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(0)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 0, 0, 1)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 2, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}]])}],
+        ]))
+        expect(p1).to.be.equal(0)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 0, 1)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(0)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 0, 1)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+        ]))
+        expect(p2).to.be.equal(0)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 0, 1)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 4.5, mapping: {1: {value: 4.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(0)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 0, 1)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+          ["b", {value: 4.5, mapping: new Map([["1", {value: 4.5}]])}],
+        ]))
+        expect(p3).to.be.equal(0)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0, 1)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 5, mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(0)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0, 1)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+          ["b", {value: 5, mapping: new Map([["1", {value: 4.5}], ["4", {value: 5.5}]])}],
+        ]))
+        expect(p4).to.be.equal(0)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0, 1)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 5, mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
-          c: {value: 6.5, mapping: {0: {value: 6.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(0)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0, 1)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+          ["b", {value: 5, mapping: new Map([["1", {value: 4.5}], ["4", {value: 5.5}]])}],
+          ["c", {value: 6.5, mapping: new Map([["0", {value: 6.5}]])}],
+        ]))
+        expect(p5).to.be.equal(0)
       })
     })
 
     describe("with nonzero outer_padding and zero factor_padding", () => {
 
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const r0 = map_two_levels([['a', '1']], 2, 0)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {1: {value: 0.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 2, 0)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 0)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 1, mapping: {1: {value: 0.5}, 2: {value: 1.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(0)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 2, 0)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 1, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}]])}],
+        ]))
+        expect(p1).to.be.equal(0)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 0)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(0)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 0)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+        ]))
+        expect(p2).to.be.equal(0)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 0)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-          b: {value: 5.5, mapping: {1: {value: 5.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(2)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 0)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+          ["b", {value: 5.5, mapping: new Map([["1", {value: 5.5}]])}],
+        ]))
+        expect(p3).to.be.equal(2)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-          b: {value: 6,   mapping: {1: {value: 5.5}, 4: {value: 6.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(2)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+          ["b", {value: 6,   mapping: new Map([["1", {value: 5.5}], ["4", {value: 6.5}]])}],
+        ]))
+        expect(p4).to.be.equal(2)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
-          b: {value: 6,   mapping: {1: {value: 5.5}, 4: {value: 6.5}}},
-          c: {value: 9.5, mapping: {0: {value: 9.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(4)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 1.5}], ["3", {value: 2.5}]])}],
+          ["b", {value: 6,   mapping: new Map([["1", {value: 5.5}], ["4", {value: 6.5}]])}],
+          ["c", {value: 9.5, mapping: new Map([["0", {value: 9.5}]])}],
+        ]))
+        expect(p5).to.be.equal(4)
       })
 
       it("should also apply an offset if provided", () => {
-        const r0 = map_two_levels([['a', '1']], 2, 0, 1)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 1.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 2, 0, 1)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 0, 1)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 2, mapping: {1: {value: 1.5}, 2: {value: 2.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(0)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 2, 0, 1)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 2, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}]])}],
+        ]))
+        expect(p1).to.be.equal(0)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 0, 1)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(0)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 0, 1)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+        ]))
+        expect(p2).to.be.equal(0)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 0, 1)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 6.5, mapping: {1: {value: 6.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(2)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 0, 1)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+          ["b", {value: 6.5, mapping: new Map([["1", {value: 6.5}]])}],
+        ]))
+        expect(p3).to.be.equal(2)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0, 1)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 7, mapping: {1: {value: 6.5}, 4: {value: 7.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(2)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0, 1)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+          ["b", {value: 7, mapping: new Map([["1", {value: 6.5}], ["4", {value: 7.5}]])}],
+        ]))
+        expect(p4).to.be.equal(2)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0, 1)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value:  1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 7, mapping: {1: {value:  6.5}, 4: {value: 7.5}}},
-          c: {value: 10.5, mapping: {0: {value: 10.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(4)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0, 1)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value:  1.5}], ["2", {value: 2.5}], ["3", {value: 3.5}]])}],
+          ["b", {value: 7, mapping: new Map([["1", {value:  6.5}], ["4", {value: 7.5}]])}],
+          ["c", {value: 10.5, mapping: new Map([["0", {value: 10.5}]])}],
+        ]))
+        expect(p5).to.be.equal(4)
       })
     })
 
     describe("with zero outer_padding and nonzero factor_padding", () => {
 
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const r0 = map_two_levels([['a', '1']], 0, 1)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {1: {value: 0.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 0, 1)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 1)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(1)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 0, 1)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}]])}],
+        ]))
+        expect(p1).to.be.equal(1)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 1)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(2)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 1)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+        ]))
+        expect(p2).to.be.equal(2)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 1)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-          b: {value: 5.5, mapping: {1: {value: 5.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(2)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 1)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+          ["b", {value: 5.5, mapping: new Map([["1", {value: 5.5}]])}],
+        ]))
+        expect(p3).to.be.equal(2)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 1)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-          b: {value: 6.5, mapping: {1: {value: 5.5}, 4: {value: 7.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(3)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 1)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+          ["b", {value: 6.5, mapping: new Map([["1", {value: 5.5}], ["4", {value: 7.5}]])}],
+        ]))
+        expect(p4).to.be.equal(3)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 1)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-          b: {value: 6.5, mapping: {1: {value: 5.5}, 4: {value: 7.5}}},
-          c: {value: 8.5, mapping: {0: {value: 8.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(3)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 1)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+          ["b", {value: 6.5, mapping: new Map([["1", {value: 5.5}], ["4", {value: 7.5}]])}],
+          ["c", {value: 8.5, mapping: new Map([["0", {value: 8.5}]])}],
+        ]))
+        expect(p5).to.be.equal(3)
       })
 
       it("should also apply an offset if provided", () => {
-        const r0 = map_two_levels([['a', '1']], 0, 1, 1)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 1.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 0, 1, 1)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 1, 1)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(1)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 0, 1, 1)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}]])}],
+        ]))
+        expect(p1).to.be.equal(1)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 1, 1)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(2)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 1, 1)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+        ]))
+        expect(p2).to.be.equal(2)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 1, 1)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-          b: {value: 6.5, mapping: {1: {value: 6.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(2)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 1, 1)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+          ["b", {value: 6.5, mapping: new Map([["1", {value: 6.5}]])}],
+        ]))
+        expect(p3).to.be.equal(2)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 1, 1)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-          b: {value: 7.5, mapping: {1: {value: 6.5}, 4: {value: 8.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(3)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 1, 1)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+          ["b", {value: 7.5, mapping: new Map([["1", {value: 6.5}], ["4", {value: 8.5}]])}],
+        ]))
+        expect(p4).to.be.equal(3)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 1, 1)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-          b: {value: 7.5, mapping: {1: {value: 6.5}, 4: {value: 8.5}}},
-          c: {value: 9.5, mapping: {0: {value: 9.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(3)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 1, 1)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+          ["b", {value: 7.5, mapping: new Map([["1", {value: 6.5}], ["4", {value: 8.5}]])}],
+          ["c", {value: 9.5, mapping: new Map([["0", {value: 9.5}]])}],
+        ]))
+        expect(p5).to.be.equal(3)
       })
     })
 
     describe("with nonzero outer_padding and nonzero factor_padding", () => {
 
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
-        const r0 = map_two_levels([['a', '1']], 2, 1)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {1: {value: 0.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 2, 1)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 0.5, mapping: new Map([["1", {value: 0.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 1)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(1)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 2, 1)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}]])}],
+        ]))
+        expect(p1).to.be.equal(1)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 1)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(2)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 1)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+        ]))
+        expect(p2).to.be.equal(2)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 1)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-          b: {value: 7.5, mapping: {1: {value: 7.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(4)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 1)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+          ["b", {value: 7.5, mapping: new Map([["1", {value: 7.5}]])}],
+        ]))
+        expect(p3).to.be.equal(4)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 1)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-          b: {value: 8.5, mapping: {1: {value: 7.5}, 4: {value: 9.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(5)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 1)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+          ["b", {value: 8.5, mapping: new Map([["1", {value: 7.5}], ["4", {value: 9.5}]])}],
+        ]))
+        expect(p4).to.be.equal(5)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 1)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
-          b: {value: 8.5, mapping: {1: {value: 7.5}, 4: {value: 9.5}}},
-          c: {value: 12.5, mapping: {0: {value: 12.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(7)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 1)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 0.5}], ["2", {value: 2.5}], ["3", {value: 4.5}]])}],
+          ["b", {value: 8.5, mapping: new Map([["1", {value: 7.5}], ["4", {value: 9.5}]])}],
+          ["c", {value: 12.5, mapping: new Map([["0", {value: 12.5}]])}],
+        ]))
+        expect(p5).to.be.equal(7)
       })
 
       it("should also apply an offset if provided", () => {
-        const r0 = map_two_levels([['a', '1']], 2, 1, 1)
-        expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {1: {value: 1.5}}},
-        })
-        expect(r0[1]).to.deep.equal(['a'])
-        expect(r0[2]).to.be.equal(0)
+        const [m0, p0] = map_two_levels([['a', '1']], 2, 1, 1)
+        expect(m0).to.deep.equal(new Map([
+          ["a", {value: 1.5, mapping: new Map([["1", {value: 1.5}]])}],
+        ]))
+        expect(p0).to.be.equal(0)
 
-        const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 1, 1)
-        expect(r1[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}}},
-        })
-        expect(r1[1]).to.deep.equal(['a'])
-        expect(r1[2]).to.be.equal(1)
+        const [m1, p1] = map_two_levels([['a', '1'], ['a', '2']], 2, 1, 1)
+        expect(m1).to.deep.equal(new Map([
+          ["a", {value: 2.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}]])}],
+        ]))
+        expect(p1).to.be.equal(1)
 
-        const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 1, 1)
-        expect(r2[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-        })
-        expect(r2[1]).to.deep.equal(['a'])
-        expect(r2[2]).to.be.equal(2)
+        const [m2, p2] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 1, 1)
+        expect(m2).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+        ]))
+        expect(p2).to.be.equal(2)
 
-        const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 1, 1)
-        expect(r3[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-          b: {value: 8.5, mapping: {1: {value: 8.5}}},
-        })
-        expect(r3[1]).to.deep.equal(['a', 'b'])
-        expect(r3[2]).to.be.equal(4)
+        const [m3, p3] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 1, 1)
+        expect(m3).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+          ["b", {value: 8.5, mapping: new Map([["1", {value: 8.5}]])}],
+        ]))
+        expect(p3).to.be.equal(4)
 
-        const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 1, 1)
-        expect(r4[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-          b: {value: 9.5, mapping: {1: {value: 8.5}, 4: {value: 10.5}}},
-        })
-        expect(r4[1]).to.deep.equal(['a', 'b'])
-        expect(r4[2]).to.be.equal(5)
+        const [m4, p4] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 1, 1)
+        expect(m4).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+          ["b", {value: 9.5, mapping: new Map([["1", {value: 8.5}], ["4", {value: 10.5}]])}],
+        ]))
+        expect(p4).to.be.equal(5)
 
-        const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 1, 1)
-        expect(r5[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
-          b: {value: 9.5, mapping: {1: {value: 8.5}, 4: {value: 10.5}}},
-          c: {value: 13.5, mapping: {0: {value: 13.5}}},
-        })
-        expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
-        expect(r5[2]).to.be.equal(7)
+        const [m5, p5] = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 1, 1)
+        expect(m5).to.deep.equal(new Map([
+          ["a", {value: 3.5, mapping: new Map([["1", {value: 1.5}], ["2", {value: 3.5}], ["3", {value: 5.5}]])}],
+          ["b", {value: 9.5, mapping: new Map([["1", {value: 8.5}], ["4", {value: 10.5}]])}],
+          ["c", {value: 13.5, mapping: new Map([["0", {value: 13.5}]])}],
+        ]))
+        expect(p5).to.be.equal(7)
       })
     })
   })
