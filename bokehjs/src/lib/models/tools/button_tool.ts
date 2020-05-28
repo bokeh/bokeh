@@ -7,6 +7,7 @@ import {empty} from "core/dom"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
+import {reversed} from "core/util/array"
 
 import {bk_toolbar_button} from "styles/toolbar"
 
@@ -30,8 +31,10 @@ export abstract class ButtonToolButtonView extends DOMView {
 
     const items = this.model.menu
     if (items != null) {
+      const location = this.parent.model.toolbar_location
+      const reverse = location == "left" || location == "above"
       const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
-      this._menu = new ContextMenu(items, {
+      this._menu = new ContextMenu(!reverse ? items : reversed(items), {
         orientation,
         prevent_hide: (event) => event.target == this.el,
       })
