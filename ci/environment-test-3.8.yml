@@ -3,6 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - python=3.8
 
   # runtime
   - jinja2 >=2.7

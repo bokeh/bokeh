@@ -17,8 +17,6 @@ jobs:
         with:
           activate-environment: bk-test
           environment-file: ci/environment-build.yml
-          miniconda-version: 'latest'
-          python-version: 3.6
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -58,9 +56,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.7
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -103,9 +99,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.6
+          environment-file: ci/environment-test-3.6.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -172,9 +166,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.7
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -218,9 +210,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.8
+          environment-file: ci/environment-test-3.8.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -270,9 +260,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: ${{ matrix.python-version }}
+          environment-file: ci/environment-test-${{ matrix.python-version }}.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -327,9 +315,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.6
+          environment-file: ci/environment-test-3.6.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -376,9 +362,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.6
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -431,9 +415,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           activate-environment: bk-test
-          environment-file: ci/environment-test.yml
-          miniconda-version: 'latest'
-          python-version: 3.6
+          environment-file: ci/environment-test-3.6.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
