@@ -310,7 +310,7 @@ jobs:
         shell: bash -l {0}
         run: |
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          py.test --cov=bokeh --cov-config=.coveragerc --color=yes tests/unit
+          py.test --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
   minimal-deps:
     needs: build
