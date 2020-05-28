@@ -1,12 +1,13 @@
+from datetime import date
+
 from bokeh import __version__
 from bokeh.settings import settings
 
 # -- Project configuration -----------------------------------------------------
 
 author = "Bokeh Contributors"
-
-copyright = f"©2019 {author}."
-
+year = date.today().year
+copyright = f"©{year} {author}."
 project = 'Bokeh'
 
 version = settings.docs_version() or __version__
