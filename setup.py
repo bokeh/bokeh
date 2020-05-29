@@ -91,7 +91,7 @@ REQUIRES = [
     'numpy >=1.11.3',
     'pillow >=4.0',
     'packaging >=16.8',
-    'tornado >=5',
+    'tornado >=5.1',
     'typing_extensions >=3.7.4',
 ]
 
