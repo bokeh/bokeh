@@ -2,7 +2,6 @@ import {ID} from "../types"
 import {isPlainObject} from "./types"
 import {is_little_endian} from "./compat"
 import {DataType, NDArray} from "./ndarray"
-import {uniqueId} from "./string"
 import * as ndarray from "./ndarray"
 
 export function buffer_to_base64(buffer: ArrayBuffer): string {
@@ -138,7 +137,7 @@ export function encode_NDArray(array: NDArray, buffers?: Buffers): BufferRef | N
   }
 
   if (buffers != null) {
-    const __buffer__ = uniqueId()
+    const __buffer__ = `${buffers.size}`
     buffers.set(__buffer__, array.buffer)
     return {__buffer__, ...data}
   } else {
