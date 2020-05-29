@@ -74,14 +74,14 @@ from _setup_support import ( # isort:skip
 if sys.version_info[:2] < (3, 6):
     raise RuntimeError("Bokeh requires python >= 3.6")
 
+# we want to have the license at the top level of the GitHub repo, but setup
+# can't include it from there, so copy it to the package directory first thing
+copy("LICENSE.txt", "bokeh/")
+
 # immediately handle lightweight "python setup.py --install-js"
 if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
     install_js()
     sys.exit()
-
-# we want to have the license at the top level of the GitHub repo, but setup
-# can't include it from there, so copy it to the package directory first thing
-copy("LICENSE.txt", "bokeh/")
 
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 REQUIRES = [
