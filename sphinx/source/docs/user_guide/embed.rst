@@ -197,26 +197,14 @@ script, when executed, will replace the div with the plot.
 
 Using these components assumes that BokehJS has already been loaded, for
 instance either inline in the document text, or from CDN. To load BokehJS
-from CDN, add the following lines in your HTML text or template with the
-appropriate version replacing ``x.y.z``:
+from CDN, add the following lines in your HTML text or template:
 
-.. code-block:: html
-
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"
-            crossorigin="anonymous"></script>
+.. bokehjs-script-tag::
+    :js_files: bokeh-widgets,bokeh-tables
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
 Similarly, the ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document.
-
-For example, to use the current version, including widgets and tables support:
-
-.. bokehjs-script-tag::
-    :js_files: bokeh-widgets,bokeh-tables
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
