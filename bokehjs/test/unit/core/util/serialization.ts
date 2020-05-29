@@ -1,6 +1,7 @@
 import {expect} from "chai"
 
 import * as ser from "@bokehjs/core/util/serialization"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 
 const GOOD_TYPES = [
   Float32Array, Float64Array, Uint8Array, Int8Array,
@@ -101,5 +102,34 @@ describe("serialization module", () => {
         expect(c).to.be.deep.equal(b)
       })
     }
+  })
+
+  it("should support NDArray serialization and de-serialization", () => {
+    const nd0 = ndarray([1, 2, 3, 4, 5, 6], {dtype: "int32", shape: [2, 3]})
+
+    const buffers0 = new Map<string, ArrayBuffer>()
+    const ref0_0 = ser.encode_NDArray(nd0, buffers0)
+    expect(ref0_0).to.be.deep.equal({
+      __buffer__: "0",
+      order: ser.BYTE_ORDER,
+      dtype: "int32",
+      shape: [2, 3],
+    })
+    expect(buffers0).to.be.deep.equal(new Map([["0", nd0.buffer]]))
+
+    const deref0_0 = ser.decode_NDArray(ref0_0, buffers0)
+    expect(deref0_0).to.be.deep.equal(nd0)
+    expect(() => ser.decode_NDArray(ref0_0, new Map())).to.throw()
+
+    const ref0_1 = ser.encode_NDArray(nd0)
+    expect(ref0_1).to.be.deep.equal({
+      __ndarray__: "AQAAAAIAAAADAAAABAAAAAUAAAAGAAAA",
+      order: ser.BYTE_ORDER,
+      dtype: "int32",
+      shape: [2, 3],
+    })
+
+    const deref0_1 = ser.decode_NDArray(ref0_1, new Map())
+    expect(deref0_1).to.be.deep.equal(nd0)
   })
 })
