@@ -1,3 +1,4 @@
+import "./ndarray"
 import "./array"
 import "./arrayable"
 import "./typed_array"
