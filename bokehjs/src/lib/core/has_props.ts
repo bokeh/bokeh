@@ -14,6 +14,8 @@ import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/typ
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
+import {is_NDArray} from "./util/ndarray"
+import {encode_NDArray} from "./util/serialization"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -419,21 +421,23 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  static _value_to_json(_key: string, value: unknown, _optional_parent_object: any): unknown {
+  static _value_to_json(value: unknown): unknown {
     if (value instanceof HasProps)
       return value.ref()
+    else if (is_NDArray(value))
+      return encode_NDArray(value)
     else if (isArray(value)) {
       const ref_array: unknown[] = []
       for (let i = 0; i < value.length; i++) {
         const v = value[i]
-        ref_array.push(HasProps._value_to_json(i.toString(), v, value))
+        ref_array.push(HasProps._value_to_json(v))
       }
       return ref_array
     } else if (isPlainObject(value)) {
       const ref_obj: Attrs = {}
       for (const subkey in value) {
         if (value.hasOwnProperty(subkey))
-          ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
+          ref_obj[subkey] = HasProps._value_to_json(value[subkey])
       }
       return ref_obj
     } else
@@ -446,7 +450,7 @@ export abstract class HasProps extends Signalable() {
     const attributes: Attrs = {} // Object.create(null)
     for (const prop of this) {
       if (prop.syncable && (include_defaults || prop.dirty)) {
-        attributes[prop.attr] = value_to_json(prop.attr, prop.get_value(), this)
+        attributes[prop.attr] = value_to_json(prop.get_value())
       }
     }
     return attributes
@@ -593,10 +597,6 @@ export abstract class HasProps extends Signalable() {
       const array = prop.array(source)
 
       data[`_${name}`] = array
-      // the shapes are indexed by the column name, but when we materialize the dataspec, we should
-      // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
-      if (prop.spec.field != null && prop.spec.field in source._shapes)
-        data[`_${name}_shape`] = source._shapes[prop.spec.field]
       if (prop instanceof p.DistanceSpec)
         data[`max_${name}`] = max(array)
     }

@@ -50,7 +50,7 @@ export interface ColumnsStreamed {
 export interface ColumnsPatched {
   kind: "ColumnsPatched"
   column_source: Ref
-  patches: PatchSet
+  patches: PatchSet<unknown>
 }
 
 export type DocumentChanged =
@@ -77,7 +77,7 @@ export class MessageSentEvent extends DocumentChangedEvent {
 
   json(_references: Set<HasProps>): DocumentChanged {
     const value = this.msg_data
-    const value_json = HasProps._value_to_json("", value, null)
+    const value_json = HasProps._value_to_json(value)
     const value_refs = new Set<HasProps>()
     HasProps._value_record_references(value, value_refs, {recursive: true})
     /* XXX: this will cause all referenced models to be reinitialized
@@ -114,7 +114,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       return this.hint.json(references)
 
     const value = this.new_
-    const value_json = HasProps._value_to_json(this.attr, value, this.model)
+    const value_json = HasProps._value_to_json(value)
     const value_refs = new Set<HasProps>()
     HasProps._value_record_references(value, value_refs, {recursive: true})
     if (value_refs.has(this.model) && this.model !== value) {
@@ -138,7 +138,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
       readonly column_source: Ref,
-      readonly patches: PatchSet) {
+      readonly patches: PatchSet<unknown>) {
     super(document)
   }
 

@@ -1,51 +1,24 @@
-import {Arrayable, TypedArray, Data} from "../types"
-import {isTypedArray, isArray, isPlainObject} from "./types"
+import {ID} from "../types"
+import {isPlainObject} from "./types"
 import {is_little_endian} from "./compat"
+import {DataType, NDArray} from "./ndarray"
+import * as ndarray from "./ndarray"
 
-export const ARRAY_TYPES = {
-  uint8:   Uint8Array,
-  int8:    Int8Array,
-  uint16:  Uint16Array,
-  int16:   Int16Array,
-  uint32:  Uint32Array,
-  int32:   Int32Array,
-  float32: Float32Array,
-  float64: Float64Array,
+export function buffer_to_base64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  const chars = Array.from(bytes).map((b) => String.fromCharCode(b))
+  return btoa(chars.join(""))
 }
 
-export const DTYPES = {
-  Uint8Array:   "uint8"   as "uint8",
-  Int8Array:    "int8"    as "int8",
-  Uint16Array:  "uint16"  as "uint16",
-  Int16Array:   "int16"   as "int16",
-  Uint32Array:  "uint32"  as "uint32",
-  Int32Array:   "int32"   as "int32",
-  Float32Array: "float32" as "float32",
-  Float64Array: "float64" as "float64",
-}
-
-function arrayName(array: TypedArray): ArrayName {
-  if ("name" in array.constructor)
-    return array.constructor.name as ArrayName
-  else {
-    switch (true) {
-      case array instanceof Uint8Array:   return "Uint8Array"
-      case array instanceof Int8Array:    return "Int8Array"
-      case array instanceof Uint16Array:  return "Uint16Array"
-      case array instanceof Int16Array:   return "Int16Array"
-      case array instanceof Uint32Array:  return "Uint32Array"
-      case array instanceof Int32Array:   return "Int32Array"
-      case array instanceof Float32Array: return "Float32Array"
-      case array instanceof Float64Array: return "Float64Array"
-      default:
-        throw new Error("unsupported typed array")
-    }
+export function base64_to_buffer(base64: string): ArrayBuffer {
+  const binary_string = atob(base64)
+  const len = binary_string.length
+  const bytes = new Uint8Array(len)
+  for (let i = 0, end = len; i < end; i++) {
+    bytes[i] = binary_string.charCodeAt(i)
   }
+  return bytes.buffer
 }
-
-export type ArrayName = keyof typeof DTYPES
-
-export type DType = keyof typeof ARRAY_TYPES
 
 export type ByteOrder = "little" | "big"
 
@@ -92,182 +65,83 @@ export function swap64(a: Float64Array): void {
 
 export type Shape = number[]
 
-export type BufferSpec = {
+export type BufferRef = {
   __buffer__: string
   order: ByteOrder
-  dtype: DType
+  dtype: DataType
   shape: Shape
 }
 
-export type NDArray = {
+export type NDArrayRef = {
   __ndarray__: string
-  shape?: Shape
-  dtype: DType
+  order: ByteOrder
+  dtype: DataType
+  shape: Shape
 }
 
-export type Buffers = Map<string, ArrayBuffer>
+export function is_NDArray_ref(v: unknown): v is BufferRef | NDArrayRef {
+  return isPlainObject(v) && ("__buffer__" in v || "__ndarray__" in v)
+}
 
-export function process_buffer(specification: BufferSpec, buffers: Buffers): [TypedArray, Shape] {
-  const need_swap = specification.order !== BYTE_ORDER
-  const {shape} = specification
-  const bytes = buffers.get(specification.__buffer__)
-  if (bytes == null) {
-    throw new Error(`buffer for ${specification.__buffer__} not found`)
+export type Buffers = Map<ID, ArrayBuffer>
+
+export function decode_NDArray(ref: BufferRef | NDArrayRef, buffers: Buffers): NDArray {
+  const {shape, dtype, order} = ref
+
+  let bytes: ArrayBuffer
+  if ("__buffer__" in ref) {
+    const buffer = buffers.get(ref.__buffer__)
+    if (buffer != null)
+      bytes = buffer
+    else
+      throw new Error(`buffer for ${ref.__buffer__} not found`)
+  } else {
+    bytes = base64_to_buffer(ref.__ndarray__)
   }
-  const arr = new (ARRAY_TYPES[specification.dtype])(bytes)
-  if (need_swap) {
-    if (arr.BYTES_PER_ELEMENT === 2) {
-      swap16(arr as Int16Array | Uint16Array)
-    } else if (arr.BYTES_PER_ELEMENT === 4) {
-      swap32(arr as Int32Array | Uint32Array | Float32Array)
-    } else if (arr.BYTES_PER_ELEMENT === 8) {
-      swap64(arr as Float64Array)
+
+  const array = (() => {
+    switch (dtype) {
+      case "uint8":   return new ndarray.Uint8NDArray(bytes, shape)
+      case "int8":    return new ndarray.Int8NDArray(bytes, shape)
+      case "uint16":  return new ndarray.Uint16NDArray(bytes, shape)
+      case "int16":   return new ndarray.Int16NDArray(bytes, shape)
+      case "uint32":  return new ndarray.Uint32NDArray(bytes, shape)
+      case "int32":   return new ndarray.Int32NDArray(bytes, shape)
+      case "float32": return new ndarray.Float32NDArray(bytes, shape)
+      case "float64": return new ndarray.Float64NDArray(bytes, shape)
+    }
+  })()
+
+  if (order !== BYTE_ORDER) {
+    switch (array.BYTES_PER_ELEMENT) {
+      case 2:
+        swap16(array as Int16Array | Uint16Array)
+        break
+      case 4:
+        swap32(array as Int32Array | Uint32Array | Float32Array)
+        break
+      case 8:
+        swap64(array as Float64Array)
+        break
     }
   }
-  return [arr, shape]
+
+  return array
 }
 
-export function process_array(obj: NDArray | BufferSpec | Arrayable, buffers: Buffers): [Arrayable, number[]] {
-  if (isPlainObject(obj) && '__ndarray__' in obj)
-    return decode_base64(obj)
-  else if (isPlainObject(obj) && '__buffer__' in obj)
-    return process_buffer(obj, buffers)
-  else if (isArray(obj) || isTypedArray(obj))
-    return [obj, []]
-  else
-    return undefined as never
-}
-
-export function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  const chars = Array.from(bytes).map((b) => String.fromCharCode(b))
-  return btoa(chars.join(""))
-}
-
-export function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binary_string = atob(base64)
-  const len = binary_string.length
-  const bytes = new Uint8Array(len)
-  for (let i = 0, end = len; i < end; i++) {
-    bytes[i] = binary_string.charCodeAt(i)
-  }
-  return bytes.buffer
-}
-
-export function decode_base64(input: NDArray): [TypedArray, Shape] {
-  const bytes = base64ToArrayBuffer(input.__ndarray__)
-  const dtype = input.dtype
-  const shape = input.shape!
-
-  let array: TypedArray
-  if (dtype in ARRAY_TYPES)
-    array = new (ARRAY_TYPES[dtype])(bytes)
-  else
-    throw new Error(`unknown dtype: ${dtype}`)
-
-  return [array, shape]
-}
-
-export function encode_base64(array: TypedArray, shape?: Shape): NDArray {
-  const b64 = arrayBufferToBase64(array.buffer)
-  const name = arrayName(array)
-
-  let dtype: DType
-  if (name in DTYPES)
-    dtype = DTYPES[name]
-  else
-    throw new Error(`unknown array type: ${name}`)
-
+export function encode_NDArray(array: NDArray, buffers?: Buffers): BufferRef | NDArrayRef {
   const data = {
-    __ndarray__: b64,
-    shape,
-    dtype,
-  }
-  return data
-}
-
-export type Shapes = {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
-
-export type EncodedData = {[key: string]: NDArray | Arrayable}
-
-function decode_traverse_data(v: unknown[], buffers: Buffers): [Arrayable, any] {
-  // v is just a regular array of scalars
-  if (v.length == 0 || !(isPlainObject(v[0]) || isArray(v[0]))) {
-    return [v, []]
+    order: BYTE_ORDER,
+    dtype: array.dtype,
+    shape: array.shape,
   }
 
-  const arrays: Arrayable[] = []
-  const shapes: Shape[] = []
-
-  for (const obj of v) {
-    const [arr, shape] = isArray(obj) ? decode_traverse_data(obj, buffers)
-                                      : process_array(obj as NDArray, buffers)
-    arrays.push(arr)
-    shapes.push(shape)
+  if (buffers != null) {
+    const __buffer__ = `${buffers.size}`
+    buffers.set(__buffer__, array.buffer)
+    return {__buffer__, ...data}
+  } else {
+    const __ndarray__ = buffer_to_base64(array.buffer)
+    return {__ndarray__, ...data}
   }
-  // If there is a list of empty lists, reduce that to just a list
-  const filtered_shapes = shapes.map((shape) => shape.filter((v) => (v as any).length != 0))
-  return [arrays, filtered_shapes]
-}
-
-export function decode_column_data(data: EncodedData, buffers: Buffers = new Map()): [Data, Shapes] {
-  const new_data: Data = {}
-  const new_shapes: Shapes = {}
-
-  for (const k in data) {
-
-    // might be array of scalars, or might be ragged array or arrays
-    const v = data[k]
-    if (isArray(v)) {
-      // v is just a regular array of scalars
-      if (v.length == 0 || !(isPlainObject(v[0]) || isArray(v[0]))) {
-        new_data[k] = v
-        continue
-      }
-      // v is a ragged array of arrays
-      const [arrays, shapes] = decode_traverse_data(v, buffers)
-      new_data[k] = arrays
-      new_shapes[k] = shapes
-
-    // must be object or array (single array case)
-    } else {
-      const [arr, shape] = process_array(v, buffers)
-      new_data[k] = arr
-      new_shapes[k] = shape
-    }
-  }
-
-  return [new_data, new_shapes]
-}
-
-function encode_traverse_data(v: unknown[], shapes?: any) {
-  const new_array: any[] = []
-  for (let i = 0, end = v.length; i < end; i++) {
-    const item = v[i]
-    if (isTypedArray(item)) {
-      const shape = shapes[i] ? shapes[i] : undefined
-      new_array.push(encode_base64(item, shape))
-    } else if (isArray(item)) {
-      new_array.push(encode_traverse_data(item, shapes ? shapes[i] : []))
-    } else
-      new_array.push(item)
-  }
-  return new_array
-}
-
-export function encode_column_data(data: Data, shapes?: Shapes): EncodedData {
-  const new_data: EncodedData = {}
-  for (const k in data) {
-    const v = data[k]
-    const shapes_k = shapes != null ? shapes[k] as Shape : undefined
-    let new_v: NDArray | Arrayable
-    if (isTypedArray(v)) {
-      new_v = encode_base64(v, shapes_k)
-    } else if (isArray(v)) {
-      new_v = encode_traverse_data(v, shapes_k || [])
-    } else
-      new_v = v
-    new_data[k] = new_v
-  }
-  return new_data
 }
