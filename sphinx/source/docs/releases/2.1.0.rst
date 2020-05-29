@@ -18,3 +18,8 @@ and CSS rendering modes, primarily for performance reasons, when used as
 overlays. Overlays are now implemented efficiently on the HTML5 canvas and
 thus CSS mode and ``render_mode`` property aren't needed anymore and have
 been deprecated. They will be removed in bokeh 3.0.
+
+Minimum Tornado Version
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The minimum torndado version is now 5.1
