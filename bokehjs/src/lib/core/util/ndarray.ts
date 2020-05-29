@@ -23,7 +23,7 @@ export class Int8NDArray extends Int8Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
@@ -34,7 +34,7 @@ export class Uint16NDArray extends Uint16Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
@@ -45,7 +45,7 @@ export class Int16NDArray extends Int16Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
@@ -56,7 +56,7 @@ export class Uint32NDArray extends Uint32Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
@@ -67,7 +67,7 @@ export class Int32NDArray extends Int32Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
@@ -78,7 +78,7 @@ export class Float32NDArray extends Float32Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
@@ -89,7 +89,7 @@ export class Float64NDArray extends Float64Array {
 
   constructor(seq: ArrayLike<number> | ArrayBufferLike, shape?: number[]) {
     super(seq)
-    this.shape = shape ?? [this.length]
+    this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 }
 
