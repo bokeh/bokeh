@@ -5,6 +5,8 @@ import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
+import {MenuItem} from "core/util/menus"
+import {enumerate} from "core/util/iterator"
 
 export namespace ToolProxy {
   export type Attrs = p.AttrsOf<Props>
@@ -87,6 +89,27 @@ export class ToolProxy extends Model {
     for (const tool of this.tools) {
       tool.active = this.active
     }
+  }
+
+  get menu(): MenuItem[] | null {
+    const {menu} = this.tools[0]
+    if (menu == null)
+      return null
+
+    const items = []
+    for (const [item, i] of enumerate(menu)) {
+      if (item == null)
+        items.push(null)
+      else {
+        const handler = () => {
+          for (const tool of this.tools) {
+            tool.menu?.[i]?.handler()
+          }
+        }
+        items.push({...item, handler})
+      }
+    }
+    return items
   }
 
   /* XXX: this.model?

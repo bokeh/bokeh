@@ -36,6 +36,11 @@
     border-radius: @border-radius;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
 
+    & > .bk-divider {
+      cursor: default;
+      overflow: hidden;
+      background-color: #e5e5e5;
+    }
     &.bk-horizontal > .bk-divider {
       width: 1px;
       margin: 5px 0;
@@ -44,14 +49,18 @@
       height: 1px;
       margin: 0 5px;
     }
-    & > .bk-divider {
-      cursor: default;
-      overflow: hidden;
-      background-color: #e5e5e5;
-    }
+
     & > :not(.bk-divider) {
       border: 1px solid transparent;
 
+      &.bk-active {
+        border-color: #26aae1; // TODO @activeToolHighlight;
+      }
+      &:hover {
+        background-color: #f9f9f9;
+      }
+    }
+    &.bk-horizontal > :not(.bk-divider) {
       &:first-child {
         border-top-left-radius: @border-radius;
         border-bottom-left-radius: @border-radius;
@@ -60,13 +69,15 @@
         border-top-right-radius: @border-radius;
         border-bottom-right-radius: @border-radius;
       }
-
-      &.bk-active {
-        border-color: #26aae1; // TODO @activeToolHighlight;
+    }
+    &.bk-vertical > :not(.bk-divider) {
+      &:first-child {
+        border-top-left-radius: @border-radius;
+        border-top-right-radius: @border-radius;
       }
-
-      &:hover {
-        background-color: #f9f9f9;
+      &:last-child {
+        border-bottom-left-radius: @border-radius;
+        border-bottom-right-radius: @border-radius;
       }
     }
   }
