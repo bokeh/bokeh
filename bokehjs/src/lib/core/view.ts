@@ -2,13 +2,11 @@ import type {HasProps} from "./has_props"
 import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {isArray} from "./util/types"
-import {uniqueId} from "./util/string"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
 export namespace View {
   export type Options = {
-    id?: string
     model: HasProps
     parent: View | null
   }
@@ -17,8 +15,6 @@ export namespace View {
 export class View implements ISignalable {
 
   readonly removed = new Signal0<this>(this, "removed")
-
-  readonly id: string
 
   readonly model: HasProps
 
@@ -49,7 +45,6 @@ export class View implements ISignalable {
       throw new Error("model of a view wasn't configured")
 
     this._parent = options.parent
-    this.id = options.id || uniqueId()
   }
 
   initialize(): void {}
@@ -63,7 +58,7 @@ export class View implements ISignalable {
   }
 
   toString(): string {
-    return `${this.model.type}View(${this.id})`
+    return `${this.model.type}View(${this.model.id})`
   }
 
   serializable_state(): {[key: string]: unknown} {

@@ -33,18 +33,18 @@ export class BooleanFilter extends Filter {
     if (booleans != null && booleans.length > 0) {
       if (every(booleans, isBoolean)) {
         if (booleans.length !== source.get_length()) {
-          logger.warn(`BooleanFilter ${this.id}: length of booleans doesn't match data source`)
+          logger.warn(`${this}: length of booleans doesn't match data source`)
         }
         return range(0, booleans.length).filter((i) => booleans[i] === true)
       } else {
-        logger.warn(`BooleanFilter ${this.id}: booleans should be array of booleans, defaulting to no filtering`)
+        logger.warn(`${this}: booleans should be array of booleans, defaulting to no filtering`)
         return null
       }
     } else {
       if (booleans != null && booleans.length == 0)
-        logger.warn(`BooleanFilter ${this.id}: booleans is empty, defaulting to no filtering`)
+        logger.warn(`${this}: booleans is empty, defaulting to no filtering`)
       else
-        logger.warn(`BooleanFilter ${this.id}: booleans was not set, defaulting to no filtering`)
+        logger.warn(`${this}: booleans was not set, defaulting to no filtering`)
       return null
     }
   }

@@ -3,6 +3,7 @@ import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
@@ -39,7 +40,7 @@ export type RangeInfo = {
 
 export type StateInfo = {
   range?: RangeInfo
-  selection: {[key: string]: Selection}
+  selection: Map<DataRenderer, Selection>
   dimensions: {
     width: number
     height: number
@@ -231,7 +232,7 @@ export class PlotView extends LayoutDOMView {
     this.visuals = new Visuals(this.model) as any // XXX
 
     this._initial_state_info = {
-      selection: {},                      // XXX: initial selection?
+      selection: new Map(),               // XXX: initial selection?
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
     this.visibility_callbacks = []
@@ -559,26 +560,28 @@ export class PlotView extends LayoutDOMView {
       this.update_selection(info.selection)
   }
 
-  get_selection(): {[key: string]: Selection} {
-    const selection: {[key: string]: Selection} = {}
+  get_selection(): Map<DataRenderer, Selection> {
+    const selection = new Map<DataRenderer, Selection>()
     for (const renderer of this.model.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const {selected} = renderer.data_source
-        selection[renderer.id] = selected
+        selection.set(renderer, selected)
       }
     }
     return selection
   }
 
-  update_selection(selection: {[key: string]: Selection} | null): void {
+  update_selection(selections: Map<DataRenderer, Selection> | null): void {
     for (const renderer of this.model.renderers) {
       if (!(renderer instanceof GlyphRenderer))
         continue
 
       const ds = renderer.data_source
-      if (selection != null) {
-        if (selection[renderer.id] != null)
-          ds.selected.update(selection[renderer.id], true)
+      if (selections != null) {
+        const selection = selections.get(renderer)
+        if (selection != null) {
+          ds.selected.update(selection, true)
+        }
       } else
         ds.selection_manager.clear()
     }

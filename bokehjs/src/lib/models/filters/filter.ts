@@ -37,10 +37,10 @@ export class Filter extends Model {
       if (isArrayOf(filter, isInteger)) {
         return filter
       }
-      logger.warn(`Filter ${this.id}: filter should either be array of only booleans or only integers, defaulting to no filtering`)
+      logger.warn(`${this}: filter should either be array of only booleans or only integers, defaulting to no filtering`)
       return null
     } else {
-      logger.warn(`Filter ${this.id}: filter was not set to be an array, defaulting to no filtering`)
+      logger.warn(`${this}: filter was not set to be an array, defaulting to no filtering`)
       return null
     }
   }
