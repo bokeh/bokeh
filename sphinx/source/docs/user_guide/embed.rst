@@ -134,7 +134,7 @@ or with modern syntax:
     Bokeh.embed.embed_item(item)
     </script>
 
-A full example can be found a :bokeh-tree:`examples/embed/json_item.py`.
+A full example can be found at :bokeh-tree:`examples/embed/json_item.py`.
 
 .. _userguide_embed_standalone_components:
 
@@ -197,64 +197,32 @@ script, when executed, will replace the div with the plot.
 
 Using these components assumes that BokehJS has already been loaded, for
 instance either inline in the document text, or from CDN. To load BokehJS
-from CDN, add the following lines in your HTML text or template with the
-appropriate version replacing ``x.y.z``:
+from CDN, add the following lines in your HTML text or template:
 
-.. code-block:: html
-
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"
-            crossorigin="anonymous"></script>
+.. bokehjs-script-tag::
+    :js_files: bokeh-widgets,bokeh-tables
 
 The ``"-widgets"`` files are only necessary if your document includes Bokeh widgets.
 Similarly, the ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document.
-
-For example, to use version ``1.4.0``, including widgets and tables support:
-
-.. code-block:: html
-
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.4.0.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js"
-            crossorigin="anonymous"></script>
 
 .. note::
     You must provide the closing `</script>` tag. This is required by all
     browsers and the page will typically not render without it. You should also
     always include the `crossorigin="anonymous"` attribute on the script.
 
-If you would like to include `Subresource Integrity`_ hashes to your explicit
-script tags by setting the `integrity` attribute, the necesary hashes can be
-obtained by calling :func:`~bokeh.resources.get_sri_hashes_for_version` e.g.
+The necessary script tags with hashes can be obtained by calling
+:func:`~bokeh.resources.CDN.render_js` e.g.
 
 .. code-block:: python
 
     In [1]: import bokeh.resources
 
-    In [2]: bokeh.resources.get_sri_hashes_for_version("2.0.0")
-    Out[2]:
-    {'bokeh-2.0.0.js': 'TQAjsk2/lDn1NHjYoe8HIascd3/Cw4EWdk6GNtYXVVyAiUkbEZiuP7fEgbSwM37Y',
+    In [2]: bokeh.resources.CDN.render_js()
 
-    ...
+.. bokehjs-script-tag::
 
-    'bokeh-widgets-2.0.0.min.js': '2ltAd1cQhavmLeBEZXGgnna8fjbw+FjvDq9m2dig4+8KVS8JcYFUQaALvLT//qHE'}
-
-These are the bare hashes, and must be prefixed with `sha384-` to use. For
-example:
-
-.. code-block:: html
-
-     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.0.min.js"
-             integrity="sha384-5Y+xuMRAbgBj/2WKUiL8yzV4fBFic1HJPo2hT3pq2IsEzbsJjj8kT2i0b1lZ7C2N"
-             crossorigin="anonymous"></script>
-
-SRI hashes are only produced for full release versiones (i.e. not for dev builds
+SRI hashes are only produced for full release versions (i.e. not for dev builds
 or release candidates).
 
 In addition to a single Bokeh model (e.g. a plot), the |components| function

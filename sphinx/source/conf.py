@@ -1,3 +1,5 @@
+from datetime import date
+
 from bokeh import __version__
 from bokeh.settings import settings
 
@@ -5,7 +7,9 @@ from bokeh.settings import settings
 
 author = "Bokeh Contributors"
 
-copyright = f"©2019 {author}."
+year = date.today().year
+
+copyright = f"©{year} {author}."
 
 project = 'Bokeh'
 
@@ -40,6 +44,8 @@ extensions = [
     'bokeh.sphinxext.bokeh_settings',
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',
+    'bokeh.sphinxext.bokehjs_link',
+    'bokeh.sphinxext.bokehjs_script',
     'bokeh.sphinxext.collapsible_code_block',
     'bokeh.sphinxext.theme',
 ]

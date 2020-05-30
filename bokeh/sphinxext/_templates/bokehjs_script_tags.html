@@ -1,0 +1,8 @@
+{%- for js_file in js_files %}
+<script src="{{ js_file }}"
+{%- if hashes %}
+        integrity="sha384-{{ hashes[js_file] }}"
+        crossorigin="anonymous"
+{%- endif -%}
+></script>
+{%- endfor %}
