@@ -9,6 +9,7 @@ from bokeh.layouts import layout
 from bokeh.models.widgets import Div
 from bokeh.plotting import figure, output_file, show
 from bokeh.tile_providers import Vendors, get_provider
+import numpy as np
 
 output_file("foo.html")
 
@@ -57,11 +58,12 @@ def LatLon_to_EN(lat_lon):
 description = Div(text="""<b><code>bokeh_tile_demo.py</code></b> - Bokeh tile provider examples. Linked Pan and Zoom on all maps!""")
 
 # pick a location and generate a 4-point window around it: bottom-left, upper-right
-map_center_lat_lon = ( 30.268801, -97.763347 ) # Lady Bird Lake, Austin Texas
+lat = 30.268801   # Lady Bird Lake, Austin Texas
+lon = -97.763347 
 
+EN = lnglat_to_meters(lon,lat)
 dE = 1000 # (m) Easting  plus-and-minus from map center
 dN = 1000 # (m) Northing plus-and-minus from map center
-EN = LatLon_to_EN(map_center_lat_lon)
 x_range = ( EN[0]-dE , EN[0]+dE ) # (m) Easting  x_lo, x_hi
 y_range = ( EN[1]-dN , EN[1]+dN ) # (m) Northing y_lo, y_hi
 
