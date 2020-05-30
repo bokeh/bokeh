@@ -149,18 +149,31 @@ BokehJS
 -------
 
 If you would like to use BokehJS as a standalone JavaScript library, released
-versions of BokehJS are available for download from CDN at ``cdn.bokeh.org``:
+versions of BokehJS are available for download from CDN at ``cdn.bokeh.org``,
+under the following naming scheme::
 
-* :bokehjs-link:`bokeh`
-* :bokehjs-link:`bokeh-widgets`
-* :bokehjs-link:`bokeh-tables`
-* :bokehjs-link:`bokeh-api`
+    # Javascript files
+    https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js
+    https://cdn.bokeh.org/bokeh/release/bokeh-api-x.y.z.min.js
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 ``"-tables"`` files are only necessary if you are using Bokeh data tables in
 your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
 and must be loaded *after* the core BokehJS library.
+
+As a concrete example, the links for version ``2.0.1`` are:
+
+* https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-api-2.0.1.min.js
+
+.. note::
+    You should always set `crossorigin="anonymous"` on script tags that load
+    BokehJS from CDN.
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _Anaconda, Inc.: http://anaconda.com
