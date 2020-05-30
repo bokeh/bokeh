@@ -42,6 +42,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import re
+
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.roles import set_classes
@@ -80,15 +83,12 @@ def bokehjs_link(name, rawtext, text, lineno, inliner, options=None, content=Non
     js_files = resources.js_files
 
     if text == 'bokeh':
-        url = js_files[0]
-    elif text == 'bokeh-widgets':
-        url = js_files[1]
-    elif text == 'bokeh-tables':
-        url = js_files[2]
-    elif text == 'bokeh-gl':
-        url = js_files[3]
-    elif text == 'bokeh-api':
-        url = js_files[4]
+        bokeh_url_pattern = re.compile(r'.*bokeh-(\d.)+.*')
+    else:
+        bokeh_url_pattern = re.compile(rf'.*{text}.*')
+
+    matched_urls = list(filter(bokeh_url_pattern.match, js_files))
+    url = matched_urls[0]
 
     options = options or {}
     set_classes(options)
