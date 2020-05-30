@@ -83,7 +83,7 @@ def bokehjs_link(name, rawtext, text, lineno, inliner, options=None, content=Non
     js_files = resources.js_files
 
     if text == 'bokeh':
-        bokeh_url_pattern = re.compile(r'.*bokeh-(\d.)+.*')
+        bokeh_url_pattern = re.compile(r'(.*bokeh-(\d.)+.*)|(.*bokeh\.min.*)')
     else:
         bokeh_url_pattern = re.compile(rf'.*{text}.*')
 
