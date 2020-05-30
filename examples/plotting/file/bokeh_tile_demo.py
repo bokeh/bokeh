@@ -13,6 +13,34 @@ from bokeh.tile_providers import get_provider, Vendors
 output_file("foo.html")
 
 # helper function for coordinate conversion between lat/lon in decimal degrees to web mercator
+# lnglat_to_meters() by @jbednar (James A. Bednar), https://github.com/bokeh/bokeh/issues/10009#issuecomment-628982394
+def lnglat_to_meters(longitude, latitude):
+    """
+    Projects the given (longitude, latitude) values into Web Mercator
+    coordinates (meters East of Greenwich and meters North of the Equator).
+
+    Longitude and latitude can be provided as scalars, Pandas columns,
+    or Numpy arrays, and will be returned in the same form.  Lists
+    or tuples will be converted to Numpy arrays.
+
+    Examples:
+       easting, northing = lnglat_to_meters(-74,40.71)
+
+       easting, northing = lnglat_to_meters(np.array([-74]),np.array([40.71]))
+
+       df=pandas.DataFrame(dict(longitude=np.array([-74]),latitude=np.array([40.71])))
+       df.loc[:, 'longitude'], df.loc[:, 'latitude'] = lnglat_to_meters(df.longitude,df.latitude)
+    """
+    if isinstance(longitude, (list, tuple)):
+        longitude = np.array(longitude)
+    if isinstance(latitude, (list, tuple)):
+        latitude = np.array(latitude)
+
+    origin_shift = np.pi * 6378137
+    easting = longitude * origin_shift / 180.0
+    northing = np.log(np.tan((90 + latitude) * np.pi / 360.0)) * origin_shift / np.pi
+    return (easting, northing)
+
 def LatLon_to_EN(lat_lon):
     from pyproj import Proj, transform
     lat=lat_lon[0]
@@ -24,7 +52,10 @@ def LatLon_to_EN(lat_lon):
     except:
         return None, None
 
-description = Div(text="""<b><code>bokeh_tile_examples.py</code></b> - Bokeh tile provider examples. Linked Pan and Zoom on all maps!""")
+
+
+
+description = Div(text="""<b><code>bokeh_tile_demo.py</code></b> - Bokeh tile provider examples. Linked Pan and Zoom on all maps!""")
 
 # pick a location and generate a 4-point window around it: bottom-left, upper-right
 map_center_lat_lon = ( 30.268801, -97.763347 ) # Lady Bird Lake, Austin Texas
