@@ -69,7 +69,9 @@ export class Toolbar extends ToolbarBase {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.properties.tools.change, () => this._init_tools())
+
+    const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
+    this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => this._init_tools())
   }
 
   protected _init_tools(): void {
@@ -116,7 +118,7 @@ export class Toolbar extends ToolbarBase {
 
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
       for (const tool of gesture.tools) {
-        this.connect(tool.properties.active.change, this._active_change.bind(this, tool))
+        this.connect(tool.properties.active.change, () => this._active_change(tool))
       }
     }
 

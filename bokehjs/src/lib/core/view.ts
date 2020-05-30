@@ -91,11 +91,9 @@ export class View implements ISignalable {
     Signal.disconnectReceiver(this)
   }
 
-  on_change(property: Property<unknown>, fn: () => void): void
-  on_change(properties: Property<unknown>[], fn: () => void): void
-
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
-    for (const property of isArray(properties) ? properties : [properties])
+    for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
+    }
   }
 }

@@ -602,4 +602,10 @@ export abstract class HasProps extends Signalable() {
     }
     return data
   }
+
+  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
+    for (const property of isArray(properties) ? properties : [properties]) {
+      this.connect(property.change, fn)
+    }
+  }
 }

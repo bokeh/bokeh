@@ -110,12 +110,12 @@ export class ProxyToolbar extends ToolbarBase {
             for (const tool of tools) {
               const proxy = make_proxy([tool])
               gesture.tools.push(proxy as any)
-              this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+              this.connect(proxy.properties.active.change, () => this._active_change(proxy as any))
             }
           } else {
             const proxy = make_proxy(tools)
             gesture.tools.push(proxy as any)
-            this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+            this.connect(proxy.properties.active.change, () => this._active_change(proxy as any))
           }
         }
       }
