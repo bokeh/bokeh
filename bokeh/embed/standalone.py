@@ -123,8 +123,11 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     scripts tags. The widgets and tables resources are only necessary if the components
     make use of widgets and tables.
 
-    .. bokehjs-script-tag::
-        :js_files: bokeh-widgets,bokeh-tables
+    .. code-block:: html
+
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
+        <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-x.y.z.min.js"></script>
 
     Note that in Jupyter Notebooks, it is not possible to use components and show in
     the same notebook cell.
