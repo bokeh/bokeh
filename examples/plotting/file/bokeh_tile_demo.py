@@ -75,7 +75,6 @@ for vendorName in Vendors:
         plot[idx] = figure(x_range=x_range, y_range=y_range,
                        x_axis_type="mercator", y_axis_type="mercator",
                        plot_height=200, plot_width=300, title=vendorName)
-    
     else: # link x_range and y_range of subsequent plots to match the first
         plot[idx] = figure(x_range=plot[0].x_range, y_range=plot[0].y_range,
                        x_axis_type="mercator", y_axis_type="mercator",
