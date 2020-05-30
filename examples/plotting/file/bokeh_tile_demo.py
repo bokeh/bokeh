@@ -4,12 +4,12 @@
 # Usage:
 #   python3 bokeh_tile_demo.py
 
+import numpy as np
 
 from bokeh.layouts import layout
 from bokeh.models.widgets import Div
 from bokeh.plotting import figure, output_file, show
 from bokeh.tile_providers import Vendors, get_provider
-import numpy as np
 
 output_file("foo.html")
 
