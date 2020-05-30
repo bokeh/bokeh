@@ -8,12 +8,11 @@
 from bokeh.layouts import layout
 from bokeh.models.widgets import Div
 from bokeh.plotting import figure, output_file, show
-from bokeh.tile_providers Vendors, import get_provider
+from bokeh.tile_providers import Vendors, get_provider
 
 output_file("foo.html")
 
 # helper function for coordinate conversion between lat/lon in decimal degrees to web mercator
-# lnglat_to_meters() by @jbednar (James A. Bednar), https://github.com/bokeh/bokeh/issues/10009#issuecomment-628982394
 def lnglat_to_meters(longitude, latitude):
     """
     Projects the given (longitude, latitude) values into Web Mercator
