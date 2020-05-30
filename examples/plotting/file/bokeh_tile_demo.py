@@ -41,19 +41,6 @@ def lnglat_to_meters(longitude, latitude):
     northing = np.log(np.tan((90 + latitude) * np.pi / 360.0)) * origin_shift / np.pi
     return (easting, northing)
 
-def LatLon_to_EN(lat_lon):
-    from pyproj import Proj, transform
-    lat=lat_lon[0]
-    lon=lat_lon[1]
-    try:
-        #              from: WGS84, lat/lon, EPSG:4326    to: Web Mercator, EPSG:3857 in meters
-        easting, northing = transform( Proj('epsg:4326'), Proj('epsg:3857'), lat, lon) # from WGS-84 to Web Mercator Easting/Northing
-        return easting, northing # meters
-    except:
-        return None, None
-
-
-
 
 description = Div(text="""<b><code>bokeh_tile_demo.py</code></b> - Bokeh tile provider examples. Linked Pan and Zoom on all maps!""")
 
