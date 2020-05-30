@@ -46,7 +46,7 @@ description = Div(text="""<b><code>bokeh_tile_demo.py</code></b> - Bokeh tile pr
 
 # pick a location and generate a 4-point window around it: bottom-left, upper-right
 lat = 30.268801   # Lady Bird Lake, Austin Texas
-lon = -97.763347 
+lon = -97.763347
 
 EN = lnglat_to_meters(lon,lat)
 dE = 1000 # (m) Easting  plus-and-minus from map center
