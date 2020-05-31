@@ -88,7 +88,9 @@ def bokehjs_link(name, rawtext, text, lineno, inliner, options=None, content=Non
         raise SphinxError("cannot find JS component: '%r'" % text)
 
     if text == 'bokeh':
-        bokeh_url_pattern = re.compile(r'(.*bokeh-(\d.)+.*)|(.*bokeh\.min.*)')
+        js_components.remove("bokeh")
+        group = '|'.join(js_components)
+        bokeh_url_pattern = re.compile(rf'^.*(?!{group})')
     else:
         bokeh_url_pattern = re.compile(rf'.*{text}.*')
 
