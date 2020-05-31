@@ -139,9 +139,18 @@ export class AutocompleteInputView extends TextInputView {
         }
 
         const completions: string[] = []
+        const case_sensitive: boolean = this.model.case_sensitive
+        let actest: (t: string, v: string) => boolean;
+        if (case_sensitive) {
+          actest = (t: string, v: string): boolean => { return t.startsWith(v); }
+        } else {
+          actest = (t: string, v: string): boolean => { return t.toLowerCase().startsWith(v.toLowerCase()); }
+        }
+
         for (const text of this.model.completions) {
-          if (text.startsWith(value))
+          if (actest(text, value)) {
             completions.push(text)
+            }
         }
 
         this._update_completions(completions)
@@ -161,6 +170,7 @@ export namespace AutocompleteInput {
   export type Props = TextInput.Props & {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
+    case_sensitive: p.Property<boolean>
   }
 }
 
@@ -180,6 +190,7 @@ export class AutocompleteInput extends TextInput {
     this.define<AutocompleteInput.Props>({
       completions:    [ p.Array, [] ],
       min_characters: [ p.Int,   2  ],
+      case_sensitive: [ p.Boolean,  false ],
     })
   }
 }
