@@ -95,7 +95,7 @@ def bokehjs_link(name, rawtext, text, lineno, inliner, options=None, content=Non
     matched_urls = list(filter(bokeh_url_pattern.match, js_files))
 
     if not matched_urls:
-        raise SphinxError("cannot find CDN url for '%r'" % text)
+        raise SphinxError("cannot find CDN url for %r, urls: %s" % (text, str(js_files)))
 
     url = matched_urls[0]
 
