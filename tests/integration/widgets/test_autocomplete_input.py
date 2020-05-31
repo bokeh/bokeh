@@ -150,8 +150,7 @@ class Test_AutocompleteInput(object):
         assert "bk-active" not in items[2].get_attribute('class')
 
     def test_case_insensitivity(self, bokeh_model_page) -> None:
-        # case_sensitive=False by default
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"])
+        text_input = AutocompleteInput(title="title", css_classes=["foo"], case_sensitive=False, completions = ["100001", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"])
 
         page = bokeh_model_page(text_input)
 
@@ -197,7 +196,8 @@ class Test_AutocompleteInput(object):
         assert page.has_no_console_errors()
 
     def test_case_sensitivity(self, bokeh_model_page) -> None:
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], case_sensitive=True, completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"])
+        # case_sensitive=True by default
+        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"])
 
         page = bokeh_model_page(text_input)
 
