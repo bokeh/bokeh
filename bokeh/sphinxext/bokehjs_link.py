@@ -48,6 +48,7 @@ import re
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.roles import set_classes
+from sphinx.errors import SphinxError
 
 # Bokeh imports
 from .util import get_sphinx_resources
@@ -81,6 +82,10 @@ def bokehjs_link(name, rawtext, text, lineno, inliner, options=None, content=Non
     resources = get_sphinx_resources(include_bokehjs_api=True)
 
     js_files = resources.js_files
+    js_components = resources.js_components
+
+    if text not in js_components:
+        raise SphinxError("cannot find JS component: '%r'" % text)
 
     if text == 'bokeh':
         bokeh_url_pattern = re.compile(r'(.*bokeh-(\d.)+.*)|(.*bokeh\.min.*)')
@@ -88,6 +93,10 @@ def bokehjs_link(name, rawtext, text, lineno, inliner, options=None, content=Non
         bokeh_url_pattern = re.compile(rf'.*{text}.*')
 
     matched_urls = list(filter(bokeh_url_pattern.match, js_files))
+
+    if not matched_urls:
+        raise SphinxError("cannot find CDN url for '%r'" % text)
+
     url = matched_urls[0]
 
     options = options or {}
