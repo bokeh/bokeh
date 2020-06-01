@@ -1,8 +1,0 @@
-Column bbox=[0, 0, 800, 430]
-  Plot bbox=[0, 0, 800, 300]
-    DatetimeAxis bbox=[52, 0, 743, 24]
-    LinearAxis bbox=[0, 24, 52, 271]
-    Title bbox=[52, 0, 743, 0]
-  Plot bbox=[0, 300, 800, 130]
-    DatetimeAxis bbox=[52, 106, 743, 24]
-    Title bbox=[52, 0, 743, 28]

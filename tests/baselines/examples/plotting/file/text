@@ -1,6 +1,0 @@
-Column bbox=[0, 0, 800, 648]
-  Plot bbox=[0, 0, 800, 600]
-    CategoricalAxis bbox=[99, 545, 696, 55]
-    CategoricalAxis bbox=[0, 28, 99, 517]
-    Title bbox=[99, 0, 696, 28]
-  Slider bbox=[5, 605, 790, 38]

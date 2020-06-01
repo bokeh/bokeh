@@ -1,7 +1,0 @@
-Row bbox=[0, 0, 710, 600]
-  CheckboxGroup bbox=[5, 5, 100, 54]
-  Plot bbox=[110, 0, 600, 600]
-    LinearAxis bbox=[28, 576, 542, 24]
-    LinearAxis bbox=[0, 5, 28, 571]
-    Title bbox=[28, 5, 542, 0]
-    ToolbarPanel bbox=[570, 5, 30, 571]
