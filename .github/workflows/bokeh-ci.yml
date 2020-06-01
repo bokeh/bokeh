@@ -152,13 +152,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         shell: bash -l {0}
         run: |
-          py.test -s -v                 \
-            --color=yes                 \
-            --tb line                   \
-            --diff-ref FETCH_HEAD       \
-            --self-contained-html       \
-            --report-path=examples.html \
-            tests/test_examples.py
+          py.test -s -v --color=yes --tb line tests/test_examples.py
 
   js-test:
     needs: build

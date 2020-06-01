@@ -19,9 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import os
-from base64 import b64decode
 from os.path import (
     basename,
     dirname,
@@ -33,14 +31,9 @@ from os.path import (
     relpath,
     splitext,
 )
-from subprocess import PIPE, Popen
 
 # External imports
 import yaml
-
-# Bokeh imports
-from bokeh._testing.util.git import __version__
-from bokeh._testing.util.images import image_diff
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -68,7 +61,6 @@ class Flags(object):
     skip     = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
     xfail    = 1 << 6  # test is expected to fail, which doesn't fail the test suite
     no_js    = 1 << 7  # skip bokehjs and thus image diff (e.g. google maps key issue)
-    no_diff  = 1 << 8  # skip only image diff (e.g. inherent randomness as in jitter)
 
 class Example(object):
 
@@ -79,8 +71,6 @@ class Example(object):
         self._diff_ref = None
         self.pixels = 0
         self._has_ref = None
-        self._has_baseline = None
-        self._baseline_ok = True
 
     def __str__(self):
         flags = [
@@ -92,7 +82,6 @@ class Example(object):
             "skip"     if self.is_skip     else "",
             "xfail"    if self.xfail       else "",
             "no_js"    if self.no_js       else "",
-            "no_diff"  if self.no_diff     else "",
         ]
 
         return "Example(%r, %s)" % (self.relpath, "|".join(f for f in flags if f))
@@ -108,20 +97,12 @@ class Example(object):
         return dirname(self.path)
 
     @property
-    def imgs_dir(self):
-        return join(dirname(self.path), ".tests")
-
-    @property
     def relpath(self):
         return relpath(self.path, self.examples_dir)
 
     @property
     def path_no_ext(self):
         return splitext(self.path)[0]
-
-    @property
-    def relpath_no_ext(self):
-        return splitext(self.relpath)[0]
 
     @property
     def is_js(self):
@@ -155,88 +136,14 @@ class Example(object):
     def no_js(self):
         return self.flags & Flags.no_js
 
-    @property
-    def no_diff(self):
-        return self.flags & Flags.no_diff
 
-    @property
-    def baseline_ok(self):
-        return self.has_baseline and self._baseline_ok
-
-    @property
-    def baseline_path(self):
-        return join("tests", "baselines", relpath(self.path_no_ext, ""))
-
-    @property
-    def has_baseline(self):
-        if self._has_baseline is None:
-            cmd = ["git", "show", ":%s" % self.baseline_path]
-            proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            proc.communicate()
-
-            self._has_baseline = proc.returncode == 0
-
-        return self._has_baseline
-
-    def store_baseline(self, baseline):
-        path = self.baseline_path
-        if not exists(dirname(path)):
-            os.makedirs(dirname(path))
-        with io.open(path, "w", newline="\n") as f:
-            f.write(baseline)
-
-    def diff_baseline(self):
-        cmd = ["git", "diff", "--color", "--exit-code", "%s" % self.baseline_path]
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        (diff, _) = proc.communicate()
-
-        if proc.returncode == 0:
-            return None
-
-        cmd = ["perl", "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"]
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        (hl_diff, _) = proc.communicate(diff)
-
-        if proc.returncode == 0:
-            diff = hl_diff
-
-        self._baseline_ok = False
-        return diff.decode("utf-8").strip()
-
-    @property
-    def img_path(self):
-        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, JOB_ID))
-
-    @property
-    def ref_path(self):
-        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, JOB_ID))
-
-    @property
-    def diff_path(self):
-        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
-
-    @property
-    def has_ref(self):
-        return self._has_ref
-
-    def store_img(self, img_data):
-        _store_binary(self.img_path, b64decode(img_data))
-
-    @property
-    def images_differ(self):
-        return self.pixels != 0
-
-    def image_diff(self):
-        self.pixels = image_diff(self.diff_path, self.img_path, self.ref_path)
-        return self.pixels
-
-def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None, no_diff=None):
+def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None):
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])
 
         for name in sorted(os.listdir(star_path)):
             if isdir(join(star_path, name)):
-                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, xfail, no_js, no_diff)
+                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, xfail, no_js)
 
         return
 
@@ -279,9 +186,6 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         if no_js is not None and (no_js == 'all' or orig_name in no_js):
             flags |= Flags.no_js
 
-        if no_diff is not None and (no_diff == 'all' or orig_name in no_diff):
-            flags |= Flags.no_diff
-
         list_of_examples.append(Example(join(example_path, name), flags, examples_dir))
 
 
@@ -303,10 +207,9 @@ def collect_examples(config_path):
         skip_status = example.get("skip")
         xfail_status = example.get("xfail")
         no_js_status = example.get("no_js")
-        no_diff_status = example.get("no_diff")
 
         add_examples(list_of_examples, path, examples_dir,
-            example_type=example_type, slow=slow_status, skip=skip_status, xfail=xfail_status, no_js=no_js_status, no_diff=no_diff_status)
+            example_type=example_type, slow=slow_status, skip=skip_status, xfail=xfail_status, no_js=no_js_status)
 
     return list_of_examples
 
