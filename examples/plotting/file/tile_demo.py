@@ -7,7 +7,6 @@
 import numpy as np
 
 from bokeh.layouts import layout
-from bokeh.models import Range1d
 from bokeh.models.ranges import DataRange1d
 from bokeh.models.widgets import Div
 from bokeh.plotting import figure, output_file, show
