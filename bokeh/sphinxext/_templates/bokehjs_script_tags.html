@@ -4,5 +4,5 @@
         integrity="sha384-{{ hashes[js_file] }}"
         crossorigin="anonymous"
 {%- endif -%}
-></script>
+></script>{% if not loop.last %}{{ '\n' }}{% endif %}
 {%- endfor %}
