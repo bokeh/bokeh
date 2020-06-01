@@ -1,5 +1,7 @@
-# Demonstrate Bokeh's various tile providers with medium-close-in zoom using
-# modified tile_providers.py to include OSM, WIKIMEDIA, and ESRI_IMAGERY tile providers.
+# Demonstrate Bokeh's various tile providers including OSM, WIKIMEDIA,
+# and ESRI_IMAGERY tile providers.
+#
+# All maps are connected with common pan and zoom.
 #
 # Usage:
 #   python3 tile_demo.py
@@ -61,11 +63,11 @@ idx=0
 for vendor_name in Vendors:
     print("cnt={0}: Vendor={1}".format(idx,vendor_name))
     tile_provider = get_provider(vendor_name)
-    
+
     plot[idx] = figure( x_range=x_range, y_range=y_range,
                         x_axis_type="mercator", y_axis_type="mercator",
                         plot_height=200, plot_width=300, title=vendor_name)
-    
+
     plot[idx].add_tile(tile_provider)
     idx+=1
 
