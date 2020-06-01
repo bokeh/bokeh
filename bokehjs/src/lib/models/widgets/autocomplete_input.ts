@@ -139,9 +139,18 @@ export class AutocompleteInputView extends TextInputView {
         }
 
         const completions: string[] = []
+        const {case_sensitive} = this.model
+        let acnorm: (t: string) => string
+        if (case_sensitive) {
+          acnorm = (t)  => t
+        } else {
+          acnorm = (t)  => t.toLowerCase()
+        }
+
         for (const text of this.model.completions) {
-          if (text.startsWith(value))
+          if (acnorm(text).startsWith(acnorm(value))) {
             completions.push(text)
+            }
         }
 
         this._update_completions(completions)
@@ -161,6 +170,7 @@ export namespace AutocompleteInput {
   export type Props = TextInput.Props & {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
+    case_sensitive: p.Property<boolean>
   }
 }
 
@@ -180,6 +190,7 @@ export class AutocompleteInput extends TextInput {
     this.define<AutocompleteInput.Props>({
       completions:    [ p.Array, [] ],
       min_characters: [ p.Int,   2  ],
+      case_sensitive: [ p.Boolean,  true ],
     })
   }
 }

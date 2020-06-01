@@ -125,7 +125,7 @@ class Test_AutocompleteInput(object):
 
     def test_min_characters(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"],
-                                       completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"],
+                                       completions = ["100001", "12344556", "12344557", "3194567289", "209374209374", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"],
                                        min_characters=1)
 
         page = bokeh_model_page(text_input)
@@ -148,6 +148,97 @@ class Test_AutocompleteInput(object):
         assert "bk-active" in items[0].get_attribute('class')
         assert "bk-active" not in items[1].get_attribute('class')
         assert "bk-active" not in items[2].get_attribute('class')
+
+    def test_case_insensitivity(self, bokeh_model_page) -> None:
+        text_input = AutocompleteInput(title="title", css_classes=["foo"], case_sensitive=False, completions = ["100001", "aaaaaa", "aaabbb", "AAAaAA", "AAABbB"])
+
+        page = bokeh_model_page(text_input)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' in el.get_attribute('style')
+
+        # double click to highlight and overwrite old text
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "aAa", click=2, enter=False)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' not in el.get_attribute('style')
+
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 4
+        assert items[0].text == "aaaaaa"
+        assert items[1].text == "aaabbb"
+        assert items[2].text == "AAAaAA"
+        assert items[3].text == "AAABbB"
+        assert "bk-active" in items[0].get_attribute('class')
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "aAaB", click=2, enter=False)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' not in el.get_attribute('style')
+
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 2
+        assert items[0].text == "aaabbb"
+        assert items[1].text == "AAABbB"
+        assert "bk-active" in items[0].get_attribute('class')
+        assert "bk-active" not in items[1].get_attribute('class')
+
+        enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 2
+        assert items[0].text == "aaabbb"
+        assert items[1].text == "AAABbB"
+        assert "bk-active" not in items[0].get_attribute('class')
+        assert "bk-active" in items[1].get_attribute('class')
+
+        assert page.has_no_console_errors()
+
+    def test_case_sensitivity(self, bokeh_model_page) -> None:
+        # case_sensitive=True by default
+        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"])
+
+        page = bokeh_model_page(text_input)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' in el.get_attribute('style')
+
+        # double click to highlight and overwrite old text
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "aAa", click=2, enter=False)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' not in el.get_attribute('style')
+
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 3
+        assert items[0].text == "aAaaaa"
+        assert items[1].text == "aAaBbb"
+        assert items[2].text == "aAaBbB"
+        assert "bk-active" in items[0].get_attribute('class')
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "aAaB", click=2, enter=False)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' not in el.get_attribute('style')
+
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 2
+        assert items[0].text == "aAaBbb"
+        assert items[1].text == "aAaBbB"
+        assert "bk-active" in items[0].get_attribute('class')
+
+        enter_text_in_element(page.driver, el, Keys.DOWN, click=0, enter=False)
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 2
+        assert items[0].text == "aAaBbb"
+        assert items[1].text == "aAaBbB"
+        assert "bk-active" not in items[0].get_attribute('class')
+        assert "bk-active" in items[1].get_attribute('class')
+
+        assert page.has_no_console_errors()
 
     def test_arrow_cannot_escape_menu(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])

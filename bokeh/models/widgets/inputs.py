@@ -228,6 +228,7 @@ class AutocompleteInput(TextInput):
     The number of characters a user must type before completions are presented.
     """)
 
+    case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
 
 class Select(InputWidget):
     ''' Single-select widget.
