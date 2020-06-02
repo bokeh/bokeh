@@ -13,7 +13,7 @@ describe("Selection", () => {
   it("should be updatable", () => {
     const s = new Selection()
     s.update(some_1d_selection, true, "replace")
-    expect(s.indices).to.deep.equal([4, 5])
+    expect(s.indices).to.be.deep.equal([4, 5])
   })
 
   it("should be updatable with 'replace' mode", () => {
@@ -48,6 +48,6 @@ describe("Selection", () => {
     const s = new Selection()
     s.update(some_1d_selection, true, "replace")
     s.clear()
-    expect(s.indices).to.deep.equal([])
+    expect(s.indices).to.be.deep.equal([])
   })
 })

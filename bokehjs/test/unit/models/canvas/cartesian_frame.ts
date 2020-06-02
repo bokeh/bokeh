@@ -5,6 +5,7 @@ import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {CartesianFrame} from "@bokehjs/models/canvas/cartesian_frame"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Scale} from "@bokehjs/models/scales/scale"
 
 describe("CartesianFrame", () => {
 
@@ -15,8 +16,8 @@ describe("CartesianFrame", () => {
       new Range1d({start: 0, end: 1}),
       new Range1d({start: 0, end: 1}))
 
-    expect(frame.xscales.default).to.not.be.undefined
-    expect(frame.yscales.default).to.not.be.undefined
+    expect(frame.xscales.default).to.be.instanceof(Scale)
+    expect(frame.yscales.default).to.be.instanceof(Scale)
   })
 
   describe("_get_scales method", () => {

@@ -22,7 +22,7 @@ describe("CustomJSFilter", () => {
 
     it("should return an array", () => {
       const filter = new CustomJSFilter()
-      expect(filter.values).to.be.an.instanceof(Array)
+      expect(filter.values).to.be.instanceof(Array)
     })
 
     it("should contain the args values in order", () => {
@@ -37,7 +37,7 @@ describe("CustomJSFilter", () => {
 
     it("should return a Function", () => {
       const filter = new CustomJSFilter()
-      expect(filter.func).to.be.an.instanceof(Function)
+      expect(filter.func).to.be.instanceof(Function)
     })
 
     it("should have code property as function body", () => {

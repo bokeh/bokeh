@@ -35,7 +35,7 @@ describe("ImageURL module", () => {
 
       // TODO await
       const image = image_url_view.image[0]
-      expect(image).to.be.not.null
+      expect(image).to.not.be.null
       expect(image!.src).to.be.equal("image.jpg") // XXX: null
     })
 

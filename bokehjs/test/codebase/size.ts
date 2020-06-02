@@ -26,8 +26,8 @@ describe(`bokehjs/build/*/*.min.js file sizes`, () => {
     const limit = LIMITS[filename]
 
     describe(`${filename} file size`, () => {
-      it(`should be ${Math.round(stats.size/1024)} kB <= ${limit} kB`, () => {
-        expect(stats.size).to.be.at.most(limit*1024)
+      it(`should be ${Math.round(stats.size/1024)} kB < ${limit} kB`, () => {
+        expect(stats.size).to.be.below(limit*1024)
       })
     })
   }

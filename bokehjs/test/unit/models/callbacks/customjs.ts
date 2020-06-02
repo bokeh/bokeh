@@ -51,7 +51,7 @@ describe("CustomJS", () => {
 
     it("should return a Function", () => {
       const r = new CustomJS()
-      expect(r.func).to.be.an.instanceof(Function)
+      expect(r.func).to.be.instanceof(Function)
     })
 
     it("should have code property as function body", () => {

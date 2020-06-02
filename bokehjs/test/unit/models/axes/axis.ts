@@ -46,7 +46,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.loc).to.equal(10)
+    expect(axis_view.loc).to.be.equal(10)
   })
 
   it("should return zero offsets when fixed_location is numeric", async () => {
@@ -64,7 +64,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.offsets).to.deep.equal([0, 0])
+    expect(axis_view.offsets).to.be.deep.equal([0, 0])
   })
 
   it("should return zero offsets when fixed_location is categorical", async () => {
@@ -83,7 +83,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.offsets).to.deep.equal([0, 0])
+    expect(axis_view.offsets).to.be.deep.equal([0, 0])
   })
 
   it("loc should return synthetic for categorical fixed_location", async () => {
@@ -102,7 +102,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.loc).to.equal(0.5)
+    expect(axis_view.loc).to.be.equal(0.5)
   })
 })
 

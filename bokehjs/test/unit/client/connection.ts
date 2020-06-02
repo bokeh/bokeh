@@ -47,13 +47,13 @@ describe("ClientSession", () => {
 
       const session2 = await pull_session(url, session1.id)
       try {
-        expect(session2.document.roots().length).to.equal(1)
+        expect(session2.document.roots().length).to.be.equal(1)
         const root = session2.document.roots()[0]
         expect(root).instanceof(Range1d)
         const obj = root as Range1d
-        expect(obj.start).to.equal(123)
-        expect(obj.end).to.equal(456)
-        expect(session2.document.title()).to.equal("Hello Title")
+        expect(obj.start).to.be.equal(123)
+        expect(obj.end).to.be.equal(456)
+        expect(session2.document.title()).to.be.equal("Hello Title")
       } finally {
         session2.close()
       }

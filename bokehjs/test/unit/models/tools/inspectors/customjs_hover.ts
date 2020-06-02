@@ -52,7 +52,7 @@ describe("CustomJSHover", () => {
 
     it("should return a Function", () => {
       const r = new CustomJSHover()
-      expect(r._make_code("value", "format", "special_vars", r.code)).to.be.an.instanceof(Function)
+      expect(r._make_code("value", "format", "special_vars", r.code)).to.be.instanceof(Function)
     })
 
     it("should have formatter property as function body", () => {

@@ -17,21 +17,21 @@ describe("range_tool module", () => {
 
   describe("flip_side", () => {
     it("should flip left to right", () => {
-      expect(flip_side(Side.Left)).to.equal(Side.Right)
+      expect(flip_side(Side.Left)).to.be.equal(Side.Right)
     })
     it("should flip right to left", () => {
-      expect(flip_side(Side.Right)).to.equal(Side.Left)
+      expect(flip_side(Side.Right)).to.be.equal(Side.Left)
     })
     it("should flip top to bottom", () => {
-      expect(flip_side(Side.Top)).to.equal(Side.Bottom)
+      expect(flip_side(Side.Top)).to.be.equal(Side.Bottom)
     })
     it("should flip bottom to top", () => {
-      expect(flip_side(Side.Bottom)).to.equal(Side.Top)
+      expect(flip_side(Side.Bottom)).to.be.equal(Side.Top)
     })
     it("should all others to themselves", () => {
-      expect(flip_side(Side.None)).to.equal(Side.None)
-      expect(flip_side(Side.BottomTop)).to.equal(Side.BottomTop)
-      expect(flip_side(Side.LeftRightBottomTop)).to.equal(Side.LeftRightBottomTop)
+      expect(flip_side(Side.None)).to.be.equal(Side.None)
+      expect(flip_side(Side.BottomTop)).to.be.equal(Side.BottomTop)
+      expect(flip_side(Side.LeftRightBottomTop)).to.be.equal(Side.LeftRightBottomTop)
     })
   })
 

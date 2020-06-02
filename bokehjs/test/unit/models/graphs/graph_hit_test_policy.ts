@@ -90,7 +90,7 @@ describe("GraphHitTestPolicy", () => {
         node_stub.returns(new Selection({indices: [1, 2, 3]}))
         const policy = new NodesOnly()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
-        expect(result).to.be.not.null
+        expect(result).to.not.be.null
         expect(result!.indices).to.be.deep.equal([1, 2, 3])
       })
     })

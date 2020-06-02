@@ -25,7 +25,7 @@ describe("CustomJSTransform", () => {
 
     it("should return an array", () => {
       const r = new CustomJSTransform()
-      expect(r.values).to.be.an.instanceof(Array)
+      expect(r.values).to.be.instanceof(Array)
     })
 
     it("should contain the args values in order", () => {
@@ -40,7 +40,7 @@ describe("CustomJSTransform", () => {
 
     it("should return a Function", () => {
       const r = new CustomJSTransform()
-      expect(r.scalar_transform).to.be.an.instanceof(Function)
+      expect(r.scalar_transform).to.be.instanceof(Function)
     })
 
     it("should have func property as function body", () => {
@@ -62,7 +62,7 @@ describe("CustomJSTransform", () => {
 
     it("should return a Function", () => {
       const r = new CustomJSTransform()
-      expect(r.vector_transform).to.be.an.instanceof(Function)
+      expect(r.vector_transform).to.be.instanceof(Function)
     })
 
     it("should have v_func property as function body", () => {
