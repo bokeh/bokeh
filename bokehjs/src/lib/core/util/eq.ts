@@ -5,6 +5,14 @@
 
 import {isFunction} from "./types"
 
+export const equals = Symbol("equals")
+
+export type IsEqual = (a: unknown, b: unknown) => boolean
+
+export interface Equals {
+  [equals](that: this, eq: IsEqual): boolean
+}
+
 const toString = Object.prototype.toString
 
 // Internal recursive comparison function for `isEqual`.
@@ -69,6 +77,10 @@ function eq(a: any, b: any, aStack?: any[], bStack?: any[]): boolean {
   // Add the first object to the stack of traversed objects.
   aStack.push(a)
   bStack.push(b)
+
+  if (equals in a && equals in b) {
+    return a[equals](b, eq)
+  }
 
   // Recursively compare objects and arrays.
   if (areArrays) {
