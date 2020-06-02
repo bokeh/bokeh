@@ -1,4 +1,4 @@
-# Demonstrate Bokeh's various tile providers including OSM, WIKIMEDIA,
+# Demonstrate Bokeh's various map tile providers including OSM, WIKIMEDIA,
 # and ESRI_IMAGERY tile providers.
 #
 # All maps are connected with common pan and zoom.
