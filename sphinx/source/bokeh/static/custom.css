@@ -206,15 +206,17 @@
     color: #542437;
   }
 
-/* Assigned h[n]::before styling to role main to account for both content and footer headers, https://github.com/bokeh/bokeh/issues/9915 */
-/* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
-  main h2::before, main h3::before,
-  main h4::before, main h5::before,
-  main h6::before  {
+/* Offsetting anchored elements within the main content to adjust for fixed header
+   https://github.com/pandas-dev/pandas-sphinx-theme/issues/6 */
+main *[id]:not([rel=""])::before {
     display: block;
     content: "";
     height: 80px;
     margin: -80px 0 0;
+    /* Without this, if the currently active anchor is highlighted
+       the whole block will be highlighted. The color must be the same
+       as the color of the body. */
+    background-color: white;
 }
 
 /* add padding to body to avid overlap with navbar   */
