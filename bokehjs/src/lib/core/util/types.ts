@@ -56,3 +56,7 @@ export function isObject(obj: unknown): obj is object {
 export function isPlainObject(obj: unknown): obj is {[key: string]: unknown} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
 }
+
+export function isIterable(obj: unknown): obj is Iterable<unknown> {
+  return Symbol.iterator in Object(obj)
+}
