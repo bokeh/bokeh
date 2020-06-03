@@ -14,9 +14,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import mock
+
 # Bokeh imports
+from bokeh.core.validation import check_integrity
 from bokeh.layouts import GridSpec, column, grid, gridplot, layout, row
-from bokeh.models import Column, GridBox, Row, Spacer
+from bokeh.models import Column, GridBox, LayoutDOM, Row, Spacer
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------
@@ -163,6 +167,25 @@ def test_grid() -> None:
         |    s5   | s5 |    |
         +---------+----+----+
         """)
+
+def test_repeated_children() -> None:
+    def test(layout: LayoutDOM) -> None:
+        with mock.patch("bokeh.core.validation.check.log") as mock_logger:
+            check_integrity([layout])
+        assert mock_logger.error.call_count == 1
+        assert mock_logger.error.call_args[0][0].startswith("E-1027 (REPEATED_LAYOUT_CHILD): The same model can't be used multiple times in a layout")
+
+    p0 = figure()
+    p1 = figure()
+
+    test(Row(children=[p0, p1, p0]))
+    test(row(p0, p1, p0))
+
+    test(Column(children=[p0, p1, p0]))
+    test(column(p0, p1, p0))
+
+    test(GridBox(children=[(p0, 0, 0), (p1, 1, 0), (p0, 2, 0)]))
+    test(gridplot([[p0], [p1], [p0]], toolbar_location=None))
 
 #-----------------------------------------------------------------------------
 # Dev API
