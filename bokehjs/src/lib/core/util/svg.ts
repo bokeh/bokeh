@@ -251,9 +251,6 @@ type Options = {
  * document - the document object (defaults to the current document)
  */
 export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
-  width: number
-  height: number
-
   __canvas: HTMLCanvasElement
   __ctx: CanvasRenderingContext2D
 
@@ -293,9 +290,25 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   textBaseline: CanvasTextBaseline
   lineDash: string | number[] | null
 
+  private _width: number
+  private _height: number
+
+  get width(): number {
+    return this._width
+  }
+  set width(width: number) {
+    this._width = width
+    this.__root.setAttribute("width", `${width}`)
+  }
+  get height(): number {
+    return this._height
+  }
+  set height(height: number) {
+    this._height = height
+    this.__root.setAttribute("height", `${height}`)
+  }
+
   constructor(options?: Options) {
-    this.width = options?.width ?? 500
-    this.height = options?.height ?? 500
     this.enableMirroring = options?.enableMirroring ?? false
 
     this.__document = options?.document ?? document
@@ -318,8 +331,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.__root.setAttribute("version", "1.1")
     this.__root.setAttribute("xmlns", "http://www.w3.org/2000/svg")
     this.__root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
-    this.__root.setAttribute("width", `${this.width}`)
-    this.__root.setAttribute("height", `${this.height}`)
+
+    this.width = options?.width ?? 500
+    this.height = options?.height ?? 500
 
     // make sure we don't generate the same ids in defs
     this.__ids = {}

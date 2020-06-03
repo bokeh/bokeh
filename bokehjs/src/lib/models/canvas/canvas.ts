@@ -96,11 +96,9 @@ export class CanvasLayer {
     this.canvas.style.width = `${width}px`
     this.canvas.style.height = `${height}px`
 
-    // XXX: io.export and canvas2svg don't like this
-    // this.canvas.width = width*pixel_ratio
-    // this.canvas.height = height*pixel_ratio
-    this.canvas.setAttribute("width", `${width*this.pixel_ratio}`)
-    this.canvas.setAttribute("height", `${height*this.pixel_ratio}`)
+    const target = this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
+    target.width = width*this.pixel_ratio
+    target.height = height*this.pixel_ratio
   }
 
   prepare(): void {
