@@ -560,6 +560,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
     let transform = this.__currentElement.getAttribute("transform")
     if (transform) {
+      if (transform.includes(t))
+        return
       transform += " "
     } else {
       transform = ""
