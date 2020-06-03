@@ -77,6 +77,11 @@ export class ToolProxy extends Model {
     super.connect_signals()
     this.connect(this.do, () => this.doit())
     this.connect(this.properties.active.change, () => this.set_active())
+    for (const tool of this.tools) {
+      this.connect(tool.properties.active.change, () => {
+        this.active = tool.active
+      })
+    }
   }
 
   doit(): void {
