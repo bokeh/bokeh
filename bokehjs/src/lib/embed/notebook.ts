@@ -57,6 +57,20 @@ function _init_comms(target: string, doc: Document): void {
     } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
+  } else if  (typeof google != 'undefined' && google.colab.kernel != null) {
+    logger.info(`Registering Google Colab comms for target ${target}`)
+    const comm_manager = google.colab.kernel.comms
+    try {
+      comm_manager.register_target(target, async (comm: Comm) => {
+        logger.info(`Registering Google Colab comms for target ${target}`)
+        const r = new Receiver()
+        for await (const message of comm.messages) {
+          _handle_notebook_comms(doc, r, message)
+        }
+      })
+    } catch (e) {
+      logger.warn(`Google Colab comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
+    }
   } else {
     console.warn(`Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest @bokeh/jupyter_bokeh extension is installed. In an exported notebook this warning is expected.`)
   }
