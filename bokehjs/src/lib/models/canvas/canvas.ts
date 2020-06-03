@@ -83,6 +83,7 @@ export class CanvasLayer {
         const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
         this._canvas = ctx.getSvg()
+        this._canvas.style.position = "absolute"
         break
       }
     }
