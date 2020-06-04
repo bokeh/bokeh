@@ -424,7 +424,7 @@ async function run_tests(): Promise<void> {
             }
 
             const retry = await run_test(null, status)
-            if (retry) {
+            if (argv.retry && retry) {
               for (let i = 0; i < 10; i++) {
                 await run_test(i, status)
               }
@@ -506,4 +506,18 @@ async function run_tests(): Promise<void> {
     process.exit(1)
 }
 
-run_tests()
+async function get_version(): Promise<{browser: string, protocol: string}> {
+  const version = await CDP.Version({port})
+  return {
+    browser: version.Browser,
+    protocol: version["Protocol-Version"],
+  }
+}
+
+async function main(): Promise<void> {
+  const {browser, protocol} = await get_version()
+  console.log(`Running in ${browser} using devtools protocol ${protocol}`)
+  await run_tests()
+}
+
+main()
