@@ -57,7 +57,7 @@ type Test = {description: string, skip: boolean, threshold?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
-async function run_tests(): Promise<void> {
+async function run_tests(): Promise<boolean> {
   let client
   let failure = false
   let exception = false
@@ -424,7 +424,7 @@ async function run_tests(): Promise<void> {
             }
 
             const retry = await run_test(null, status)
-            if (retry) {
+            if (argv.retry && retry) {
               for (let i = 0; i < 10; i++) {
                 await run_test(i, status)
               }
@@ -502,8 +502,35 @@ async function run_tests(): Promise<void> {
     }
   }
 
-  if (failure)
+  return !failure
+}
+
+async function get_version(): Promise<{browser: string, protocol: string}> {
+  const version = await CDP.Version({port})
+  return {
+    browser: version.Browser,
+    protocol: version["Protocol-Version"],
+  }
+}
+
+const min_version = 83
+
+async function check_version(version: string): Promise<boolean> {
+  const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
+  const major = parseInt(match?.groups?.major ?? "0")
+  const ok = min_version <= major
+  if (!ok)
+    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(min_version)}`)
+  return ok
+}
+
+async function main(): Promise<void> {
+  const {browser, protocol} = await get_version()
+  console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
+  const ok0 = await check_version(browser)
+  const ok1 = await run_tests()
+  if (!(ok0 && ok1))
     process.exit(1)
 }
 
-run_tests()
+main()
