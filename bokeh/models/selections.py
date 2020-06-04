@@ -49,7 +49,7 @@ class Selection(Model):
 
     indices = Seq(Int, default=[], help="""
     The "scatter" level indices included in a selection. For example, for a
-    selection on a ``Circle`` glyph, this list records the indices of whicn
+    selection on a ``Circle`` glyph, this list records the indices of which
     individual circles are selected.
 
     For "multi" glyphs such as ``Patches``, ``MultiLine``, ``MultiPolygons``,
