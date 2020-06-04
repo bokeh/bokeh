@@ -61,6 +61,11 @@ export class CanvasLayer {
     return this._ctx as Context2d
   }
 
+  private readonly _el: HTMLElement
+  get el(): HTMLElement {
+    return this._el
+  }
+
   readonly pixel_ratio: number = 1
 
   bbox: BBox = new BBox()
@@ -69,7 +74,7 @@ export class CanvasLayer {
     switch (backend) {
       case "webgl":
       case "canvas": {
-        this._canvas = canvas({style})
+        this._el = this._canvas = canvas({style})
         const ctx = this.canvas.getContext('2d')
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
@@ -83,6 +88,7 @@ export class CanvasLayer {
         const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
         this._canvas = ctx.getSvg()
+        this._el = div({style}, this._canvas)
         break
       }
     }
@@ -96,11 +102,9 @@ export class CanvasLayer {
     this.canvas.style.width = `${width}px`
     this.canvas.style.height = `${height}px`
 
-    // XXX: io.export and canvas2svg don't like this
-    // this.canvas.width = width*pixel_ratio
-    // this.canvas.height = height*pixel_ratio
-    this.canvas.setAttribute("width", `${width*this.pixel_ratio}`)
-    this.canvas.setAttribute("height", `${height*this.pixel_ratio}`)
+    const target = this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
+    target.width = width*this.pixel_ratio
+    target.height = height*this.pixel_ratio
   }
 
   prepare(): void {
@@ -180,8 +184,8 @@ export class CanvasView extends DOMView {
 
     const elements = [
       this.underlays_el,
-      this.primary.canvas,
-      this.overlays.canvas,
+      this.primary.el,
+      this.overlays.el,
       this.overlays_el,
       this.events_el,
     ]
