@@ -1,4 +1,4 @@
-import {VariadicBox} from "core/layout"
+import {CachedVariadicBox} from "core/layout/html"
 import {div} from "core/dom"
 import * as p from "core/properties"
 
@@ -9,12 +9,14 @@ import clearfix_css from "styles/clearfix.css"
 
 export abstract class MarkupView extends WidgetView {
   model: Markup
+  layout: CachedVariadicBox
 
   protected markup_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => {
+      this.layout.invalidate_cache()
       this.render()
       this.root.compute_layout() // XXX: invalidate_layout?
     })
@@ -25,7 +27,7 @@ export abstract class MarkupView extends WidgetView {
   }
 
   _update_layout(): void {
-    this.layout = new VariadicBox(this.el)
+    this.layout = new CachedVariadicBox(this.el)
     this.layout.set_sizing(this.box_sizing())
   }
 
