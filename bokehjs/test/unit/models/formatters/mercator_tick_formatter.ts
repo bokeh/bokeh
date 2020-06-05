@@ -7,7 +7,7 @@ describe("mercator_tick_formatter module", () => {
 
   it("should throw exception if dimension not configured", () => {
     const obj = new MercatorTickFormatter()
-    expect(() => obj.doFormat([30, 60, 90], {loc: 90})).to.throw(Error)
+    expect(() => obj.doFormat([30, 60, 90], {loc: 90})).to.throw()
   })
 
   // these tests assume default superclass BasicTickFormatter behavior, re: displayed precision

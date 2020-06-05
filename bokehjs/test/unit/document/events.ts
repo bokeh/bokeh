@@ -93,7 +93,7 @@ describe("events module", () => {
       const m = new TestModel()
       const evt = new events.ModelChangedEvent(d, m, "id", 1, 2)
       const refs = new Set<HasProps>()
-      expect(() => evt.json(refs)).to.throw(Error)
+      expect(() => evt.json(refs)).to.throw()
     })
 
     it("should generating json with no references", () =>{

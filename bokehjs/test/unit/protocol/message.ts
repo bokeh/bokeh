@@ -44,7 +44,7 @@ describe("protocol/message module", () => {
       })
 
       it("should raise an error if num_buffers is exceeded", () => {
-        expect(() => m.assemble_buffer('{"id": "5"}', new ArrayBuffer(2))).to.throw(Error)
+        expect(() => m.assemble_buffer('{"id": "5"}', new ArrayBuffer(2))).to.throw()
       })
     })
 
@@ -133,7 +133,7 @@ describe("protocol/message module", () => {
         const m = Message.assemble('{"msgid": "10", "msgtype": "FOO"}', '{"bar":2}', '{"baz":3}')
         const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 0}', '{"bar":2}', '{"baz":3}')
         const m = Message.assemble('{"msgid": "10", "msgtype": "FOO", "num_buffers": 1}', '{"bar":2}', '{"baz":3}')
-        expect(() => m.send(s)).to.throw(Error)
+        expect(() => m.send(s)).to.throw()
       })
       */
     })

@@ -50,7 +50,7 @@ describe("data_table module", () => {
     it("should raise an error if DTINDEX_NAME is in source", () => {
       const bad = new ColumnDataSource({data: {__bkdt_internal_index__: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source: bad})
-      expect(() => new TableDataProvider(bad, view)).to.throw(Error)
+      expect(() => new TableDataProvider(bad, view)).to.throw()
     })
 
     it("should construct an internal index", () => {

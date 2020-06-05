@@ -470,14 +470,14 @@ describe("factor_range module", () => {
     describe("validation", () => {
 
       it("should throw an error on duplicate factors", () => {
-        expect(() => new FactorRange({factors: ['a', 'a']})).to.throw(Error)
+        expect(() => new FactorRange({factors: ['a', 'a']})).to.throw()
       })
 
       /* XXX: null
       it("should throw an error on null factors", () => {
-        expect(() => new FactorRange({factors: [null]})).to.throw(Error)
-        expect(() => new FactorRange({factors: ['a', null]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [null, 'a']})).to.throw(Error)
+        expect(() => new FactorRange({factors: [null]})).to.throw()
+        expect(() => new FactorRange({factors: ['a', null]})).to.throw()
+        expect(() => new FactorRange({factors: [null, 'a']})).to.throw()
       })
       */
     })
@@ -706,20 +706,20 @@ describe("factor_range module", () => {
     describe("validation", () => {
 
       it("should throw an error on duplicate factors", () => {
-        expect(() => new FactorRange({factors: [['a', '1'], ['a', '1']]})).to.throw(Error)
+        expect(() => new FactorRange({factors: [['a', '1'], ['a', '1']]})).to.throw()
       })
 
       /* XXX: null
       it("should throw an error on null factors", () => {
-        expect(() => new FactorRange({factors: [[null, 'a'], ['b', 'c']]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [['a', null], ['b', 'c']]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [[null, null], ['b', 'c']]})).to.throw(Error)
+        expect(() => new FactorRange({factors: [[null, 'a'], ['b', 'c']]})).to.throw()
+        expect(() => new FactorRange({factors: [['a', null], ['b', 'c']]})).to.throw()
+        expect(() => new FactorRange({factors: [[null, null], ['b', 'c']]})).to.throw()
       })
       */
 
       it("should allow sub-factors repeated on different levels", () => {
-        expect(() => new FactorRange({factors: [['a', 'foo'], ['a', 'bar']]})).to.not.throw(Error)
-        expect(() => new FactorRange({factors: [['a', 'foo'], ['b', 'foo']]})).to.not.throw(Error)
+        expect(() => new FactorRange({factors: [['a', 'foo'], ['a', 'bar']]})).to.not.throw()
+        expect(() => new FactorRange({factors: [['a', 'foo'], ['b', 'foo']]})).to.not.throw()
       })
     })
 
@@ -1017,25 +1017,25 @@ describe("factor_range module", () => {
     describe("validation", () => {
 
       it("should throw an error on duplicate factors", () => {
-        expect(() => new FactorRange({factors: [['a', '1', 'foo'], ['a', '1', 'foo']]})).to.throw(Error)
+        expect(() => new FactorRange({factors: [['a', '1', 'foo'], ['a', '1', 'foo']]})).to.throw()
       })
 
       /* XXX: null
       it("should throw an error on null factors", () => {
-        expect(() => new FactorRange({factors: [['foo', null, null]]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [[null, 'foo', null]]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [[null, null, 'a']]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [['a', 'foo', null]]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [['foo', null, 'a']]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [[null, 'foo', 'a']]})).to.throw(Error)
-        expect(() => new FactorRange({factors: [[null, null, null]]})).to.throw(Error)
+        expect(() => new FactorRange({factors: [['foo', null, null]]})).to.throw()
+        expect(() => new FactorRange({factors: [[null, 'foo', null]]})).to.throw()
+        expect(() => new FactorRange({factors: [[null, null, 'a']]})).to.throw()
+        expect(() => new FactorRange({factors: [['a', 'foo', null]]})).to.throw()
+        expect(() => new FactorRange({factors: [['foo', null, 'a']]})).to.throw()
+        expect(() => new FactorRange({factors: [[null, 'foo', 'a']]})).to.throw()
+        expect(() => new FactorRange({factors: [[null, null, null]]})).to.throw()
       })
       */
 
       it("should allow sub-factors repeated on different levels", () => {
-        expect(() => new FactorRange({factors: [['a', 'foo', '1'], ['a', 'bar', '1']]})).to.not.throw(Error)
-        expect(() => new FactorRange({factors: [['a', 'foo', '1'], ['a', 'foo', '2']]})).to.not.throw(Error)
-        expect(() => new FactorRange({factors: [['a', 'foo', '1'], ['b', 'foo', '1']]})).to.not.throw(Error)
+        expect(() => new FactorRange({factors: [['a', 'foo', '1'], ['a', 'bar', '1']]})).to.not.throw()
+        expect(() => new FactorRange({factors: [['a', 'foo', '1'], ['a', 'foo', '2']]})).to.not.throw()
+        expect(() => new FactorRange({factors: [['a', 'foo', '1'], ['b', 'foo', '1']]})).to.not.throw()
       })
     })
 

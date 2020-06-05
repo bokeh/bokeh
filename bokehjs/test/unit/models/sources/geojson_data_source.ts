@@ -12,7 +12,7 @@ describe("geojson_data_source module", () => {
 
     it("should throw an error", () => {
       const fn = () => new GeoJSONDataSource({geojson})
-      expect(fn).to.throw(Error)
+      expect(fn).to.throw()
     })
   })
 
@@ -24,7 +24,7 @@ describe("geojson_data_source module", () => {
 
     it("should throw an error", () => {
       const fn = () => new GeoJSONDataSource({geojson})
-      expect(fn).to.throw(Error)
+      expect(fn).to.throw()
     })
   })
 
@@ -36,7 +36,7 @@ describe("geojson_data_source module", () => {
 
     it("should throw an error", () => {
       const fn = () => new GeoJSONDataSource({geojson})
-      expect(fn).to.throw(Error)
+      expect(fn).to.throw()
     })
   })
 

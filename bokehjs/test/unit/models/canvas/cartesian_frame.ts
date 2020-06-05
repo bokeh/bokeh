@@ -45,13 +45,13 @@ describe("CartesianFrame", () => {
     it("should throw error for incompatible numeric scale and factor range", () => {
       const ranges = {default: new FactorRange()}
       const scale = new LinearScale()
-      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw(Error)
+      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw()
     })
 
     it("should throw error for incompatible factor scale and numeric range", () => {
       const ranges = {default: new Range1d()}
       const scale = new CategoricalScale()
-      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw(Error)
+      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw()
     })
   })
 })
