@@ -46,10 +46,10 @@ describe("ZoomInTool", () => {
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([hr.start, hr.end]).to.be.equal([-0.9, 0.9])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([vr.start, vr.end]).to.be.equal([-0.9, 0.9])
     })
 
     it("should zoom the x-axis only", async () => {
@@ -62,10 +62,10 @@ describe("ZoomInTool", () => {
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([hr.start, hr.end]).to.be.equal([-0.9, 0.9])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
     })
 
     it("should zoom the y-axis only", async () => {
@@ -78,10 +78,10 @@ describe("ZoomInTool", () => {
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([vr.start, vr.end]).to.be.equal([-0.9, 0.9])
     })
   })
 })

@@ -16,7 +16,7 @@ describe("LogScale module", () => {
 
     it("should correctly compute the scale state", () => {
       const scale = mkscale()
-      expect(scale._compute_state()).to.be.deep.equal([ 100, 10, 9.210340371976184, 0 ])
+      expect(scale._compute_state()).to.be.equal([ 100, 10, 9.210340371976184, 0 ])
     })
   })
 
@@ -46,18 +46,18 @@ describe("LogScale module", () => {
 
     it("should vector map NaN values to NaN", () => {
       const scale = mkscale()
-      expect(scale.v_compute([NaN])).to.be.deep.equal(new Float64Array([NaN]))
+      expect(scale.v_compute([NaN])).to.be.equal(new Float64Array([NaN]))
     })
 
     it("should vector map infinity values to NaN", () => {
       const scale = mkscale()
       scale.source_range.start = 0
-      expect(scale.v_compute([0])).to.be.deep.equal(new Float64Array([NaN]))
+      expect(scale.v_compute([0])).to.be.equal(new Float64Array([NaN]))
     })
 
     it("should vector map values logly", () => {
       const scale = mkscale()
-      expect(scale.v_compute([1, 10, 100, 10000])).to.be.deep.equal(new Float64Array([10, 35, 60, 110]))
+      expect(scale.v_compute([1, 10, 100, 10000])).to.be.equal(new Float64Array([10, 35, 60, 110]))
     })
 
     it("should map to a Float64Array", () => {

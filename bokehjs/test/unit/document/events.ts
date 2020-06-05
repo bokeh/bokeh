@@ -49,7 +49,7 @@ describe("events module", () => {
       const evt = new events.ColumnsPatchedEvent(d, m.ref(), {foo: [[1, 2]]})
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "ColumnsPatched",
         column_source: m.ref(),
         patches: {foo: [[1, 2]]},
@@ -64,7 +64,7 @@ describe("events module", () => {
       const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]}, 10)
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
         data: {foo: [1, 2], bar: [3, 4]},
@@ -78,7 +78,7 @@ describe("events module", () => {
       const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
         data: {foo: [1, 2], bar: [3, 4]},
@@ -102,7 +102,7 @@ describe("events module", () => {
       const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2)
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "ModelChanged",
         model: m.ref(),
         attr: "foo",
@@ -117,7 +117,7 @@ describe("events module", () => {
       const evt = new events.ModelChangedEvent(d, m2, "foo", [], [m])
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "ModelChanged",
         model: m2.ref(),
         attr: "foo",
@@ -125,7 +125,7 @@ describe("events module", () => {
       })
       const expected_refs = new Set<HasProps>()
       expected_refs.add(m)
-      expect(refs).to.be.deep.equal(expected_refs)
+      expect(refs).to.be.equal(expected_refs)
     })
 
     // TODO (bev) test the case with references returned
@@ -137,7 +137,7 @@ describe("events module", () => {
       const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2, undefined, hint)
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
         data: {foo: [1, 2], bar: [3, 4]},
@@ -152,7 +152,7 @@ describe("events module", () => {
       const evt = new events.TitleChangedEvent(d, "foo")
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "TitleChanged",
         title: "foo",
       })
@@ -166,7 +166,7 @@ describe("events module", () => {
       const evt = new events.RootAddedEvent(d, m)
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "RootAdded",
         model: m.ref(),
       })
@@ -180,7 +180,7 @@ describe("events module", () => {
       const evt = new events.RootRemovedEvent(d, m)
       const refs = new Set<HasProps>()
       const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      expect(json).to.be.equal({
         kind: "RootRemoved",
         model: m.ref(),
       })

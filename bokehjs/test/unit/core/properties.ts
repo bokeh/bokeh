@@ -188,21 +188,21 @@ describe("properties module", () => {
 
       it("should set a spec for object attr values", () => {
         const obj0 = new Some({number_spec: {value: 0}})
-        expect(obj0.number_spec).to.be.deep.equal({value: 0})
+        expect(obj0.number_spec).to.be.equal({value: 0})
 
         const obj1 = new Some({number_spec: {field: "some_field"}})
-        expect(obj1.number_spec).to.be.deep.equal({field: "some_field"})
+        expect(obj1.number_spec).to.be.equal({field: "some_field"})
 
         const expr = new TestExpression()
         const obj2 = new Some({number_spec: {expr}})
-        expect(obj2.number_spec).to.be.deep.equal({expr})
+        expect(obj2.number_spec).to.be.equal({expr})
       })
 
       /*
       it("should set a value spec for non-object attr values", () => {
         const obj = new Some({a: 10})
         const prop = new MyProperty(, 'a')
-        expect(prop.spec).to.be.deep.equal({value: 10})
+        expect(prop.spec).to.be.equal({value: 10})
       })
       */
     })
@@ -246,12 +246,12 @@ describe("properties module", () => {
         const obj1 = new Some({number_spec: 1})
         const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
-        expect(arr1).to.be.deep.equal([1, 1, 1, 1, 1])
+        expect(arr1).to.be.equal([1, 1, 1, 1, 1])
 
         const obj2 = new Some({number_spec: {value: 2}})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
-        expect(arr2).to.be.deep.equal([2, 2, 2, 2, 2])
+        expect(arr2).to.be.equal([2, 2, 2, 2, 2])
       })
 
       it("should return an array if there is a valid expr spec", () => {
@@ -259,7 +259,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {expr: new TestExpression()}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.deep.equal([0, 1, 2, 3, 4])
+        expect(arr).to.be.equal([0, 1, 2, 3, 4])
       })
 
       it("should return an array if there is a valid field spec", () => {
@@ -267,7 +267,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.deep.equal([0, 1, 2, 3, 10])
+        expect(arr).to.be.equal([0, 1, 2, 3, 10])
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
@@ -275,7 +275,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "field"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.deep.equal([0, 1, 2, 3, 10])
+        expect(arr).to.be.equal([0, 1, 2, 3, 10])
       })
 
       it("should throw an Error otherwise", () => {
@@ -293,7 +293,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.deep.equal([0, 2, 4, 6, 14])
+        expect(arr).to.be.equal([0, 2, 4, 6, 14])
       })
 
       it("should apply a spec transform to a value array", () => {
@@ -301,7 +301,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.deep.equal([2, 3, 4, 5, 6])
+        expect(arr).to.be.equal([2, 3, 4, 5, 6])
       })
 
       describe("changing the property attribute value", () => {
@@ -319,7 +319,7 @@ describe("properties module", () => {
         const obj = new Some({string_spec: {value: "foo"}})
         const prop = obj.properties.string_spec
         obj.string_spec = {value: "bar"}
-        expect(prop.spec).to.be.deep.equal({value: "bar"})
+        expect(prop.spec).to.be.equal({value: "bar"})
       })
     })
   })
@@ -358,13 +358,13 @@ describe("properties module", () => {
       it("should multiply radians by -1", () => {
         const obj = new Some({angle_spec: {value: 10, units: "rad"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-10, 0, 10, 20])).to.be.deep.equal([10, -0, -10, -20])
+        expect(prop.normalize([-10, 0, 10, 20])).to.be.equal([10, -0, -10, -20])
       })
 
       it("should convert degrees to -1 * radians", () => {
         const obj = new Some({angle_spec: {value: 10, units: "deg"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-180, 0, 180])).to.be.deep.equal([Math.PI, -0, -Math.PI])
+        expect(prop.normalize([-180, 0, 180])).to.be.equal([Math.PI, -0, -Math.PI])
       })
     })
   })
@@ -496,17 +496,17 @@ describe("properties module", () => {
     describe("normalize", () => {
       it("should convert 'clock' to false", () => {
         const result = prop.normalize(["clock"])
-        expect(result).to.be.deep.equal(new Uint8Array([0]))
+        expect(result).to.be.equal(new Uint8Array([0]))
       })
 
       it("should convert 'anticlock' to true", () => {
         const result = prop.normalize(["anticlock"])
-        expect(result).to.be.deep.equal(new Uint8Array([1]))
+        expect(result).to.be.equal(new Uint8Array([1]))
       })
 
       it("should return a Uint8Array", () => {
         const result = prop.normalize(["clock", "anticlock"])
-        expect(result).to.be.deep.equal(new Uint8Array([0, 1]))
+        expect(result).to.be.equal(new Uint8Array([0, 1]))
       })
     })
   })

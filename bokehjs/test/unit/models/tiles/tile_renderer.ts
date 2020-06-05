@@ -91,7 +91,7 @@ describe("tile sources", () => {
 
     it("should convert tile key to tile xyz", () => {
       const xyz = source.key_to_tile_xyz('1:1:1')
-      expect(xyz).to.be.deep.equal([1, 1, 1])
+      expect(xyz).to.be.equal([1, 1, 1])
     })
 
     it("should successfully set x_origin_offset and y_origin_offset", () => {
@@ -117,7 +117,7 @@ describe("tile sources", () => {
 
       const tile_source = new AbstractTileSource(tile_options)
       const expect_url = 'http://test_value/test_value2/0/0/0.png'
-      expect(tile_source.extra_url_vars).to.be.deep.equal(test_extra_url_vars)
+      expect(tile_source.extra_url_vars).to.be.equal(test_extra_url_vars)
       expect(tile_source.get_image_url(0, 0, 0)).to.be.equal(expect_url)
     })
 
@@ -249,10 +249,10 @@ describe("tile sources", () => {
     })
 
     it("should convert quadkey to tile xyz", () => {
-      expect(source.quadkey_to_tile_xyz('')).to.be.deep.equal([0, 0, 0])
-      expect(source.quadkey_to_tile_xyz('0')).to.be.deep.equal([0, 0, 1])
-      expect(source.quadkey_to_tile_xyz('00')).to.be.deep.equal([0, 0, 2])
-      expect(source.quadkey_to_tile_xyz('0000032320')).to.be.deep.equal([20, 30, 10])
+      expect(source.quadkey_to_tile_xyz('')).to.be.equal([0, 0, 0])
+      expect(source.quadkey_to_tile_xyz('0')).to.be.equal([0, 0, 1])
+      expect(source.quadkey_to_tile_xyz('00')).to.be.equal([0, 0, 2])
+      expect(source.quadkey_to_tile_xyz('0000032320')).to.be.equal([20, 30, 10])
     })
   })
 
@@ -301,28 +301,28 @@ describe("tile sources", () => {
 
     it("should convert cache key into tile x,y,z", () => {
       const source = new MercatorTileSource()
-      expect(source.key_to_tile_xyz("1:1:1")).to.be.deep.equal([1, 1, 1])
+      expect(source.key_to_tile_xyz("1:1:1")).to.be.equal([1, 1, 1])
     })
 
     it("should successfully wrap around (x-axis) for normalized tile coordinates", () => {
       const source = new MercatorTileSource()
-      expect(source.normalize_xyz(-1, 1, 2)).to.be.deep.equal([3, 1, 2])
+      expect(source.normalize_xyz(-1, 1, 2)).to.be.equal([3, 1, 2])
     })
 
     it("should successfully get closest parent tile by xyz", () => {
       const source = new MercatorTileSource()
       source.tiles.set(source.tile_xyz_to_key(0, 1, 1), {tile_coords: [0, 0, 0]})
-      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.deep.equal([0, 1, 1])
+      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.equal([0, 1, 1])
     })
 
     it("should verify whether tile xyz's are valid", () => {
       const tile_options0 = {wrap_around: true}
       const source0 = new MercatorTileSource(tile_options0)
-      expect(source0.is_valid_tile(-1, 1, 1)).to.be.deep.equal(true)
+      expect(source0.is_valid_tile(-1, 1, 1)).to.be.equal(true)
 
       const tile_options1 = {wrap_around: false}
       const source1 = new MercatorTileSource(tile_options1)
-      expect(source1.is_valid_tile(-1, 1, 1)).to.be.deep.equal(false)
+      expect(source1.is_valid_tile(-1, 1, 1)).to.be.equal(false)
     })
 
     it("should not snap_to_zoom_level", () => {
@@ -364,13 +364,13 @@ describe("tile sources", () => {
 
     it("should convert pixel x/y to tile x/y", () => {
       const source = new MercatorTileSource()
-      expect(source.pixels_to_tile(1, 1)).to.be.deep.equal([0, 0])
-      expect(source.pixels_to_tile(0, 0)).to.be.deep.equal([0, 0])
+      expect(source.pixels_to_tile(1, 1)).to.be.equal([0, 0])
+      expect(source.pixels_to_tile(0, 0)).to.be.equal([0, 0])
     })
 
     it("should convert pixel x/y to meters x/y", () => {
       const source = new MercatorTileSource()
-      expect(source.pixels_to_meters(0, 0, 0)).to.be.deep.equal([-20037508.34, -20037508.34])
+      expect(source.pixels_to_meters(0, 0, 0)).to.be.equal([-20037508.34, -20037508.34])
     })
 
     it("should get tile bounds in meters", () => {

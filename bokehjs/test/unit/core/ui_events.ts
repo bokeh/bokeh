@@ -77,7 +77,7 @@ describe("ui_events module", () => {
         ui_events._trigger(ui_events.move, e, new Event("mousemove"))
 
         assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.move, e, inspector.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_events.move, e, inspector.id])
       })
 
       it("should not trigger move event for inactive inspectors", async () => {
@@ -150,7 +150,7 @@ describe("ui_events module", () => {
 
         ui_events._trigger(ui_events.move, e, new Event("mousemove"))
         assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.move_exit, e, inspector.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_events.move_exit, e, inspector.id])
         // should also use view renderer cursor and not inspector cursor
         assert(spy_cursor.calledOnce)
         assert(spy_cursor.calledWith("pointer"))
@@ -179,7 +179,7 @@ describe("ui_events module", () => {
         ui_events._trigger(ui_events.tap, e, new Event("mousemove"))
 
         assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.tap, e, gesture.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_events.tap, e, gesture.id])
       })
 
       it("should call on_hit method on view renderer if exists", async () => {
@@ -191,7 +191,7 @@ describe("ui_events module", () => {
 
         ui_events._trigger(ui_events.tap, e, new Event("mousemove"))
         assert(on_hit.calledOnce)
-        expect(on_hit.args[0]).to.be.deep.equal([10, 15])
+        expect(on_hit.args[0]).to.be.equal([10, 15])
 
         on_hit.restore()
         ss.restore()
@@ -243,7 +243,7 @@ describe("ui_events module", () => {
         assert(stopPropagation.calledOnce)
 
         assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.scroll, e, gesture.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_events.scroll, e, gesture.id])
       })
     })
 
@@ -266,7 +266,7 @@ describe("ui_events module", () => {
         ui_events._trigger(ui_events.pan, e, new Event("pointerdown"))
 
         assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.pan, e, gesture.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_events.pan, e, gesture.id])
       })
     })
   })

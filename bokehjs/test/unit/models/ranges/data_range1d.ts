@@ -48,7 +48,7 @@ describe("datarange1d module", () => {
     })
 
     it("should have no computed_renderers", () => {
-      expect(r.computed_renderers()).to.be.deep.equal([])
+      expect(r.computed_renderers()).to.be.equal([])
     })
   })
 
@@ -114,12 +114,12 @@ describe("datarange1d module", () => {
       const g1 = new GlyphRenderer()
       const p1 = new Plot({renderers: [g1]})
       const r1 = new DataRange1d({plots: [p1]})
-      expect(r1.computed_renderers()).to.be.deep.equal([g1])
+      expect(r1.computed_renderers()).to.be.equal([g1])
 
       const g2 = new GlyphRenderer()
       const p2 = new Plot({renderers: [g1, g2]})
       const r2 = new DataRange1d({plots: [p2]})
-      expect(r2.computed_renderers()).to.be.deep.equal([g1, g2])
+      expect(r2.computed_renderers()).to.be.equal([g1, g2])
     })
 
     it("should add renderers from multiple plot", () => {
@@ -130,7 +130,7 @@ describe("datarange1d module", () => {
       const p2 = new Plot({renderers: [g2]})
 
       const r = new DataRange1d({plots: [p1, p2]})
-      expect(r.computed_renderers()).to.be.deep.equal([g1, g2])
+      expect(r.computed_renderers()).to.be.equal([g1, g2])
     })
 
     it("should respect user-set renderers", () => {
@@ -141,7 +141,7 @@ describe("datarange1d module", () => {
       const p2 = new Plot({renderers: [g2]})
 
       const r = new DataRange1d({plots: [p1, p2], renderers: [g2]})
-      expect(r.computed_renderers()).to.be.deep.equal([g2])
+      expect(r.computed_renderers()).to.be.equal([g2])
     })
   })
 
@@ -149,13 +149,13 @@ describe("datarange1d module", () => {
 
     it("should use default_span when max=min", () => {
       const r0 = new DataRange1d()
-      expect(r0._compute_range(3, 3)).to.be.deep.equal([2, 4])
+      expect(r0._compute_range(3, 3)).to.be.equal([2, 4])
 
       const r1 = new DataRange1d({default_span: 4})
-      expect(r1._compute_range(3, 3)).to.be.deep.equal([1, 5])
+      expect(r1._compute_range(3, 3)).to.be.equal([1, 5])
 
       const r2 = new DataRange1d({default_span: 4, range_padding: 0})
-      expect(r2._compute_range(3, 3)).to.be.deep.equal([1, 5])
+      expect(r2._compute_range(3, 3)).to.be.equal([1, 5])
     })
 
     it("should use default_span as powers of 10 when scale_hint='log'", () => {
@@ -172,47 +172,47 @@ describe("datarange1d module", () => {
 
     it("should swap max, min when flipped", () => {
       const r = new DataRange1d({flipped: true})
-      expect(r._compute_range(3, 3)).to.be.deep.equal([4, 2])
+      expect(r._compute_range(3, 3)).to.be.equal([4, 2])
     })
 
     it("should follow min when follow=start and not flipped", () => {
       const r = new DataRange1d({range_padding: 0, follow: "start", follow_interval: 4})
-      expect(r._compute_range(1, 3)).to.be.deep.equal([1, 3])
-      expect(r._compute_range(1, 7)).to.be.deep.equal([1, 5])
+      expect(r._compute_range(1, 3)).to.be.equal([1, 3])
+      expect(r._compute_range(1, 7)).to.be.equal([1, 5])
     })
 
     it("should follow max when follow=start and flipped", () => {
       const r = new DataRange1d({range_padding: 0, follow: "start", follow_interval: 4, flipped: true})
-      expect(r._compute_range(1, 3)).to.be.deep.equal([3, 1])
-      expect(r._compute_range(1, 7)).to.be.deep.equal([7, 3])
+      expect(r._compute_range(1, 3)).to.be.equal([3, 1])
+      expect(r._compute_range(1, 7)).to.be.equal([7, 3])
     })
 
     it("should follow max when follow=end and not flipped", () => {
       const r = new DataRange1d({range_padding: 0, follow: "end", follow_interval: 4})
-      expect(r._compute_range(1, 3)).to.be.deep.equal([1, 3])
-      expect(r._compute_range(1, 7)).to.be.deep.equal([3, 7])
+      expect(r._compute_range(1, 3)).to.be.equal([1, 3])
+      expect(r._compute_range(1, 7)).to.be.equal([3, 7])
     })
 
     it("should follow min when follow=end and flipped", () => {
       const r = new DataRange1d({range_padding: 0, follow: "end", follow_interval: 4, flipped: true})
-      expect(r._compute_range(1, 3)).to.be.deep.equal([3, 1])
-      expect(r._compute_range(1, 7)).to.be.deep.equal([5, 1])
+      expect(r._compute_range(1, 3)).to.be.equal([3, 1])
+      expect(r._compute_range(1, 7)).to.be.equal([5, 1])
     })
 
     it("should apply percentage range_padding", () => {
       const r0 = new DataRange1d({range_padding: 0.5})
-      expect(r0._compute_range(1, 3)).to.be.deep.equal([0.5, 3.5])
+      expect(r0._compute_range(1, 3)).to.be.equal([0.5, 3.5])
 
       const r1 = new DataRange1d({range_padding: 0})
-      expect(r1._compute_range(1, 3)).to.be.deep.equal([1, 3])
+      expect(r1._compute_range(1, 3)).to.be.equal([1, 3])
     })
 
     it("should apply absolute range_padding", () => {
       const r0 = new DataRange1d({range_padding: 0.2, range_padding_units: "absolute"})
-      expect(r0._compute_range(1, 3)).to.be.deep.equal([0.8, 3.2])
+      expect(r0._compute_range(1, 3)).to.be.equal([0.8, 3.2])
 
       const r1 = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
-      expect(r1._compute_range(1, 3)).to.be.deep.equal([1, 3])
+      expect(r1._compute_range(1, 3)).to.be.equal([1, 3])
     })
 
     it("should apply range_padding logly when scale_hint='log'", () => {
@@ -245,8 +245,8 @@ describe("datarange1d module", () => {
       const bounds = [
         {x0: 0, x1: 10, y0: 5, y1: 6},
       ]
-      expect(r._compute_min_max(bounds, 0)).to.be.deep.equal([0, 10])
-      expect(r._compute_min_max(bounds, 1)).to.be.deep.equal([5, 6])
+      expect(r._compute_min_max(bounds, 0)).to.be.equal([0, 10])
+      expect(r._compute_min_max(bounds, 1)).to.be.equal([5, 6])
     })
 
     it("should compute max/min for dimension of multiple plot_bounds", () => {
@@ -255,16 +255,16 @@ describe("datarange1d module", () => {
         {x0: 0, x1: 10, y0: 5, y1: 6},
         {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
       ]
-      expect(r._compute_min_max(bounds0, 0)).to.be.deep.equal([0, 15])
-      expect(r._compute_min_max(bounds0, 1)).to.be.deep.equal([5, 6])
+      expect(r._compute_min_max(bounds0, 0)).to.be.equal([0, 15])
+      expect(r._compute_min_max(bounds0, 1)).to.be.equal([5, 6])
 
       const bounds1 = [
         {x0: 0, x1: 10, y0: 5, y1: 6},
         {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
         {x0: -10, x1: 15, y0: 0, y1: 2},
       ]
-      expect(r._compute_min_max(bounds1, 0)).to.be.deep.equal([-10, 15])
-      expect(r._compute_min_max(bounds1, 1)).to.be.deep.equal([0, 6])
+      expect(r._compute_min_max(bounds1, 0)).to.be.equal([-10, 15])
+      expect(r._compute_min_max(bounds1, 1)).to.be.equal([0, 6])
     })
   })
 
@@ -283,8 +283,8 @@ describe("datarange1d module", () => {
         [g3, {x0: -10, x1: 15, y0: 0, y1: 2}],
       ])
 
-      expect(r._compute_plot_bounds([g1], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
-      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1], bounds)).to.be.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
 
     it("should use invisble renderers by default", () => {
@@ -300,8 +300,8 @@ describe("datarange1d module", () => {
         [g3, {x0: -10, x1: 15, y0: 0, y1: 2}],
       ])
 
-      expect(r._compute_plot_bounds([g1], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
-      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1], bounds)).to.be.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
 
     it("should skip invisble renderers if only_visible=false", () => {
@@ -317,8 +317,8 @@ describe("datarange1d module", () => {
         [g3, {x0: -10, x1: 15, y0: 0, y1: 2}],
       ])
 
-      expect(r._compute_plot_bounds([g1], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
-      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1], bounds)).to.be.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bounds)).to.be.equal({x0: 0, x1: 10, y0: 5, y1: 6})
     })
   })
 

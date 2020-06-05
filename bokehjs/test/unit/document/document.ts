@@ -255,7 +255,7 @@ describe("Document", () => {
     const m = new SomeModelWithChildren()
     const m2 = new AnotherModel()
     m.children = [m2]
-    expect(m.children).to.be.deep.equal([ m2 ])
+    expect(m.children).to.be.equal([ m2 ])
     // check that we get the right all_models on initial add_root
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
@@ -283,7 +283,7 @@ describe("Document", () => {
     const m3 = new AnotherModel()
     const m2 = new SomeModel({ child: m3 })
     m.children = [m2]
-    expect(m.children).to.be.deep.equal([ m2 ])
+    expect(m.children).to.be.equal([ m2 ])
 
     // check that we get the right all_models on initial add_root
     d.add_root(m)
@@ -935,7 +935,7 @@ describe("Document", () => {
     // document should have the values we set above
     for (const key in serialized_values) {
       const value = (serialized_values as any)[key] // XXX: own
-      expect(root1.property(key).get_value()).to.be.deep.equal(value)
+      expect(root1.property(key).get_value()).to.be.equal(value)
     }
 
     expect(root1.list_prop[0].bar).to.be.equal(42)
@@ -949,7 +949,7 @@ describe("Document", () => {
     // and tags)
     d.apply_json_patch(patch)
     expect(root1.name).to.be.equal('foo')
-    expect(root1.tags).to.be.deep.equal(['bar'])
+    expect(root1.tags).to.be.equal(['bar'])
     expect(root1.list_prop.length).to.be.equal(1)
     expect(root1.list_prop[0].bar).to.be.equal(1)
     expect(Object.keys(root1.dict_prop).length).to.be.equal(1)

@@ -30,11 +30,11 @@ describe("Model objects", () => {
     })
 
     it("should have empty tags", () => {
-      expect(m.tags).to.be.deep.equal([])
+      expect(m.tags).to.be.equal([])
     })
 
     it("should have empty js_property_callbacks", () => {
-      expect(m.js_property_callbacks).to.be.deep.equal({})
+      expect(m.js_property_callbacks).to.be.equal({})
     })
   })
 

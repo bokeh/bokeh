@@ -97,7 +97,7 @@ describe("WheelZoomTool", () => {
       expect(hr.end).to.be.closeTo(0.833, 0.01)
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
     })
 
     it("should zoom the x-axis only because sy is off frame", async () => {
@@ -117,7 +117,7 @@ describe("WheelZoomTool", () => {
       expect(hr.end).to.be.closeTo(0.833, 0.01)
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
     })
 
     it("should zoom the y-axis only because dimensions arg is set", async () => {
@@ -133,7 +133,7 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
 
       const vr = plot_view.frame.y_ranges.default
       expect(vr.start).to.be.closeTo(-0.833, 0.01)
@@ -153,7 +153,7 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
 
       const vr = plot_view.frame.y_ranges.default
       expect(vr.start).to.be.closeTo(-0.833, 0.01)

@@ -7,7 +7,7 @@ describe("OpenURL", () => {
     const r = new OpenURL()
 
     it("should have default url", () => {
-      expect(r.url).to.be.deep.equal("http://")
+      expect(r.url).to.be.equal("http://")
     })
   })
 })

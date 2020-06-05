@@ -10,7 +10,7 @@ describe("Crosshair Tool", () => {
       const crosshair = new CrosshairTool()
       const spans = [crosshair.spans.width, crosshair.spans.height]
       // Plot canvas should now have the two cross hair span renderers
-      expect(crosshair.synthetic_renderers).to.be.deep.equal(spans)
+      expect(crosshair.synthetic_renderers).to.be.equal(spans)
     })
   })
 })

@@ -9,7 +9,7 @@ describe("CustomJSTransform", () => {
     const r = new CustomJSTransform()
 
     it("should have empty args", () => {
-      expect(r.args).to.be.deep.equal({})
+      expect(r.args).to.be.equal({})
     })
 
     it("should have empty func property", () => {
@@ -32,7 +32,7 @@ describe("CustomJSTransform", () => {
       const rng1 = new Range1d()
       const rng2 = new Range1d()
       const r = new CustomJSTransform({args: {foo: rng1, bar: rng2}})
-      expect(r.values).to.be.deep.equal([rng1, rng2])
+      expect(r.values).to.be.equal([rng1, rng2])
     })
   })
 
@@ -105,7 +105,7 @@ for (var i = 0; i < xs.length; i++) {
 return new_xs\
 `
       const r = new CustomJSTransform({v_func})
-      expect(r.v_compute([1, 2, 3])).to.be.deep.equal(new Array(11, 12, 13))
+      expect(r.v_compute([1, 2, 3])).to.be.equal(new Array(11, 12, 13))
     })
 
     it("should properly transform an array of values using an arg property", () => {
@@ -118,7 +118,7 @@ return new_xs\
 `
       const rng = new Range1d({start: 11, end: 21})
       const r = new CustomJSTransform({args: {foo: rng}, v_func})
-      expect(r.v_compute([1, 2, 3])).to.be.deep.equal(new Array(12, 13, 14))
+      expect(r.v_compute([1, 2, 3])).to.be.equal(new Array(12, 13, 14))
     })
   })
 })

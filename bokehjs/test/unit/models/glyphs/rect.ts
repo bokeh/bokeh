@@ -31,7 +31,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
-      expect(bounds).to.be.deep.equal({ x0: 1, y0: -20, x1: 4, y1: 30 })
+      expect(bounds).to.be.equal({ x0: 1, y0: -20, x1: 4, y1: 30 })
     })
 
     it("should calculate log bounds based on data values > 0", async () => {
@@ -39,7 +39,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.deep.equal({ x0: 1, y0: 10, x1: 4, y1: 30 })
+      expect(log_bounds).to.be.equal({ x0: 1, y0: 10, x1: 4, y1: 30 })
     })
 
     it("should calculate log bounds when NaNs are present", async () => {
@@ -47,7 +47,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.deep.equal({ x0: 1, y0: 10, x1: 3, y1: 10 })
+      expect(log_bounds).to.be.equal({ x0: 1, y0: 10, x1: 3, y1: 10 })
     })
 
     it("should hit test rects against an index", async () => {
@@ -72,9 +72,9 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const result2 = glyph_view.hit_test(geometry2)!
       const result3 = glyph_view.hit_test(geometry3)!
 
-      expect(result1.indices).to.be.deep.equal([0])
-      expect(result2.indices).to.be.deep.equal([1])
-      expect(result3.indices).to.be.deep.equal([])
+      expect(result1.indices).to.be.equal([0])
+      expect(result2.indices).to.be.equal([1])
+      expect(result3.indices).to.be.equal([])
     })
   })
 })
@@ -98,7 +98,7 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
-      expect(bounds).to.be.deep.equal({ x0: -5, y0: -10, x1: 8, y1: 13 })
+      expect(bounds).to.be.equal({ x0: -5, y0: -10, x1: 8, y1: 13 })
     })
 
     it("should calculate log bounds based on data including width and height", async () => {
@@ -106,7 +106,7 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.deep.equal({ x0: -4, y0: -9, x1: 8, y1: 13 })
+      expect(log_bounds).to.be.equal({ x0: -4, y0: -9, x1: 8, y1: 13 })
     })
 
     it("`_map_data` should correctly map data if width and height units are 'data'", async () => {
@@ -115,8 +115,8 @@ describe("Rect", () => {
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
-      expect(glyph_view.sw).to.be.deep.equal(Float64Array.of(20))
-      expect(glyph_view.sh).to.be.deep.equal(Float64Array.of(40))
+      expect(glyph_view.sw).to.be.equal(Float64Array.of(20))
+      expect(glyph_view.sh).to.be.equal(Float64Array.of(40))
     })
 
     it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
@@ -128,8 +128,8 @@ describe("Rect", () => {
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
-      expect(glyph_view.sw).to.be.deep.equal([10])
-      expect(glyph_view.sh).to.be.deep.equal([20])
+      expect(glyph_view.sw).to.be.equal([10])
+      expect(glyph_view.sh).to.be.equal([20])
     })
 
     // XXX: needs update
@@ -138,8 +138,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
 
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of(0))
-      expect(glyph_view.sy1).to.be.deep.equal(Float64Array.of(0))
+      expect(glyph_view.sx0).to.be.equal(Float64Array.of(0))
+      expect(glyph_view.sy1).to.be.equal(Float64Array.of(0))
     })
 
     // XXX: needs update
@@ -151,8 +151,8 @@ describe("Rect", () => {
       glyph_view.model.properties.height.units = "screen"
 
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of(-5))
-      expect(glyph_view.sy1).to.be.deep.equal(Float64Array.of(-10))
+      expect(glyph_view.sx0).to.be.equal(Float64Array.of(-5))
+      expect(glyph_view.sy1).to.be.equal(Float64Array.of(-10))
     })
 
     it("`_map_data` should map values for x0 and y1 with reversed ranges", async () => {
@@ -161,8 +161,8 @@ describe("Rect", () => {
 
       set_scales(glyph_view, "linear", true)
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of(188))
-      // XXX? expect(glyph_view.sy1).to.be.deep.equal({'0': -216})
+      expect(glyph_view.sx0).to.be.equal(Float64Array.of(188))
+      // XXX? expect(glyph_view.sy1).to.be.equal({'0': -216})
     })
 
     /* XXX
@@ -176,8 +176,8 @@ describe("Rect", () => {
       const data = {x: ['a'], y: ['b']}
       const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': 25})
+      expect(glyph_view.sx0).to.be.equal({'0': 25})
+      expect(glyph_view.sy1).to.be.equal({'0': 25})
     })
     */
 
@@ -193,8 +193,8 @@ describe("Rect", () => {
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
-      expect(glyph_view.sw).to.be.deep.equal(Float64Array.of(20))
-      expect(glyph_view.sh).to.be.deep.equal(Float64Array.of(0))
+      expect(glyph_view.sw).to.be.equal(Float64Array.of(20))
+      expect(glyph_view.sh).to.be.equal(Float64Array.of(0))
     })
 
     describe("hit-testing", () => {
@@ -216,9 +216,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)!
           const result3 = glyph_view.hit_test(geometry3)!
 
-          expect(result1.indices).to.be.deep.equal([1])
-          expect(result2.indices).to.be.deep.equal([1])
-          expect(result3.indices).to.be.deep.equal([])
+          expect(result1.indices).to.be.equal([1])
+          expect(result2.indices).to.be.equal([1])
+          expect(result3.indices).to.be.equal([])
         })
 
         it("should work when width and height units are 'screen'", async () => {
@@ -235,9 +235,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)!
           const result3 = glyph_view.hit_test(geometry3)!
 
-          expect(result1.indices).to.be.deep.equal([])
-          expect(result2.indices).to.be.deep.equal([1])
-          expect(result3.indices).to.be.deep.equal([])
+          expect(result1.indices).to.be.equal([])
+          expect(result2.indices).to.be.equal([1])
+          expect(result3.indices).to.be.equal([])
         })
 
         it("should work when rects are rotated", async () => {
@@ -259,9 +259,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)!
           const result3 = glyph_view.hit_test(geometry3)!
 
-          expect(result1.indices).to.be.deep.equal([])
-          expect(result2.indices).to.be.deep.equal([])
-          expect(result3.indices).to.be.deep.equal([1])
+          expect(result1.indices).to.be.equal([])
+          expect(result2.indices).to.be.equal([])
+          expect(result3.indices).to.be.equal([1])
         })
 
         it("should work when rects are rotated and axes ranges are very different", async () => {
@@ -296,9 +296,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test({type: "point", sx: 105, sy: -20})!
           const result3 = glyph_view.hit_test({type: "point", sx: 91,  sy:  14})!
 
-          expect(result1.indices).to.be.deep.equal([1])
-          expect(result2.indices).to.be.deep.equal([])
-          expect(result3.indices).to.be.deep.equal([1])
+          expect(result1.indices).to.be.equal([1])
+          expect(result2.indices).to.be.equal([])
+          expect(result3.indices).to.be.equal([1])
         })
 
         it("should work when axis is log", async () => {
@@ -311,8 +311,8 @@ describe("Rect", () => {
           const result4 = glyph_view.hit_test({type: "point",  sx: 66.666,  sy: 133.333 })!
           const result5 = glyph_view.hit_test({type: "point",  sx: 133.333, sy:  66.666 })!
 
-          expect(result4.indices).to.be.deep.equal([])
-          expect(result5.indices).to.be.deep.equal([])
+          expect(result4.indices).to.be.equal([])
+          expect(result5.indices).to.be.equal([])
         })
       })
     })

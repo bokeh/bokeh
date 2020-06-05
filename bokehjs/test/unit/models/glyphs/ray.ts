@@ -25,7 +25,7 @@ describe("Ray", () => {
 
         set_scales(glyph_view, "linear")
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.deep.equal(Float64Array.of(20))
+        expect(glyph_view.slength).to.be.equal(Float64Array.of(20))
       }
     })
 
@@ -38,7 +38,7 @@ describe("Ray", () => {
 
         set_scales(glyph_view, "linear")
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.deep.equal([10])
+        expect(glyph_view.slength).to.be.equal([10])
       }
     })
 
@@ -51,7 +51,7 @@ describe("Ray", () => {
 
         set_scales(glyph_view, "linear", true)
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.deep.equal(Float64Array.of(20))
+        expect(glyph_view.slength).to.be.equal(Float64Array.of(20))
       }
     })
 
@@ -64,7 +64,7 @@ describe("Ray", () => {
 
         set_scales(glyph_view, "linear", true)
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.deep.equal([10])
+        expect(glyph_view.slength).to.be.equal([10])
       }
     })
   })

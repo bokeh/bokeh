@@ -74,7 +74,7 @@ describe("Line", () => {
         const line = new Line(model)
         line.set_value(ctx)
         expect(ctx[attr]).to.be.equal(value)
-        expect(ctx.lineDash).to.be.deep.equal([1, 2])
+        expect(ctx.lineDash).to.be.equal([1, 2])
       })
     }
   })

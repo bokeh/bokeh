@@ -21,10 +21,10 @@ describe("protocol/message module", () => {
         expect(m).to.be.instanceof(Message)
         expect(m.complete()).to.be.true
 
-        expect(m.header).to.be.deep.equal({msgid: '10', msgtype: 'FOO'})
-        expect(m.metadata).to.be.deep.equal({bar:2})
-        expect(m.content).to.be.deep.equal({baz:3})
-        expect(m.buffers).to.be.deep.equal(new Map())
+        expect(m.header).to.be.equal({msgid: '10', msgtype: 'FOO'})
+        expect(m.metadata).to.be.equal({bar:2})
+        expect(m.content).to.be.equal({baz:3})
+        expect(m.buffers).to.be.equal(new Map())
       })
     })
 
@@ -37,10 +37,10 @@ describe("protocol/message module", () => {
         const buf1 = new ArrayBuffer(1)
 
         m.assemble_buffer('{"id": "1"}', buf0)
-        expect([...m.buffers.entries()]).to.be.deep.equal([["1", buf0]])
+        expect([...m.buffers.entries()]).to.be.equal([["1", buf0]])
 
         m.assemble_buffer('{"id": "3"}', buf1)
-        expect([...m.buffers.entries()]).to.be.deep.equal([["1", buf0], ["3", buf1]])
+        expect([...m.buffers.entries()]).to.be.equal([["1", buf0], ["3", buf1]])
       })
 
       it("should raise an error if num_buffers is exceeded", () => {
@@ -58,16 +58,16 @@ describe("protocol/message module", () => {
 
       it("with a generated header", () => {
         const {header} = m
-        expect(header).to.be.deep.equal({msgid: "j1226", msgtype: "FOO"})
+        expect(header).to.be.equal({msgid: "j1226", msgtype: "FOO"})
       })
 
       it("and metadata and content as-is", () => {
-        expect(m.metadata).to.be.deep.equal({bar:2})
-        expect(m.content).to.be.deep.equal({baz:3})
+        expect(m.metadata).to.be.equal({bar:2})
+        expect(m.content).to.be.equal({baz:3})
       })
 
       it("and no buffers", () => {
-        expect(m.buffers).to.be.deep.equal(new Map())
+        expect(m.buffers).to.be.equal(new Map())
       })
     })
 
@@ -75,7 +75,7 @@ describe("protocol/message module", () => {
       const h = Message.create_header("FOO")
 
       it("should return a header obj", () => {
-        expect(h).to.be.deep.equal({msgid: "j1227", msgtype: "FOO"})
+        expect(h).to.be.equal({msgid: "j1227", msgtype: "FOO"})
       })
 
       it("should generate new ids", () => {
@@ -123,9 +123,9 @@ describe("protocol/message module", () => {
         const s = new MockSock()
         m.send(s)
         expect(s.sent.length).to.be.equal(3)
-        expect(JSON.parse(s.sent[0])).to.be.deep.equal({msgid: "10", msgtype: "FOO"})
-        expect(JSON.parse(s.sent[1])).to.be.deep.equal({bar:2})
-        expect(JSON.parse(s.sent[2])).to.be.deep.equal({baz:3})
+        expect(JSON.parse(s.sent[0])).to.be.equal({msgid: "10", msgtype: "FOO"})
+        expect(JSON.parse(s.sent[1])).to.be.equal({bar:2})
+        expect(JSON.parse(s.sent[2])).to.be.equal({baz:3})
       })
 
       /* XXX: ???

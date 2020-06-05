@@ -55,7 +55,7 @@ describe("Jitter transform module", () => {
       const ret1 = transform.v_compute(val1)
 
       const ret2 = transform.v_compute(val2)
-      expect(ret1).to.be.deep.equal(ret2)
+      expect(ret1).to.be.equal(ret2)
     })
   })
 
@@ -83,7 +83,7 @@ describe("Jitter transform module", () => {
       const ret1 = transform.v_compute(val1)
 
       const ret2 = transform.v_compute(val2)
-      expect(ret1).to.be.deep.equal(ret2)
+      expect(ret1).to.be.equal(ret2)
     })
   })
 
@@ -112,7 +112,7 @@ describe("Jitter transform module", () => {
       const ret1 = transform.v_compute(val1)
 
       const ret2 = transform.v_compute(val2)
-      expect(ret1).to.be.deep.equal(ret2)
+      expect(ret1).to.be.equal(ret2)
     })
   })
 })
