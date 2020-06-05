@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Attrs, PlainObject} from "./types"
+import {Arrayable, Attrs, PlainObject} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
@@ -583,7 +583,7 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
+  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: Arrayable<unknown> | number} {
     // Note: this should be moved to a function separate from HasProps
     const data: {[key: string]: unknown[] | number} = {}
     for (const prop of this) {
