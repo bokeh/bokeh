@@ -1,4 +1,4 @@
-name: GitHub-CI
+name: Bokeh-CI
 
 on:
   push:
