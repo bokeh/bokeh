@@ -150,12 +150,12 @@ describe("AxisView", () => {
 
   it("_axis_label_extent should be greater than axis_label_standoff", async () => {
     const {axis, axis_view} = await build({axis_label: 'Left axis label'})
-    expect(axis_view._axis_label_extent() > axis.axis_label_standoff).to.be.true
+    expect(axis_view._axis_label_extent()).to.be.above(axis.axis_label_standoff)
   })
 
   it("_axis_label_extent should be greater than the font_size", async () => {
     const {axis_view} = await build({axis_label: 'Left axis label'})
-    expect(axis_view._axis_label_extent() > 13.3333).to.be.true
+    expect(axis_view._axis_label_extent()).to.be.above(13.3333)
   })
 
   it("_axis_label_extent should be 0 if axis_label is null", async () => {

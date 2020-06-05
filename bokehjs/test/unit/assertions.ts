@@ -1,4 +1,4 @@
-import {isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
+import {isNumber, isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
 import {is_equal, is_similar} from "@bokehjs/core/util/eq"
 import {Class} from "@bokehjs/core/class"
 
@@ -40,6 +40,8 @@ type Assertions<T> = {
   false: void
   NaN: void
   empty: void
+  below(expected: number): void
+  above(expected: number): void
 }
 
 class Asserts implements Assertions<unknown> {
@@ -117,6 +119,22 @@ class Asserts implements Assertions<unknown> {
     }
 
     return undefined
+  }
+
+  below(expected: number): void {
+    const {value} = this
+    if (!(isNumber(value) && value < expected) == !this.negated) {
+      const be = this.negated ? "not be" : "be"
+      throw new ExpectationError(`expected ${value} to ${be} below ${expected}`)
+    }
+  }
+
+  above(expected: number): void {
+    const {value} = this
+    if (!(isNumber(value) && value > expected) == !this.negated) {
+      const be = this.negated ? "not be" : "be"
+      throw new ExpectationError(`expected ${value} to ${be} below ${expected}`)
+    }
   }
 }
 
