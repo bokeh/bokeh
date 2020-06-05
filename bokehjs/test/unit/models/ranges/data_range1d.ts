@@ -347,8 +347,8 @@ describe("datarange1d module", () => {
       ])
 
       r.update(bounds, 0, p)
-      expect(r.start).not.to.be.NaN
-      expect(r.end).not.to.be.NaN
+      expect(r.start).to.not.be.NaN
+      expect(r.end).to.not.be.NaN
     })
   })
 
