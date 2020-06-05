@@ -312,7 +312,7 @@ describe("Document", () => {
     d.add_root(m)
     expect(d.get_model_by_id(m.id)).to.be.equal(m)
     expect(d.get_model_by_id(m2.id)).to.be.equal(m2)
-    expect(d.get_model_by_id("invalidid")).to.be.equal(null)
+    expect(d.get_model_by_id("invalidid")).to.be.null
   })
 
   it("lets us get_model_by_name", () => {
@@ -323,7 +323,7 @@ describe("Document", () => {
     d.add_root(m)
     expect(d.get_model_by_name(m.name!)).to.be.equal(m)
     expect(d.get_model_by_name(m2.name!)).to.be.equal(m2)
-    expect(d.get_model_by_name("invalidid")).to.be.equal(null)
+    expect(d.get_model_by_name("invalidid")).to.be.null
   })
 
   it("lets us get_model_by_name after changing name", () => {
@@ -331,9 +331,9 @@ describe("Document", () => {
     const m = new SomeModel({ name: "foo" })
     d.add_root(m)
     expect(d.get_model_by_name("foo")).to.be.equal(m)
-    expect(d.get_model_by_name("bar")).to.be.equal(null)
+    expect(d.get_model_by_name("bar")).to.be.null
     m.name = "bar"
-    expect(d.get_model_by_name("foo")).to.be.equal(null)
+    expect(d.get_model_by_name("foo")).to.be.null
     expect(d.get_model_by_name("bar")).to.be.equal(m)
   })
 
@@ -591,7 +591,7 @@ describe("Document", () => {
       got_error = true
       expect(e.message).to.include('Attempted to overwrite a document with itself')
     }
-    expect(got_error).to.be.equal(true)
+    expect(got_error).to.be.true
   })
 
   it("can destructively move", () => {
@@ -704,19 +704,19 @@ describe("Document", () => {
 
     // be sure defaults were NOT included
     const attrs0 = parsed.roots.references[0].attributes
-    expect('tags' in attrs0).to.be.equal(false)
-    expect('foo' in attrs0).to.be.equal(false)
-    expect('child' in attrs0).to.be.equal(false)
+    expect('tags' in attrs0).to.be.false
+    expect('foo' in attrs0).to.be.false
+    expect('child' in attrs0).to.be.false
     // this should be included, non-default
-    expect('name' in attrs0).to.be.equal(true)
+    expect('name' in attrs0).to.be.true
 
     // double-check different results if we do include_defaults
     const parsed_with_defaults = JSON.parse(d.to_json_string(true))
     const attrs1 = parsed_with_defaults.roots.references[0].attributes
-    //expect('tags' in attrs1).to.be.equal(true)
-    expect('foo' in attrs1).to.be.equal(true)
-    expect('child' in attrs1).to.be.equal(true)
-    expect('name' in attrs1).to.be.equal(true)
+    //expect('tags' in attrs1).to.be.true
+    expect('foo' in attrs1).to.be.true
+    expect('child' in attrs1).to.be.true
+    expect('name' in attrs1).to.be.true
   })
 
   // TODO copy the following tests from test_document.py here
@@ -789,7 +789,7 @@ describe("Document", () => {
     expect(root1.child.id).to.be.equal(child1.id)
     expect(root1.child).to.be.instanceof(SomeModel)
     const root1_child1 = root1.child as SomeModel
-    expect(root1_child1.child).to.be.equal(null)
+    expect(root1_child1.child).to.be.null
     expect(d._all_models.has(child1.id)).to.be.true
     expect(d._all_models.has(child2.id)).to.be.false
     expect(d._all_models.has(child3.id)).to.be.false
@@ -835,7 +835,7 @@ describe("Document", () => {
     // should suffice.
 
     expect(root1.document!.roots().length).equal(1)
-    expect(root1.child).to.be.equal(null)
+    expect(root1.child).to.be.null
 
     const event1 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child1)
     const patch1 = d.create_json_patch_string([event1])
@@ -864,7 +864,7 @@ describe("Document", () => {
     const root1_copy = copy.get_model_by_id(root1.id) as ModelWithConstructTimeChanges
 
     expect(root1.foo).to.be.equal(3)
-    expect(root1.child).to.be.equal(null)
+    expect(root1.child).to.be.null
 
     // when unpacking the copy, initialize() was supposed to overwrite
     // what we unpacked.
@@ -894,7 +894,7 @@ describe("Document", () => {
 
     expect(patch.events.length).to.be.equal(2)
     expect(root1.foo).to.be.equal(3)
-    expect(root1.child).to.be.equal(null)
+    expect(root1.child).to.be.null
     d.apply_json_patch(patch)
     expect(root1.foo).to.be.equal(4)
     expect(root1.child).to.be.instanceof(AnotherModel)

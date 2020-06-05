@@ -22,18 +22,18 @@ describe("core/util/array module", () => {
 
   it("contains should return true or false", () => {
     const a = [0, 1, 2]
-    expect(array.contains(a, 0)).to.be.equal(true)
-    expect(array.contains(a, 1)).to.be.equal(true)
-    expect(array.contains(a, 5)).to.be.equal(false)
-    expect(array.contains(a, null)).to.be.equal(false)
-    expect(array.contains(a, undefined)).to.be.equal(false)
+    expect(array.contains(a, 0)).to.be.true
+    expect(array.contains(a, 1)).to.be.true
+    expect(array.contains(a, 5)).to.be.false
+    expect(array.contains(a, null)).to.be.false
+    expect(array.contains(a, undefined)).to.be.false
   })
 
   it("nth should return the correct index", () => {
     const a = [0, 1, 2]
     expect(array.nth(a, 0)).to.be.equal(0)
     expect(array.nth(a, 1)).to.be.equal(1)
-    expect(array.nth(a, 5)).to.be.equal(undefined)
+    expect(array.nth(a, 5)).to.be.undefined
   })
 
   it("zip should zip two equal length arrays", () => {

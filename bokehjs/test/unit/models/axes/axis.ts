@@ -135,12 +135,12 @@ describe("AxisView", () => {
 
   it("needs_clip should return false when fixed_location is null", async () => {
     const {axis_view} = await build()
-    expect(axis_view.needs_clip).to.be.equal(false)
+    expect(axis_view.needs_clip).to.be.false
   })
 
   it("needs_clip should return true when fixed_location is not null", async () => {
     const {axis_view} = await build({fixed_location: 10})
-    expect(axis_view.needs_clip).to.be.equal(true)
+    expect(axis_view.needs_clip).to.be.true
   })
 
   it("_tick_extent should return the major_tick_out property", async () => {

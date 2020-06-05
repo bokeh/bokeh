@@ -28,11 +28,11 @@ describe("datarange1d module", () => {
     })
 
     it("should have flipped = false", () => {
-      expect(r.flipped).to.be.equal(false)
+      expect(r.flipped).to.be.false
     })
 
     it("should not be reversed", () => {
-      expect(r.is_reversed).to.be.equal(false)
+      expect(r.is_reversed).to.be.false
     })
 
     it("should have follow = null", () => {
@@ -76,7 +76,7 @@ describe("datarange1d module", () => {
     const r = new DataRange1d({start: 20, end:10})
 
     it("should be reversed", () => {
-      expect(r.is_reversed).to.be.equal(true)
+      expect(r.is_reversed).to.be.true
     })
   })
 

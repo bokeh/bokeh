@@ -190,7 +190,7 @@ describe("PointDrawTool", (): void => {
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
@@ -216,7 +216,7 @@ describe("PointDrawTool", (): void => {
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
@@ -242,7 +242,7 @@ describe("PointDrawTool", (): void => {
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 0.6460176991150443])
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1.3389830508474576])

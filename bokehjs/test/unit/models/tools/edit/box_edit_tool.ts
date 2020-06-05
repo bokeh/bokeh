@@ -162,7 +162,7 @@ describe("BoxEditTool", () => {
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
       expect(testcase.data_source.data.width).to.be.deep.equal([0.1, 0.2, 0.3])
@@ -183,7 +183,7 @@ describe("BoxEditTool", () => {
       expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
       testcase.draw_tool_view._pan_end(drag_event)
 
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584])
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288])
@@ -206,7 +206,7 @@ describe("BoxEditTool", () => {
       expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
       testcase.draw_tool_view._pan_end(drag_event)
 
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.x).to.be.deep.equal([0.5, 1, -0.1327433628318584])
       expect(testcase.data_source.data.y).to.be.deep.equal([0.5, 1, 0.1694915254237288])
@@ -229,7 +229,7 @@ describe("BoxEditTool", () => {
       const tap_event2 = make_tap_event(200, 200, true)
       testcase.draw_tool_view._doubletap(tap_event2)
 
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584])
       expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288])
@@ -244,7 +244,7 @@ describe("BoxEditTool", () => {
 
       const tap_event = make_tap_event(300, 300, true)
       testcase.draw_tool_view._doubletap(tap_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(undefined)
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.undefined
     })
   })
 })

@@ -19,7 +19,7 @@ describe("factor_range module", () => {
     })
 
     it("should not be reversed ", () => {
-      expect(r.is_reversed).to.be.equal(false)
+      expect(r.is_reversed).to.be.false
     })
   })
 
@@ -494,7 +494,7 @@ describe("factor_range module", () => {
 
       it("should be set to null", () => {
         const r = new FactorRange({factors: ['A', 'B', 'C', 'D']})
-        expect(r.mids).to.be.equal(null)
+        expect(r.mids).to.be.null
       })
     })
 
@@ -502,7 +502,7 @@ describe("factor_range module", () => {
 
       it("should be set to null", () => {
         const r = new FactorRange({factors: ['A', 'B', 'C', 'D']})
-        expect(r.tops).to.be.equal(null)
+        expect(r.tops).to.be.null
       })
     })
 
@@ -735,7 +735,7 @@ describe("factor_range module", () => {
 
       it("should be set to null", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']]})
-        expect(r.mids).to.be.equal(null)
+        expect(r.mids).to.be.null
       })
     })
 

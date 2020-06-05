@@ -42,27 +42,27 @@ describe("core/util/projections module", () => {
   describe("in_bounds function", () => {
 
     it("should reject value below lon lower bound", () => {
-      expect(in_bounds(-181, 'lon')).to.be.equal(false)
+      expect(in_bounds(-181, 'lon')).to.be.false
     })
 
     it("should reject value above lon upper bound", () => {
-      expect(in_bounds(181, 'lon')).to.be.equal(false)
+      expect(in_bounds(181, 'lon')).to.be.false
     })
 
     it("should handle value within lon bound", () => {
-      expect(in_bounds(0, 'lon')).to.be.equal(true)
+      expect(in_bounds(0, 'lon')).to.be.true
     })
 
     it("should reject value below lat lower bound", () => {
-      expect(in_bounds(-91, 'lat')).to.be.equal(false)
+      expect(in_bounds(-91, 'lat')).to.be.false
     })
 
     it("should reject value above lat upper bound", () => {
-      expect(in_bounds(91, 'lat')).to.be.equal(false)
+      expect(in_bounds(91, 'lat')).to.be.false
     })
 
     it("should handle value within lat bound", () => {
-      expect(in_bounds(0, 'lat')).to.be.equal(true)
+      expect(in_bounds(0, 'lat')).to.be.true
     })
   })
 })
