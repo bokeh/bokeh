@@ -11,6 +11,8 @@ export interface Equals {
   [equals](that: this, cmp: Comparator): boolean
 }
 
+export const wildcard: any = Symbol("wildcard")
+
 const toString = Object.prototype.toString
 
 export class Comparator {
@@ -20,9 +22,13 @@ export class Comparator {
 eq(a: any, b: any): boolean {
   // Identical objects are equal. `0 === -0`, but they aren't identical.
   // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
-  if (a === b) return a !== 0 || 1 / a === 1 / b
+  if (a === b)
+    return a !== 0 || 1 / a === 1 / b
+  if (a === wildcard || b === wildcard)
+    return true
   // A strict comparison is necessary because `null == undefined`.
-  if (a == null || b == null) return a === b
+  if (a == null || b == null)
+    return a === b
   // Compare `[[Class]]` names.
   const className = toString.call(a)
   if (className !== toString.call(b)) return false

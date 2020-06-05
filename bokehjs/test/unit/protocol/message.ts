@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
 import {Message} from "@bokehjs/protocol/message"
+import {wildcard} from "@bokehjs/core/util/eq"
 
 class MockSock {
   readonly sent: string[] = []
@@ -58,7 +59,7 @@ describe("protocol/message module", () => {
 
       it("with a generated header", () => {
         const {header} = m
-        expect(header).to.be.equal({msgid: "j1226", msgtype: "FOO"})
+        expect(header).to.be.equal({msgid: wildcard, msgtype: "FOO"})
       })
 
       it("and metadata and content as-is", () => {
@@ -75,7 +76,7 @@ describe("protocol/message module", () => {
       const h = Message.create_header("FOO")
 
       it("should return a header obj", () => {
-        expect(h).to.be.equal({msgid: "j1227", msgtype: "FOO"})
+        expect(h).to.be.equal({msgid: wildcard, msgtype: "FOO"})
       })
 
       it("should generate new ids", () => {
