@@ -51,12 +51,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-0.833, 0.01)
-      expect(hr.end).to.be.similar(0.833, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-0.833, 0.01)
-      expect(vr.end).to.be.similar(0.833, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
     it("should zoom out both ranges", async () => {
@@ -72,12 +70,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-1.166, 0.01)
-      expect(hr.end).to.be.similar(1.166, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-1.174041, 1.159292])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-1.166, 0.01)
-      expect(vr.end).to.be.similar(1.166, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-1.166666, 1.166666])
     })
 
     it("should zoom the x-axis only because dimensions arg is set", async () => {
@@ -93,11 +89,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-0.833, 0.01)
-      expect(hr.end).to.be.similar(0.833, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
     })
 
     it("should zoom the x-axis only because sy is off frame", async () => {
@@ -113,11 +108,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-0.833, 0.01)
-      expect(hr.end).to.be.similar(0.833, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
     })
 
     it("should zoom the y-axis only because dimensions arg is set", async () => {
@@ -133,11 +127,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.similar([-1.0, 1.0])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-0.833, 0.01)
-      expect(vr.end).to.be.similar(0.833, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
     it("should zoom the y-axis only because sx is off frame", async () => {
@@ -153,11 +146,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.similar([-1.0, 1.0])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-0.833, 0.01)
-      expect(vr.end).to.be.similar(0.833, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
     it("should zoom centered around the zoom point", async () => {
@@ -173,12 +165,10 @@ describe("WheelZoomTool", () => {
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-0.945, 0.01)
-      expect(hr.end).to.be.similar(0.722, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.943952, 0.722713])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-0.722, 0.01)
-      expect(vr.end).to.be.similar(0.945, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.720338, 0.946327])
     })
   })
 })

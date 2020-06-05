@@ -176,14 +176,10 @@ describe("datarange1d module", () => {
 
     it("should use default_span as powers of 10 when scale_hint='log'", () => {
       const r0 = new DataRange1d({scale_hint: "log"})
-      const [a0, b0] = r0._compute_range(100, 100)
-      expect(a0).to.be.similar(9.988493699365053, 1e-12)
-      expect(b0).to.be.similar(1001.1519555381683, 1e-12)
+      expect(r0._compute_range(100, 100)).to.be.similar([9.988493699365053, 1001.1519555381683])
 
       const r1 = new DataRange1d({scale_hint: "log", default_span: 4})
-      const [a1, b1] = r1._compute_range(100, 100)
-      expect(a1).to.be.similar(0.9988493699365047, 1e-12)
-      expect(b1).to.be.similar(10011.519555381703, 1e-12)
+      expect(r1._compute_range(100, 100)).to.be.similar([0.9988493699365047, 10011.519555381703])
     })
 
     it("should swap max, min when flipped", () => {
@@ -233,24 +229,16 @@ describe("datarange1d module", () => {
 
     it("should apply range_padding logly when scale_hint='log'", () => {
       const r0 = new DataRange1d({range_padding: 0.5, scale_hint: "log"})
-      const [a0, b0] = r0._compute_range(0.01, 10)
-      expect(a0).to.be.similar(0.0017782794100389264, 1e-12)
-      expect(b0).to.be.similar(56.23413251903488, 1e-12)
+      expect(r0._compute_range(0.01, 10)).to.be.similar([0.0017782794100389264, 56.23413251903488])
 
       const r1 = new DataRange1d({range_padding: 0, scale_hint: "log"})
-      const [a1, b1] = r1._compute_range(0.01, 10)
-      expect(a1).to.be.similar(0.01, 1e-12)
-      expect(b1).to.be.similar(10, 1e-12)
+      expect(r1._compute_range(0.01, 10)).to.be.similar([0.01, 10])
 
       const r2 = new DataRange1d({range_padding: 0.5, range_padding_units: "absolute", scale_hint: "log"})
-      const [a2, b2] = r2._compute_range(1, 10)
-      expect(a2).to.be.similar(0.5, 1e-12)
-      expect(b2).to.be.similar(10.5, 1e-12)
+      expect(r2._compute_range(1, 10)).to.be.similar([0.5, 10.5])
 
       const r3 = new DataRange1d({range_padding: 0, range_padding_units: "absolute", scale_hint: "log"})
-      const [a3, b3] = r3._compute_range(1, 10)
-      expect(a3).to.be.similar(1, 1e-12)
-      expect(b3).to.be.similar(10, 1e-12)
+      expect(r3._compute_range(1, 10)).to.be.similar([1, 10])
     })
   })
 

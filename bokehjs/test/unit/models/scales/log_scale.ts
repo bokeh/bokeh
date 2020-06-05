@@ -70,12 +70,8 @@ describe("LogScale module", () => {
 
     it("should inverse map values logly", () => {
       const scale = mkscale()
-      expect(scale.invert(-15)).to.be.similar(0.1, 1e-10)
-      expect(scale.invert(10)).to.be.similar(1, 1e-10)
-      expect(scale.invert(35)).to.be.similar(10, 1e-10)
-      expect(scale.invert(60)).to.be.similar(100, 1e-10)
-      expect(scale.invert(85)).to.be.similar(1000, 1e-10)
-      expect(scale.invert(110)).to.be.similar(10000, 1e-10)
+      const values = [-15, 10, 35, 60, 85, 110].map((v) => scale.invert(v))
+      expect(values).to.be.similar([0.1, 1, 10, 100, 1000, 10000])
     })
   })
 
@@ -83,17 +79,8 @@ describe("LogScale module", () => {
 
     it("should vector map inverse map values logly", () => {
       const scale = mkscale()
-      const value = scale.v_invert([-15, 10, 35, 60, 85, 110])
-
-      expect(value).to.be.instanceof(Float64Array)
-      expect(value.length).to.be.equal(6)
-
-      expect(value[0]).to.be.similar(0.1, 1e-10)
-      expect(value[1]).to.be.similar(1, 1e-10)
-      expect(value[2]).to.be.similar(10, 1e-10)
-      expect(value[3]).to.be.similar(100, 1e-10)
-      expect(value[4]).to.be.similar(1000, 1e-10)
-      expect(value[5]).to.be.similar(10000, 1e-10)
+      const values = scale.v_invert([-15, 10, 35, 60, 85, 110])
+      expect(values).to.be.similar(new Float64Array([0.1, 1, 10, 100, 1000, 10000]))
     })
   })
 })

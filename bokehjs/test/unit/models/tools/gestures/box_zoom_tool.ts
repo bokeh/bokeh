@@ -50,12 +50,10 @@ describe("BoxZoomTool", () => {
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-0.31, 0.01)
-      expect(hr.end).to.be.similar(0.4, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.30973, 0.39823])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-0.678, 0.01)
-      expect(vr.end).to.be.similar(0.678, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.67796, 0.67796])
     })
 
     it("should zoom in with match_aspect", async () => {
@@ -72,12 +70,10 @@ describe("BoxZoomTool", () => {
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.similar(-0.31, 0.01)
-      expect(hr.end).to.be.similar(0.4, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.30973, 0.39823])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.similar(-0.37, 0.01)
-      expect(vr.end).to.be.similar(0.34, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.36898, 0.33898])
     })
   })
 })
