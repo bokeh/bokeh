@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {PaddingUnits} from "@bokehjs/core/enums"
 
 describe("datarange1d module", () => {
 
@@ -83,25 +84,40 @@ describe("datarange1d module", () => {
   describe("reset", () => {
 
     it("should reset configuration to initial values", () => {
-      const r = new DataRange1d()
+      const r = new DataRange1d({
+        range_padding: 0.3,
+        range_padding_units: "absolute",
+        follow: "end",
+        follow_interval: 10,
+        default_span: 8,
+      })
+      expect(r.range_padding).to.be.equal(0.3)
+      expect(r.range_padding_units).to.be.equal("absolute")
+      expect(r.follow).to.be.equal("end")
+      expect(r.follow_interval).to.be.equal(10)
+      expect(r.default_span).to.be.equal(8)
+
       r.range_padding = 0.2
-      r.range_padding_units = "absolute"
-      r.follow = "end"
-      r.follow_interval = 10
-      r.default_span = 10
-      r.reset()
-      expect(r.range_padding).to.be.equal(0.1)
+      r.range_padding_units = "percent" as PaddingUnits
+
+      expect(r.range_padding).to.be.equal(0.2)
       expect(r.range_padding_units).to.be.equal("percent")
-      expect(r.follow).to.be.null
-      expect(r.follow_interval).to.be.null
-      expect(r.default_span).to.be.equal(2)
+      expect(r.follow).to.be.equal("end")
+      expect(r.follow_interval).to.be.equal(10)
+      expect(r.default_span).to.be.equal(8)
+
+      r.reset()
+
+      expect(r.range_padding).to.be.equal(0.3)
+      expect(r.range_padding_units).to.be.equal("absolute")
+      expect(r.follow).to.be.equal("end")
+      expect(r.follow_interval).to.be.equal(10)
+      expect(r.default_span).to.be.equal(8)
     })
 
     // something must call update(...) to update (start, end)
     it("should not reset (start, end)", () => {
-      const r = new DataRange1d()
-      r.start = 4
-      r.end = 10
+      const r = new DataRange1d({start: 4, end: 10})
       r.reset()
       expect(r.start).to.be.equal(4)
       expect(r.end).to.be.equal(10)

@@ -63,8 +63,8 @@ describe("StaticLayoutProvider", () => {
         edge_source.data.ys = [ [ 0, 0.5, 1 ], [ 0, 0, 0 ], [ 0, -0.5, -1 ] ]
 
         const [xs, ys] = layout_provider.get_edge_coordinates(edge_source)
-        expect(xs).to.be.equal([ [ -1, -0.5, 0 ], [ -1, 0, 1 ], [ -1, -0.5, 0 ] ])
-        expect(ys).to.be.equal([ [ 0, 0.5, 1 ], [ 0, 0, 0 ], [ 0, -0.5, -1 ] ])
+        expect(xs).to.be.equal([ [ -1, -0.5, 0 ], [ -1, 0, 1 ], [ -1, -0.5, 0 ] ] as any) // XXX: number[] instead of [number, number]
+        expect(ys).to.be.equal([ [ 0, 0.5, 1 ], [ 0, 0, 0 ], [ 0, -0.5, -1 ] ] as any)    // XXX: number[] instead of [number, number]
       })
 
       it("should return NaNs if coords don't exist", () => {

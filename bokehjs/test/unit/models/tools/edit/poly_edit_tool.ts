@@ -179,8 +179,8 @@ describe("PolyEditTool", (): void => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._doubletap(tap_event)
 
-      expect(testcase.vertex_source.data.x).to.be.equal(testcase.data.xs[1])
-      expect(testcase.vertex_source.data.y).to.be.equal(testcase.data.ys[1])
+      expect(testcase.vertex_source.data.x).to.be.equal(testcase.data.xs[1] as any) // XXX: null
+      expect(testcase.vertex_source.data.y).to.be.equal(testcase.data.ys[1] as any) // XXX: null
       expect(testcase.draw_tool_view._selected_renderer).to.be.equal(testcase.glyph_renderer)
     })
 
