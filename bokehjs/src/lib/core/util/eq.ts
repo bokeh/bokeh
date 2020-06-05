@@ -7,16 +7,17 @@ import {isFunction} from "./types"
 
 export const equals = Symbol("equals")
 
-export type IsEqual = (a: unknown, b: unknown) => boolean
-
 export interface Equals {
-  [equals](that: this, eq: IsEqual): boolean
+  [equals](that: this, cmp: Comparator): boolean
 }
 
 const toString = Object.prototype.toString
 
-// Internal recursive comparison function for `isEqual`.
-function eq(a: any, b: any, aStack?: any[], bStack?: any[]): boolean {
+export class Comparator {
+  private readonly a_stack: unknown[] = []
+  private readonly b_stack: unknown[] = []
+
+eq(a: any, b: any): boolean {
   // Identical objects are equal. `0 === -0`, but they aren't identical.
   // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
   if (a === b) return a !== 0 || 1 / a === 1 / b
@@ -65,52 +66,62 @@ function eq(a: any, b: any, aStack?: any[], bStack?: any[]): boolean {
 
   // Initializing stack of traversed objects.
   // It's done here since we only need them for objects and arrays comparison.
-  aStack = aStack || []
-  bStack = bStack || []
-  let length = aStack.length
+  const {a_stack, b_stack} = this
+  let length = a_stack.length
   while (length--) {
     // Linear search. Performance is inversely proportional to the number of
     // unique nested structures.
-    if (aStack[length] === a) return bStack[length] === b
+    if (a_stack[length] === a) return b_stack[length] === b
   }
 
   // Add the first object to the stack of traversed objects.
-  aStack.push(a)
-  bStack.push(b)
+  a_stack.push(a)
+  b_stack.push(b)
 
   if (equals in a && equals in b) {
-    return a[equals](b, eq)
+    return a[equals](b, this)
   }
 
   // Recursively compare objects and arrays.
   if (areArrays) {
-    // Compare array lengths to determine if a deep comparison is necessary.
-    length = a.length
-    if (length !== b.length) return false
-    // Deep compare the contents, ignoring non-numeric properties.
-    while (length--) {
-      if (!eq(a[length], b[length], aStack, bStack)) return false
-    }
+    return this.arrays(a, b)
   } else {
     // Deep compare objects.
     const keys = Object.keys(a)
     let key
     length = keys.length
     // Ensure that both objects contain the same number of properties before comparing deep equality.
-    if (Object.keys(b).length !== length) return false
+    if (Object.keys(b).length !== length)
+      return false
     while (length--) {
       // Deep compare each member
       key = keys[length]
-      if (!(b.hasOwnProperty(key) && eq(a[key], b[key], aStack, bStack))) return false
+      if (!(b.hasOwnProperty(key) && this.eq(a[key], b[key])))
+        return false
     }
   }
   // Remove the first object from the stack of traversed objects.
-  aStack.pop()
-  bStack.pop()
+  a_stack.pop()
+  b_stack.pop()
   return true
 }
 
-// Perform a deep comparison to check if two objects are equal.
-export function isEqual(a: any, b: any): boolean {
-  return eq(a, b)
+  arrays(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
+    let {length} = a
+    if (length != b.length)
+      return false
+    while (length--) {
+      if (!this.eq(a[length], b[length]))
+        return false
+    }
+    return true
+  }
 }
+
+export function is_equal(a: unknown, b: unknown): boolean {
+  const comparator = new Comparator()
+  return comparator.eq(a, b)
+}
+
+/** @deprecated */
+export const isEqual = is_equal

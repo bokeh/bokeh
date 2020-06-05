@@ -1,6 +1,6 @@
 import {isObject, isArray} from "./types"
 import {unreachable} from "./assert"
-import {equals, Equals, IsEqual} from "./eq"
+import {equals, Equals, Comparator} from "./eq"
 
 export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64"
 
@@ -16,8 +16,8 @@ export class Uint8NDArray extends Uint8Array implements Equals {
     this.shape = shape ?? [this.length]
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -31,8 +31,8 @@ export class Int8NDArray extends Int8Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -46,8 +46,8 @@ export class Uint16NDArray extends Uint16Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -61,8 +61,8 @@ export class Int16NDArray extends Int16Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -76,8 +76,8 @@ export class Uint32NDArray extends Uint32Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -91,8 +91,8 @@ export class Int32NDArray extends Int32Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -106,8 +106,8 @@ export class Float32NDArray extends Float32Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
@@ -121,8 +121,8 @@ export class Float64NDArray extends Float64Array implements Equals {
     this.shape = shape ?? (is_NDArray(seq) ? seq.shape : [this.length])
   }
 
-  [equals](that: this, eq: IsEqual): boolean {
-    return eq(this.shape, that.shape) && eq(this.subarray(), that.subarray())
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
 }
 
