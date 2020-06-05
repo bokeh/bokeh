@@ -27,9 +27,9 @@ describe("func_tick_formatter module", () => {
 
   describe("doFormat method", () => {
     it("should format numerical ticks appropriately", () => {
-      const formatter = new FuncTickFormatter({code: "return tick * 10"})
+      const formatter = new FuncTickFormatter({code: "return tick.toFixed(2)"})
       const labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
-      expect(labels).to.be.equal([-100, -1.0, 0, 1, 100])
+      expect(labels).to.be.equal(["-10.00", "-0.10", "0.00", "0.10", "10.00"])
     })
 
     /* XXX: this won't compile, because doFormat doesn't accept strings
@@ -43,21 +43,21 @@ describe("func_tick_formatter module", () => {
     it("should handle args appropriately", () => {
       const rng = new Range1d({start: 5, end: 10})
       const formatter = new FuncTickFormatter({
-        code: "return foo.start + foo.end + tick",
+        code: "return (foo.start + foo.end + tick).toFixed(2)",
         args: {foo: rng},
       })
       const labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
-      expect(labels).to.be.equal([5, 14.9, 15, 15.1, 25])
+      expect(labels).to.be.equal(["5.00", "14.90", "15.00", "15.10", "25.00"])
     })
 
     it("should handle array of ticks", () => {
       const formatter = new FuncTickFormatter({
-        code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return tick * this.k",
+        code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return (tick * this.k).toFixed(2)",
       })
       const labels0 = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
-      expect(labels0).to.be.equal([-100, -1.0, 0, 1, 100])
+      expect(labels0).to.be.equal(["-100.00", "-1.00", "0.00", "1.00", "100.00"])
       const labels1 = formatter.doFormat([-0.1, 0, 0.1], {loc: 0})
-      expect(labels1).to.be.equal([-10, 0, 10])
+      expect(labels1).to.be.equal(["-10.00", "0.00", "10.00"])
     })
   })
 })
