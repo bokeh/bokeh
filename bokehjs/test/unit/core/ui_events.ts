@@ -345,7 +345,7 @@ describe("ui_events module", () => {
     it("_tap method should handle tap event", async () => {
       const e: any = new Event("tap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       plot_view.model.add_tools(new TapTool())
       await plot_view.ready
@@ -359,7 +359,7 @@ describe("ui_events module", () => {
     it("_doubletap method should handle doubletap event", async () => {
       const e: any = new Event("doubletap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       plot_view.model.add_tools(new PolySelectTool())
       await plot_view.ready
@@ -373,7 +373,7 @@ describe("ui_events module", () => {
     it("_press method should handle press event", () => {
       const e: any = new Event("press") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       ANY_ui_events._press(e)
 
@@ -385,7 +385,7 @@ describe("ui_events module", () => {
     it("_pressup method should handle pressup event", () => {
       const e: any = new Event("pressup") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       ANY_ui_events._pressup(e)
 
@@ -395,7 +395,7 @@ describe("ui_events module", () => {
     it("_pan_start method should handle panstart event", async () => {
       const e: any = new Event("panstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
@@ -410,7 +410,7 @@ describe("ui_events module", () => {
     it("_pan method should handle pan event", async () => {
       const e: any = new Event("pan") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
@@ -425,7 +425,7 @@ describe("ui_events module", () => {
     it("_pan_end method should handle pan end event", async () => {
       const e: any = new Event("panend") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
@@ -440,7 +440,7 @@ describe("ui_events module", () => {
     it("_pinch_start method should handle pinchstart event", async () => {
       const e: any = new Event("pinchstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -459,7 +459,7 @@ describe("ui_events module", () => {
     it("_pinch method should handle pinch event", async () => {
       const e: any = new Event("pinch") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -477,7 +477,7 @@ describe("ui_events module", () => {
     it("_pinch_end method should handle pinchend event", async () => {
       const e: any = new Event("pinchend") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -582,14 +582,14 @@ describe("ui_events module", () => {
 
       const etap: any = new Event("tap") // XXX: not a hammerjs event
       etap.pointerType = "mouse"
-      etap.srcEvent = {pageX: 100, pageY: 200}
+      etap.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       ANY_ui_events._tap(etap)
       expect(spy_uievent.calledOnce).to.be.true
 
       const epan: any = new Event("pan") // XXX: not a hammerjs event
       epan.pointerType = "mouse"
-      epan.srcEvent = {pageX: 100, pageY: 200}
+      epan.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
       ANY_ui_events._pan(epan)
       expect(spy_uievent.calledTwice).to.be.true
     })
