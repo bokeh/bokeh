@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"

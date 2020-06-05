@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {FuncTickFormatter} from "@bokehjs/models/formatters/func_tick_formatter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

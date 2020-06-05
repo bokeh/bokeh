@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Dodge} from "@bokehjs/models/transforms/dodge"

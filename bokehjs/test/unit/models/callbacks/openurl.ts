@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {OpenURL} from "@bokehjs/models/callbacks/open_url"
 

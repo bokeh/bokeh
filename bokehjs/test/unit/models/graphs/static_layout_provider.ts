@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {StaticLayoutProvider} from "@bokehjs/models/graphs/static_layout_provider"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"

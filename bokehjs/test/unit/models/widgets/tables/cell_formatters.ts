@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {DateFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
 

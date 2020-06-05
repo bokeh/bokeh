@@ -1,7 +1,7 @@
 import {describe, it} from "../framework"
 export * from "../framework"
 
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import all_defaults from "../.generated_defaults/defaults.json"
 

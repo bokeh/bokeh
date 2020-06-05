@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {StepInterpolator} from '@bokehjs/models/transforms/step_interpolator'
 import {ColumnDataSource} from '@bokehjs/models/sources/column_data_source'

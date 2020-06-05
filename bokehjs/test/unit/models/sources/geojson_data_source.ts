@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {GeoJSONDataSource} from "@bokehjs/models/sources/geojson_data_source"
 

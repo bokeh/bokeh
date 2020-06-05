@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {SingleIntervalTicker} from "@bokehjs/models/tickers/single_interval_ticker"
 

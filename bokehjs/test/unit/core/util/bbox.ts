@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as bbox from "@bokehjs/core/util/bbox"
 

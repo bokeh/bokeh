@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Paragraph} from "@bokehjs/models/widgets/paragraph"
 import {build_view} from "@bokehjs/core/build_views"

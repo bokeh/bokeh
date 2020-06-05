@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import {Signal} from "@bokehjs/core/signaling"
 
 describe("core/signaling module", () => {

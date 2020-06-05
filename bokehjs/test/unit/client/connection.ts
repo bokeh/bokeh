@@ -1,7 +1,4 @@
-import chai from "chai"
-import chai_as_promised from "chai-as-promised"
-chai.use(chai_as_promised)
-const {expect} = chai
+import {expect} from "assertions"
 
 import {pull_session} from "@bokehjs/client/connection"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

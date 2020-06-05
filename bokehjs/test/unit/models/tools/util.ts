@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {compute_renderers} from "@bokehjs/models/tools/util"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"

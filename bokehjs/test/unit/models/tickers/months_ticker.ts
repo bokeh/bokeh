@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {MonthsTicker} from "@bokehjs/models/tickers/months_ticker"
 import {ONE_MONTH} from "@bokehjs/models/tickers/util"

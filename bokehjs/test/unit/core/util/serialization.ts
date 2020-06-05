@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as ser from "@bokehjs/core/util/serialization"
 import {ndarray} from "@bokehjs/core/util/ndarray"

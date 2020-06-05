@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {Selection} from "@bokehjs/models/selections/selection"

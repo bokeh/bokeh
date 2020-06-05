@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Plot} from "@bokehjs/models/plots/plot"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"

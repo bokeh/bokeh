@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {isEqual} from "@bokehjs/core/util/eq"
 

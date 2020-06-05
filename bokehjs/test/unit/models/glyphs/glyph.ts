@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {Selection} from "@bokehjs/models/selections"

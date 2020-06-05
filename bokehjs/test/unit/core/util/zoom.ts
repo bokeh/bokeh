@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as zoom from "@bokehjs/core/util/zoom"
 

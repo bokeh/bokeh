@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import {union, intersection, difference} from "@bokehjs/core/util/set"
 
 describe("core/util/set module", () => {

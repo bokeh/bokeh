@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from 'sinon'
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"

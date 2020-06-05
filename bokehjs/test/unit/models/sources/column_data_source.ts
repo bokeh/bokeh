@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {with_log_level} from "@bokehjs/core/logging"
 

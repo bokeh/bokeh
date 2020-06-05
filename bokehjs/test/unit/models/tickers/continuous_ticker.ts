@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {ContinuousTicker} from "@bokehjs/models/tickers/continuous_ticker"
 

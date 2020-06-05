@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {CheckboxButtonGroup} from "@bokehjs/models/widgets/checkbox_button_group"

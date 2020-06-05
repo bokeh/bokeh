@@ -1,7 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import {expect} from "chai"
+import {expect} from "assertions"
 
 const build_dir = path.normalize(`${__dirname}/../..`) // build/test/codebase -> build
 

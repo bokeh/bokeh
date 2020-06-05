@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {create_glyph_view, set_scales} from "./glyph_utils"
 import {Ray} from "@bokehjs/models/glyphs/ray"

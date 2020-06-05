@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {ToolbarBox, ProxyToolbar} from "@bokehjs/models/tools/toolbar_box"

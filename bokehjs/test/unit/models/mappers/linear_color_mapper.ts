@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 

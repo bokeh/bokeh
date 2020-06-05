@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
 import {Fill, Line, Text, Visuals} from "@bokehjs/core/visuals"

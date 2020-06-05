@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"

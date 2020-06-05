@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"

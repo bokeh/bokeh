@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {MercatorTickFormatter} from "@bokehjs/models/formatters/mercator_tick_formatter"
 import {wgs84_mercator} from "@bokehjs/core/util/projections"

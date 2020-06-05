@@ -1,4 +1,4 @@
-import {expect, assert} from "chai"
+import {expect, assert} from "assertions"
 import * as sinon from 'sinon'
 
 import * as dom from "@bokehjs/core/dom"

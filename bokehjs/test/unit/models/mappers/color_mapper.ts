@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {_convert_color, _convert_palette} from "@bokehjs/models/mappers/color_mapper"
 

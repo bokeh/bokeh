@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side, update_range_end_side, update_range_start_side} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

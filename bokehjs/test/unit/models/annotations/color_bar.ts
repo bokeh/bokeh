@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {ColorBar, ColorBarView} from '@bokehjs/models/annotations/color_bar'

@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Layoutable, Size, SizeHint} from "@bokehjs/core/layout"
 

@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as arrayable from "@bokehjs/core/util/arrayable"
 
 describe("core/util/arrayable module", () => {

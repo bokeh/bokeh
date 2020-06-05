@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {shuffle} from "@bokehjs/core/util/array"
 import {TileSource} from "@bokehjs/models/tiles/tile_source"

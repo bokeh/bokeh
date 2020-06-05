@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"

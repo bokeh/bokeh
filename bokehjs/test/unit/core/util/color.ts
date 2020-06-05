@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {color2rgba} from "@bokehjs/core/util/color"
 

@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

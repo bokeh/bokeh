@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {
   FactorRange, map_one_level, map_two_levels,

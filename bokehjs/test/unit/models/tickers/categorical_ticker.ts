@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CategoricalTicker} from "@bokehjs/models/tickers/categorical_ticker"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"

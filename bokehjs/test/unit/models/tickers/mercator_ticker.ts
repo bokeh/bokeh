@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {MercatorTicker} from "@bokehjs/models/tickers/mercator_ticker"
 
