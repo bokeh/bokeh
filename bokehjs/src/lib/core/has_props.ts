@@ -16,6 +16,7 @@ import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 import {is_NDArray} from "./util/ndarray"
 import {encode_NDArray} from "./util/serialization"
+import {equals, Equals, Comparator} from "./util/eq"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -46,7 +47,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void>
 
-export abstract class HasProps extends Signalable() {
+export abstract class HasProps extends Signalable() implements Equals {
   __view_type__: View
 
   // XXX: setter is only required for backwards compatibility
@@ -65,6 +66,10 @@ export abstract class HasProps extends Signalable() {
   static get __qualified__(): string {
     const {__module__, __name__} = this
     return __module__ != null ? `${__module__}.${__name__}` : __name__
+  }
+
+  get [Symbol.toStringTag](): string {
+    return this.constructor.__name__
   }
 
   static init_HasProps(): void {
@@ -244,6 +249,15 @@ export abstract class HasProps extends Signalable() {
       attrs[prop.attr] = prop.get_value()
     }
     return attrs
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    for (const p0 of this) {
+      const p1 = that.property(p0.attr)
+      if (cmp.eq(p0.get_value(), p1.get_value()))
+        return false
+    }
+    return true
   }
 
   constructor(attrs: Attrs | Map<string, unknown> = {}) {
