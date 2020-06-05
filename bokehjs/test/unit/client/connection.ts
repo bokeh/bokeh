@@ -28,7 +28,7 @@ describe("ClientSession", () => {
     const session = await pull_session(url)
     try {
       const info = await session.request_server_info()
-      expect(info).to.have.property('version_info')
+      expect("version_info" in Object(info)).to.be.true
     } finally {
       session.close()
     }
@@ -46,7 +46,7 @@ describe("ClientSession", () => {
       try {
         expect(session2.document.roots().length).to.be.equal(1)
         const root = session2.document.roots()[0]
-        expect(root).instanceof(Range1d)
+        expect(root).to.be.instanceof(Range1d)
         const obj = root as Range1d
         expect(obj.start).to.be.equal(123)
         expect(obj.end).to.be.equal(456)

@@ -11,8 +11,8 @@ describe("data_cube module", () => {
 
   describe("DataCube class", () => {
     it("DataCube constructs", () => {
-      const dataCube = new DataCube({})
-      expect(dataCube).is.not.null
+      const dataCube = new DataCube()
+      expect(dataCube).to.not.be.null
     })
   })
 

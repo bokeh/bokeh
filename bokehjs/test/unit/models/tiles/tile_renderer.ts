@@ -192,7 +192,7 @@ describe("tile sources", () => {
       }
       const offset_source = new TMSTileSource(tile_options)
       const bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
-      expect(bounds).to.include(0)
+      expect(bounds.includes(0)).to.be.true
     })
 
     it("should calculate resolution", () => {

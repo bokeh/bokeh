@@ -447,7 +447,7 @@ describe("Document", () => {
 
     m.bar = 42
     expect(events.length).to.be.equal(1)
-    expect(events[0]).is.instanceof(ev.ModelChangedEvent)
+    expect(events[0]).to.be.instanceof(ev.ModelChangedEvent)
     const event = events[0] as ev.ModelChangedEvent
     expect(event.document).to.be.equal(d)
     expect(event.model).to.be.equal(m)
@@ -494,7 +494,7 @@ describe("Document", () => {
     m.bar = 42
 
     expect(events.length).to.be.equal(1)
-    expect(events[0]).is.instanceof(ev.ModelChangedEvent)
+    expect(events[0]).to.be.instanceof(ev.ModelChangedEvent)
     const event0 = events[0] as ev.ModelChangedEvent
     expect(event0.new_).to.be.equal(42)
 
@@ -515,7 +515,7 @@ describe("Document", () => {
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
     expect(events.length).to.be.equal(1)
-    expect(events[0]).is.instanceof(ev.RootAddedEvent)
+    expect(events[0]).to.be.instanceof(ev.RootAddedEvent)
     const event0 = events[0] as ev.RootAddedEvent
     expect(event0.model).to.be.equal(m)
 
@@ -523,21 +523,21 @@ describe("Document", () => {
     d.add_root(m2)
     expect(d.roots().length).to.be.equal(2)
     expect(events.length).to.be.equal(2)
-    expect(events[1]).is.instanceof(ev.RootAddedEvent)
+    expect(events[1]).to.be.instanceof(ev.RootAddedEvent)
     const event1 = events[1] as ev.RootAddedEvent
     expect(event1.model).to.be.equal(m2)
 
     d.remove_root(m)
     expect(d.roots().length).to.be.equal(1)
     expect(events.length).to.be.equal(3)
-    expect(events[2]).is.instanceof(ev.RootRemovedEvent)
+    expect(events[2]).to.be.instanceof(ev.RootRemovedEvent)
     const event2 = events[2] as ev.RootRemovedEvent
     expect(event2.model).to.be.equal(m)
 
     d.remove_root(m2)
     expect(d.roots().length).to.be.equal(0)
     expect(events.length).to.be.equal(4)
-    expect(events[3]).is.instanceof(ev.RootRemovedEvent)
+    expect(events[3]).to.be.instanceof(ev.RootRemovedEvent)
     const event3 = events[3] as ev.RootRemovedEvent
     expect(event3.model).to.be.equal(m2)
   })
@@ -553,7 +553,7 @@ describe("Document", () => {
     d.set_title('Foo')
     expect(d.title()).to.be.equal('Foo')
     expect(events.length).to.be.equal(1)
-    expect(events[0]).is.instanceof(ev.TitleChangedEvent)
+    expect(events[0]).to.be.instanceof(ev.TitleChangedEvent)
     const event = events[0] as ev.TitleChangedEvent
     expect(event.document).to.be.equal(d)
     expect(event.title).to.be.equal('Foo')
@@ -589,7 +589,7 @@ describe("Document", () => {
       d.destructively_move(d)
     } catch (e) {
       got_error = true
-      expect(e.message).to.include('Attempted to overwrite a document with itself')
+      expect(e.message.includes("Attempted to overwrite a document with itself")).to.be.true
     }
     expect(got_error).to.be.true
   })
@@ -834,15 +834,15 @@ describe("Document", () => {
     // Testing only for/against null .document is not the strongest test but it
     // should suffice.
 
-    expect(root1.document!.roots().length).equal(1)
+    expect(root1.document!.roots().length).to.be.equal(1)
     expect(root1.child).to.be.null
 
     const event1 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child1)
     const patch1 = d.create_json_patch_string([event1])
     d.apply_json_patch(JSON.parse(patch1))
 
-    expect(root1.document!.roots().length).equal(1)
-    expect(root1.child!.document!.roots().length).equal(1)
+    expect(root1.document!.roots().length).to.be.equal(1)
+    expect(root1.child!.document!.roots().length).to.be.equal(1)
   })
 
   it("sets proper document on models added during construction", () => {
