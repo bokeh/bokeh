@@ -41,11 +41,7 @@ eq(a: any, b: any): boolean {
       // equivalent to `new String("5")`.
       return '' + a === '' + b
     case '[object Number]':
-      // `NaN`s are equivalent, but non-reflexive.
-      // Object(NaN) is equivalent to NaN
-      if (+a !== +a) return +b !== +b
-      // An `egal` comparison is performed for other numeric values.
-      return +a === 0 ? 1 / +a === 1 / b : +a === +b
+      return this.numbers(a, b)
     case '[object Date]':
     case '[object Boolean]':
       // Coerce dates and booleans to numeric primitive values. Dates are compared by their
@@ -112,6 +108,10 @@ eq(a: any, b: any): boolean {
   return true
 }
 
+  numbers(a: number, b: number): boolean {
+    return Object.is(a, b)
+  }
+
   arrays(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
     let {length} = a
     if (length != b.length)
@@ -124,8 +124,25 @@ eq(a: any, b: any): boolean {
   }
 }
 
+const {abs} = Math
+
+export class SimilarComparator extends Comparator {
+  constructor(readonly tolerance: number = 1e-4) {
+    super()
+  }
+
+  numbers(a: number, b: number): boolean {
+    return super.numbers(a, b) || abs(a - b) < this.tolerance
+  }
+}
+
 export function is_equal(a: unknown, b: unknown): boolean {
   const comparator = new Comparator()
+  return comparator.eq(a, b)
+}
+
+export function is_similar(a: unknown, b: unknown, tolerance?: number): boolean {
+  const comparator = new SimilarComparator(tolerance)
   return comparator.eq(a, b)
 }
 

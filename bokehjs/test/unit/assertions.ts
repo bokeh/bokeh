@@ -1,5 +1,5 @@
 import {isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
-import {isEqual} from "@bokehjs/core/util/eq"
+import {is_equal, is_similar} from "@bokehjs/core/util/eq"
 import {Class} from "@bokehjs/core/class"
 
 type Constructor<T> = Function & {prototype: T}
@@ -47,7 +47,7 @@ class Asserts implements Assertions<unknown> {
 
   equal(expected: unknown): void {
     const {value} = this
-    if (!isEqual(value, expected) == !this.negated) {
+    if (!is_equal(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
       throw new ExpectationError(`expected ${value} to ${be} equal to ${expected}`)
     }
@@ -55,8 +55,7 @@ class Asserts implements Assertions<unknown> {
 
   similar(expected: unknown, tolerance: number = 1e-4): void {
     const {value} = this
-    // TODO: isAlmostEqual(value, expected, tolerance)
-    if (!isEqual(value, expected) == !this.negated) {
+    if (!is_similar(this.value, expected, tolerance) == !this.negated) {
       const be = this.negated ? "not be" : "be"
       throw new ExpectationError(`expected ${value} to ${be} similar to ${expected} with ${tolerance} tolerance`)
     }
@@ -64,7 +63,7 @@ class Asserts implements Assertions<unknown> {
 
   identical(expected: unknown): void {
     const {value} = this
-    if ((value !== expected) == !this.negated) {
+    if (!Object.is(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
       throw new ExpectationError(`expected ${value} to ${be} identical to ${expected}`)
     }
