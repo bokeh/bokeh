@@ -80,20 +80,28 @@ class Asserts implements Assertions<unknown> {
     }
   }
 
+  private _is(expected: unknown): void {
+    const {value} = this
+    if (!Object.is(this.value, expected) == !this.negated) {
+      const be = this.negated ? "not be" : "be"
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} ${to_string(expected)}`)
+    }
+  }
+
   get undefined(): void {
-    return this.equal(undefined)
+    return this._is(undefined)
   }
   get null(): void {
-    return this.equal(null)
+    return this._is(null)
   }
   get false(): void {
-    return this.equal(false)
+    return this._is(false)
   }
   get true(): void {
-    return this.equal(true)
+    return this._is(true)
   }
   get NaN(): void {
-    return this.equal(NaN)
+    return this._is(NaN)
   }
 
   get empty(): void {
@@ -225,25 +233,3 @@ export function expect<T>(fn_or_val: (() => T) | T): ToFn<T> | ToVal<T> {
     }
   }
 }
-
-/*
-.to.throw
-.to.not.throw
-
-.to.be.equal
-.to.be.deep.equal
-.to.be.instanceof
-.to.be.undefined
-.to.be.null
-.to.be.false
-.to.be.true
-.to.be.NaN
-.to.be.above
-.to.be.below
-
-.to.not.be.*
-
-.to.be.closeTo
-.to.be.empty
-.to.be.within
-*/
