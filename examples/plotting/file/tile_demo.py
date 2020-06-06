@@ -14,7 +14,7 @@ from bokeh.models.widgets import Div
 from bokeh.plotting import figure, output_file, show
 from bokeh.tile_providers import Vendors, get_provider
 
-output_file("foo.html")
+output_file("tile_demo.html")
 
 # helper function for coordinate conversion between lat/lon in decimal degrees to web mercator
 def lnglat_to_meters(longitude, latitude):
