@@ -240,14 +240,7 @@ var Search = {
       }
     });
 
-
-    if(localStorage.input){
-      localStorage.clear()
-      var a= results.slice(results.length/2);  // a copy
-      // console.info('search results:', a);
-      // for checking purposes
-      results=a.slice()
-    }
+    /*To-do code section to optimize search results*/
 
     // print the results
     var resultCount = results.length;
@@ -519,16 +512,5 @@ var Search = {
 };
 
 $(document).ready(function() {
-  var para = document.getElementsByTagName('p')[1]
-  para.innerHTML+=`<br><input type="checkbox" id="concise">&nbsp;&nbsp;Check this option for faster, but shorter querying<br>`
   Search.init();
-  $(function(){
-    var test = localStorage.input === 'true'? true: false;
-    $('#concise').prop('checked', test || false);
-});
-
-$('#concise').on('change', function() {
-    localStorage.input = $(this).is(':checked');
-    console.log($(this).is(':checked'));
-});
 });
