@@ -17,6 +17,7 @@ import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "..
 import {is_NDArray} from "./util/ndarray"
 import {encode_NDArray} from "./util/serialization"
 import {equals, Equals, Comparator} from "./util/eq"
+import {pretty, Printable, Printer} from "./util/pretty"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -47,7 +48,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void>
 
-export abstract class HasProps extends Signalable() implements Equals {
+export abstract class HasProps extends Signalable() implements Equals, Printable {
   __view_type__: View
 
   // XXX: setter is only required for backwards compatibility
@@ -258,6 +259,21 @@ export abstract class HasProps extends Signalable() implements Equals {
         return false
     }
     return true
+  }
+
+  [pretty](printer: Printer): string {
+    const T = printer.token
+
+    const items = []
+    for (const prop of this) {
+      if (prop.dirty) {
+        const value = prop.get_value()
+        items.push(`${prop.attr}${T(":")} ${printer.to_string(value)}`)
+      }
+    }
+
+    const cls = this.constructor.__qualified__
+    return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
   constructor(attrs: Attrs | Map<string, unknown> = {}) {

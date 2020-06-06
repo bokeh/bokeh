@@ -1,5 +1,6 @@
 import {isNumber, isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
 import {is_equal, is_similar} from "@bokehjs/core/util/eq"
+import {to_string} from "@bokehjs/core/util/pretty"
 import {Class} from "@bokehjs/core/class"
 
 type Constructor<T> = Function & {prototype: T}
@@ -51,7 +52,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!is_equal(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} equal to ${expected}`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} equal to ${to_string(expected)}`)
     }
   }
 
@@ -59,7 +60,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!is_similar(this.value, expected, tolerance) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} similar to ${expected} with ${tolerance} tolerance`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} similar to ${to_string(expected)} with ${to_string(tolerance)} tolerance`)
     }
   }
 
@@ -67,7 +68,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!Object.is(this.value, expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} identical to ${expected}`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} identical to ${to_string(expected)}`)
     }
   }
 
@@ -75,7 +76,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!(value instanceof expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} an instance of ${expected}`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} an instance of ${to_string(expected)}`)
     }
   }
 
@@ -110,12 +111,12 @@ class Asserts implements Assertions<unknown> {
     })()
 
     if (is_empty == null) {
-      throw new ExpectationError(`expected ${value} to be an array-like, a plain object or an iterable container`)
+      throw new ExpectationError(`expected ${to_string(value)} to be an array-like, a plain object or an iterable container`)
     }
 
     if (!is_empty == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} empty`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} empty`)
     }
 
     return undefined
@@ -125,7 +126,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!(isNumber(value) && value < expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} below ${expected}`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} below ${to_string(expected)}`)
     }
   }
 
@@ -133,7 +134,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!(isNumber(value) && value > expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${value} to ${be} below ${expected}`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} below ${to_string(expected)}`)
     }
   }
 }
@@ -150,21 +151,27 @@ function Throws(fn: () => unknown) {
       fn()
     } catch (error) {
       if (!(error instanceof Error)) {
-        throw new ExpectationError(`expected ${fn} to throw a proper exception, got ${error}`)
+        throw new ExpectationError(`expected ${to_string(fn)} to throw a proper exception, got ${to_string(error)}`)
       }
 
       if (error_type != null && !(error instanceof error_type)) {
-        throw new ExpectationError(`expected ${fn} to throw an exception of type ${error_type}, got ${error}`)
+        throw new ExpectationError(`expected ${to_string(fn)} to throw an exception of type ${error_type}, got ${to_string(error)}`)
       }
 
-      if (pattern != null && !error.message.match(pattern)) {
-        throw new ExpectationError(`expected ${fn} to throw an exception matching ${pattern}, got ${error}`)
+      if (pattern instanceof RegExp) {
+        if (!error.message.match(pattern)) {
+          throw new ExpectationError(`expected ${to_string(fn)} to throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
+        }
+      } else if (isString(pattern)) {
+        if (!error.message.includes(pattern)) {
+          throw new ExpectationError(`expected ${to_string(fn)} to throw an exception including ${to_string(pattern)}, got ${to_string(error)}`)
+        }
       }
 
       return
     }
 
-    throw new ExpectationError(`expected ${fn} to throw an exception, but it did not`)
+    throw new ExpectationError(`expected ${to_string(fn)} to throw an exception, but it did not`)
   }
 }
 
@@ -174,19 +181,19 @@ function NotThrows(fn: () => unknown) {
       fn()
     } catch (error) {
       if (!(error instanceof Error)) {
-        throw new ExpectationError(`expected ${fn} to not throw, got ${error}`)
+        throw new ExpectationError(`expected ${to_string(fn)} to not throw, got ${to_string(error)}`)
       }
 
       if (error_type != null && error instanceof error_type) {
-        throw new ExpectationError(`expected ${fn} to not throw an exception of type ${error_type}, got ${error}`)
+        throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception of type ${error_type}, got ${to_string(error)}`)
       }
 
       if (pattern instanceof RegExp) {
         if (error.message.match(pattern))
-          throw new ExpectationError(`expected ${fn} to not throw an exception matching ${pattern}, got ${error}`)
+          throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
       } else if (isString(pattern)) {
         if (error.message.includes(pattern))
-          throw new ExpectationError(`expected ${fn} to not throw an exception including ${pattern}, got ${error}`)
+          throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception including ${to_string(pattern)}, got ${to_string(error)}`)
       }
     }
   }
