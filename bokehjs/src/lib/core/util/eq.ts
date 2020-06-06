@@ -76,8 +76,9 @@ export class Comparator {
           return this.arrays(a, b)
         }
         case "[object Map]":
+          return this.maps(a, b)
         case "[object Set]":
-          return this.iterables(a, b)
+          return this.sets(a, b)
         case "[object Object]": {
           if (a.constructor == b.constructor && (a.constructor == null || a.constructor === Object)) {
             return this.objects(a, b)
@@ -135,14 +136,38 @@ export class Comparator {
     }
   }
 
+  maps(a: Map<unknown, unknown>, b: Map<unknown, unknown>): boolean {
+    if (a.size != b.size)
+      return false
+
+    for (const [key, val] of a) {
+      if (!b.has(key) || !this.eq(val, b.get(key)))
+        return false
+    }
+
+    return true
+  }
+
+  sets(a: Set<unknown>, b: Set<unknown>): boolean {
+    if (a.size != b.size)
+      return false
+
+    for (const key of a) {
+      if (!b.has(key))
+        return false
+    }
+
+    return true
+  }
+
   objects(a: PlainObject, b: PlainObject): boolean {
     const keys = Object.keys(a)
 
-    if (!this.arrays(keys, Object.keys(b)))
+    if (keys.length != Object.keys(b).length)
       return false
 
     for (const key of keys) {
-      if (!this.eq(a[key], b[key]))
+      if (!b.hasOwnProperty(key) || !this.eq(a[key], b[key]))
         return false
     }
 
