@@ -58,7 +58,7 @@ dN = 1000 # (m) Northing plus-and-minus from map center
 x_range = DataRange1d(start=EN[0]-dE , end=EN[0]+dE) # (m) Easting  x_lo, x_hi
 y_range = DataRange1d(start=EN[1]-dN , end=EN[1]+dN) # (m) Northing y_lo, y_hi
 
-plot=[0]*len(Vendors) # initialize list to store Vendor plots
+plot = [0]*len(Vendors) # initialize list to store Vendor plots
 idx=0
 for vendor_name in Vendors:
     print("cnt={0}: Vendor={1}".format(idx,vendor_name))
