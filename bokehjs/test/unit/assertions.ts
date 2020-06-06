@@ -219,7 +219,7 @@ export function expect<T>(fn_or_val: (() => T) | T): ToFn<T> | ToVal<T> {
         be: new Asserts(fn),
         not: {
           throw: NotThrows(fn),
-          be: new Asserts(fn, true)
+          be: new Asserts(fn, true),
         },
       },
     }

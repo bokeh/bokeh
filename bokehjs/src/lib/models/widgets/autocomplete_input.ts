@@ -142,15 +142,15 @@ export class AutocompleteInputView extends TextInputView {
         const {case_sensitive} = this.model
         let acnorm: (t: string) => string
         if (case_sensitive) {
-          acnorm = (t)  => t
+          acnorm = (t) => t
         } else {
-          acnorm = (t)  => t.toLowerCase()
+          acnorm = (t) => t.toLowerCase()
         }
 
         for (const text of this.model.completions) {
           if (acnorm(text).startsWith(acnorm(value))) {
             completions.push(text)
-            }
+          }
         }
 
         this._update_completions(completions)

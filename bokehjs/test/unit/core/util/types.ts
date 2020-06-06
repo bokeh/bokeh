@@ -23,8 +23,10 @@ describe("core/util/types module", () => {
     expect(isBoolean(1)).to.be.false
     expect(isBoolean(false)).to.be.true
     expect(isBoolean(true)).to.be.true
+    /* eslint-disable no-new-wrappers */
     expect(isBoolean(new Boolean(false))).to.be.true
     expect(isBoolean(new Boolean(true))).to.be.true
+    /* eslint-enable no-new-wrappers */
     expect(isBoolean(new X())).to.be.false
   })
 
@@ -64,7 +66,9 @@ describe("core/util/types module", () => {
     expect(isString(0)).to.be.false
     expect(isString("a")).to.be.true
     expect(isString(String("a"))).to.be.true
+    /* eslint-disable no-new-wrappers */
     expect(isString(new String("a"))).to.be.true
+    /* eslint-enable no-new-wrappers */
     expect(isString(new X())).to.be.false
   })
 
