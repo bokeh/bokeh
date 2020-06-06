@@ -69,7 +69,7 @@ for vendor_name in Vendors:
                         plot_height=200, plot_width=300, title=vendor_name)
 
     plot[idx].add_tile(tile_provider)
-    idx+=1
+    idx += 1
 
 
 ## arrange all map views in a grid layout
