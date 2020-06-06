@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {is_equal} from "@bokehjs/core/util/eq"
+import {is_equal, equals, Equals, Comparator} from "@bokehjs/core/util/eq"
 
 describe("core/util/eq module", () => {
   describe("implements is_equal() function", () => {
@@ -130,5 +130,43 @@ describe("core/util/eq module", () => {
       expect(is_equal(o2, o3)).to.be.true
       expect(is_equal(o3, o2)).to.be.true
     })
+  })
+
+  it("that supports Equals interface", () => {
+    class X implements Equals {
+      constructor(readonly f: number) {}
+
+      [equals](that: this, cmp: Comparator): boolean {
+        return cmp.eq(this.f, that.f)
+      }
+    }
+
+    const x0 = new X(0)
+    const x1 = new X(0)
+    const x2 = new X(1)
+
+    expect(is_equal(x0, x0)).to.be.true
+    expect(is_equal(x1, x1)).to.be.true
+    expect(is_equal(x2, x2)).to.be.true
+
+    expect(is_equal(x0, x1)).to.be.true
+    expect(is_equal(x1, x0)).to.be.true
+
+    expect(is_equal(x0, x2)).to.be.false
+    expect(is_equal(x2, x0)).to.be.false
+  })
+
+  it("that throws on unknown types", () => {
+    class X {
+      constructor(readonly f: number) {}
+    }
+
+    const x0 = new X(0)
+    const x1 = new X(1)
+
+    expect(is_equal(x0, x0)).to.be.true
+    expect(is_equal(x1, x1)).to.be.true
+
+    expect(() => is_equal(x0, x1)).to.throw()
   })
 })
