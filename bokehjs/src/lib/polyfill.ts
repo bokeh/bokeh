@@ -1,3 +1,4 @@
+import "es5-ext/object/is/implement"
 import "es5-ext/object/assign/implement"
 import "es5-ext/object/entries/implement"
 import "es5-ext/number/is-integer/implement"
