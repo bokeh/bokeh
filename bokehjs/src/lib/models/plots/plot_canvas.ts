@@ -888,6 +888,7 @@ export class PlotView extends LayoutDOMView {
       const {width, height} = this.layout.bbox
       this.canvas_view.resize(width, height)
       this._outer_bbox = this.layout.bbox
+      this._invalidate_all = true
       this._needs_paint = true
     }
 
