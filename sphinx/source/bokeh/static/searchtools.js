@@ -513,4 +513,5 @@ var Search = {
 
 $(document).ready(function() {
   Search.init();
-});
+})
+
