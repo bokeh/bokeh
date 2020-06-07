@@ -33,6 +33,7 @@ import bokeh.io.webdriver as biw # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
+@pytest.mark.selenium
 def test_create_firefox_webdriver() -> None:
     d = biw.create_firefox_webdriver()
     try:
@@ -40,6 +41,7 @@ def test_create_firefox_webdriver() -> None:
     finally:
         d.quit()
 
+@pytest.mark.selenium
 def test_create_chromium_webdriver() -> None:
     d = biw.create_chromium_webdriver()
     try:
@@ -89,6 +91,7 @@ class Test_webdriver_control(object):
         biw.webdriver_control.reuse = True
         biw.webdriver_control.reset()
 
+    @pytest.mark.selenium
     @pytest.mark.parametrize('kind', ['firefox', 'chromium'])
     def test_create(self, kind) -> None:
         biw.webdriver_control.kind = kind
