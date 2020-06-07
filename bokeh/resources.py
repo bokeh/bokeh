@@ -104,7 +104,8 @@ def get_all_sri_hashes():
     global _SRI_HASHES
 
     if not _SRI_HASHES:
-        _SRI_HASHES = json.load(open(join(ROOT_DIR, "_sri.json")))
+        with open(join(ROOT_DIR, "_sri.json")) as f:
+            _SRI_HASHES = json.load(f)
 
     return dict(_SRI_HASHES)
 
