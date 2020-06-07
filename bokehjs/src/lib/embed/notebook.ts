@@ -65,7 +65,14 @@ function _init_comms(target: string, doc: Document): void {
         logger.info(`Registering Google Colab comms for target ${target}`)
         const r = new Receiver()
         for await (const message of comm.messages) {
-          _handle_notebook_comms(doc, r, message)
+          var content = {data: message.data};
+          var buffers = []
+          for (var buffer of (message.buffers ? message.buffers: [])) {
+            buffers.push(new DataView(buffer))
+          }
+          var metadata = message.metadata ? message.metadata: {};
+          msg = {content, buffers, metadata}
+          _handle_notebook_comms(doc, r, msg)
         }
       })
     } catch (e) {
