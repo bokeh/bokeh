@@ -1,3 +1,7 @@
+html{
+  width: 100%;
+}
+
 .navbar-brand img {
     max-height: 50px;
 }
@@ -25,8 +29,8 @@
 .bd-search {
     position: relative;
     padding: 1rem 15px;
-    margin-right: -15px;
-    margin-left: -15px;
+    margin: 0 auto;
+    width: 50%;
     border-bottom: 1px solid rgba(0,0,0,.05);
 }
 
@@ -84,6 +88,10 @@
     -ms-flex-order: 0;
     order: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  table {
+    margin: 0 auto;
   }
 
   @media (min-width: 768px) {
@@ -221,7 +229,8 @@ main *[id]:not([rel=""])::before {
 
 /* add padding to body to avid overlap with navbar   */
 body {
-  padding-top: 80px
+  padding-top: 80px;
+  width:100%
 }
 
 
@@ -260,14 +269,6 @@ body {
 .bd-toc .nav > .active > ul {
   display: block;
 }
-
-
-
-
-
-
-
-
 
 ul.gallery li {
     list-style-type: none;
