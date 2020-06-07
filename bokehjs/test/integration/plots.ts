@@ -167,4 +167,22 @@ describe("Plot", () => {
       await display(p, [300, 300])
     })
   })
+
+  it("should allow to resize itself when width changes", async () => {
+    const plot = fig([200, 200])
+    plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
+    const {view} = await display(plot, [450, 250])
+    plot.width = 400
+    await view.ready
+  })
+
+  it("should allow to fully repaint canvas after viewport resize", async () => {
+    const plot = fig([200, 200], {sizing_mode: "stretch_both"})
+    plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
+    const {view, el} = await display(plot, [200, 200])
+    el.style.width = "300px"
+    el.style.height = "300px"
+    view.resize_layout() // TODO: ResizeObserver
+    await view.ready
+  })
 })

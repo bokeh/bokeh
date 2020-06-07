@@ -191,11 +191,17 @@ export class Plot extends LayoutDOM {
     const width = this.properties.width.get_value()
     return width != null ? width : this.plot_width
   }
+  set width(width: number | null) {
+    this.setv({width, plot_width: width})
+  }
 
   get height(): number | null {
     // const height = super.height
     const height = this.properties.height.get_value()
     return height != null ? height : this.plot_height
+  }
+  set height(height: number | null) {
+    this.setv({height, plot_height: height})
   }
 
   protected _doc_attached(): void {

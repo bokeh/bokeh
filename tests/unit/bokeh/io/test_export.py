@@ -153,8 +153,7 @@ def test_get_svgs_with_svg_present(webdriver) -> None:
         svg1 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
 
     svg2 = (
-        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-        'width="20" height="20" style="width: 20px; height: 20px;">'
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
         '<defs/>'
         '<g transform="scale(1,1) translate(0.5,0.5)">'
             '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/>'

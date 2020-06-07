@@ -811,6 +811,9 @@ export class PlotView extends LayoutDOMView {
       this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
+    const {plot_width, plot_height} = this.model.properties
+    this.on_change([plot_width, plot_height], () => this.invalidate_layout())
+
     const {above, below, left, right, center, renderers} = this.model.properties
     this.on_change([above, below, left, right, center, renderers], async () => await this.build_renderer_views())
 
@@ -888,6 +891,7 @@ export class PlotView extends LayoutDOMView {
       const {width, height} = this.layout.bbox
       this.canvas_view.resize(width, height)
       this._outer_bbox = this.layout.bbox
+      this._invalidate_all = true
       this._needs_paint = true
     }
 

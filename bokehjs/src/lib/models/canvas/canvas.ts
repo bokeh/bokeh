@@ -4,6 +4,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas, append} from "core/dom"
 import {OutputBackend} from "core/enums"
+import {extend} from "core/util/object"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {SVGRenderingContext2D} from "core/util/svg"
@@ -99,9 +100,6 @@ export class CanvasLayer {
   resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
-    this.canvas.style.width = `${width}px`
-    this.canvas.style.height = `${height}px`
-
     const target = this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
     target.width = width*this.pixel_ratio
     target.height = height*this.pixel_ratio
@@ -190,6 +188,7 @@ export class CanvasView extends DOMView {
       this.events_el,
     ]
 
+    extend(this.el.style, style)
     append(this.el, ...elements)
 
     logger.debug("CanvasView initialized")
@@ -213,9 +212,6 @@ export class CanvasView extends DOMView {
 
   resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
-
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
 
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
