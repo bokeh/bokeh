@@ -1,6 +1,0 @@
-Column bbox=[0, 0, 600, 641]
-  Button bbox=[5, 5, 300, 31]
-  Plot bbox=[0, 41, 600, 600]
-    LinearAxis bbox=[24, 0, 571, 24]
-    LinearAxis bbox=[0, 24, 24, 571]
-    Title bbox=[24, 0, 571, 0]

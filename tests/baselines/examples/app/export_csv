@@ -1,5 +1,0 @@
-Row bbox=[0, 0, 1120, 410]
-  Column bbox=[0, 0, 310, 89]
-    RangeSlider bbox=[5, 5, 300, 38]
-    Button bbox=[5, 53, 300, 31]
-  DataTable bbox=[315, 5, 800, 400]

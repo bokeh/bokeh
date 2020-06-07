@@ -1,7 +1,0 @@
-Column bbox=[0, 0, 600, 1200]
-  Plot bbox=[0, 0, 600, 600]
-    ColorBar bbox=[5, 536, 492, 64]
-    ColorBar bbox=[497, 5, 103, 531]
-    Title bbox=[5, 5, 492, 0]
-  Plot bbox=[0, 600, 600, 600]
-    Title bbox=[5, 5, 492, 0]

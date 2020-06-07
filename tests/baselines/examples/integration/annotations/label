@@ -1,6 +1,0 @@
-Plot bbox=[0, 0, 600, 600]
-  Label bbox=[56, 0, 539, 67]
-  LinearAxis bbox=[56, 576, 539, 24]
-  LinearAxis bbox=[32, 67, 24, 509]
-  Label bbox=[0, 67, 32, 509]
-  Title bbox=[56, 0, 539, 0]

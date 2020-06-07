@@ -1,8 +1,0 @@
-Row bbox=[0, 0, 1110, 600]
-  Plot bbox=[0, 0, 800, 600]
-    DatetimeAxis bbox=[53, 576, 742, 24]
-    LinearAxis bbox=[0, 28, 53, 548]
-    Title bbox=[53, 0, 742, 28]
-  Column bbox=[800, 0, 310, 118]
-    Select bbox=[5, 5, 300, 49]
-    Select bbox=[5, 64, 300, 49]
