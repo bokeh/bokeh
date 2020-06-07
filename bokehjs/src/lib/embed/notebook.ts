@@ -67,11 +67,11 @@ function _init_comms(target: string, doc: Document): void {
         for await (const message of comm.messages) {
           const content = {data: message.data};
           const buffers = []
-          for (const buffer of (message.buffers ? message.buffers: [])) {
+          for (const buffer of message.buffers ?? []) {
             buffers.push(new DataView(buffer))
           }
           const msg = {content, buffers}
-          _handle_notebook_comms(doc, r, msg)
+          _handle_notebook_comms.bind(doc)(r, msg)
         }
       })
     } catch (e) {
