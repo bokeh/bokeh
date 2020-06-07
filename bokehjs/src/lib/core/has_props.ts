@@ -421,6 +421,15 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
+  /** @deprecated */
+  serializable_attributes(): Attrs {
+    const attrs: Attrs = {}
+    for (const prop of this.syncable_properties()) {
+      attrs[prop.attr] = prop.get_value()
+    }
+    return attrs
+  }
+
   static _value_to_json(value: unknown): unknown {
     if (value instanceof HasProps)
       return value.ref()
