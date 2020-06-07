@@ -65,15 +65,29 @@ __all__ = ("BokehReleases", "setup")
 # Dev API
 # -----------------------------------------------------------------------------
 
-_SRI_SECTION = """
-Subresource Integrity Hashes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+_SRI_SECTION_PRE = """
 
-The SRI Hashes for version ``%s`` are given in the table below:
+**Sub-Resource Integrity Hashes**
+
+.. raw:: html
+
+    <div class="expander">
+        <a href="javascript:void(0)" class="expander-trigger expander-hidden">Table of SRI Hashes for version %s</a>
+        <div class="expander-content">
+            <div style="font-size: small;">
 
 .. csv-table::
     :widths: 20, 80
     :header: "Filename", "Hash"
+
+"""
+
+_SRI_SECTION_POST = """
+.. raw:: html
+
+            </div>
+        </div>
+   </div>
 
 """
 
@@ -92,9 +106,10 @@ class BokehReleases(BokehDirective):
             rst_text = f".. include:: releases/{v}.rst"
             try:
                 hashes = get_sri_hashes_for_version(v)
-                rst_text += _SRI_SECTION % v
+                rst_text += _SRI_SECTION_PRE % v
                 for key, val in sorted(hashes.items()):
                     rst_text += f"    ``{key}``, ``{val}``\n"
+                rst_text += _SRI_SECTION_POST
             except KeyError:
                 if v == __version__:
                     raise RuntimeError(f"Missing SRI Hash for full release version {v!r}")
