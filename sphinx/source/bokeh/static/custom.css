@@ -1,4 +1,4 @@
-html{
+html {
   width: 100%;
 }
 
@@ -29,11 +29,15 @@ html{
 .bd-search {
     position: relative;
     padding: 1rem 15px;
-    margin: 0 auto;
-    width: 50%;
+    margin-right: -15px;
+    margin-left: -15px;
     border-bottom: 1px solid rgba(0,0,0,.05);
 }
 
+.search-front-page {
+    margin: 0 auto;
+    width: 50%;
+}
 
 /* minimal copy paste from bootstrap docs css to get sidebars working */
 
@@ -82,7 +86,6 @@ html{
     color: rgba(0, 0, 0, 0.85);
     text-decoration: none;
   }
-
 
   .bd-sidebar {
     -ms-flex-order: 0;
@@ -214,23 +217,21 @@ html{
     color: #542437;
   }
 
-/* Offsetting anchored elements within the main content to adjust for fixed header
-   https://github.com/pandas-dev/pandas-sphinx-theme/issues/6 */
-main *[id]:not([rel=""])::before {
+/* Assigned h[n]::before styling to role main to account for both content and footer headers, https://github.com/bokeh/bokeh/issues/9915 */
+/* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
+  main h2::before, main h3::before,
+  main h4::before, main h5::before,
+  main h6::before  {
     display: block;
     content: "";
     height: 80px;
     margin: -80px 0 0;
-    /* Without this, if the currently active anchor is highlighted
-       the whole block will be highlighted. The color must be the same
-       as the color of the body. */
-    background-color: white;
 }
 
-/* add padding to body to avid overlap with navbar   */
+/* add padding to body to avoid overlap with navbar   */
 body {
   padding-top: 80px;
-  width:100%
+  width:100%;
 }
 
 
