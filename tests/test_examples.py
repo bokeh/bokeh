@@ -11,7 +11,7 @@ import platform
 import signal
 import subprocess
 import time
-from os.path import abspath, basename, dirname, join, split
+from os.path import abspath, basename, dirname, join, relpath, split
 
 # External imports
 import pytest
@@ -30,13 +30,14 @@ pytest_plugins = (
     "bokeh._testing.plugins.bokeh_server",
 )
 
+BASE_DIR = abspath(dirname(dirname(__file__)))
+
 _examples = None
 
 def get_all_examples(config):
     global _examples
     if _examples is None:
-        base_dir = abspath(dirname(__file__))
-        _examples = collect_examples(join(base_dir, "examples.yaml"))
+        _examples = collect_examples(join(BASE_DIR, "tests", "examples.yaml"))
 
         for example in _examples:
             if config.option.no_js:
@@ -70,16 +71,51 @@ def pytest_generate_tests(metafunc):
             params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_notebook ]
             metafunc.parametrize('notebook_example,example,config', params)
 
-def test_js_examples(js_example, example, config) -> None:
+@pytest.fixture(scope="session", autouse=True)
+def report():
+    report = []
+    yield report
+
+    images = ""
+    for example in report:
+        images += relpath(example.img_path, BASE_DIR) + "\n"
+
+    contents = ""
+    for example in report:
+        path = relpath(example.path, BASE_DIR)
+        img_path = relpath(example.img_path, BASE_DIR)
+        contents += """<div>"""
+        contents += f"""<div><b>{path}</b></div>\n"""
+        contents += f"""<a href="{img_path}" target="_blank"><img src={img_path}></img></a>\n"""
+        contents += """</div>"""
+
+    html = f"""\
+<html>
+<head>
+<title>Examples report</title>
+</head>
+<body style="display: flex; flex-direction: column;">
+{contents}\
+</body>
+</html>
+"""
+
+    with open(join(BASE_DIR, ".images-list"), "w") as f:
+        f.write(images)
+
+    with open(join(BASE_DIR, "examples-report.html"), "w") as f:
+        f.write(html)
+
+def test_js_examples(js_example, example, report, config) -> None:
     if config.option.verbose:
         print()
     if example.no_js:
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "file://%s" % example.path, config.option.verbose)
+        _run_in_browser(example, "file://%s" % example.path, report, config.option.verbose)
 
-def test_file_examples(file_example, example, config) -> None:
+def test_file_examples(file_example, example, report, config) -> None:
     if config.option.verbose:
         print()
     (status, duration, out, err) = _run_example(example)
@@ -102,9 +138,9 @@ def test_file_examples(file_example, example, config) -> None:
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "file://%s.html" % example.path_no_ext, config.option.verbose)
+        _run_in_browser(example, "file://%s.html" % example.path_no_ext, report, config.option.verbose)
 
-def test_server_examples(server_example, example, config, bokeh_server) -> None:
+def test_server_examples(server_example, example, report, config, bokeh_server) -> None:
     if config.option.verbose:
         print()
     app = build_single_handler_application(example.path)
@@ -128,7 +164,7 @@ def test_server_examples(server_example, example, config, bokeh_server) -> None:
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, config.option.verbose)
+        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, report, config.option.verbose)
 
 def _get_path_parts(path):
     parts = []
@@ -160,7 +196,7 @@ def _print_webengine_output(result):
         for line in error['text'].split("\n"):
             fail(line, label="JS")
 
-def _run_in_browser(example, url, verbose=False):
+def _run_in_browser(example, url, report, verbose=False):
     start = time.time()
     result = run_in_chrome(url)
     end = time.time()
@@ -170,6 +206,10 @@ def _run_in_browser(example, url, verbose=False):
     success = result["success"]
     timeout = result["timeout"]
     errors = result["errors"]
+
+    image = result["image"]
+    example.store_img(image["data"])
+    report.append(example)
 
     no_errors = len(errors) == 0
 
@@ -182,7 +222,6 @@ def _run_in_browser(example, url, verbose=False):
     assert success, "%s failed to load" % example.relpath
 
     assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
-
 
 def _run_example(example):
     code = """\

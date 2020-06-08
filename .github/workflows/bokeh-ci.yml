@@ -154,6 +154,21 @@ jobs:
         run: |
           py.test -s -v --color=yes --tb line tests/test_examples.py
 
+      - name: Collect results
+        if: always()
+        shell: bash
+        run: |
+          DST="examples-report"
+          mkdir -p ${DST}
+          cp --parents examples-report.html $(cat .images-list) ${DST}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: examples-report
+          path: examples-report
+
   js-test:
     needs: build
     runs-on: ubuntu-20.04
