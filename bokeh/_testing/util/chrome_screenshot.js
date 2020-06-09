@@ -28,9 +28,9 @@ CDP(async function(client) {
   await Runtime.enable()
 
   await Emulation.setDeviceMetricsOverride({
-    width: 1000,
-    height: 1000,
-    deviceScaleFactor: 0,
+    width: 2000,
+    height: 4000,
+    deviceScaleFactor: 1,
     mobile: false,
   })
 
@@ -106,8 +106,38 @@ CDP(async function(client) {
     return result != null && result.value === true
   }
 
+  async function get_bbox() {
+    const expr0 = `JSON.stringify(getComputedStyle(document.body))`
+    const result0 = await evaluate(expr0)
+
+    const expr1 = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].el.getBoundingClientRect()))"
+    const result1 = await evaluate(expr1)
+
+    if (result0 != null && result1 != null) {
+      const style = JSON.parse(result0.value)
+      const bounds = JSON.parse(result1.value)
+
+      const right = Math.ceil(Math.max(0, ...bounds.map((bbox) => bbox.right)))
+      const bottom = Math.ceil(Math.max(0, ...bounds.map((bbox) => bbox.bottom)))
+
+      return {
+        x: 0,
+        y: 0,
+        width: Math.ceil(right + parseFloat(style.marginRight)),
+        height: Math.ceil(bottom + parseFloat(style.marginBottom)),
+        scale: 1,
+      }
+    } else
+      return undefined
+  }
+
+  async function get_image() {
+    return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
+  }
+
   async function finish(timeout, success) {
-    console.log(JSON.stringify({success, timeout, errors, messages}))
+    const image = await get_image()
+    console.log(JSON.stringify({success, timeout, errors, messages, image}))
     await client.close()
   }
 

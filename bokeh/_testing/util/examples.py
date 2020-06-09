@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
+from base64 import b64decode
 from os.path import (
     basename,
     dirname,
@@ -105,6 +106,10 @@ class Example(object):
         return splitext(self.path)[0]
 
     @property
+    def img_path(self):
+        return self.path_no_ext + ".png"
+
+    @property
     def is_js(self):
         return self.flags & Flags.js
 
@@ -135,6 +140,9 @@ class Example(object):
     @property
     def no_js(self):
         return self.flags & Flags.no_js
+
+    def store_img(self, img_data):
+        _store_binary(self.img_path, b64decode(img_data))
 
 
 def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None):
