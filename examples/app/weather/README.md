@@ -9,14 +9,14 @@ chosen.
 
 ## Setting Up
 
-This demo requires the Pandas package in order to run. To install pandas using
+This demo requires the Pandas and Scipy packages in order to run. To install pandas using
 conda, execute the command:
 
-    conda install pandas
+    conda install pandas, scipy
 
 To install using pip, execute the command:
 
-    pip install pandas
+    pip install pandas, scipy
 
 ## Running
 
