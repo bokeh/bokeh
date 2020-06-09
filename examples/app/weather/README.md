@@ -12,11 +12,13 @@ chosen.
 This demo requires the Pandas and Scipy packages in order to run. To install pandas using
 conda, execute the command:
 
-    conda install pandas, scipy
+    conda install pandas
+    conda install scipy
 
 To install using pip, execute the command:
 
-    pip install pandas, scipy
+    pip install pandas
+    pip install scipy
 
 ## Running
 
