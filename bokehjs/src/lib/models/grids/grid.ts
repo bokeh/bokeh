@@ -13,9 +13,6 @@ export class GridView extends GuideRendererView {
   visuals: Grid.Visuals
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     const ctx = this.layer.ctx
     ctx.save()
     this._draw_regions(ctx)

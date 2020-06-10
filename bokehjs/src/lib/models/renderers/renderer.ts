@@ -58,7 +58,7 @@ export abstract class RendererView extends View {
     return false
   }
 
-  render(): void {}
+  abstract render(): void
 }
 
 export namespace Renderer {

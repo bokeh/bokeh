@@ -4,7 +4,7 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import * as mixins from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
-import {div, display, undisplay} from "core/dom"
+import {div, display} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
@@ -92,12 +92,6 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
-
-    if (!this.model.visible)
-      return
-
     const draw = this.model.render_mode == 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
     const {ctx} = this.layer
 

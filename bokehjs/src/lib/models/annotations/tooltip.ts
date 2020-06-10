@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment, Side} from "core/enums"
-import {div, display, undisplay, empty, remove} from "core/dom"
+import {div, display, undisplay, empty, remove, classes} from "core/dom"
 import * as p from "core/properties"
 
 import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
@@ -39,7 +39,7 @@ export class TooltipView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.data.change, () => this._draw_tips())
+    this.connect(this.model.properties.data.change, () => this.render())
   }
 
   styles(): string[] {
@@ -47,22 +47,12 @@ export class TooltipView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
-    this._draw_tips()
-  }
-
-  protected _draw_tips(): void {
-    const {data} = this.model
     empty(this.el)
     undisplay(this.el)
 
-    if (this.model.custom)
-      this.el.classList.add(bk_tooltip_custom)
-    else
-      this.el.classList.remove(bk_tooltip_custom)
+    classes(this.el).toggle(bk_tooltip_custom, this.model.custom)
 
+    const {data} = this.model
     if (data.length == 0)
       return
 

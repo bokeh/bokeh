@@ -43,9 +43,6 @@ export class AxisView extends GuideRendererView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     const extents = {
       tick: this._tick_extent(),
       tick_label: this._tick_label_extents(),
@@ -73,9 +70,6 @@ export class AxisView extends GuideRendererView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_paint())
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
   }
 
   get_size(): Size {

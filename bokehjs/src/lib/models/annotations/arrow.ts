@@ -66,9 +66,6 @@ export class ArrowView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     const {ctx} = this.layer
     ctx.save()
 

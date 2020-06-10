@@ -16,9 +16,6 @@ export class SpanView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     const {location} = this.model
     if (location == null) {
       return

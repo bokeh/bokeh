@@ -199,9 +199,6 @@ export class LegendView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     if (this.model.items.length == 0)
       return
 

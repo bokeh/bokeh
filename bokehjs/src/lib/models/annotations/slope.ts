@@ -18,12 +18,6 @@ export class SlopeView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-    this._draw_slope()
-  }
-
-  protected _draw_slope(): void {
     const gradient = this.model.gradient
     const y_intercept = this.model.y_intercept
     if(gradient == null || y_intercept == null){

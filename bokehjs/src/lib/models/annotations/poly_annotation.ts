@@ -18,9 +18,6 @@ export class PolyAnnotationView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     const {xs, ys} = this.model
 
     if (xs.length != ys.length)

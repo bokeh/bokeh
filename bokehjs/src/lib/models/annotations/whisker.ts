@@ -87,9 +87,6 @@ export class WhiskerView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     this._map_data()
 
     const {ctx} = this.layer

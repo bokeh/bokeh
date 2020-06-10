@@ -25,9 +25,6 @@ export class BoxAnnotationView extends AnnotationView {
   }
 
   render(): void {
-    if (!this.model.visible)
-      return
-
     // don't render if *all* position are null
     if (this.model.left == null && this.model.right == null && this.model.top == null && this.model.bottom == null) {
       return
