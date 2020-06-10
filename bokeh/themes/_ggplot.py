@@ -8,14 +8,14 @@
 json = {
     "attrs": {
         "Figure" : {
-            "background_fill_color": "#e5e5e5",
-            "border_fill_color": "#ffffff",
+            "background_fill_color": "#E5E5E5",
+            "border_fill_color": "#FFFFFF",
             "outline_line_color": "#000000",
             "outline_line_alpha": 0.25
         },
 
         "Grid": {
-            "grid_line_color": "#ffffff",
+            "grid_line_color": "#FFFFFF",
             "grid_line_alpha": 1
         },
 
