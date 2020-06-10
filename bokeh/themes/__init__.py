@@ -4,184 +4,75 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide access to built-in themes:
 
-CALIBER
-~~~~~~~
+json = {
+    "attrs": {
+        "Figure" : {
+            "background_fill_color": "#e5e5e5",
+            "border_fill_color": "#ffffff",
+            "outline_line_color": "#000000",
+            "outline_line_alpha": 0.25
+        },
 
-.. bokeh-plot::
+        "Grid": {
+            "grid_line_color": "#ffffff",
+            "grid_line_alpha": 1
+        },
 
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
+        "Axis": {
+            "major_tick_line_alpha": 0.3,
+            "major_tick_line_color": "#000000",
 
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
+            "minor_tick_line_alpha": 0.4,
+            "minor_tick_line_color": "#000000",
 
-    output_file("caliber.html")
-    curdoc().theme = 'caliber'
-    p = figure(title='caliber', plot_width=300, plot_height=300)
-    p.line(x, y)
-    show(p)
+            "axis_line_alpha": 1,
+            "axis_line_color": "#000000",
 
-DARK_MINIMAL
-~~~~~~~~~~~~
+            "major_label_text_color": "#000000",
+            "major_label_text_font": "Helvetica",
+            "major_label_text_font_size": "1.025em",
 
-.. bokeh-plot::
+            "axis_label_standoff": 10,
+            "axis_label_text_color": "#000000",
+            "axis_label_text_font": "Helvetica",
+            "axis_label_text_font_size": "1.25em",
+            "axis_label_text_font_style": "normal"
+        },
 
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
+        "Legend": {
+            "spacing": 8,
+            "glyph_width": 15,
 
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
+            "label_standoff": 8,
+            "label_text_color": "#000000",
+            "label_text_font": "Arial",
+            "label_text_font_size": "0.95em",
 
-    output_file("dark_minimal.html")
-    curdoc().theme = 'dark_minimal'
-    p = figure(title='dark_minimal', plot_width=300, plot_height=300)
-    p.line(x, y)
-    show(p)
+            "border_line_alpha": 1,
+            "background_fill_alpha": 0.25,
+            "background_fill_color": "#000000"
+        },
 
+        "ColorBar": {
+            "title_text_color": "#E0E0E0",
+            "title_text_font": "Helvetica",
+            "title_text_font_size": "1.025em",
+            "title_text_font_style": "normal",
 
-LIGHT_MINIMAL
-~~~~~~~~~~~~~
+            "major_label_text_color": "#E0E0E0",
+            "major_label_text_font": "Arial",
+            "major_label_text_font_size": "1.025em",
 
-.. bokeh-plot::
+            "background_fill_color": "#15191C",
+            "major_tick_line_alpha": 0,
+            "bar_line_alpha": 0
+        },
 
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("light_minimal.html")
-    curdoc().theme = 'light_minimal'
-    p = figure(title='light_minimal', plot_width=300, plot_height=300)
-    p.line(x, y)
-    show(p)
-
-NIGHT_SKY
-~~~~~~~~~~~~~
-
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("night_sky.html")
-    curdoc().theme = 'night_sky'
-    p = figure(title='night_sky', plot_width=300, plot_height=300)
-    p.line(x, y)
-    show(p)
-
-CONTRAST
-~~~~~~~~~~~~~
-
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("contrast.html")
-    curdoc().theme = 'contrast'
-    p = figure(title='contrast', plot_width=300, plot_height=300)
-    p.line(x, y)
-    show(p)
- 
- 
-GGPLOT 
-~~~~~~~~~~~~~
-
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("ggplot.html")
-    curdoc().theme = 'ggplot'
-    p = figure(title='ggplot', plot_width=300, plot_height=300)
-    p.line(x, y)
-    show(p)
-
-as well as the ``Theme`` class that can be used to create new Themes.
-
-.. autoclass:: Theme
-
-'''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Bokeh imports
-from . import _caliber, _contrast, _dark_minimal, _ggplot, _light_minimal, _night_sky
-from .theme import Theme
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-__all__ = (
-    'CALIBER',
-    'DARK_MINIMAL',
-    'LIGHT_MINIMAL',
-    'NIGHT_SKY',
-    'CONTRAST',
-    'GGPLOT',
-    'Theme',
-    'built_in_themes',
-    'default',
-)
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-CALIBER       = 'caliber'
-LIGHT_MINIMAL = 'light_minimal'
-DARK_MINIMAL  = 'dark_minimal'
-NIGHT_SKY  = 'night_sky'
-CONTRAST  = 'contrast'
-GGPLOT  = 'ggplot'
-
-default = Theme(json={})
-
-built_in_themes = {
-    CALIBER       : Theme(json=_caliber.json),
-    DARK_MINIMAL  : Theme(json=_dark_minimal.json),
-    LIGHT_MINIMAL : Theme(json=_caliber.json),
-    NIGHT_SKY : Theme(json=_night_sky.json),
-    CONTRAST : Theme(json=_contrast.json),
-    GGPLOT : Theme(json=_ggplot.json),
+        "Title": {
+            "text_color": "#000000",
+            "text_font": "Helvetica",
+            "text_font_size": "1.10em"
+        }
+    }
 }
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#----------------------------------------------------------------------------
