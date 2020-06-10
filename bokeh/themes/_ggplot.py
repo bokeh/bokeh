@@ -64,7 +64,7 @@ json = {
             "major_label_text_font": "Arial",
             "major_label_text_font_size": "1.025em",
 
-            "background_fill_color": "#15191C",
+            "background_fill_color": "#000000",
             "major_tick_line_alpha": 0,
             "bar_line_alpha": 0
         },
