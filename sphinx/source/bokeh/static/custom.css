@@ -1,5 +1,16 @@
+:root {
+    /* Logo image height + all the paddings/margins make the navbar height. */
+    --navbar-height: calc(30px + .3125rem * 2 + 0.5rem * 2);
+}
+
 html {
   width: 100%;
+}
+
+.navbar-brand {
+    /* Overriding Bootstrap's value since we have only image there and we want
+    to keep it valigned and prevent its parent from growing.*/
+    font-size: 1rem;
 }
 
 .navbar-brand img {
@@ -105,9 +116,9 @@ html {
       .bd-sidebar {
         position: -webkit-sticky;
         position: sticky;
-        top: 5rem;
+        top: var(--navbar-height);
         z-index: 1000;
-        height: calc(100vh - 4rem);
+        height: calc(100vh - var(--navbar-height));
       }
     }
   }
@@ -192,7 +203,7 @@ html {
 
   .bd-sidebar .nav > .active > a,
   .bd-sidebar .nav > .active:hover > a {
-    font-weight: 00;
+    font-weight: 400;
     color: #130654;
     /* adjusted from original
     color: rgba(0, 0, 0, 0.85);
@@ -217,21 +228,23 @@ html {
     color: #542437;
   }
 
-/* Assigned h[n]::before styling to role main to account for both content and footer headers, https://github.com/bokeh/bokeh/issues/9915 */
-/* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
-  main h2::before, main h3::before,
-  main h4::before, main h5::before,
-  main h6::before  {
-    display: block;
-    content: "";
-    height: 80px;
-    margin: -80px 0 0;
+dt:target {
+    background-color: initial;
 }
 
-/* add padding to body to avoid overlap with navbar   */
+/* Offsetting anchored elements within the main content to adjust for fixed header
+   https://github.com/pandas-dev/pandas-sphinx-theme/issues/6 */
+main *:target::before {
+    display: block;
+    content: "";
+    height: var(--navbar-height);
+    margin-top: calc(-1 * var(--navbar-height));
+}
+
 body {
-  padding-top: 80px;
-  width:100%;
+    /* Add padding to body to avoid overlap with navbar. */
+    padding-top: var(--navbar-height);
+    width:100%;
 }
 
 
