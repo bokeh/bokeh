@@ -96,7 +96,7 @@ CONTRAST
     p = figure(title='contrast', plot_width=300, plot_height=300)
     p.line(x, y)
     show(p)
-    
+
 GGPLOT 
 ~~~~~~~~~~~~~
 
