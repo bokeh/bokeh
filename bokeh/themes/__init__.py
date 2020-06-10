@@ -96,6 +96,24 @@ CONTRAST
     p = figure(title='contrast', plot_width=300, plot_height=300)
     p.line(x, y)
     show(p)
+    
+GGPLOT 
+~~~~~~~~~~~~~
+
+.. bokeh-plot::
+
+    from bokeh.plotting import figure, output_file, show
+    from bokeh.themes import built_in_themes
+    from bokeh.io import curdoc
+
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 6, 4, 5]
+
+    output_file("ggplot.html")
+    curdoc().theme = 'ggplot'
+    p = figure(title='ggplot', plot_width=300, plot_height=300)
+    p.line(x, y)
+    show(p)
 
 as well as the ``Theme`` class that can be used to create new Themes.
 
@@ -114,7 +132,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import _caliber, _contrast, _dark_minimal, _light_minimal, _night_sky
+from . import _caliber, _contrast, _dark_minimal, _ggplot, _light_minimal, _night_sky
 from .theme import Theme
 
 #-----------------------------------------------------------------------------
@@ -127,6 +145,7 @@ __all__ = (
     'LIGHT_MINIMAL',
     'NIGHT_SKY',
     'CONTRAST',
+    'GGPLOT'
     'Theme',
     'built_in_themes',
     'default',
@@ -141,6 +160,7 @@ LIGHT_MINIMAL = 'light_minimal'
 DARK_MINIMAL  = 'dark_minimal'
 NIGHT_SKY  = 'night_sky'
 CONTRAST  = 'contrast'
+GGPLOT  = 'ggplot'
 
 default = Theme(json={})
 
@@ -150,6 +170,7 @@ built_in_themes = {
     LIGHT_MINIMAL : Theme(json=_caliber.json),
     NIGHT_SKY : Theme(json=_night_sky.json),
     CONTRAST : Theme(json=_contrast.json),
+    GGPLOT : Theme(json=_ggplot.json),
 }
 
 #-----------------------------------------------------------------------------
