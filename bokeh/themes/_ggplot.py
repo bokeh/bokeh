@@ -9,24 +9,24 @@ json = {
     "attrs": {
         "Figure" : {
             "background_fill_color": "#e5e5e5",
-            "border_fill_color": "#FFFFFF",
+            "border_fill_color": "#ffffff",
             "outline_line_color": "#000000",
             "outline_line_alpha": 0.25
         },
 
         "Grid": {
-            "grid_line_color": "#E0E0E0",
-            "grid_line_alpha": 0.25
+            "grid_line_color": "#ffffff",
+            "grid_line_alpha": 1
         },
 
         "Axis": {
-            "major_tick_line_alpha": 0,
+            "major_tick_line_alpha": 0.3,
             "major_tick_line_color": "#000000",
 
-            "minor_tick_line_alpha": 0,
+            "minor_tick_line_alpha": 0.4,
             "minor_tick_line_color": "#000000",
 
-            "axis_line_alpha": 0,
+            "axis_line_alpha": 1,
             "axis_line_color": "#000000",
 
             "major_label_text_color": "#000000",
@@ -45,11 +45,11 @@ json = {
             "glyph_width": 15,
 
             "label_standoff": 8,
-            "label_text_color": "#FFFFFF",
+            "label_text_color": "#000000",
             "label_text_font": "Arial",
-            "label_text_font_size": "1.025em",
+            "label_text_font_size": "0.95em",
 
-            "border_line_alpha": 0,
+            "border_line_alpha": 1,
             "background_fill_alpha": 0.25,
             "background_fill_color": "#000000"
         },
@@ -72,7 +72,7 @@ json = {
         "Title": {
             "text_color": "#000000",
             "text_font": "Helvetica",
-            "text_font_size": "1.15em"
+            "text_font_size": "1.10em"
         }
     }
 }
