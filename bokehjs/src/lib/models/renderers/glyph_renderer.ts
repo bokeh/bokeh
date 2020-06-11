@@ -146,10 +146,6 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
-  have_selection_glyphs(): boolean {
-    return this.selection_glyph != null && this.nonselection_glyph != null
-  }
-
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
@@ -162,16 +158,10 @@ export class GlyphRendererView extends DataRendererView {
 
     this.glyph.set_visuals(source, this.all_indices)
     this.decimated_glyph.set_visuals(source, this.all_indices)
-    if (this.have_selection_glyphs()) {
-      this.selection_glyph.set_visuals(source, this.all_indices)
-      this.nonselection_glyph.set_visuals(source, this.all_indices)
-    }
-
-    if (this.hover_glyph != null)
-      this.hover_glyph.set_visuals(source, this.all_indices)
-
-    if (this.muted_glyph != null)
-      this.muted_glyph.set_visuals(source, this.all_indices)
+    this.selection_glyph.set_visuals(source, this.all_indices)
+    this.nonselection_glyph.set_visuals(source, this.all_indices)
+    this.hover_glyph?.set_visuals(source, this.all_indices)
+    this.muted_glyph?.set_visuals(source, this.all_indices)
 
     const {lod_factor} = this.plot_model
     this.decimated = []
@@ -267,7 +257,7 @@ export class GlyphRendererView extends DataRendererView {
     // Render with no selection
     let dtselect: number | null = null
     let trender: number
-    if (!(selected_full_indices.length && this.have_selection_glyphs())) {
+    if (!(selected_full_indices.length)) {
       trender = Date.now()
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
