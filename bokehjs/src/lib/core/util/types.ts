@@ -45,7 +45,7 @@ export function isArrayableOf<T>(arr: Arrayable, predicate: (item: unknown) => i
 }
 
 export function isTypedArray(obj: unknown): obj is TypedArray {
-  return obj != null && (obj as any).buffer instanceof ArrayBuffer
+  return ArrayBuffer.isView(obj) && !(obj instanceof DataView)
 }
 
 export function isObject(obj: unknown): obj is object {
