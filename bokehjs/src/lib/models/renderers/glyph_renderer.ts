@@ -145,10 +145,6 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
-  have_selection_glyphs(): boolean {
-    return this.selection_glyph != null && this.nonselection_glyph != null
-  }
-
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
@@ -249,7 +245,7 @@ export class GlyphRendererView extends DataRendererView {
       indices = difference(indices, inspected_subset_indices)
 
     // Render with no selection
-    if (!(selected_full_indices.length && this.have_selection_glyphs())) {
+    if (!selected_full_indices.length) {
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
