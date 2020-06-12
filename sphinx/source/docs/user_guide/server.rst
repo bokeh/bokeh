@@ -1326,10 +1326,10 @@ When an HTTP request is made to the Bokeh server, it immediately returns a
 script that will initiate a websocket connection, and all subsequent
 communication happens over the websocket. To reduce the risk of cross-site
 misuse, the bokeh server will only initiate websocket connections from
-origins that are explicitly whitelisted. Requests with Origin headers that
-do not match the whitelist will generate HTTP 403 error responses.
+origins that are explicitly allowlisted. Requests with Origin headers that
+do not match the allowlist will generate HTTP 403 error responses.
 
-By default only ``localhost:5006`` is whitelisted. I.e the following two
+By default only ``localhost:5006`` is allowlisted. I.e the following two
 invocations are identical:
 
 .. code-block:: sh
@@ -1344,7 +1344,7 @@ and
 
 Both of these will open a browser to the default application URL
 ``localhost:5006`` and since ``localhost:5006`` is in the allowed websocket
-origin whitelist, the Bokeh server will create and display a new session.
+origin allowlist, the Bokeh server will create and display a new session.
 
 Now, consider when a Bokeh server is embedded inside another web page, using
 |server_document| or |server_session|. In this instance, the "Origin" header

@@ -80,7 +80,7 @@ class WSHandler(WebSocketHandler):
     def check_origin(self, origin):
         ''' Implement a check_origin policy for Tornado to call.
 
-        The supplied origin will be compared to the Bokeh server whitelist. If the
+        The supplied origin will be compared to the Bokeh server allowlist. If the
         origin is not allow, an error will be logged and ``False`` will be returned.
 
         Args:
@@ -91,7 +91,7 @@ class WSHandler(WebSocketHandler):
             bool, True if the connection is allowed, False otherwise
 
         '''
-        from ..util import check_whitelist
+        from ..util import check_allowlist
         parsed_origin = urlparse(origin)
         origin_host = parsed_origin.netloc.lower()
 
@@ -99,7 +99,7 @@ class WSHandler(WebSocketHandler):
         if settings.allowed_ws_origin():
             allowed_hosts = set(settings.allowed_ws_origin())
 
-        allowed = check_whitelist(origin_host, allowed_hosts)
+        allowed = check_allowlist(origin_host, allowed_hosts)
         if allowed:
             return True
         else:

@@ -9,7 +9,7 @@
     - #9879 [component: bokehjs] [bug] impossible to change factorrange to a lower dimension with different number of factors
     - #9900 Bundling and serving precompiled extensions in broken on windows
     - #9931 [component: build] Installation of bokeh>=2.0.0 adds `release` directory to site-packages
-    - #9938 [component: server] [bug] timezone bug in generate_jwt_token 
+    - #9938 [component: server] [bug] timezone bug in generate_jwt_token
   * features:
     - #9339 [API: models] [feature] add broader themes
     - #9812 [component: bokehjs] Load multiple versions of bokeh into a single web page
@@ -64,7 +64,7 @@
     - #9458 [component: bokehjs] [bug] hovertool in 'vline' mode doesn't work with vertical segments
     - #9581 Update dockertools
     - #9692 [component: bokehjs] [typescript] Upgrade to typescript 3.8
-    - #9750 [component: bokehjs] [component: build] [feature] improve bokehjs dependency and project management 
+    - #9750 [component: bokehjs] [component: build] [feature] improve bokehjs dependency and project management
     - #9758 [component: bokehjs] Deprecate bokehjs package and suggest @bokeh/bokehjs
     - #9766 [component: docs] Doc: add missing '@' in hovertool.formatters example
     - #9775 [component: server] [bug] always setting asyncio event loop policy
@@ -130,7 +130,7 @@
     - #9304 [component: bokehjs] [widgets] [feature] scientific notation for numberformatter
     - #9469 [component: bokehjs] [widgets] [feature]add scientific notation to supported number formats
     - #9505 [component: bokehjs] [component: server] Overhaul session expiry and generalize token
-    - #9524 [component: bokehjs] [feature] bokehjs embed_item should return a reference to the plot. 
+    - #9524 [component: bokehjs] [feature] bokehjs embed_item should return a reference to the plot.
     - #9532 [component: bokehjs] [widgets] Please replace multiselect widget with something more compact, effective and nicer looking
     - #9545 [component: server] Allow package relative imports for directory style apps
     - #9560 Add tile providers for openstreetmap and esri imagery
@@ -153,7 +153,7 @@
     - #9238 [component: docs] [bug] gridlines are rendered under image plot
     - #9248 [feature] make the palettes module ide-friendly
     - #9334 Deprecate widgetbox
-    - #9362 [component: docs] Docs report "no title" 
+    - #9362 [component: docs] Docs report "no title"
     - #9365 Landing 2.0
     - #9366 [component: tests] Flake8 shouldn't descend into node_modules
     - #9367 [component: build] Use `npm ci` to force usage of the lock file
@@ -185,7 +185,7 @@
     - #9463 [bug] fixing spell mistakes
     - #9476 [component: examples] [bug] non-daemon worker thread prevents gunicorn from shutting down cleanly
     - #9480 [component: build] Expose sri hashes
-    - #9482 [component: build] Resolve ipython 7.9 pin 
+    - #9482 [component: build] Resolve ipython 7.9 pin
     - #9484 [component: docs] Update twitter handle in docs
     - #9490 Improve sampledata downloading
     - #9500 [component: docs] Use new nf verbiage
@@ -275,7 +275,7 @@
     - #9073 [component: docs] [docs] page for selection tools does not tell users how to get the values/indices of the selection
     - #9150 [component: docs] Use bokehjs from cdn when the commit is tagged
     - #9155 [component: bokehjs] [component: build] Migrate from tslint to (typescript-)eslint
-    - #9157 [component: tests] Remove bokeh.embed.notebook.widgets from -oo blacklist
+    - #9157 [component: tests] Remove bokeh.embed.notebook.widgets from -oo skiplist
     - #9159 [component: build] Unpin python 3.7 version when possible
     - #9160 [component: bokehjs] Enable more eslint rules
     - #9163 [component: build] [component: examples] Don't upload to s3 on py27 tests
@@ -307,7 +307,7 @@
     - #9262 [component: docs] Fix structure issues in palette docs
     - #9264 [component: build] Cdn invalidations too narrow
     - #9265 [component: docs] Rename modify_doc in notebook app contexts
-    - #9271 [component: bokehjs] Upgrade from deprecated package istanbul 
+    - #9271 [component: bokehjs] Upgrade from deprecated package istanbul
     - #9272 [bug] improve exception when import _requires fails
     - #9274 If import of channels fails, improve error message to install it via pip
     - #9278 [component: docs] Consistently use https protcol for cdn.pydata.org urls
@@ -2355,7 +2355,7 @@
     - #3962 Custom web templates with `bokeh serve`
     - #3994 [component: server] Add option to extend sys.path with app directory
     - #4008 Allow for the injection of raw html code
-    - #4051 --host whitelist doesn't trust 127.0.0.1 by default
+    - #4051 --host allowlist doesn't trust 127.0.0.1 by default
     - #4057 [API: charts] Request: reorderable legends with chart api
     - #4064 [component: bokehjs] [component: examples] Add stock example using ts api
     - #4065 [component: bokehjs] The box (zoom or select) tool should be configurable to respect aspect
@@ -2722,7 +2722,7 @@
     - #3962 Custom web templates with `bokeh serve`
     - #3994 [component: server] Add option to extend sys.path with app directory
     - #4008 Allow for the injection of raw html code
-    - #4051 --host whitelist doesn't trust 127.0.0.1 by default
+    - #4051 --host allowlist doesn't trust 127.0.0.1 by default
     - #4057 [API: charts] Request: reorderable legends with chart api
     - #4064 [component: bokehjs] [component: examples] Add stock example using ts api
     - #4065 [component: bokehjs] The box (zoom or select) tool should be configurable to respect aspect
@@ -3118,7 +3118,7 @@
     - #3490 Fix a leftover log message and broken log message in has_properties.coffee
     - #3500 [bokehjs] Bokeh.js must load first, before widgets, compiler
     - #3512 Make bokeh.js set window.bokeh not only bokeh in current scope
-    - #3513 [server] Accept implicit port 80 on whitelist
+    - #3513 [server] Accept implicit port 80 on allowlist
     - #3525 Random tiles example: temporary fix for bounds issue on map
     - #3532 [bokehjs] Add support for inline autoload and restore support for inline resources in notebook
     - #3540 Graphs are not displayed when using runipy
