@@ -2355,7 +2355,7 @@
     - #3962 Custom web templates with `bokeh serve`
     - #3994 [component: server] Add option to extend sys.path with app directory
     - #4008 Allow for the injection of raw html code
-    - #4051 --host whitelist doesn't trust 127.0.0.1 by default
+    - #4051 --host allowlist doesn't trust 127.0.0.1 by default
     - #4057 [API: charts] Request: reorderable legends with chart api
     - #4064 [component: bokehjs] [component: examples] Add stock example using ts api
     - #4065 [component: bokehjs] The box (zoom or select) tool should be configurable to respect aspect
@@ -2722,7 +2722,7 @@
     - #3962 Custom web templates with `bokeh serve`
     - #3994 [component: server] Add option to extend sys.path with app directory
     - #4008 Allow for the injection of raw html code
-    - #4051 --host whitelist doesn't trust 127.0.0.1 by default
+    - #4051 --host allowlist doesn't trust 127.0.0.1 by default
     - #4057 [API: charts] Request: reorderable legends with chart api
     - #4064 [component: bokehjs] [component: examples] Add stock example using ts api
     - #4065 [component: bokehjs] The box (zoom or select) tool should be configurable to respect aspect
@@ -3118,7 +3118,7 @@
     - #3490 Fix a leftover log message and broken log message in has_properties.coffee
     - #3500 [bokehjs] Bokeh.js must load first, before widgets, compiler
     - #3512 Make bokeh.js set window.bokeh not only bokeh in current scope
-    - #3513 [server] Accept implicit port 80 on whitelist
+    - #3513 [server] Accept implicit port 80 on allowlist
     - #3525 Random tiles example: temporary fix for bounds issue on map
     - #3532 [bokehjs] Add support for inline autoload and restore support for inline resources in notebook
     - #3540 Graphs are not displayed when using runipy
