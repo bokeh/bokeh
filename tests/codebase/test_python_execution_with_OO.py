@@ -27,7 +27,7 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-blacklist = {}
+skiplist = {}
 
 def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)
@@ -56,7 +56,7 @@ def test_python_execution_with_OO() -> None:
             else:
                 mod = path.replace(os.sep, ".") + "." + file[:-3]
 
-            if mod in blacklist:
+            if mod in skiplist:
                 continue
 
             imports.append("import " + mod)
