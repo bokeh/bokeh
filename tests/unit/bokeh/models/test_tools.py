@@ -70,6 +70,7 @@ def test_Tool_from_string() -> None:
     assert isinstance(Tool.from_string("point_draw"), t.PointDrawTool)
     assert isinstance(Tool.from_string("poly_draw"), t.PolyDrawTool)
     assert isinstance(Tool.from_string("poly_edit"), t.PolyEditTool)
+    assert isinstance(Tool.from_string("measure"), t.MeasureTool)
     assert isinstance(Tool.from_string("hover"), t.HoverTool)
 
 

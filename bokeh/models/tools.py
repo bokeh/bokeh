@@ -112,6 +112,7 @@ __all__ = (
     'Gesture',
     'LassoSelectTool',
     'LineEditTool',
+    'MeasureTool',
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -777,6 +778,47 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
     line_width=2,
     line_dash=[4, 4]
 )
+
+
+class MeasureTool(Drag, Inspection):
+    names = List(String, help="""
+    A list of names to query for. If set, only renderers that have a matching
+    value for their ``name`` attribute will be used.
+    """)
+
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
+    defaults to all renderers on a plot.
+    """)
+
+
+    overlay = Instance(BoxAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
+    A shaded annotation drawn to indicate the selection region.
+    """)
+
+    origin = Enum("corner", "center", default="corner", help="""
+    Indicates whether the rectangular selection area should originate from a corner
+    (top-left or bottom-right depending on direction) or the center of the box.
+    """)
+
+    attachment = Enum(TooltipAttachment, help="""
+    Whether the tooltip should be displayed to the left or right of the cursor
+    position or above or below it, or if it should be automatically placed
+    in the horizontal or vertical dimension.
+    """)
+
+    show_arrow = Bool(default=True, help="""
+    Whether tooltip's arrow should be shown.
+    """)
+
+    tooltips = Either(String, List(Tuple(String, String)),
+            default=[
+                ("delta_x", "$dis[0]"),
+                ("delta_y", "$dis[1]"),
+            ], help="""
+    The (name, field) pairs describing what the hover tool should
+    display when there is a hit."""
+    )
 
 class LassoSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |lasso_select_icon|
@@ -1627,4 +1669,8 @@ Tool.register_alias("hover", lambda: HoverTool(tooltips=[
     ("index", "$index"),
     ("data (x, y)", "($x, $y)"),
     ("screen (x, y)", "($sx, $sy)"),
+]))
+Tool.register_alias("measure", lambda: MeasureTool(tooltips=[
+     ["delta_x",   "$dis[0]"  ],
+     ["delta_y", "$dis[1]"],
 ]))

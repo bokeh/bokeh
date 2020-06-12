@@ -20,6 +20,7 @@ import type {BoxSelectTool} from "./gestures/box_select_tool"
 import type {PolySelectTool} from "./gestures/poly_select_tool"
 import type {LassoSelectTool} from "./gestures/lasso_select_tool"
 import type {BoxZoomTool} from "./gestures/box_zoom_tool"
+import type {MeasureTool} from "./inspectors/measure_tool"
 import type {HoverTool} from "./inspectors/hover_tool"
 import type {SaveTool} from "./actions/save_tool"
 import type {UndoTool} from "./actions/undo_tool"
@@ -53,6 +54,7 @@ export type ToolAliases = {
   box_zoom:     BoxZoomTool
   xbox_zoom:    BoxZoomTool
   ybox_zoom:    BoxZoomTool
+  measure:      MeasureTool
   hover:        HoverTool
   save:         SaveTool
   undo:         UndoTool
