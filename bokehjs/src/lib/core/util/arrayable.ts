@@ -1,7 +1,15 @@
 import {Arrayable, ArrayableNew} from "../types"
+import {isArray} from "./types"
 
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
+}
+
+export function copy<T>(array: Arrayable<T>): Arrayable<T> {
+  if (isArray<T>(array))
+    return array.slice()
+  else
+    return new (array.constructor as any)(array)
 }
 
 export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...items: T[]): Arrayable<T> {
