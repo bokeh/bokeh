@@ -1,7 +1,9 @@
 import {Filter} from "./filter"
 import * as p from "core/properties"
+import {Indices} from "core/types"
 import {keys, values} from "core/util/object"
-import {DataSource} from "../sources/data_source"
+import {isArrayOf, isBoolean, isInteger} from "core/util/types"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {
@@ -42,8 +44,16 @@ export class CustomJSFilter extends Filter {
     return new Function(...this.names, "source", code)
   }
 
-  compute_indices(source: DataSource): number[] | null {
-    this.filter = this.func(...this.values, source)
-    return super.compute_indices(source)
+  compute_indices(source: ColumnarDataSource): Indices {
+    const size = source.length
+    const filter = this.func(...this.values, source)
+    if (filter == null)
+      return Indices.all_set(size)
+    else if (isArrayOf(filter, isInteger))
+      return Indices.from_indices(size, filter)
+    else if (isArrayOf(filter, isBoolean))
+      return Indices.from_booleans(size, filter)
+    else
+      throw new Error(`expect an array of integers or booleans, or null, got ${filter}`)
   }
 }

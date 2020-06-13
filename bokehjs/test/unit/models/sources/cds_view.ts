@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Filter} from "@bokehjs/models/filters/filter"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 
 describe("CDSView", () => {
@@ -15,9 +15,9 @@ describe("CDSView", () => {
     },
   })
 
-  const filter1 = new Filter({filter: [0, 1, 2]})
-  const filter2 = new Filter({filter: [1, 2, 3]})
-  const filter_null = new Filter()
+  const filter1 = new IndexFilter({indices: [0, 1, 2]})
+  const filter2 = new IndexFilter({indices: [1, 2, 3]})
+  const filter_null = new IndexFilter()
 
   describe("compute_indices", () => {
 

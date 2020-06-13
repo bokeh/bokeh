@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
-import {intersection} from "core/util/array"
+import {Indices} from "core/types"
 import {Filter} from "../filters/filter"
 import {ColumnarDataSource} from "./columnar_data_source"
 
@@ -78,15 +78,20 @@ export class CDSView extends Model {
   }
 
   compute_indices(): void {
-    const indices = this.filters
-      .map((filter) => filter.compute_indices(this.source))
-      .filter((indices) => indices != null)
+    const {source} = this
+    if (source == null)
+      return
 
-    if (indices.length > 0)
-      this.indices = intersection.apply(this, indices)
-    else if (this.source instanceof ColumnarDataSource)
-      this.indices = this.source.get_indices()
+    // XXX: if the data source is empty, there still may be one
+    // index originating from glyph's scalar values.
+    const size = source.get_length() ?? 1
+    const indices = Indices.all_set(size)
 
+    for (const filter of this.filters) {
+      indices.intersect(filter.compute_indices(source))
+    }
+
+    this.indices = [...indices]
     this.indices_map_to_subset()
   }
 

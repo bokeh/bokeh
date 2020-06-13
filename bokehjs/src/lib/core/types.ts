@@ -110,3 +110,5 @@ export type Interval = {
   start: number
   end: number
 }
+
+export {BitSet as Indices} from "./util/data_structures"

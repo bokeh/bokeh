@@ -65,34 +65,34 @@ describe("CustomJSFilter", () => {
 
     it("should execute the code and return the result", () => {
       const filter = new CustomJSFilter({code: "return [0]"})
-      expect(filter.compute_indices(cds)).to.be.equal([0])
+      expect([...filter.compute_indices(cds)]).to.be.equal([0])
     })
 
     it("should compute indices using a source", () => {
       const code = `
-        var column = source.data["x"];
-        var indices = [];
-        for (var i = 0; i < source.get_length(); i++) {
-          indices.push(column[i] == "a");
+        const column = source.data["x"]
+        const indices = []
+        for (let i = 0; i < source.length; i++) {
+          indices.push(column[i] == "a")
         }
-        return indices;
+        return indices
       `
       const filter = new CustomJSFilter({code})
-      expect(filter.compute_indices(cds)).to.be.equal([0, 1])
+      expect([...filter.compute_indices(cds)]).to.be.equal([0, 1])
     })
 
     it("should compute indices using an arg property", () => {
       const code = `
-        var column = source.data["y"];
-        var indices = [];
-        for (var i = 0; i < source.get_length(); i++) {
+        const column = source.data["y"]
+        const indices = []
+        for (let i = 0; i < source.length; i++) {
           indices.push(column[i] == foo.start)
         }
-        return indices;
+        return indices
       `
       const rng = new Range1d({start: 5, end: 21})
       const filter = new CustomJSFilter({args: {foo: rng}, code})
-      expect(filter.compute_indices(cds)).to.be.equal([4])
+      expect([...filter.compute_indices(cds)]).to.be.equal([4])
     })
   })
 })
