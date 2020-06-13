@@ -1,5 +1,5 @@
 import {NumberArray} from "core/types"
-import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
@@ -17,20 +17,18 @@ export abstract class XYGlyphView extends GlyphView {
   model: XYGlyph
   visuals: XYGlyph.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points: IndexedRect[] = []
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
 
-    for (let i = 0, end = this._x.length; i < end; i++) {
+    for (let i = 0; i < data_size; i++) {
       const x = this._x[i]
       const y = this._y[i]
 
       if (isNaN(x + y) || !isFinite(x + y))
-        continue
-
-      points.push({x0: x, y0: y, x1: x, y1: y, i})
+        index.add_empty()
+      else
+        index.add(x, y, x, y)
     }
-
-    return new SpatialIndex(points)
   }
 
   scenterx(i: number): number {

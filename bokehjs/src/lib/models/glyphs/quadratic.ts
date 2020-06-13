@@ -49,20 +49,19 @@ export class QuadraticView extends GlyphView {
   model: Quadratic
   visuals: Quadratic.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points = []
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
 
-    for (let i = 0, end = this._x0.length; i < end; i++) {
+    for (let i = 0; i < data_size; i++) {
       if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx[i] + this._cy[i]))
-        continue
+        index.add_empty()
+      else {
+        const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
+        const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
 
-      const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
-      const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
-
-      points.push({x0, y0, x1, y1, i})
+        index.add(x0, y0, x1, y1)
+      }
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx0, sy0, sx1, sy1, scx, scy}: QuadraticData): void {

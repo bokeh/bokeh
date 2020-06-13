@@ -44,9 +44,27 @@ export abstract class GlyphView extends View {
     return this.glglyph != null
   }
 
-  index: SpatialIndex
+  private _index: SpatialIndex | null = null
+
+  private _data_size: number | null = null
 
   protected _nohit_warned: Set<geometry.Geometry["type"]> = new Set()
+
+  get index(): SpatialIndex {
+    const {_index} = this
+    if (_index != null)
+      return _index
+    else
+      throw new Error(`${this}.index_data() wasn't called`)
+  }
+
+  get data_size(): number {
+    const {_data_size} = this
+    if (_data_size != null)
+      return _data_size
+    else
+      throw new Error(`${this}.set_data() wasn't called`)
+  }
 
   initialize(): void {
     super.initialize()
@@ -115,25 +133,9 @@ export abstract class GlyphView extends View {
   }
 
   log_bounds(): Rect {
-    const bb = bbox.empty()
-
-    const positive_x_bbs = this.index.search(bbox.positive_x())
-    for (const x of positive_x_bbs) {
-      if (x.x0 < bb.x0)
-        bb.x0 = x.x0
-      if (x.x1 > bb.x1)
-        bb.x1 = x.x1
-    }
-
-    const positive_y_bbs = this.index.search(bbox.positive_y())
-    for (const y of positive_y_bbs) {
-      if (y.y0 < bb.y0)
-        bb.y0 = y.y0
-      if (y.y1 > bb.y1)
-        bb.y1 = y.y1
-    }
-
-    return this._bounds(bb)
+    const {x0, x1} = this.index.bounds(bbox.positive_x())
+    const {y0, y1} = this.index.bounds(bbox.positive_y())
+    return this._bounds({x0, y0, x1, y1})
   }
 
   get_anchor_point(anchor: Anchor, i: number, [sx, sy]: [number, number]): {x: number, y: number} | null {
@@ -240,6 +242,16 @@ export abstract class GlyphView extends View {
       data = data_subset
     }
 
+    let data_size = Infinity
+    for (const k in data) {
+      if (k.charAt(0) === '_')
+        data_size = Math.min(data_size, (data[k] as any).length)
+    }
+    if (data_size != Infinity)
+      this._data_size = data_size
+    else
+      this._data_size = 0 // XXX: this only happens in degenerate unit tests
+
     const self = this as any
     extend(self, data)
 
@@ -314,10 +326,13 @@ export abstract class GlyphView extends View {
 
   protected _set_data(_indices: number[] | null): void {}
 
-  protected abstract _index_data(): SpatialIndex
+  protected abstract _index_data(index: SpatialIndex): void
 
   index_data(): void {
-    this.index = this._index_data()
+    const index = new SpatialIndex(this.data_size)
+    this._index_data(index)
+    index.finish()
+    this._index = index
   }
 
   mask_data(indices: number[]): number[] {

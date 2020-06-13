@@ -83,16 +83,16 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  _index_data(): SpatialIndex {
-    const points = []
-    for (let i = 0, end = this._x.length; i < end; i++) {
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b)) {
-        continue
-      }
-      points.push({x0: l, y0: b, x1: r, y1: t, i})
+      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
+        index.add_empty()
+      else
+        index.add(l, b, r, t)
     }
-    return new SpatialIndex(points)
   }
 
   _lrtb(i: number): [number, number, number, number]{

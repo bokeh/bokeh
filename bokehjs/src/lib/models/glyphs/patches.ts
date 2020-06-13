@@ -69,27 +69,27 @@ export class PatchesView extends GlyphView {
     return ds
   }
 
-  protected _index_data(): SpatialIndex {
+  protected _index_data(index: SpatialIndex): void {
     const xss = this._build_discontinuous_object(this._xs)
     const yss = this._build_discontinuous_object(this._ys)
 
-    const points = []
-    for (let i = 0, end = this._xs.length; i < end; i++) {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       for (let j = 0, endj = xss[i].length; j < endj; j++) {
         const xs = xss[i][j]
         const ys = yss[i][j]
 
         if (xs.length == 0)
-          continue
+          index.add_empty()
+        else {
+          const [x0, x1] = minmax(xs)
+          const [y0, y1] = minmax(ys)
 
-        const [x0, x1] = minmax(xs)
-        const [y0, y1] = minmax(ys)
-
-        points.push({x0, y0, x1, y1, i})
+          index.add(x0, y0, x1, y1)
+        }
       }
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _mask_data(): number[] {

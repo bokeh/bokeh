@@ -1,7 +1,6 @@
 import {Box, BoxView, BoxData} from "./box"
 import {NumberArray} from "core/types"
 import * as p from "core/properties"
-import {SpatialIndex} from "core/util/spatial"
 
 export interface VBarData extends BoxData {
   _x: NumberArray
@@ -31,10 +30,6 @@ export class VBarView extends BoxView {
 
   scentery(i: number): number {
     return (this.stop[i] + this.sbottom[i])/2
-  }
-
-  protected _index_data(): SpatialIndex {
-    return this._index_box(this._x.length)
   }
 
   protected _lrtb(i: number): [number, number, number, number] {

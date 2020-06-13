@@ -30,24 +30,26 @@ export class MultiPolygonsView extends GlyphView {
   model: MultiPolygons
   visuals: MultiPolygons.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points = []
-    for (let i = 0, end = this._xs.length; i < end; i++) {
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
         const xs = this._xs[i][j][0]  // do not use holes
         const ys = this._ys[i][j][0]  // do not use holes
 
         if (xs.length == 0)
-          continue
+          index.add_empty()
+        else {
+          const [x0, x1] = minmax(xs)
+          const [y0, y1] = minmax(ys)
 
-        const [x0, x1] = minmax(xs)
-        const [y0, y1] = minmax(ys)
-
-        points.push({x0, y0, x1, y1, i})
+          index.add(x0, y0, x1, y1)
+        }
       }
     }
+
     this.hole_index = this._index_hole_data()  // should this be set here?
-    return new SpatialIndex(points)
   }
 
   protected _index_hole_data(): SpatialIndex {
@@ -71,7 +73,7 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
     }
-    return new SpatialIndex(points)
+    return SpatialIndex.from(points)
   }
 
   protected _mask_data(): number[] {
