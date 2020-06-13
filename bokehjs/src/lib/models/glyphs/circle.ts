@@ -141,7 +141,7 @@ export class CircleView extends XYGlyphView {
 
     const candidates = this.index.indices({x0, x1, y0, y1})
 
-    const hits: [number, number][] = []
+    const indices: number[] = []
     if (this._radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
         const r2 = this.sradius[i]**2
@@ -149,7 +149,7 @@ export class CircleView extends XYGlyphView {
         const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
         const dist = (sx0 - sx1)**2 + (sy0 - sy1)**2
         if (dist <= r2) {
-          hits.push([i, dist])
+          indices.push(i)
         }
       }
     } else {
@@ -157,12 +157,12 @@ export class CircleView extends XYGlyphView {
         const r2 = this.sradius[i]**2
         const dist = (this.sx[i] - sx)**2 + (this.sy[i] - sy)**2
         if (dist <= r2) {
-          hits.push([i, dist])
+          indices.push(i)
         }
       }
     }
 
-    return Selection.from_hits(hits)
+    return new Selection({indices})
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {

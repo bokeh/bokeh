@@ -154,8 +154,8 @@ export class HexTileView extends GlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
-
     const indices = []
+
     for (const i of candidates) {
       if (hittest.point_in_poly(sx-this.sx[i], sy-this.sy[i], this.svx, this.svy)) {
         indices.push(i)

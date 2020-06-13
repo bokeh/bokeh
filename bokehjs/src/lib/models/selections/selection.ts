@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {SelectionMode} from "core/enums"
-import {union, intersection, difference, sort_by} from "core/util/array"
+import {union, intersection, difference} from "core/util/array"
 import {merge} from "core/util/object"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 
@@ -55,11 +55,6 @@ export class Selection extends Model {
   initialize(): void {
     super.initialize()
     this.get_view = () => null
-  }
-
-  static from_hits(hits: [number, number][]): Selection {
-    const indices = sort_by(hits, ([, dist]) => dist).map(([i]) => i)
-    return new Selection({indices})
   }
 
   get selected_glyph(): Glyph | null {

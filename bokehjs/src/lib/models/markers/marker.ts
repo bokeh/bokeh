@@ -79,16 +79,16 @@ export abstract class MarkerView extends XYGlyphView {
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
     const candidates = this.index.indices({x0, x1, y0, y1})
+    const indices: number[] = []
 
-    const hits: [number, number][] = []
     for (const i of candidates) {
       const s2 = this._size[i]/2
-      const dist = Math.abs(this.sx[i] - sx) + Math.abs(this.sy[i] - sy)
       if (Math.abs(this.sx[i] - sx) <= s2 && Math.abs(this.sy[i] - sy) <= s2) {
-        hits.push([i, dist])
+        indices.push(i)
       }
     }
-    return Selection.from_hits(hits)
+
+    return new Selection({indices})
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
