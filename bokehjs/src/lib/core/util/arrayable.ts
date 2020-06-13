@@ -122,12 +122,46 @@ export function min(array: Arrayable<number>): number {
 
   for (let i = 0, length = array.length; i < length; i++) {
     value = array[i]
-    if (value < result) {
+    if (!isNaN(value) && value < result) {
       result = value
     }
   }
 
   return result
+}
+
+export function max(array: Arrayable<number>): number {
+  let value: number
+  let result = -Infinity
+
+  for (let i = 0, length = array.length; i < length; i++) {
+    value = array[i]
+    if (!isNaN(value) && value > result) {
+      result = value
+    }
+  }
+
+  return result
+}
+
+export function minmax(array: Arrayable<number>): [number, number] {
+  let value: number
+  let min = +Infinity
+  let max = -Infinity
+
+  for (let i = 0, length = array.length; i < length; i++) {
+    value = array[i]
+    if (!isNaN(value)) {
+      if (value < min) {
+        min = value
+      }
+      if (value > max) {
+        max = value
+      }
+    }
+  }
+
+  return [min, max]
 }
 
 export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
@@ -143,20 +177,6 @@ export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
     if (computed < resultComputed) {
       result = value
       resultComputed = computed
-    }
-  }
-
-  return result
-}
-
-export function max(array: Arrayable<number>): number {
-  let value: number
-  let result = -Infinity
-
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
-    if (value > result) {
-      result = value
     }
   }
 
