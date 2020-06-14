@@ -2,6 +2,7 @@ import proj4 from "proj4/lib/core"
 import Projection from "proj4/lib/Proj"
 
 import {LatLon} from "../enums"
+import {Arrayable, NumberArray} from "../types"
 
 const mercator = new Projection('GOOGLE')
 const wgs84    = new Projection('WGS84')
@@ -18,9 +19,11 @@ const latlon_bounds = {
   lat: [-85.06, 85.06],
 }
 
+const {min, max} = Math
+
 export function clip_mercator(low: number, high: number, dimension: LatLon): [number, number] {
-  const [min, max] = mercator_bounds[dimension]
-  return [Math.max(low, min), Math.min(high, max)]
+  const [vmin, vmax] = mercator_bounds[dimension]
+  return [max(low, vmin), min(high, vmax)]
 }
 
 export function in_bounds(value: number, dimension: LatLon): boolean {
@@ -28,10 +31,10 @@ export function in_bounds(value: number, dimension: LatLon): boolean {
   return min < value && value < max
 }
 
-export function project_xy(x: number[], y: number[]): [number[], number[]] {
-  const n = Math.min(x.length, y.length)
-  const merc_x_s: number[] = new Array(n)
-  const merc_y_s: number[] = new Array(n)
+export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
+  const n = min(x.length, y.length)
+  const merc_x_s = new NumberArray(n)
+  const merc_y_s = new NumberArray(n)
   for (let i = 0; i < n; i++) {
     const [merc_x, merc_y] = wgs84_mercator.forward([x[i], y[i]])
     merc_x_s[i] = merc_x
@@ -40,10 +43,10 @@ export function project_xy(x: number[], y: number[]): [number[], number[]] {
   return [merc_x_s, merc_y_s]
 }
 
-export function project_xsys(xs: number[][], ys: number[][]): [number[][], number[][]] {
-  const n = Math.min(xs.length, ys.length)
-  const merc_xs_s: number[][] = new Array(n)
-  const merc_ys_s: number[][] = new Array(n)
+export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[]): [NumberArray[], NumberArray[]] {
+  const n = min(xs.length, ys.length)
+  const merc_xs_s: NumberArray[] = new Array(n)
+  const merc_ys_s: NumberArray[] = new Array(n)
   for (let i = 0; i < n; i++) {
     const [merc_x_s, merc_y_s] = project_xy(xs[i], ys[i])
     merc_xs_s[i] = merc_x_s
