@@ -405,26 +405,9 @@ export abstract class Glyph extends Model {
   properties: Glyph.Props
   __view_type__: GlyphView
 
-  /* prototype */ _coords: [string, string][]
-
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
   }
 
-  static init_Glyph(): void {
-    this.prototype._coords = []
-  }
-
-  static coords(coords: [string, string][]): void {
-    const _coords = this.prototype._coords.concat(coords)
-    this.prototype._coords = _coords
-
-    const result: any = {}
-    for (const [x, y] of coords) {
-      result[x] = [ p.CoordinateSpec ]
-      result[y] = [ p.CoordinateSpec ]
-    }
-
-    this.define<Glyph.Props>(result)
-  }
+  static init_Glyph(): void {}
 }

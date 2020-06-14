@@ -58,6 +58,9 @@ export abstract class XYGlyph extends Glyph {
   }
 
   static init_XYGlyph(): void {
-    this.coords([['x', 'y']])
+    this.define<XYGlyph.Props>({
+      x: [ p.CoordinateSpec ],
+      y: [ p.CoordinateSpec ],
+    })
   }
 }

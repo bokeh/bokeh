@@ -13,6 +13,8 @@ import {HexTileOrientation} from "core/enums"
 import {generic_area_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
+export type Vertices = [number, number, number, number, number, number]
+
 export interface HexTileData extends GlyphData {
   _q: NumberArray
   _r: NumberArray
@@ -25,8 +27,8 @@ export interface HexTileData extends GlyphData {
   sx: NumberArray
   sy: NumberArray
 
-  svx: number[]
-  svy: number[]
+  svx: Vertices
+  svy: Vertices
 
   ssize: number
 }
@@ -96,7 +98,7 @@ export class HexTileView extends GlyphView {
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
 
-  protected _get_unscaled_vertices(): [number[], number[]] {
+  protected _get_unscaled_vertices(): [[number, number, number, number, number, number], [number, number, number, number, number, number]] {
     const size = this.model.size
     const aspect_scale = this.model.aspect_scale
 
@@ -108,8 +110,8 @@ export class HexTileView extends GlyphView {
       const h = Math.sqrt(3)/2*Math.abs(hscale.compute(0) - hscale.compute(size)) / aspect_scale // assumes linear scale
       const r2 = r/2.0
 
-      const svx = [0, -h,  -h,   0,  h,  h ]
-      const svy = [r,  r2, -r2, -r, -r2, r2]
+      const svx: Vertices = [0, -h,  -h,   0,  h,  h ]
+      const svy: Vertices = [r,  r2, -r2, -r, -r2, r2]
 
       return [svx, svy]
     } else {
@@ -120,8 +122,8 @@ export class HexTileView extends GlyphView {
       const h = Math.sqrt(3)/2*Math.abs(hscale.compute(0) - hscale.compute(size)) * aspect_scale // assumes linear scale
       const r2 = r/2.0
 
-      const svx = [r,  r2, -r2, -r, -r2, r2]
-      const svy = [0, -h,  -h,   0,  h,  h ]
+      const svx: Vertices = [r,  r2, -r2, -r, -r2, r2]
+      const svy: Vertices = [0, -h,  -h,   0,  h,  h ]
 
       return [svx, svy]
     }
@@ -232,14 +234,15 @@ export class HexTile extends Glyph {
   static init_HexTile(): void {
     this.prototype.default_view = HexTileView
 
-    this.coords([['r', 'q']])
     this.mixins<HexTile.Mixins>([LineVector, FillVector])
     this.define<HexTile.Props>({
+      r:            [ p.NumberSpec                      ],
+      q:            [ p.NumberSpec                      ],
       size:         [ p.Number,             1.0         ],
       aspect_scale: [ p.Number,             1.0         ],
       scale:        [ p.NumberSpec,         1.0         ],
       orientation:  [ p.HexTileOrientation, "pointytop" ],
     })
-    this.override({ line_color: null })
+    this.override({line_color: null})
   }
 }

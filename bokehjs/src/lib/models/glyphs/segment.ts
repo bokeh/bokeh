@@ -168,7 +168,12 @@ export class Segment extends Glyph {
   static init_Segment(): void {
     this.prototype.default_view = SegmentView
 
-    this.coords([['x0', 'y0'], ['x1', 'y1']])
+    this.define<Segment.Props>({
+      x0: [ p.CoordinateSpec ],
+      y0: [ p.CoordinateSpec ],
+      x1: [ p.CoordinateSpec ],
+      y1: [ p.CoordinateSpec ],
+    })
     this.mixins<Segment.Mixins>(LineVector)
   }
 }
