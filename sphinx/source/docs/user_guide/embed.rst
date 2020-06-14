@@ -220,6 +220,8 @@ The necessary script tags with hashes can be obtained by calling
 
     In [2]: bokeh.resources.CDN.render_js()
 
+Output:
+
 .. bokehjs-script-tag::
 
 SRI hashes are only produced for full release versions (i.e. not for dev builds
