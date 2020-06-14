@@ -54,7 +54,7 @@ export class MeasureToolView extends InspectToolView {
 
     if (!this.plot_view.frame.bbox.contains(sx, sy))
      return
- 
+
   }
 
   _pan_end(ev: PanEvent): void {
