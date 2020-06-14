@@ -95,7 +95,7 @@ class BokehJSScript(CodeBlock):
         node = bokehjs_script()
         node['target_id'] = target_id
 
-        resources = get_sphinx_resources(include_bokehjs_api=False)
+        resources = get_sphinx_resources(include_bokehjs_api=True)
 
         js_components = self.options.get('js_files', 'all')
         if js_components != 'all':

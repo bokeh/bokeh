@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from copy import deepcopy
+
 # External imports
 from docutils import nodes
 from sphinx.directives.code import container_wrapper, dedent_lines
@@ -67,9 +70,10 @@ def get_sphinx_resources(include_bokehjs_api=False):
         # Otherwise assume it is a dev/rc/full release version and use CDN for it
         else:
             resources = Resources(mode="cdn", version=docs_cdn)
+    sphinx_resources = deepcopy(resources)
     if include_bokehjs_api:
-        resources.js_components.append("bokeh-api")
-    return resources
+        sphinx_resources.js_components.append("bokeh-api")
+    return sphinx_resources
 
 def get_codeblock_node(self, code, language):
     """this is copied from sphinx.directives.code.CodeBlock.run
