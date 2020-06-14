@@ -1,19 +1,14 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
-import {RendererView} from "../../renderers/renderer"
-import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
-import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer} from "../../renderers/data_renderer"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import {compute_renderers, RendererSpec} from "../util"
+// import {RendererSpec} from "../util"
 import {PanEvent} from "core/ui_events"
-import {replace_placeholders, Vars} from "core/util/templating"
+import {Vars, get_formatter, Formatters} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {TooltipAttachment, Dimensions, BoxOrigin} from "core/enums"
-import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {bk_tool_icon_hover} from "styles/icons"
 import {bk_tooltip_row_label, bk_tooltip_row_value} from "styles/tooltips"
 
@@ -25,9 +20,7 @@ export class MeasureToolView extends InspectToolView {
 
   protected _ttviews: Map<Tooltip, TooltipView>
 
-  protected _ttmodels: Map<GlyphRenderer, Tooltip> | null
-
-  protected _computed_renderers: DataRenderer[] | null
+  protected _ttmodel: Map<number, Tooltip> | null
 
   protected _base_point: [number, number] | null
 
@@ -60,30 +53,24 @@ export class MeasureToolView extends InspectToolView {
     this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
 
     if (!this.plot_view.frame.bbox.contains(sx, sy))
-    this._clear()
-    this.connect_signals()
-
+     return
+ 
   }
 
   _pan_end(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
-    // const [sxlim, sylim] = this._compute_limits(curpoint)
+    this._update(curpoint)
 
     this.model.overlay.update({left: null, right: null, top: null, bottom: null})
 
     this._base_point = null
-
-    this.plot_view.push_state('box_select', {selection: this.plot_view.get_selection()})
-
-    this._clear()
   }
-
 
   initialize(): void {
     super.initialize()
-    this._ttmodels = null
+    this._ttmodel = null
     this._ttviews = new Map()
   }
 
@@ -93,68 +80,38 @@ export class MeasureToolView extends InspectToolView {
   }
 
   connect_signals(): void {
-    // super.connect_signals()
-
-    for (const r of this.computed_renderers) {
-      if (r instanceof GlyphRenderer)
-        this.connect(r.data_source.inspect, this._update)
-      else if (r instanceof GraphRenderer) {
-        this.connect(r.node_renderer.data_source.inspect, this._update)
-        this.connect(r.edge_renderer.data_source.inspect, this._update)
-      }
-    }
-
-    // TODO: this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
+    super.connect_signals()
   }
 
-  protected _compute_ttmodels(): Map<GlyphRenderer, Tooltip> {
-    const ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
+  protected _compute_ttmodel(): Map<number, Tooltip> {
+    const ttmodel: Map<number, Tooltip> = new Map()
     const tooltips = this.model.tooltips
 
     if (tooltips != null) {
-      for (const r of this.computed_renderers) {
+
+        const r = 1
         const tooltip = new Tooltip({
           custom: isString(tooltips) || isFunction(tooltips),
           attachment: this.model.attachment,
           show_arrow: this.model.show_arrow,
         })
-
-        if (r instanceof GlyphRenderer) {
-          ttmodels.set(r, tooltip)
-        } else if (r instanceof GraphRenderer) {
-          ttmodels.set(r.node_renderer, tooltip)
-          ttmodels.set(r.edge_renderer, tooltip)
-        }
-      }
+        ttmodel.set(r, tooltip)
     }
 
-    build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
-    return ttmodels
+    build_views(this._ttviews, [...ttmodel.values()], {parent: this.plot_view})
+    return ttmodel
   }
 
-  get computed_renderers(): DataRenderer[] {
-    if (this._computed_renderers == null) {
-      const renderers = this.model.renderers
-      const all_renderers = this.plot_model.renderers
-      const names = this.model.names
-      this._computed_renderers = compute_renderers(renderers, all_renderers, names)
-    }
-    return this._computed_renderers
-  }
-
-  get ttmodels(): Map<GlyphRenderer, Tooltip> {
-    if (this._ttmodels == null)
-      this._ttmodels = this._compute_ttmodels()
-    return this._ttmodels
+  get ttmodel(): Map<number, Tooltip> {
+    if (this._ttmodel == null)
+      this._ttmodel = this._compute_ttmodel()
+    return this._ttmodel
   }
 
   _clear(): void {
     this._inspect(Infinity, Infinity)
 
-    for (const [, tooltip] of this.ttmodels) {
+    for (const [, tooltip] of this.ttmodel) {
       tooltip.clear()
     }
   }
@@ -167,7 +124,6 @@ export class MeasureToolView extends InspectToolView {
    }
 
   _measure(curpoint: [number, number]): [number, number]{
-    // const d1 = {x: base_x, y: base_y}
     let base_anchor = this._base_point!
     const [cx, cy] = base_anchor
     const [dx, dy] = curpoint
@@ -180,43 +136,37 @@ export class MeasureToolView extends InspectToolView {
     return [dist_x, dist_y]
   }
 
-  _update([renderer_view, curpoint]: [RendererView, [number, number]]): void {
-    if (!this.model.active)
-      return
+  _update(curpoint: [number, number]): void {
 
-    if (!(renderer_view instanceof GlyphRendererView))
-      return
-
-    const {model: renderer} = renderer_view
-
-    const tooltip = this.ttmodels.get(renderer)
+    const tooltip = this.ttmodel.get(1)
     if (tooltip == null)
       return
     tooltip.clear()
 
-    const selection_manager = renderer.get_selection_manager()
-    const ds = selection_manager.source
     let sx: number
     let sy: number
     sx = curpoint[0]
     sy = curpoint[1]
 
+    this._inspect(sx,sy)
+
     var dis = this._measure(curpoint)
+    var dis_x = dis[0]
+    var dis_y = dis[1]
     const vars = {
-      sx,sy,
-      name: renderer_view.model.name,
+      sx, sy, dis_x, dis_y,
     }
-    tooltip.add(dis[0], dis[1], this._render_tooltips(ds,vars))
+    tooltip.add(sx, sy, this._render_tooltips(vars))
   }
 
-  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): HTMLElement {
+  _render_tooltips(vars: TooltipVars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
-      el.innerHTML = replace_placeholders(tooltips, ds,0 , this.model.formatters,vars)
+      el.innerHTML = this._replace_placeholders(tooltips, this.model.formatters,vars)
       return el
     } else if (isFunction(tooltips)) {
-      return tooltips(ds,vars)
+      return tooltips(vars)
     } else {
       const rows = div({style: {display: "table", borderSpacing: "2px"}})
 
@@ -232,11 +182,47 @@ export class MeasureToolView extends InspectToolView {
         cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_value})
         row.appendChild(cell)
           const el = span()
-          el.innerHTML = replace_placeholders(value.replace("$~", "$data_"), ds, 0, this.model.formatters, vars)
+          el.innerHTML = this._replace_placeholders(value.replace("$~", "$data_"), this.model.formatters, vars)
           cell.appendChild(el)
       }
       return rows
     }
+  }
+
+  _get_value(raw_name: string, special_vars: Vars) {
+
+    if (raw_name[0] == "$") {
+      const name = raw_name.substring(1)
+
+      if (name in special_vars)
+      return special_vars[name]
+    else
+      throw new Error(`Unknown special variable '\$${name}'`)
+
+    }
+  }
+
+  _replace_placeholders(str: string, formatters?: Formatters, special_vars: Vars = {}): string {
+
+    // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
+    str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
+
+    str = str.replace(/((?:\$\w+)|(?:@\w+)|(?:@{(?:[^{}]+)}))(?:{([^{}]+)})?/g, (_match, spec, format) => {
+      const value = this._get_value(spec, special_vars)
+
+      // missing value, return ???
+      if (value == null)
+        return `${escape("???")}`
+
+      // 'safe' format, return the value as-is
+      if (format == 'safe')
+        return `${value}`
+
+      // format and escape everything else
+      const formatter = get_formatter(spec, format, formatters)
+      return `${escape(formatter(value, format, special_vars))}`
+    })
+    return str
   }
 }
 
@@ -244,15 +230,11 @@ export namespace MeasureTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<string | [string, string][] | ((vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<any> // XXX
-    renderers: p.Property<RendererSpec>
-    names: p.Property<string[]>
     show_arrow: p.Property<boolean>
     attachment: p.Property<TooltipAttachment>
-    // callback: p.Property<CallbackLike1<MeasureTool, {index: number, geometry: Geometry, renderer: Renderer}> | null>
     dimensions: p.Property<Dimensions>
-    select_every_mousemove: p.Property<boolean>
     overlay: p.Property<BoxAnnotation>
     origin: p.Property<BoxOrigin>
   }
@@ -280,11 +262,9 @@ export class MeasureTool extends InspectTool {
         ["delta_y", "$dis[1]"],
       ]],
       formatters:   [ p.Any,               {}             ],
-      renderers:    [ p.Any,               'auto'         ],
-      names:        [ p.Array,             []             ],
       show_arrow:   [ p.Boolean,           true           ],
       attachment:   [ p.TooltipAttachment, 'horizontal'   ],
-      // callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+
     })
 
     this.register_alias("measure", () => new MeasureTool())
