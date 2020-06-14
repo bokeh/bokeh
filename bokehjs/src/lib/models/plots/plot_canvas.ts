@@ -15,7 +15,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable, Interval} from "core/types"
+import {Arrayable, NumberArray, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
@@ -504,7 +504,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
-                x_name: string = "default", y_name: string = "default"): [Arrayable<number>, Arrayable<number>] {
+                x_name: string = "default", y_name: string = "default"): [NumberArray, NumberArray] {
     return this.frame.map_to_screen(x, y, x_name, y_name)
   }
 

@@ -1,16 +1,16 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export interface CenterRotatableData extends XYGlyphData {
-  _angle: Arrayable<number>
-  _width: Arrayable<number>
-  _height: Arrayable<number>
+  _angle: NumberArray
+  _width: NumberArray
+  _height: NumberArray
 
-  sw: Arrayable<number>
-  sh: Arrayable<number>
+  sw: NumberArray
+  sh: NumberArray
 
   max_width: number
   max_height: number

@@ -73,6 +73,7 @@ export function indexOf<T>(array: Arrayable<T>, item: T): number {
   return -1
 }
 
+export function map(array: Float64Array, fn: (item: number, i: number, array: Float64Array) => number): Float64Array
 export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
 export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U>
 

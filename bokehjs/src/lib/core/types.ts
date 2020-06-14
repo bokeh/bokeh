@@ -4,6 +4,9 @@ export type Color = string
 
 export {TypedArray} from "./util/ndarray"
 
+export type NumberArray = Float64Array
+export const NumberArray = Float64Array
+
 export type Arrayable<T = any> = {
   readonly length: number
   [n: number]: T

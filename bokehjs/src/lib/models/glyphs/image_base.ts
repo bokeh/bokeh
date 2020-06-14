@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
@@ -12,11 +12,11 @@ export interface ImageDataBase extends XYGlyphData {
   image_data: HTMLCanvasElement[]
 
   _image: (NDArray | number[][])[]
-  _dw: Arrayable<number>
-  _dh: Arrayable<number>
+  _dw: NumberArray
+  _dh: NumberArray
 
-  sw: Arrayable<number>
-  sh: Arrayable<number>
+  sw: NumberArray
+  sh: NumberArray
 }
 
 export interface ImageBaseView extends ImageDataBase {}
@@ -25,8 +25,8 @@ export abstract class ImageBaseView extends XYGlyphView {
   model: ImageBase
   visuals: ImageBase.Visuals
 
-  protected _width: Arrayable<number>
-  protected _height: Arrayable<number>
+  protected _width: NumberArray
+  protected _height: NumberArray
 
   connect_signals(): void {
     super.connect_signals()
@@ -114,10 +114,10 @@ export abstract class ImageBaseView extends XYGlyphView {
       this.image_data = new Array(this._image.length)
 
     if (this._width == null || this._width.length != this._image.length)
-      this._width = new Array(this._image.length)
+      this._width = new NumberArray(this._image.length)
 
     if (this._height == null || this._height.length != this._image.length)
-      this._height = new Array(this._image.length)
+      this._height = new NumberArray(this._image.length)
   }
 
   protected _get_or_create_canvas(i: number): HTMLCanvasElement {

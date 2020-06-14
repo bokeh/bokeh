@@ -1,7 +1,7 @@
 import {Transform} from "../transforms"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace Scale {
@@ -31,11 +31,11 @@ export abstract class Scale extends Transform {
 
   abstract compute(x: number): number
 
-  abstract v_compute(xs: Arrayable<number>): Arrayable<number>
+  abstract v_compute(xs: Arrayable<number>): NumberArray
 
   abstract invert(sx: number): number
 
-  abstract v_invert(sxs: Arrayable<number>): Arrayable<number>
+  abstract v_invert(sxs: Arrayable<number>): NumberArray
 
   r_compute(x0: number, x1: number): [number, number] {
     if (this.target_range.is_reversed)
@@ -58,9 +58,9 @@ export abstract class Scale extends Transform {
     return factor * x + offset
   }
 
-  _linear_v_compute(xs: Arrayable<number>): Arrayable<number> {
+  _linear_v_compute(xs: Arrayable<number>): NumberArray {
     const [factor, offset] = this._linear_compute_state()
-    const result = new Float64Array(xs.length)
+    const result = new NumberArray(xs.length)
     for (let i = 0; i < xs.length; i++)
       result[i] = factor*xs[i] + offset
     return result
@@ -71,9 +71,9 @@ export abstract class Scale extends Transform {
     return (xprime - offset) / factor
   }
 
-  _linear_v_invert(xprimes: Arrayable<number>): Arrayable<number> {
+  _linear_v_invert(xprimes: Arrayable<number>): NumberArray {
     const [factor, offset] = this._linear_compute_state()
-    const result = new Float64Array(xprimes.length)
+    const result = new NumberArray(xprimes.length)
     for (let i = 0; i < xprimes.length; i++)
       result[i] = (xprimes[i] - offset) / factor
     return result

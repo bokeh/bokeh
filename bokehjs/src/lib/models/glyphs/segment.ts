@@ -3,7 +3,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -11,15 +11,15 @@ import {generic_line_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface SegmentData extends GlyphData {
-  _x0: Arrayable<number>
-  _y0: Arrayable<number>
-  _x1: Arrayable<number>
-  _y1: Arrayable<number>
+  _x0: NumberArray
+  _y0: NumberArray
+  _x1: NumberArray
+  _y1: NumberArray
 
-  sx0: Arrayable<number>
-  sy0: Arrayable<number>
-  sx1: Arrayable<number>
-  sy1: Arrayable<number>
+  sx0: NumberArray
+  sy0: NumberArray
+  sx1: NumberArray
+  sy1: NumberArray
 }
 
 export interface SegmentView extends SegmentData {}

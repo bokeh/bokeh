@@ -9,7 +9,7 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import {map} from "core/util/arrayable"
 import {extend} from "core/util/object"
 import {isArray, isTypedArray} from "core/util/types"
@@ -150,7 +150,7 @@ export abstract class GlyphView extends View {
   abstract scentery(i: number, _sx: number, _sy: number): number
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
-        pts_location: "center" | "edge" = "edge", dilate: boolean = false): Arrayable<number> {
+        pts_location: "center" | "edge" = "edge", dilate: boolean = false): NumberArray {
     let pt0: Arrayable<number>
     let pt1: Arrayable<number>
 
@@ -348,7 +348,7 @@ export abstract class GlyphView extends View {
   // This is where specs not included in coords are computed, e.g. radius.
   protected _map_data(): void {}
 
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
+  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
     return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
   }
 }

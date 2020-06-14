@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -76,23 +76,23 @@ function _cbb(x0: number, y0: number,
 }
 
 export interface BezierData extends GlyphData {
-  _x0: Arrayable<number>
-  _y0: Arrayable<number>
-  _x1: Arrayable<number>
-  _y1: Arrayable<number>
-  _cx0: Arrayable<number>
-  _cy0: Arrayable<number>
-  _cx1: Arrayable<number>
-  _cy1: Arrayable<number>
+  _x0: NumberArray
+  _y0: NumberArray
+  _x1: NumberArray
+  _y1: NumberArray
+  _cx0: NumberArray
+  _cy0: NumberArray
+  _cx1: NumberArray
+  _cy1: NumberArray
 
-  sx0: Arrayable<number>
-  sy0: Arrayable<number>
-  sx1: Arrayable<number>
-  sy1: Arrayable<number>
-  scx0: Arrayable<number>
-  scy0: Arrayable<number>
-  scx1: Arrayable<number>
-  scy1: Arrayable<number>
+  sx0: NumberArray
+  sy0: NumberArray
+  sx1: NumberArray
+  sy1: NumberArray
+  scx0: NumberArray
+  scy0: NumberArray
+  scx1: NumberArray
+  scy1: NumberArray
 }
 
 export interface BezierView extends BezierData {}

@@ -2,15 +2,15 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export interface RayData extends XYGlyphData {
-  _length: Arrayable<number>
-  _angle: Arrayable<number>
+  _length: NumberArray
+  _angle: NumberArray
 
-  slength: Arrayable<number>
+  slength: NumberArray
 }
 
 export interface RayView extends RayData {}

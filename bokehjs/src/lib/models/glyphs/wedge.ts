@@ -3,7 +3,7 @@ import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
@@ -11,11 +11,11 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export interface WedgeData extends XYGlyphData {
-  _radius: Arrayable<number>
-  _start_angle: Arrayable<number>
-  _end_angle: Arrayable<number>
+  _radius: NumberArray
+  _start_angle: NumberArray
+  _end_angle: NumberArray
 
-  sradius: Arrayable<number>
+  sradius: NumberArray
 
   max_radius: number
 }

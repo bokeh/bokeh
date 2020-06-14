@@ -2,7 +2,7 @@ import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./cente
 import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as types from "core/types"
 import * as p from "core/properties"
 import {max} from "core/util/arrayable"
@@ -11,9 +11,9 @@ import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 
 export interface RectData extends CenterRotatableData {
-  sx0: Arrayable<number>
-  sy1: Arrayable<number>
-  ssemi_diag: Arrayable<number>
+  sx0: NumberArray
+  sy1: NumberArray
+  ssemi_diag: NumberArray
 }
 
 export interface RectView extends RectData {}
@@ -39,7 +39,7 @@ export class RectView extends CenterRotatableView {
       this.sw = this._width
 
       const n = this.sx.length
-      this.sx0 = new Float64Array(n)
+      this.sx0 = new NumberArray(n)
       for (let i = 0; i < n; i++)
         this.sx0[i] = this.sx[i] - this.sw[i]/2
     }
@@ -50,13 +50,13 @@ export class RectView extends CenterRotatableView {
       this.sh = this._height
 
       const n =  this.sy.length
-      this.sy1 = new Float64Array(n)
+      this.sy1 = new NumberArray(n)
       for (let i = 0; i < n; i++)
         this.sy1[i] = this.sy[i] - this.sh[i]/2
     }
 
     const n = this.sw.length
-    this.ssemi_diag = new Float64Array(n)
+    this.ssemi_diag = new NumberArray(n)
     for (let i = 0; i < n; i++)
       this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
   }
@@ -167,15 +167,15 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: Arrayable<number>,
-                                                  scale: Scale): [Arrayable<number>, Arrayable<number>] {
+                                                  scale: Scale): [NumberArray, NumberArray] {
     const n = coord.length
 
-    const pt0 = new Float64Array(n)
-    const pt1 = new Float64Array(n)
+    const pt0 = new NumberArray(n)
+    const pt1 = new NumberArray(n)
 
     for (let i = 0; i < n; i++) {
-      pt0[i] = Number(coord[i]) - side_length[i]/2
-      pt1[i] = Number(coord[i]) + side_length[i]/2
+      pt0[i] = coord[i] - side_length[i]/2
+      pt1[i] = coord[i] + side_length[i]/2
     }
 
     const spt0 = scale.v_compute(pt0)
@@ -194,13 +194,13 @@ export class RectView extends CenterRotatableView {
     return [sside_length, spt_corner]
   }
 
-  protected _ddist(dim: 0 | 1, spts: Arrayable<number>, spans: Arrayable<number>): Arrayable<number> {
+  protected _ddist(dim: 0 | 1, spts: Arrayable<number>, spans: Arrayable<number>): NumberArray {
     const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
 
     const spt0 = spts
 
     const m = spt0.length
-    const spt1 = new Float64Array(m)
+    const spt1 = new NumberArray(m)
     for (let i = 0; i < m; i++)
       spt1[i] = spt0[i] + spans[i]
 
@@ -208,7 +208,7 @@ export class RectView extends CenterRotatableView {
     const pt1 = scale.v_invert(spt1)
 
     const n = pt0.length
-    const ddist = new Float64Array(n)
+    const ddist = new NumberArray(n)
     for (let i = 0; i < n; i++)
       ddist[i] = Math.abs(pt1[i] - pt0[i])
     return ddist

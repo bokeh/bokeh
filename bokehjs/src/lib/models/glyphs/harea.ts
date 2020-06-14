@@ -1,5 +1,5 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
@@ -8,13 +8,13 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
 export interface HAreaData extends AreaData {
-  _x1: Arrayable<number>
-  _x2: Arrayable<number>
-  _y: Arrayable<number>
+  _x1: NumberArray
+  _x2: NumberArray
+  _y: NumberArray
 
-  sx1: Arrayable<number>
-  sx2: Arrayable<number>
-  sy: Arrayable<number>
+  sx1: NumberArray
+  sx2: NumberArray
+  sy: NumberArray
 }
 
 export interface HAreaView extends HAreaData {}
@@ -66,8 +66,8 @@ export class HAreaView extends AreaView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const L = this.sy.length
-    const sx = new Float64Array(2*L)
-    const sy = new Float64Array(2*L)
+    const sx = new NumberArray(2*L)
+    const sy = new NumberArray(2*L)
 
     for (let i = 0, end = L; i < end; i++) {
       sx[i] = this.sx1[i]

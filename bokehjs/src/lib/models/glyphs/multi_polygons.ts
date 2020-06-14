@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -15,11 +15,11 @@ import {isArray, isTypedArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 
 export interface MultiPolygonsData extends GlyphData {
-  _xs: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
-  _ys: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
+  _xs: NumberArray[][][]
+  _ys: NumberArray[][][]
 
-  sxs: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
-  sys: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
+  sxs: NumberArray[][][]
+  sys: NumberArray[][][]
 
   hole_index: SpatialIndex
 }
@@ -183,7 +183,7 @@ export class MultiPolygonsView extends GlyphView {
       for (let j = 0, endj = sxs.length; j < endj; j++) {
         const nk = sxs[j].length
 
-        if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[]))) {
+        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])) {
           if (nk == 1) {
             indices.push(index)
           } else if (hole_candidates.indexOf(index) == -1) {
@@ -191,8 +191,8 @@ export class MultiPolygonsView extends GlyphView {
           } else if (nk > 1) {
             let in_a_hole = false
             for (let k = 1; k < nk; k++) {
-              const sxs_k = sxs[j][k] as number[]
-              const sys_k = sys[j][k] as number[]
+              const sxs_k = sxs[j][k]
+              const sys_k = sys[j][k]
               if (hittest.point_in_poly(sx, sy, sxs_k, sys_k)) {
                 in_a_hole = true
                 break
@@ -225,7 +225,7 @@ export class MultiPolygonsView extends GlyphView {
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
+        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0]))
           return this._get_snap_coord(sxs[j][0])
       }
     }
@@ -243,7 +243,7 @@ export class MultiPolygonsView extends GlyphView {
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
+        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0]))
           return this._get_snap_coord(sys[j][0])
       }
     }

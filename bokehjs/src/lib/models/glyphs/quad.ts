@@ -1,18 +1,18 @@
 import {Box, BoxView, BoxData} from "./box"
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import * as p from "core/properties"
 
 export interface QuadData extends BoxData {
-  _right: Arrayable<number>
-  _bottom: Arrayable<number>
-  _left: Arrayable<number>
-  _top: Arrayable<number>
+  _right: NumberArray
+  _bottom: NumberArray
+  _left: NumberArray
+  _top: NumberArray
 
-  sright: Arrayable<number>
-  sbottom: Arrayable<number>
-  sleft: Arrayable<number>
-  stop: Arrayable<number>
+  sright: NumberArray
+  sbottom: NumberArray
+  sleft: NumberArray
+  stop: NumberArray
 }
 
 export interface QuadView extends QuadData {}
