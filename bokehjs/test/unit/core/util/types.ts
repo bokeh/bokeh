@@ -116,6 +116,9 @@ describe("core/util/types module", () => {
     expect(isTypedArray(new Int32Array())).to.be.true
     expect(isTypedArray(new Float32Array())).to.be.true
     expect(isTypedArray(new Float64Array())).to.be.true
+    const buffer = new ArrayBuffer(10)
+    expect(isTypedArray(new DataView(buffer))).to.be.false
+    expect(isTypedArray(buffer)).to.be.false
     expect(isTypedArray(new Map())).to.be.false
     expect(isTypedArray(new Set())).to.be.false
     expect(isTypedArray(new X())).to.be.false

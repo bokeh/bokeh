@@ -10,7 +10,7 @@ import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
 import {entries, clone, extend, isEmpty} from "./util/object"
-import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
+import {isPlainObject, isObject, isArray, isTypedArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
@@ -465,11 +465,12 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       return value.ref()
     else if (is_NDArray(value))
       return encode_NDArray(value)
-    else if (isArray(value)) {
-      const ref_array: unknown[] = []
-      for (let i = 0; i < value.length; i++) {
+    else if (isArray(value) || isTypedArray(value)) {
+      const n = value.length
+      const ref_array: unknown[] = new Array(n)
+      for (let i = 0; i < n; i++) {
         const v = value[i]
-        ref_array.push(HasProps._value_to_json(v))
+        ref_array[i] = HasProps._value_to_json(v)
       }
       return ref_array
     } else if (isPlainObject(value)) {
@@ -497,7 +498,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
 
   // this is like _value_record_references but expects to find refs
   // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: any, refs: Set<HasProps>, options: {recursive: boolean}): void {
+  static _json_record_references(doc: Document, v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
     const {recursive} = options
     if (is_ref(v)) {
       const model = doc.get_model_by_id(v.id)
@@ -546,13 +547,13 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
 
   // Get models that are immediately referenced by our properties
   // (do not recurse, do not include ourselves)
-  protected _immediate_references(): HasProps[] {
+  protected _immediate_references(): Set<HasProps> {
     const refs = new Set<HasProps>()
     for (const prop of this.syncable_properties()) {
       const value = prop.get_value()
       HasProps._value_record_references(value, refs, {recursive: false})
     }
-    return [...refs.values()]
+    return refs
   }
 
   references(): Set<HasProps> {
