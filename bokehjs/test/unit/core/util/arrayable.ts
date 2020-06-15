@@ -103,4 +103,31 @@ describe("core/util/arrayable module", () => {
     const ret1 = arrayable.filter(arr1, (i) => i % 2 == 0)
     expect(ret1).to.be.equal(Float64Array.from([2, 4, 6]))
   })
+
+  it("should support min() function", () => {
+    expect(arrayable.min([])).to.be.equal(Infinity)
+    expect(arrayable.min([NaN])).to.be.equal(Infinity)
+    expect(arrayable.min([1, 2, 3])).to.be.equal(1)
+    expect(arrayable.min([3, 2, 1])).to.be.equal(1)
+    expect(arrayable.min([1, 2, NaN, 3])).to.be.equal(1)
+    expect(arrayable.min([3, 2, NaN, 1])).to.be.equal(1)
+  })
+
+  it("should support max() function", () => {
+    expect(arrayable.max([])).to.be.equal(-Infinity)
+    expect(arrayable.max([NaN])).to.be.equal(-Infinity)
+    expect(arrayable.max([1, 2, 3])).to.be.equal(3)
+    expect(arrayable.max([3, 2, 1])).to.be.equal(3)
+    expect(arrayable.max([1, 2, NaN, 3])).to.be.equal(3)
+    expect(arrayable.max([3, 2, NaN, 1])).to.be.equal(3)
+  })
+
+  it("should support minmax() function", () => {
+    expect(arrayable.minmax([])).to.be.equal([Infinity, -Infinity])
+    expect(arrayable.minmax([NaN])).to.be.equal([Infinity, -Infinity])
+    expect(arrayable.minmax([1, 2, 3])).to.be.equal([1, 3])
+    expect(arrayable.minmax([3, 2, 1])).to.be.equal([1, 3])
+    expect(arrayable.minmax([1, 2, NaN, 3])).to.be.equal([1, 3])
+    expect(arrayable.minmax([3, 2, NaN, 1])).to.be.equal([1, 3])
+  })
 })

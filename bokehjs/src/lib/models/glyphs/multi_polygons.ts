@@ -1,7 +1,7 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
-import {min, max} from "core/util/array"
+import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
 import {Arrayable, Rect} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
@@ -40,7 +40,10 @@ export class MultiPolygonsView extends GlyphView {
         if (xs.length == 0)
           continue
 
-        points.push({x0: min(xs), y0: min(ys), x1: max(xs), y1: max(ys), i})
+        const [x0, x1] = minmax(xs)
+        const [y0, y1] = minmax(ys)
+
+        points.push({x0, y0, x1, y1, i})
       }
     }
     this.hole_index = this._index_hole_data()  // should this be set here?
@@ -60,7 +63,10 @@ export class MultiPolygonsView extends GlyphView {
             if (xs.length == 0)
               continue
 
-            points.push({x0: min(xs), y0: min(ys), x1: max(xs), y1: max(ys), i})
+            const [x0, x1] = minmax(xs)
+            const [y0, y1] = minmax(ys)
+
+            points.push({x0, y0, x1, y1, i})
           }
         }
       }

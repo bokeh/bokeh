@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, Rect} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
-import {map, min, max} from "core/util/arrayable"
+import {map, minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {ImageLoader} from "core/util/image"
@@ -89,10 +89,8 @@ export class ImageURLView extends XYGlyphView {
         ys[n + i] = this._y[i] + this._h[i]
     }
 
-    const x0 = min(xs)
-    const x1 = max(xs)
-    const y0 = min(ys)
-    const y1 = max(ys)
+    const [x0, x1] = minmax(xs)
+    const [y0, y1] = minmax(ys)
 
     this._bounds_rect = {x0, x1, y0, y1}
   }
