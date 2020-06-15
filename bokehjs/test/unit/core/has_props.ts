@@ -6,6 +6,7 @@ import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
+import {BYTE_ORDER} from "@bokehjs/core/util/serialization"
 
 class TestModel extends HasProps {}
 
@@ -72,14 +73,7 @@ SubclassWithOptionalSpec.define<any>({
   baz: [ p.NumberSpec, {field: 'colname'} ],
 })
 
-describe("has_properties module", () => {
-
-  /*
-  before ->
-    Models.register('TestObject', TestModel)
-  after ->
-    Models.unregister('TestObject')
-  */
+describe("core/has_props module", () => {
 
   describe("creation", () => {
 
@@ -172,6 +166,50 @@ describe("has_properties module", () => {
       expect(struct.id).to.be.equal(obj.id)
       expect(struct.type).to.be.equal(obj.type)
       expect(struct.subtype).to.be.equal("bar")
+    })
+  })
+
+  describe("HasProps._value_to_json()", () => {
+    it("should support primitive values", () => {
+      expect(HasProps._value_to_json(1)).to.be.equal(1)
+      expect(HasProps._value_to_json("a")).to.be.equal("a")
+    })
+
+    it("should support HasProps instances", () => {
+      const obj0 = new TestModel()
+      expect(HasProps._value_to_json(obj0)).to.be.equal({id: obj0.id})
+
+      const obj1 = new SubSubclassWithProps({foo: 17})
+      expect(HasProps._value_to_json(obj1)).to.be.equal({id: obj1.id})
+    })
+
+    it("should support ndarrays", () => {
+      const nd0 = ndarray([1, 2, 3, 4, 5, 6], {dtype: "int32", shape: [2, 3]})
+
+      expect(HasProps._value_to_json(nd0)).to.be.equal({
+        __ndarray__: "AQAAAAIAAAADAAAABAAAAAUAAAAGAAAA",
+        order: BYTE_ORDER,
+        dtype: "int32",
+        shape: [2, 3],
+      })
+    })
+
+    it("should support typed arrays", () => {
+      expect(HasProps._value_to_json(new Float64Array([1, 2, 3]))).to.be.equal([1, 2, 3])
+    })
+
+    it("should support arrays and typed arrays", () => {
+      const obj0 = new TestModel()
+
+      expect(HasProps._value_to_json([1, 2, 3])).to.be.equal([1, 2, 3])
+      expect(HasProps._value_to_json([1, 2, obj0])).to.be.equal([1, 2, {id: obj0.id}])
+    })
+
+    it("should support plain objects", () => {
+      const obj0 = new TestModel()
+
+      expect(HasProps._value_to_json({a: 1, b: 2})).to.be.equal({a: 1, b: 2})
+      expect(HasProps._value_to_json({a: 1, b: obj0})).to.be.equal({a: 1, b: {id: obj0.id}})
     })
   })
 })
