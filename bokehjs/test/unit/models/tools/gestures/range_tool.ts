@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side, update_range_end_side, update_range_start_side} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -17,21 +17,21 @@ describe("range_tool module", () => {
 
   describe("flip_side", () => {
     it("should flip left to right", () => {
-      expect(flip_side(Side.Left)).to.equal(Side.Right)
+      expect(flip_side(Side.Left)).to.be.equal(Side.Right)
     })
     it("should flip right to left", () => {
-      expect(flip_side(Side.Right)).to.equal(Side.Left)
+      expect(flip_side(Side.Right)).to.be.equal(Side.Left)
     })
     it("should flip top to bottom", () => {
-      expect(flip_side(Side.Top)).to.equal(Side.Bottom)
+      expect(flip_side(Side.Top)).to.be.equal(Side.Bottom)
     })
     it("should flip bottom to top", () => {
-      expect(flip_side(Side.Bottom)).to.equal(Side.Top)
+      expect(flip_side(Side.Bottom)).to.be.equal(Side.Top)
     })
     it("should all others to themselves", () => {
-      expect(flip_side(Side.None)).to.equal(Side.None)
-      expect(flip_side(Side.BottomTop)).to.equal(Side.BottomTop)
-      expect(flip_side(Side.LeftRightBottomTop)).to.equal(Side.LeftRightBottomTop)
+      expect(flip_side(Side.None)).to.be.equal(Side.None)
+      expect(flip_side(Side.BottomTop)).to.be.equal(Side.BottomTop)
+      expect(flip_side(Side.LeftRightBottomTop)).to.be.equal(Side.LeftRightBottomTop)
     })
   })
 
@@ -207,24 +207,24 @@ describe("range_tool module", () => {
 
       it("should set overlay ns_cursor", () => {
         const rt0 = new RangeTool()
-        expect(rt0.overlay.ns_cursor).to.be.equal(null)
+        expect(rt0.overlay.ns_cursor).to.be.null
 
         const rt1 = new RangeTool({y_range})
         expect(rt1.overlay.ns_cursor).to.be.equal("ns-resize")
 
         const rt2 = new RangeTool({y_range, y_interaction: false})
-        expect(rt2.overlay.ns_cursor).to.be.equal(null)
+        expect(rt2.overlay.ns_cursor).to.be.null
       })
 
       it("should set overlay ew_cursor", () => {
         const rt0 = new RangeTool()
-        expect(rt0.overlay.ew_cursor).to.be.equal(null)
+        expect(rt0.overlay.ew_cursor).to.be.null
 
         const rt1 = new RangeTool({x_range})
         expect(rt1.overlay.ew_cursor).to.be.equal("ew-resize")
 
         const rt2 = new RangeTool({x_range, x_interaction: false})
-        expect(rt2.overlay.ew_cursor).to.be.equal(null)
+        expect(rt2.overlay.ew_cursor).to.be.null
       })
     })
 

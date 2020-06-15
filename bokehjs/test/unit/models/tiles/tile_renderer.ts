@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {shuffle} from "@bokehjs/core/util/array"
 import {TileSource} from "@bokehjs/models/tiles/tile_source"
@@ -12,36 +12,38 @@ import {Extent} from "@bokehjs/models/tiles/tile_utils"
 
 describe("projection utilities", () => {
 
-  const tol = 0.01
-
   it("should convert lat/lng to meters", () => {
     const [x, y] = tile_utils.geographic_to_meters(-90.17578125, 29.840643899834436)
-    expect(x).to.be.closeTo(-10038322.050635627, tol)
-    expect(y).to.be.closeTo(3483082.504898913, tol)
+    expect(x).to.be.similar(-10038322.050635627)
+    expect(y).to.be.similar(3483082.504898913)
   })
 
   it("should convert meters to lat/lng", () => {
     const [x, y] = tile_utils.meters_to_geographic(-10038322.050635627, 3483082.504898913)
-    expect(x).to.be.closeTo(-90.17578125, tol)
-    expect(y).to.be.closeTo(29.840643899834436, tol)
+    expect(x).to.be.similar(-90.17578125)
+    expect(y).to.be.similar(29.840643899834436)
   })
 
   it("should convert geographic extent to meters", () => {
     const extent: Extent = [-67.5, -21.943045533438166, -45, 0]
     const bounds = tile_utils.geographic_extent_to_meters(extent)
-    expect(bounds[0]).to.be.closeTo(-7514065.628545966, tol)
-    expect(bounds[1]).to.be.closeTo(-2504688.542848654, tol)
-    expect(bounds[2]).to.be.closeTo(-5009377.085697312, tol)
-    expect(bounds[3]).to.be.closeTo(0, tol)
+    expect(bounds).to.be.similar([
+      -7514065.628545966,
+      -2504688.542848654,
+      -5009377.085697312,
+      0,
+    ])
   })
 
   it("should convert meters extent to geographic", () => {
     const extent: Extent = [-7514065.628545966, -2504688.542848654, -5009377.085697312, 0]
     const bounds = tile_utils.meters_extent_to_geographic(extent)
-    expect(bounds[0]).to.be.closeTo(-67.5, tol)
-    expect(bounds[1]).to.be.closeTo(-21.943045533438166, tol)
-    expect(bounds[2]).to.be.closeTo(-45, tol)
-    expect(bounds[3]).to.be.closeTo(0, tol)
+    expect(bounds).to.be.similar([
+      -67.5,
+      -21.943045533438166,
+      -45,
+      0,
+    ])
   })
 })
 
@@ -75,7 +77,6 @@ describe("tile sources", () => {
 
   const AbstractTileSource = TileSource as any // XXX: TileSource is abstract
   const T = new TileExpects()
-  const tol = 0.01
 
   describe("tile source (base class)", () => {
     const tile_options = {
@@ -91,7 +92,7 @@ describe("tile sources", () => {
 
     it("should convert tile key to tile xyz", () => {
       const xyz = source.key_to_tile_xyz('1:1:1')
-      expect(xyz).to.be.eql([1, 1, 1])
+      expect(xyz).to.be.equal([1, 1, 1])
     })
 
     it("should successfully set x_origin_offset and y_origin_offset", () => {
@@ -117,8 +118,7 @@ describe("tile sources", () => {
 
       const tile_source = new AbstractTileSource(tile_options)
       const expect_url = 'http://test_value/test_value2/0/0/0.png'
-      expect(tile_source.extra_url_vars).to.have.any.keys('test_key')
-      expect(tile_source.extra_url_vars).to.have.any.keys('test_key2')
+      expect(tile_source.extra_url_vars).to.be.equal(test_extra_url_vars)
       expect(tile_source.get_image_url(0, 0, 0)).to.be.equal(expect_url)
     })
 
@@ -150,9 +150,9 @@ describe("tile sources", () => {
       source.sort_tiles_from_center(tiles, [1, 1, 6, 6])
 
       for (const i of [0, 1, 2, 3]) {
-        const t = tiles[i]
-        expect(t[0]).to.be.within(3, 4)
-        expect(t[1]).to.be.within(3, 4)
+        const [a, b] = tiles[i]
+        expect(a == 3 || a == 4).to.be.true
+        expect(b == 3 || b == 4).to.be.true
       }
     })
 
@@ -193,12 +193,12 @@ describe("tile sources", () => {
       }
       const offset_source = new TMSTileSource(tile_options)
       const bounds = offset_source.get_tile_meter_bounds(0, 0, 16)
-      expect(bounds).to.include(0)
+      expect(bounds.includes(0)).to.be.true
     })
 
     it("should calculate resolution", () => {
-      expect(source.get_resolution(1)).to.be.closeTo(78271.517, tol)
-      expect(source.get_resolution(12)).to.be.closeTo(38.2185, tol)
+      expect(source.get_resolution(1)).to.be.similar(78271.517)
+      expect(source.get_resolution(12)).to.be.similar(38.2185)
     })
   })
 
@@ -216,19 +216,23 @@ describe("tile sources", () => {
     it("should get tile bounds in meters", () => {
       const [x, y, z] = source.wmts_to_tms(511, 845, 11)
       const bounds = source.get_tile_meter_bounds(x, y, z)
-      expect(bounds[0]).to.be.closeTo(-10038322.050635627, tol)
-      expect(bounds[1]).to.be.closeTo(3483082.504898913, tol)
-      expect(bounds[2]).to.be.closeTo(-10018754.171394622, tol)
-      expect(bounds[3]).to.be.closeTo(3502650.384139918, tol)
+      expect(bounds).to.be.similar([
+        -10038322.050635627,
+        3483082.504898913,
+        -10018754.171394622,
+        3502650.384139918,
+      ], 0.01)
     })
 
     it("should get tile bounds in lat/lng", () => {
       const [x, y, z] = source.wmts_to_tms(511, 845, 11)
       const bounds = source.get_tile_geographic_bounds(x, y, z)
-      expect(bounds[0]).to.be.closeTo(-90.17578125, tol)
-      expect(bounds[1]).to.be.closeTo(29.840643899834436, tol)
-      expect(bounds[2]).to.be.closeTo(-90, tol)
-      expect(bounds[3]).to.be.closeTo(29.99300228455108, tol)
+      expect(bounds).to.be.similar([
+        -90.17578125,
+        29.840643899834436,
+        -90,
+        29.99300228455108,
+      ], 0.01)
     })
   })
 
@@ -250,10 +254,10 @@ describe("tile sources", () => {
     })
 
     it("should convert quadkey to tile xyz", () => {
-      expect(source.quadkey_to_tile_xyz('')).to.be.eql([0, 0, 0])
-      expect(source.quadkey_to_tile_xyz('0')).to.be.eql([0, 0, 1])
-      expect(source.quadkey_to_tile_xyz('00')).to.be.eql([0, 0, 2])
-      expect(source.quadkey_to_tile_xyz('0000032320')).to.be.eql([20, 30, 10])
+      expect(source.quadkey_to_tile_xyz('')).to.be.equal([0, 0, 0])
+      expect(source.quadkey_to_tile_xyz('0')).to.be.equal([0, 0, 1])
+      expect(source.quadkey_to_tile_xyz('00')).to.be.equal([0, 0, 2])
+      expect(source.quadkey_to_tile_xyz('0000032320')).to.be.equal([20, 30, 10])
     })
   })
 
@@ -287,12 +291,10 @@ describe("tile sources", () => {
   })
 
   describe("mercator tile source", () => {
-    const tol = 0.01
-
     it("should calculate resolution", () => {
       const source = new MercatorTileSource()
-      expect(source.get_resolution(1)).to.be.closeTo(78271.517, tol)
-      expect(source.get_resolution(12)).to.be.closeTo(38.2185, tol)
+      expect(source.get_resolution(1)).to.be.similar(78271.517)
+      expect(source.get_resolution(12)).to.be.similar(38.2185)
     })
 
     it("should convert tile x,y,z into cache key", () => {
@@ -302,46 +304,45 @@ describe("tile sources", () => {
 
     it("should convert cache key into tile x,y,z", () => {
       const source = new MercatorTileSource()
-      expect(source.key_to_tile_xyz("1:1:1")).to.be.eql([1, 1, 1])
+      expect(source.key_to_tile_xyz("1:1:1")).to.be.equal([1, 1, 1])
     })
 
     it("should successfully wrap around (x-axis) for normalized tile coordinates", () => {
       const source = new MercatorTileSource()
-      expect(source.normalize_xyz(-1, 1, 2)).to.be.eql([3, 1, 2])
+      expect(source.normalize_xyz(-1, 1, 2)).to.be.equal([3, 1, 2])
     })
 
     it("should successfully get closest parent tile by xyz", () => {
       const source = new MercatorTileSource()
       source.tiles.set(source.tile_xyz_to_key(0, 1, 1), {tile_coords: [0, 0, 0]})
-      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.eql([0, 1, 1])
+      expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.equal([0, 1, 1])
     })
 
     it("should verify whether tile xyz's are valid", () => {
       const tile_options0 = {wrap_around: true}
       const source0 = new MercatorTileSource(tile_options0)
-      expect(source0.is_valid_tile(-1, 1, 1)).to.be.eql(true)
+      expect(source0.is_valid_tile(-1, 1, 1)).to.be.equal(true)
 
       const tile_options1 = {wrap_around: false}
       const source1 = new MercatorTileSource(tile_options1)
-      expect(source1.is_valid_tile(-1, 1, 1)).to.be.eql(false)
+      expect(source1.is_valid_tile(-1, 1, 1)).to.be.equal(false)
     })
 
     it("should not snap_to_zoom_level", () => {
       const source = new MercatorTileSource()
       const bounds = source.snap_to_zoom_level(T.MERCATOR_BOUNDS, 400, 400, 2)
-      expect(bounds[0]).to.be.closeTo(T.MERCATOR_BOUNDS[0], tol)
-      expect(bounds[1]).to.be.closeTo(T.MERCATOR_BOUNDS[1], tol)
-      expect(bounds[2]).to.be.closeTo(T.MERCATOR_BOUNDS[2], tol)
-      expect(bounds[3]).to.be.closeTo(T.MERCATOR_BOUNDS[3], tol)
+      expect(bounds).to.be.similar(T.MERCATOR_BOUNDS)
     })
 
     it("should snap_to_zoom_level", () => {
       const source = new MercatorTileSource({snap_to_zoom: true})
       const bounds = source.snap_to_zoom_level(T.MERCATOR_BOUNDS, 400, 400, 2)
-      expect(bounds[0]).to.be.closeTo(-7827151.69, tol)
-      expect(bounds[1]).to.be.closeTo(-7827151.69, tol)
-      expect(bounds[2]).to.be.closeTo(7827151.69, tol)
-      expect(bounds[3]).to.be.closeTo(7827151.69, tol)
+      expect(bounds).to.be.similar([
+        -7827151.69,
+        -7827151.69,
+        7827151.69,
+        7827151.69,
+      ], 0.01)
     })
 
     it("should get best zoom level based on extent and height/width", () => {
@@ -365,31 +366,35 @@ describe("tile sources", () => {
 
     it("should convert pixel x/y to tile x/y", () => {
       const source = new MercatorTileSource()
-      expect(source.pixels_to_tile(1, 1)).to.be.eql([0, 0])
-      expect(source.pixels_to_tile(0, 0)).to.be.eql([0, 0])
+      expect(source.pixels_to_tile(1, 1)).to.be.equal([0, 0])
+      expect(source.pixels_to_tile(0, 0)).to.be.equal([0, 0])
     })
 
     it("should convert pixel x/y to meters x/y", () => {
       const source = new MercatorTileSource()
-      expect(source.pixels_to_meters(0, 0, 0)).to.be.eql([-20037508.34, -20037508.34])
+      expect(source.pixels_to_meters(0, 0, 0)).to.be.equal([-20037508.34, -20037508.34])
     })
 
     it("should get tile bounds in meters", () => {
       const source = new MercatorTileSource()
       const bounds = source.get_tile_meter_bounds(511, 1202, 11)
-      expect(bounds[0]).to.be.closeTo(-10038322.050635627, tol)
-      expect(bounds[1]).to.be.closeTo(3483082.504898913, tol)
-      expect(bounds[2]).to.be.closeTo(-10018754.171394622, tol)
-      expect(bounds[3]).to.be.closeTo(3502650.384139918, tol)
+      expect(bounds).to.be.similar([
+        -10038322.050635627,
+        3483082.504898913,
+        -10018754.171394622,
+        3502650.384139918,
+      ], 0.01)
     })
 
     it("should get tile bounds in lat/lng", () => {
       const source = new MercatorTileSource()
       const bounds = source.get_tile_geographic_bounds(511, 1202, 11)
-      expect(bounds[0]).to.be.closeTo(-90.17578125, tol)
-      expect(bounds[1]).to.be.closeTo(29.840643899834436, tol)
-      expect(bounds[2]).to.be.closeTo(-90, tol)
-      expect(bounds[3]).to.be.closeTo(29.99300228455108, tol)
+      expect(bounds).to.be.similar([
+        -90.17578125,
+        29.840643899834436,
+        -90,
+        29.99300228455108,
+      ], 0.01)
     })
 
     // XXX: This test was completely broken before rewrite.
@@ -416,7 +421,7 @@ describe("tile sources", () => {
       const tiles = source.get_tiles_by_extent(extent, level)
       for (const [x, y, z] of tiles) {
         const url = source.get_image_url(x, y, z)
-        expect(expected_tiles).to.contain(url)
+        expect(expected_tiles.includes(url)).to.be.true
       }
     })
   })

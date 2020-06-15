@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
 import {Fill, Line, Text, Visuals} from "@bokehjs/core/visuals"
@@ -74,7 +74,7 @@ describe("Line", () => {
         const line = new Line(model)
         line.set_value(ctx)
         expect(ctx[attr]).to.be.equal(value)
-        expect(ctx.lineDash).to.be.deep.equal([1, 2])
+        expect(ctx.lineDash).to.be.equal([1, 2])
       })
     }
   })

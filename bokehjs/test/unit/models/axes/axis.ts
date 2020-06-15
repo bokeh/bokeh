@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Axis, AxisView} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
@@ -28,7 +28,7 @@ describe("Axis", () => {
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
 
-    expect(axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
+    expect(axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
   })
 
   it("loc should return numeric fixed_location", async () => {
@@ -46,7 +46,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.loc).to.equal(10)
+    expect(axis_view.loc).to.be.equal(10)
   })
 
   it("should return zero offsets when fixed_location is numeric", async () => {
@@ -64,7 +64,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.offsets).to.deep.equal([0, 0])
+    expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
   it("should return zero offsets when fixed_location is categorical", async () => {
@@ -83,7 +83,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.offsets).to.deep.equal([0, 0])
+    expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
   it("loc should return synthetic for categorical fixed_location", async () => {
@@ -102,7 +102,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_views.get(axis)! as AxisView
-    expect(axis_view.loc).to.equal(0.5)
+    expect(axis_view.loc).to.be.equal(0.5)
   })
 })
 
@@ -135,12 +135,12 @@ describe("AxisView", () => {
 
   it("needs_clip should return false when fixed_location is null", async () => {
     const {axis_view} = await build()
-    expect(axis_view.needs_clip).to.be.equal(false)
+    expect(axis_view.needs_clip).to.be.false
   })
 
   it("needs_clip should return true when fixed_location is not null", async () => {
     const {axis_view} = await build({fixed_location: 10})
-    expect(axis_view.needs_clip).to.be.equal(true)
+    expect(axis_view.needs_clip).to.be.true
   })
 
   it("_tick_extent should return the major_tick_out property", async () => {

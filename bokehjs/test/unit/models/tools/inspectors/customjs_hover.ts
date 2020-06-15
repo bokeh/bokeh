@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
 
@@ -12,7 +12,7 @@ describe("CustomJSHover", () => {
     const r = new CustomJSHover()
 
     it("should have empty args", () => {
-      expect(r.args).to.be.deep.equal({})
+      expect(r.args).to.be.equal({})
     })
 
     it("should have empty code", () => {
@@ -25,7 +25,7 @@ describe("CustomJSHover", () => {
     const r = new CustomJSHover({args: {foo: rng }})
 
     it("should contain the args values", () => {
-      expect(r.values).to.be.deep.equal([rng])
+      expect(r.values).to.be.equal([rng])
     })
 
     it("should round-trip through document serialization", () => {
@@ -37,14 +37,14 @@ describe("CustomJSHover", () => {
       const copy = Document.from_json_string(JSON.stringify(parsed))
       const r_copy = copy.get_model_by_id(r.id)! as CustomJSHover
       const rng_copy = copy.get_model_by_id(rng.id)! as CustomJSHover
-      expect(r.values).to.be.deep.equal([rng])
-      expect(r_copy.values).to.be.deep.equal([rng_copy])
+      expect(r.values).to.be.equal([rng])
+      expect(r_copy.values).to.be.equal([rng_copy])
     })
 
     it("should update when args changes", () => {
       const rng2 = new Range1d()
       r.args = {foo: rng2 }
-      expect(r.values).to.be.deep.equal([rng2])
+      expect(r.values).to.be.equal([rng2])
     })
   })
 
@@ -52,7 +52,7 @@ describe("CustomJSHover", () => {
 
     it("should return a Function", () => {
       const r = new CustomJSHover()
-      expect(r._make_code("value", "format", "special_vars", r.code)).to.be.an.instanceof(Function)
+      expect(r._make_code("value", "format", "special_vars", r.code)).to.be.instanceof(Function)
     })
 
     it("should have formatter property as function body", () => {

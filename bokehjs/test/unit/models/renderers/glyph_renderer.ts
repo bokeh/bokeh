@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"

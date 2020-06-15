@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from 'sinon'
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -130,7 +130,7 @@ describe("LegendItem", () => {
       const gr = new GlyphRenderer({data_source: source})
       const legend_item = new LegendItem({label: {field: 'label'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['foo', 'bar'])
+      expect(field).to.be.equal(['foo', 'bar'])
     })
 
     it("should return 'Invalid field' list if field is not in datasource", () => {
@@ -142,32 +142,32 @@ describe("LegendItem", () => {
       const gr = new GlyphRenderer({data_source: source})
       const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['Invalid field'])
+      expect(field).to.be.equal(['Invalid field'])
     })
 
     it("should return 'No source found' list if no renderer and field used", () => {
       const legend_item = new LegendItem({label: {field: 'milk'}, renderers: []})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['No source found'])
+      expect(field).to.be.equal(['No source found'])
     })
 
     it("should return 'No source found' list if no source on renderer", () => {
       const gr = new GlyphRenderer()
       const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['No source found'])
+      expect(field).to.be.equal(['No source found'])
     })
 
     it("should return value in single list if label is value", () => {
       const legend_item = new LegendItem({label: {value: 'milk'}})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['milk'])
+      expect(field).to.be.equal(['milk'])
     })
 
     it("should return empty list if label is null", () => {
       const legend_item = new LegendItem({label: null})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal([])
+      expect(field).to.be.equal([])
     })
   })
 })

@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -11,7 +11,7 @@ describe("CustomJS", () => {
     const r = new CustomJS()
 
     it("should have empty args", () => {
-      expect(r.args).to.be.deep.equal({})
+      expect(r.args).to.be.equal({})
     })
 
     it("should have empty code", () => {
@@ -24,7 +24,7 @@ describe("CustomJS", () => {
     const r = new CustomJS({args: {foo: rng }})
 
     it("should contain the args values", () => {
-      expect(r.values).to.be.deep.equal([rng])
+      expect(r.values).to.be.equal([rng])
     })
 
     it("should round-trip through document serialization", () => {
@@ -36,14 +36,14 @@ describe("CustomJS", () => {
       const copy = Document.from_json_string(JSON.stringify(parsed))
       const r_copy = copy.get_model_by_id(r.id)! as CustomJS
       const rng_copy = copy.get_model_by_id(rng.id)! as CustomJS
-      expect(r.values).to.be.deep.equal([rng])
-      expect(r_copy.values).to.be.deep.equal([rng_copy])
+      expect(r.values).to.be.equal([rng])
+      expect(r_copy.values).to.be.equal([rng_copy])
     })
 
     it("should update when args changes", () => {
       const rng2 = new Range1d()
       r.args = {foo: rng2}
-      expect(r.values).to.be.deep.equal([rng2])
+      expect(r.values).to.be.equal([rng2])
     })
   })
 
@@ -51,7 +51,7 @@ describe("CustomJS", () => {
 
     it("should return a Function", () => {
       const r = new CustomJS()
-      expect(r.func).to.be.an.instanceof(Function)
+      expect(r.func).to.be.instanceof(Function)
     })
 
     it("should have code property as function body", () => {
@@ -87,7 +87,7 @@ describe("CustomJS", () => {
 
     it("should return cb_data with default value if cb_data kwarg is unset", () => {
       const r = new CustomJS({code: "return cb_data"})
-      expect(r.execute('foo')).to.be.deep.equal({})
+      expect(r.execute('foo')).to.be.equal({})
     })
 
     it("should return cb_data with value of kwarg parameter to execute", () => {

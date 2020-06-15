@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {ContinuousTicker} from "@bokehjs/models/tickers/continuous_ticker"
 
@@ -15,8 +15,8 @@ describe("ContinuousTicker Model", () => {
 
     // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
     const ticks = ticker.get_ticks(-200, 200, null, null, {})
-    expect(ticks.major).to.be.deep.equal([-200, -100, 0, 100, 200])
-    expect(ticks.minor).to.be.deep.equal([-200, -150, -100, -50, 0, 50, 100, 150, 200])
+    expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
+    expect(ticks.minor).to.be.equal([-200, -150, -100, -50, 0, 50, 100, 150, 200])
   })
 
   it("should have five major and matching minor ticks", () => {
@@ -24,8 +24,8 @@ describe("ContinuousTicker Model", () => {
 
     // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
     const ticks = ticker.get_ticks(-200, 200, null, null, {})
-    expect(ticks.major).to.be.deep.equal([-200, -100, 0, 100, 200])
-    expect(ticks.minor).to.be.deep.equal([-200, -100, 0, 100, 200])
+    expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
+    expect(ticks.minor).to.be.equal([-200, -100, 0, 100, 200])
   })
 
   it("should have five major and zero minor ticks", () => {
@@ -33,8 +33,8 @@ describe("ContinuousTicker Model", () => {
 
     // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
     const ticks = ticker.get_ticks(-200, 200, null, null, {})
-    expect(ticks.major).to.be.deep.equal([-200, -100, 0, 100, 200])
-    expect(ticks.minor).to.be.deep.equal([])
+    expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
+    expect(ticks.minor).to.be.equal([])
   })
 
   it("should handle empty start/end case by returning no ticks", () => {
@@ -42,8 +42,8 @@ describe("ContinuousTicker Model", () => {
 
     // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
     const ticks = ticker.get_ticks(NaN, NaN, null, null, {})
-    expect(ticks.major).to.be.deep.equal([])
-    expect(ticks.minor).to.be.deep.equal([])
+    expect(ticks.major).to.be.equal([])
+    expect(ticks.minor).to.be.equal([])
   })
 
   describe("ContinuousTicker get_min_interval method", () => {

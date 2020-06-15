@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Axis} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
@@ -25,7 +25,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.computed_bounds()).to.be.deep.equal([2, 8])
+    expect(grid_view.computed_bounds()).to.be.equal([2, 8])
   })
 
   it("use axis computed bounds when dimensions doesn't match, and bounds='auto'", async () => {
@@ -42,7 +42,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.computed_bounds()).to.be.deep.equal([0, 10])
+    expect(grid_view.computed_bounds()).to.be.equal([0, 10])
   })
 
   it("use user bounds when set'", async () => {
@@ -59,7 +59,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.computed_bounds()).to.be.deep.equal([1, 9])
+    expect(grid_view.computed_bounds()).to.be.equal([1, 9])
   })
 
   it("should return major grid_coords without ends by default", async () => {
@@ -76,7 +76,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.grid_coords('major')).to.be.deep.equal([
+    expect(grid_view.grid_coords('major')).to.be.equal([
       [[2, 2],     [4, 4],     [6, 6],     [8, 8]    ],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
@@ -96,7 +96,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
+    expect(grid_view.grid_coords('major', false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
@@ -116,7 +116,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
+    expect(grid_view.grid_coords('major', false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
@@ -139,7 +139,7 @@ describe("Grid", () => {
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_views.get(grid)! as GridView
 
-    expect(grid_view.grid_coords('major', false)).to.be.deep.equal([
+    expect(grid_view.grid_coords('major', false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])

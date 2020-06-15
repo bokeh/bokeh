@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
@@ -44,7 +44,7 @@ describe("Jitter transform module", () => {
       const thesum = sum(rets)
       const thediff = thesum/N - 5
       // We can set this deterministically because we've stubbed random
-      expect(thediff).to.equal(0)
+      expect(thediff).to.be.equal(0)
     })
 
     it("should cache values for identical input lengths", () => {
@@ -55,7 +55,7 @@ describe("Jitter transform module", () => {
       const ret1 = transform.v_compute(val1)
 
       const ret2 = transform.v_compute(val2)
-      expect(ret1).to.deep.equal(ret2)
+      expect(ret1).to.be.equal(ret2)
     })
   })
 
@@ -72,7 +72,7 @@ describe("Jitter transform module", () => {
       const thesum = sum(rets)
       const thediff = (thesum/N) - 5
       // We can set this deterministically because we've stubbed rnorm
-      expect(thediff).to.equal(0)
+      expect(thediff).to.be.equal(0)
     })
 
     it("should cache values for identical input lengths", () => {
@@ -83,7 +83,7 @@ describe("Jitter transform module", () => {
       const ret1 = transform.v_compute(val1)
 
       const ret2 = transform.v_compute(val2)
-      expect(ret1).to.deep.equal(ret2)
+      expect(ret1).to.be.equal(ret2)
     })
   })
 
@@ -101,7 +101,7 @@ describe("Jitter transform module", () => {
       const thesum = sum(rets)
       const thediff = thesum/N - 1.5 // relies on standard synthetic mapping
       // We can set this deterministically because we've stubbed random
-      expect(thediff).to.equal(0)
+      expect(thediff).to.be.equal(0)
     })
 
     it("should cache values for identical input lengths", () => {
@@ -112,7 +112,7 @@ describe("Jitter transform module", () => {
       const ret1 = transform.v_compute(val1)
 
       const ret2 = transform.v_compute(val2)
-      expect(ret1).to.deep.equal(ret2)
+      expect(ret1).to.be.equal(ret2)
     })
   })
 })

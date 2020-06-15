@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from 'sinon'
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -26,7 +26,7 @@ describe("Legend", () => {
         items: [item_1, item_2],
       })
       const labels = legend.get_legend_names()
-      expect(labels).to.be.deep.equal(['l1', 'l2', 'l3'])
+      expect(labels).to.be.equal(['l1', 'l2', 'l3'])
     })
   })
 })
@@ -50,6 +50,6 @@ describe("LegendView", () => {
   it("get_size should return legend dimensions", async () => {
     const legend = new Legend()
     const legend_view = await build_view(legend)
-    expect(legend_view.get_size()).to.be.deep.equal({width: WIDTH+20, height: HEIGHT+20})
+    expect(legend_view.get_size()).to.be.equal({width: WIDTH+20, height: HEIGHT+20})
   })
 })

@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {svg_colors} from "@bokehjs/core/util/svg_colors"
 

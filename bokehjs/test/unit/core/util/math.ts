@@ -1,6 +1,8 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as math from "@bokehjs/core/util/math"
+
+const {PI} = Math
 
 describe("math module", () => {
 
@@ -11,13 +13,13 @@ describe("math module", () => {
 
     })
 
-    it("should return angle normalized between 0 and 2*Math.PI inclusive", () => {
-      expect(math.angle_norm(3*Math.PI)).to.be.closeTo(Math.PI, 0.000001)
-      expect(math.angle_norm(-3*Math.PI)).to.be.closeTo(Math.PI, 0.000001)
+    it("should return angle normalized between 0 and 2*PI inclusive", () => {
+      expect(math.angle_norm(3*PI)).to.be.similar(PI)
+      expect(math.angle_norm(-3*PI)).to.be.similar(PI)
     })
 
-    it("should return 2*Math.PI for -2*Math.PI", () => {
-      expect(math.angle_norm(2*Math.PI)).to.be.closeTo(2*Math.PI, 0.000001)
+    it("should return 2*PI for -2*PI", () => {
+      expect(math.angle_norm(2*PI)).to.be.similar(2*PI)
     })
 
   })
@@ -25,13 +27,13 @@ describe("math module", () => {
   describe("angle_dist", () => {
 
     it("should return the distance between two angles as a positive radian", () => {
-      expect(math.angle_dist(2.5*Math.PI, -2.5*Math.PI)).to.be.closeTo(Math.PI, 0.000001)
-      expect(math.angle_dist(-2.5*Math.PI, 2.5*Math.PI)).to.be.closeTo(Math.PI, 0.000001)
+      expect(math.angle_dist(2.5*PI, -2.5*PI)).to.be.similar(PI)
+      expect(math.angle_dist(-2.5*PI, 2.5*PI)).to.be.similar(PI)
     })
 
-    it("should return 2*Math.PI for  full range", () => {
-      expect(math.angle_dist(0, 2*Math.PI)).to.be.closeTo(2*Math.PI, 0.000001)
-      expect(math.angle_dist(2*Math.PI, 0)).to.be.closeTo(2*Math.PI, 0.000001)
+    it("should return 2*PI for  full range", () => {
+      expect(math.angle_dist(0, 2*PI)).to.be.similar(2*PI)
+      expect(math.angle_dist(2*PI, 0)).to.be.similar(2*PI)
     })
 
   })
@@ -39,29 +41,29 @@ describe("math module", () => {
   describe("angle_between", () => {
 
     it("should return true if `mid` angle strictly between `lhs` and `rhs`", () => {
-      expect(math.angle_between(0, -1, 1, 1)).to.be.equal(true)
-      expect(math.angle_between(0, -1, 1, 0)).to.be.equal(false)
+      expect(math.angle_between(0, -1, 1, 1)).to.be.true
+      expect(math.angle_between(0, -1, 1, 0)).to.be.false
     })
 
     it("should return false if `mid` == `lhs` == `rhs`", () => {
-      expect(math.angle_between(10, 10, 10, 1)).to.be.equal(false)
-      expect(math.angle_between(10, 10, 10, 0)).to.be.equal(false)
+      expect(math.angle_between(10, 10, 10, 1)).to.be.false
+      expect(math.angle_between(10, 10, 10, 0)).to.be.false
     })
 
     it("should return false if `lhs` == `rhs` == 0", () => {
-      expect(math.angle_between(0, 0, 0, 0)).to.be.equal(false)
-      expect(math.angle_between(1, 0, 0, 0)).to.be.equal(false)
-      expect(math.angle_between(-1, 0, 0, 0)).to.be.equal(false)
-      expect(math.angle_between(0, 0, 0, 1)).to.be.equal(false)
-      expect(math.angle_between(1, 0, 0, 1)).to.be.equal(false)
-      expect(math.angle_between(-1, 0, 0, 1)).to.be.equal(false)
+      expect(math.angle_between(0, 0, 0, 0)).to.be.false
+      expect(math.angle_between(1, 0, 0, 0)).to.be.false
+      expect(math.angle_between(-1, 0, 0, 0)).to.be.false
+      expect(math.angle_between(0, 0, 0, 1)).to.be.false
+      expect(math.angle_between(1, 0, 0, 1)).to.be.false
+      expect(math.angle_between(-1, 0, 0, 1)).to.be.false
     })
 
-    it("should return true if angle dist is 2_Math.PI", () => {
-      expect(math.angle_between(1, 0, 2*Math.PI, 0)).to.be.equal(true)
-      expect(math.angle_between(-1, 0, 2*Math.PI, 0)).to.be.equal(true)
-      expect(math.angle_between(1, 0, 2*Math.PI, 1)).to.be.equal(true)
-      expect(math.angle_between(-1, 0, 2*Math.PI, 1)).to.be.equal(true)
+    it("should return true if angle dist is 2_PI", () => {
+      expect(math.angle_between(1, 0, 2*PI, 0)).to.be.true
+      expect(math.angle_between(-1, 0, 2*PI, 0)).to.be.true
+      expect(math.angle_between(1, 0, 2*PI, 1)).to.be.true
+      expect(math.angle_between(-1, 0, 2*PI, 1)).to.be.true
     })
 
   })
@@ -69,11 +71,11 @@ describe("math module", () => {
   describe("atan2", () => {
 
     it("should return the arctangent between 2 (x,y) points", () => {
-      expect(math.atan2([0, 0], [0, 1])).to.be.closeTo(Math.PI/2, 0.0000001) // vertical up
-      expect(math.atan2([0, 0], [0, -1])).to.be.closeTo(-Math.PI/2, 0.0000001) // vertical down
-      expect(math.atan2([0, 0], [1, 0])).to.be.closeTo(0, 0.0000001) // horizontal right
-      expect(math.atan2([0, 0], [-1, 0])).to.be.closeTo(Math.PI, 0.0000001) // horizontal left
-      expect(math.atan2([1, 1], [2, 2])).to.be.closeTo(Math.PI/4, 0.0000001)
+      expect(math.atan2([0, 0], [0, 1])).to.be.similar(PI/2) // vertical up
+      expect(math.atan2([0, 0], [0, -1])).to.be.similar(-PI/2) // vertical down
+      expect(math.atan2([0, 0], [1, 0])).to.be.similar(0) // horizontal right
+      expect(math.atan2([0, 0], [-1, 0])).to.be.similar(PI) // horizontal left
+      expect(math.atan2([1, 1], [2, 2])).to.be.similar(PI/4)
     })
 
   })

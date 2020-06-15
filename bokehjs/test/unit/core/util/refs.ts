@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as refs from "@bokehjs/core/util/refs"
 

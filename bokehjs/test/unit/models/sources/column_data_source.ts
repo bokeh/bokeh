@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {with_log_level} from "@bokehjs/core/logging"
 
@@ -15,30 +15,30 @@ describe("column_data_source module", () => {
   describe("slice", () => {
 
     it("should return [ind, ind+1, 1] for scalars", () => {
-      expect(slice(0, 5)).to.be.deep.equal([0, 1, 1])
-      expect(slice(10, 5)).to.be.deep.equal([10, 11, 1])
+      expect(slice(0, 5)).to.be.equal([0, 1, 1])
+      expect(slice(10, 5)).to.be.equal([10, 11, 1])
     })
 
     it("should return start, stop, end for slice object", () => {
-      expect(slice({start:1, stop:10, step:2}, 5)).to.be.deep.equal([1, 10, 2])
-      expect(slice({start:1, stop:10, step:2}, 5)).to.be.deep.equal([1, 10, 2])
-      expect(slice({start:1, stop:10, step:2}, 15)).to.be.deep.equal([1, 10, 2])
+      expect(slice({start:1, stop:10, step:2}, 5)).to.be.equal([1, 10, 2])
+      expect(slice({start:1, stop:10, step:2}, 5)).to.be.equal([1, 10, 2])
+      expect(slice({start:1, stop:10, step:2}, 15)).to.be.equal([1, 10, 2])
     })
 
     it("should return 0 for start when slice start is null", () => {
-      expect(slice({stop:10, step:2}, 5)).to.be.deep.equal([0, 10, 2])
-      expect(slice({stop:10, step:2}, 5)).to.be.deep.equal([0, 10, 2])
-      expect(slice({stop:10, step:2}, 15)).to.be.deep.equal([0, 10, 2])
+      expect(slice({stop:10, step:2}, 5)).to.be.equal([0, 10, 2])
+      expect(slice({stop:10, step:2}, 5)).to.be.equal([0, 10, 2])
+      expect(slice({stop:10, step:2}, 15)).to.be.equal([0, 10, 2])
     })
 
     it("should return 1 for step when slice step is null", () => {
-      expect(slice({start:1, stop:10}, 5)).to.be.deep.equal([1, 10, 1])
-      expect(slice({start:1, stop:10}, 5)).to.be.deep.equal([1, 10, 1])
-      expect(slice({start:1, stop:10}, 15)).to.be.deep.equal([1, 10, 1])
+      expect(slice({start:1, stop:10}, 5)).to.be.equal([1, 10, 1])
+      expect(slice({start:1, stop:10}, 5)).to.be.equal([1, 10, 1])
+      expect(slice({start:1, stop:10}, 15)).to.be.equal([1, 10, 1])
     })
 
     it("should return length for stop when slice stop is null", () => {
-      expect(slice({start:1, step:2}, 11)).to.be.deep.equal([1, 11, 2])
+      expect(slice({start:1, step:2}, 11)).to.be.equal([1, 11, 2])
     })
   })
 
@@ -49,33 +49,33 @@ describe("column_data_source module", () => {
       it("should patch Arrays to Arrays", () => {
         const a = ndarray([1, 2, 3, 4, 5])
         patch_to_column(a, [[3, 100]])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 3, 100, 5]))
+        expect(a).to.be.equal(ndarray([1, 2, 3, 100, 5]))
 
         patch_to_column(a, [[2, 101]])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 101, 100, 5]))
+        expect(a).to.be.equal(ndarray([1, 2, 101, 100, 5]))
       })
 
       it("should patch typed Arrays to typed Arrays", () => {
         for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
           const a = new typ([1, 2, 3, 4, 5])
           patch_to_column(a, [[3, 100]])
-          expect(a).to.be.deep.equal(new typ([1, 2, 3, 100, 5]))
+          expect(a).to.be.equal(new typ([1, 2, 3, 100, 5]))
 
           patch_to_column(a, [[2, 101]])
-          expect(a).to.be.deep.equal(new typ([1, 2, 101, 100, 5]))
+          expect(a).to.be.equal(new typ([1, 2, 101, 100, 5]))
         }
       })
 
       it("should handle multi-part patches", () => {
         const a = ndarray([1, 2, 3, 4, 5])
         patch_to_column(a, [[3, 100], [0, 10], [4, -1]])
-        expect(a).to.be.deep.equal(ndarray([10, 2, 3, 100, -1]))
+        expect(a).to.be.equal(ndarray([10, 2, 3, 100, -1]))
       })
 
       it("should return a Set of the patched indices", () => {
         const a = ndarray([1, 2, 3, 4, 5])
         const s = patch_to_column(a, [[3, 100], [0, 10], [4, -1]])
-        expect(difference(s, new Set([0, 3, 4]))).to.be.deep.equal(new Set())
+        expect(difference(s, new Set([0, 3, 4]))).to.be.equal(new Set())
       })
     })
 
@@ -84,39 +84,39 @@ describe("column_data_source module", () => {
       it("should patch Arrays to Arrays", () => {
         const a = ndarray([1, 2, 3, 4, 5])
         patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]]])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 101, 5]))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
 
         patch_to_column(a, [[{start:1, stop:3, step:1}, [99, 102]]])
-        expect(a).to.be.deep.equal(ndarray([1, 99, 102, 101, 5]))
+        expect(a).to.be.equal(ndarray([1, 99, 102, 101, 5]))
       })
 
       it("should patch typed Arrays to typed Arrays", () => {
         for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
           const a = new typ([1, 2, 3, 4, 5])
           patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]]])
-          expect(a).to.be.deep.equal(new typ([1, 2, 100, 101, 5]))
+          expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
 
           patch_to_column(a, [[{start:1, stop:3, step:1}, [99, 102]]])
-          expect(a).to.be.deep.equal(new typ([1, 99, 102, 101, 5]))
+          expect(a).to.be.equal(new typ([1, 99, 102, 101, 5]))
         }
       })
 
       it("should handle patch indices with strides", () => {
         const a = ndarray([1, 2, 3, 4, 5], {dtype: "int32"})
         patch_to_column(a, [[{start:1, stop:5, step:2}, [100, 101]]])
-        expect(a).to.be.deep.equal(new Int32NDArray([1, 100, 3, 101, 5]))
+        expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
       })
 
       it("should handle multi-part patches", () => {
         const a = ndarray([1, 2, 3, 4, 5])
         patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]], [{stop:1, step:1}, [10]], [4, -1]])
-        expect(a).to.be.deep.equal(ndarray([10, 2, 100, 101, -1]))
+        expect(a).to.be.equal(ndarray([10, 2, 100, 101, -1]))
       })
 
       it("should return a Set of the patched indices", () => {
         const a = ndarray([1, 2, 3, 4, 5])
         const s = patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]], [{stop:1, step:1}, [10]], [4, -1]])
-        expect(difference(s, new Set([0, 2, 3, 4]))).to.be.deep.equal(new Set())
+        expect(difference(s, new Set([0, 2, 3, 4]))).to.be.equal(new Set())
       })
     })
 
@@ -129,16 +129,16 @@ describe("column_data_source module", () => {
         patch_to_column([a, b, c], [
           [[0, {start:2, stop:4, step:1}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 101, 5]))
-        expect(b).to.be.deep.equal(ndarray([10, 20, -1, -2, 0, 10]))
-        expect(c).to.be.deep.equal(ndarray([1, 2, 3, 4]))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
+        expect(b).to.be.equal(ndarray([10, 20, -1, -2, 0, 10]))
+        expect(c).to.be.equal(ndarray([1, 2, 3, 4]))
 
         patch_to_column([a, b, c], [
           [[1, {start:2, stop:4, step:1}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 101, 5]))
-        expect(b).to.be.deep.equal(ndarray([10, 20, 100, 101, 0, 10]))
-        expect(c).to.be.deep.equal(ndarray([1, 2, 3, 4]))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
+        expect(b).to.be.equal(ndarray([10, 20, 100, 101, 0, 10]))
+        expect(c).to.be.equal(ndarray([1, 2, 3, 4]))
       })
 
       it("should patch typed Arrays to typed Arrays", () => {
@@ -149,16 +149,16 @@ describe("column_data_source module", () => {
           patch_to_column([a, b, c], [
             [[0, {start:2, stop:4, step:1}], [100, 101]],
           ])
-          expect(a).to.be.deep.equal(new typ([1, 2, 100, 101, 5]))
-          expect(b).to.be.deep.equal(new typ([10, 20, -1, -2, 0, 10]))
-          expect(c).to.be.deep.equal(new typ([1, 2, 3, 4]))
+          expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
+          expect(b).to.be.equal(new typ([10, 20, -1, -2, 0, 10]))
+          expect(c).to.be.equal(new typ([1, 2, 3, 4]))
 
           patch_to_column([a, b, c], [
             [[1, {start:2, stop:4, step:1}], [100, 101]],
           ])
-          expect(a).to.be.deep.equal(new typ([1, 2, 100, 101, 5]))
-          expect(b).to.be.deep.equal(new typ([10, 20, 100, 101, 0, 10]))
-          expect(c).to.be.deep.equal(new typ([1, 2, 3, 4]))
+          expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
+          expect(b).to.be.equal(new typ([10, 20, 100, 101, 0, 10]))
+          expect(c).to.be.equal(new typ([1, 2, 3, 4]))
         }
       })
 
@@ -169,16 +169,16 @@ describe("column_data_source module", () => {
         patch_to_column([a, b, c], [
           [[0, {start:1, stop:5, step:2}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(new Int32NDArray([1, 100, 3, 101, 5]))
-        expect(b).to.be.deep.equal(new Int32NDArray([10, 20, -1, -2, 0, 10]))
-        expect(c).to.be.deep.equal(new Int32NDArray([1, 2, 3, 4]))
+        expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
+        expect(b).to.be.equal(new Int32NDArray([10, 20, -1, -2, 0, 10]))
+        expect(c).to.be.equal(new Int32NDArray([1, 2, 3, 4]))
 
         patch_to_column([a, b, c], [
           [[1, {step:3}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(new Int32NDArray([1, 100, 3, 101, 5]))
-        expect(b).to.be.deep.equal(new Int32NDArray([100, 20, -1, 101, 0, 10]))
-        expect(c).to.be.deep.equal(new Int32NDArray([1, 2, 3, 4]))
+        expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
+        expect(b).to.be.equal(new Int32NDArray([100, 20, -1, 101, 0, 10]))
+        expect(c).to.be.equal(new Int32NDArray([1, 2, 3, 4]))
       })
 
       it("should handle multi-part patches", () => {
@@ -190,9 +190,9 @@ describe("column_data_source module", () => {
           [[1, {stop:2, step:1}], [999, 999]],
           [[1, 5], [6]],
         ])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 101, 5]))
-        expect(b).to.be.deep.equal(ndarray([999, 999, -1, -2, 0, 6]))
-        expect(c).to.be.deep.equal(ndarray([1, 2, 3, 4]))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
+        expect(b).to.be.equal(ndarray([999, 999, -1, -2, 0, 6]))
+        expect(c).to.be.equal(ndarray([1, 2, 3, 4]))
       })
 
       it("should return a Set of the patched indices", () => {
@@ -204,7 +204,7 @@ describe("column_data_source module", () => {
           [[1, {stop:2, step:1}], [999, 999]],
           [[1, 5], [6]],
         ])
-        expect(difference(s, new Set([0, 1]))).to.be.deep.equal(new Set())
+        expect(difference(s, new Set([0, 1]))).to.be.equal(new Set())
       })
     })
 
@@ -215,16 +215,16 @@ describe("column_data_source module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]})
         const c = ndarray([1, 2], {shape: [1, 2]})
         patch_to_column([a, b, c], [[[0, {}, 2], [100, 101]]])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
-        expect(b).to.be.deep.equal(ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]}))
-        expect(c).to.be.deep.equal(ndarray([1, 2], {shape: [1, 2]}))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
+        expect(b).to.be.equal(ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]}))
+        expect(c).to.be.equal(ndarray([1, 2], {shape: [1, 2]}))
 
         patch_to_column([a, b, c], [
           [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
-        expect(b).to.be.deep.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
-        expect(c).to.be.deep.equal(ndarray([1, 2], {shape: [1, 2]}))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
+        expect(b).to.be.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
+        expect(c).to.be.equal(ndarray([1, 2], {shape: [1, 2]}))
       })
 
       it("should patch typed Arrays to types Arrays", () => {
@@ -235,16 +235,16 @@ describe("column_data_source module", () => {
           patch_to_column([a, b, c], [
             [[0, {}, 2], [100, 101]],
           ])
-          expect(a).to.be.deep.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
-          expect(b).to.be.deep.equal(new typ([10, 20, -1, -2, 0, 10], [3, 2]))
-          expect(c).to.be.deep.equal(new typ([1, 2], [1, 2]))
+          expect(a).to.be.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
+          expect(b).to.be.equal(new typ([10, 20, -1, -2, 0, 10], [3, 2]))
+          expect(c).to.be.equal(new typ([1, 2], [1, 2]))
 
           patch_to_column([a, b, c], [
             [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
           ])
-          expect(a).to.be.deep.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
-          expect(b).to.be.deep.equal(new typ([100, 20, 101, -2, 0, 10], [3, 2]))
-          expect(c).to.be.deep.equal(new typ([1, 2], [1, 2]))
+          expect(a).to.be.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
+          expect(b).to.be.equal(new typ([100, 20, 101, -2, 0, 10], [3, 2]))
+          expect(c).to.be.equal(new typ([1, 2], [1, 2]))
         }
       })
 
@@ -255,16 +255,16 @@ describe("column_data_source module", () => {
         patch_to_column([a, b, c], [
           [[0, {step:1}, 2], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
-        expect(b).to.be.deep.equal(new Int32NDArray([10, 20, -1, -2, 0, 10], [3, 2]))
-        expect(c).to.be.deep.equal(new Int32NDArray([1, 2], [1, 2]))
+        expect(a).to.be.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
+        expect(b).to.be.equal(new Int32NDArray([10, 20, -1, -2, 0, 10], [3, 2]))
+        expect(c).to.be.equal(new Int32NDArray([1, 2], [1, 2]))
 
         patch_to_column([a, b, c], [
           [[1, {start:0, stop:3, step:2}, {start:0, stop:1, step:1}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
-        expect(b).to.be.deep.equal(new Int32NDArray([100, 20, -1, -2, 101, 10], [3, 2]))
-        expect(c).to.be.deep.equal(new Int32NDArray([1, 2], [1, 2]))
+        expect(a).to.be.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
+        expect(b).to.be.equal(new Int32NDArray([100, 20, -1, -2, 101, 10], [3, 2]))
+        expect(c).to.be.equal(new Int32NDArray([1, 2], [1, 2]))
       })
 
       it("should handle multi-part patches", () => {
@@ -275,9 +275,9 @@ describe("column_data_source module", () => {
           [[0, {step:1}, 2], [100, 101]],
           [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
         ])
-        expect(a).to.be.deep.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
-        expect(b).to.be.deep.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
-        expect(c).to.be.deep.equal(ndarray([1, 2], {shape: [1, 2]}))
+        expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
+        expect(b).to.be.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
+        expect(c).to.be.equal(ndarray([1, 2], {shape: [1, 2]}))
       })
 
       it("should return a Set of the patched indices", () => {
@@ -288,7 +288,7 @@ describe("column_data_source module", () => {
           [[0, {step:1}, 2], [100, 101]],
           [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
         ])
-        expect(difference(s, new Set([0, 1]))).to.be.deep.equal(new Set())
+        expect(difference(s, new Set([0, 1]))).to.be.equal(new Set())
       })
     })
   })
@@ -298,86 +298,86 @@ describe("column_data_source module", () => {
     it("should stream Arrays to Arrays", () => {
       const a = [1, 2, 3, 4, 5]
       const r = stream_to_column(a, [100, 200])
-      expect(r).to.be.deep.equal([1, 2, 3, 4, 5, 100, 200])
+      expect(r).to.be.equal([1, 2, 3, 4, 5, 100, 200])
     })
 
     it("should stream Arrays to Arrays with rollover", () => {
       const a0 = [1, 2, 3, 4, 5]
       const r0 = stream_to_column(a0, [100, 200, 300], 5)
-      expect(r0).to.be.deep.equal([4, 5, 100, 200, 300])
+      expect(r0).to.be.equal([4, 5, 100, 200, 300])
 
       const a1 = [1, 2, 3, 4, 5]
       const r1 = stream_to_column(a1, [100, 200, 300], 6)
-      expect(r1).to.be.deep.equal([3, 4, 5, 100, 200, 300])
+      expect(r1).to.be.equal([3, 4, 5, 100, 200, 300])
     })
 
     it("should stream Float32 to Float32", () => {
       const a = new Float32NDArray([1, 2, 3, 4, 5])
       const r = stream_to_column(a, [100, 200])
-      expect(r).to.be.deep.equal(new Float32NDArray([1, 2, 3, 4, 5, 100, 200]))
+      expect(r).to.be.equal(new Float32NDArray([1, 2, 3, 4, 5, 100, 200]))
     })
 
     it("should stream Float32 to Float32 with rollover", () => {
       // test when col is already at rollover len
       const a0 = new Float32NDArray([1, 2, 3, 4, 5])
       const r0 = stream_to_column(a0, [100, 200, 300], 5)
-      expect(r0).to.be.deep.equal(new Float32NDArray([4, 5, 100, 200, 300]))
+      expect(r0).to.be.equal(new Float32NDArray([4, 5, 100, 200, 300]))
 
       // test when col is not at rollover len but will exceed
       const a1 = new Float32NDArray([1, 2, 3, 4, 5])
       const r1 = stream_to_column(a1, [100, 200, 300], 6)
-      expect(r1).to.be.deep.equal(new Float32NDArray([3, 4, 5, 100, 200, 300]))
+      expect(r1).to.be.equal(new Float32NDArray([3, 4, 5, 100, 200, 300]))
 
       // test when col is not at rollover len and will not exceed
       const a2 = new Float32NDArray([1, 2, 3, 4, 5])
       const r2 = stream_to_column(a2, [100, 200, 300], 10)
-      expect(r2).to.be.deep.equal(new Float32NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
+      expect(r2).to.be.equal(new Float32NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
     })
 
     it("should stream Float64 to Float64", () => {
       const a = new Float64NDArray([1, 2, 3, 4, 5])
       const r = stream_to_column(a, [100, 200])
-      expect(r).to.be.deep.equal(new Float64NDArray([1, 2, 3, 4, 5, 100, 200]))
+      expect(r).to.be.equal(new Float64NDArray([1, 2, 3, 4, 5, 100, 200]))
     })
 
     it("should stream Float64 to Float64 with rollover", () => {
       // test when col is already at rollover len
       const a0 = new Float64NDArray([1, 2, 3, 4, 5])
       const r0 = stream_to_column(a0, [100, 200, 300], 5)
-      expect(r0).to.be.deep.equal(new Float64NDArray([4, 5, 100, 200, 300]))
+      expect(r0).to.be.equal(new Float64NDArray([4, 5, 100, 200, 300]))
 
       // test when col is not at rollover len but will exceed
       const a1 = new Float64NDArray([1, 2, 3, 4, 5])
       const r1 = stream_to_column(a1, [100, 200, 300], 6)
-      expect(r1).to.be.deep.equal(new Float64NDArray([3, 4, 5, 100, 200, 300]))
+      expect(r1).to.be.equal(new Float64NDArray([3, 4, 5, 100, 200, 300]))
 
       // test when col is not at rollover len and will not exceed
       const a2 = new Float64NDArray([1, 2, 3, 4, 5])
       const r2 = stream_to_column(a2, [100, 200, 300], 10)
-      expect(r2).to.be.deep.equal(new Float64NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
+      expect(r2).to.be.equal(new Float64NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
     })
 
     it("should stream Int32 to Int32", () => {
       const a = new Int32NDArray([1, 2, 3, 4, 5])
       const r = stream_to_column(a, [100, 200])
-      expect(r).to.be.deep.equal(new Int32NDArray([1, 2, 3, 4, 5, 100, 200]))
+      expect(r).to.be.equal(new Int32NDArray([1, 2, 3, 4, 5, 100, 200]))
     })
 
     it("should stream Int32 to Int32 with rollover", () => {
       // test when col is already at rollover len
       const a0 = new Int32NDArray([1, 2, 3, 4, 5])
       const r0 = stream_to_column(a0, [100, 200, 300], 5)
-      expect(r0).to.be.deep.equal(new Int32NDArray([4, 5, 100, 200, 300]))
+      expect(r0).to.be.equal(new Int32NDArray([4, 5, 100, 200, 300]))
 
       // test when col is not at rollover len but will exceed
       const a1 = new Int32NDArray([1, 2, 3, 4, 5])
       const r1 = stream_to_column(a1, [100, 200, 300], 6)
-      expect(r1).to.be.deep.equal(new Int32NDArray([3, 4, 5, 100, 200, 300]))
+      expect(r1).to.be.equal(new Int32NDArray([3, 4, 5, 100, 200, 300]))
 
       // test when col is not at rollover len and will not exceed
       const a2 = new Int32NDArray([1, 2, 3, 4, 5])
       const r2 = stream_to_column(a2, [100, 200, 300], 10)
-      expect(r2).to.be.deep.equal(new Int32NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
+      expect(r2).to.be.equal(new Int32NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
     })
   })
 
@@ -385,11 +385,11 @@ describe("column_data_source module", () => {
     const r = new ColumnDataSource()
 
     it("should have empty data", () => {
-      expect(r.data).to.be.deep.equal({})
+      expect(r.data).to.be.equal({})
     })
 
     it("should have empty columns", () => {
-      expect(r.columns()).to.be.deep.equal([])
+      expect(r.columns()).to.be.equal([])
     })
 
     it("should return null for get_length", () => {
@@ -401,11 +401,11 @@ describe("column_data_source module", () => {
     const r = new ColumnDataSource({data: {foo: []}})
 
     it("should return supplied data", () => {
-      expect(r.data).to.be.deep.equal({foo: []})
+      expect(r.data).to.be.equal({foo: []})
     })
 
     it("should return one column", () => {
-      expect(r.columns()).to.be.deep.equal(["foo"])
+      expect(r.columns()).to.be.equal(["foo"])
     })
   })
 
@@ -413,11 +413,11 @@ describe("column_data_source module", () => {
     const r = new ColumnDataSource({data: {foo: [], bar:[]}})
 
     it("should return supplied data", () => {
-      expect(r.data).to.be.deep.equal({foo: [], bar: []})
+      expect(r.data).to.be.equal({foo: [], bar: []})
     })
 
     it("should return all columns", () => {
-      expect((r.columns()).sort()).to.be.deep.equal(["bar", "foo"])
+      expect((r.columns()).sort()).to.be.equal(["bar", "foo"])
     })
   })
 
@@ -483,13 +483,13 @@ describe("column_data_source module", () => {
 
     it("should report .data.keys", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
-      expect(r.columns()).to.be.deep.equal(keys(r.data))
+      expect(r.columns()).to.be.equal(keys(r.data))
     })
 
     it("should update if columns update", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
       r.data.baz = [11, 21]
-      expect(r.columns()).to.be.deep.equal(keys(r.data))
+      expect(r.columns()).to.be.equal(keys(r.data))
     })
   })
 
@@ -498,14 +498,14 @@ describe("column_data_source module", () => {
     it("should clear plain arrys to plain arrays", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
       r.clear()
-      expect(r.data).to.be.deep.equal({foo: [], bar:[]})
+      expect(r.data).to.be.equal({foo: [], bar:[]})
     })
 
     it("should clear typed arrays to typed arrays", () => {
       for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
         const r = new ColumnDataSource({data: {foo: [10, 20], bar: new typ([1, 2])}})
         r.clear()
-        expect(r.data).to.be.deep.equal({foo: [], bar: new typ([])})
+        expect(r.data).to.be.equal({foo: [], bar: new typ([])})
       }
     })
 
@@ -515,7 +515,7 @@ describe("column_data_source module", () => {
         r.data.bar = [100, 200]
         r.data.baz = new typ([1, 2])
         r.clear()
-        expect(r.data).to.be.deep.equal({foo: [], bar: [], baz: new typ([])})
+        expect(r.data).to.be.equal({foo: [], bar: [], baz: new typ([])})
       }
     })
   })

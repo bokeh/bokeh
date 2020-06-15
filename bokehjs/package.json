@@ -28,8 +28,6 @@
   ],
   "devDependencies": {
     "semver": "^7.1.2",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
     "del": "^5.1.0",
     "terser": "^4.6.10",
     "mocha": "^7.1.1",
@@ -58,8 +56,6 @@
     "devtools-protocol": "^0.0.762508",
     "@types/node": "^13.13.4",
     "@types/mocha": "^7.0.1",
-    "@types/chai": "^4.2.11",
-    "@types/chai-as-promised": "^7.1.0",
     "@types/yargs": "^15.0.3",
     "@types/sinon": "^9.0.0",
     "combine-source-map": "^0.8.0",

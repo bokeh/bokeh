@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HasProps} from "@bokehjs/core/has_props"
@@ -85,36 +85,36 @@ describe("has_properties module", () => {
 
     it("should have only id property", () => {
       const obj = new TestModel()
-      expect(keys(obj.properties)).to.be.deep.equal(['id'])
-      expect(keys(obj.attributes)).to.be.deep.equal(['id'])
+      expect(keys(obj.properties)).to.be.equal(['id'])
+      expect(keys(obj.attributes)).to.be.equal(['id'])
     })
 
     it("should combine props from subclasses", () => {
       const obj = new SubclassWithProps()
-      expect(keys(obj.properties)).to.be.deep.equal(['id', 'foo', 'bar'])
+      expect(keys(obj.properties)).to.be.equal(['id', 'foo', 'bar'])
     })
 
     it("should combine props from sub-subclasses", () => {
       const obj = new SubSubclassWithProps()
-      expect(keys(obj.properties)).to.be.deep.equal(['id', 'foo', 'bar', 'baz'])
+      expect(keys(obj.properties)).to.be.equal(['id', 'foo', 'bar', 'baz'])
     })
 
     it("should combine mixins from subclasses", () => {
       const obj = new SubclassWithMixins()
       const props = keys(mixins.Line)
-      expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      expect(keys(obj.properties)).to.be.equal(['id'].concat(props))
     })
 
     it("should combine mixins from sub-subclasses", () => {
       const obj = new SubSubclassWithMixins()
       const props = [...keys(mixins.Line), ...keys(mixins.Fill).map((key) => `foo_${key}`)]
-      expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      expect(keys(obj.properties)).to.be.equal(['id'].concat(props))
     })
 
     it("should combine multiple mixins from subclasses", () => {
       const obj = new SubclassWithMultipleMixins()
       const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
-      expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      expect(keys(obj.properties)).to.be.equal(['id'].concat(props))
     })
   })
 
@@ -123,7 +123,7 @@ describe("has_properties module", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
       const obj = new SubclassWithNumberSpec()
       const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_foo: [1, 2, 3, 4]})
+      expect(data).to.be.equal({_foo: [1, 2, 3, 4]})
     })
 
     it("should collect shapes when they are present", () => {
@@ -131,7 +131,7 @@ describe("has_properties module", () => {
       const r = new ColumnDataSource({data: {colname: array}})
       const obj = new SubclassWithNumberSpec()
       const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_foo: ndarray([1, 2, 3, 4], {shape: [2, 2]})})
+      expect(data).to.be.equal({_foo: ndarray([1, 2, 3, 4], {shape: [2, 2]})})
     })
 
     it("should collect max vals for distance specs", () => {
@@ -139,19 +139,19 @@ describe("has_properties module", () => {
       const obj = new SubclassWithDistanceSpec()
 
       const data0 = obj.materialize_dataspecs(r0)
-      expect(data0).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], max_foo: 4})
+      expect(data0).to.be.equal({_foo: [1, 2, 3, 4, 2], max_foo: 4})
 
       const array1 = ndarray([1, 2, 3, 4, 2], {shape: [2, 2]})
       const r1 = new ColumnDataSource({data: {colname: array1}})
       const data1 = obj.materialize_dataspecs(r1)
-      expect(data1).to.be.deep.equal({_foo: ndarray([1, 2, 3, 4, 2], {shape: [2, 2]}), max_foo: 4})
+      expect(data1).to.be.equal({_foo: ndarray([1, 2, 3, 4, 2], {shape: [2, 2]}), max_foo: 4})
     })
 
     it("should collect ignore optional specs with null values", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
       const obj = new SubclassWithOptionalSpec()
       const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_baz: [1, 2, 3, 4]})
+      expect(data).to.be.equal({_baz: [1, 2, 3, 4]})
     })
   })
 

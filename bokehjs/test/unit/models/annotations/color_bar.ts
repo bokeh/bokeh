@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {ColorBar, ColorBarView} from '@bokehjs/models/annotations/color_bar'
@@ -91,7 +91,7 @@ describe("ColorBar module", () => {
         })
         const scale = view._tick_coordinate_scale(100) // length of scale dimension
         expect(scale).to.be.instanceof(LinearScale)
-        expect((scale as any)._linear_compute_state()).to.be.deep.equal([10, 0]) // XXX
+        expect((scale as any)._linear_compute_state()).to.be.equal([10, 0]) // XXX
       })
 
       it("LogColorMapper should yield LogScale instance with correct state", async () => {
@@ -100,7 +100,7 @@ describe("ColorBar module", () => {
         })
         const scale = view._tick_coordinate_scale(100) // length of scale dimension
         expect(scale).to.be.instanceof(LogScale)
-        expect((scale as any)._compute_state()).to.be.deep.equal([100, 0, 2.302585092994046, 0]) // XXX
+        expect((scale as any)._compute_state()).to.be.equal([100, 0, 2.302585092994046, 0]) // XXX
       })
     })
 
@@ -244,9 +244,9 @@ describe("ColorBar module", () => {
 
         const tick_coords = view.tick_info()
 
-        expect(tick_coords.coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
-        expect(tick_coords.labels.major).to.be.deep.equal(['10', '12', '14', '16', '18', '20'])
+        expect(tick_coords.coords.major[0]).to.be.equal([0, 0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[1]).to.be.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
+        expect(tick_coords.labels.major).to.be.equal(['10', '12', '14', '16', '18', '20'])
       })
 
       it("Should correctly determine tick coords and labels for LinearColorMapperif orientation='horizontal'", async () => {
@@ -258,9 +258,9 @@ describe("ColorBar module", () => {
 
         const tick_coords = view.tick_info()
 
-        expect(tick_coords.coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[0]).to.be.deep.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
-        expect(tick_coords.labels.major).to.be.deep.equal(['10', '12', '14', '16', '18', '20'])
+        expect(tick_coords.coords.major[1]).to.be.equal([0, 0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[0]).to.be.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
+        expect(tick_coords.labels.major).to.be.equal(['10', '12', '14', '16', '18', '20'])
       })
 
       it("Should correctly determine tick coords and labels for LogColorMapper if orientation='vertical'", async () => {
@@ -272,9 +272,9 @@ describe("ColorBar module", () => {
 
         const tick_coords = view.tick_info()
 
-        expect(tick_coords.coords.major[0]).to.be.deep.equal([0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
-        expect(tick_coords.labels.major).to.be.deep.equal(['200', '400', '600', '800', '1000'])
+        expect(tick_coords.coords.major[0]).to.be.equal([0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[1]).to.be.equal(new Float64Array([23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
+        expect(tick_coords.labels.major).to.be.equal(['200', '400', '600', '800', '1000'])
       })
 
       it("Should correctly determine tick coords and labels for LogColorMapper if orientation='horizontal'", async () => {
@@ -286,9 +286,9 @@ describe("ColorBar module", () => {
 
         const tick_coords = view.tick_info()
 
-        expect(tick_coords.coords.major[1]).to.be.deep.equal([0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[0]).to.be.deep.equal(new Float64Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
-        expect(tick_coords.labels.major).to.be.deep.equal(['200', '400', '600', '800', '1000'])
+        expect(tick_coords.coords.major[1]).to.be.equal([0, 0, 0, 0, 0])
+        expect(tick_coords.coords.major[0]).to.be.equal(new Float64Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
+        expect(tick_coords.labels.major).to.be.equal(['200', '400', '600', '800', '1000'])
       })
 
       it("Should correctly return empty tick coords and labels for LogColorMapper if log(high)/log(low) are non-numeric", async () => {
@@ -299,9 +299,9 @@ describe("ColorBar module", () => {
 
         const tick_coords = view.tick_info()
 
-        expect(tick_coords.coords.major[0]).to.be.deep.equal([])
-        expect(tick_coords.coords.major[1]).to.be.deep.equal(new Float64Array([]))
-        expect(tick_coords.labels.major).to.be.deep.equal([])
+        expect(tick_coords.coords.major[0]).to.be.equal([])
+        expect(tick_coords.coords.major[1]).to.be.equal(new Float64Array([]))
+        expect(tick_coords.labels.major).to.be.equal([])
       })
     })
   })
@@ -325,7 +325,7 @@ describe("ColorBar module", () => {
         title: "I'm a title",
       }, "right")
 
-      expect(view._get_image_offset()).to.be.deep.equal({ x: 10, y: 27 })
+      expect(view._get_image_offset()).to.be.equal({ x: 10, y: 27 })
     })
 
     it("ColorBarView._get_label_extent method (orientation='vertical')", async () => {
@@ -333,7 +333,7 @@ describe("ColorBar module", () => {
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
       }, "right")
 
-      expect(view._get_label_extent()).to.be.closeTo(17.3535, 10**-2)
+      expect(view._get_label_extent()).to.be.similar(17.3535515625)
     })
 
     it("ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", async () => {
@@ -367,7 +367,7 @@ describe("ColorBar module", () => {
       }, "right")
 
       const {width, height} = view.compute_legend_dimensions()
-      expect(width).to.be.closeTo(62.3535, 10**-2)
+      expect(width).to.be.similar(62.3535515625)
       expect(height).to.be.equal(120)
     })
 
@@ -380,8 +380,8 @@ describe("ColorBar module", () => {
       }, "right")
 
       const {width, height} = view.compute_legend_dimensions()
-      expect(width).to.be.deep.equal(120)
-      expect(height).to.be.deep.equal(65)
+      expect(width).to.be.equal(120)
+      expect(height).to.be.equal(65)
     })
 
     it("ColorBarView._get_size method", async () => {
@@ -389,7 +389,7 @@ describe("ColorBar module", () => {
         color_mapper: new LinearColorMapper({low: 0, high: 10, palette: Viridis.Viridis10}),
       }, "right")
 
-      expect(view.get_size()).to.be.deep.equal({width: 62, height: 500})
+      expect(view.get_size()).to.be.equal({width: 62, height: 500})
     })
   })
 })

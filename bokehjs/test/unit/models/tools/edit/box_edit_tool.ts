@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
@@ -91,7 +91,7 @@ describe("BoxEditTool", () => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([1])
+      expect(testcase.data_source.selected.indices).to.be.equal([1])
     })
 
     it("should select multiple rect on shift-tap", async () => {
@@ -105,7 +105,7 @@ describe("BoxEditTool", () => {
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([1, 2])
+      expect(testcase.data_source.selected.indices).to.be.equal([1, 2])
     })
 
     it("should delete selected on delete key", async () => {
@@ -121,10 +121,10 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 1])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 1])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null])
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 1])
+      expect(testcase.data_source.data.y).to.be.equal([0, 1])
+      expect(testcase.data_source.data.z).to.be.equal([null, null])
     })
 
     it("should clear selection on escape key", async () => {
@@ -140,8 +140,8 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data).to.be.deep.equal(testcase.data)
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 
     it("should drag selected on pan", async () => {
@@ -154,20 +154,20 @@ describe("BoxEditTool", () => {
 
       let drag_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([300, 300])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([200, 200])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data.width).to.be.deep.equal([0.1, 0.2, 0.3])
-      expect(testcase.data_source.data.height).to.be.deep.equal([0.3, 0.2, 0.1])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
+      expect(testcase.draw_tool_view._basepoint).to.be.null
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 1])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1])
+      expect(testcase.data_source.data.width).to.be.equal([0.1, 0.2, 0.3])
+      expect(testcase.data_source.data.height).to.be.equal([0.3, 0.2, 0.1])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
     })
 
     it("should draw box on pan", async () => {
@@ -177,19 +177,19 @@ describe("BoxEditTool", () => {
 
       let drag_event = make_pan_event(300, 300, true)
       testcase.draw_tool_view._pan_start(drag_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       drag_event = make_pan_event(200, 200, true)
       testcase.draw_tool_view._pan(drag_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       testcase.draw_tool_view._pan_end(drag_event)
 
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288])
-      expect(testcase.data_source.data.width).to.be.deep.equal([0.1, 0.2, 0.3, 0.35398230088495575])
-      expect(testcase.data_source.data.height).to.be.deep.equal([0.3, 0.2, 0.1, 0.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null, "Test"])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.null
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.5, 1, -0.1327433628318584])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.5, 1, 0.1694915254237288])
+      expect(testcase.data_source.data.width).to.be.equal([0.1, 0.2, 0.3, 0.35398230088495575])
+      expect(testcase.data_source.data.height).to.be.equal([0.3, 0.2, 0.1, 0.3389830508474576])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null, "Test"])
     })
 
     it("should draw and pop box on pan", async () => {
@@ -200,19 +200,19 @@ describe("BoxEditTool", () => {
 
       let drag_event = make_pan_event(300, 300, true)
       testcase.draw_tool_view._pan_start(drag_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       drag_event = make_pan_event(200, 200, true)
       testcase.draw_tool_view._pan(drag_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       testcase.draw_tool_view._pan_end(drag_event)
 
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0.5, 1, -0.1327433628318584])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0.5, 1, 0.1694915254237288])
-      expect(testcase.data_source.data.width).to.be.deep.equal([0.2, 0.3, 0.35398230088495575])
-      expect(testcase.data_source.data.height).to.be.deep.equal([0.2, 0.1, 0.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, "Test"])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.null
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0.5, 1, -0.1327433628318584])
+      expect(testcase.data_source.data.y).to.be.equal([0.5, 1, 0.1694915254237288])
+      expect(testcase.data_source.data.width).to.be.equal([0.2, 0.3, 0.35398230088495575])
+      expect(testcase.data_source.data.height).to.be.equal([0.2, 0.1, 0.3389830508474576])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, "Test"])
     })
 
     it("should draw box on doubletap and move", async () => {
@@ -222,20 +222,20 @@ describe("BoxEditTool", () => {
 
       const tap_event1 = make_tap_event(300, 300, true)
       testcase.draw_tool_view._doubletap(tap_event1)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       const move_event = make_move_event(200, 200)
       testcase.draw_tool_view._move(move_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       const tap_event2 = make_tap_event(200, 200, true)
       testcase.draw_tool_view._doubletap(tap_event2)
 
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288])
-      expect(testcase.data_source.data.width).to.be.deep.equal([0.1, 0.2, 0.3, 0.35398230088495575])
-      expect(testcase.data_source.data.height).to.be.deep.equal([0.3, 0.2, 0.1, 0.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null, "Test"])
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.null
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.5, 1, -0.1327433628318584])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.5, 1, 0.1694915254237288])
+      expect(testcase.data_source.data.width).to.be.equal([0.1, 0.2, 0.3, 0.35398230088495575])
+      expect(testcase.data_source.data.height).to.be.equal([0.3, 0.2, 0.1, 0.3389830508474576])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null, "Test"])
     })
 
     it("should not draw box on doubletap when tool inactive", async () => {
@@ -244,7 +244,7 @@ describe("BoxEditTool", () => {
 
       const tap_event = make_tap_event(300, 300, true)
       testcase.draw_tool_view._doubletap(tap_event)
-      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(undefined)
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.undefined
     })
   })
 })

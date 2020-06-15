@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as ser from "@bokehjs/core/util/serialization"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -33,7 +33,7 @@ describe("serialization module", () => {
       swapped[2] = 3
       swapped[3] = 2
       ser.swap16(b)
-      expect(a).to.be.deep.equal(swapped)
+      expect(a).to.be.equal(swapped)
     })
 
     it("should have swap32 that swaps 4 bytes in place", () => {
@@ -53,7 +53,7 @@ describe("serialization module", () => {
       swapped[6] = 5
       swapped[7] = 4
       ser.swap32(b)
-      expect(a).to.be.deep.equal(swapped)
+      expect(a).to.be.equal(swapped)
     })
 
     it("should have swap64 that swaps 8 bytes in place", () => {
@@ -81,7 +81,7 @@ describe("serialization module", () => {
       swapped[14] = 9
       swapped[15] = 8
       ser.swap64(b)
-      expect(a).to.be.deep.equal(swapped)
+      expect(a).to.be.equal(swapped)
     })
   })
 
@@ -99,7 +99,7 @@ describe("serialization module", () => {
         expect(typeof b64).to.be.equal("string")
         const buf = ser.base64_to_buffer(b64)
         const c = new typ(buf)
-        expect(c).to.be.deep.equal(b)
+        expect(c).to.be.equal(b)
       })
     }
   })
@@ -109,20 +109,20 @@ describe("serialization module", () => {
 
     const buffers0 = new Map<string, ArrayBuffer>()
     const ref0_0 = ser.encode_NDArray(nd0, buffers0)
-    expect(ref0_0).to.be.deep.equal({
+    expect(ref0_0).to.be.equal({
       __buffer__: "0",
       order: ser.BYTE_ORDER,
       dtype: "int32",
       shape: [2, 3],
     })
-    expect(buffers0).to.be.deep.equal(new Map([["0", nd0.buffer]]))
+    expect(buffers0).to.be.equal(new Map([["0", nd0.buffer]]))
 
     const deref0_0 = ser.decode_NDArray(ref0_0, buffers0)
-    expect(deref0_0).to.be.deep.equal(nd0)
+    expect(deref0_0).to.be.equal(nd0)
     expect(() => ser.decode_NDArray(ref0_0, new Map())).to.throw()
 
     const ref0_1 = ser.encode_NDArray(nd0)
-    expect(ref0_1).to.be.deep.equal({
+    expect(ref0_1).to.be.equal({
       __ndarray__: "AQAAAAIAAAADAAAABAAAAAUAAAAGAAAA",
       order: ser.BYTE_ORDER,
       dtype: "int32",
@@ -130,6 +130,6 @@ describe("serialization module", () => {
     })
 
     const deref0_1 = ser.decode_NDArray(ref0_1, new Map())
-    expect(deref0_1).to.be.deep.equal(nd0)
+    expect(deref0_1).to.be.equal(nd0)
   })
 })

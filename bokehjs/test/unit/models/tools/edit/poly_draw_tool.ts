@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
@@ -88,7 +88,7 @@ describe("PolyDrawTool", (): void => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([1])
+      expect(testcase.data_source.selected.indices).to.be.equal([1])
     })
 
     it("should select multiple patches on shift-tap", async () => {
@@ -102,7 +102,7 @@ describe("PolyDrawTool", (): void => {
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([1, 0])
+      expect(testcase.data_source.selected.indices).to.be.equal([1, 0])
     })
 
     it("should delete selected on delete key", async () => {
@@ -118,10 +118,10 @@ describe("PolyDrawTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1]])
-      expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1]])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null])
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1]])
+      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1]])
+      expect(testcase.data_source.data.z).to.be.equal([null])
     })
 
     it("should clear selection on escape key", async () => {
@@ -137,8 +137,8 @@ describe("PolyDrawTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data).to.be.deep.equal(testcase.data)
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 
     it("should drag selected patch on pan", async () => {
@@ -154,8 +154,8 @@ describe("PolyDrawTool", (): void => {
 
       const xdata = [[0, 0.5, 1], [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]]
       const ydata = [[0, -0.5, -1], [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]]
-      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
     it("should drag previously selected patch on pan", async () => {
@@ -176,8 +176,8 @@ describe("PolyDrawTool", (): void => {
                      [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]]
       const ydata = [[0.03389830508474576, -0.4661016949152542, -0.9661016949152542],
                      [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]]
-      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
     it("should draw patch on doubletap", async () => {
@@ -193,8 +193,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
     it("should draw and pop patch on doubletap", async () => {
@@ -211,8 +211,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
     it("should draw patch despite typed array data", async () => {
@@ -230,8 +230,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
     it("should end draw patch on escape", async () => {
@@ -248,8 +248,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
     it("should insert empty_value on other columns", async () => {
@@ -259,7 +259,7 @@ describe("PolyDrawTool", (): void => {
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
 
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, "Test"])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, "Test"])
     })
 
     it("should not draw poly on doubletap when tool inactive", async () => {
@@ -268,7 +268,7 @@ describe("PolyDrawTool", (): void => {
 
       const tap_event = make_tap_event(300, 300, true)
       testcase.draw_tool_view._doubletap(tap_event)
-      expect(testcase.draw_tool_view._drawing).to.be.equal(false)
+      expect(testcase.draw_tool_view._drawing).to.be.false
     })
   })
 })

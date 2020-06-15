@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Attrs, PlainObject} from "./types"
+import {Arrayable, Attrs, PlainObject} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
@@ -16,6 +16,8 @@ import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 import {is_NDArray} from "./util/ndarray"
 import {encode_NDArray} from "./util/serialization"
+import {equals, Equals, Comparator} from "./util/eq"
+import {pretty, Printable, Printer} from "./util/pretty"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -46,7 +48,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void>
 
-export abstract class HasProps extends Signalable() {
+export abstract class HasProps extends Signalable() implements Equals, Printable {
   __view_type__: View
 
   // XXX: setter is only required for backwards compatibility
@@ -65,6 +67,10 @@ export abstract class HasProps extends Signalable() {
   static get __qualified__(): string {
     const {__module__, __name__} = this
     return __module__ != null ? `${__module__}.${__name__}` : __name__
+  }
+
+  get [Symbol.toStringTag](): string {
+    return this.constructor.__name__
   }
 
   static init_HasProps(): void {
@@ -244,6 +250,30 @@ export abstract class HasProps extends Signalable() {
       attrs[prop.attr] = prop.get_value()
     }
     return attrs
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    for (const p0 of this) {
+      const p1 = that.property(p0.attr)
+      if (cmp.eq(p0.get_value(), p1.get_value()))
+        return false
+    }
+    return true
+  }
+
+  [pretty](printer: Printer): string {
+    const T = printer.token
+
+    const items = []
+    for (const prop of this) {
+      if (prop.dirty) {
+        const value = prop.get_value()
+        items.push(`${prop.attr}${T(":")} ${printer.to_string(value)}`)
+      }
+    }
+
+    const cls = this.constructor.__qualified__
+    return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
   constructor(attrs: Attrs | Map<string, unknown> = {}) {
@@ -592,7 +622,7 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
+  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: Arrayable<unknown> | number} {
     // Note: this should be moved to a function separate from HasProps
     const data: {[key: string]: unknown[] | number} = {}
     for (const prop of this) {

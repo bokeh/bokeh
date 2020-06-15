@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {StepInterpolator} from '@bokehjs/models/transforms/step_interpolator'
 import {ColumnDataSource} from '@bokehjs/models/sources/column_data_source'
@@ -38,7 +38,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal(new Float64Array([20, 20, 30]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([20, 20, 30]))
       })
 
       it("should map to a Float64Array", () => {
@@ -54,7 +54,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
       })
 
       it("should map to a Float64Array", () => {
@@ -70,7 +70,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
       })
 
       it("should map to a Float64Array", () => {
@@ -95,7 +95,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal(new Float64Array([20, 20, 30]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([20, 20, 30]))
       })
 
       it("should map to a Float64Array", () => {
@@ -111,7 +111,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
       })
 
       it("should map to a Float64Array", () => {
@@ -127,7 +127,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.deep.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
       })
 
       it("should map to a Float64Array", () => {

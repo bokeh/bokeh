@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {AdaptiveTicker} from "@bokehjs/models/tickers/adaptive_ticker"
 import {CompositeTicker} from "@bokehjs/models/tickers/composite_ticker"
@@ -18,28 +18,28 @@ describe("CompositeTicker Model", () => {
     it("should return the first ticker", () => {
       const ticker = composite_ticker()
       const best_ticker = ticker.get_best_ticker(0, 1e2, 5) // 100ms range
-      expect(best_ticker).to.be.instanceOf(AdaptiveTicker)
+      expect(best_ticker).to.be.instanceof(AdaptiveTicker)
       expect((best_ticker as AdaptiveTicker).base).to.be.equal(10)
     })
 
     it("should return the second ticker", () => {
       const ticker = composite_ticker()
       const best_ticker = ticker.get_best_ticker(1, 1e4, 5) // ten second range
-      expect(best_ticker).to.be.instanceOf(AdaptiveTicker)
+      expect(best_ticker).to.be.instanceof(AdaptiveTicker)
       expect((best_ticker as AdaptiveTicker).base).to.be.equal(60)
     })
 
     it("should return the third ticker", () => {
       const ticker = composite_ticker()
       const best_ticker = ticker.get_best_ticker(1, 6e5, 5) // ten minute range
-      expect(best_ticker).to.be.instanceOf(AdaptiveTicker)
+      expect(best_ticker).to.be.instanceof(AdaptiveTicker)
       expect((best_ticker as AdaptiveTicker).base).to.be.equal(24)
     })
 
     it("should return the first ticker if start/end are NaNs", () => {
       const ticker = composite_ticker()
       const best_ticker = ticker.get_best_ticker(NaN, NaN, 5)
-      expect(best_ticker).to.be.instanceOf(AdaptiveTicker)
+      expect(best_ticker).to.be.instanceof(AdaptiveTicker)
       expect((best_ticker as AdaptiveTicker).base).to.be.equal(10)
     })
   })

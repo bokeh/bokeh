@@ -1,7 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
 
-import {expect} from "chai"
+// TODO: import {expect} from "../unit/assertions"
+// restore when bokehjs is modularized with lerna
 
 const build_dir = path.normalize(`${__dirname}/../..`) // build/test/codebase -> build
 
@@ -26,8 +27,11 @@ describe(`bokehjs/build/*/*.min.js file sizes`, () => {
     const limit = LIMITS[filename]
 
     describe(`${filename} file size`, () => {
-      it(`should be ${Math.round(stats.size/1024)} kB <= ${limit} kB`, () => {
-        expect(stats.size).to.be.at.most(limit*1024)
+      it(`should be ${Math.round(stats.size/1024)} kB < ${limit} kB`, () => {
+        // TODO: expect(stats.size).to.be.below(limit*1024)
+        if (!(stats.size < limit*1024)) {
+          throw new Error(`expected ${stats.size} to be below ${limit*1024}`)
+        }
       })
     })
   }

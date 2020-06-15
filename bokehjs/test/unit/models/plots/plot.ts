@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from 'sinon'
 
 import {Plot} from "@bokehjs/models/plots/plot"

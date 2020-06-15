@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {MultiSelect} from "@bokehjs/models/widgets/multiselect"
 import {build_view} from "@bokehjs/core/build_views"

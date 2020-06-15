@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {FuncTickFormatter} from "@bokehjs/models/formatters/func_tick_formatter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -9,7 +9,7 @@ describe("func_tick_formatter module", () => {
     const formatter = new FuncTickFormatter({code: "return 10"})
 
     it("should return a Function", () => {
-      expect(formatter._make_func()).to.be.an.instanceof(Function)
+      expect(formatter._make_func()).to.be.instanceof(Function)
     })
 
     it("should have code property as function body", () => {
@@ -27,37 +27,37 @@ describe("func_tick_formatter module", () => {
 
   describe("doFormat method", () => {
     it("should format numerical ticks appropriately", () => {
-      const formatter = new FuncTickFormatter({code: "return tick * 10"})
+      const formatter = new FuncTickFormatter({code: "return tick.toFixed(2)"})
       const labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
-      expect(labels).to.deep.equal([-100, -1.0, 0, 1, 100])
+      expect(labels).to.be.equal(["-10.00", "-0.10", "0.00", "0.10", "10.00"])
     })
 
     /* XXX: this won't compile, because doFormat doesn't accept strings
     it("should format categorical ticks appropriately", () => {
       const formatter = new FuncTickFormatter({code: "return tick + '_lat'"})
       const labels = formatter.doFormat(["a", "b", "c", "d", "e"], {loc: 0})
-      expect(labels).to.deep.equal(["a_lat", "b_lat", "c_lat", "d_lat", "e_lat"])
+      expect(labels).to.be.equal(["a_lat", "b_lat", "c_lat", "d_lat", "e_lat"])
     })
     */
 
     it("should handle args appropriately", () => {
       const rng = new Range1d({start: 5, end: 10})
       const formatter = new FuncTickFormatter({
-        code: "return foo.start + foo.end + tick",
+        code: "return (foo.start + foo.end + tick).toFixed(2)",
         args: {foo: rng},
       })
       const labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
-      expect(labels).to.deep.equal([5, 14.9, 15, 15.1, 25])
+      expect(labels).to.be.equal(["5.00", "14.90", "15.00", "15.10", "25.00"])
     })
 
     it("should handle array of ticks", () => {
       const formatter = new FuncTickFormatter({
-        code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return tick * this.k",
+        code: "this.k = this.k || (ticks.length > 3 ? 10 : 100); return (tick * this.k).toFixed(2)",
       })
       const labels0 = formatter.doFormat([-10, -0.1, 0, 0.1, 10], {loc: 0})
-      expect(labels0).to.deep.equal([-100, -1.0, 0, 1, 100])
+      expect(labels0).to.be.equal(["-100.00", "-1.00", "0.00", "1.00", "100.00"])
       const labels1 = formatter.doFormat([-0.1, 0, 0.1], {loc: 0})
-      expect(labels1).to.deep.equal([-10, 0, 10])
+      expect(labels1).to.be.equal(["-10.00", "0.00", "10.00"])
     })
   })
 })

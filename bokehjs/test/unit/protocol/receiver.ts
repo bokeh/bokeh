@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Message} from "@bokehjs/protocol/message"
 import {Receiver} from "@bokehjs/protocol/receiver"
@@ -27,7 +27,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
       })
 
@@ -40,7 +40,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
       })
 
@@ -54,7 +54,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
       })
 
@@ -67,7 +67,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
       })
     })
@@ -78,7 +78,7 @@ describe("protocol/receiver module", () => {
       describe("header consume", () => {
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
 
         it("should should leave message null", () => {
@@ -91,7 +91,7 @@ describe("protocol/receiver module", () => {
       describe("empty metadata consume", () => {
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
 
         it("should should leave message null", () => {
@@ -104,7 +104,7 @@ describe("protocol/receiver module", () => {
       describe("metadata consume", () => {
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
 
         it("should should leave message null", () => {
@@ -117,7 +117,7 @@ describe("protocol/receiver module", () => {
       describe("first buffer header consume", () => {
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
 
         it("should should leave message null", () => {
@@ -130,7 +130,7 @@ describe("protocol/receiver module", () => {
       describe("first buffer payload consume", () => {
 
         it("should throw an error on text data", () => {
-          expect(() => r.consume("junk")).to.throw(Error)
+          expect(() => r.consume("junk")).to.throw()
         })
 
         it("should should leave message null", () => {
@@ -143,7 +143,7 @@ describe("protocol/receiver module", () => {
       describe("second buffer header consume", () => {
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
 
         it("should should leave message null", () => {
@@ -156,7 +156,7 @@ describe("protocol/receiver module", () => {
       describe("second buffer payload consume", () => {
 
         it("should throw an error on test data", () => {
-          expect(() => r.consume("junk")).to.throw(Error)
+          expect(() => r.consume("junk")).to.throw()
         })
 
         it("should should set a complete message", () => {
@@ -183,7 +183,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should throw an error on binary data", () => {
-          expect(() => r.consume(new ArrayBuffer(10))).to.throw(Error)
+          expect(() => r.consume(new ArrayBuffer(10))).to.throw()
         })
       })
     })

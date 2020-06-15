@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LinearInterpolator} from "@bokehjs/models/transforms/linear_interpolator"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -36,7 +36,7 @@ describe("linear_interpolator_transform module", () => {
     })
 
     it("should linearly interpolate a vector of points", () => {
-      expect(transform.v_compute([0, 2, 5])).to.be.deep.equal(new Float64Array([10, 14, 20]))
+      expect(transform.v_compute([0, 2, 5])).to.be.equal(new Float64Array([10, 14, 20]))
     })
 
     it("should map to a Float64Array", () => {
@@ -58,7 +58,7 @@ describe("linear_interpolator_transform module", () => {
     })
 
     it("should linearly interpolate a vector of points", () => {
-      expect(transform.v_compute([0, 2, 5])).to.be.deep.equal(new Float64Array([10, 14, 20]))
+      expect(transform.v_compute([0, 2, 5])).to.be.equal(new Float64Array([10, 14, 20]))
     })
 
     it("should map to a Float64Array", () => {

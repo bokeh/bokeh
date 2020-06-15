@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Slider} from "@bokehjs/models/widgets/slider"
 import {isInteger} from "@bokehjs/core/util/types"

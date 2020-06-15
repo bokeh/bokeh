@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {AdaptiveTicker} from "@bokehjs/models/tickers/adaptive_ticker"
 
@@ -8,7 +8,7 @@ describe("AdaptiveTicker Model", () => {
 
     it("should set extended_mantissas property", () => {
       const ticker = new AdaptiveTicker({mantissas: [1, 2, 5]})
-      expect(ticker.extended_mantissas).to.be.deep.equal([0.5, 1, 2, 5, 10])
+      expect(ticker.extended_mantissas).to.be.equal([0.5, 1, 2, 5, 10])
     })
 
     it("should set base_factor property as one by default", () => {

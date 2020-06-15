@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {SidePanel} from "@bokehjs/core/layout/side_panel"
 import {Size} from "@bokehjs/core/layout"

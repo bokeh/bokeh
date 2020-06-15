@@ -1,7 +1,7 @@
 import {describe, it} from "../framework"
 export * from "../framework"
 
-import {expect} from "chai"
+import {expect} from "../unit/assertions"
 
 import all_defaults from "../.generated_defaults/defaults.json"
 
@@ -199,7 +199,7 @@ describe("Defaults", () => {
     for (const m of missing) {
       console.error(`'base.locations["${m}"]' not found but there's a Python model '${m}'`)
     }
-    expect(missing.length).to.equal(0)
+    expect(missing.length).to.be.equal(0)
   })
 
   it("match between Python and bokehjs", () => {
@@ -225,6 +225,6 @@ describe("Defaults", () => {
     }
 
     console.error(`Python/bokehjs matching defaults problems: ${fail_count}`)
-    expect(fail_count).to.equal(0)
+    expect(fail_count).to.be.equal(0)
   })
 })

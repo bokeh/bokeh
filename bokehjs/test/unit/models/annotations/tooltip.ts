@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {compute_side} from "@bokehjs/models/annotations/tooltip"
 import {Side} from "@bokehjs/core/enums"

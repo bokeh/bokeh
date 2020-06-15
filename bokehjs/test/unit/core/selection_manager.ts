@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {Rect} from "@bokehjs/models/glyphs/rect"
@@ -28,7 +28,7 @@ describe("SelectionManager", () => {
 
       const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.true
-      expect(source.selected.indices).to.be.deep.equal([0])
+      expect(source.selected.indices).to.be.equal([0])
     })
 
     it("should set source selected correctly with a cds_view", () => {
@@ -40,7 +40,7 @@ describe("SelectionManager", () => {
 
       const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.true
-      expect(source.selected.indices).to.be.deep.equal([1])
+      expect(source.selected.indices).to.be.equal([1])
     })
 
     it("should return false and clear selections if hit_test_result is empty", () => {
@@ -63,7 +63,7 @@ describe("SelectionManager", () => {
 
       const did_hit = source.selection_manager.inspect(renderer_view, {type: "point", sx: 0, sy: 0})
       expect(did_hit).to.be.true
-      expect(source.inspected.indices).to.be.deep.equal([1])
+      expect(source.inspected.indices).to.be.equal([1])
     })
 
     it("should return false and clear inspections if hit_test_result is empty", () => {

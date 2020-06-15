@@ -1,10 +1,11 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {CartesianFrame} from "@bokehjs/models/canvas/cartesian_frame"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Scale} from "@bokehjs/models/scales/scale"
 
 describe("CartesianFrame", () => {
 
@@ -15,8 +16,8 @@ describe("CartesianFrame", () => {
       new Range1d({start: 0, end: 1}),
       new Range1d({start: 0, end: 1}))
 
-    expect(frame.xscales.default).to.not.be.undefined
-    expect(frame.yscales.default).to.not.be.undefined
+    expect(frame.xscales.default).to.be.instanceof(Scale)
+    expect(frame.yscales.default).to.be.instanceof(Scale)
   })
 
   describe("_get_scales method", () => {
@@ -44,13 +45,13 @@ describe("CartesianFrame", () => {
     it("should throw error for incompatible numeric scale and factor range", () => {
       const ranges = {default: new FactorRange()}
       const scale = new LinearScale()
-      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw(Error)
+      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw()
     })
 
     it("should throw error for incompatible factor scale and numeric range", () => {
       const ranges = {default: new Range1d()}
       const scale = new CategoricalScale()
-      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw(Error)
+      expect(() => frame._get_scales(scale, ranges, frame_range)).to.throw()
     })
   })
 })
