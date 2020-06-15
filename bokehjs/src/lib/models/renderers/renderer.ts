@@ -18,7 +18,6 @@ export abstract class RendererView extends View {
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this.model)
-    this._has_finished = true // XXX: should be in render() but subclasses don't respect super()
   }
 
   get plot_view(): PlotView {
@@ -62,6 +61,7 @@ export abstract class RendererView extends View {
     if (this.model.visible) {
       this._render()
     }
+    this._has_finished = true
   }
 
   protected abstract _render(): void
