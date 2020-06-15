@@ -77,7 +77,7 @@ export function map(array: Float64Array, fn: (item: number, i: number, array: Fl
 export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
 export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U>
 
-export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U> {
+export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: any) => U): Arrayable<U> {
   const n = array.length
   const result = new (array.constructor as ArrayableNew)<U>(n)
   for (let i = 0; i < n; i++) {
