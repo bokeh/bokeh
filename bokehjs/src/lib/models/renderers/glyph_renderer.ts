@@ -136,7 +136,7 @@ export class GlyphRendererView extends DataRendererView {
       this.connect(this.model.data_source.inspect, () => this.request_render())
     this.connect(this.model.properties.view.change, () => this.set_data())
     this.connect(this.model.view.change, () => this.set_data())
-    this.connect(this.model.properties.visible.change, () => this.plot_view.update_dataranges()) // ???
+    this.connect(this.model.properties.visible.change, () => this.plot_view.update_dataranges())
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 
@@ -205,7 +205,7 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl
   }
 
-  render(): void {
+  protected _render(): void {
     const t0 = Date.now()
 
     const glsupport = this.has_webgl

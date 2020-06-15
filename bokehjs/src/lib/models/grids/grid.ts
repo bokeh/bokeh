@@ -12,7 +12,7 @@ export class GridView extends GuideRendererView {
   model: Grid
   visuals: Grid.Visuals
 
-  render(): void {
+  protected _render(): void {
     const ctx = this.layer.ctx
     ctx.save()
     this._draw_regions(ctx)

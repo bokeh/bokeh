@@ -17,7 +17,7 @@ export class PolyAnnotationView extends AnnotationView {
     this.connect(this.model.data_update, () => this.plot_view.request_render())
   }
 
-  render(): void {
+  protected _render(): void {
     const {xs, ys} = this.model
 
     if (xs.length != ys.length)

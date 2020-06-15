@@ -17,7 +17,7 @@ export class SlopeView extends AnnotationView {
     this.connect(this.model.change, () => this.plot_view.request_render())
   }
 
-  render(): void {
+  protected _render(): void {
     const gradient = this.model.gradient
     const y_intercept = this.model.y_intercept
     if(gradient == null || y_intercept == null){

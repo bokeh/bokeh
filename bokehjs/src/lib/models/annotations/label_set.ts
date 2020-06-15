@@ -91,7 +91,7 @@ export class LabelSetView extends TextAnnotationView {
     return [sx, sy]
   }
 
-  render(): void {
+  protected _render(): void {
     const draw = this.model.render_mode == 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
     const {ctx} = this.layer
 

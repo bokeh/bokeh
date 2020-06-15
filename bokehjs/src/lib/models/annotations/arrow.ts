@@ -65,7 +65,7 @@ export class ArrowView extends AnnotationView {
     return [[sx_start, sy_start], [sx_end, sy_end]]
   }
 
-  render(): void {
+  protected _render(): void {
     const {ctx} = this.layer
     ctx.save()
 

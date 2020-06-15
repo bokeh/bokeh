@@ -211,7 +211,7 @@ export class TileRendererView extends DataRendererView {
     return true
   }
 
-  render(): void {
+  protected _render(): void {
     if (this.map_initialized == null) {
       this._set_data()
       this._map_data()

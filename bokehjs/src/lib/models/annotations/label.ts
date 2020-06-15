@@ -21,7 +21,7 @@ export class LabelView extends TextAnnotationView {
     return {width, height: ascent}
   }
 
-  render(): void {
+  protected _render(): void {
     // Here because AngleSpec does units transform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {

@@ -58,7 +58,13 @@ export abstract class RendererView extends View {
     return false
   }
 
-  abstract render(): void
+  render(): void {
+    if (this.model.visible) {
+      this._render()
+    }
+  }
+
+  protected abstract _render(): void
 }
 
 export namespace Renderer {

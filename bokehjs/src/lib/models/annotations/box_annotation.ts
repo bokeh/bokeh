@@ -24,7 +24,7 @@ export class BoxAnnotationView extends AnnotationView {
     this.connect(this.model.data_update, () => this.plot_view.request_paint(this))
   }
 
-  render(): void {
+  protected _render(): void {
     // don't render if *all* position are null
     if (this.model.left == null && this.model.right == null && this.model.top == null && this.model.bottom == null) {
       return

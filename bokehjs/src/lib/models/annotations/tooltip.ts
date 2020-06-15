@@ -47,6 +47,13 @@ export class TooltipView extends AnnotationView {
   }
 
   render(): void {
+    if (!this.model.visible)
+      undisplay(this.el)
+
+    super.render()
+  }
+
+  protected _render(): void {
     empty(this.el)
     undisplay(this.el)
 

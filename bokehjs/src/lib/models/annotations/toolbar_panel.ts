@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
-import {div, empty, position, display, remove} from "core/dom"
+import {div, empty, position, display, undisplay, remove} from "core/dom"
 import {Size} from "core/layout"
 import * as p from "core/properties"
 
@@ -32,6 +32,13 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   render(): void {
+    if (!this.model.visible)
+      undisplay(this.el)
+
+    super.render()
+  }
+
+  protected _render(): void {
     this.el.style.position = "absolute"
     this.el.style.overflow = "hidden"
 

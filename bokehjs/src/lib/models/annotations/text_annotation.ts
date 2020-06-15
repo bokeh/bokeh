@@ -39,6 +39,13 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
+  render(): void {
+    if (!this.model.visible && this.model.render_mode == "css")
+      undisplay(this.el)
+
+    super.render()
+  }
+
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
     const {height} = measure_font(this.visuals.text.font_value())
@@ -72,8 +79,6 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     return [x_offset, y_offset, width, height]
   }
-
-  abstract render(): void
 
   protected _canvas_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     this.visuals.text.set_value(ctx)

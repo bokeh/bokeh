@@ -20,7 +20,7 @@ export class CategoricalAxisView extends AxisView {
   model: CategoricalAxis
   visuals: CategoricalAxis.Visuals
 
-  protected _render(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
+  protected _paint(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
     this._draw_group_separators(ctx, extents, tick_coords)
   }
 

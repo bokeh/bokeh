@@ -70,7 +70,7 @@ export class TitleView extends TextAnnotationView {
     return [sx, sy]
   }
 
-  render(): void {
+  protected _render(): void {
     const {text} = this.model
     if (text == null || text.length == 0)
       return

@@ -86,7 +86,7 @@ export class WhiskerView extends AnnotationView {
     this._upper_sy = _upper[j]
   }
 
-  render(): void {
+  protected _render(): void {
     this._map_data()
 
     const {ctx} = this.layer

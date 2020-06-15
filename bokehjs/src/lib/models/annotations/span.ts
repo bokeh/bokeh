@@ -15,7 +15,7 @@ export class SpanView extends AnnotationView {
     this.connect(this.model.change, () => this.plot_view.request_paint(this))
   }
 
-  render(): void {
+  protected _render(): void {
     const {location} = this.model
     if (location == null) {
       return
