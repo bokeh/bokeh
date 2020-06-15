@@ -12,7 +12,18 @@ function isPrintable<T>(obj: T): obj is T & Printable {
   return pretty in Object(obj)
 }
 
+export type PrinterOptions = {
+  precision?: number
+}
+
 export class Printer {
+
+  readonly precision?: number
+
+  constructor(options?: PrinterOptions) {
+    this.precision = options?.precision
+  }
+
   to_string(obj: unknown): string {
     if (isPrintable(obj))
       return obj[pretty](this)
@@ -41,7 +52,10 @@ export class Printer {
   }
 
   number(val: number): string {
-    return `${val}`
+    if (this.precision != null)
+      return val.toFixed(this.precision)
+    else
+      return `${val}`
   }
 
   string(val: string): string {
@@ -74,7 +88,7 @@ export class Printer {
   }
 }
 
-export function to_string(obj: unknown): string {
-  const printer = new Printer()
+export function to_string(obj: unknown, options?: PrinterOptions): string {
+  const printer = new Printer(options)
   return printer.to_string(obj)
 }
