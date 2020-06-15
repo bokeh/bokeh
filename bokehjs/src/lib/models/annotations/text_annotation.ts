@@ -5,7 +5,7 @@ import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
-import {unreachable} from "core/util/assert"
+import {assert, unreachable} from "core/util/assert"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
@@ -13,7 +13,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   readonly rotate: boolean = true
 
-  protected el: HTMLElement
+  protected el?: HTMLElement
 
   initialize(): void {
     super.initialize()
@@ -25,7 +25,8 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   remove(): void {
-    remove(this.el)
+    if (this.el != null)
+      remove(this.el)
     super.remove()
   }
 
@@ -41,7 +42,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == "css")
-      undisplay(this.el)
+      undisplay(this.el!)
 
     super.render()
   }
@@ -113,7 +114,10 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   protected _css_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    undisplay(this.el)
+    const {el} = this
+    assert(el != null)
+
+    undisplay(el)
 
     this.visuals.text.set_value(ctx)
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
@@ -125,30 +129,30 @@ export abstract class TextAnnotationView extends AnnotationView {
     this.visuals.border_line.set_value(ctx)
     this.visuals.background_fill.set_value(ctx)
 
-    this.el.style.position = 'absolute'
-    this.el.style.left = `${sx + bbox_dims[0]}px`
-    this.el.style.top = `${sy + bbox_dims[1]}px`
-    this.el.style.color = `${this.visuals.text.text_color.value()}`
-    this.el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    this.el.style.font = `${this.visuals.text.font_value()}`
-    this.el.style.lineHeight = "normal" // needed to prevent ipynb css override
+    el.style.position = 'absolute'
+    el.style.left = `${sx + bbox_dims[0]}px`
+    el.style.top = `${sy + bbox_dims[1]}px`
+    el.style.color = `${this.visuals.text.text_color.value()}`
+    el.style.opacity = `${this.visuals.text.text_alpha.value()}`
+    el.style.font = `${this.visuals.text.font_value()}`
+    el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
-      this.el.style.transform = `rotate(${angle}rad)`
+      el.style.transform = `rotate(${angle}rad)`
     }
 
     if (this.visuals.background_fill.doit) {
-      this.el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
+      el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
     }
 
     if (this.visuals.border_line.doit) {
-      this.el.style.borderStyle = `${line_dash}`
-      this.el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
-      this.el.style.borderColor = `${this.visuals.border_line.color_value()}`
+      el.style.borderStyle = `${line_dash}`
+      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
+      el.style.borderColor = `${this.visuals.border_line.color_value()}`
     }
 
-    this.el.textContent = text
-    display(this.el)
+    el.textContent = text
+    display(el)
   }
 }
 

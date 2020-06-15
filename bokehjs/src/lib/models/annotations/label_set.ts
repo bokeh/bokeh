@@ -29,7 +29,7 @@ export class LabelSetView extends TextAnnotationView {
     if (this.model.render_mode == 'css') {
       for (let i = 0, end = this._text.length; i < end; i++) {
         const el = div({style: {display: "none"}})
-        this.el.appendChild(el)
+        this.el!.appendChild(el)
       }
     }
   }
@@ -141,7 +141,7 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _v_css_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
-    const el = this.el.children[i] as HTMLElement
+    const el = this.el!.children[i] as HTMLElement
     el.textContent = text
 
     this.visuals.text.set_vectorize(ctx, i)
