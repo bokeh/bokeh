@@ -1,3 +1,93 @@
+2020-06-14    2.1.0:
+--------------------
+  * bugfixes:
+    - #7296 [component: bokehjs] Fix orient == 0 case in sidepanel.apply_label_text_heuristic()
+    - #9218 [component: bokehjs] [bug] shared columndatasource issues in js callback (uncaught typeerror: cannot read property 'connect' of undefined)
+    - #9230 [component: bokehjs] [bug] webgl + cdsview seems to use incorrect marker fill colours
+    - #9515 [layout] [bug] layout engine much slower on chrome
+    - #9856 [component: bokehjs] [component: build] [bug] bokehjs build does not abort on compilation error
+    - #9871 [component: bokehjs] [bug] tablecolumn doesn't use `field` when `title` is not set
+    - #9909 [component: bokehjs] Bad toolbar highlight in "dark" modes
+    - #9915 [component: docs] [bug] the footer on the documentation website extends past its visible area
+    - #9924 [component: server] [regression] [bug] django server resources are not working
+    - #9953 [component: bokehjs] [bug] race condition between legend and glyph when using `legend_label`
+    - #9959 [component: bokehjs] [bug]the hover tool is not disaplyed when the mouse is directly over text
+    - #9965 [component: docs] [typo] `cumsum()` transform function docstring mistake
+    - #9987 [component: docs] [bug] `factorrange`'s `start` property's help string references `end`
+    - #10022 [component: bokehjs] [widgets] [bug] datepicker.disabled doesn't always work
+    - #10040 [component: bokehjs] [feature] allow named columns to be used in edittools
+    - #10042 [component: bokehjs] [bug] bad label rendering with hbar / subgroup_label_orientation 
+    - #10072 [component: bokehjs] Bokehjs leak a lots style tag in head tag cause a slow performance
+    - #10088 [component: build] Only use local bokeh package in tests
+    - #10103 [component: docs] [bug] using anchors in the api reference hides the anchored element under the header
+    - #10105 [component: docs] [bug] `cd sphinx; make serve` doesn't work
+    - #10107 [component: bokehjs] Settable active state of toolproxys in gridplot
+    - #10114 [component: bokehjs] [svg] Resolve issues with resizing and clearing svg canvas
+    - #10123 [component: bokehjs] [layout] [regression] Canvas doesn't repaint after layout resize
+    - #10126 [component: bokehjs] [bug] model.serializable_attributes method removed in bokeh master
+    - #10128 [bug] resource warning unclosed file... _sri.json possible resource leak
+    - #10140 [notebook] Fixed typo when registering google colab comms
+  * features:
+    - #2326 [component: bokehjs] Toggle selection of objects with shift+click
+    - #4567 [component: bokehjs] Make tools active state updateable
+    - #9863 [component: bokehjs] [feature] add "dot" marker variants
+    - #9890 [component: bokehjs] Some new markers
+    - #9922 [component: bokehjs] Autocompleteinput has no case insensitive option  
+    - #9963 [feature] add a lineedittool
+    - #10021 [component: bokehjs] Add support for document event batching
+    - #10132 [API: models] [feature] edittool.empty_value should support 
+  * tasks:
+    - #5744 [component: bokehjs] Use only one of global.isnan and isstrictnan
+    - #5800 [component: tests] Hard pass/fail test of some kind of basic glyph drawing
+    - #8572 [component: tests] Transforms.py is missing property unit tests
+    - #8741 [component: docs] Elevate our code of conduct
+    - #9302 [component: bokehjs] [notebook] Push_notebook does not work in google colaboratory
+    - #9704 [component: docs] [component: examples] [feature] need to add tile provider demo
+    - #9813 [component: server] [feature] compose bokeh server with other tornado http servers
+    - #9844 [component: bokehjs] Upgrade nouislider
+    - #9913 [component: bokehjs] Use selection() instead of hittest helpers
+    - #9941 [component: bokehjs] Deprecate css rendering modes for annotations
+    - #9952 [component: docs] [infra] Bust caching of versions.json
+    - #9971 [bug] warn about using the same layout element (here: plot) multiple times
+    - #9972 [component: bokehjs] [widgets] Select widget un-focuses after selection
+    - #9973 Bump jquery from 3.4.1 to 3.5.0 in /bokehjs
+    - #9976 [component: bokehjs] [component: build] Update bokehjs' dependencies
+    - #9977 [component: build] [infra] Use system installed google chrome in ci
+    - #9978 [bug] cannot apply patch to [id] which is not in the document anymore
+    - #9982 [component: docs] Bokehjs user guide section not using sri hashes
+    - #9990 [component: docs] [bug] elaborate on how the margin attribute works in documentation
+    - #9996 [component: tests] Drop support for s3 upload in examples' tests
+    - #10000 [component: bokehjs] [component: tests] Add visuals tests for marker glyphs
+    - #10001 [component: bokehjs] Clean up type situation around buffer handling
+    - #10004 [component: bokehjs] Clean separation between models' and properties' responsibilities
+    - #10006 [component: bokehjs] [performance] Speed up setting up of visuals
+    - #10008 [component: bokehjs] [svg] Incorporate svgrenderingcontext2d into bokehjs
+    - #10012 [component: bokehjs] Use map<k, v> or set<v> instead of {[key: string]: v}
+    - #10016 [component: docs] Added ':' before execution command
+    - #10026 [component: bokehjs] [typescript] Make show(), build_views(), etc. produce most specific types
+    - #10030 [component: docs] Add google api key requirements into documentation dev guide
+    - #10035 Miscellaneous changes
+    - #10036 [component: bokehjs] Refactor implementation of image and imagergba glyphs
+    - #10050 [component: build] Install channels from conda forge 
+    - #10053 Revert "spanset"
+    - #10054 [component: bokehjs] Use map instead of {} as view storage
+    - #10061 [component: bokehjs] Drop usage of our set type in favour of the native set
+    - #10068 [component: bokehjs] Reduce usage of for-in loop an in operator
+    - #10069 [component: bokehjs] Improve support for ndarray serialization
+    - #10074 [component: docs] Fixed #10038 (tornado, ui/ux, search feature improvement)
+    - #10077 Resolve f541 after upgrading to flake8 >=3.8
+    - #10084 [component: bokehjs] More usage of map<k, v> and set<v>
+    - #10085 [component: bokehjs] Make menus usable with tool proxies
+    - #10091 [component: docs] Update 2.1.0.rst
+    - #10096 Revert "add support for versioned bokehjs script tags and cdn urls"
+    - #10101 [component: tests] Drop examples' baseline and image testing
+    - #10116 [component: bokehjs] [component: tests] Chrome 83 breaks image diff tests
+    - #10119 [component: docs] Fix a typo in docs
+    - #10129 [component: examples] [component: tests] Restore examples' images and upload as an artifact
+    - #10130 2.1 updates
+    - #10142 [component: docs] [bug] weather_example_scipy
+    - #10159 Prefer inclusive language
+
 2020-04-21    2.0.2:
 --------------------
   * bugfixes:
