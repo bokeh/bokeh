@@ -94,6 +94,7 @@ export type ArcArgs           = GlyphArgs<models.Arc.Props>           & AuxLine
 export type BezierArgs        = GlyphArgs<models.Bezier.Props>        & AuxLine
 export type CircleArgs        = GlyphArgs<models.Circle.Props>        & AuxLine & AuxFill
 export type EllipseArgs       = GlyphArgs<models.Ellipse.Props>       & AuxLine & AuxFill
+export type HAreaArgs         = GlyphArgs<models.HArea.Props>                   & AuxFill
 export type HBarArgs          = GlyphArgs<models.HBar.Props>          & AuxLine & AuxFill
 export type HexTileArgs       = GlyphArgs<models.HexTile.Props>       & AuxLine & AuxFill
 export type ImageArgs         = GlyphArgs<models.Image.Props>
@@ -114,6 +115,7 @@ export type ScatterArgs       = GlyphArgs<models.Scatter.Props>       & AuxLine 
 export type SegmentArgs       = GlyphArgs<models.Segment.Props>       & AuxLine
 export type StepArgs          = GlyphArgs<models.Step.Props>          & AuxLine
 export type TextArgs          = GlyphArgs<models.Text.Props>                              & AuxText
+export type VAreaArgs         = GlyphArgs<models.VArea.Props>                   & AuxFill
 export type VBarArgs          = GlyphArgs<models.VBar.Props>          & AuxLine & AuxFill
 export type WedgeArgs         = GlyphArgs<models.Wedge.Props>         & AuxLine & AuxFill
 
@@ -286,6 +288,16 @@ export class Figure extends Plot {
     args?: Partial<EllipseArgs>): GlyphRenderer
   ellipse(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Ellipse, "x,y,width,height", args)
+  }
+
+  harea(args: Partial<HAreaArgs>): GlyphRenderer
+  harea(
+    x1: HAreaArgs["x1"],
+    x2: HAreaArgs["x2"],
+    y: HAreaArgs["y"],
+    args?: Partial<HAreaArgs>): GlyphRenderer
+  harea(...args: unknown[]): GlyphRenderer {
+    return this._glyph(models.HArea, "x1,x2,y", args)
   }
 
   hbar(args: Partial<HBarArgs>): GlyphRenderer
@@ -474,6 +486,16 @@ export class Figure extends Plot {
     args?: Partial<TextArgs>): GlyphRenderer
   text(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Text, "x,y,text", args)
+  }
+
+  varea(args: Partial<VAreaArgs>): GlyphRenderer
+  varea(
+    x: VAreaArgs["x"],
+    y1: VAreaArgs["y1"],
+    y2: VAreaArgs["y2"],
+    args?: Partial<VAreaArgs>): GlyphRenderer
+  varea(...args: unknown[]): GlyphRenderer {
+    return this._glyph(models.VArea, "x,y1,y2", args)
   }
 
   vbar(args: Partial<VBarArgs>): GlyphRenderer
