@@ -35,6 +35,7 @@ dependencies:
   - numba
   - pandas
   - psutil
+  - pydot
   - pygments
   - pytest
   - pytest-asyncio
