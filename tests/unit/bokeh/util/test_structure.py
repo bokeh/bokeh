@@ -1,4 +1,5 @@
 import pytest ; pytest
+
 # Bokeh imports
 from bokeh.model import collect_models
 from bokeh.plotting import figure
