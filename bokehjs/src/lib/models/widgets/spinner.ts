@@ -7,7 +7,7 @@ import {bk_input} from "styles/widgets/inputs"
 const {floor, max, min} = Math
 
 function _get_sig_dig(num: number | null): number | null { // get number of digits
-  if (num) {
+  if (num != null) {
     if (floor(num) !== num)
       return num.toFixed(16).replace(/0+$/, '').split(".")[1].length
     return 0
