@@ -185,6 +185,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
+
     const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
     const result = new Selection()
 

@@ -58,13 +58,13 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
+    let x0, x1, y0, y1, cond, sx0, sx1, sy0, sy1
 
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    if (this.model.properties.width.units == "data"){
+    if (this.model.properties.width.units == "data") {
       x0 = x - this.max_width
       x1 = x + this.max_width
     } else {
@@ -73,7 +73,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     }
 
-    if (this.model.properties.height.units == "data"){
+    if (this.model.properties.height.units == "data") {
       y0 = y - this.max_height
       y1 = y + this.max_height
     } else {
@@ -83,19 +83,16 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     }
 
     const candidates = this.index.indices({x0, x1, y0, y1})
-    const hits: [number, number][] = []
+    const indices: number[] = []
 
     for (const i of candidates) {
       cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond) {
-        [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-        ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-        dist = (sx0-sx1)**2 + (sy0-sy1)**2
-        hits.push([i, dist])
+        indices.push(i)
       }
     }
 
-    return Selection.from_hits(hits)
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {

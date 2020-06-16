@@ -82,7 +82,7 @@ export class WedgeView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const candidates = []
+    const candidates: number[] = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const r2 = this.sradius[i]**2
@@ -90,21 +90,22 @@ export class WedgeView extends XYGlyphView {
       ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
       dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= r2) {
-        candidates.push([i, dist])
+        candidates.push(i)
       }
     }
 
     const direction = this.model.properties.direction.value()
-    const hits: [number, number][] = []
-    for (const [i, dist] of candidates) {
+    const indices: number[] = []
+
+    for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i])
       if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
-        hits.push([i, dist])
+        indices.push(i)
       }
     }
 
-    return Selection.from_hits(hits)
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
