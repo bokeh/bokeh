@@ -114,13 +114,33 @@ class Test_Spinner(object):
 
         el = page.driver.find_element_by_css_selector('.foo input')
 
-        enter_value_in_spinner(page.driver, el, 1e-16)
-        results = page.results
-        assert float(results['value']) == 1e-16
-
         enter_value_in_spinner(page.driver, el, 0.43654644333534)
         results = page.results
         assert float(results['value']) == 0.43654644333534
+
+        enter_value_in_spinner(page.driver, el, 1.532512855486e-16)
+        results = page.results
+        assert float(results['value']) == 2e-16
+
+        assert page.has_no_console_errors()
+
+    def test_input_none_step(self, bokeh_model_page) -> None:
+        spinner = Spinner(value=0, low=0, high=1, step=None, css_classes=["foo"])
+        spinner.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+
+        page = bokeh_model_page(spinner)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        
+        assert el.get_attribute('step') == 'any'
+
+        enter_value_in_spinner(page.driver, el, 0.5)
+        results = page.results
+        assert float(results['value']) == 0.5
+
+        enter_value_in_spinner(page.driver, el, 1.532512855486e-16)
+        results = page.results
+        assert float(results['value']) == 1.532512855486e-16
 
         assert page.has_no_console_errors()
 

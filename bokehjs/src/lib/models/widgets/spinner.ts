@@ -6,10 +6,14 @@ import {bk_input} from "styles/widgets/inputs"
 
 const {floor, max, min} = Math
 
-function _get_sig_dig(num: number): number { // get number of digits
-  if (floor(num) !== num)
-    return num.toFixed(16).replace(/0+$/, '').split(".")[1].length
-  return 0
+function _get_sig_dig(num: number | null): number | null { // get number of digits
+  if (num) {
+    if (floor(num) !== num)
+      return num.toFixed(16).replace(/0+$/, '').split(".")[1].length
+    return 0
+  } else {
+    return null
+  }
 }
 
 export class SpinnerView extends InputWidgetView {
@@ -31,29 +35,40 @@ export class SpinnerView extends InputWidgetView {
     })
     this.connect(this.model.properties.step.change,  () => {
       const {step} = this.model
-      this.input_el.step = step.toFixed(16)
+      this.input_el.step = (step != null)? step.toFixed(16): 'any'
     })
     this.connect(this.model.properties.value.change, () => {
-      const {value, step} = this.model
-      this.input_el.value = value.toFixed(_get_sig_dig(step)).replace(/(\.[0-9]*[1-9])0+$|\.0*$/, '$1') //trim last 0
+      const {value} = this.model
+      this.input_el.value = this._trim_last_zeros(this._value2str(value))
     })
     this.connect(this.model.properties.disabled.change, () => {
       this.input_el.disabled = this.model.disabled
     })
   }
 
+  _value2str(value: number): string {
+    const {step} = this.model
+    const n_digits = _get_sig_dig(step)
+    return (n_digits != null)? value.toFixed(n_digits): `${value}`
+  }
+
+  _trim_last_zeros(value: string): string {
+    return value.replace(/(\.[0-9]*[1-9])0+$|\.0*$/, '$1')
+  }
+
   render(): void {
     super.render()
 
+    const {name, low: min, high: max, value, step, disabled} = this.model
     this.input_el = input({
       type: "number",
       class: bk_input,
-      name: this.model.name,
-      min: this.model.low,
-      max: this.model.high,
-      value: this.model.value,
-      step: this.model.step,
-      disabled: this.model.disabled,
+      name,
+      value,
+      disabled,
+      min,
+      max,
+      step: (step != null)? step: 'any',
     })
     this.input_el.addEventListener("change", () => this.change_input())
     //this.input_el.addEventListener("input", () => this.change_input())
@@ -62,13 +77,12 @@ export class SpinnerView extends InputWidgetView {
 
   change_input(): void {
     if (this.input_el.value){ //if input is empty skip update
-      const {step} = this.model
       let new_value = Number(this.input_el.value)
       if (this.model.low != null)
         new_value = max(new_value, this.model.low)
       if (this.model.high != null)
         new_value = min(new_value, this.model.high)
-      this.model.value = Number(new_value.toFixed(_get_sig_dig(step)))
+      this.model.value = Number(this._value2str(new_value))
       super.change_input()
     }
   }
@@ -81,7 +95,7 @@ export namespace Spinner {
     value: p.Property<number>
     low:   p.Property<number | null>
     high:  p.Property<number | null>
-    step:  p.Property<number>
+    step:  p.Property<number | null>
   }
 }
 
