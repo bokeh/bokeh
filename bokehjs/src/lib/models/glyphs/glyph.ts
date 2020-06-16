@@ -272,31 +272,34 @@ export abstract class GlyphView extends View {
       const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name]
       const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name]
 
-      for (let [xname, yname] of this.model._coords) {
-        xname = `_${xname}`
-        yname = `_${yname}`
+      // XXX: MultiPolygons is a special case of special cases
+      if (this.model.type != "MultiPolygons") {
+        for (let [xname, yname] of this.model._coords) {
+          xname = `_${xname}`
+          yname = `_${yname}`
 
-        // TODO (bev) more robust detection of multi-glyph case
-        // hand multi glyph case
-        if (self._xs != null) {
-          if (xr instanceof FactorRange)
-            self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
-          else
-            self[xname] = map(self[xname], num_array)
-          if (yr instanceof FactorRange)
-            self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
-          else
-            self[yname] = map(self[yname], num_array)
-        } else {
-          // hand standard glyph case
-          if (xr instanceof FactorRange)
-            self[xname] = xr.v_synthetic(self[xname])
-          else
-            self[xname] = num_array(self[xname])
-          if (yr instanceof FactorRange)
-            self[yname] = yr.v_synthetic(self[yname])
-          else
-            self[yname] = num_array(self[yname])
+          // TODO (bev) more robust detection of multi-glyph case
+          // hand multi glyph case
+          if (self._xs != null) {
+            if (xr instanceof FactorRange)
+              self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
+            else
+              self[xname] = map(self[xname], num_array)
+            if (yr instanceof FactorRange)
+              self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
+            else
+              self[yname] = map(self[yname], num_array)
+          } else {
+            // hand standard glyph case
+            if (xr instanceof FactorRange)
+              self[xname] = xr.v_synthetic(self[xname])
+            else
+              self[xname] = num_array(self[xname])
+            if (yr instanceof FactorRange)
+              self[yname] = yr.v_synthetic(self[yname])
+            else
+              self[yname] = num_array(self[yname])
+          }
         }
       }
     }
