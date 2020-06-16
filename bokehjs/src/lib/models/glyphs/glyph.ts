@@ -10,7 +10,7 @@ import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import {Arrayable, Rect, NumberArray} from "core/types"
-import {map} from "core/util/arrayable"
+import {map, subselect} from "core/util/arrayable"
 import {extend} from "core/util/object"
 import {isArray, isTypedArray} from "core/util/types"
 import {SpatialIndex} from "core/util/spatial"
@@ -233,7 +233,7 @@ export abstract class GlyphView extends View {
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => (v as Arrayable)[i])
+          data_subset[k] = subselect(v as Arrayable<unknown>, indices)
         else
           data_subset[k] = v
       }
@@ -259,6 +259,13 @@ export abstract class GlyphView extends View {
         [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
     }
 
+    function num_array(array: Arrayable<number>): NumberArray {
+      if (array instanceof NumberArray)
+        return array
+      else
+        return new NumberArray(array)
+    }
+
     // if we have any coordinates that are categorical, convert them to
     // synthetic coords here
     if (this.renderer.plot_view.frame.x_ranges != null) {   // XXXX JUST TEMP FOR TESTS TO PASS
@@ -272,20 +279,24 @@ export abstract class GlyphView extends View {
         // TODO (bev) more robust detection of multi-glyph case
         // hand multi glyph case
         if (self._xs != null) {
-          if (xr instanceof FactorRange) {
+          if (xr instanceof FactorRange)
             self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
-          }
-          if (yr instanceof FactorRange) {
+          else
+            self[xname] = map(self[xname], num_array)
+          if (yr instanceof FactorRange)
             self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
-          }
+          else
+            self[yname] = map(self[yname], num_array)
         } else {
           // hand standard glyph case
-          if (xr instanceof FactorRange) {
+          if (xr instanceof FactorRange)
             self[xname] = xr.v_synthetic(self[xname])
-          }
-          if (yr instanceof FactorRange) {
+          else
+            self[xname] = num_array(self[xname])
+          if (yr instanceof FactorRange)
             self[yname] = yr.v_synthetic(self[yname])
-          }
+          else
+            self[yname] = num_array(self[yname])
         }
       }
     }

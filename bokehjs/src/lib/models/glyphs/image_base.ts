@@ -202,7 +202,7 @@ export namespace ImageBase {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    image: p.NumberSpec
+    image: p.NDArraySpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
     global_alpha: p.Property<number>
@@ -224,7 +224,7 @@ export abstract class ImageBase extends XYGlyph {
 
   static init_ImageBase(): void {
     this.define<ImageBase.Props>({
-      image:        [ p.NumberSpec       ], // TODO (bev) array spec?
+      image:        [ p.NDArraySpec      ],
       dw:           [ p.DistanceSpec     ],
       dh:           [ p.DistanceSpec     ],
       dilate:       [ p.Boolean,   false ],

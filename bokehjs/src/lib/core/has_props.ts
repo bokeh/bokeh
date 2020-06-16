@@ -625,7 +625,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
 
   materialize_dataspecs(source: ColumnarDataSource): {[key: string]: Arrayable<unknown> | number} {
     // Note: this should be moved to a function separate from HasProps
-    const data: {[key: string]: unknown[] | number} = {}
+    const data: {[key: string]: Arrayable<unknown> | number} = {}
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec))
         continue
@@ -638,7 +638,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
 
       data[`_${name}`] = array
       if (prop instanceof p.DistanceSpec)
-        data[`max_${name}`] = max(array)
+        data[`max_${name}`] = max(array as Arrayable<number>)
     }
     return data
   }
