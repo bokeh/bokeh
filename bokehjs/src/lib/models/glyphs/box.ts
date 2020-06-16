@@ -1,5 +1,5 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import {Anchor} from "core/enums"
 import {Line, Fill, Hatch} from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
@@ -11,15 +11,15 @@ import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
 export interface BoxData extends GlyphData {
-  _right: Arrayable<number>
-  _bottom: Arrayable<number>
-  _left: Arrayable<number>
-  _top: Arrayable<number>
+  _right: NumberArray
+  _bottom: NumberArray
+  _left: NumberArray
+  _top: NumberArray
 
-  sright: Arrayable<number>
-  sbottom: Arrayable<number>
-  sleft: Arrayable<number>
-  stop: Arrayable<number>
+  sright: NumberArray
+  sbottom: NumberArray
+  sleft: NumberArray
+  stop: NumberArray
 }
 
 export interface BoxView extends BoxData {}

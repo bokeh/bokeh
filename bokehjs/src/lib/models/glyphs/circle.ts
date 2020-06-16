@@ -3,7 +3,7 @@ import type {MarkerGLGlyph} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -13,11 +13,11 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export interface CircleData extends XYGlyphData {
-  _angle: Arrayable<number>
-  _size: Arrayable<number>
-  _radius?: Arrayable<number>
+  _angle: NumberArray
+  _size: NumberArray
+  _radius?: NumberArray
 
-  sradius: Arrayable<number>
+  sradius: NumberArray
 
   max_size: number
   max_radius: number

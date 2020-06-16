@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax} from "core/util/arrayable"
@@ -13,11 +13,11 @@ import {generic_line_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface MultiLineData extends GlyphData {
-  _xs: Arrayable<number>[]
-  _ys: Arrayable<number>[]
+  _xs: NumberArray[]
+  _ys: NumberArray[]
 
-  sxs: Arrayable<number>[]
-  sys: Arrayable<number>[]
+  sxs: NumberArray[]
+  sys: NumberArray[]
 }
 
 export interface MultiLineView extends MultiLineData {}

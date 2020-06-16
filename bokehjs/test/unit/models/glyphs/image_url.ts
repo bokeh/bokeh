@@ -63,8 +63,8 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal([1])
-      expect(image_url_view.sh).to.be.equal([2])
+      expect(image_url_view.sw).to.be.equal(new Float64Array([1]))
+      expect(image_url_view.sh).to.be.equal(new Float64Array([2]))
     })
 
     it("`_map_data` should map data to NaN if w and h are null, 'data' units", async () => {
@@ -90,8 +90,8 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal([NaN])
-      expect(image_url_view.sh).to.be.equal([NaN])
+      expect(image_url_view.sw).to.be.equal(new Float64Array([NaN]))
+      expect(image_url_view.sh).to.be.equal(new Float64Array([NaN]))
     })
   })
 })

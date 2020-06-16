@@ -1,20 +1,20 @@
 import {Box, BoxView, BoxData} from "./box"
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import * as p from "core/properties"
 import {SpatialIndex} from "core/util/spatial"
 
 export interface VBarData extends BoxData {
-  _x: Arrayable<number>
-  _bottom: Arrayable<number>
-  _width: Arrayable<number>
-  _top: Arrayable<number>
+  _x: NumberArray
+  _bottom: NumberArray
+  _width: NumberArray
+  _top: NumberArray
 
-  sx: Arrayable<number>
-  sw: Arrayable<number>
-  stop: Arrayable<number>
-  sbottom: Arrayable<number>
-  sleft: Arrayable<number>
-  sright: Arrayable<number>
+  sx: NumberArray
+  sw: NumberArray
+  stop: NumberArray
+  sbottom: NumberArray
+  sleft: NumberArray
+  sright: NumberArray
 
   max_width: number
 }
@@ -52,8 +52,8 @@ export class VBarView extends BoxView {
     this.sbottom = this.renderer.yscale.v_compute(this._bottom)
 
     const n = this.sx.length
-    this.sleft = new Float64Array(n)
-    this.sright = new Float64Array(n)
+    this.sleft = new NumberArray(n)
+    this.sright = new NumberArray(n)
     for (let i = 0; i < n; i++) {
       this.sleft[i] = this.sx[i] - this.sw[i]/2
       this.sright[i] = this.sx[i] + this.sw[i]/2

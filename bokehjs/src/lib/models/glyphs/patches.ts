@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {find_last_index} from "core/util/array"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -14,11 +14,11 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
 export interface PatchesData extends GlyphData {
-  _xs: Arrayable<number>[]
-  _ys: Arrayable<number>[]
+  _xs: NumberArray[]
+  _ys: NumberArray[]
 
-  sxs: Arrayable<number>[]
-  sys: Arrayable<number>[]
+  sxs: NumberArray[]
+  sys: NumberArray[]
 
   sxss: Arrayable<number>[][]
   syss: Arrayable<number>[][]

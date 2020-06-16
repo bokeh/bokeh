@@ -1,6 +1,6 @@
 import {Scale} from "./scale"
 import {FactorRange} from "../ranges/factor_range"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace CategoricalScale {
@@ -24,7 +24,7 @@ export class CategoricalScale extends Scale {
     return super._linear_compute(this.source_range.synthetic(x))
   }
 
-  v_compute(xs: Arrayable<any>): Arrayable<number> {
+  v_compute(xs: Arrayable<any>): NumberArray {
     return super._linear_v_compute(this.source_range.v_synthetic(xs))
   }
 
@@ -32,7 +32,7 @@ export class CategoricalScale extends Scale {
     return this._linear_invert(xprime)
   }
 
-  v_invert(xprimes: Arrayable<number>): Arrayable<number> {
+  v_invert(xprimes: Arrayable<number>): NumberArray {
     return this._linear_v_invert(xprimes)
   }
 }

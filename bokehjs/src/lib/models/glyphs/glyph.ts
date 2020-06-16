@@ -9,8 +9,8 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect} from "core/types"
-import {map} from "core/util/arrayable"
+import {Arrayable, Rect, NumberArray} from "core/types"
+import {map, subselect} from "core/util/arrayable"
 import {extend} from "core/util/object"
 import {isArray, isTypedArray} from "core/util/types"
 import {SpatialIndex} from "core/util/spatial"
@@ -150,7 +150,7 @@ export abstract class GlyphView extends View {
   abstract scentery(i: number, _sx: number, _sy: number): number
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
-        pts_location: "center" | "edge" = "edge", dilate: boolean = false): Arrayable<number> {
+        pts_location: "center" | "edge" = "edge", dilate: boolean = false): NumberArray {
     let pt0: Arrayable<number>
     let pt1: Arrayable<number>
 
@@ -233,7 +233,7 @@ export abstract class GlyphView extends View {
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => (v as Arrayable)[i])
+          data_subset[k] = subselect(v as Arrayable<unknown>, indices)
         else
           data_subset[k] = v
       }
@@ -259,32 +259,46 @@ export abstract class GlyphView extends View {
         [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
     }
 
+    function num_array(array: Arrayable<number>): NumberArray {
+      if (array instanceof NumberArray)
+        return array
+      else
+        return new NumberArray(array)
+    }
+
     // if we have any coordinates that are categorical, convert them to
     // synthetic coords here
     if (this.renderer.plot_view.frame.x_ranges != null) {   // XXXX JUST TEMP FOR TESTS TO PASS
       const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name]
       const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name]
 
-      for (let [xname, yname] of this.model._coords) {
-        xname = `_${xname}`
-        yname = `_${yname}`
+      // XXX: MultiPolygons is a special case of special cases
+      if (this.model.type != "MultiPolygons") {
+        for (let [xname, yname] of this.model._coords) {
+          xname = `_${xname}`
+          yname = `_${yname}`
 
-        // TODO (bev) more robust detection of multi-glyph case
-        // hand multi glyph case
-        if (self._xs != null) {
-          if (xr instanceof FactorRange) {
-            self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
-          }
-          if (yr instanceof FactorRange) {
-            self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
-          }
-        } else {
-          // hand standard glyph case
-          if (xr instanceof FactorRange) {
-            self[xname] = xr.v_synthetic(self[xname])
-          }
-          if (yr instanceof FactorRange) {
-            self[yname] = yr.v_synthetic(self[yname])
+          // TODO (bev) more robust detection of multi-glyph case
+          // hand multi glyph case
+          if (self._xs != null) {
+            if (xr instanceof FactorRange)
+              self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
+            else
+              self[xname] = map(self[xname], num_array)
+            if (yr instanceof FactorRange)
+              self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
+            else
+              self[yname] = map(self[yname], num_array)
+          } else {
+            // hand standard glyph case
+            if (xr instanceof FactorRange)
+              self[xname] = xr.v_synthetic(self[xname])
+            else
+              self[xname] = num_array(self[xname])
+            if (yr instanceof FactorRange)
+              self[yname] = yr.v_synthetic(self[yname])
+            else
+              self[yname] = num_array(self[yname])
           }
         }
       }
@@ -348,7 +362,7 @@ export abstract class GlyphView extends View {
   // This is where specs not included in coords are computed, e.g. radius.
   protected _map_data(): void {}
 
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
+  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
     return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
   }
 }

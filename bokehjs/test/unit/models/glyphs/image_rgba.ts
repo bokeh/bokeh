@@ -41,8 +41,8 @@ describe("ImageRGBA module", () => {
       const image_rgba_view = await create_glyph_view(image_rgba)
       image_rgba_view.map_data()
 
-      expect(image_rgba_view.sw).to.be.equal([1])
-      expect(image_rgba_view.sh).to.be.equal([2])
+      expect(image_rgba_view.sw).to.be.equal(new Float64Array([1]))
+      expect(image_rgba_view.sh).to.be.equal(new Float64Array([2]))
     })
   })
 })

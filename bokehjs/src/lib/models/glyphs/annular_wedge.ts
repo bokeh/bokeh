@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import {Line, Fill} from "core/visuals"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
@@ -10,14 +10,14 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export interface AnnularWedgeData extends XYGlyphData {
-  _inner_radius: Arrayable<number>
-  _outer_radius: Arrayable<number>
-  _start_angle: Arrayable<number>
-  _end_angle: Arrayable<number>
-  _angle: Arrayable<number>
+  _inner_radius: NumberArray
+  _outer_radius: NumberArray
+  _start_angle: NumberArray
+  _end_angle: NumberArray
+  _angle: NumberArray
 
-  sinner_radius: Arrayable<number>
-  souter_radius: Arrayable<number>
+  sinner_radius: NumberArray
+  souter_radius: NumberArray
 
   max_inner_radius: number
   max_outer_radius: number
@@ -40,7 +40,7 @@ export class AnnularWedgeView extends XYGlyphView {
     else
       this.souter_radius = this._outer_radius
 
-    this._angle = new Float32Array(this._start_angle.length)
+    this._angle = new NumberArray(this._start_angle.length)
 
     for (let i = 0, end = this._start_angle.length; i < end; i++) {
       this._angle[i] = this._end_angle[i] - this._start_angle[i]

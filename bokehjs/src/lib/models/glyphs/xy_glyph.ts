@@ -1,14 +1,14 @@
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
 import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
 export interface XYGlyphData extends GlyphData {
-  _x: Arrayable<number>
-  _y: Arrayable<number>
+  _x: NumberArray
+  _y: NumberArray
 
-  sx: Arrayable<number>
-  sy: Arrayable<number>
+  sx: NumberArray
+  sy: NumberArray
 }
 
 export interface XYGlyphView extends XYGlyphData {}

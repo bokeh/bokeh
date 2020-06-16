@@ -1,7 +1,7 @@
 import {Signal0} from "./signaling"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable} from "./types"
+import {Arrayable, NumberArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
@@ -367,7 +367,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       this.validate(this.spec.value)
   }
 
-  array(source: ColumnarDataSource): any[] {
+  array(source: ColumnarDataSource): Arrayable<unknown> {
     let ret: any
 
     if (this.spec.field != null) {
@@ -416,7 +416,13 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   }
 }
 
-export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
+export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
+  array(source: ColumnarDataSource): NumberArray {
+    return new NumberArray(super.array(source) as any)
+  }
+}
+
+export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
   get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
 
@@ -428,25 +434,35 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
   }
 }
 
-export class BooleanSpec extends DataSpec<boolean> {}
+export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
+  get default_units(): enums.SpatialUnits { return "data" as "data" }
+  get valid_units(): enums.SpatialUnits[] { return enums.SpatialUnits }
+}
 
-export class ColorSpec extends DataSpec<types.Color | null> {}
+export class BooleanSpec extends DataSpec<boolean> {
+  array(source: ColumnarDataSource): Uint8Array {
+    return new Uint8Array(super.array(source) as any)
+  }
+}
+
+export class NumberSpec extends DataSpec<number> {
+  array(source: ColumnarDataSource): NumberArray {
+    return new NumberArray(super.array(source) as any)
+  }
+}
 
 export class CoordinateSpec extends DataSpec<number | Factor> {}
 
 export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
 
-export class DistanceSpec extends UnitsSpec<number, enums.SpatialUnits> {
-  get default_units(): enums.SpatialUnits { return "data" as "data" }
-  get valid_units(): enums.SpatialUnits[] { return enums.SpatialUnits }
-}
+export class ColorSpec extends DataSpec<types.Color | null> {}
 
 export class FontSizeSpec extends DataSpec<string> {}
 
 export class MarkerSpec extends DataSpec<string> {}
 
-export class NumberSpec extends DataSpec<number> {}
-
 export class StringSpec extends DataSpec<string> {}
 
 export class NullStringSpec extends DataSpec<string | null> {}
+
+export class NDArraySpec extends DataSpec<number> {}

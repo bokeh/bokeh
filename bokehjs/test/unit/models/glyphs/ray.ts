@@ -38,7 +38,7 @@ describe("Ray", () => {
 
         set_scales(glyph_view, "linear")
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.equal([10])
+        expect(glyph_view.slength).to.be.equal(new Float64Array([10]))
       }
     })
 
@@ -64,7 +64,7 @@ describe("Ray", () => {
 
         set_scales(glyph_view, "linear", true)
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.equal([10])
+        expect(glyph_view.slength).to.be.equal(new Float64Array([10]))
       }
     })
   })

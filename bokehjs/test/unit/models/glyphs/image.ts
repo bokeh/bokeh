@@ -41,8 +41,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.equal([1])
-      expect(image_view.sh).to.be.equal([2])
+      expect(image_view.sw).to.be.equal(new Float64Array([1]))
+      expect(image_view.sh).to.be.equal(new Float64Array([2]))
     })
   })
 })

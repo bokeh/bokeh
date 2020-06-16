@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {TextVector} from "core/property_mixins"
 import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {measure_font} from "core/util/text"
@@ -11,10 +11,10 @@ import {assert} from "core/util/assert"
 import {Selection} from "../selections/selection"
 
 export interface TextData extends XYGlyphData {
-  _text: Arrayable<string>
-  _angle: Arrayable<number>
-  _x_offset: Arrayable<number>
-  _y_offset: Arrayable<number>
+  _text: string[]
+  _angle: NumberArray
+  _x_offset: NumberArray
+  _y_offset: NumberArray
 
   _sxs: number[][][]
   _sys: number[][][]

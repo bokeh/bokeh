@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
 import {map, minmax} from "core/util/arrayable"
@@ -10,21 +10,21 @@ import {ImageLoader} from "core/util/image"
 export type CanvasImage = HTMLImageElement
 
 export interface ImageURLData extends XYGlyphData {
-  _url: Arrayable<string>
-  _angle: Arrayable<number>
-  _w: Arrayable<number>
-  _h: Arrayable<number>
+  _url: string[]
+  _angle: NumberArray
+  _w: NumberArray
+  _h: NumberArray
   _bounds_rect: Rect
 
-  sx: Arrayable<number>
-  sy: Arrayable<number>
-  sw: Arrayable<number>
-  sh: Arrayable<number>
+  sx: NumberArray
+  sy: NumberArray
+  sw: NumberArray
+  sh: NumberArray
 
   max_w: number
   max_h: number
 
-  image: Arrayable<CanvasImage | null>
+  image: (CanvasImage | null)[]
 }
 
 export interface ImageURLView extends ImageURLData {}

@@ -4,7 +4,7 @@ import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, Rect} from "core/types"
+import {Rect, NumberArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {Line, Fill} from "core/visuals"
@@ -14,16 +14,16 @@ import {generic_area_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface HexTileData extends GlyphData {
-  _q: Arrayable<number>
-  _r: Arrayable<number>
+  _q: NumberArray
+  _r: NumberArray
 
-  _x: Arrayable<number>
-  _y: Arrayable<number>
+  _x: NumberArray
+  _y: NumberArray
 
-  _scale: Arrayable<number>
+  _scale: NumberArray
 
-  sx: Arrayable<number>
-  sy: Arrayable<number>
+  sx: NumberArray
+  sy: NumberArray
 
   svx: number[]
   svy: number[]
@@ -47,8 +47,8 @@ export class HexTileView extends GlyphView {
     const size = this.model.size
     const aspect_scale = this.model.aspect_scale
 
-    this._x = new Float64Array(n)
-    this._y = new Float64Array(n)
+    this._x = new NumberArray(n)
+    this._y = new NumberArray(n)
 
     if (this.model.orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
