@@ -43,6 +43,7 @@ dependencies:
   - numba
   - pandas
   - psutil
+  - pydot
   - pytest
   - pytest-asyncio
   - pytest-cov >=1.8.1
