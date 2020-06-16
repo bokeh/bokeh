@@ -10,4 +10,3 @@ $ python structure_graph.py
 
 The [jupyter notebook](./ModelStructureExample.ipynb) illustrates this and gives a look
 into some of the private methods that provide the information that builds the structure graph.
-

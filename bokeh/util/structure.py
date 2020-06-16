@@ -141,13 +141,13 @@ class _BokehStructureGraph:
         G.nodes are the submodels of M, with node attributes
             - "model" giving the class name of of the submodel
             - "id" giving the id of the submodel
-        
+
         An edge runs from a to b if the submodel b belongs to an attribute of
             a
 
         Args:
             A bokeh model M
-        
+
         """
         import networkx as nx
 
@@ -195,7 +195,7 @@ class _BokehStructureGraph:
 
     def _obj_props_to_df2(self, obj):
         """ Returns a pandas dataframe of the properties of a bokeh model
-        
+
         Each row contains  an attribute, its type (a bokeh property), and its docstring.
 
         """
@@ -215,7 +215,7 @@ class _BokehStructureGraph:
 
         """
         import networkx as nx
-        
+
         nodes = nx.nx_pydot.graphviz_layout(self._graph, prog="dot")
         node_x, node_y = zip(*nodes.values())
         models = [self._graph.nodes[x]["model"] for x in nodes]
