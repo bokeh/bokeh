@@ -20,8 +20,6 @@ export interface MultiPolygonsData extends GlyphData {
 
   sxs: NumberArray[][][]
   sys: NumberArray[][][]
-
-  hole_index: SpatialIndex
 }
 
 export interface MultiPolygonsView extends MultiPolygonsData {}
@@ -30,50 +28,93 @@ export class MultiPolygonsView extends GlyphView {
   model: MultiPolygons
   visuals: MultiPolygons.Visuals
 
+  protected _hole_index: SpatialIndex
+
   protected _index_data(index: SpatialIndex): void {
+    const {min, max} = Math
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
-        const xs = this._xs[i][j][0]  // do not use holes
-        const ys = this._ys[i][j][0]  // do not use holes
+      const xsi = this._xs[i]
+      const ysi = this._ys[i]
 
-        if (xs.length == 0)
-          index.add_empty()
-        else {
-          const [x0, x1] = minmax(xs)
-          const [y0, y1] = minmax(ys)
+      if (xsi.length == 0 || ysi.length == 0) {
+        index.add_empty()
+        continue
+      }
 
-          index.add(x0, y0, x1, y1)
+      let xi0 = +Infinity
+      let xi1 = -Infinity
+      let yi0 = +Infinity
+      let yi1 = -Infinity
+
+      for (let j = 0, endj = xsi.length; j < endj; j++) {
+        const xsij = xsi[j][0] // do not use holes
+        const ysij = ysi[j][0] // do not use holes
+
+        if (xsij.length != 0 && ysij.length != 0) {
+          const [xij0, xij1] = minmax(xsij)
+          const [yij0, yij1] = minmax(ysij)
+          xi0 = min(xi0, xij0)
+          xi1 = max(xi1, xij1)
+          yi0 = min(yi0, yij0)
+          yi1 = max(yi1, yij1)
         }
       }
+
+      if (!isFinite(xi0 + xi1 + yi0 + yi1))
+        index.add_empty()
+      else
+        index.add(xi0, yi0, xi1, yi1)
     }
 
-    this.hole_index = this._index_hole_data()  // should this be set here?
+    this._hole_index = this._index_hole_data()
   }
 
   protected _index_hole_data(): SpatialIndex {
-    // need advice on how to use this sure if this could be more useful
-    const points = []
-    for (let i = 0, end = this._xs.length; i < end; i++) {
-      for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
-        if (this._xs[i][j].length > 1) {
-          for (let k = 1, endk = this._xs[i][j].length; k < endk; k++) {
-            const xs = this._xs[i][j][k]  // only use holes
-            const ys = this._ys[i][j][k]  // only use holes
+    const {min, max} = Math
+    const {data_size} = this
 
-            if (xs.length == 0)
-              continue
+    const index = new SpatialIndex(data_size)
 
-            const [x0, x1] = minmax(xs)
-            const [y0, y1] = minmax(ys)
+    for (let i = 0; i < data_size; i++) {
+      const xsi = this._xs[i]
+      const ysi = this._ys[i]
 
-            points.push({x0, y0, x1, y1, i})
+      if (xsi.length == 0 || ysi.length == 0) {
+        index.add_empty()
+        continue
+      }
+
+      let xi0 = +Infinity
+      let xi1 = -Infinity
+      let yi0 = +Infinity
+      let yi1 = -Infinity
+
+      for (let j = 0, endj = xsi.length; j < endj; j++) {
+        const xsij = xsi[j]
+        const ysij = ysi[j]
+
+        if (xsij.length > 1 && ysij.length > 1) {
+          for (let k = 1, endk = xsij.length; k < endk; k++) {
+            const [xij0, xij1] = minmax(xsij[k])
+            const [yij0, yij1] = minmax(ysij[k])
+            xi0 = min(xi0, xij0)
+            xi1 = max(xi1, xij1)
+            yi0 = min(yi0, yij0)
+            yi1 = max(yi1, yij1)
           }
         }
       }
+
+      if (!isFinite(xi0 + xi1 + yi0 + yi1))
+        index.add_empty()
+      else
+        index.add(xi0, yi0, xi1, yi1)
     }
-    return SpatialIndex.from(points)
+
+    index.finish()
+    return index
   }
 
   protected _mask_data(): number[] {
@@ -177,7 +218,7 @@ export class MultiPolygonsView extends GlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
-    const hole_candidates = this.hole_index.indices({x0: x, y0: y, x1: x, y1: y})
+    const hole_candidates = this._hole_index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const indices = []
     for (let i = 0, end = candidates.length; i < end; i++) {

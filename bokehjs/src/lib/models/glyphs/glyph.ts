@@ -326,10 +326,14 @@ export abstract class GlyphView extends View {
 
   protected _set_data(_indices: number[] | null): void {}
 
+  protected get _index_size(): number {
+    return this.data_size
+  }
+
   protected abstract _index_data(index: SpatialIndex): void
 
   index_data(): void {
-    const index = new SpatialIndex(this.data_size)
+    const index = new SpatialIndex(this._index_size)
     this._index_data(index)
     index.finish()
     this._index = index

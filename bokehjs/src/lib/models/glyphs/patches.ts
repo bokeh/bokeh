@@ -70,24 +70,19 @@ export class PatchesView extends GlyphView {
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const xss = this._build_discontinuous_object(this._xs)
-    const yss = this._build_discontinuous_object(this._ys)
-
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      for (let j = 0, endj = xss[i].length; j < endj; j++) {
-        const xs = xss[i][j]
-        const ys = yss[i][j]
+      const xsi = this._xs[i]
+      const ysi = this._ys[i]
 
-        if (xs.length == 0)
-          index.add_empty()
-        else {
-          const [x0, x1] = minmax(xs)
-          const [y0, y1] = minmax(ys)
+      if (xsi.length == 0)
+        index.add_empty()
+      else {
+        const [x0, x1] = minmax(xsi)
+        const [y0, y1] = minmax(ysi)
 
-          index.add(x0, y0, x1, y1)
-        }
+        index.add(x0, y0, x1, y1)
       }
     }
   }
