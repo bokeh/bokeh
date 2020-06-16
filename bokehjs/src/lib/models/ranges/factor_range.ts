@@ -1,8 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
-import {map} from "core/util/arrayable"
+import {Arrayable, NumberArray} from "core/types"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 import {unreachable} from "core/util/assert"
@@ -232,8 +231,13 @@ export class FactorRange extends Range {
   }
 
   // convert an array of string factors into synthetic coordinates
-  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): Arrayable<number> {
-    return map(xs, (x) => this.synthetic(x))
+  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): NumberArray {
+    const n = xs.length
+    const array = new NumberArray(n)
+    for (let i = 0; i < n; i++) {
+      array[i] = this.synthetic(xs[i])
+    }
+    return array
   }
 
   protected _init(silent: boolean): void {
