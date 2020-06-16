@@ -15,9 +15,6 @@
 # Standard library imports
 from itertools import permutations
 
-# External imports
-import networkx as nx
-import pandas as pd
 
 # Bokeh imports
 from bokeh.layouts import column
@@ -42,26 +39,47 @@ from bokeh.models import (
     TapTool,
 )
 
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = ('generate_structure_plot',)
+
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
 
-__all__ = ['BokehStructureGraph']
 
-class BokehStructureGraph:
+def generate_structure_plot(f):
+    """  Given a bokeh model f, return a model that displays the graph of its submodels.
+
+    Clicking on the nodes of the graph reveals the attributes of that submodel.
+
+    """
+
+    return _BokehStructureGraph(f).model
+
+
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+class _BokehStructureGraph:
     """ Class for exploring the graph of submodels of a Bokeh model.
 
-        If M is such a model and X=BokehStructureGraph(M), then:
+    If M is such a model and X=_BokehStructureGraph(M), then:
 
-           - X.model is the interactive model itself of
-           the submodel graph; pass it to show or file_html.  Self contained so
-           works in a jupyter notebook, no server needed.
+    - X.model is the interactive model itself of
+    the submodel graph; pass it to show or file_html.  Self contained so
+    works in a jupyter notebook, no server needed.
 
-           - X.graph is the networkx DiGraph of submodels.
+    - X.graph is the networkx DiGraph of submodels.
 
-           - X.property_df is a pandas dataframe including all of the properties of
-           all of the submodels, with their docstrings.  Used for the datatable
-           displayed when clicking on X.model
+    - X.property_df is a pandas dataframe including all of the properties of
+    all of the submodels, with their docstrings.  Used for the datatable
+    displayed when clicking on X.model
+
     """
 
     def __init__(self, model):
@@ -70,7 +88,7 @@ class BokehStructureGraph:
         self._graph = self._make_graph(model)
         self._graph.graph["graph"] = {"rankdir": "LR"}
         self._prop_df = self._make_prop_dict()
-        self._graph_plot = self.make_graph_plot()
+        self._graph_plot = self._make_graph_plot()
         self._data_table = self._make_data_table()
         self._graph_plot.title.text = "Structure of model type {} with id {}".format(
             self._model.__class__.__name__, self._model.id
@@ -79,39 +97,47 @@ class BokehStructureGraph:
 
     @property
     def model(self):
-        """
-        The bokeh model consisting of the structure graph and the datatable
-        for the attributes. Can be passed to show or file_html. Self contained,
+        """ The bokeh model consisting of the structure graph and the datatable
+        for the attributes. 
+
+        Can be passed to show or file_html. Self contained,
         so remains interactive in a notebook or html file; no server needed.
+        
         """
         return self._structure_graph
 
     @property
     def graph(self):
-        """
-        The networkx digraph of submodels of the given model.
+        """ The networkx digraph of submodels of the given model.
+
         """
         return self._graph
 
     @property
     def property_df(self):
-        """
-        A pandas dataframe of all of the properties of the model with their
+        """ A pandas dataframe of all of the properties of the model with their
         values, types, and docstrings.  The base information for the datatable.
+
         """
         return self._prop_df
 
     def _make_graph(self, M):
-        """Builds a networkx DiGraph() G so that:
-           G.nodes are the submodels of M, with node attributes
-               - "model" giving the class name of of the submodel
-               - "id" giving the id of the submodel
-            An edge runs from a to b if the submodel b belongs to an attribute of
+        """ Builds a networkx DiGraph() G from the model M.
+
+
+        G.nodes are the submodels of M, with node attributes
+            - "model" giving the class name of of the submodel
+            - "id" giving the id of the submodel
+        
+        An edge runs from a to b if the submodel b belongs to an attribute of
             a
 
         Args:
             A bokeh model M
+        
         """
+        import networkx as nx
+
         def test_condition(s, y, H):
             answer1 = False
             answer2 = False
@@ -154,9 +180,12 @@ class BokehStructureGraph:
         K.remove_edges_from(dead_edges)
         return K
 
-    def obj_props_to_df2(self, obj):
-        """Returns a pandas dataframe of the properties of a bokeh model, each row having
-        an attribute, its type (a bokeh property), and the docstring."""
+    def _obj_props_to_df2(self, obj):
+        """ Returns a pandas dataframe of the properties of a bokeh model
+        
+        Each row contains  an attribute, its type (a bokeh property), and its docstring.
+
+        """
         obj_dict = obj.properties_with_values()
         types = [obj.lookup(x) for x in obj_dict.keys()]
         docs = [getattr(type(obj), x).__doc__ for x in obj_dict.keys()]
@@ -168,11 +197,12 @@ class BokehStructureGraph:
         }
         return df
 
-    def make_graph_plot(self):
+    def _make_graph_plot(self):
+        """ Builds the graph portion of the final model.
+
         """
-        Builds the graph portion of the final model from the graph constructed
-        by make_graph.
-        """
+        import networkx as nx
+        
         nodes = nx.nx_pydot.graphviz_layout(self._graph, prog="dot")
         node_x, node_y = zip(*nodes.values())
         models = [self._graph.nodes[x]["model"] for x in nodes]
@@ -245,15 +275,15 @@ class BokehStructureGraph:
         return p2
 
     def _make_prop_dict(self):
-        """
-        Creates a dataframe of all the properties of all the
-        submodels of the model being
+        """ Returns a dataframe containing all the properties of all the submodels of the model being
         analyzed. Used as datasource to show attributes.
+
         """
+        import pandas as pd
         df = pd.DataFrame()
         for x in self._graph.nodes(data=True):
             M = self._model.select_one({"id": x[0]})
-            Z = pd.DataFrame(self.obj_props_to_df2(M))
+            Z = pd.DataFrame(self._obj_props_to_df2(M))
             Z["id"] = x[0]
             Z["model"] = str(M)
             Z["values"] = Z["values"].map(lambda x: str(x))
@@ -262,8 +292,8 @@ class BokehStructureGraph:
         return df
 
     def _make_data_table(self):
-        """
-        Builds the datatable portion of the final plot.
+        """ Builds the datatable portion of the final plot.
+
         """
         columns = [
             TableColumn(field="props", title="Property"),
@@ -289,10 +319,11 @@ class BokehStructureGraph:
         return data_table2
 
     def _combined(self):
-        """
-        Connects the graph and the datatable with a simple CustomJS callback
-        so that clicking on a node/submodel narrows the view in the datatable to the
+        """ Connects the graph and the datatable with a simple CustomJS callback.
+
+        Clicking on a node/submodel narrows the view in the datatable to the
         attributes associated with that submodel.
+
         """
 
         js_code = """const index = node_source.selected.indices[0];
@@ -313,3 +344,5 @@ class BokehStructureGraph:
         self._node_source.selected.js_on_change("indices", js)
         layout = column(self._graph_plot, self._data_table)
         return layout
+
+
