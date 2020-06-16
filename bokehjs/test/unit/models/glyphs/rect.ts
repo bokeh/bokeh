@@ -128,8 +128,8 @@ describe("Rect", () => {
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
-      expect(glyph_view.sw).to.be.equal([10])
-      expect(glyph_view.sh).to.be.equal([20])
+      expect(glyph_view.sw).to.be.equal(new Float64Array([10]))
+      expect(glyph_view.sh).to.be.equal(new Float64Array([20]))
     })
 
     // XXX: needs update
