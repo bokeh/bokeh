@@ -131,7 +131,7 @@ class Test_Spinner(object):
         page = bokeh_model_page(spinner)
 
         el = page.driver.find_element_by_css_selector('.foo input')
-        
+
         assert el.get_attribute('step') == 'any'
 
         enter_value_in_spinner(page.driver, el, 0.5)
