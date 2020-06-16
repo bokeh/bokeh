@@ -5,7 +5,6 @@ import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable, Rect} from "core/types"
 import {Direction} from "core/enums"
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
@@ -83,29 +82,30 @@ export class WedgeView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const candidates = []
+    const candidates: number[] = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      const r2 = Math.pow(this.sradius[i], 2)
+      const r2 = this.sradius[i]**2
       ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
       ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-      dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+      dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= r2) {
-        candidates.push([i, dist])
+        candidates.push(i)
       }
     }
 
     const direction = this.model.properties.direction.value()
-    const hits: [number, number][] = []
-    for (const [i, dist] of candidates) {
+    const indices: number[] = []
+
+    for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i])
       if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
-        hits.push([i, dist])
+        indices.push(i)
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -130,12 +130,14 @@ export class WedgeView extends XYGlyphView {
 export namespace Wedge {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector & FillVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
@@ -144,6 +146,7 @@ export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
   properties: Wedge.Props
+  __view_type__: WedgeView
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)
@@ -152,7 +155,7 @@ export class Wedge extends XYGlyph {
   static init_Wedge(): void {
     this.prototype.default_view = WedgeView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<Wedge.Mixins>([LineVector, FillVector])
     this.define<Wedge.Props>({
       direction:    [ p.Direction,   'anticlock' ],
       radius:       [ p.DistanceSpec             ],

@@ -17,6 +17,7 @@ export interface DateRangeSlider extends DateRangeSlider.Attrs {}
 
 export class DateRangeSlider extends AbstractSlider {
   properties: DateRangeSlider.Props
+  __view_type__: DateRangeSliderView
 
   constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
     super(attrs)

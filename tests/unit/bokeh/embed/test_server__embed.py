@@ -55,7 +55,7 @@ class TestServerDocument(object):
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -64,12 +64,12 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
-        assert request in script.text
+        assert request in script.string
 
     def test_script_attrs_arguments_provided(self) -> None:
         r = bes.server_document(arguments=dict(foo=10))
         assert 'foo=10' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -78,13 +78,13 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10\", true);" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
+        assert request in script.string
 
     def test_script_attrs_url_provided_absolute_resources(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -93,12 +93,12 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
-        assert request in script.text
+        assert request in script.string
 
     def test_script_attrs_url_provided(self) -> None:
         r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -107,7 +107,7 @@ class TestServerDocument(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders\", true);" % \
               ("http://localhost:8081/foo/bar/sliders", divid)
-        assert request in script.text
+        assert request in script.string
 
 class TestServerSession(object):
 
@@ -117,7 +117,7 @@ class TestServerSession(object):
 
     def test_script_attrs_session_id_provided(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -126,8 +126,8 @@ class TestServerSession(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.text
+        assert request in script.string
+        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
     def test_invalid_resources_param(self, test_plot) -> None:
         with pytest.raises(ValueError):
@@ -145,7 +145,7 @@ class TestServerSession(object):
 
     def test_model_none(self) -> None:
         r = bes.server_session(None, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -154,12 +154,12 @@ class TestServerSession(object):
         divid = attrs['id']
         request = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.text
+        assert request in script.string
+        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
     def test_general(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
-        html = bs4.BeautifulSoup(r, "lxml")
+        html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         script = scripts[0]
@@ -168,8 +168,8 @@ class TestServerSession(object):
         divid = attrs['id']
         request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s\", true);" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert request in script.text
-        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.text
+        assert request in script.string
+        assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
 #-----------------------------------------------------------------------------
 # Dev API

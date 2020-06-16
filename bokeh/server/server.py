@@ -33,21 +33,21 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import atexit
 import signal
+import socket
 import sys
 
 # External imports
-import tornado
+from tornado import version as tornado_version
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..application import Application
 from ..core.properties import Bool, Int, List, String
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
-from .util import bind_sockets, create_hosts_whitelist
+from .util import bind_sockets, create_hosts_allowlist
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -272,6 +272,36 @@ class BaseServer(object):
         # Tell self._loop.start() to return.
         self._loop.add_callback_from_signal(self._loop.stop)
 
+    @property
+    def port(self):
+        ''' The configured port number that the server listens on for HTTP requests
+        '''
+        sock = next(
+            sock for sock in self._http._sockets.values()
+            if sock.family in (socket.AF_INET, socket.AF_INET6)
+        )
+        return sock.getsockname()[1]
+
+    @property
+    def address(self):
+        ''' The configured address that the server listens on for HTTP requests
+        '''
+        sock = next(
+            sock for sock in self._http._sockets.values()
+            if sock.family in (socket.AF_INET, socket.AF_INET6)
+        )
+        return sock.getsockname()[0]
+
+    @property
+    def prefix(self):
+        ''' The configured URL prefix to use for all Bokeh server paths. '''
+        return self._tornado.prefix
+
+    @property
+    def index(self):
+        ''' A path to a Jinja2 template to use for index at "/" '''
+        return self._tornado.index
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -339,34 +369,9 @@ class Server(BaseServer):
         ``BokehTornado``.
 
         '''
-        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
-
-        from bokeh.application.handlers.function import FunctionHandler
-        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
-
-        if callable(applications):
-            applications = Application(FunctionHandler(applications))
-
-        if isinstance(applications, Application):
-            applications = { '/' : applications }
-
-        for k, v in list(applications.items()):
-            if callable(v):
-                applications[k] = Application(FunctionHandler(v))
-            if all(not isinstance(handler, DocumentLifecycleHandler)
-                   for handler in applications[k]._handlers):
-                applications[k].add(DocumentLifecycleHandler())
+        log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado_version))
 
         opts = _ServerOpts(kwargs)
-        self._port = opts.port
-        self._address = opts.address
-        self._prefix = opts.prefix
-        self._index = opts.index
-
-        if opts.num_procs != 1:
-            assert all(app.safe_to_fork for app in applications.values()), (
-                      'User application code has run before attempting to start '
-                      'multiple processes. This is considered an unsafe operation.')
 
         if opts.num_procs > 1 and io_loop is not None:
             raise RuntimeError(
@@ -387,16 +392,22 @@ class Server(BaseServer):
             context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
             http_server_kwargs['ssl_options'] = context
 
-        sockets, self._port = bind_sockets(self.address, self.port)
+        sockets, self._port = bind_sockets(opts.address, opts.port)
+        self._address = opts.address
 
-        extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
+        extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, opts.port)
         try:
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
-                                       prefix=self.prefix,
-                                       index=self.index,
+                                       prefix=opts.prefix,
+                                       index=opts.index,
                                        websocket_max_message_size_bytes=opts.websocket_max_message_size,
                                        **kwargs)
+
+            if opts.num_procs != 1:
+                assert all(app_context.application.safe_to_fork for app_context in tornado_app.applications.values()), (
+                      'User application code has run before attempting to start '
+                      'multiple processes. This is considered an unsafe operation.')
 
             http_server = HTTPServer(tornado_app, **http_server_kwargs)
 
@@ -413,20 +424,6 @@ class Server(BaseServer):
             io_loop = IOLoop.current()
 
         super().__init__(io_loop, tornado_app, http_server)
-
-    @property
-    def index(self):
-        ''' A path to a Jinja2 template to use for index at "/"
-
-        '''
-        return self._index
-
-    @property
-    def prefix(self):
-        ''' The configured URL prefix to use for all Bokeh server paths.
-
-        '''
-        return self._prefix
 
     @property
     def port(self):

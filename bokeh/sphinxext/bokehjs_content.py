@@ -197,6 +197,7 @@ class BokehJSContent(CodeBlock):
             html_source = BJS_HTML.render(
                 css_files=resources.css_files,
                 js_files=resources.js_files,
+                hashes=resources.hashes,
                 bjs_script=js_source)
             return [html_source, "html"]
         else:

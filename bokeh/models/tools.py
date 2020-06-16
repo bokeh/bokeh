@@ -47,6 +47,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     Location,
+    SelectionMode,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
@@ -73,6 +74,8 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_RENDERER,
     INCOMPATIBLE_POINT_DRAW_RENDERER,
     INCOMPATIBLE_POLY_DRAW_RENDERER,
     INCOMPATIBLE_POLY_EDIT_RENDERER,
@@ -83,7 +86,7 @@ from ..model import Model
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import MultiLine, Patches, Rect, XYGlyph
+from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import GlyphRenderer, Renderer
@@ -108,6 +111,7 @@ __all__ = (
     'Inspection',
     'Gesture',
     'LassoSelectTool',
+    'LineEditTool',
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -195,6 +199,18 @@ class Tap(Gesture):
 
     '''
     pass
+
+@abstract
+class SelectTool(Gesture):
+    ''' A base class for tools that perfrom "selections", e.g. ``BoxSelectTool``.
+
+    '''
+
+    mode = Enum(SelectionMode, default="replace", help="""
+    Defines what should happen when a new selection is made. The default
+    is to replace the existing selection. Other options are to append to
+    the selection, intersect with it or subtract from it.
+    """)
 
 @abstract
 class Inspection(Gesture):
@@ -291,7 +307,7 @@ class PanTool(Drag):
     a pan in the vertical direction only, with horizontal dimension kept fixed.
 
     .. |pan_icon| image:: /_images/icons/Pan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -304,7 +320,6 @@ class PanTool(Drag):
 
 DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     level="overlay",
-    render_mode="canvas",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -326,7 +341,7 @@ class RangeTool(Drag):
     automatically.
 
     .. |range_icon| image:: /_images/icons/Range.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -376,7 +391,7 @@ class WheelPanTool(Scroll):
     dimension using the scroll wheel.
 
     .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -397,7 +412,7 @@ class WheelZoomTool(Scroll):
     horizontal dimension kept fixed.
 
     .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -465,7 +480,7 @@ class SaveTool(Action):
     menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -477,13 +492,13 @@ class ResetTool(Action):
     created.
 
     .. |reset_icon| image:: /_images/icons/Reset.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
     pass
 
-class TapTool(Tap):
+class TapTool(Tap, SelectTool):
     ''' *toolbar icon*: |tap_icon|
 
     The tap selection tool allows the user to select at single points by
@@ -493,7 +508,7 @@ class TapTool(Tap):
     on styling selected and unselected glyphs.
 
     .. |tap_icon| image:: /_images/icons/Tap.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         Selections can be comprised of multiple regions, even those
@@ -563,7 +578,7 @@ class CrosshairTool(Inspection):
     ``width`` or ``height``.
 
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -602,7 +617,6 @@ class CrosshairTool(Inspection):
 
 DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
     level="overlay",
-    render_mode="css",
     top_units="screen",
     left_units="screen",
     bottom_units="screen",
@@ -623,7 +637,7 @@ class BoxZoomTool(Drag):
     the drag event indicates the selection region is ready.
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         ``BoxZoomTool`` is incompatible with ``GMapPlot`` due to the manner in
@@ -667,7 +681,7 @@ class ZoomInTool(Action):
     by a fixed amount.
 
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
-        :height: 18pt
+        :height: 24px
 
     '''
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
@@ -689,7 +703,7 @@ class ZoomOutTool(Action):
     by a fixed amount.
 
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
-        :height: 18pt
+        :height: 24px
 
     '''
     dimensions = Enum(Dimensions, default="both", help="""
@@ -703,7 +717,7 @@ class ZoomOutTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class BoxSelectTool(Drag):
+class BoxSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a Plot by showing
@@ -715,7 +729,7 @@ class BoxSelectTool(Drag):
 
 
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -764,7 +778,7 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
     line_dash=[4, 4]
 )
 
-class LassoSelectTool(Drag):
+class LassoSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a Plot by
@@ -782,7 +796,7 @@ class LassoSelectTool(Drag):
         might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -805,7 +819,7 @@ class LassoSelectTool(Drag):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class PolySelectTool(Tap):
+class PolySelectTool(Tap, SelectTool):
     ''' *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a
@@ -824,7 +838,7 @@ class PolySelectTool(Tap):
         previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -991,7 +1005,7 @@ class HoverTool(Inspection):
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -1124,6 +1138,11 @@ class HoverTool(Inspection):
     span on h or v directions.
     """)
 
+    muted_policy = Enum("show", "ignore",
+                        default="show", help="""
+    Whether to avoid showing tooltips on muted glyphs.
+    """)
+
     point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
     Whether the tooltip position should snap to the "center" (or other anchor)
     position of the associated glyph, or always follow the current mouse cursor
@@ -1178,7 +1197,7 @@ class UndoTool(Action):
     Undo tool allows to restore previous state of the plot.
 
     .. |undo_icon| image:: /_images/icons/Undo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -1188,7 +1207,7 @@ class RedoTool(Action):
     Redo tool reverses the last action performed by undo tool.
 
     .. |redo_icon| image:: /_images/icons/Redo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -1202,7 +1221,7 @@ class EditTool(Gesture):
     A custom tooltip label to override the default name.
     """)
 
-    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
+    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, String, help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
@@ -1258,7 +1277,7 @@ class BoxEditTool(EditTool, Drag, Tap):
       tool) then press <<backspace>> while the mouse is within the plot area.
 
     .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
-        :height: 18pt
+        :height: 24px
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
@@ -1318,7 +1337,7 @@ class PointDrawTool(EditTool, Drag, Tap):
       key while the mouse is within the plot area.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     add = Bool(default=True, help="""
@@ -1376,7 +1395,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
       press <<backspace>> key while the mouse is within the plot area.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     drag = Bool(default=True, help="""
@@ -1431,7 +1450,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
       <<backspace>> key while the mouse is within the plot area.
 
     .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     num_objects = Int(default=0, help="""
@@ -1479,7 +1498,7 @@ class PolyEditTool(EditTool, Drag, Tap):
       while the mouse cursor is within the plot area.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
-        :height: 18pt
+        :height: 24px
     '''
 
     vertex_renderer = Instance(GlyphRenderer, help="""
@@ -1503,6 +1522,60 @@ class PolyEditTool(EditTool, Drag, Tap):
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
+
+class LineEditTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |line_edit_icon|
+
+    The LineEditTool allows editing the intersection points of one or more ``Line`` glyphs.
+    Glyphs to be edited are defined via the ``renderers``
+    property and a renderer for the intersections is set via the ``intersection_renderer``
+    property (must render a point-like Glyph (a subclass of ``XYGlyph``).
+
+    The tool will modify the columns on the data source corresponding to the
+    ``x`` and ``y`` values of the glyph. Any additional columns in the data
+    source will be padded with the declared``empty_value``, when adding a new
+    point.
+
+    The supported actions include:
+
+    * Show intersections: Double tap an existing line
+
+    * Move point: Drag an existing point and let go of the mouse button to
+      release it.
+
+    .. |line_edit_icon| image:: /_images/icons/LineEdit.png
+        :height: 24px
+     '''
+
+    intersection_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the intersections of a selected line
+    """)
+
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions this edit tool is constrained to act in. By default
+    the line edit tool allows moving points in any dimension, but can be
+    configured to only allow horizontal movement across the width of the
+    plot, or vertical across the height of the plot.
+    """)
+
+    @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
+    def _check_compatible_intersection_renderer(self):
+        glyph = self.intersection_renderer.glyph
+        if not isinstance(glyph, LineGlyph):
+            return "glyph type %s found." % type(glyph).__name__
+
+    @error(INCOMPATIBLE_LINE_EDIT_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (Line,)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join(type(renderer.glyph).__name__
+                                    for renderer in incompatible_renderers)
+            return "%s glyph type(s) found." % glyph_types
+
+#
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -1546,6 +1619,7 @@ Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())
 Tool.register_alias("help", lambda: HelpTool())
 Tool.register_alias("box_edit", lambda: BoxEditTool())
+Tool.register_alias("line_edit", lambda: LineEditTool())
 Tool.register_alias("point_draw", lambda: PointDrawTool())
 Tool.register_alias("poly_draw", lambda: PolyDrawTool())
 Tool.register_alias("poly_edit", lambda: PolyEditTool())

@@ -27,7 +27,12 @@ export function create_baseline(items: State[]): string {
 }
 
 export function load_baseline(baseline_path: string): string | null {
-  const proc = cp.spawnSync("git", ["show", `:./${baseline_path}`])
+  const proc = cp.spawnSync("git", ["show", `:./${baseline_path}`], {encoding: "utf-8"})
+  return proc.status == 0 ? proc.stdout : null
+}
+
+export function load_baseline_image(image_path: string): Buffer | null {
+  const proc = cp.spawnSync("git", ["show", `:./${image_path}`], {encoding: "buffer"})
   return proc.status == 0 ? proc.stdout : null
 }
 

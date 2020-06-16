@@ -51,7 +51,6 @@ def plot_html():
 def plot_js():
     return Response(js, mimetype='text/javascript')
 
-    #import ipdb; ipdb.set_trace()
     #return app.send_static_file("plot.js")
     #with open("plot.js") as plot_js:
     #    js = plot_js.read()

@@ -4,12 +4,11 @@ import * as ts from "typescript"
 import {basename, dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
-import {read, Path} from "./sys"
+import {Path} from "./sys"
+import {BuildError} from "./error"
 
 export type CompileConfig = {
-  log?: (message: string) => void
   out_dir?: OutDir
-  css_dir?: Path
   bokehjs_dir?: Path
 }
 
@@ -86,21 +85,12 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, bokeh
   return host
 }
 
-export function default_transformers(options: ts.CompilerOptions, css_dir?: Path): ts.CustomTransformers {
+export function default_transformers(options: ts.CompilerOptions): ts.CustomTransformers {
   const transformers: Required<ts.CustomTransformers> = {
     before: [],
     after: [],
     afterDeclarations: [],
   }
-
-  const import_txt = transforms.import_txt((txt_path) => read(txt_path))
-  transformers.before.push(import_txt)
-
-  const import_css = transforms.import_css((css_path) => {
-    const resolved_path = css_path.startsWith(".") || css_dir == null ? css_path : join(css_dir, css_path)
-    return read(resolved_path)
-  })
-  transformers.before.push(import_css)
 
   const insert_class_name = transforms.insert_class_name()
   transformers.before.push(insert_class_name)
@@ -165,7 +155,7 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
   return parse_tsconfig(tsconfig_file.config, dirname(tsconfig_path), preconfigure)
 }
 
-export function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
+function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
   const preconfigure: ts.CompilerOptions = (() => {
     const {out_dir} = config
     if (out_dir != null) {
@@ -183,21 +173,17 @@ export function compile_project(tsconfig_path: Path, config: CompileConfig): TSO
 
   const {files, options} = tsconfig
 
-  const transformers = default_transformers(tsconfig.options, config.css_dir)
+  const transformers = default_transformers(tsconfig.options)
   const host = compiler_host(new Map(), options, config.bokehjs_dir)
 
   return compile_files(files, options, transformers, host)
 }
 
-export function compile_typescript(tsconfig_path: Path, config: CompileConfig): boolean {
+export function compile_typescript(tsconfig_path: Path, config: CompileConfig = {}): void {
   const result = compile_project(tsconfig_path, config)
 
   if (is_failed(result)) {
-    const failure = report_diagnostics(result.diagnostics)
-    if (config.log != null)
-      config.log(`There were ${chalk.red("" + failure.count)} TypeScript errors:\n${failure.text}`)
-    return false
+    const {count, text} = report_diagnostics(result.diagnostics)
+    throw new BuildError("typescript", `There were ${chalk.red("" + count)} TypeScript errors:\n${text}`)
   }
-
-  return true
 }

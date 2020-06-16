@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {AdaptiveTicker} from "@bokehjs/models/tickers/adaptive_ticker"
 import {DatetimeTicker} from "@bokehjs/models/tickers/datetime_ticker"

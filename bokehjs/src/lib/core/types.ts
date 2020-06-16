@@ -1,12 +1,8 @@
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+export type ID = string
 
 export type Color = string
 
-export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
+export {TypedArray} from "./util/ndarray"
 
 export type Arrayable<T = any> = {
   readonly length: number
@@ -22,6 +18,8 @@ export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 export type Data = {[key: string]: Arrayable<unknown>}
 
 export type Attrs = {[key: string]: unknown}
+
+export type PlainObject<T = unknown> = {[key: string]: T}
 
 export type Size = {
   width: number

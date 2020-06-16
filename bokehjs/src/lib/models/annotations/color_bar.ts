@@ -16,9 +16,8 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
-import {min, max, range, reversed} from "core/util/array"
+import {min, max, range, reversed, is_empty} from "core/util/array"
 import {map} from "core/util/arrayable"
-import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Size} from "core/layout"
@@ -194,7 +193,7 @@ export class ColorBarView extends AnnotationView {
     if (!this.model.visible || this.model.color_mapper == null)
       return
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     const {sx, sy} = this.compute_legend_location()
@@ -334,8 +333,8 @@ export class ColorBarView extends AnnotationView {
     const major_labels = this.tick_info().labels.major
 
     let label_extent: number
-    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !isEmpty(major_labels)) {
-      const {ctx} = this.plot_view.canvas_view
+    if (this.model.color_mapper.low != null && this.model.color_mapper.high != null && !is_empty(major_labels)) {
+      const {ctx} = this.layer
       ctx.save()
       this.visuals.major_label_text.set_value(ctx)
       switch (this.model.orientation) {
@@ -578,13 +577,16 @@ export namespace ColorBar {
     major_tick_out: p.Property<number>
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
-  } & mixins.MajorLabelText
-    & mixins.TitleText
-    & mixins.MajorTickLine
-    & mixins.MinorTickLine
-    & mixins.BorderLine
-    & mixins.BarLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.MajorLabelText &
+    mixins.TitleText      &
+    mixins.MajorTickLine  &
+    mixins.MinorTickLine  &
+    mixins.BorderLine     &
+    mixins.BarLine        &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     major_label_text: visuals.Text
@@ -601,6 +603,7 @@ export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
   properties: ColorBar.Props
+  __view_type__: ColorBarView
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)
@@ -609,14 +612,14 @@ export class ColorBar extends Annotation {
   static init_ColorBar(): void {
     this.prototype.default_view = ColorBarView
 
-    this.mixins([
-      'text:major_label_',
-      'text:title_',
-      'line:major_tick_',
-      'line:minor_tick_',
-      'line:border_',
-      'line:bar_',
-      'fill:background_',
+    this.mixins<ColorBar.Mixins>([
+      ["major_label_", mixins.Text],
+      ["title_",       mixins.Text],
+      ["major_tick_",  mixins.Line],
+      ["minor_tick_",  mixins.Line],
+      ["border_",      mixins.Line],
+      ["bar_",         mixins.Line],
+      ["background_",  mixins.Fill],
     ])
 
     this.define<ColorBar.Props>({
@@ -647,10 +650,10 @@ export class ColorBar extends Annotation {
       border_line_color: null,
       major_label_text_align: "center",
       major_label_text_baseline: "middle",
-      major_label_text_font_size: "8pt",
+      major_label_text_font_size: "11px",
       major_tick_line_color: "#ffffff",
       minor_tick_line_color: null,
-      title_text_font_size: "10pt",
+      title_text_font_size: "13px",
       title_text_font_style: "italic",
     })
   }

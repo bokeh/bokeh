@@ -116,6 +116,7 @@ __all__ = (
     'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
+    'SelectionMode',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -342,9 +343,13 @@ Location = enumeration("above", "below", "left", "right")
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
 
 #: Specify one of the built-in marker types
-MarkerType = enumeration("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                         "square", "square_cross", "square_x", "triangle", "x")
+MarkerType = enumeration(
+    "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
+    "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
+    "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
+    "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+    "triangle_dot", "triangle_pin", "x", "y"
+)
 
 #: Specify one of the 137 named CSS colors
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
@@ -368,7 +373,7 @@ PaddingUnits = enumeration("percent", "absolute")
 Palette = enumeration(*palettes.__palettes__)
 
 #: Specify a position in the render order for a Bokeh renderer
-RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
+RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
@@ -378,6 +383,9 @@ ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+#: Selection modes
+SelectionMode = enumeration("replace", "append", "intersect", "subtract")
 
 #: Sizing mode policies
 SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",

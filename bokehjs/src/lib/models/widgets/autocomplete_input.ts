@@ -7,6 +7,8 @@ import {clamp} from "core/util/math"
 import {bk_below, bk_active} from "styles/mixins"
 import {bk_menu} from "styles/menus"
 
+import menus_css from "styles/menus.css"
+
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
@@ -17,6 +19,10 @@ export class AutocompleteInputView extends TextInputView {
   protected _hover_index: number = 0
 
   protected menu: HTMLElement
+
+  styles(): string[] {
+    return [...super.styles(), menus_css]
+  }
 
   render(): void {
     super.render()
@@ -133,9 +139,18 @@ export class AutocompleteInputView extends TextInputView {
         }
 
         const completions: string[] = []
+        const {case_sensitive} = this.model
+        let acnorm: (t: string) => string
+        if (case_sensitive) {
+          acnorm = (t) => t
+        } else {
+          acnorm = (t) => t.toLowerCase()
+        }
+
         for (const text of this.model.completions) {
-          if (text.startsWith(value))
+          if (acnorm(text).startsWith(acnorm(value))) {
             completions.push(text)
+          }
         }
 
         this._update_completions(completions)
@@ -155,6 +170,7 @@ export namespace AutocompleteInput {
   export type Props = TextInput.Props & {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
+    case_sensitive: p.Property<boolean>
   }
 }
 
@@ -162,6 +178,7 @@ export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
   properties: AutocompleteInput.Props
+  __view_type__: AutocompleteInputView
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
     super(attrs)
@@ -173,6 +190,7 @@ export class AutocompleteInput extends TextInput {
     this.define<AutocompleteInput.Props>({
       completions:    [ p.Array, [] ],
       min_characters: [ p.Int,   2  ],
+      case_sensitive: [ p.Boolean,  true ],
     })
   }
 }

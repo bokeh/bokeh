@@ -12,6 +12,10 @@ import {bk_tabs_header, bk_headers, bk_headers_wrapper, bk_tab, bk_close} from "
 import {bk_btn, bk_btn_default, bk_btn_group} from "styles/buttons"
 import {bk_caret} from "styles/menus"
 
+import buttons_css from "styles/buttons.css"
+import menus_css from "styles/menus.css"
+import tabs_css from "styles/tabs.css"
+
 export class TabsView extends LayoutDOMView {
   model: Tabs
 
@@ -26,6 +30,10 @@ export class TabsView extends LayoutDOMView {
     super.connect_signals()
     this.connect(this.model.properties.tabs.change, () => this.rebuild())
     this.connect(this.model.properties.active.change, () => this.on_active_change())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), buttons_css, menus_css, tabs_css]
   }
 
   get child_models(): LayoutDOM[] {
@@ -234,6 +242,7 @@ export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends LayoutDOM {
   properties: Tabs.Props
+  __view_type__: TabsView
 
   constructor(attrs?: Partial<Tabs.Attrs>) {
     super(attrs)

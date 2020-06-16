@@ -144,7 +144,7 @@ def select_element_and_press_key(driver, element, key, press_number=1):
     actions = ActionChains(driver)
     actions.move_to_element(element)
     actions.click()
-    for i in range(press_number):
+    for _ in range(press_number):
         actions = ActionChains(driver)
         actions.send_keys_to_element(element, key)
         actions.perform()
@@ -267,7 +267,7 @@ def wait_for_canvas_resize(canvas, test_driver):
 
 def drag_slider(driver, css_class, distance, release=True):
     el = driver.find_element_by_css_selector(css_class)
-    handle = el.find_element_by_css_selector('.bk-noUi-handle')
+    handle = el.find_element_by_css_selector('.noUi-handle')
     actions = ActionChains(driver)
     actions.move_to_element(handle)
     actions.click_and_hold()
@@ -278,7 +278,7 @@ def drag_slider(driver, css_class, distance, release=True):
 
 def drag_range_slider(driver, css_class, location, distance):
     el = driver.find_element_by_css_selector(css_class)
-    handle = el.find_element_by_css_selector('.bk-noUi-handle-' + location)
+    handle = el.find_element_by_css_selector('.noUi-handle-' + location)
     actions = ActionChains(driver)
     actions.move_to_element(handle)
     actions.click_and_hold()
@@ -296,7 +296,7 @@ def get_slider_title_value(driver, css_class):
 
 def get_slider_bar_color(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
-    bar = el.find_element_by_css_selector('.bk-noUi-connect')
+    bar = el.find_element_by_css_selector('.noUi-connect')
     return bar.value_of_css_property('background-color')
 
 #-----------------------------------------------------------------------------

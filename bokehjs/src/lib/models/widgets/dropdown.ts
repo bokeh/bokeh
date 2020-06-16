@@ -10,12 +10,18 @@ import {bk_below, bk_down} from "styles/mixins"
 import {bk_dropdown_toggle} from "styles/buttons"
 import {bk_menu, bk_caret, bk_divider} from "styles/menus"
 
+import menus_css from "styles/menus.css"
+
 export class DropdownView extends AbstractButtonView {
   model: Dropdown
 
   protected _open: boolean = false
 
   protected menu: HTMLElement
+
+  styles(): string[] {
+    return [...super.styles(), menus_css]
+  }
 
   render(): void {
     super.render()
@@ -115,6 +121,7 @@ export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
   properties: Dropdown.Props
+  __view_type__: DropdownView
 
   constructor(attrs?: Partial<Dropdown.Attrs>) {
     super(attrs)

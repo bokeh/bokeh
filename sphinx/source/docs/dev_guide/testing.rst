@@ -37,8 +37,9 @@ level of the repository:
 
     py.test tests/unit
 
-Note that this includes unit tests that require Selenium to be installed. To
-exclude those unit tests, you can run the command:
+Note that this includes unit tests that require Selenium as well as appropriate
+web drivers (e.g. chromedriver and geckodriver) to be installed. To exclude
+those unit tests, you can run the command:
 
 .. code-block:: sh
 

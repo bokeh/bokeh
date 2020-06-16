@@ -80,6 +80,7 @@ export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
   properties: VBar.Props
+  __view_type__: VBarView
 
   constructor(attrs?: Partial<VBar.Attrs>) {
     super(attrs)

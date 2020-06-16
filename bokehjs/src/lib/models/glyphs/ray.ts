@@ -3,7 +3,6 @@ import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Rect} from "core/types"
-import {Class} from "core/class"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -66,10 +65,12 @@ export class RayView extends XYGlyphView {
 export namespace Ray {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & {
+  export type Props = XYGlyph.Props & {
     length: p.DistanceSpec
     angle: p.AngleSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: Line}
 }
@@ -78,7 +79,7 @@ export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
   properties: Ray.Props
-  default_view: Class<RayView>
+  __view_type__: RayView
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)
@@ -87,7 +88,7 @@ export class Ray extends XYGlyph {
   static init_Ray(): void {
     this.prototype.default_view = RayView
 
-    this.mixins(['line'])
+    this.mixins<Ray.Mixins>(LineVector)
     this.define<Ray.Props>({
       length: [ p.DistanceSpec ],
       angle:  [ p.AngleSpec    ],

@@ -1,3 +1,18 @@
+:root {
+    /* Logo image height + all the paddings/margins make the navbar height. */
+    --navbar-height: calc(30px + .3125rem * 2 + 0.5rem * 2);
+}
+
+html {
+  width: 100%;
+}
+
+.navbar-brand {
+    /* Overriding Bootstrap's value since we have only image there and we want
+    to keep it valigned and prevent its parent from growing.*/
+    font-size: 1rem;
+}
+
 .navbar-brand img {
     max-height: 50px;
 }
@@ -30,6 +45,10 @@
     border-bottom: 1px solid rgba(0,0,0,.05);
 }
 
+.search-front-page {
+    margin: 0 auto;
+    width: 50%;
+}
 
 /* minimal copy paste from bootstrap docs css to get sidebars working */
 
@@ -79,11 +98,14 @@
     text-decoration: none;
   }
 
-
   .bd-sidebar {
     -ms-flex-order: 0;
     order: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  table {
+    margin: 0 auto;
   }
 
   @media (min-width: 768px) {
@@ -94,9 +116,9 @@
       .bd-sidebar {
         position: -webkit-sticky;
         position: sticky;
-        top: 5rem;
+        top: var(--navbar-height);
         z-index: 1000;
-        height: calc(100vh - 4rem);
+        height: calc(100vh - var(--navbar-height));
       }
     }
   }
@@ -181,7 +203,7 @@
 
   .bd-sidebar .nav > .active > a,
   .bd-sidebar .nav > .active:hover > a {
-    font-weight: 00;
+    font-weight: 400;
     color: #130654;
     /* adjusted from original
     color: rgba(0, 0, 0, 0.85);
@@ -206,19 +228,23 @@
     color: #542437;
   }
 
-/* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
-  h2::before, h3::before,
-  h4::before, h5::before,
-  h6::before  {
-    display: block;
-    content: "";
-    height: 80px;
-    margin: -80px 0 0;
+dt:target {
+    background-color: initial;
 }
 
-/* add padding to body to avid overlap with navbar   */
+/* Offsetting anchored elements within the main content to adjust for fixed header
+   https://github.com/pandas-dev/pandas-sphinx-theme/issues/6 */
+main *:target::before {
+    display: block;
+    content: "";
+    height: var(--navbar-height);
+    margin-top: calc(-1 * var(--navbar-height));
+}
+
 body {
-  padding-top: 80px
+    /* Add padding to body to avoid overlap with navbar. */
+    padding-top: var(--navbar-height);
+    width:100%;
 }
 
 
@@ -257,14 +283,6 @@ body {
 .bd-toc .nav > .active > ul {
   display: block;
 }
-
-
-
-
-
-
-
-
 
 ul.gallery li {
     list-style-type: none;

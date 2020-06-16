@@ -69,7 +69,7 @@ export class ArrowView extends AnnotationView {
     if (!this.model.visible)
       return
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     // Order in this function is important. First we draw all the arrow heads.
@@ -136,7 +136,7 @@ export class ArrowView extends AnnotationView {
 export namespace Arrow {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineVector & {
+  export type Props = Annotation.Props & {
     x_start: p.NumberSpec
     y_start: p.NumberSpec
     start_units: p.Property<SpatialUnits>
@@ -148,7 +148,9 @@ export namespace Arrow {
     source: p.Property<ColumnarDataSource>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Annotation.Visuals & {line: Line}
 }
@@ -157,6 +159,7 @@ export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
   properties: Arrow.Props
+  __view_type__: ArrowView
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)
@@ -165,7 +168,7 @@ export class Arrow extends Annotation {
   static init_Arrow(): void {
     this.prototype.default_view = ArrowView
 
-    this.mixins(['line'])
+    this.mixins<Arrow.Mixins>(LineVector)
 
     this.define<Arrow.Props>({
       x_start:      [ p.NumberSpec                           ],

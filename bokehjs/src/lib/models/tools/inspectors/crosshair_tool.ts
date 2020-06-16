@@ -1,7 +1,7 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
-import {Dimensions, SpatialUnits, RenderMode} from "core/enums"
+import {Dimensions} from "core/enums"
 import {MoveEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {Color} from "core/types"
@@ -30,9 +30,9 @@ export class CrosshairToolView extends InspectToolView {
   _update_spans(x: number | null, y: number | null): void {
     const dims = this.model.dimensions
     if (dims == "width" || dims == "both")
-      this.model.spans.width.computed_location  = y
+      this.model.spans.width.location  = y
     if (dims == "height" || dims == "both")
-      this.model.spans.height.computed_location = x
+      this.model.spans.height.location = x
   }
 }
 
@@ -45,8 +45,6 @@ export namespace CrosshairTool {
     line_width: p.Property<number>
     line_alpha: p.Property<number>
 
-    location_units: p.Property<SpatialUnits>
-    render_mode: p.Property<RenderMode>
     spans: p.Property<{width: Span, height: Span}>
   }
 }
@@ -55,6 +53,7 @@ export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
   properties: CrosshairTool.Props
+  __view_type__: CrosshairToolView
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)
@@ -71,8 +70,6 @@ export class CrosshairTool extends InspectTool {
     })
 
     this.internal({
-      location_units: [ p.SpatialUnits, "screen" ],
-      render_mode:    [ p.RenderMode,   "css"    ],
       spans:          [ p.Any                    ],
     })
 
@@ -97,8 +94,8 @@ export class CrosshairTool extends InspectTool {
       width: new Span({
         for_hover: true,
         dimension: "width",
-        render_mode: this.render_mode,
-        location_units: this.location_units,
+        location_units: "screen",
+        level: "overlay",
         line_color: this.line_color,
         line_width: this.line_width,
         line_alpha: this.line_alpha,
@@ -106,8 +103,8 @@ export class CrosshairTool extends InspectTool {
       height: new Span({
         for_hover: true,
         dimension: "height",
-        render_mode: this.render_mode,
-        location_units: this.location_units,
+        location_units: "screen",
+        level: "overlay",
         line_color: this.line_color,
         line_width: this.line_width,
         line_alpha: this.line_alpha,

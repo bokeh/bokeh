@@ -38,7 +38,7 @@ from .either import Either
 from .enum import Enum
 from .numeric import Float, Int
 from .primitive import String
-from .regex import Regex
+from .string import Regex
 
 #-----------------------------------------------------------------------------
 # Globals and constants

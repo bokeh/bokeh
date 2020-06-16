@@ -15,7 +15,7 @@ export class LabelView extends TextAnnotationView {
   }
 
   protected _get_size(): Size {
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
 
     const {width, ascent} = ctx.measureText(this.model.text)
@@ -54,7 +54,7 @@ export class LabelView extends TextAnnotationView {
     sy -= this.model.y_offset
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.plot_view.canvas_view.ctx, this.model.text, sx, sy, angle)
+    draw(this.layer.ctx, this.model.text, sx, sy, angle)
   }
 }
 
@@ -71,11 +71,14 @@ export namespace Label {
     y_offset: p.Property<number>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  } & mixins.TextScalar
-    & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
 
   export type Attrs = p.AttrsOf<Props>
+
+  export type Mixins =
+    mixins.Text/*Scalar*/ &
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -84,6 +87,7 @@ export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
   properties: Label.Props
+  __view_type__: LabelView
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)
@@ -92,7 +96,11 @@ export class Label extends TextAnnotation {
   static init_Label(): void {
     this.prototype.default_view = LabelView
 
-    this.mixins(['text', 'line:border_', 'fill:background_'])
+    this.mixins<Label.Mixins>([
+      mixins.Text/*Scalar*/,
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
 
     this.define<Label.Props>({
       x:            [ p.Number                       ],

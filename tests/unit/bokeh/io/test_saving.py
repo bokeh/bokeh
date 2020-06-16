@@ -105,7 +105,7 @@ def test__save_helper(mock_file_html, mock_io_open) -> None:
 
     assert mock_file_html.call_count == 1
     assert mock_file_html.call_args[0] == (obj, resources)
-    assert mock_file_html.call_args[1] == dict(title="title", template=None)
+    assert mock_file_html.call_args[1] == dict(title="title", template=None, theme=None)
 
     assert mock_io_open.call_count == 1
     assert mock_io_open.call_args[0] == (filename,)

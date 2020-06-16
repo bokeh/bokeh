@@ -270,7 +270,7 @@ class FontSizeSpec(DataSpec):
 
     .. code-block:: python
 
-        m.font_size = "10pt"  # value
+        m.font_size = "13px"  # value
 
         m.font_size = "1.5em" # value
 
@@ -626,9 +626,9 @@ def value(val, transform=None):
         .. code-block:: python
 
             # The following will take text values to render from a data source
-            # column "text_column", but use a fixed value "12pt" for font size
+            # column "text_column", but use a fixed value "16px" for font size
             p.text("x", "y", text="text_column",
-                   text_font_size=value("12pt"), source=source)
+                   text_font_size=value("16px"), source=source)
 
     '''
     if transform:

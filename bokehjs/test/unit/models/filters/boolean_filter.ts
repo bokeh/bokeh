@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {BooleanFilter} from "@bokehjs/models/filters/boolean_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -15,7 +15,7 @@ describe("BooleanFilter", () => {
 
     it("returns the correct indices when booleans is all boooleans", () => {
       const boolean_filter = new BooleanFilter({booleans: [false, true, true]})
-      expect(boolean_filter.compute_indices(cds)).to.be.deep.equal([1, 2])
+      expect(boolean_filter.compute_indices(cds)).to.be.equal([1, 2])
     })
 
     it("returns null when booleans has non-booleans", () => {

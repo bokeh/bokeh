@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import * as tmpl from "@bokehjs/core/util/templating"
 import {keys} from "@bokehjs/core/util/object"
@@ -89,7 +89,7 @@ describe("templating module", () => {
     })
 
     it("should throw an error on unknown formatter type", () => {
-      expect(() => tmpl.get_formatter("@x", "%5.3f mu", {"@x": "junk" as any})).to.throw(Error)
+      expect(() => tmpl.get_formatter("@x", "%5.3f mu", {"@x": "junk" as any})).to.throw()
     })
   })
 
@@ -113,7 +113,7 @@ describe("templating module", () => {
     })
 
     it("should throw an error on unknown special vars", () => {
-      expect(() => tmpl.get_value("$x", source, 0, {}).to.throw(Error))
+      expect(() => tmpl.get_value("$x", source, 0, {}).to.throw())
     })
 
     it("should return null for missing column", () => {
@@ -202,7 +202,7 @@ describe("templating module", () => {
 
     it("should throw an error on unrecognized formatters", () => {
       const fn = () => tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {"@foo": "junk" as any})
-      expect(fn).to.throw(Error)
+      expect(fn).to.throw()
     })
 
     it("should default to numeral formatter", () => {

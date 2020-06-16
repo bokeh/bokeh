@@ -25,6 +25,7 @@ export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
   properties: RedoTool.Props
+  __view_type__: RedoToolView
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)

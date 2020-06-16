@@ -82,12 +82,12 @@ export class LogScale extends ContinuousScale {
         [start, end] = [1, 10]
       else {
         const log_val = Math.log(start) / Math.log(10)
-        start = Math.pow(10, Math.floor(log_val))
+        start = 10**Math.floor(log_val)
 
         if (Math.ceil(log_val) != Math.floor(log_val))
-          end = Math.pow(10, Math.ceil(log_val))
+          end = 10**Math.ceil(log_val)
         else
-          end = Math.pow(10, Math.ceil(log_val) + 1)
+          end = 10**(Math.ceil(log_val) + 1)
       }
     }
 

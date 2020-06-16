@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CategoricalMarkerMapper} from "@bokehjs/models/mappers/categorical_marker_mapper"
 import {L1Factor as F1, L2Factor as F2, L3Factor as F3} from "@bokehjs/models/ranges/factor_range"
@@ -19,7 +19,7 @@ describe("CategoricalMarkerMapper module", () => {
           factors: ["a", "b", "c"],
         })
         const vals = cm.v_compute(["c", "b", "a", "b"])
-        expect(vals).to.be.deep.equal(["dash", "circle", "hex", "circle"])
+        expect(vals).to.be.equal(["dash", "circle", "hex", "circle"])
       })
 
       it("should map data unknown data to default_value value", () => {
@@ -30,7 +30,7 @@ describe("CategoricalMarkerMapper module", () => {
           factors: ["a", "b", "c"],
         })
         const vals = cm.v_compute(["d", "a", "b"])
-        expect(vals).to.be.deep.equal(["circle", "hex", "circle"])
+        expect(vals).to.be.equal(["circle", "hex", "circle"])
       })
 
       it("should map data with short markers to default_value value", () => {
@@ -41,7 +41,7 @@ describe("CategoricalMarkerMapper module", () => {
           factors: ["a", "b", "c"],
         })
         const vals = cm.v_compute(["a", "b", "c"])
-        expect(vals).to.be.deep.equal(["hex", "circle", "circle"])
+        expect(vals).to.be.equal(["hex", "circle", "circle"])
       })
 
       it("should disregard any start or end values", () => {
@@ -50,15 +50,15 @@ describe("CategoricalMarkerMapper module", () => {
 
         const cm0 = new CategoricalMarkerMapper({markers, factors, start: 1})
         const vals0 = cm0.v_compute(["c", "b", "a", "b"])
-        expect(vals0).to.be.deep.equal(["dash", "circle", "hex", "circle"])
+        expect(vals0).to.be.equal(["dash", "circle", "hex", "circle"])
 
         const cm1 = new CategoricalMarkerMapper({markers, factors, end: 2})
         const vals1 = cm1.v_compute(["c", "b", "a", "b"])
-        expect(vals1).to.be.deep.equal(["dash", "circle", "hex", "circle"])
+        expect(vals1).to.be.equal(["dash", "circle", "hex", "circle"])
 
         const cm2 = new CategoricalMarkerMapper({markers, factors, start: 1, end: 2})
         const vals2 = cm2.v_compute(["c", "b", "a", "b"])
-        expect(vals2).to.be.deep.equal(["dash", "circle", "hex", "circle"])
+        expect(vals2).to.be.equal(["dash", "circle", "hex", "circle"])
       })
     })
   })
@@ -76,7 +76,7 @@ describe("CategoricalMarkerMapper module", () => {
           end: 1,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       it("should map factors to markers with start=1, end=2", () => {
@@ -89,7 +89,7 @@ describe("CategoricalMarkerMapper module", () => {
           end: 2,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       for (const [i, j] of [[0, 2]]) {
@@ -105,7 +105,7 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals0 = cm0.v_compute([["a", "1"]])
-          expect(vals0).to.be.deep.equal(["circle"])
+          expect(vals0).to.be.equal(["circle"])
 
           const cm1 = new CategoricalMarkerMapper({
             markers,
@@ -115,7 +115,7 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals1 = cm1.v_compute([["a", "1"]])
-          expect(vals1).to.be.deep.equal(["circle"])
+          expect(vals1).to.be.equal(["circle"])
         })
       }
     })
@@ -128,7 +128,7 @@ describe("CategoricalMarkerMapper module", () => {
         const cm = new CategoricalMarkerMapper({markers, factors})
 
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       it("should map factors to markers with start=0, end=2", () => {
@@ -137,7 +137,7 @@ describe("CategoricalMarkerMapper module", () => {
         const cm = new CategoricalMarkerMapper({markers, factors, start: 0, end: 2})
 
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       for (const [i, j] of [[0, 1], [1, 2]]) {
@@ -147,7 +147,7 @@ describe("CategoricalMarkerMapper module", () => {
           const cm = new CategoricalMarkerMapper({markers, factors, start: i, end: j})
 
           const vals = cm.v_compute([["a", "1"]])
-          expect(vals).to.be.deep.equal(["circle"])
+          expect(vals).to.be.equal(["circle"])
         })
       }
     })
@@ -166,7 +166,7 @@ describe("CategoricalMarkerMapper module", () => {
           end: 1,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       it("should map factors to markers with start=1, end=2", () => {
@@ -179,7 +179,7 @@ describe("CategoricalMarkerMapper module", () => {
           end: 2,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       it("should map factors to markers with start=2, end=3", () => {
@@ -192,7 +192,7 @@ describe("CategoricalMarkerMapper module", () => {
           end: 3,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       for (const [i, j] of [[0, 2], [0, 3], [1, 3]]) {
@@ -208,10 +208,10 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals0 = cm0.v_compute([["a", "1", "foo"]])
-          expect(vals0).to.be.deep.equal(["circle"])
+          expect(vals0).to.be.equal(["circle"])
 
           const vals1 = cm0.v_compute([["a", "1", "baz"]])
-          expect(vals1).to.be.deep.equal(["circle"])
+          expect(vals1).to.be.equal(["circle"])
 
           const cm1 = new CategoricalMarkerMapper({
             markers,
@@ -221,10 +221,10 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals2 = cm1.v_compute([["a", "1", "foo"]])
-          expect(vals2).to.be.deep.equal(["circle"])
+          expect(vals2).to.be.equal(["circle"])
 
           const vals3 = cm1.v_compute([["a", "1", "baz"]])
-          expect(vals3).to.be.deep.equal(["circle"])
+          expect(vals3).to.be.equal(["circle"])
 
           const cm2 = new CategoricalMarkerMapper({
             markers,
@@ -234,10 +234,10 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals4 = cm2.v_compute([["a", "1", "foo"]])
-          expect(vals4).to.be.deep.equal(["circle"])
+          expect(vals4).to.be.equal(["circle"])
 
           const vals5 = cm2.v_compute([["a", "1", "baz"]])
-          expect(vals5).to.be.deep.equal(["circle"])
+          expect(vals5).to.be.equal(["circle"])
         })
       }
     })
@@ -253,7 +253,7 @@ describe("CategoricalMarkerMapper module", () => {
           end: 2,
         })
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       it("should map factors to markers with start=1, end=3", () => {
@@ -267,7 +267,7 @@ describe("CategoricalMarkerMapper module", () => {
         })
 
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       for (const [i, j] of [[0, 1], [0, 3], [1, 2], [2, 3]]) {
@@ -283,16 +283,16 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals0 = cm0.v_compute(["a"])
-          expect(vals0).to.be.deep.equal(["circle"])
+          expect(vals0).to.be.equal(["circle"])
 
           const vals1 = cm0.v_compute([["a", "1"]])
-          expect(vals1).to.be.deep.equal(i == 0 && j == 3 ? ["hex"] : ["circle"])
+          expect(vals1).to.be.equal(i == 0 && j == 3 ? ["hex"] : ["circle"])
 
           const vals2 = cm0.v_compute([["a", "1", "foo"]])
-          expect(vals2).to.be.deep.equal(["circle"])
+          expect(vals2).to.be.equal(["circle"])
 
           const vals3 = cm0.v_compute([["a", "1", "baz"]])
-          expect(vals3).to.be.deep.equal(["circle"])
+          expect(vals3).to.be.equal(["circle"])
 
           const cm1 = new CategoricalMarkerMapper({
             markers,
@@ -302,16 +302,16 @@ describe("CategoricalMarkerMapper module", () => {
           })
 
           const vals4 = cm1.v_compute(["a"])
-          expect(vals4).to.be.deep.equal(["circle"])
+          expect(vals4).to.be.equal(["circle"])
 
           const vals5 = cm1.v_compute([["a", "1"]])
-          expect(vals5).to.be.deep.equal(["circle"])
+          expect(vals5).to.be.equal(["circle"])
 
           const vals6 = cm1.v_compute([["a", "1", "foo"]])
-          expect(vals6).to.be.deep.equal(["circle"])
+          expect(vals6).to.be.equal(["circle"])
 
           const vals7 = cm1.v_compute([["a", "1", "baz"]])
-          expect(vals7).to.be.deep.equal(["circle"])
+          expect(vals7).to.be.equal(["circle"])
         })
       }
     })
@@ -323,7 +323,7 @@ describe("CategoricalMarkerMapper module", () => {
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
         const cm = new CategoricalMarkerMapper({markers, factors})
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       it("should map factors to markers with start=0, end=3", () => {
@@ -331,7 +331,7 @@ describe("CategoricalMarkerMapper module", () => {
         const factors: F3[] = [["a", "1", "foo"], ["a", "2", "foo"], ["b", "2", "foo"], ["c", "1", "bar"]]
         const cm = new CategoricalMarkerMapper({markers, factors, start: 0, end: 3})
         const vals = cm.v_compute(factors)
-        expect(vals).to.be.deep.equal(markers)
+        expect(vals).to.be.equal(markers)
       })
 
       for (const [i, j] of [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3]]) {
@@ -341,16 +341,16 @@ describe("CategoricalMarkerMapper module", () => {
           const cm = new CategoricalMarkerMapper({markers, factors, start: i, end: j})
 
           const vals0 = cm.v_compute(["a"])
-          expect(vals0).to.be.deep.equal(["circle"])
+          expect(vals0).to.be.equal(["circle"])
 
           const vals1 = cm.v_compute([["a", "1"]])
-          expect(vals1).to.be.deep.equal(["circle"])
+          expect(vals1).to.be.equal(["circle"])
 
           const vals2 = cm.v_compute([["a", "1", "foo"]])
-          expect(vals2).to.be.deep.equal(["circle"])
+          expect(vals2).to.be.equal(["circle"])
 
           const vals3 = cm.v_compute([["a", "1", "baz"]])
-          expect(vals3).to.be.deep.equal(["circle"])
+          expect(vals3).to.be.equal(["circle"])
         })
       }
     })

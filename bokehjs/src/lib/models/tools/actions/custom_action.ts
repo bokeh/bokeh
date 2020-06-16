@@ -34,6 +34,7 @@ export interface CustomAction extends CustomAction.Attrs {}
 
 export class CustomAction extends ActionTool {
   properties: CustomAction.Props
+  __view_type__: CustomActionView
 
   constructor(attrs?: Partial<CustomAction.Attrs>) {
     super(attrs)

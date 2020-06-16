@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "alwaysStrict": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": false,
+    "declaration": false,
+    "sourceMap": true,
+    "importHelpers": true,
+    "experimentalDecorators": true,
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2020",
+    "lib": ["es2020", "dom", "dom.iterable"],
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@bokehjs/*": ["../../build/js/lib/*", "../../build/js/types/*"]
+    },
+    "outDir": "../../build/test"
+  },
+  "include": [
+    "../framework.ts",
+    "../*.d.ts",
+    "./**/*.ts"
+  ]
+}

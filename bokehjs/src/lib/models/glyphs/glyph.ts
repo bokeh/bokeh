@@ -1,4 +1,4 @@
-import * as hittest from "core/hittest"
+import {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as proj from "core/util/projections"
@@ -77,7 +77,8 @@ export abstract class GlyphView extends View {
     }
   }
 
-  set_visuals(source: ColumnarDataSource): void {
+  set_visuals(source: ColumnarDataSource, indices: number[]): void {
+    this.visuals.set_all_indices(indices)
     this.visuals.warm_cache(source)
 
     if (this.glglyph != null)
@@ -188,7 +189,7 @@ export abstract class GlyphView extends View {
   protected _hit_rect?(geometry: geometry.RectGeometry): Selection
   protected _hit_poly?(geometry: geometry.PolyGeometry): Selection
 
-  hit_test(geometry: geometry.Geometry): hittest.HitTestResult {
+  hit_test(geometry: geometry.Geometry): HitTestResult {
     switch (geometry.type) {
       case "point":
         if (this._hit_point != null)
@@ -220,21 +221,19 @@ export abstract class GlyphView extends View {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices({x0, x1, y0, y1})
-    return result
+    const indices = this.index.indices({x0, x1, y0, y1})
+    return new Selection({indices})
   }
 
   set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
     let data = this.model.materialize_dataspecs(source)
 
-    this.visuals.set_all_indices(indices)
     if (indices && !(this instanceof LineView)) {
       const data_subset: {[key: string]: any} = {}
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => (v as any)[i])
+          data_subset[k] = indices.map((i) => (v as Arrayable)[i])
         else
           data_subset[k] = v
       }
@@ -369,6 +368,7 @@ export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
   properties: Glyph.Props
+  __view_type__: GlyphView
 
   /* prototype */ _coords: [string, string][]
 

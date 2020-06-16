@@ -24,7 +24,8 @@ export abstract class CellEditorView extends DOMView {
   protected abstract _createInput(): HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
   constructor(options: any) {
-    super({model: options.column.model, ...options})
+    const {model, parent} = options.column
+    super({model, parent, ...options})
     this.args = options
     this.initialize() // XXX: no build_views()
     this.render()     // XXX: this isn't governed by layout
@@ -136,6 +137,7 @@ export interface CellEditor extends CellEditor.Attrs {}
 
 export abstract class CellEditor extends Model {
   properties: CellEditor.Props
+  __view_type__: CellEditorView
 }
 
 export class StringEditorView extends CellEditorView {

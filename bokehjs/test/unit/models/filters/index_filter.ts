@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -15,7 +15,7 @@ describe("IndexFilter", () => {
 
     it("returns the correct indices when indices is all ints", () => {
       const index_filter = new IndexFilter({indices: [0, 1, 3]})
-      expect(index_filter.compute_indices(cds)).to.be.deep.equal([0, 1, 3])
+      expect(index_filter.compute_indices(cds)).to.be.equal([0, 1, 3])
     })
 
     it("returns null when indices has floats", () => {
@@ -25,7 +25,7 @@ describe("IndexFilter", () => {
 
     it("returns [] when indices is an empty array", () => {
       const index_filter = new IndexFilter({indices: []})
-      expect(index_filter.compute_indices(cds)).to.be.deep.equal([])
+      expect(index_filter.compute_indices(cds)).to.be.equal([])
     })
 
     it("returns null when not initialized with indices", () => {

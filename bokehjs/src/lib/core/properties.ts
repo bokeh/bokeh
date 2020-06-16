@@ -1,7 +1,8 @@
-import {Signal0, Signal, Signalable} from "./signaling"
+import {Signal0} from "./signaling"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, Color as ColorType} from "./types"
+import {Arrayable} from "./types"
+import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {is_color} from "./util/color"
@@ -9,9 +10,7 @@ import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/type
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
-
-// XXX: silence TS, because `Signal` appears in declarations due to Signalable
-Signal // lgtm [js/useless-expression]
+import {settings} from "./settings"
 
 function valueToString(value: any): string {
   try {
@@ -37,47 +36,104 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T>, (T | (() => T))?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T>, (T | (() => T))?, PropertyOptions?] : never
+}
+
+export type PropertyOptions = {
+  internal?: boolean
+  optional?: boolean
 }
 
 export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, default_value?: (obj: HasProps) => T): Property<T>
+  new (obj: HasProps, attr: string, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions): Property<T>
   readonly prototype: Property<T>
 }
 
-export abstract class Property<T> extends Signalable() {
+export abstract class Property<T = unknown> {
   __value__: T
 
-  spec: {
-    value?: any
-    field?: string
-    expr?: any
-    transform?: any // Transform
+  get syncable(): boolean {
+    return !this.internal
+  }
+
+  /*protected*/ spec: { // XXX: too many failures for now
+    readonly value?: any
+    readonly field?: string
+    readonly expr?: any
+    readonly transform?: any // Transform
     units?: any
   }
 
-  optional: boolean = false
+  get_value(): T {
+    return this.spec.value
+  }
+
+  set_value(val: T): void {
+    this._update(val)
+    this._dirty = true
+  }
+
+  // abstract _intrinsic_default(): T
+
+  _default_override(): T | undefined {
+    return undefined
+  }
+
+  private _dirty: boolean = false
+  get dirty(): boolean {
+    return this._dirty
+  }
 
   readonly change: Signal0<HasProps>
 
+  readonly internal: boolean
+  readonly optional: boolean
+
   constructor(readonly obj: HasProps,
               readonly attr: string,
-              readonly default_value?: (obj: HasProps) => T) {
-    super()
+              readonly default_value?: (obj: HasProps) => T,
+              initial_value?: T,
+              options: PropertyOptions = {}) {
     this.change = new Signal0(this.obj, "change")
-    this._init()
-    this.connect(this.change, () => this._init())
+
+    this.internal = options.internal ?? false
+    this.optional = options.optional ?? false
+
+    let attr_value: T
+    if (initial_value !== undefined) {
+      attr_value = initial_value
+      this._dirty = true
+    } else {
+      const value = this._default_override()
+      if (value !== undefined)
+        attr_value = value
+      else if (default_value !== undefined)
+        attr_value = default_value(obj)
+      else {
+        //throw new Error("no default")
+        attr_value = null as any // XXX: nullable properties
+      }
+    }
+
+    this._update(attr_value)
   }
 
-  update(): void {
-    this._init()
+  //protected abstract _update(attr_value: T): void
+
+  protected _update(attr_value: T): void {
+    if (attr_value != null) // XXX: non-nullalble types
+      this.validate(attr_value)
+    this.spec = {value: attr_value}
+  }
+
+  toString(): string {
+    /*${this.name}*/
+    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
   }
 
   // ----- customizable policies
 
-  init(): void {}
-
-  transform(values: any): any {
+  normalize(values: any): any {
     return values
   }
 
@@ -95,47 +151,10 @@ export abstract class Property<T> extends Signalable() {
   value(do_spec_transform: boolean = true): any {
     if (this.spec.value === undefined)
       throw new Error("attempted to retrieve property value for property without value specification")
-    let ret = this.transform([this.spec.value])[0]
+    let ret = this.normalize([this.spec.value])[0]
     if (this.spec.transform != null && do_spec_transform)
       ret = this.spec.transform.compute(ret)
     return ret
-  }
-
-  // ----- private methods
-
-  /*protected*/ _init(): void {
-    const obj = this.obj
-    const attr = this.attr
-    let attr_value: any = obj.getv(attr)
-
-    if (attr_value === undefined) {
-      const default_value = this.default_value
-      if (default_value !== undefined)
-        attr_value = default_value(obj)
-      else
-        attr_value = null
-      obj.setv({[attr]: attr_value}, {silent: true, defaults: true})
-    }
-
-    if (isArray(attr_value))
-      this.spec = {value: attr_value}
-    else if (isSpec(attr_value))
-      this.spec = attr_value
-    else
-      this.spec = {value: attr_value}
-
-    //if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
-    //  throw new Error(`field value for property '${attr}' is not a string`)
-
-    if (this.spec.value != null)
-      this.validate(this.spec.value)
-
-    this.init()
-  }
-
-  toString(): string {
-    /*${this.name}*/
-    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
   }
 }
 
@@ -157,7 +176,7 @@ export class Boolean extends Property<boolean> {
   }
 }
 
-export class Color extends Property<ColorType> {
+export class Color extends Property<types.Color> {
   valid(value: unknown): boolean {
     return isString(value) && is_color(value)
   }
@@ -193,9 +212,19 @@ export class String extends Property<string> {
   }
 }
 
+export class NullString extends Property<string | null> {
+  valid(value: unknown): boolean {
+    return value === null || isString(value)
+  }
+}
+
 export class FontSize extends String {}
 
-export class Font extends String {} // TODO (bev) don't think this exists python side
+export class Font extends String {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
 
 //
 // Enum properties
@@ -222,7 +251,7 @@ export class Direction extends EnumProperty<enums.Direction> {
     return enums.Direction
   }
 
-  transform(values: any): any {
+  normalize(values: any): any {
     const result = new Uint8Array(values.length)
     for (let i = 0; i < values.length; i++) {
       switch (values[i]) {
@@ -256,6 +285,7 @@ export const LinePolicy = Enum(enums.LinePolicy)
 export const Location = Enum(enums.Location)
 export const Logo = Enum(enums.Logo)
 export const MarkerType = Enum(enums.MarkerType)
+export const MutedPolicy = Enum(enums.MutedPolicy)
 export const Orientation = Enum(enums.Orientation)
 export const OutputBackend = Enum(enums.OutputBackend)
 export const PaddingUnits = Enum(enums.PaddingUnits)
@@ -285,24 +315,67 @@ export const VerticalAlign = Enum(enums.VerticalAlign)
 // DataSpec properties
 //
 
-export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
+export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
   __value__: T
   __scalar__: S
+
+  get_value(): S {
+    // XXX: allow obj.x = null; obj.x == null
+    return this.spec.value === null ? null : this.spec as any
+  }
+
+  protected _update(attr_value: S | T): void {
+    if (isSpec(attr_value))
+      this.spec = attr_value
+    else
+      this.spec = {value: attr_value}
+
+    if (this.spec.value != null)
+      this.validate(this.spec.value)
+  }
 }
+
+export class AnyScalar extends ScalarSpec<any> {}
+export class ColorScalar extends ScalarSpec<types.Color | null> {}
+export class NumberScalar extends ScalarSpec<number> {}
+export class StringScalar extends ScalarSpec<string> {}
+export class NullStringScalar extends ScalarSpec<string | null> {}
+export class ArrayScalar extends ScalarSpec<any[]> {}
+export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
+export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
+export class FontSizeScalar extends ScalarSpec<string> {}
+export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
+export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
+export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
   __value__: T
   __vector__: V
 
+  get_value(): V {
+    // XXX: allow obj.x = null; obj.x == null
+    return this.spec.value === null ? null : this.spec as any
+  }
+
+  protected _update(attr_value: V | T): void {
+    if (isSpec(attr_value))
+      this.spec = attr_value
+    else
+      this.spec = {value: attr_value}
+
+    if (this.spec.value != null)
+      this.validate(this.spec.value)
+  }
+
   array(source: ColumnarDataSource): any[] {
     let ret: any
 
     if (this.spec.field != null) {
-      ret = this.transform(source.get_column(this.spec.field))
+      ret = this.normalize(source.get_column(this.spec.field))
       if (ret == null)
         throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
     } else if (this.spec.expr != null) {
-      ret = this.transform(this.spec.expr.v_compute(source))
+      ret = this.normalize(this.spec.expr.v_compute(source))
     } else {
       let length = source.get_length()
       if (length == null)
@@ -323,7 +396,9 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   readonly default_units: Units
   readonly valid_units: Units[]
 
-  init(): void {
+  _update(attr_value: any): void {
+    super._update(attr_value)
+
     if (this.spec.units == null)
       this.spec.units = this.default_units
 
@@ -345,17 +420,17 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
   get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
 
-  transform(values: Arrayable): Arrayable {
+  normalize(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
     values = map(values, (x: number) => -x)
-    return super.transform(values)
+    return super.normalize(values)
   }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {}
 
-export class ColorSpec extends DataSpec<ColorType | null> {}
+export class ColorSpec extends DataSpec<types.Color | null> {}
 
 export class CoordinateSpec extends DataSpec<number | Factor> {}
 

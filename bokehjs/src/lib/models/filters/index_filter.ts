@@ -29,15 +29,15 @@ export class IndexFilter extends Filter {
   }
 
   compute_indices(_source: DataSource): number[] | null {
-    if (this.indices != null && this.indices.length >= 0) {
+    if (this.indices != null) {
       if (every(this.indices, isInteger))
         return this.indices
       else {
-        logger.warn(`IndexFilter ${this.id}: indices should be array of integers, defaulting to no filtering`)
+        logger.warn(`${this}: indices should be array of integers, defaulting to no filtering`)
         return null
       }
     } else {
-      logger.warn(`IndexFilter ${this.id}: indices was not set, defaulting to no filtering`)
+      logger.warn(`${this}: indices was not set, defaulting to no filtering`)
       return null
     }
   }

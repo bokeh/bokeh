@@ -1,11 +1,13 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join} from "path"
+import {join, delimiter} from "path"
+import os from "os"
+import assert from "assert"
 
 import which from "which"
 
-import {task, log, BuildError} from "../task"
+import {task, task2, success, BuildError} from "../task"
 import {Linker} from "@compiler/linker"
 import {default_prelude} from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
@@ -13,11 +15,12 @@ import * as paths from "../paths"
 
 async function is_available(port: number): Promise<boolean> {
   const host = "0.0.0.0"
-  const timeout = 200
+  const timeout = 10000
 
-  return new Promise((resolve, _reject) => {
+  return new Promise((resolve, reject) => {
     const socket = new Socket()
     let available = false
+    let failure = false
 
     socket.on("connect", () => {
       socket.destroy()
@@ -25,6 +28,7 @@ async function is_available(port: number): Promise<boolean> {
 
     socket.setTimeout(timeout)
     socket.on("timeout", () => {
+      failure = true
       socket.destroy()
     })
 
@@ -34,11 +38,21 @@ async function is_available(port: number): Promise<boolean> {
     })
 
     socket.on("close", () => {
-      resolve(available)
+      if (!failure)
+        resolve(available)
+      else
+        reject(new BuildError("net", "timeout when searching for unused port"))
     })
 
     socket.connect(port, host)
   })
+}
+
+async function find_port(port: number): Promise<number> {
+  while (!await is_available(port)) {
+    port++
+  }
+  return port
 }
 
 function mocha(files: string[]): Promise<void> {
@@ -86,69 +100,89 @@ function mocha(files: string[]): Promise<void> {
 }
 
 task("test:codebase:compile", async () => {
-  const success = compile_typescript("./test/codebase/tsconfig.json", {log})
-
-  if (argv.emitError && !success)
-    process.exit(1)
+  compile_typescript("./test/codebase/tsconfig.json")
 })
 
 task("test:size", ["test:codebase:compile"], async () => {
   await mocha(["./build/test/codebase/size.js"])
 })
 
-function bundle(name: string): void {
-  const linker = new Linker({
-    entries: [join(paths.build_dir.test, name, "index.js")],
-    bases: [paths.build_dir.test, "./node_modules"],
-    cache: join(paths.build_dir.test, `${name}.json`),
-    transpile: "ES2017",
-    externals: [/^@bokehjs\//],
-    prelude: default_prelude({global: "Tests"}),
-    shims: ["fs", "module"],
-  })
+function sys_path(): string {
+  const path = [process.env.PATH]
 
-  if (!argv.rebuild) linker.load_cache()
-  const [bundle] = linker.link()
-  linker.store_cache()
+  switch (os.type()) {
+    case "Linux":
+      path.push("/opt/google/chrome/")
+      break
+    case "Darwin":
+      path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
+      break
+    case "Windows_NT":
+      path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
+      break
+  }
 
-  bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
+  return path.join(delimiter)
 }
 
 function chrome(): string {
-  const names = ["chromium-browser", "chromium", "chrome", "google-chrome", "Google Chrome"]
+  const names = ["chrome", "google-chrome", "Google Chrome"]
+  if (os.type() == "Linux")
+    names.unshift("chromium-browser", "chromium")
+  const path = sys_path()
+
   for (const name of names) {
-    const path = which.sync(name, {nothrow: true})
-    if (path != null)
-      return path
+    const executable = which.sync(name, {nothrow: true, path})
+    if (executable != null)
+      return executable
   }
 
-  throw new BuildError("headless", "can't find chromium or chrome executables")
+  throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
 }
 
 async function headless(port: number): Promise<ChildProcess> {
-  const args = ["--headless", "--hide-scrollbars", `--remote-debugging-port=${port}`]
-  const proc = spawn(chrome(), args, {stdio: "pipe"})
+  const args = [
+    "--headless",
+    `--remote-debugging-port=${port}`,
+    "--hide-scrollbars",
+    "--font-render-hinting=none",
+    "--disable-font-subpixel-positioning",
+    "--force-color-profile=srgb",
+    "--force-device-scale-factor=1",
+  ]
+  const executable = chrome()
+  const proc = spawn(executable, args, {stdio: "pipe"})
 
   process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
   process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
   return new Promise((resolve, reject) => {
-    setTimeout(() => reject(new Error("timeout")), 5000)
+    const timer = setTimeout(() => {
+      reject(new BuildError("headless", `timeout starting ${executable}`))
+    }, 30000)
     proc.on("error", reject)
+    let buffer = ""
     proc.stderr.on("data", (chunk) => {
-      const text = `${chunk}`
-      for (const line of text.split("\n")) {
-        if (line.match(/DevTools listening/) != null) {
-          console.log(line)
-          resolve(proc)
-        }
+      buffer += `${chunk}`
+
+      const result = buffer.match(/DevTools listening [^\n]*\n/)
+      if (result != null) {
+        proc.stderr.removeAllListeners()
+        clearTimeout(timer)
+        const [line] = result
+        console.log(line.trim())
+        resolve(proc)
+      } else if (buffer.match(/bind\(\)/)) {
+        proc.stderr.removeAllListeners()
+        clearTimeout(timer)
+        reject(new BuildError("headless", `can't start headless browser on port ${port}`))
       }
     })
   })
 }
 
-function server(port: number): Promise<ChildProcess> {
+async function server(port: number): Promise<ChildProcess> {
   const args = ["--no-warnings", "./test/devtools", "server", `--port=${port}`]
 
   if (argv.debug) {
@@ -172,15 +206,52 @@ function server(port: number): Promise<ChildProcess> {
       else
         reject(new BuildError("devtools-server", "failed to start"))
     })
+    proc.on("exit", (code, _signal) => {
+      if (code !== 0) {
+        reject(new BuildError("devtools-server", `failed to start`))
+      }
+    })
   })
+}
+
+async function retry(fn: () => Promise<void>, attempts: number): Promise<void> {
+  assert(attempts > 0)
+  while (true) {
+    if (--attempts == 0) {
+      await fn()
+      break
+    } else {
+      try {
+        await fn()
+        break
+      } catch {}
+    }
+  }
 }
 
 function opt(name: string, value: unknown): string {
   return value != null ? `--${name}=${value}` : ""
 }
 
-function devtools(name: string): Promise<void> {
-  const args = ["--no-warnings", "./test/devtools", `http://localhost:5777/${name}`, opt("k", argv.k), opt("grep", argv.grep)]
+function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
+  const args = [
+    "--no-warnings",
+    "./test/devtools",
+    `http://localhost:${server_port}/${name}`,
+    `--port=${devtools_port}`,
+    opt("k", argv.k),
+    opt("grep", argv.grep),
+    opt("baselines-root", baselines_root),
+    `--screenshot=${argv.screenshot ?? "test"}`,
+  ]
+
+  if (argv.debug) {
+    if (argv.debug === true)
+      args.unshift("--inspect-brk")
+    else
+      args.unshift(`--inspect-brk=${argv.debug}`)
+  }
+
   const proc = spawn(process.execPath, args, {stdio: 'inherit'})
 
   process.once("exit",    () => proc.kill())
@@ -200,47 +271,77 @@ function devtools(name: string): Promise<void> {
   })
 }
 
-task("test:start:headless", async () => {
-  const port = 9222
-  if (await is_available(port)) {
+const start_headless = task("test:start:headless", async () => {
+  let port = 9222
+  await retry(async () => {
+    port = await find_port(port)
     await headless(port)
-  } else {
-    log(`Reusing chromium browser instance on port ${port}`)
-  }
+  }, 3)
+  return success(port)
 })
 
-task("test:start:server", async () => {
-  const port = 5777
-  if (await is_available(port)) {
+const start_server = task("test:start:server", async () => {
+  let port = 5777
+  await retry(async () => {
+    port = await find_port(port)
     await server(port)
-  } else {
-    log(`Reusing devtools server instance on port ${port}`)
-  }
+  }, 3)
+  return success(port)
 })
 
-task("test:start", ["test:start:headless", "test:start:server"])
-
-task("test:compile", ["defaults:generate"], async () => {
-  const success = compile_typescript("./test/tsconfig.json", {log})
-
-  if (argv.emitError && !success)
-    process.exit(1)
+const start = task2("test:start", [start_headless, start_server], async (devtools_port, server_port) => {
+  return success([devtools_port, server_port] as [number, number])
 })
 
-task("test:bundle", ["test:unit:bundle", "test:integration:bundle"])
+function compile(name: string) {
+  compile_typescript(`./test/${name}/tsconfig.json`)
+}
 
-task("test:unit:bundle", ["test:compile"], async () => {
-  bundle("unit")
-})
-task("test:unit", ["test:start", "test:unit:bundle"], async () => {
-  await devtools("unit")
+function bundle(name: string): void {
+  const linker = new Linker({
+    entries: [join(paths.build_dir.test, name, "index.js")],
+    bases: [paths.build_dir.test, "./node_modules"],
+    cache: join(paths.build_dir.test, `${name}.json`),
+    target: "ES2020",
+    minify: false,
+    externals: [/^@bokehjs\//],
+    prelude: () => default_prelude({global: "Tests"}),
+    shims: ["fs", "module"],
+  })
+
+  if (!argv.rebuild) linker.load_cache()
+  const [bundle] = linker.link()
+  linker.store_cache()
+
+  bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
+}
+
+task("test:compile:unit", async () => compile("unit"))
+const unit_bundle = task("test:unit:bundle", ["test:compile:unit"], async () => bundle("unit"))
+
+task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "unit")
+  return success(undefined)
 })
 
-task("test:integration:bundle", ["test:compile"], async () => {
-  bundle("integration")
-})
-task("test:integration", ["test:start", "test:integration:bundle"], async () => {
-  await devtools("integration")
+task("test:compile:integration", async () => compile("integration"))
+const integration_bundle = task("test:integration:bundle", ["test:compile:integration"], async () => bundle("integration"))
+
+task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "integration", "test/baselines")
+  return success(undefined)
 })
 
-task("test", ["test:size", "test:unit", "test:integration"])
+task("test:defaults:compile", ["defaults:generate"], async () => compile("defaults"))
+const defaults_bundle = task("test:defaults:bundle", ["test:defaults:compile"], async () => bundle("defaults"))
+
+task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_port]) => {
+  await devtools(devtools_port, server_port, "defaults")
+  return success(undefined)
+})
+
+task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integration:bundle"])
+task("test:build", ["test:bundle"])
+
+task("test:lib", ["test:unit", "test:integration"])
+task("test", ["test:size", "test:defaults", "test:lib"])

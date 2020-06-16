@@ -2,7 +2,6 @@ import {InputGroup, InputGroupView} from "./input_group"
 
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
-import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {bk_inline} from "styles/mixins"
@@ -19,9 +18,11 @@ export class CheckboxGroupView extends InputGroupView {
 
     const {active, labels} = this.model
 
+    this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const checkbox = input({type: `checkbox`, value: `${i}`})
       checkbox.addEventListener("change", () => this.change_active(i))
+      this._inputs.push(checkbox)
 
       if (this.model.disabled)
         checkbox.disabled = true
@@ -36,8 +37,8 @@ export class CheckboxGroupView extends InputGroupView {
 
   change_active(i: number): void {
     const active = new Set(this.model.active)
-    active.toggle(i)
-    this.model.active = active.values
+    active.has(i) ? active.delete(i) : active.add(i)
+    this.model.active = [...active].sort()
   }
 }
 
@@ -55,6 +56,7 @@ export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends InputGroup {
   properties: CheckboxGroup.Props
+  __view_type__: CheckboxGroupView
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)

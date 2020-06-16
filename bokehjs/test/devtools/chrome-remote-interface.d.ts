@@ -24,8 +24,29 @@ declare module "chrome-remote-interface" {
     }
   }
 
+  type VersionInfo = {
+    Browser: string
+    'Protocol-Version': string
+    'User-Agent': string
+    'V8-Version': string
+    'WebKit-Version': string
+    webSocketDebuggerUrl: string
+  }
+
+  type Options = {
+    host?: string
+    port?: number
+  }
+
+  function CDP(options: Options, callback: (client: DevTools) => void): NodeJS.EventEmitter
+  function CDP(options: Options): Promise<DevTools>
+
   function CDP(callback: (client: DevTools) => void): NodeJS.EventEmitter
   function CDP(): Promise<DevTools>
+
+  namespace CDP {
+    function Version(options?: Options): Promise<VersionInfo>
+  }
 
   export = CDP
 }

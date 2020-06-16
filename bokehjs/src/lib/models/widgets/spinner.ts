@@ -89,6 +89,7 @@ export interface Spinner extends Spinner.Attrs {}
 
 export class Spinner extends InputWidget {
   properties: Spinner.Props
+  __view_type__: SpinnerView
 
   constructor(attrs?: Partial<Spinner.Attrs>) {
     super(attrs)

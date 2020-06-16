@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Document} from "@bokehjs/document"
 import {Tool} from "@bokehjs/models/tools/tool"
@@ -40,48 +40,48 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool()
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([hr.start, hr.end]).to.be.equal([-0.9, 0.9])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([vr.start, vr.end]).to.be.equal([-0.9, 0.9])
     })
 
     it("should zoom the x-axis only", async () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'width'})
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([hr.start, hr.end]).to.be.equal([-0.9, 0.9])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([vr.start, vr.end]).to.be.equal([-1.0, 1.0])
     })
 
     it("should zoom the y-axis only", async () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'height'})
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views[zoom_in_tool.id] as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
 
       const hr = plot_view.frame.x_ranges.default
-      expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
+      expect([hr.start, hr.end]).to.be.equal([-1.0, 1.0])
 
       const vr = plot_view.frame.y_ranges.default
-      expect([vr.start, vr.end]).to.be.deep.equal([-0.9, 0.9])
+      expect([vr.start, vr.end]).to.be.equal([-0.9, 0.9])
     })
   })
 })

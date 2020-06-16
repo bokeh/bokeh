@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {Selection} from "@bokehjs/models/selections"
@@ -55,13 +55,13 @@ describe("glyph module", () => {
       with_log_level("debug", () => {
         const point: PointGeometry = {type: "point", sx: 0, sy: 0}
         const out_point = trap(() => {
-          expect(glyph_view.hit_test(point)).to.be.instanceOf(Selection)
+          expect(glyph_view.hit_test(point)).to.be.instanceof(Selection)
         })
         expect(out_point.debug).to.be.equal("")
 
         const span: SpanGeometry = {type: "span", sx: 0, sy: 0, direction: "h"}
         const out_span = trap(() => {
-          expect(glyph_view.hit_test(span)).to.be.instanceOf(Selection)
+          expect(glyph_view.hit_test(span)).to.be.instanceof(Selection)
         })
         expect(out_span.debug).to.be.equal("")
 

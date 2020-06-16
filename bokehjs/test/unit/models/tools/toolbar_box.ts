@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {ToolbarBox, ProxyToolbar} from "@bokehjs/models/tools/toolbar_box"
@@ -27,7 +27,7 @@ describe("ToolbarBox", () => {
 
   it("should be an instance of LayoutDOM", () => {
     const box = new ToolbarBox()
-    expect(box).to.be.an.instanceof(LayoutDOM)
+    expect(box).to.be.instanceof(LayoutDOM)
   })
 })
 
@@ -47,7 +47,7 @@ describe("ProxyToolbar", () => {
     it("should have proxied multi tool in gestures", () => {
       const toolbar = new ProxyToolbar({tools:[multi, tap, pan]})
       expect(toolbar.gestures.multi.tools.length).to.be.equal(1)
-      expect(toolbar.gestures.multi.tools[0]).to.be.an.instanceof(ToolProxy)
+      expect(toolbar.gestures.multi.tools[0]).to.be.instanceof(ToolProxy)
       expect(toolbar.gestures.multi.tools[0].computed_icon).to.be.equal('Multi Tool')
       expect(((toolbar.gestures.multi.tools[0]) as any).tools.length).to.be.equal(1) // XXX
       expect(((toolbar.gestures.multi.tools[0]) as any).tools[0]).to.be.equal(multi) // XXX
@@ -62,7 +62,7 @@ describe("ProxyToolbar", () => {
       const save1 = new SaveTool()
       const save2 = new SaveTool()
       const proxy_toolbar = new ProxyToolbar({tools: [reset1, reset2, save1, save2]})
-      expect(proxy_toolbar.actions.length).equal(2)
+      expect(proxy_toolbar.actions.length).to.be.equal(2)
     })
 
     it("should correctly merge multiple inspectors", () => {
@@ -71,7 +71,7 @@ describe("ProxyToolbar", () => {
       const crosshair1 = new CrosshairTool()
       const crosshair2 = new CrosshairTool()
       const proxy_toolbar = new ProxyToolbar({tools: [hover1, hover2, crosshair1, crosshair2]})
-      expect(proxy_toolbar.inspectors.length).equal(2)
+      expect(proxy_toolbar.inspectors.length).to.be.equal(2)
     })
 
     it("should avoid merge of multiple multi-gesture tools", () => {
@@ -79,7 +79,7 @@ describe("ProxyToolbar", () => {
       const boxedit1 = new BoxEditTool()
       const boxedit2 = new BoxEditTool()
       const proxy_toolbar = new ProxyToolbar({tools: [pointdraw, boxedit1, boxedit2]})
-      expect(proxy_toolbar.gestures.multi.tools.length).equal(3)
+      expect(proxy_toolbar.gestures.multi.tools.length).to.be.equal(3)
     })
 
     it("should avoid merge of multiple CustomAction tools", () => {
@@ -88,7 +88,7 @@ describe("ProxyToolbar", () => {
       const custom_action1 = new CustomAction()
       const custom_action2 = new CustomAction()
       const proxy_toolbar = new ProxyToolbar({tools: [reset1, reset2, custom_action1, custom_action2]})
-      expect(proxy_toolbar.actions.length).equal(3)
+      expect(proxy_toolbar.actions.length).to.be.equal(3)
     })
   })
 })

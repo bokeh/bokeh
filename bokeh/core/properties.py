@@ -185,6 +185,7 @@ __all__ = (
     'AnyRef',
     'Array',
     'Auto',
+    'Base64String',
     'Bool',
     'Byte',
     'Color',
@@ -314,7 +315,8 @@ from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import String; String
 
-from .property.regex import Regex; Regex
+from .property.string import Base64String; Base64String
+from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct
 

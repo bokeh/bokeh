@@ -33,7 +33,7 @@ p = figure(title="US Unemployment ({0} - {1})".format(years[0], years[-1]),
 p.grid.grid_line_color = None
 p.axis.axis_line_color = None
 p.axis.major_tick_line_color = None
-p.axis.major_label_text_font_size = "5pt"
+p.axis.major_label_text_font_size = "7px"
 p.axis.major_label_standoff = 0
 p.xaxis.major_label_orientation = pi / 3
 
@@ -42,7 +42,7 @@ p.rect(x="Year", y="Month", width=1, height=1,
        fill_color={'field': 'rate', 'transform': mapper},
        line_color=None)
 
-color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="5pt",
+color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="7px",
                      ticker=BasicTicker(desired_num_ticks=len(colors)),
                      formatter=PrintfTickFormatter(format="%d%%"),
                      label_standoff=6, border_line_color=None, location=(0, 0))

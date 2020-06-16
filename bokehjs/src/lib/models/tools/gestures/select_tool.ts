@@ -2,15 +2,25 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
+import {DataSource} from "../../sources/data_source"
 import {compute_renderers, RendererSpec} from "../util"
 import * as p from "core/properties"
-import {KeyEvent} from "core/ui_events"
+import {KeyEvent, UIEvent} from "core/ui_events"
+import {SelectionMode} from "core/enums"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry, GeometryData} from "core/geometry"
+import {Signal0} from "core/signaling"
+import {MenuItem} from "core/util/menus"
+import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
   model: SelectTool
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.model.clear.connect(() => this._clear())
+  }
 
   get computed_renderers(): DataRenderer[] {
     const renderers = this.model.renderers
@@ -19,49 +29,67 @@ export abstract class SelectToolView extends GestureToolView {
     return compute_renderers(renderers, all_renderers, names)
   }
 
-  _computed_renderers_by_data_source(): {[key: string]: DataRenderer[]} {
-    const renderers_by_source: {[key: string]: DataRenderer[]} = {}
+  _computed_renderers_by_data_source(): Map<DataSource, DataRenderer[]> {
+    const renderers_by_source: Map<DataSource, DataRenderer[]> = new Map()
 
     for (const r of this.computed_renderers) {
-      let source_id: string
+      let source: DataSource
       if (r instanceof GlyphRenderer)
-        source_id = r.data_source.id
+        source = r.data_source
       else if (r instanceof GraphRenderer)
-        source_id = r.node_renderer.data_source.id
+        source = r.node_renderer.data_source
       else
         continue
 
-      if (!(source_id in renderers_by_source))
-        renderers_by_source[source_id] = []
-
-      renderers_by_source[source_id].push(r)
+      const renderers = renderers_by_source.get(source) ?? []
+      renderers_by_source.set(source, [...renderers, r])
     }
 
     return renderers_by_source
   }
 
+  protected _select_mode(ev: UIEvent): SelectionMode {
+    const {shiftKey, ctrlKey} = ev
+
+    if (!shiftKey && !ctrlKey)
+      return this.model.mode
+    else if (shiftKey && !ctrlKey)
+      return "append"
+    else if (!shiftKey && ctrlKey)
+      return "intersect"
+    else if (shiftKey && ctrlKey)
+      return "subtract"
+    else
+      unreachable()
+  }
+
   _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Esc) {
-      for (const r of this.computed_renderers) {
-        r.get_selection_manager().clear()
-      }
-      this.plot_view.request_render()
+      this._clear()
     }
   }
 
-  _select(geometry: Geometry, final: boolean, append: boolean): void {
+  _clear(): void {
+    for (const renderer of this.computed_renderers) {
+      renderer.get_selection_manager().clear()
+    }
+    this.plot_view.request_render()
+  }
+
+  _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
     const renderers_by_source = this._computed_renderers_by_data_source()
 
-    for (const id in renderers_by_source) {
-      const renderers = renderers_by_source[id]
+    for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
 
       const r_views = []
       for (const r of renderers) {
-        if (r.id in this.plot_view.renderer_views)
-          r_views.push(this.plot_view.renderer_views[r.id])
+        const r_view = this.plot_view.renderer_views.get(r)
+        if (r_view != null) {
+          r_views.push(r_view)
+        }
       }
-      sm.select(r_views, geometry, final, append)
+      sm.select(r_views, geometry, final, mode)
     }
 
     // XXX: messed up class structure
@@ -118,6 +146,7 @@ export namespace SelectTool {
   export type Props = GestureTool.Props & {
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
+    mode: p.Property<SelectionMode>
   }
 }
 
@@ -125,15 +154,70 @@ export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
   properties: SelectTool.Props
+  __view_type__: SelectToolView
+
+  clear: Signal0<this>
 
   constructor(attrs?: Partial<SelectTool.Attrs>) {
     super(attrs)
   }
 
+  initialize(): void {
+    super.initialize()
+    this.clear = new Signal0(this, "clear")
+  }
+
   static init_SelectTool(): void {
     this.define<SelectTool.Props>({
-      renderers: [ p.Any,   'auto' ],
-      names:     [ p.Array, []     ],
+      renderers: [ p.Any,   'auto'    ],
+      names:     [ p.Array, []        ],
+      mode:      [ p.Any,   "replace" ],
     })
+  }
+
+  get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: "bk-tool-icon-replace-mode",
+        tooltip: "Replace the current selection",
+        active: () => this.mode == "replace",
+        handler: () => {
+          this.mode = "replace"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-append-mode",
+        tooltip: "Append to the current selection (Shift)",
+        active: () => this.mode == "append",
+        handler: () => {
+          this.mode = "append"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-intersect-mode",
+        tooltip: "Intersect with the current selection (Ctrl)",
+        active: () => this.mode == "intersect",
+        handler: () => {
+          this.mode = "intersect"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-subtract-mode",
+        tooltip: "Subtract from the current selection (Shift+Ctrl)",
+        active: () => this.mode == "subtract",
+        handler: () => {
+          this.mode = "subtract"
+          this.active = true
+        },
+      },
+      null,
+      {
+        icon: "bk-tool-icon-clear-selection",
+        tooltip: "Clear the current selection (Esc)",
+        handler: () => {
+          this.clear.emit()
+        },
+      },
+    ]
   }
 }

@@ -53,6 +53,7 @@ export interface DrawTool extends DrawTool.Attrs {}
 
 export class DrawTool extends GestureTool {
   properties: DrawTool.Props
+  __view_type__: DrawToolView
 
   constructor(attrs?: Partial<DrawTool.Attrs>) {
     super(attrs)

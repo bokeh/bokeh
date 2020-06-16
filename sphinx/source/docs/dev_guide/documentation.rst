@@ -94,6 +94,14 @@ before calling ``make``:
 
     BOKEH_DOCS_CDN=local make clean html serve
 
+Building the docs also requires setting up the ``GOOGLE_API_KEY`` environment variable that ``gmap`` plots use.
+You can `create a new API Key <https://developers.google.com/maps/documentation/javascript/get-api-key>`_.
+Or if you don't care whether ``gmap`` plots work, you can set the variable with a fake value before calling ``make``:
+
+.. code-block:: sh
+
+    GOOGLE_API_KEY=foo make clean html serve
+
 Source Code Documentation
 -------------------------
 

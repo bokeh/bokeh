@@ -6,7 +6,6 @@ import {DOMView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
-import {Set} from "core/util/data_structures"
 import {isString} from "core/util/types"
 import {Model} from "model"
 import {Tool} from "./tool"
@@ -16,9 +15,13 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
+
 import {bk_toolbar, bk_toolbar_hidden, bk_button_bar} from "styles/toolbar"
 import {bk_logo, bk_logo_small, bk_grey} from "styles/logo"
 import {bk_side} from "styles/mixins"
+
+import toolbar_css from "styles/toolbar.css"
+import logo_css from "styles/logo.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -53,12 +56,12 @@ export class ToolbarViewModel extends Model {
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
 
-  protected _tool_button_views: {[key: string]: ButtonToolButtonView}
+  protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
 
   initialize(): void {
     super.initialize()
-    this._tool_button_views = {}
+    this._tool_button_views = new Map()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
   }
 
@@ -79,6 +82,10 @@ export class ToolbarBaseView extends DOMView {
     this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
   }
 
+  styles(): string[] {
+    return [...super.styles(), toolbar_css, logo_css]
+  }
+
   remove(): void {
     remove_views(this._tool_button_views)
     super.remove()
@@ -86,7 +93,7 @@ export class ToolbarBaseView extends DOMView {
 
   protected async _build_tool_button_views(): Promise<void> {
     const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
-    await build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
+    await build_views(this._tool_button_views as any, tools, {parent: this}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
   }
 
   set_visibility(visible: boolean): void {
@@ -118,10 +125,14 @@ export class ToolbarBaseView extends DOMView {
       this.el.appendChild(logo)
     }
 
+    for (const [, button_view] of this._tool_button_views) {
+      button_view.render()
+    }
+
     const bars: HTMLElement[][] = []
 
-    const el = (tool: Tool) => {
-      return this._tool_button_views[tool.id].el
+    const el = (tool: ButtonTool) => {
+      return this._tool_button_views.get(tool)!.el
     }
 
     const {gestures} = this.model
@@ -251,7 +262,7 @@ export class ToolbarBase extends Model {
     }
     const check_event_type = (et: EventType, tool: Tool) => {
       if (!(et in this.gestures)) {
-        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
+        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }
     }
     const new_gestures = createGestureMap()
@@ -299,11 +310,11 @@ export class ToolbarBase extends Model {
       if (tool.active) {
         const currently_active_tool = this.gestures[et].active
         if (currently_active_tool != null && tool != currently_active_tool) {
-          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool.type} (${currently_active_tool.id}) for event type '${et}'`)
+          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool} for event type '${et}'`)
           currently_active_tool.active = false
         }
         this.gestures[et].active = tool
-        logger.debug(`Toolbar: activating tool: ${tool.type} (${tool.id}) for event type '${et}'`)
+        logger.debug(`Toolbar: activating tool: ${tool} for event type '${et}'`)
       } else
         this.gestures[et].active = null
     }

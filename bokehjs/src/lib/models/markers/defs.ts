@@ -12,10 +12,20 @@ function _one_line(ctx: Context2d, r: number): void {
 }
 
 function _one_x(ctx: Context2d, r: number): void {
-  ctx.moveTo(-r,  r)
-  ctx.lineTo(r, -r)
-  ctx.moveTo(-r, -r)
-  ctx.lineTo(r,  r)
+  ctx.rotate(Math.PI/4)
+  _one_cross(ctx, r)
+  ctx.rotate(-Math.PI/4)
+}
+
+function _one_y(ctx: Context2d, r: number): void {
+  const h = r*SQ3
+  const a = h/3
+
+  ctx.moveTo(-h/2, -a)
+  ctx.lineTo(0, 0)
+  ctx.lineTo(h/2, -a)
+  ctx.lineTo(0, 0)
+  ctx.lineTo(0, r)
 }
 
 function _one_cross(ctx: Context2d, r: number): void {
@@ -23,6 +33,12 @@ function _one_cross(ctx: Context2d, r: number): void {
   ctx.lineTo(0, -r)
   ctx.moveTo(-r,  0)
   ctx.lineTo(r,  0)
+}
+
+function _one_dot(ctx: Context2d, r: number): void {
+  ctx.beginPath()
+  ctx.arc(0, 0, r/4, 0, 2*Math.PI, false)
+  ctx.closePath()
 }
 
 function _one_diamond(ctx: Context2d, r: number): void {
@@ -57,10 +73,8 @@ function _one_tri(ctx: Context2d, r: number): void {
 }
 
 function asterisk(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
-  const r2 = r*0.65
-
   _one_cross(ctx, r)
-  _one_x(ctx, r2)
+  _one_x(ctx, r)
 
   if (line.doit) {
     line.set_vectorize(ctx, i)
@@ -95,6 +109,27 @@ function circle_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fi
   if (line.doit) {
     line.set_vectorize(ctx, i)
     _one_cross(ctx, r)
+    ctx.stroke()
+  }
+
+}
+
+function circle_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  circle(ctx, i, r, line, fill)
+  dot(ctx, i, r, line, fill)
+}
+
+function circle_y(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  ctx.arc(0, 0, r, 0, 2*Math.PI, false)
+
+  if (fill.doit) {
+    fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    _one_y(ctx, r)
     ctx.stroke()
   }
 
@@ -151,9 +186,26 @@ function diamond_cross(ctx: Context2d, i: number, r: number, line: Line, fill: F
 
   if (line.doit) {
     line.set_vectorize(ctx, i)
-    _one_cross(ctx, r)
+    ctx.moveTo(0,  r)
+    ctx.lineTo(0, -r)
+    ctx.moveTo(-r/1.5,  0)
+    ctx.lineTo(r/1.5,  0)
     ctx.stroke()
   }
+
+}
+
+function diamond_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  diamond(ctx, i, r, line, fill)
+  dot(ctx, i, r, line, fill)
+}
+
+function dot(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
+  _one_dot(ctx, r)
+
+  line.set_vectorize(ctx, i)
+  ctx.fillStyle = ctx.strokeStyle // NOTE: dots use line color for fill to match
+  ctx.fill()
 
 }
 
@@ -170,6 +222,11 @@ function hex(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void
     ctx.stroke()
   }
 
+}
+
+function hex_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  hex(ctx, i, r, line, fill)
+  dot(ctx, i, r, line, fill)
 }
 
 function inverted_triangle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -189,9 +246,58 @@ function inverted_triangle(ctx: Context2d, i: number, r: number, line: Line, fil
 
 }
 
+function plus(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  const a = 3*r/8
+  const b = r
+  const xs = [a, a, b,  b,  a,  a, -a, -a, -b, -b, -a, -a]
+  const ys = [b, a, a, -a, -a, -b, -b, -a, -a,  a,  a,  b]
+
+  ctx.moveTo(xs[0], ys[0])
+  for (i=1; i<12; i++)
+    ctx.lineTo(xs[i], ys[i])
+  ctx.closePath()
+
+  if (fill.doit) {
+    fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+
+}
+
 function square(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
   const size = 2*r
+
   ctx.rect(-r, -r, size, size)
+
+  if (fill.doit) {
+    fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+
+}
+
+function square_pin(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  const a = 3*r/8
+
+  ctx.moveTo(-r, -r)
+  /* eslint-disable space-in-parens */
+  ctx.quadraticCurveTo( 0, -a,  r, -r)
+  ctx.quadraticCurveTo( a,  0,  r,  r)
+  ctx.quadraticCurveTo( 0,  a, -r,  r)
+  ctx.quadraticCurveTo(-a,  0, -r, -r)
+  /* eslint-ensable space-in-parens */
+
+  ctx.closePath()
 
   if (fill.doit) {
     fill.set_vectorize(ctx, i)
@@ -207,6 +313,7 @@ function square(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): v
 
 function square_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
   const size = 2*r
+
   ctx.rect(-r, -r, size, size)
 
   if (fill.doit) {
@@ -222,8 +329,14 @@ function square_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fi
 
 }
 
+function square_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  square(ctx, i, r, line, fill)
+  dot(ctx, i, r, line, fill)
+}
+
 function square_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
   const size = 2*r
+
   ctx.rect(-r, -r, size, size)
 
   if (fill.doit) {
@@ -233,7 +346,10 @@ function square_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
 
   if (line.doit) {
     line.set_vectorize(ctx, i)
-    _one_x(ctx, r)
+    ctx.moveTo(-r,  r)
+    ctx.lineTo(r, -r)
+    ctx.moveTo(-r, -r)
+    ctx.lineTo(r,  r)
     ctx.stroke()
   }
 
@@ -241,6 +357,34 @@ function square_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
 
 function triangle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
   _one_tri(ctx, r)
+
+  if (fill.doit) {
+    fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+
+}
+
+function triangle_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  triangle(ctx, i, r, line, fill)
+  dot(ctx, i, r, line, fill)
+}
+
+function triangle_pin(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  const h = r*SQ3
+  const a = h/3
+  const b = 3*a/8
+
+  ctx.moveTo(-r, a)
+  ctx.quadraticCurveTo(0, b,  r, a)
+  ctx.quadraticCurveTo(SQ3*b/2, b/2,  0, a-h)
+  ctx.quadraticCurveTo(-SQ3*b/2, b/2, -r, a)
+  ctx.closePath()
 
   if (fill.doit) {
     fill.set_vectorize(ctx, i)
@@ -272,6 +416,15 @@ function x(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void 
   }
 }
 
+function y(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
+  _one_y(ctx, r)
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+}
+
 function _mk_model(type: string, f: RenderOne): Class<Marker> {
   const view = class extends MarkerView {
     static initClass(): void {
@@ -296,33 +449,55 @@ export type RenderOne = (ctx: Context2d, i: number, r: number, line: Line, fill:
 // markers are final, so no need to export views
 export const Asterisk         = _mk_model('Asterisk',         asterisk)
 export const CircleCross      = _mk_model('CircleCross',      circle_cross)
+export const CircleDot        = _mk_model('CircleDot',        circle_dot)
+export const CircleY          = _mk_model('CircleY',          circle_y)
 export const CircleX          = _mk_model('CircleX',          circle_x)
 export const Cross            = _mk_model('Cross',            cross)
 export const Dash             = _mk_model('Dash',             dash)
 export const Diamond          = _mk_model('Diamond',          diamond)
 export const DiamondCross     = _mk_model('DiamondCross',     diamond_cross)
+export const DiamondDot       = _mk_model('DiamondDot',       diamond_dot)
+export const Dot              = _mk_model('Dot',              dot)
 export const Hex              = _mk_model('Hex',              hex)
+export const HexDot           = _mk_model('HexDot',           hex_dot)
 export const InvertedTriangle = _mk_model('InvertedTriangle', inverted_triangle)
+export const Plus             = _mk_model('Plus',             plus)
 export const Square           = _mk_model('Square',           square)
 export const SquareCross      = _mk_model('SquareCross',      square_cross)
+export const SquareDot        = _mk_model('SquareDot',        square_dot)
+export const SquarePin        = _mk_model('SquarePin',        square_pin)
 export const SquareX          = _mk_model('SquareX',          square_x)
 export const Triangle         = _mk_model('Triangle',         triangle)
+export const TriangleDot      = _mk_model('TriangleDot',      triangle_dot)
+export const TrianglePin      = _mk_model('TrianglePin',      triangle_pin)
 export const X                = _mk_model('X',                x)
+export const Y                = _mk_model('Y',                y)
 
 export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   asterisk,
   circle,
   circle_cross,
+  circle_dot,
+  circle_y,
   circle_x,
   cross,
   diamond,
+  diamond_dot,
   diamond_cross,
+  dot,
   hex,
+  hex_dot,
   inverted_triangle,
+  plus,
   square,
   square_cross,
+  square_dot,
+  square_pin,
   square_x,
   triangle,
+  triangle_dot,
+  triangle_pin,
   dash,
   x,
+  y,
 }

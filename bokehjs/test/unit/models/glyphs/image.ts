@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {create_glyph_view} from "./glyph_utils"
@@ -26,8 +26,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.deep.equal(Float64Array.of(565))
-      expect(image_view.sh).to.be.deep.equal(Float64Array.of(1180))
+      expect(image_view.sw).to.be.equal(Float64Array.of(565))
+      expect(image_view.sh).to.be.equal(Float64Array.of(1180))
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
@@ -41,8 +41,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.deep.equal([1])
-      expect(image_view.sh).to.be.deep.equal([2])
+      expect(image_view.sw).to.be.equal([1])
+      expect(image_view.sh).to.be.equal([2])
     })
   })
 })

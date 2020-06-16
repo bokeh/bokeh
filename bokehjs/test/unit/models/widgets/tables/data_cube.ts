@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
@@ -11,8 +11,8 @@ describe("data_cube module", () => {
 
   describe("DataCube class", () => {
     it("DataCube constructs", () => {
-      const dataCube = new DataCube({})
-      expect(dataCube).is.not.null
+      const dataCube = new DataCube()
+      expect(dataCube).to.not.be.null
     })
   })
 
@@ -48,7 +48,7 @@ describe("data_cube module", () => {
       const target = new ColumnDataSource({data: {row_indices: [], labels: []}})
       const provider = new DataCubeProvider(source, view, columns, target)
       provider.setGrouping(grouping)
-      expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2]])
+      expect(target.data.row_indices).to.be.equal([[5], [3, 4], [0, 1, 2]])
     })
 
     it("Expanding modifies groups", () => {
@@ -57,10 +57,10 @@ describe("data_cube module", () => {
       provider.setGrouping(grouping)
       provider.expandGroup("red")
       provider.refresh()
-      expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1]])
+      expect(target.data.row_indices).to.be.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1]])
       provider.expandGroup("red:|:wide")
       provider.refresh()
-      expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1], 0, 1])
+      expect(target.data.row_indices).to.be.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1], 0, 1])
     })
 
     it("Collapsing inverts expanding", () => {
@@ -70,13 +70,13 @@ describe("data_cube module", () => {
       provider.expandGroup("red")
       provider.expandGroup("red:|:wide")
       provider.refresh()
-      expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1], 0, 1])
+      expect(target.data.row_indices).to.be.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1], 0, 1])
       provider.collapseGroup("red:|:wide")
       provider.refresh()
-      expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1]])
+      expect(target.data.row_indices).to.be.equal([[5], [3, 4], [0, 1, 2], [2], [0, 1]])
       provider.collapseGroup("red")
       provider.refresh()
-      expect(target.data.row_indices).to.deep.equal([[5], [3, 4], [0, 1, 2]])
+      expect(target.data.row_indices).to.be.equal([[5], [3, 4], [0, 1, 2]])
     })
   })
 })

@@ -1,6 +1,0 @@
-Column bbox=[0, 0, 1010, 710]
-  Plot bbox=[0, 0, 1000, 300]
-    LinearAxis bbox=[24, 276, 946, 24]
-    LinearAxis bbox=[0, 5, 24, 271]
-    ToolbarPanel bbox=[970, 5, 30, 271]
-  DataTable bbox=[5, 305, 1000, 400]

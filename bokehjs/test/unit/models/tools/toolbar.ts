@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
@@ -21,7 +21,7 @@ describe("Toolbar", () => {
 
     it("should set inspect tools as array on Toolbar.inspector property", () => {
       const toolbar = new Toolbar({tools:[hover_1, hover_2, hover_3]})
-      expect(toolbar.inspectors).to.deep.equal([hover_1, hover_2, hover_3])
+      expect(toolbar.inspectors).to.be.equal([hover_1, hover_2, hover_3])
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {

@@ -2,13 +2,13 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
 import type {LineGLGlyph} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
-import {LineVector} from "core/property_mixins"
 import {Arrayable, Rect} from "core/types"
+import * as p from "core/properties"
+import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import * as p from "core/properties"
 
 export interface LineData extends XYGlyphData {}
 
@@ -66,7 +66,7 @@ export class LineView extends XYGlyphView {
           * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
     */
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
@@ -89,7 +89,7 @@ export class LineView extends XYGlyphView {
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
 
     let val: number
     let values: Arrayable<number>
@@ -125,7 +125,9 @@ export class LineView extends XYGlyphView {
 export namespace Line {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector
+  export type Props = XYGlyph.Props & Mixins
+
+  export type Mixins = mixins.Line/*Scalar*/
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
 }
@@ -134,6 +136,7 @@ export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
   properties: Line.Props
+  __view_type__: LineView
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)
@@ -142,6 +145,6 @@ export class Line extends XYGlyph {
   static init_Line(): void {
     this.prototype.default_view = LineView
 
-    this.mixins(['line'])
+    this.mixins<Line.Mixins>(mixins.Line/*Scalar*/)
   }
 }

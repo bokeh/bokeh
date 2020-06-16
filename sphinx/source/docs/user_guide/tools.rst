@@ -1015,46 +1015,46 @@ properties on |Plot| objects that control LOD behavior:
 .. |hover_basic| image:: /_images/hover_basic.png
 
 .. |box_select_icon| image:: /_images/icons/BoxSelect.png
-    :height: 14pt
+    :height: 19px
 .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
-    :height: 14pt
+    :height: 19px
 .. |help_icon| image:: /_images/icons/Help.png
-    :height: 14pt
+    :height: 19px
 .. |crosshair_icon| image:: /_images/icons/Crosshair.png
-    :height: 14pt
+    :height: 19px
 .. |hover_icon| image:: /_images/icons/Hover.png
-    :height: 14pt
+    :height: 19px
 .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
-    :height: 14pt
+    :height: 19px
 .. |pan_icon| image:: /_images/icons/Pan.png
-    :height: 14pt
+    :height: 19px
 .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
-    :height: 14pt
+    :height: 19px
 .. |redo_icon| image:: /_images/icons/Redo.png
-    :height: 14pt
+    :height: 19px
 .. |reset_icon| image:: /_images/icons/Reset.png
-    :height: 14pt
+    :height: 19px
 .. |save_icon| image:: /_images/icons/Save.png
-    :height: 14pt
+    :height: 19px
 .. |tap_icon| image:: /_images/icons/Tap.png
-    :height: 14pt
+    :height: 19px
 .. |undo_icon| image:: /_images/icons/Undo.png
-    :height: 14pt
+    :height: 19px
 .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
-    :height: 14pt
+    :height: 19px
 .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
-    :height: 14pt
+    :height: 19px
 .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
-    :height: 14pt
+    :height: 19px
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
-    :height: 14pt
+    :height: 19px
 .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
-    :height: 14pt
+    :height: 19px
 .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
-    :height: 14pt
+    :height: 19px
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
-    :height: 14pt
+    :height: 19px
 .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
-    :height: 14pt
+    :height: 19px
 .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
-    :height: 14pt
+    :height: 19px

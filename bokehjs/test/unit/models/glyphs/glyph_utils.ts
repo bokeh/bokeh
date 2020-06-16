@@ -11,6 +11,7 @@ import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {build_view} from "@bokehjs/core/build_views"
+import {ViewOf} from "@bokehjs/core/view"
 
 export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): Promise<GlyphRendererView> {
   const doc = new Document()
@@ -29,11 +30,8 @@ export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: stri
   return glyph_renderer_view
 }
 
-import {HasProps} from "@bokehjs/core/has_props"
-export type ViewType<T extends HasProps> = InstanceType<T["default_view"]>
-
-export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): Promise<ViewType<G>> {
-  return (await create_glyph_renderer_view(glyph, data)).glyph /* glyph_view */ as unknown as ViewType<G> // XXX: investigate this
+export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): Promise<ViewOf<G>> {
+  return (await create_glyph_renderer_view(glyph, data)).glyph /* glyph_view */ // as unknown as ViewOf<G> // XXX: investigate this
 }
 
 export type AxisType = "linear" | "log" | "categorical"

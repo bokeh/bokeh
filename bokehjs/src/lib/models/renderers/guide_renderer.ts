@@ -18,6 +18,7 @@ export interface GuideRenderer extends GuideRenderer.Attrs {}
 
 export abstract class GuideRenderer extends Renderer {
   properties: GuideRenderer.Props
+  __view_type__: GuideRendererView
 
   constructor(attrs?: Partial<GuideRenderer.Attrs>) {
     super(attrs)
@@ -25,7 +26,7 @@ export abstract class GuideRenderer extends Renderer {
 
   static init_GuideRenderer(): void {
     this.override({
-      level: "overlay",
+      level: "guide",
     })
   }
 }

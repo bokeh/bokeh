@@ -33,6 +33,11 @@ export abstract class BaseGLGlyph {
   }
 
   render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): boolean {
+    if (indices.length == 0) {
+      // Implementations assume at least one index to draw. We return true,
+      // because there is no need to switch back to a fallback renderer.
+      return true
+    }
     // Get transform
     const [a, b, c] = [0, 1, 2]
     let wx = 1   // Weights to scale our vectors
@@ -55,7 +60,7 @@ export abstract class BaseGLGlyph {
     const [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
     const {width, height} = this.glyph.renderer.plot_view.canvas_view.webgl!.canvas
     const trans = {
-      pixel_ratio: this.glyph.renderer.plot_view.canvas.pixel_ratio,  // pass pixel_ratio to webgl
+      pixel_ratio: this.glyph.renderer.plot_view.canvas_view.pixel_ratio,  // pass pixel_ratio to webgl
       width, height,
       dx: dx[0]/sx, dy: dy[0]/sy, sx, sy,
     }
@@ -119,7 +124,7 @@ export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}
     prog.set_attribute(att_name, 'float', visual[name].value())
   } else {
     vbo.used = true
-    const a = new Float32Array(visual.cache[name + '_array'])
+    const a = new Float32Array(visual.get_array(name))
     vbo.set_size(n*4)
     vbo.set_data(0, a)
     prog.set_attribute(att_name, 'float', vbo)
@@ -158,13 +163,13 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
         return result
       })())
     } else {
-      colors = visual.cache[colorname+'_array']
+      colors = visual.get_array(colorname)
     }
     // Get array of alphas
     if (visual_prop_is_singular(visual, alphaname)) {
       alphas = fill_array_with_float(n, visual[alphaname].value())
     } else {
-      alphas = visual.cache[alphaname+'_array']
+      alphas = visual.get_array(alphaname)
     }
     // Create array of rgbs
     const a = new Float32Array(n*m)

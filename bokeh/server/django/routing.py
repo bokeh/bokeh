@@ -8,6 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class Routing:
 
     def _normalize(self, obj: ApplicationLike) -> Application:
         if callable(obj):
-            return Application(FunctionHandler(obj))
+            return Application(FunctionHandler(obj, trap_exceptions=True))
         elif isinstance(obj, Path):
             return build_single_handler_application(obj)
         else:

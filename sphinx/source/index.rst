@@ -23,7 +23,7 @@ If you'd like to search for a particular topic, use the search box below:
 .. raw:: html
 
     <form class="bd-search align-items-center" action="search.html" method="get">
-      <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
+      <input type="search" class="form-control search-front-page" name="q" id="search-input" placeholder="&#128269; Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
     </form>
 
 |

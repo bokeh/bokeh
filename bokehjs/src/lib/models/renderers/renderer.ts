@@ -7,6 +7,7 @@ import {Model} from "../../model"
 import {BBox} from "core/util/bbox"
 
 import {Plot, PlotView} from "../plots/plot"
+import {CanvasLayer} from "../canvas/canvas"
 
 // This shouldn't be a DOMView, but annotations create a mess.
 export abstract class RendererView extends DOMView {
@@ -27,6 +28,11 @@ export abstract class RendererView extends DOMView {
 
   get plot_model(): Plot {
     return this.parent.model
+  }
+
+  get layer(): CanvasLayer {
+    const {canvas_view} = this.plot_view
+    return this.model.level == "overlay" ? canvas_view.overlays : canvas_view.primary
   }
 
   request_render(): void {
@@ -69,6 +75,7 @@ export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
   properties: Renderer.Props
+  __view_type__: RendererView
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)

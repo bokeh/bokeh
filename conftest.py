@@ -19,9 +19,6 @@ from typing import List
 import _pytest
 import pytest
 
-# Bokeh imports
-from bokeh._testing.util.git import version_from_git
-
 
 def pytest_collection_modifyitems(items: List[_pytest.nodes.Item]) -> None:
     for item in items:
@@ -45,22 +42,9 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
         "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides"
     )
 
-    # plugins/example_report
-    parser.addoption(
-        "--upload", dest="upload", action="store_true", default=False, help="upload test artefacts to S3"
-    )
     parser.addoption(
         "--examples-log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
     )
     parser.addoption(
-        "--report-path", action='store', dest='report_path', metavar='path', default='report.html',
-        help='create examples html report file at given path.')
-    parser.addoption(
-        "--diff-ref", type=version_from_git, default="HEAD",
-        help="compare generated images against this ref")
-    parser.addoption(
-        "--incremental", action="store_true", default=False,
-        help="write report after each example")
-    parser.addoption(
         "--no-js", action="store_true", default=False,
-        help="only run python code and skip js and image diff")
+        help="only run python code and skip js")

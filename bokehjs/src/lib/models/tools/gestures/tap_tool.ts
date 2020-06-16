@@ -3,7 +3,7 @@ import {CallbackLike1} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
-import {TapBehavior} from "core/enums"
+import {TapBehavior, SelectionMode} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {bk_tool_icon_tap_select} from "styles/icons"
 
@@ -12,22 +12,20 @@ export class TapToolView extends SelectToolView {
 
   _tap(ev: TapEvent): void {
     const {sx, sy} = ev
-    const geometry: PointGeometry = {type: 'point', sx, sy}
-    const append = ev.shiftKey
-    this._select(geometry, true, append)
+    const geometry: PointGeometry = {type: "point", sx, sy}
+    this._select(geometry, true, this._select_mode(ev))
   }
 
-  _select(geometry: PointGeometry, final: boolean, append: boolean): void {
+  _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
     const callback = this.model.callback
 
     if (this.model.behavior == "select") {
       const renderers_by_source = this._computed_renderers_by_data_source()
 
-      for (const id in renderers_by_source) {
-        const renderers = renderers_by_source[id]
+      for (const [, renderers] of renderers_by_source) {
         const sm = renderers[0].get_selection_manager()
-        const r_views = renderers.map((r) => this.plot_view.renderer_views[r.id])
-        const did_hit = sm.select(r_views, geometry, final, append)
+        const r_views = renderers.map((r) => this.plot_view.renderer_views.get(r)!)
+        const did_hit = sm.select(r_views, geometry, final, mode)
 
         if (did_hit && callback != null) {
           const {frame} = this.plot_view
@@ -45,7 +43,7 @@ export class TapToolView extends SelectToolView {
     } else {
       for (const r of this.computed_renderers) {
         const sm = r.get_selection_manager()
-        const did_hit = sm.inspect(this.plot_view.renderer_views[r.id], geometry)
+        const did_hit = sm.inspect(this.plot_view.renderer_views.get(r)!, geometry)
 
         if (did_hit && callback != null) {
           const {frame} = this.plot_view
@@ -77,6 +75,7 @@ export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
   properties: TapTool.Props
+  __view_type__: TapToolView
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)

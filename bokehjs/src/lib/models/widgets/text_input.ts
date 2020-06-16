@@ -60,6 +60,7 @@ export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends InputWidget {
   properties: TextInput.Props
+  __view_type__: TextInputView
 
   constructor(attrs?: Partial<TextInput.Attrs>) {
     super(attrs)

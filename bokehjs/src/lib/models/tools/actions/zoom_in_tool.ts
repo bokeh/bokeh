@@ -38,6 +38,7 @@ export interface ZoomInTool extends ZoomInTool.Attrs {}
 
 export class ZoomInTool extends ActionTool {
   properties: ZoomInTool.Props
+  __view_type__: ZoomInToolView
 
   constructor(attrs?: Partial<ZoomInTool.Attrs>) {
     super(attrs)

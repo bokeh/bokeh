@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import {Color} from "core/types"
-import {Class} from "core/class"
 import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
@@ -12,10 +11,6 @@ import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {bk_root} from "styles/root"
 
-export namespace LayoutDOMView {
-  export type Options = DOMView.Options & {model: LayoutDOM}
-}
-
 export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
 
@@ -24,7 +19,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   protected _idle_notified: boolean = false
 
-  protected _child_views: {[key: string]: LayoutDOMView}
+  protected _child_views: Map<LayoutDOM, LayoutDOMView>
 
   protected _on_resize?: () => void
 
@@ -39,7 +34,7 @@ export abstract class LayoutDOMView extends DOMView {
   initialize(): void {
     super.initialize()
     this.el.style.position = this.is_root ? "relative" : "absolute"
-    this._child_views = {}
+    this._child_views = new Map()
   }
 
   async lazy_initialize(): Promise<void> {
@@ -49,7 +44,7 @@ export abstract class LayoutDOMView extends DOMView {
   remove(): void {
     for (const child_view of this.child_views)
       child_view.remove()
-    this._child_views = {}
+    this._child_views.clear()
     super.remove()
   }
 
@@ -106,7 +101,7 @@ export abstract class LayoutDOMView extends DOMView {
   abstract get child_models(): LayoutDOM[]
 
   get child_views(): LayoutDOMView[] {
-    return this.child_models.map((child) => this._child_views[child.id])
+    return this.child_models.map((child) => this._child_views.get(child)!)
   }
 
   async build_child_views(): Promise<void> {
@@ -394,8 +389,6 @@ export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
   properties: LayoutDOM.Props
-  default_view: Class<LayoutDOMView, [LayoutDOMView.Options]>
-
   __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {

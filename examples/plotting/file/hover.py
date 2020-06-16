@@ -40,7 +40,7 @@ r = p.circle(x='x', y='y', radius='radius', source=data,
              fill_color='colors', fill_alpha=0.6, line_color=None)
 p.hover.renderers = [r] # hover only for circles
 
-p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
+p.text(x, y, text=inds, alpha=0.5, text_font_size="7px",
        text_baseline="middle", text_align="center")
 
 output_file("hover.html", title="hover.py example")

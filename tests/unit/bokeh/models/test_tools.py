@@ -57,6 +57,7 @@ def test_Tool_from_string() -> None:
     assert isinstance(Tool.from_string("ybox_select"), t.BoxSelectTool)
     assert isinstance(Tool.from_string("poly_select"), t.PolySelectTool)
     assert isinstance(Tool.from_string("lasso_select"), t.LassoSelectTool)
+    assert isinstance(Tool.from_string("line_edit"), t.LineEditTool)
     assert isinstance(Tool.from_string("box_zoom"), t.BoxZoomTool)
     assert isinstance(Tool.from_string("xbox_zoom"), t.BoxZoomTool)
     assert isinstance(Tool.from_string("ybox_zoom"), t.BoxZoomTool)

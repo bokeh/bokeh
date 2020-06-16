@@ -84,14 +84,21 @@ export type Logo = "normal" | "grey"
 export const Logo: Logo[] = ["normal", "grey"]
 
 export type MarkerType =
-  "asterisk" | "circle" | "circle_cross" | "circle_x" | "cross" |
-  "dash" | "diamond" | "diamond_cross" | "hex" | "inverted_triangle" |
-  "square" | "square_cross" | "square_x" | "triangle" | "x"
+  "asterisk" | "circle" | "circle_cross" | "circle_dot" | "circle_x" |
+  "circle_y" | "cross" | "dash" | "diamond" | "diamond_cross" | "diamond_dot" |
+  "dot" | "hex" | "hex_dot" | "inverted_triangle" | "plus" | "square" |
+  "square_cross" | "square_dot" | "square_pin" | "square_x" | "triangle" |
+  "triangle_dot" | "triangle_pin" | "x" | "y"
 export const MarkerType: MarkerType[] = [
-  "asterisk", "circle", "circle_cross", "circle_x", "cross",
-  "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-  "square", "square_cross", "square_x", "triangle", "x",
+  "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
+  "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
+  "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
+  "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+  "triangle_dot", "triangle_pin", "x", "y",
 ]
+
+export type MutedPolicy = "show" | "ignore"
+export const MutedPolicy: MutedPolicy[] = ["show", "ignore"]
 
 export type Orientation = "vertical" | "horizontal"
 export const Orientation: Orientation[] = ["vertical", "horizontal"]
@@ -111,8 +118,8 @@ export const PointPolicy: PointPolicy[] = ["snap_to_data", "follow_mouse", "none
 export type RadiusDimension = "x" | "y" | "max" | "min"
 export const RadiusDimension: RadiusDimension[] = ["x", "y", "max", "min"]
 
-export type RenderLevel = "image" | "underlay" | "glyph" | "annotation" | "overlay"
-export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "annotation", "overlay"]
+export type RenderLevel = "image" | "underlay" | "glyph" | "guide" | "annotation" | "overlay"
+export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "guide", "annotation", "overlay"]
 
 export type RenderMode = "canvas" | "css"
 export const RenderMode: RenderMode[] = ["canvas", "css"]
@@ -122,6 +129,9 @@ export const ResetPolicy: ResetPolicy[] = ["standard", "event_only"]
 
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
+
+export type SelectionMode = "replace" | "append" | "intersect" | "subtract"
+export const SelectionMode: SelectionMode[] = ["replace", "append", "intersect", "subtract"]
 
 export type Side = "above" | "below" | "left" | "right"
 export const Side: Side[] = ["above", "below", "left", "right"]

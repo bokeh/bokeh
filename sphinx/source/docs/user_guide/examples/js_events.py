@@ -10,7 +10,7 @@ from bokeh.models import Button, CustomJS, Div
 from bokeh.plotting import figure
 
 
-def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=10pt'):
+def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=13px'):
     "Build a suitable CustomJS to display the current event in the div model."
     return CustomJS(args=dict(div=div), code="""
         var attrs = %s; var args = [];

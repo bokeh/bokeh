@@ -71,7 +71,7 @@ export class AdaptiveTicker extends ContinuousTicker {
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
 
     const interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.base))
-    const ideal_magnitude = Math.pow(this.base, interval_exponent) * this.base_factor
+    const ideal_magnitude = this.base**interval_exponent * this.base_factor
 
     // An untested optimization.
     //   const ideal_mantissa = ideal_interval / ideal_magnitude

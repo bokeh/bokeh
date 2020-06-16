@@ -3,7 +3,7 @@
 2.0.0
 =====
 
-Bokeh Version ``2.0.0`` (XXXX 2019) is a major milestone of the Bokeh project.
+Bokeh Version ``2.0.0`` (March 2020) is a major milestone of the Bokeh project.
 This release cycle closed more than 180 issues. Highlights include:
 
 * New, modern  ``MultiChoice`` widget added :bokeh-issue:`9532`
@@ -44,7 +44,7 @@ HoverTool Formatters Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, the ``formatters`` property accepted a CDS column name. For example
-a formatter for a tooltip for ``"@foo`` could be specied with just ``"foo"``:
+a formatter for a tooltip for ``"@foo`` could be specified with just ``"foo"``:
 
 .. code-block:: python
 

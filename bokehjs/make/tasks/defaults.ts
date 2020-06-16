@@ -1,25 +1,20 @@
 import {spawn} from "child_process"
-import * as path from "path"
+import {join} from "path"
 
-import {task, log} from "../task"
+import {task, log, BuildError} from "../task"
 import {build_dir} from "../paths"
 
 task("defaults:generate", () => {
-  const bokehjsdir = path.normalize(process.cwd())
-  const basedir = path.normalize(bokehjsdir + "/..")
-  const oldpath = process.env.PYTHONPATH
-  const pypath = oldpath != null ? `${basedir}${path.delimiter}${oldpath}` : basedir
-  const env = {...process.env, PYTHONPATH: pypath}
-  const script = path.join(__dirname, 'generate_defaults.py')
-  const proc = spawn("python", [script, build_dir.test], {env, cwd: bokehjsdir})
-  proc.stdout!.on("data", (data) => {
-    ("" + data)
-      .split('\n')
+  const script = join(__dirname, "generate_defaults.py")
+  const proc = spawn("python", [script, build_dir.test], {stdio: "pipe"})
+  proc.stdout.on("data", (data) => {
+    `${data}`
+      .split("\n")
       .filter((line) => line.trim().length != 0)
-      .forEach((line) => log(`generate_defaults.py: ${line}`))
+      .forEach((line) => log(line))
   })
-  proc.stderr!.on("data", (data) => {
-    log(`generate_defaults.py: ${data}`)
+  proc.stderr.on("data", (data) => {
+    log(`${data}`)
   })
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -27,7 +22,7 @@ task("defaults:generate", () => {
       if (code === 0)
         resolve()
       else
-        reject(new Error(`generate_defaults.py exited code ${code}`))
+        reject(new BuildError("defaults", `generate_defaults.py exited code ${code}`))
     })
   })
 })

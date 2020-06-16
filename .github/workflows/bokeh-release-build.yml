@@ -1,0 +1,48 @@
+name: Bokeh Release
+
+on:
+  repository_dispatch:
+    types: [build]
+
+env:
+  CONDA_BASE_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
+  CONDA_ENV_REQS: "python=3.8 jinja2 yaml pyyaml"
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2-beta
+
+      - name: Set up PATH
+        run: |
+          echo "::add-path::${HOME}/work/bin"
+
+      - name: Configure conda
+        run: |
+          conda config --set auto_update_conda off
+          conda config --append channels bokeh
+          conda install --yes --quiet ${CONDA_BASE_REQS}
+          conda create --yes --prefix="${HOME}/work" ${CONDA_ENV_REQS}
+
+      - name: Install conda packages
+        run: |
+          BUILD_DEPS=`python scripts/deps.py build`
+          conda install --yes --quiet conda ${BUILD_DEPS}
+
+      - name: Install node modules
+        run: |
+          pushd bokehjs
+          npm ci --no-progress
+          popd
+
+      - name: Build Assets
+        env:
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          BOKEH_VERSION: ${{ github.event.client_payload.version }}
+          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
+        run: |
+          python -m release build --notify-slack ${BOKEH_VERSION}

@@ -2,19 +2,18 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import * as hittest from "core/hittest"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
+import {concat} from "core/util/array"
+import {NDArray, is_NDArray} from "core/util/ndarray"
 
 export interface ImageDataBase extends XYGlyphData {
-  image_data: Arrayable<HTMLCanvasElement>
+  image_data: HTMLCanvasElement[]
 
-  _image: Arrayable<Arrayable<number> | number[][]>
+  _image: (NDArray | number[][])[]
   _dw: Arrayable<number>
   _dh: Arrayable<number>
-
-  _image_shape?: Arrayable<[number, number]>
 
   sw: Arrayable<number>
   sh: Arrayable<number>
@@ -22,14 +21,67 @@ export interface ImageDataBase extends XYGlyphData {
 
 export interface ImageBaseView extends ImageDataBase {}
 
-export class ImageBaseView extends XYGlyphView {
+export abstract class ImageBaseView extends XYGlyphView {
   model: ImageBase
   visuals: ImageBase.Visuals
 
   protected _width: Arrayable<number>
   protected _height: Arrayable<number>
 
-  protected _render(_ctx: Context2d, _indices: number[], _data: ImageDataBase): void {}
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+  }
+
+  protected _render(ctx: Context2d, indices: number[], {image_data, sx, sy, sw, sh}: ImageDataBase): void {
+    const old_smoothing = ctx.getImageSmoothingEnabled()
+    ctx.setImageSmoothingEnabled(false)
+
+    ctx.globalAlpha = this.model.global_alpha
+
+    for (const i of indices) {
+      if (image_data[i] == null || isNaN(sx[i] + sy[i] + sw[i] + sh[i]))
+        continue
+
+      const y_offset = sy[i]
+
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
+      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
+    }
+
+    ctx.setImageSmoothingEnabled(old_smoothing)
+  }
+
+  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8Array
+
+  protected _set_data(indices: number[] | null): void {
+    this._set_width_heigh_data()
+
+    for (let i = 0, end = this._image.length; i < end; i++) {
+      if (indices != null && indices.indexOf(i) < 0)
+        continue
+
+      const img = this._image[i]
+      let flat_img: Arrayable<number>
+      if (is_NDArray(img)) {
+        flat_img = img
+        this._height[i] = img.shape[0]
+        this._width[i] = img.shape[1]
+      } else {
+        flat_img = concat(img)
+        this._height[i] = img.length
+        this._width[i] = img[0].length
+      }
+
+      const buf8 = this._flat_img_to_buf8(flat_img)
+      this._set_image_data_from_buffer(i, buf8)
+    }
+  }
 
   _index_data(): SpatialIndex {
     const points = []
@@ -133,18 +185,18 @@ export class ImageBaseView extends XYGlyphView {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
-    const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
-    const result = hittest.create_empty_hit_test_result()
 
-    result.image_indices = []
+    const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
+    const result = new Selection()
+
     for (const index of candidates) {
-      if ((sx != Infinity) && (sy != Infinity)) {
+      if (sx != Infinity && sy != Infinity) {
         result.image_indices.push(this._image_index(index, x, y))
       }
     }
+
     return result
   }
-
 }
 
 export namespace ImageBase {
@@ -163,16 +215,15 @@ export namespace ImageBase {
 
 export interface ImageBase extends ImageBase.Attrs {}
 
-export class ImageBase extends XYGlyph {
+export abstract class ImageBase extends XYGlyph {
   properties: ImageBase.Props
+  __view_type__: ImageBaseView
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)
   }
 
   static init_ImageBase(): void {
-    this.prototype.default_view = ImageBaseView
-
     this.define<ImageBase.Props>({
       image:        [ p.NumberSpec       ], // TODO (bev) array spec?
       dw:           [ p.DistanceSpec     ],

@@ -104,7 +104,8 @@ def get_all_sri_hashes():
     global _SRI_HASHES
 
     if not _SRI_HASHES:
-        _SRI_HASHES = json.load(open(join(ROOT_DIR, "_sri.json")))
+        with open(join(ROOT_DIR, "_sri.json")) as f:
+            _SRI_HASHES = json.load(f)
 
     return dict(_SRI_HASHES)
 
@@ -668,7 +669,6 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     }
 
     if len(__version__.split("-")) > 1:
-        log.debug("Getting CDN URL for local dev version may not produce usable URL")
         result["messages"].append(
             {
                 "type": "warn",

@@ -53,7 +53,7 @@ export class AxisView extends GuideRendererView {
     }
     const tick_coords = this.tick_coords
 
-    const ctx = this.plot_view.canvas_view.ctx
+    const ctx = this.layer.ctx
     ctx.save()
 
     this._draw_rule(ctx, extents)
@@ -282,7 +282,7 @@ export class AxisView extends GuideRendererView {
     if (labels.length == 0)
       return 0
 
-    const ctx = this.plot_view.canvas_view.ctx
+    const ctx = this.layer.ctx
     visuals.set_value(ctx)
 
     let hscale: number
@@ -523,11 +523,14 @@ export namespace Axis {
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
     fixed_location: p.Property<number | Factor | null>
-  } & mixins.AxisLine
-    & mixins.MajorTickLine
-    & mixins.MinorTickLine
-    & mixins.MajorLabelText
-    & mixins.AxisLabelText
+  } & Mixins
+
+  export type Mixins =
+    mixins.AxisLine       &
+    mixins.MajorTickLine  &
+    mixins.MinorTickLine  &
+    mixins.MajorLabelText &
+    mixins.AxisLabelText
 
   export type Visuals = GuideRenderer.Visuals & {
     axis_line: visuals.Line
@@ -544,6 +547,7 @@ export interface Axis extends Axis.Attrs {
 
 export class Axis extends GuideRenderer {
   properties: Axis.Props
+  __view_type__: AxisView
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)
@@ -552,12 +556,12 @@ export class Axis extends GuideRenderer {
   static init_Axis(): void {
     this.prototype.default_view = AxisView
 
-    this.mixins([
-      'line:axis_',
-      'line:major_tick_',
-      'line:minor_tick_',
-      'text:major_label_',
-      'text:axis_label_',
+    this.mixins<Axis.Mixins>([
+      ["axis_",        mixins.Line],
+      ["major_tick_",  mixins.Line],
+      ["minor_tick_",  mixins.Line],
+      ["major_label_", mixins.Text],
+      ["axis_label_",  mixins.Text],
     ])
 
     this.define<Axis.Props>({
@@ -584,11 +588,11 @@ export class Axis extends GuideRenderer {
       major_tick_line_color: 'black',
       minor_tick_line_color: 'black',
 
-      major_label_text_font_size: "8pt",
+      major_label_text_font_size: "11px",
       major_label_text_align: "center",
       major_label_text_baseline: "alphabetic",
 
-      axis_label_text_font_size: "10pt",
+      axis_label_text_font_size: "13px",
       axis_label_text_font_style: "italic",
     })
   }

@@ -58,7 +58,7 @@ export class LatexLabelView extends LabelView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    this._css_text(this.plot_view.canvas_view.ctx, "", sx, sy, angle)
+    this._css_text(this.layer.ctx, "", sx, sy, angle)
     katex.render(this.model.text, this.el, {displayMode: true})
   }
 }
@@ -84,7 +84,7 @@ text = (r"\text{Bessel Functions of the First Kind: }" +
         r"J_\nu = \sum_{m=0}^{\infty}\frac{(-1)^m}{m!\ \Gamma(m+\nu+1)}" +
         r"\left(\frac{x}{2}\right)^{2m+\nu}")
 latex = LatexLabel(text=text,x=4.5, y=250, x_units='data', y_units='screen',
-                   render_mode='css', text_font_size='8pt',
+                   render_mode='css', text_font_size='11px',
                    background_fill_color="white", border_line_color="lightgrey")
 
 p.add_layout(latex)

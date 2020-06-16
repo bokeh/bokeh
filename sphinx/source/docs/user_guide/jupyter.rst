@@ -366,7 +366,8 @@ To run this, assuming the code is saved under ``ipy_slider.py``, we issue
 application is available at http://localhost:5006/ipy_slider.
 
 From here, one can create more complex layouts and include advanced widgets,
-like `ipyleaflet`_, `ipyvolume`_, etc.
+like `ipyleaflet`_, `ipyvolume`_, etc. More examples are available in bokeh's
+repository under ``examples/howto/ipywidgets``.
 
 .. _IPyWidgets: https://ipywidgets.readthedocs.io
 .. _ipywidgets_bokeh: https://github.com/bokeh/ipywidgets_bokeh

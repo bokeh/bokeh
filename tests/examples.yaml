@@ -1,7 +1,6 @@
 - path: "examples/models/file"
   slow: ["choropleth.py"]
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
-  no_diff: ["graphs.py", "dateaxis.py"]
 
 - path: "examples/custom"
   slow: ["latex_extension_full"]
@@ -10,18 +9,16 @@
 
 - path: "examples/plotting/file"
   slow: ["choropleth.py"]
-  no_diff: ["jitter.py", "categorical_scatter_jitter.py", "linked_brushing.py"]
   no_js: ["gmap.py"]
   skip: ["dynamic_map.py"]
 
 - path: "examples/howto/layouts"
 
 - path: "examples/embed"
-  skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "server_session", "simple"]
+  skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "json_item_themed.py", "server_session", "simple"]
 
 - path: "examples/app"
   type: server
-  no_diff: ["gapminder", "surface3d"]
   skip: ["simple_hdf5", "spectrogram", "stocks"]
 
 - path: "examples/integration/*"
@@ -29,8 +26,6 @@
 - path: "bokehjs/examples"
   type: js
   skip: ["electron", "donut"]
-  no_diff: ["stocks"]
 
 - path: "sphinx/source/docs/user_guide/examples"
   no_js: ["geo_gmap.py"]
-  no_diff: ["categorical_scatter_jitter.py"]

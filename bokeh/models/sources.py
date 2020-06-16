@@ -71,7 +71,9 @@ class DataSource(Model):
     '''
 
     selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
-    A Selection that indicates selected indices on this ``DataSource``.
+    An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
+    This is a read-only property. You may only change the attributes of this object
+    to change the selection (e.g., ``selected.indices``).
     """)
 
 @abstract

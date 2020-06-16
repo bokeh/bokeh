@@ -1,6 +1,3 @@
-import "./root"
-import "icons.css"
-
 export const bk_tool_icon_box_select = "bk-tool-icon-box-select"
 export const bk_tool_icon_box_zoom = "bk-tool-icon-box-zoom"
 export const bk_tool_icon_zoom_in = "bk-tool-icon-zoom-in"
@@ -26,3 +23,4 @@ export const bk_tool_icon_freehand_draw = "bk-tool-icon-freehand-draw"
 export const bk_tool_icon_poly_draw = "bk-tool-icon-poly-draw"
 export const bk_tool_icon_point_draw = "bk-tool-icon-point-draw"
 export const bk_tool_icon_poly_edit = "bk-tool-icon-poly-edit"
+export const bk_tool_icon_line_edit = "bk-tool-icon-line-edit"

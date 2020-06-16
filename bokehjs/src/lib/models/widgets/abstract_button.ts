@@ -7,6 +7,7 @@ import {Control, ControlView} from "./control"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 
 import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
+import buttons_css from "styles/buttons.css"
 
 export abstract class AbstractButtonView extends ControlView {
   model: AbstractButton
@@ -15,6 +16,10 @@ export abstract class AbstractButtonView extends ControlView {
 
   protected button_el: HTMLButtonElement
   protected group_el: HTMLElement
+
+  *controls() {
+    yield this.button_el
+  }
 
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -33,6 +38,10 @@ export abstract class AbstractButtonView extends ControlView {
     if (this.icon_view != null)
       this.icon_view.remove()
     super.remove()
+  }
+
+  styles(): string[] {
+    return [...super.styles(), buttons_css]
   }
 
   _render_button(...children: (string | HTMLElement)[]): HTMLButtonElement {
@@ -75,6 +84,7 @@ export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Control {
   properties: AbstractButton.Props
+  __view_type__: AbstractButtonView
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
     super(attrs)

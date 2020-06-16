@@ -5,20 +5,19 @@ import {Line} from "core/visuals"
 import {Arrayable, Rect} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {keys} from "core/util/object"
-import {min, max} from "core/util/array"
-import {isStrictNaN} from "core/util/types"
+import {minmax} from "core/util/arrayable"
+import {to_object} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface MultiLineData extends GlyphData {
-  _xs: Arrayable<Arrayable<number>>
-  _ys: Arrayable<Arrayable<number>>
+  _xs: Arrayable<number>[]
+  _ys: Arrayable<number>[]
 
-  sxs: Arrayable<Arrayable<number>>
-  sys: Arrayable<Arrayable<number>>
+  sxs: Arrayable<number>[]
+  sys: Arrayable<number>[]
 }
 
 export interface MultiLineView extends MultiLineData {}
@@ -30,27 +29,16 @@ export class MultiLineView extends GlyphView {
   protected _index_data(): SpatialIndex {
     const points = []
     for (let i = 0, end = this._xs.length; i < end; i++) {
-      if (this._xs[i] == null || this._xs[i].length === 0)
+      const xsi = this._xs[i]
+      if (xsi == null || xsi.length == 0) // XXX: null?, so include in types
         continue
 
-      const _xsi = this._xs[i]
-      const xs: number[] = []
-      for (let j = 0, n = _xsi.length; j < n; j++) {
-        const x = _xsi[j]
-        if (!isStrictNaN(x))
-          xs.push(x)
-      }
+      const ysi = this._ys[i]
+      if (ysi == null || ysi.length == 0) // XXX: null?, so include in types
+        continue
 
-      const _ysi = this._ys[i]
-      const ys: number[] = []
-      for (let j = 0, n = _ysi.length; j < n; j++) {
-        const y = _ysi[j]
-        if (!isStrictNaN(y))
-          ys.push(y)
-      }
-
-      const [x0, x1] = [min(xs), max(xs)]
-      const [y0, y1] = [min(ys), max(ys)]
+      const [x0, x1] = minmax(xsi)
+      const [y0, y1] = minmax(ysi)
 
       points.push({x0, y0, x1, y1, i})
     }
@@ -80,14 +68,14 @@ export class MultiLineView extends GlyphView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const result = hittest.create_empty_hit_test_result()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
 
-    const hits: {[key: string]: number[]} = {}
+    const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = this.sxs.length; i < end; i++) {
       const threshold = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2)
-      let points = null
+
+      let points: number[] | null = null
       for (let j = 0, endj = this.sxs[i].length-1; j < endj; j++) {
         const p0 = {x: this.sxs[i][j],   y: this.sys[i][j]  }
         const p1 = {x: this.sxs[i][j+1], y: this.sys[i][j+1]}
@@ -97,19 +85,19 @@ export class MultiLineView extends GlyphView {
           points = [j]
         }
       }
-      if (points)
-        hits[i] = points
+      if (points != null) {
+        hits.set(i, points)
+      }
     }
 
-    result.indices = keys(hits).map((x) => parseInt(x, 10))
-    result.multiline_indices = hits
-
-    return result
+    return new Selection({
+      indices: [...hits.keys()],
+      multiline_indices: to_object(hits), // TODO: remove to_object()
+    })
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const result = hittest.create_empty_hit_test_result()
 
     let val: number
     let values: Arrayable<Arrayable<number>>
@@ -121,21 +109,22 @@ export class MultiLineView extends GlyphView {
       values = this._xs
     }
 
-    const hits: {[key: string]: number[]} = {}
+    const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = values.length; i < end; i++) {
-      const points = []
+      const points: number[] = []
       for (let j = 0, endj = values[i].length-1; j < endj; j++) {
         if (values[i][j] <= val && val <= values[i][j+1])
           points.push(j)
       }
-      if (points.length > 0)
-        hits[i] = points
+      if (points.length > 0) {
+        hits.set(i, points)
+      }
     }
 
-    result.indices = keys(hits).map((x) => parseInt(x, 10))
-    result.multiline_indices = hits
-
-    return result
+    return new Selection({
+      indices: [...hits.keys()],
+      multiline_indices: to_object(hits), // TODO: remove to_object()
+    })
   }
 
   get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
@@ -159,10 +148,12 @@ export class MultiLineView extends GlyphView {
 export namespace MultiLine {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: Line}
 }
@@ -171,6 +162,7 @@ export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
   properties: MultiLine.Props
+  __view_type__: MultiLineView
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)
@@ -180,6 +172,6 @@ export class MultiLine extends Glyph {
     this.prototype.default_view = MultiLineView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line'])
+    this.mixins<MultiLine.Mixins>(LineVector)
   }
 }

@@ -1,10 +1,11 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView} from "../canvas/canvas"
+import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Range} from "../ranges/range"
-import {DataRange1d} from "../ranges/data_range1d"
+import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {ToolView} from "../tools/tool"
+import {Tool, ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
@@ -14,7 +15,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable, Rect, Interval} from "core/types"
+import {Arrayable, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
@@ -22,7 +23,7 @@ import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {throttle} from "core/util/throttle"
-import {isArray, isStrictNaN} from "core/util/types"
+import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d} from "core/util/canvas"
@@ -32,8 +33,6 @@ import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
 
-export type FrameBox = [number, number, number, number]
-
 export type RangeInfo = {
   xrs: {[key: string]: Interval}
   yrs: {[key: string]: Interval}
@@ -41,7 +40,7 @@ export type RangeInfo = {
 
 export type StateInfo = {
   range?: RangeInfo
-  selection: {[key: string]: Selection}
+  selection: Map<DataRenderer, Selection>
   dimensions: {
     width: number
     height: number
@@ -106,10 +105,6 @@ export class PlotLayout extends Layoutable {
   }
 }
 
-export namespace PlotView {
-  export type Options = LayoutDOMView.Options & {model: Plot}
-}
-
 export class PlotView extends LayoutDOMView {
   model: Plot
   visuals: Plot.Visuals
@@ -128,8 +123,9 @@ export class PlotView extends LayoutDOMView {
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
+  protected _invalidated_painters: Set<RendererView> = new Set()
+  protected _invalidate_all: boolean = true
 
-  force_paint: Signal0<this>
   state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
 
@@ -149,8 +145,8 @@ export class PlotView extends LayoutDOMView {
 
   computed_renderers: Renderer[]
 
-  /*protected*/ renderer_views: {[key: string]: RendererView}
-  /*protected*/ tool_views: {[key: string]: ToolView}
+  /*protected*/ renderer_views: Map<Renderer, RendererView>
+  /*protected*/ tool_views: Map<Tool, ToolView>
 
   protected range_update_timestamp?: number
 
@@ -183,9 +179,17 @@ export class PlotView extends LayoutDOMView {
     this.request_paint()
   }
 
-  request_paint(): void {
-    if (!this.is_paused)
-      this.throttled_paint()
+  request_paint(to_invalidate?: RendererView): void {
+    if (to_invalidate != null) {
+      this._invalidated_painters.add(to_invalidate)
+    } else {
+      this._invalidate_all = true
+    }
+
+    if (!this.is_paused) {
+      const promise = this.throttled_paint()
+      this._ready = this._ready.then(() => promise)
+    }
   }
 
   request_layout(): void {
@@ -222,24 +226,21 @@ export class PlotView extends LayoutDOMView {
 
     super.initialize()
 
-    this.force_paint = new Signal0(this, "force_paint")
     this.state_changed = new Signal0(this, "state_changed")
 
     this.lod_started = false
     this.visuals = new Visuals(this.model) as any // XXX
 
     this._initial_state_info = {
-      selection: {},                      // XXX: initial selection?
+      selection: new Map(),               // XXX: initial selection?
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
     this.visibility_callbacks = []
 
     this.state = {history: [], index: -1}
 
-    this.canvas = new Canvas({
-      use_hidpi: this.model.hidpi,
-      output_backend: this.model.output_backend,
-    })
+    const {hidpi, output_backend} = this.model
+    this.canvas = new Canvas({hidpi, output_backend})
 
     this.frame = new CartesianFrame(
       this.model.x_scale,
@@ -250,7 +251,7 @@ export class PlotView extends LayoutDOMView {
       this.model.extra_y_ranges,
     )
 
-    this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
+    this.throttled_paint = throttle(() => this.repaint(), 1000/60)
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
@@ -263,8 +264,8 @@ export class PlotView extends LayoutDOMView {
       toolbar.toolbar_location = toolbar_location
     }
 
-    this.renderer_views = {}
-    this.tool_views = {}
+    this.renderer_views = new Map()
+    this.tool_views = new Map()
   }
 
   async lazy_initialize(): Promise<void> {
@@ -345,7 +346,7 @@ export class PlotView extends LayoutDOMView {
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
-      const view = this.renderer_views[model.id] as AnnotationView | AxisView
+      const view = this.renderer_views.get(model)! as AnnotationView | AxisView
       return view.layout = new SidePanel(side, view)
     }
 
@@ -413,10 +414,9 @@ export class PlotView extends LayoutDOMView {
 
   get axis_views(): AxisView[] {
     const views = []
-    for (const id in this.renderer_views) {
-      const child_view = this.renderer_views[id]
-      if (child_view instanceof AxisView)
-        views.push(child_view)
+    for (const [, renderer_view] of this.renderer_views) {
+      if (renderer_view instanceof AxisView)
+        views.push(renderer_view)
     }
     return views
   }
@@ -430,64 +430,11 @@ export class PlotView extends LayoutDOMView {
       callback(visible)
   }
 
-  prepare_webgl(ratio: number, frame_box: FrameBox): void {
-    // Prepare WebGL for a drawing pass
-    const {webgl} = this.canvas_view
-    if (webgl != null) {
-      // Sync canvas size
-      const {width, height} = this.canvas_view.bbox
-      const {pixel_ratio} = this.canvas_view.model
-      webgl.canvas.width = pixel_ratio*width
-      webgl.canvas.height = pixel_ratio*height
-      const {gl} = webgl
-      // Clipping
-      gl.enable(gl.SCISSOR_TEST)
-      const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.canvas_view.bbox
-      const vx = xview.compute(sx)
-      const vy = yview.compute(sy + h)
-      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
-      // Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
-    }
-  }
-
-  clear_webgl(): void {
-    const {webgl} = this.canvas_view
-    if (webgl != null) {
-      // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
-    }
-  }
-
-  blit_webgl(): void {
-    // This should be called when the ctx has no state except the HIDPI transform
-    const {ctx, webgl} = this.canvas_view
-    if (webgl != null) {
-      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      // to remove the hidpi transform, then blit, then restore.
-      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('drawing with WebGL')
-      ctx.restore()
-      ctx.drawImage(webgl.canvas, 0, 0)
-      // Set back hidpi transform
-      ctx.save()
-      if (this.model.hidpi) {
-        const ratio = this.canvas.pixel_ratio
-        ctx.scale(ratio, ratio)
-        ctx.translate(0.5, 0.5)
-      }
-    }
-  }
 
   update_dataranges(): void {
     // Update any DataRange1ds here
-    const bounds: {[key: string]: Rect} = {}
-    const log_bounds: {[key: string]: Rect} = {}
+    const bounds: Bounds = new Map()
+    const log_bounds: Bounds = new Map()
 
     let calculate_log_bounds = false
     for (const r of values(this.frame.x_ranges).concat(values(this.frame.y_ranges))) {
@@ -497,17 +444,16 @@ export class PlotView extends LayoutDOMView {
       }
     }
 
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (view instanceof GlyphRendererView) {
-        const bds = view.glyph.bounds()
+    for (const [renderer, renderer_view] of this.renderer_views) {
+      if (renderer_view instanceof GlyphRendererView) {
+        const bds = renderer_view.glyph.bounds()
         if (bds != null)
-          bounds[id] = bds
+          bounds.set(renderer, bds)
 
         if (calculate_log_bounds) {
-          const log_bds = view.glyph.log_bounds()
+          const log_bds = renderer_view.glyph.log_bounds()
           if (log_bds != null)
-            log_bounds[id] = log_bds
+            log_bounds.set(renderer, log_bds)
         }
       }
     }
@@ -523,7 +469,7 @@ export class PlotView extends LayoutDOMView {
     for (const xr of values(this.frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
-        xr.update(bounds_to_use, 0, this.model.id, r)
+        xr.update(bounds_to_use, 0, this.model, r)
         if (xr.follow) {
           follow_enabled = true
         }
@@ -535,7 +481,7 @@ export class PlotView extends LayoutDOMView {
     for (const yr of values(this.frame.y_ranges)) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
-        yr.update(bounds_to_use, 1, this.model.id, r)
+        yr.update(bounds_to_use, 1, this.model, r)
         if (yr.follow) {
           follow_enabled = true
         }
@@ -614,26 +560,28 @@ export class PlotView extends LayoutDOMView {
       this.update_selection(info.selection)
   }
 
-  get_selection(): {[key: string]: Selection} {
-    const selection: {[key: string]: Selection} = {}
+  get_selection(): Map<DataRenderer, Selection> {
+    const selection = new Map<DataRenderer, Selection>()
     for (const renderer of this.model.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const {selected} = renderer.data_source
-        selection[renderer.id] = selected
+        selection.set(renderer, selected)
       }
     }
     return selection
   }
 
-  update_selection(selection: {[key: string]: Selection} | null): void {
+  update_selection(selections: Map<DataRenderer, Selection> | null): void {
     for (const renderer of this.model.renderers) {
       if (!(renderer instanceof GlyphRenderer))
         continue
 
       const ds = renderer.data_source
-      if (selection != null) {
-        if (selection[renderer.id] != null)
-          ds.selected.update(selection[renderer.id], true, false)
+      if (selections != null) {
+        const selection = selections.get(renderer)
+        if (selection != null) {
+          ds.selected.update(selection, true)
+        }
       } else
         ds.selection_manager.clear()
     }
@@ -806,7 +754,7 @@ export class PlotView extends LayoutDOMView {
   protected _invalidate_layout(): void {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
-        const view = this.renderer_views[panel.id] as AnnotationView | AxisView
+        const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout.has_size_changed())
           return true
       }
@@ -818,18 +766,14 @@ export class PlotView extends LayoutDOMView {
   }
 
   get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views[r.id])
+    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
   }
 
   async build_renderer_views(): Promise<void> {
     this.computed_renderers = []
 
-    this.computed_renderers.push(...this.model.above)
-    this.computed_renderers.push(...this.model.below)
-    this.computed_renderers.push(...this.model.left)
-    this.computed_renderers.push(...this.model.right)
-    this.computed_renderers.push(...this.model.center)
-    this.computed_renderers.push(...this.model.renderers)
+    const {above, below, left, right, center, renderers} = this.model
+    this.computed_renderers.push(...above, ...below, ...left, ...right, ...center, ...renderers)
 
     if (this._title != null)
       this.computed_renderers.push(this._title)
@@ -856,8 +800,6 @@ export class PlotView extends LayoutDOMView {
   connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.force_paint, () => this.repaint())
-
     const {x_ranges, y_ranges} = this.frame
 
     for (const name in x_ranges) {
@@ -869,9 +811,12 @@ export class PlotView extends LayoutDOMView {
       this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
-    this.connect(this.model.properties.renderers.change, async () => {
-      await this.build_renderer_views()
-    })
+    const {plot_width, plot_height} = this.model.properties
+    this.on_change([plot_width, plot_height], () => this.invalidate_layout())
+
+    const {above, below, left, right, center, renderers} = this.model.properties
+    this.on_change([above, below, left, right, center, renderers], async () => await this.build_renderer_views())
+
     this.connect(this.model.toolbar.properties.tools.change, async () => {
       await this.build_renderer_views()
       await this.build_tool_views()
@@ -889,7 +834,7 @@ export class PlotView extends LayoutDOMView {
     const yrs: {[key: string]: Interval} = {}
     for (const name in x_ranges) {
       const {start, end} = x_ranges[name]
-      if (start == null || end == null || isStrictNaN(start + end)) {
+      if (start == null || end == null || isNaN(start + end)) {
         good_vals = false
         break
       }
@@ -898,7 +843,7 @@ export class PlotView extends LayoutDOMView {
     if (good_vals) {
       for (const name in y_ranges) {
         const {start, end} = y_ranges[name]
-        if (start == null || end == null || isStrictNaN(start + end)) {
+        if (start == null || end == null || isNaN(start + end)) {
           good_vals = false
           break
         }
@@ -916,9 +861,8 @@ export class PlotView extends LayoutDOMView {
     if (!super.has_finished())
       return false
 
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (!view.has_finished())
+    for (const [, renderer_view] of this.renderer_views) {
+      if (!renderer_view.has_finished())
         return false
     }
 
@@ -945,8 +889,9 @@ export class PlotView extends LayoutDOMView {
 
     if (!this._outer_bbox.equals(this.layout.bbox)) {
       const {width, height} = this.layout.bbox
-      this.canvas_view.prepare_canvas(width, height)
+      this.canvas_view.resize(width, height)
       this._outer_bbox = this.layout.bbox
+      this._invalidate_all = true
       this._needs_paint = true
     }
 
@@ -990,24 +935,33 @@ export class PlotView extends LayoutDOMView {
         document.interactive_stop(this.model)
     }
 
-    for (const id in this.renderer_views) {
-      const v = this.renderer_views[id]
+    for (const [, renderer_view] of this.renderer_views) {
       if (this.range_update_timestamp == null ||
-          (v instanceof GlyphRendererView && v.set_data_timestamp > this.range_update_timestamp)) {
+          (renderer_view instanceof GlyphRendererView && renderer_view.set_data_timestamp > this.range_update_timestamp)) {
         this.update_dataranges()
         break
       }
     }
 
-    const {ctx} = this.canvas_view
-    const ratio = this.canvas.pixel_ratio
+    let do_primary = false
+    let do_overlays = false
 
-    // Set hidpi-transform
-    ctx.save()   // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
-    if (this.model.hidpi) {
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
+    if (this._invalidate_all) {
+      do_primary = true
+      do_overlays = true
+    } else {
+      for (const painter of this._invalidated_painters) {
+        const {level} = painter.model
+        if (level != "overlay")
+          do_primary = true
+        else
+          do_overlays = true
+        if (do_primary && do_overlays)
+          break
+      }
     }
+    this._invalidated_painters.clear()
+    this._invalidate_all = false
 
     const frame_box: FrameBox = [
       this.frame._left.value,
@@ -1016,12 +970,78 @@ export class PlotView extends LayoutDOMView {
       this.frame._height.value,
     ]
 
-    this._map_hook(ctx, frame_box)
-    this._paint_empty(ctx, frame_box)
+    const {primary, overlays} = this.canvas_view
 
-    this.prepare_webgl(ratio, frame_box)
-    this.clear_webgl()
+    if (do_primary) {
+      primary.prepare()
+      this.canvas_view.prepare_webgl(frame_box)
+      this.canvas_view.clear_webgl()
 
+      this._map_hook(primary.ctx, frame_box)
+      this._paint_empty(primary.ctx, frame_box)
+      this._paint_outline(primary.ctx, frame_box)
+
+      this._paint_levels(primary.ctx, "image", frame_box, true)
+      this._paint_levels(primary.ctx, "underlay", frame_box, true)
+      this._paint_levels(primary.ctx, "glyph", frame_box, true)
+      this._paint_levels(primary.ctx, "guide", frame_box, false)
+      this._paint_levels(primary.ctx, "annotation", frame_box, false)
+      primary.finish()
+    }
+
+    if (do_overlays) {
+      overlays.prepare()
+      this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      overlays.finish()
+    }
+
+    if (this._initial_state_info.range == null)
+      this.set_initial_range()
+  }
+
+  protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
+    for (const renderer of this.computed_renderers) {
+      if (renderer.level != level)
+        continue
+
+      const renderer_view = this.renderer_views.get(renderer)!
+
+      ctx.save()
+      if (global_clip || renderer_view.needs_clip) {
+        ctx.beginPath()
+        ctx.rect(...clip_region)
+        ctx.clip()
+      }
+
+      renderer_view.render()
+      ctx.restore()
+
+      if (renderer_view.has_webgl) {
+        this.canvas_view.blit_webgl(ctx)
+        this.canvas_view.clear_webgl()
+      }
+    }
+  }
+
+  protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
+
+  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
+    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
+    const [fx, fy, fw, fh] = frame_box
+
+    if (this.visuals.border_fill.doit) {
+      this.visuals.border_fill.set_value(ctx)
+      ctx.fillRect(cx, cy, cw, ch)
+      ctx.clearRect(fx, fy, fw, fh)
+    }
+
+    if (this.visuals.background_fill.doit) {
+      this.visuals.background_fill.set_value(ctx)
+      ctx.fillRect(fx, fy, fw, fh)
+    }
+  }
+
+  protected _paint_outline(ctx: Context2d, frame_box: FrameBox): void {
     if (this.visuals.outline_line.doit) {
       ctx.save()
       this.visuals.outline_line.set_value(ctx)
@@ -1036,61 +1056,6 @@ export class PlotView extends LayoutDOMView {
       }
       ctx.strokeRect(x0, y0, w, h)
       ctx.restore()
-    }
-
-    this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
-    this._paint_levels(ctx, ['annotation'], frame_box, false)
-    this._paint_levels(ctx, ['overlay'], frame_box, false)
-
-    if (this._initial_state_info.range == null)
-      this.set_initial_range()
-
-    ctx.restore()   // Restore to default state
-  }
-
-  protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {
-    for (const level of levels) {
-      for (const renderer of this.computed_renderers) {
-        if (renderer.level != level)
-          continue
-
-        const renderer_view = this.renderer_views[renderer.id]
-
-        ctx.save()
-        if (global_clip || renderer_view.needs_clip) {
-          ctx.beginPath()
-          ctx.rect(...clip_region)
-          ctx.clip()
-        }
-
-        renderer_view.render()
-        ctx.restore()
-
-        if (renderer_view.has_webgl) {
-          this.blit_webgl()
-          this.clear_webgl()
-        }
-      }
-    }
-  }
-
-  protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
-
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
-    const [fx, fy, fw, fh] = frame_box
-
-    ctx.clearRect(cx, cy, cw, ch)
-
-    if (this.visuals.border_fill.doit) {
-      this.visuals.border_fill.set_value(ctx)
-      ctx.fillRect(cx, cy, cw, ch)
-      ctx.clearRect(fx, fy, fw, fh)
-    }
-
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fillRect(fx, fy, fw, fh)
     }
   }
 

@@ -73,9 +73,7 @@ SVG Generation
 
 Bokeh also supports replacing the HTML5 Canvas plot output with an SVG element
 that can be edited in image editing programs such as Adobe Illustrator and/or
-converted to PDFs. This functionality uses a JavaScript library called
-canvas2svg to mock the normal Canvas element and its methods with an SVG
-element.
+converted to PDFs.
 
 The SVG output isn't as performant as the default Canvas backend when it comes
 to rendering large number of glyphs or handling lots of user interactions like

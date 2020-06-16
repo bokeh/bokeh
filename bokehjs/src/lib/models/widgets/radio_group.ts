@@ -19,9 +19,11 @@ export class RadioGroupView extends InputGroupView {
     const name = uniqueId()
     const {active, labels} = this.model
 
+    this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const radio = input({type: `radio`, name, value: `${i}`})
       radio.addEventListener("change", () => this.change_active(i))
+      this._inputs.push(radio)
 
       if (this.model.disabled)
         radio.disabled = true
@@ -52,6 +54,7 @@ export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends InputGroup {
   properties: RadioGroup.Props
+  __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)

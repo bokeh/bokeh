@@ -17,15 +17,11 @@ export function isNumber(obj: unknown): obj is number {
 }
 
 export function isInteger(obj: unknown): obj is number {
-  return isNumber(obj) && isFinite(obj) && Math.floor(obj) === obj
+  return isNumber(obj) && Number.isInteger(obj)
 }
 
 export function isString(obj: unknown): obj is string {
   return toString.call(obj) === "[object String]"
-}
-
-export function isStrictNaN(obj: unknown): obj is number {
-  return isNumber(obj) && obj !== +obj
 }
 
 export function isFunction(obj: unknown): obj is Function {
@@ -49,7 +45,7 @@ export function isArrayableOf<T>(arr: Arrayable, predicate: (item: unknown) => i
 }
 
 export function isTypedArray(obj: unknown): obj is TypedArray {
-  return obj != null && (obj as any).buffer instanceof ArrayBuffer
+  return ArrayBuffer.isView(obj) && !(obj instanceof DataView)
 }
 
 export function isObject(obj: unknown): obj is object {
@@ -59,4 +55,8 @@ export function isObject(obj: unknown): obj is object {
 
 export function isPlainObject(obj: unknown): obj is {[key: string]: unknown} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+}
+
+export function isIterable(obj: unknown): obj is Iterable<unknown> {
+  return Symbol.iterator in Object(obj)
 }

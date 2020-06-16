@@ -22,7 +22,7 @@ function _qbb(u: number, v: number, w: number): [number, number] {
     return [u, w]
   else {
     const t = (u - v) / ((u - (2*v)) + w)
-    const bd = (u*Math.pow((1 - t), 2)) + (2*v*(1 - t)*t) + (w*Math.pow(t, 2))
+    const bd = (u*(1 - t)**2) + (2*v*(1 - t)*t) + (w*t**2)
     return [Math.min(u, w, bd), Math.max(u, w, bd)]
   }
 }
@@ -97,14 +97,16 @@ export class QuadraticView extends GlyphView {
 export namespace Quadratic {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     x0: p.CoordinateSpec
     y0: p.CoordinateSpec
     x1: p.CoordinateSpec
     y1: p.CoordinateSpec
     cx: p.CoordinateSpec
     cy: p.CoordinateSpec
-  }
+  } & Mixins
+
+  export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: Line}
 }
@@ -113,6 +115,7 @@ export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
   properties: Quadratic.Props
+  __view_type__: QuadraticView
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)
@@ -122,6 +125,6 @@ export class Quadratic extends Glyph {
     this.prototype.default_view = QuadraticView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']])
-    this.mixins(['line'])
+    this.mixins<Quadratic.Mixins>(LineVector)
   }
 }

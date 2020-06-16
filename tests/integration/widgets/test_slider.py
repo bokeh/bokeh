@@ -102,7 +102,7 @@ class Test_Slider(object):
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
         el = page.driver.find_element_by_css_selector('.foo')
-        handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        handle = el.find_element_by_css_selector('.noUi-handle')
         select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT, press_number=1)
         assert float(get_slider_title_value(page.driver, ".foo")) == 2
         select_element_and_press_key(page.driver, handle, Keys.ARROW_LEFT, press_number=3) # hit lower value and continue
@@ -178,7 +178,7 @@ class Test_Slider(object):
 
         # XXX (bev) skip keypress part of test until it can be fixed
         # el = page.driver.find_element_by_css_selector('.foo')
-        # handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        # handle = el.find_element_by_css_selector('.noUi-handle')
         # select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
 
         # page.click_custom_action()

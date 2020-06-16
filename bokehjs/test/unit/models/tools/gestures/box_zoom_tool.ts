@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Document} from "@bokehjs/document"
 import {Tool} from "@bokehjs/models/tools/tool"
@@ -40,44 +40,40 @@ describe("BoxZoomTool", () => {
       const box_zoom = new BoxZoomTool()
       const plot_view = await mkplot(box_zoom)
 
-      const box_zoom_view = plot_view.tool_views[box_zoom.id] as BoxZoomToolView
+      const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
 
       // perform the tool action
-      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, deltaX: 0, deltaY: 0, scale: 1, shiftKey: false}
+      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
       box_zoom_view._pan_start(zoom_event0)
 
-      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 500, deltaX: 0, deltaY: 0, scale: 1, shiftKey: false}
+      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 500, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.closeTo(-0.31, 0.01)
-      expect(hr.end).to.be.closeTo(0.4, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.30973, 0.39823])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.closeTo(-0.678, 0.01)
-      expect(vr.end).to.be.closeTo(0.678, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.67796, 0.67796])
     })
 
     it("should zoom in with match_aspect", async () => {
       const box_zoom = new BoxZoomTool({match_aspect: true})
       const plot_view = await mkplot(box_zoom)
 
-      const box_zoom_view = plot_view.tool_views[box_zoom.id] as BoxZoomToolView
+      const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
 
       // perform the tool action
-      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, deltaX: 0, deltaY: 0, scale: 1, shiftKey: false}
+      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
       box_zoom_view._pan_start(zoom_event0)
 
-      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 300, deltaX: 0, deltaY: 0, scale: 1, shiftKey: false}
+      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 300, deltaX: 0, deltaY: 0, scale: 1, ctrlKey: false, shiftKey: false}
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_ranges.default
-      expect(hr.start).to.be.closeTo(-0.31, 0.01)
-      expect(hr.end).to.be.closeTo(0.4, 0.01)
+      expect([hr.start, hr.end]).to.be.similar([-0.30973, 0.39823])
 
       const vr = plot_view.frame.y_ranges.default
-      expect(vr.start).to.be.closeTo(-0.37, 0.01)
-      expect(vr.end).to.be.closeTo(0.34, 0.01)
+      expect([vr.start, vr.end]).to.be.similar([-0.36898, 0.33898])
     })
   })
 })

@@ -30,17 +30,17 @@ export class Filter extends Model {
 
   compute_indices(_source: DataSource): number[] | null {
     const filter = this.filter
-    if (filter != null && filter.length >= 0) {
+    if (filter != null) {
       if (isArrayOf(filter, isBoolean)) {
         return range(0, filter.length).filter((i) => filter[i] === true)
       }
       if (isArrayOf(filter, isInteger)) {
         return filter
       }
-      logger.warn(`Filter ${this.id}: filter should either be array of only booleans or only integers, defaulting to no filtering`)
+      logger.warn(`${this}: filter should either be array of only booleans or only integers, defaulting to no filtering`)
       return null
     } else {
-      logger.warn(`Filter ${this.id}: filter was not set to be an array, defaulting to no filtering`)
+      logger.warn(`${this}: filter was not set to be an array, defaulting to no filtering`)
       return null
     }
   }

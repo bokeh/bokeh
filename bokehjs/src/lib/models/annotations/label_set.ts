@@ -1,7 +1,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {TextVector} from "core/property_mixins"
+import * as mixins from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
 import {div, display, undisplay} from "core/dom"
@@ -9,7 +9,6 @@ import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
-import {bk_annotation_child} from "styles/annotations"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
@@ -29,7 +28,7 @@ export class LabelSetView extends TextAnnotationView {
 
     if (this.model.render_mode == 'css') {
       for (let i = 0, end = this._text.length; i < end; i++) {
-        const el = div({class: bk_annotation_child, style: {display: "none"}})
+        const el = div({style: {display: "none"}})
         this.el.appendChild(el)
       }
     }
@@ -100,7 +99,7 @@ export class LabelSetView extends TextAnnotationView {
       return
 
     const draw = this.model.render_mode == 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     const [sx, sy] = this._map_data()
 
@@ -110,7 +109,7 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _get_size(): Size {
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
 
     const {width, ascent} = ctx.measureText(this._text[0])
@@ -190,7 +189,7 @@ export class LabelSetView extends TextAnnotationView {
 export namespace LabelSet {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = TextAnnotation.Props & TextVector & {
+  export type Props = TextAnnotation.Props & {
     x: p.NumberSpec
     y: p.NumberSpec
     x_units: p.Property<SpatialUnits>
@@ -215,7 +214,9 @@ export namespace LabelSet {
     // fill:background_ v
     background_fill_color: p.ColorSpec
     background_fill_alpha: p.NumberSpec
-  }
+  } & Mixins
+
+  export type Mixins = mixins.TextVector
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -224,6 +225,7 @@ export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
   properties: LabelSet.Props
+  __view_type__: LabelSetView
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)
@@ -232,7 +234,11 @@ export class LabelSet extends TextAnnotation {
   static init_LabelSet(): void {
     this.prototype.default_view = LabelSetView
 
-    this.mixins(['text', 'line:border_', 'fill:background_'])
+    this.mixins<LabelSet.Mixins>([
+      mixins.TextVector,
+      ["border_",     mixins.LineVector],
+      ["background_", mixins.FillVector],
+    ])
 
     this.define<LabelSet.Props>({
       x:            [ p.NumberSpec                      ],

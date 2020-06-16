@@ -8,13 +8,12 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Scale} from "../scales/scale"
 import {CDSView} from "../sources/cds_view"
 import {Color} from "core/types"
-import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {indexOf, map, filter} from "core/util/arrayable"
+import {indexOf, filter} from "core/util/arrayable"
 import {difference, includes, range} from "core/util/array"
 import {extend, clone} from "core/util/object"
-import * as hittest from "core/hittest"
+import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
 import {build_view} from "core/build_views"
@@ -64,8 +63,8 @@ export class GlyphRendererView extends DataRendererView {
     await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
-    const has_fill = includes(base_glyph.mixins, "fill")
-    const has_line = includes(base_glyph.mixins, "line")
+    const has_fill = includes(base_glyph._mixins, "fill")
+    const has_line = includes(base_glyph._mixins, "line")
     const glyph_attrs = clone(base_glyph.attributes)
     delete glyph_attrs.id
 
@@ -174,18 +173,18 @@ export class GlyphRendererView extends DataRendererView {
                            y_range_name: this.model.y_range_name}, {silent: true})
     this.glyph.set_data(source, this.all_indices, indices)
 
-    this.glyph.set_visuals(source)
-    this.decimated_glyph.set_visuals(source)
+    this.glyph.set_visuals(source, this.all_indices)
+    this.decimated_glyph.set_visuals(source, this.all_indices)
     if (this.have_selection_glyphs()) {
-      this.selection_glyph.set_visuals(source)
-      this.nonselection_glyph.set_visuals(source)
+      this.selection_glyph.set_visuals(source, this.all_indices)
+      this.nonselection_glyph.set_visuals(source, this.all_indices)
     }
 
     if (this.hover_glyph != null)
-      this.hover_glyph.set_visuals(source)
+      this.hover_glyph.set_visuals(source, this.all_indices)
 
     if (this.muted_glyph != null)
-      this.muted_glyph.set_visuals(source)
+      this.muted_glyph.set_visuals(source, this.all_indices)
 
     const {lod_factor} = this.plot_model
     this.decimated = []
@@ -194,7 +193,7 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     const dt = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} GlyphRenderer (${this.model.id}): set_data finished in ${dt}ms`)
+    logger.debug(`${this.glyph.model.type} ${this.model}): set_data finished in ${dt}ms`)
 
     this.set_data_timestamp = Date.now()
 
@@ -226,7 +225,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     const dtmask = Date.now() - tmask
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
 
     // selected is in full set space
@@ -251,8 +250,10 @@ export class GlyphRendererView extends DataRendererView {
           return this.model.view.convert_indices_from_subset(indices)
         else if (inspected.indices.length > 0)
           return inspected.indices
-        else
-          return map(Object.keys(inspected.multiline_indices), (i) => parseInt(i))
+        else {
+          // TODO: return inspected.multiline_indices.keys()
+          return Object.keys(inspected.multiline_indices).map((i) => parseInt(i))
+        }
       }
     })())
 
@@ -294,7 +295,7 @@ export class GlyphRendererView extends DataRendererView {
           glyph.render(ctx, this.all_indices, this.glyph)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
-            if (sglyph.id == this.glyph.model.id)
+            if (sglyph == this.glyph.model)
               this.hover_glyph.render(ctx, this.all_indices, this.glyph)
           }
         }
@@ -349,7 +350,7 @@ export class GlyphRendererView extends DataRendererView {
     this.last_dtrender = dtrender
 
     const dttot = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} GlyphRenderer (${this.model.id}): render finished in ${dttot}ms`)
+    logger.debug(`${this.glyph.model.type} ${this.model}: render finished in ${dttot}ms`)
     logger.trace(` - map_data finished in       : ${dtmap}ms`)
     logger.trace(` - mask_data finished in      : ${dtmask}ms`)
     if (dtselect != null) {
@@ -366,7 +367,7 @@ export class GlyphRendererView extends DataRendererView {
     this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
   }
 
-  hit_test(geometry: Geometry): hittest.HitTestResult {
+  hit_test(geometry: Geometry): HitTestResult {
     if (!this.model.visible)
       return null
 
@@ -399,7 +400,7 @@ export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends DataRenderer {
   properties: GlyphRenderer.Props
-  default_view: Class<GlyphRendererView>
+  __view_type__: GlyphRendererView
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)

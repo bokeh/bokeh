@@ -21,6 +21,7 @@ export interface MercatorAxis extends MercatorAxis.Attrs {}
 
 export class MercatorAxis extends LinearAxis {
   properties: MercatorAxis.Props
+  __view_type__: MercatorAxisView
 
   ticker:    MercatorTicker
   formatter: MercatorTickFormatter

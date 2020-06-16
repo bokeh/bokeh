@@ -19,6 +19,9 @@ import {CDSView} from "../../sources/cds_view"
 
 import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "styles/widgets/tables"
 
+import slickgrid_css from "styles/widgets/slickgrid.css"
+import tables_css from "styles/widgets/tables.css"
+
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare const $: any
@@ -122,6 +125,15 @@ export class DataTableView extends WidgetView {
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
+  remove(): void {
+    this.grid?.destroy()
+    super.remove()
+  }
+
+  styles(): string[] {
+    return [...super.styles(), slickgrid_css, tables_css]
+  }
+
   _update_layout(): void {
     this.layout = new LayoutItem()
     this.layout.set_sizing(this.box_sizing())
@@ -203,7 +215,9 @@ export class DataTableView extends WidgetView {
 
   render(): void {
     let checkboxSelector
-    let columns = this.model.columns.map((column) => column.toColumn())
+    let columns: ColumnType[] = this.model.columns.map((column) => {
+      return {...column.toColumn(), parent: this}
+    })
 
     if (this.model.selectable == "checkbox") {
       checkboxSelector = new CheckboxSelectColumn({cssClass: bk_cell_select})
@@ -326,6 +340,7 @@ export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
   properties: DataTable.Props
+  __view_type__: DataTableView
 
   private _sort_columns: any[] = []
   get sort_columns(): any[] { return this._sort_columns }

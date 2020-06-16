@@ -57,6 +57,7 @@ export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
   properties: XYGlyph.Props
+  __view_type__: XYGlyphView
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {
     super(attrs)

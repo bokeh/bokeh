@@ -154,7 +154,7 @@ class Test_DateSlider(object):
 
         # XXX (bev) skip keypress part of test until it can be fixed
         # el = page.driver.find_element_by_css_selector('.foo')
-        # handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        # handle = el.find_element_by_css_selector('.noUi-handle')
         # select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
 
         # page.click_custom_action()

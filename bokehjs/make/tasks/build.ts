@@ -1,6 +1,6 @@
 import {task} from "../task"
 
-task("build", ["scripts", "styles", "compiler:build"])
+task("build", ["scripts:build", "compiler:build"])
+task("build:all", ["build", "examples:build", "test:build"])
 
-task("dev-build", ["scripts:dev-build", "styles:build"])
-task("dev", ["dev-build"])
+task("dev", ["lib:build"])

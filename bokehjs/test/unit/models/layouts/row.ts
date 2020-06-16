@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Row} from "@bokehjs/models/layouts/row"
 

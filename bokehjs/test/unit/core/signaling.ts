@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import {Signal} from "@bokehjs/core/signaling"
 
 describe("core/signaling module", () => {
@@ -14,8 +14,8 @@ describe("core/signaling module", () => {
       let signaled: number = 0
       const fn = (val: number) => signaled = val
 
-      expect(signal.connect(fn)).to.be.equal(true)
-      expect(signal.connect(fn)).to.be.equal(false)
+      expect(signal.connect(fn)).to.be.true
+      expect(signal.connect(fn)).to.be.false
 
       expect(signaled).to.be.equal(0)
 
@@ -24,8 +24,8 @@ describe("core/signaling module", () => {
       signal.emit(2)
       expect(signaled).to.be.equal(2)
 
-      expect(signal.disconnect(fn)).to.be.equal(true)
-      expect(signal.disconnect(fn)).to.be.equal(false)
+      expect(signal.disconnect(fn)).to.be.true
+      expect(signal.disconnect(fn)).to.be.false
 
       signal.emit(3)
       expect(signaled).to.be.equal(2)

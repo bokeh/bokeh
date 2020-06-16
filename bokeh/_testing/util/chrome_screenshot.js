@@ -10,39 +10,6 @@ const url = is_url ? file : `file://${path.resolve(file)}`
 const pause = parseInt(argv[1]) || 100
 const timeout = parseInt(argv[2]) || 15000
 
-/*
-interface CallFrame {
-  name: string
-  url: string
-  line: number
-  col: number
-}
-
-interface Error {
-  text: string
-  url: string
-  line: number
-  col: number
-  trace: CallFrame[]
-}
-
-interface Message {
-  level: string
-  text: string
-  url: string
-  line: number
-  col: number
-  trace: CallFrame[]
-}
-
-interface Output {
-  success: boolean
-  timeout: boolean
-  errors: Error[]
-  messages: Message[]
-}
-*/
-
 process.on('unhandledRejection', (reason, p) => {
   console.error('Unhandled rejection at: ', reason)
   process.exit(1)
@@ -61,9 +28,9 @@ CDP(async function(client) {
   await Runtime.enable()
 
   await Emulation.setDeviceMetricsOverride({
-    width: 1000,
-    height: 1000,
-    deviceScaleFactor: 0,
+    width: 2000,
+    height: 4000,
+    deviceScaleFactor: 1,
     mobile: false,
   })
 
@@ -127,56 +94,6 @@ CDP(async function(client) {
     }
   }
 
-  async function get_bbox() {
-    const expr = `
-      const el = document.body
-      const style = getComputedStyle(el)
-      const width = Math.ceil(parseFloat(style.marginLeft) + el.scrollWidth + parseFloat(style.marginRight))
-      const height = Math.ceil(parseFloat(style.marginTop) + el.scrollHeight + parseFloat(style.marginBottom))
-      JSON.stringify([width, height])
-    `
-    const result = await evaluate(expr)
-
-    if (result != null) {
-      const [width, height] = JSON.parse(result.value)
-      return {x: 0, y: 0, width, height, scale: 1}
-    } else
-      return undefined
-  }
-
-  /*
-  async function get_bbox() {
-    const expr = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].el.getBoundingClientRect()))"
-    const result = await evaluate(expr)
-
-    if (result != null) {
-      const bboxes = JSON.parse(result.value)
-      const left = Math.floor(Math.min(...bboxes.map((bbox) => bbox.left)))
-      const top = Math.floor(Math.min(...bboxes.map((bbox) => bbox.top)))
-      const right = Math.ceil(Math.max(...bboxes.map((bbox) => bbox.right)))
-      const bottom = Math.ceil(Math.max(...bboxes.map((bbox) => bbox.bottom)))
-      return {
-        x: left,
-        y: top,
-        width: right - left,
-        height: bottom - top,
-        scale: 1,
-      }
-    } else
-      return undefined
-  }
-  */
-
-  async function get_image() {
-    return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
-  }
-
-  async function get_state() {
-    const expr = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].serializable_state()))"
-    const result = await evaluate(expr)
-    return result != null ? JSON.parse(result.value) : null
-  }
-
   async function is_ready() {
     const expr = "typeof Bokeh !== 'undefined'"
     const result = await evaluate(expr)
@@ -189,16 +106,38 @@ CDP(async function(client) {
     return result != null && result.value === true
   }
 
+  async function get_bbox() {
+    const expr0 = `JSON.stringify(getComputedStyle(document.body))`
+    const result0 = await evaluate(expr0)
+
+    const expr1 = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].el.getBoundingClientRect()))"
+    const result1 = await evaluate(expr1)
+
+    if (result0 != null && result1 != null) {
+      const style = JSON.parse(result0.value)
+      const bounds = JSON.parse(result1.value)
+
+      const right = Math.ceil(Math.max(0, ...bounds.map((bbox) => bbox.right)))
+      const bottom = Math.ceil(Math.max(0, ...bounds.map((bbox) => bbox.bottom)))
+
+      return {
+        x: 0,
+        y: 0,
+        width: Math.ceil(right + parseFloat(style.marginRight)),
+        height: Math.ceil(bottom + parseFloat(style.marginBottom)),
+        scale: 1,
+      }
+    } else
+      return undefined
+  }
+
+  async function get_image() {
+    return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
+  }
+
   async function finish(timeout, success) {
-    let state = null
-    let image = null
-    if (success) {
-      state = await get_state()
-      image = await get_image()
-    }
-
-    console.log(JSON.stringify({success, timeout, errors, messages, state, image}))
-
+    const image = await get_image()
+    console.log(JSON.stringify({success, timeout, errors, messages, image}))
     await client.close()
   }
 

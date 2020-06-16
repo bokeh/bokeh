@@ -1,13 +1,13 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {create_glyph_view, set_scales} from "./glyph_utils"
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Geometry} from "@bokehjs/core/geometry"
 import {assert} from "@bokehjs/core/util/assert"
 
-describe("Glyph (using  as a concrete Glyph)", () => {
+describe("Patches", () => {
 
-  describe("GlyphView", () => {
+  describe("PatchesView", () => {
     it("should hit test rects for containment", async () => {
       const data = {xs: [[0, 10, 5], [5, 10, 10, 5]], ys: [[0, 0, 10], [10, 10, 20, 20]]}
       const glyph = new Patches({
@@ -34,17 +34,17 @@ describe("Glyph (using  as a concrete Glyph)", () => {
       const result6 = glyph_view.hit_test(geometry6)
 
       assert(result1 != null)
-      expect(result1.indices).to.be.deep.equal([0])
+      expect(result1.indices).to.be.equal([0])
       assert(result2 != null)
-      expect(result2.indices).to.be.deep.equal([])
+      expect(result2.indices).to.be.equal([])
       assert(result3 != null)
-      expect(result3.indices).to.be.deep.equal([1])
+      expect(result3.indices).to.be.equal([1])
       assert(result4 != null)
-      expect(result4.indices).to.be.deep.equal([])
+      expect(result4.indices).to.be.equal([])
       assert(result5 != null)
-      expect(result5.indices).to.be.deep.equal([])
+      expect(result5.indices).to.be.equal([])
       assert(result6 != null)
-      expect(result6.indices).to.be.deep.equal([0, 1])
+      expect(result6.indices).to.be.equal([0, 1])
     })
   })
 })
