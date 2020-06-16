@@ -395,7 +395,7 @@ class Server(BaseServer):
         sockets, self._port = bind_sockets(opts.address, opts.port)
         self._address = opts.address
 
-        extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, opts.port)
+        extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, self.port)
         try:
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
