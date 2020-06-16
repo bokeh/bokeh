@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
-import {empty, position, display, undisplay} from "core/dom"
+import {div, empty, position, display, undisplay, remove} from "core/dom"
 import {Size} from "core/layout"
 import * as p from "core/properties"
 
@@ -12,9 +12,11 @@ export class ToolbarPanelView extends AnnotationView {
   readonly rotate: boolean = true
 
   protected _toolbar_view: ToolbarBaseView
+  protected el: HTMLElement
 
   initialize(): void {
     super.initialize()
+    this.el = div()
     this.plot_view.canvas_view.add_event(this.el)
   }
 
@@ -25,16 +27,18 @@ export class ToolbarPanelView extends AnnotationView {
 
   remove(): void {
     this._toolbar_view.remove()
+    remove(this.el)
     super.remove()
   }
 
   render(): void {
-    super.render()
-    if (!this.model.visible) {
+    if (!this.model.visible)
       undisplay(this.el)
-      return
-    }
 
+    super.render()
+  }
+
+  protected _render(): void {
     this.el.style.position = "absolute"
     this.el.style.overflow = "hidden"
 

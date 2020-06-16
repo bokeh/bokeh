@@ -4,6 +4,8 @@ import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
 
 class SomeRendererView extends RendererView {
   model: SomeRenderer
+
+  protected _render(): void {}
 }
 
 class SomeRenderer extends Renderer {}

@@ -85,10 +85,7 @@ export class BandView extends AnnotationView {
     this._upper_sy = _upper[j]
   }
 
-  render(): void {
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     this._map_data()
 
     const {ctx} = this.layer

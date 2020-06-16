@@ -42,10 +42,7 @@ export class AxisView extends GuideRendererView {
     return this.layout
   }
 
-  render(): void {
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     const extents = {
       tick: this._tick_extent(),
       tick_label: this._tick_label_extents(),
@@ -55,27 +52,20 @@ export class AxisView extends GuideRendererView {
 
     const ctx = this.layer.ctx
     ctx.save()
-
     this._draw_rule(ctx, extents)
     this._draw_major_ticks(ctx, extents, tick_coords)
     this._draw_minor_ticks(ctx, extents, tick_coords)
     this._draw_major_labels(ctx, extents, tick_coords)
     this._draw_axis_label(ctx, extents, tick_coords)
-
-    if (this._render != null)
-      this._render(ctx, extents, tick_coords)
-
+    this._paint?.(ctx, extents, tick_coords)
     ctx.restore()
   }
 
-  protected _render?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
+  protected _paint?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_paint())
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
   }
 
   get_size(): Size {

@@ -47,7 +47,6 @@ export class ColorBarView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.visible.change, () => this.plot_view.request_render())
     this.connect(this.model.ticker.change, () => this.plot_view.request_render())
     this.connect(this.model.formatter.change, () => this.plot_view.request_render())
     if (this.model.color_mapper != null) {
@@ -189,8 +188,8 @@ export class ColorBarView extends AnnotationView {
     return {sx, sy}
   }
 
-  render(): void {
-    if (!this.model.visible || this.model.color_mapper == null)
+  protected _render(): void {
+    if (this.model.color_mapper == null)
       return
 
     const {ctx} = this.layer

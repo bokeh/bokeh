@@ -4,7 +4,7 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import * as mixins from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
-import {div, display, undisplay} from "core/dom"
+import {div, display} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
@@ -29,7 +29,7 @@ export class LabelSetView extends TextAnnotationView {
     if (this.model.render_mode == 'css') {
       for (let i = 0, end = this._text.length; i < end; i++) {
         const el = div({style: {display: "none"}})
-        this.el.appendChild(el)
+        this.el!.appendChild(el)
       }
     }
   }
@@ -91,13 +91,7 @@ export class LabelSetView extends TextAnnotationView {
     return [sx, sy]
   }
 
-  render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
-
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     const draw = this.model.render_mode == 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
     const {ctx} = this.layer
 
@@ -147,7 +141,7 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _v_css_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
-    const el = this.el.children[i] as HTMLElement
+    const el = this.el!.children[i] as HTMLElement
     el.textContent = text
 
     this.visuals.text.set_vectorize(ctx, i)

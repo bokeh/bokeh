@@ -7,7 +7,7 @@ declare namespace katex {
 export class LatexLabelView extends LabelView {
   model: LatexLabel
 
-  render(): void {
+  protected _render(): void {
     // Here because AngleSpec does units tranform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {
@@ -36,7 +36,7 @@ export class LatexLabelView extends LabelView {
     sy -= this.model.y_offset
 
     this._css_text(this.layer.ctx, "", sx, sy, angle)
-    katex.render(this.model.text, this.el, {displayMode: true})
+    katex.render(this.model.text, this.el!, {displayMode: true})
   }
 }
 
@@ -45,5 +45,9 @@ export class LatexLabel extends Label {
 
   static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
+
+    this.override({
+      render_mode: "css",
+    })
   }
 }

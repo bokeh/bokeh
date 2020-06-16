@@ -417,7 +417,11 @@ async function run_tests(): Promise<boolean> {
                   }
                 }
               } finally {
-                await evaluate(`Tests.clear(${seq})`)
+                const output = await evaluate(`Tests.clear(${seq})`)
+                if (output instanceof Failure) {
+                  status.errors.push(output.text)
+                  status.failure = true
+                }
               }
 
               return may_retry

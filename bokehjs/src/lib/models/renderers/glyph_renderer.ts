@@ -205,10 +205,7 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl
   }
 
-  render(): void {
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     const t0 = Date.now()
 
     const glsupport = this.has_webgl

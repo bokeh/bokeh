@@ -87,7 +87,7 @@ export class GraphRendererView extends DataRendererView {
       this.request_render()
   }
 
-  render(): void {
+  protected _render(): void {
     this.edge_view.render()
     this.node_view.render()
   }

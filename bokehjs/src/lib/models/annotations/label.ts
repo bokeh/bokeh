@@ -1,6 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {SpatialUnits, AngleUnits} from "core/enums"
-import {undisplay} from "core/dom"
 import {Size} from "core/layout"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -22,13 +21,7 @@ export class LabelView extends TextAnnotationView {
     return {width, height: ascent}
   }
 
-  render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
-
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     // Here because AngleSpec does units transform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {
