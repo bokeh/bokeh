@@ -42,11 +42,29 @@ export class EventManager {
   }
 }
 
+async function resolve_buffers(buffer_ids: ID[]): Promise<Buffers> {
+  const buffers = new Map()
+  for (const id of buffer_ids) {
+    const element = document.getElementById("id")
+    const data_url = element?.textContent
+    if (data_url != null) {
+      const response = await fetch(data_url)
+      const blob = await response.blob()
+      const buffer = await blob.arrayBuffer()
+      buffers.set(id, buffer)
+    } else {
+      throw new Error(`can't resolve buffer with id=${id}`)
+    }
+  }
+  return buffers
+}
+
 export interface DocJson {
   version?: string
   title?: string
   roots: {
-    root_ids: string[]
+    root_ids: ID[]
+    buffers?: ID[]
     references: Struct[]
   }
 }
@@ -600,12 +618,12 @@ export class Document {
     }
   }
 
-  static from_json_string(s: string): Document {
+  static async from_json_string(s: string): Promise<Document> {
     const json: any = JSON.parse(s)
     return Document.from_json(json)
   }
 
-  static from_json(json: DocJson): Document {
+  static async from_json(json: DocJson): Promise<Document> {
     logger.debug("Creating Document from JSON")
 
     function pyify(version: string) {
@@ -624,9 +642,10 @@ export class Document {
     const roots_json = json.roots
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
+    const buffers = await resolve_buffers(roots_json.buffers ?? [])
 
     const references = Document._instantiate_references_json(references_json, new Map())
-    Document._initialize_references_json(references_json, new Map(), references, new Map())
+    Document._initialize_references_json(references_json, new Map(), references, buffers)
 
     const doc = new Document()
     for (const id of root_ids) {
@@ -639,8 +658,8 @@ export class Document {
     return doc
   }
 
-  replace_with_json(json: DocJson): void {
-    const replacement = Document.from_json(json)
+  async replace_with_json(json: DocJson): Promise<void> {
+    const replacement = await Document.from_json(json)
     replacement.destructively_move(this)
   }
 

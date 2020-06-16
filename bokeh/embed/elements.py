@@ -95,17 +95,36 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
 
     json_id = make_id()
     json = escape(serialize_json(docs_json), quote=False)
-    json = wrap_in_script_tag(json, "application/json", json_id)
+    json = wrap_in_script_tag(json, type="application/json", id=json_id)
+
+    """
+@dataclass
+class Buffer:
+    ident: Ident
+    data: bytes
+
+    def to_data_url(self) -> str:
+        media_type = "application/octet-stream"
+        encoding = "base64"
+        data = b64encode(self.data).decode("utf-8")
+        return f"data:{media_type};{encoding},{data}"
+    """
+
+    buffers = []
+    for _, doc_json in docs_json.items():
+        for buffer in doc_json.get("buffers", []):
+            tag = wrap_in_script_tag(buffer.to_data_url(), type="application/octet-stream", **{"data-bokeh-buffer": buffer.ident})
+            buffers.append(tag)
 
     script = wrap_in_script_tag(script_for_render_items(json_id, render_items))
+    scripts = [json] + buffers + [script]
 
     context = template_variables.copy()
-
     context.update(dict(
         title = title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
-        plot_script = json + script,
+        plot_script = "\n".join(scripts),
         docs = render_items,
         base = FILE,
         macros = MACROS,

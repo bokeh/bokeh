@@ -149,7 +149,7 @@ export class ClientConnection {
           logger.debug("Got new document after connection was already closed")
           reject(new Error("The connection has been closed"))
         } else {
-          const document = Document.from_json(doc_json)
+          const document = await Document.from_json(doc_json)
 
           // Constructing models changes some of their attributes, we deal with that
           // here. This happens when models set attributes during construction

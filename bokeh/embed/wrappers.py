@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Optional
+from typing import Dict
 
 # Bokeh imports
 from ..core.templates import SCRIPT_TAG
@@ -55,11 +55,11 @@ def wrap_in_safely(code: str) -> str:
     '''
     return _SAFELY % dict(code=indent(code, 2))
 
-def wrap_in_script_tag(js: str, type: str="text/javascript", id: Optional[str]=None) -> str:
+def wrap_in_script_tag(content: str, *, type: str="text/javascript", **attrs: Dict[str, str]) -> str:
     '''
 
     '''
-    return SCRIPT_TAG.render(js_code=indent(js, 2), type=type, id=id)
+    return SCRIPT_TAG.render(content=indent(content, 2), type=type, attrs=attrs)
 
 #-----------------------------------------------------------------------------
 # Private API

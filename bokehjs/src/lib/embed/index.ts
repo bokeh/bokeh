@@ -53,7 +53,7 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
   const docs: {[key: string]: Document} = {}
   for (const docid in docs_json) {
     const doc_json = docs_json[docid]
-    docs[docid] = Document.from_json(doc_json)
+    docs[docid] = await Document.from_json(doc_json)
   }
 
   const views: View[][] = []

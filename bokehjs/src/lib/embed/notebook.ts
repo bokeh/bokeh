@@ -82,11 +82,11 @@ function _init_comms(target: string, doc: Document): void {
   }
 }
 
-export function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): void {
+export async function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): Promise<void> {
   if (size(docs_json) != 1)
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
 
-  const document = Document.from_json(values(docs_json)[0])
+  const document = await Document.from_json(values(docs_json)[0])
 
   for (const item of render_items) {
     if (item.notebook_comms_target != null)
