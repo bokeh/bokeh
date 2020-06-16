@@ -1,20 +1,34 @@
-"""Functions to create the graph of submodels of a model in networkx format,
-   and to draw that graph using bokeh so that one can explore the attributes of
-   submodels by clicking on the nodes.  Uses simple custom javascript callbacks so no server is necessary;
-   works in a jupyter notebook.
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+""" Functions to draw the a clickable graph of the submodels of a bokeh model.
 
-   Suppose M is a bokeh model (i.e. a plot or figure).
+Clicking on the nodes representing the submodels reveals the attributes of that submodel.
+Uses simple custom javascript callbacks so no server is necessary;
+works in a jupyter notebook.
 
-      - K = BokehStructureGraph(M) creates the graph, which is itself a bokeh model.
-      - K.show() calls show on the model to display it.
-      - K.model returns the model consisting of the structure graph and associated datatable.
-      - K.graph returns the directed graph in networkx format
-      - K.property_df returns the dataframe of models, submodels and their properties.
+Suppose M is a bokeh model (i.e. a plot or figure).  Then
+generate_structure_plot(M) is a bokeh model that displays the submodel graph.
+
+Based on a private class, _BokehStructureGraph.
+
+- K = _BokehStructureGraph(M) creates the object.
+- K.model returns the model consisting of the structure graph and associated datatable.
+- K.graph returns the directed graph in networkx format
+- K.property_df returns the dataframe of models, submodels and their properties.
+
 """
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 
 # Standard library imports
 from itertools import permutations
-
 
 # Bokeh imports
 from bokeh.layouts import column
@@ -38,7 +52,6 @@ from bokeh.models import (
     TableColumn,
     TapTool,
 )
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -98,11 +111,11 @@ class _BokehStructureGraph:
     @property
     def model(self):
         """ The bokeh model consisting of the structure graph and the datatable
-        for the attributes. 
+        for the attributes.
 
         Can be passed to show or file_html. Self contained,
         so remains interactive in a notebook or html file; no server needed.
-        
+
         """
         return self._structure_graph
 
@@ -344,5 +357,3 @@ class _BokehStructureGraph:
         self._node_source.selected.js_on_change("indices", js)
         layout = column(self._graph_plot, self._data_table)
         return layout
-
-

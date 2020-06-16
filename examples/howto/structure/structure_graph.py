@@ -1,7 +1,7 @@
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.plotting import figure
-from bokeh.util.structure import *
+from bokeh.util.structure import generate_structure_plot
 
 # draw the structure graph of a basic figure model
 f = figure(width=400,height=400)
