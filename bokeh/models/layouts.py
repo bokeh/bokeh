@@ -111,11 +111,11 @@ class LayoutDOM(Model):
     """)
 
     max_width = NonNegativeInt(default=None, help="""
-    Minimal width of the component (in pixels) if width is adjustable.
+    Maximal width of the component (in pixels) if width is adjustable.
     """)
 
     max_height = NonNegativeInt(default=None, help="""
-    Minimal height of the component (in pixels) if height is adjustable.
+    Maximal height of the component (in pixels) if height is adjustable.
     """)
 
     margin = Tuple(Int, Int, Int, Int, default=(0, 0, 0, 0), help="""
