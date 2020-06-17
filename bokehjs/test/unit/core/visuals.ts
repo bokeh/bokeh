@@ -18,7 +18,7 @@ describe("Fill", () => {
       it(`should set canvas context ${attr} value from ${spec} spec value`, () =>{
         const ctx = {} as any
         const attrs = {} as any
-        attrs[spec] = {value}
+        attrs[spec] = value
         const model = new Circle(attrs)
         const fill = new Fill(model)
         fill.set_value(ctx)
@@ -69,7 +69,7 @@ describe("Line", () => {
         ctx.setLineDash = function(x: number) { ctx.lineDash = x }
         ctx.setLineDashOffset = function(x: number) { ctx.lineDashOffset = x }
         const attrs = {line_dash: [1, 2]} as any
-        attrs[spec] = {value}
+        attrs[spec] = value
         const model = new Circle(attrs)
         const line = new Line(model)
         line.set_value(ctx)
@@ -120,7 +120,7 @@ describe("Text", () => {
       it(`should set canvas context ${attr} value from ${spec} spec value`, () =>{
         const ctx = {} as any
         const attrs = {text_font: 'times', text_font_size: "16px", text_font_style: "bold"} as any
-        attrs[spec] = {value}
+        attrs[spec] = value
         const model = new text_glyph.Text(attrs)
         const text = new Text(model)
         text.set_value(ctx)
