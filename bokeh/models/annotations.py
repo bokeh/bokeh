@@ -463,7 +463,7 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
-    bar_props = Include(LineProps, help="""
+    bar_props = Include(ScalarLineProps, help="""
     The %s for the color scale bar outline.
     """)
 
