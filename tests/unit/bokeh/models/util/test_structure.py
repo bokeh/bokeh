@@ -2,8 +2,8 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.model import collect_models
-from bokeh.plotting import figure
 from bokeh.models.util import generate_structure_plot
+from bokeh.plotting import figure
 
 
 def test_structure(pd):
