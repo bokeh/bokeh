@@ -33,24 +33,32 @@ export function in_bounds(value: number, dimension: LatLon): boolean {
 
 export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
   const n = min(x.length, y.length)
-  const merc_x_s = new NumberArray(n)
-  const merc_y_s = new NumberArray(n)
+  const merc_x = new NumberArray(n)
+  const merc_y = new NumberArray(n)
   for (let i = 0; i < n; i++) {
-    const [merc_x, merc_y] = wgs84_mercator.forward([x[i], y[i]])
-    merc_x_s[i] = merc_x
-    merc_y_s[i] = merc_y
+    const xi = x[i]
+    const yi = y[i]
+    let merc_xi: number
+    let merc_yi: number
+    if (isFinite(xi) && isFinite(yi)) {
+      [merc_xi, merc_yi] = wgs84_mercator.forward([xi, yi])
+    } else {
+      merc_xi = merc_yi = NaN
+    }
+    merc_x[i] = merc_xi
+    merc_y[i] = merc_yi
   }
-  return [merc_x_s, merc_y_s]
+  return [merc_x, merc_y]
 }
 
 export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[]): [NumberArray[], NumberArray[]] {
   const n = min(xs.length, ys.length)
-  const merc_xs_s: NumberArray[] = new Array(n)
-  const merc_ys_s: NumberArray[] = new Array(n)
+  const merc_xs: NumberArray[] = new Array(n)
+  const merc_ys: NumberArray[] = new Array(n)
   for (let i = 0; i < n; i++) {
-    const [merc_x_s, merc_y_s] = project_xy(xs[i], ys[i])
-    merc_xs_s[i] = merc_x_s
-    merc_ys_s[i] = merc_y_s
+    const [merc_x, merc_y] = project_xy(xs[i], ys[i])
+    merc_xs[i] = merc_x
+    merc_ys[i] = merc_y
   }
-  return [merc_xs_s, merc_ys_s]
+  return [merc_xs, merc_ys]
 }
