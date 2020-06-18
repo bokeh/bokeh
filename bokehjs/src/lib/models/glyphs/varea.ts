@@ -2,7 +2,7 @@ import {PointGeometry} from 'core/geometry'
 import {Arrayable, NumberArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
-import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -23,21 +23,20 @@ export class VAreaView extends AreaView {
   model: VArea
   visuals: VArea.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points: IndexedRect[] = []
+  protected _index_data(index: SpatialIndex): void {
+    const {min, max} = Math
+    const {data_size} = this
 
-    for (let i = 0, end = this._x.length; i < end; i++) {
+    for (let i = 0; i < data_size; i++) {
       const x = this._x[i]
       const y1 = this._y1[i]
       const y2 = this._y2[i]
 
       if (isNaN(x + y1 + y2) || !isFinite(x + y1 + y2))
-        continue
-
-      points.push({x0: x, y0: Math.min(y1, y2), x1: x, y1: Math.max(y1, y2), i})
+        index.add_empty()
+      else
+        index.add(x, min(y1, y2), x, max(y1, y2))
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _inner(ctx: Context2d, sx: Arrayable<number>, sy1: Arrayable<number>, sy2: Arrayable<number>, func: (this: Context2d) => void): void {

@@ -50,23 +50,17 @@ export abstract class BoxView extends GlyphView {
 
   protected abstract _lrtb(i: number): [number, number, number, number]
 
-  protected _index_box(len: number): SpatialIndex {
-    const points = []
+  protected _index_data(index: SpatialIndex): void {
+    const {min, max} = Math
+    const {data_size} = this
 
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
       if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        continue
-      points.push({
-        x0: Math.min(l, r),
-        y0: Math.min(t, b),
-        x1: Math.max(r, l),
-        y1: Math.max(t, b),
-        i,
-      })
+        index.add_empty()
+      else
+        index.add(min(l, r), min(t, b), max(r, l), max(t, b))
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[],

@@ -63,7 +63,7 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _index_data(): SpatialIndex {
+  protected _index_data(index: SpatialIndex): void {
     let ysize = this.model.size
     let xsize = Math.sqrt(3)*ysize/2
 
@@ -73,15 +73,17 @@ export class HexTileView extends GlyphView {
     } else
       xsize /= this.model.aspect_scale
 
-    const points = []
-    for (let i = 0; i < this._x.length; i++) {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       const x = this._x[i]
       const y = this._y[i]
-      if (isNaN(x+y) || !isFinite(x+y))
-        continue
-      points.push({x0: x-xsize, y0: y-ysize, x1: x+xsize, y1: y+ysize, i})
+
+      if (isNaN(x + y) || !isFinite(x + y))
+        index.add_empty()
+      else
+        index.add(x - xsize, y - ysize, x + xsize, y + ysize)
     }
-    return new SpatialIndex(points)
   }
 
   // overriding map_data instead of _map_data because the default automatic mappings

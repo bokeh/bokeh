@@ -40,8 +40,13 @@ export class ImageURLView extends XYGlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  protected _index_data(): SpatialIndex {
-    return new SpatialIndex([])
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
+      // TODO: add a proper implementation (same as ImageBase?)
+      index.add_empty()
+    }
   }
 
   protected _set_data(): void {

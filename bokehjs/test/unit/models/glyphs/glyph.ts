@@ -18,9 +18,7 @@ describe("glyph module", () => {
       class SomeGlyphView extends GlyphView {
         model: SomeGlyph
 
-        protected _index_data(): SpatialIndex {
-          return new SpatialIndex([])
-        }
+        protected _index_data(_index: SpatialIndex): void {}
 
         protected _render(_ctx: Context2d, _indices: number[], {}: object): void {}
 

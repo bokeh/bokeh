@@ -28,27 +28,21 @@ export class SegmentView extends GlyphView {
   model: Segment
   visuals: Segment.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points = []
+  protected _index_data(index: SpatialIndex): void {
+    const {min, max} = Math
+    const {data_size} = this
 
-    for (let i = 0, end = this._x0.length; i < end; i++) {
+    for (let i = 0; i < data_size; i++) {
       const x0 = this._x0[i]
       const x1 = this._x1[i]
       const y0 = this._y0[i]
       const y1 = this._y1[i]
 
-      if (!isNaN(x0 + x1 + y0 + y1)) {
-        points.push({
-          x0: Math.min(x0, x1),
-          y0: Math.min(y0, y1),
-          x1: Math.max(x0, x1),
-          y1: Math.max(y0, y1),
-          i,
-        })
-      }
+      if (isNaN(x0 + x1 + y0 + y1))
+        index.add_empty()
+      else
+        index.add(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx0, sy0, sx1, sy1}: SegmentData): void {

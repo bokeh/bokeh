@@ -26,24 +26,27 @@ export class MultiLineView extends GlyphView {
   model: MultiLine
   visuals: MultiLine.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points = []
-    for (let i = 0, end = this._xs.length; i < end; i++) {
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       const xsi = this._xs[i]
-      if (xsi == null || xsi.length == 0) // XXX: null?, so include in types
+      if (xsi == null || xsi.length == 0) { // XXX: null?, so include in types
+        index.add_empty()
         continue
+      }
 
       const ysi = this._ys[i]
-      if (ysi == null || ysi.length == 0) // XXX: null?, so include in types
+      if (ysi == null || ysi.length == 0) { // XXX: null?, so include in types
+        index.add_empty()
         continue
+      }
 
       const [x0, x1] = minmax(xsi)
       const [y0, y1] = minmax(ysi)
 
-      points.push({x0, y0, x1, y1, i})
+      index.add(x0, y0, x1, y1)
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiLineData): void {

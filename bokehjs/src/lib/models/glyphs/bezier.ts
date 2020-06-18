@@ -101,18 +101,18 @@ export class BezierView extends GlyphView {
   model: Bezier
   visuals: Bezier.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points = []
-    for (let i = 0, end = this._x0.length; i < end; i++) {
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx0[i] + this._cy0[i] + this._cx1[i] + this._cy1[i]))
-        continue
-
-      const [x0, y0, x1, y1] = _cbb(this._x0[i],  this._y0[i],  this._x1[i],  this._y1[i],
-                                    this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i])
-      points.push({x0, y0, x1, y1, i})
+        index.add_empty()
+      else {
+        const [x0, y0, x1, y1] = _cbb(this._x0[i],  this._y0[i],  this._x1[i],  this._y1[i],
+                                      this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i])
+        index.add(x0, y0, x1, y1)
+      }
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[],
