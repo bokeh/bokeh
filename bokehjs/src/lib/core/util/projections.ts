@@ -7,7 +7,22 @@ import {Arrayable, NumberArray} from "../types"
 const mercator = new Projection('GOOGLE')
 const wgs84    = new Projection('WGS84')
 
-export const wgs84_mercator = proj4(wgs84, mercator)
+const _wgs84_mercator = proj4(wgs84, mercator)
+
+export const wgs84_mercator = {
+  compute(x: number, y: number): [number, number] {
+    if (isFinite(x) && isFinite(y))
+      return _wgs84_mercator.forward([x, y])
+    else
+      return [NaN, NaN]
+  },
+  invert(merc_x: number, merc_y: number): [number, number] {
+    if (isFinite(merc_x) && isFinite(merc_y))
+      return _wgs84_mercator.inverse([merc_x, merc_y])
+    else
+      return [NaN, NaN]
+  },
+}
 
 const mercator_bounds = {
   lon: [-20026376.39, 20026376.39],
@@ -38,13 +53,7 @@ export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [NumberA
   for (let i = 0; i < n; i++) {
     const xi = x[i]
     const yi = y[i]
-    let merc_xi: number
-    let merc_yi: number
-    if (isFinite(xi) && isFinite(yi)) {
-      [merc_xi, merc_yi] = wgs84_mercator.forward([xi, yi])
-    } else {
-      merc_xi = merc_yi = NaN
-    }
+    const [merc_xi, merc_yi] = wgs84_mercator.compute(xi, yi)
     merc_x[i] = merc_xi
     merc_y[i] = merc_yi
   }
