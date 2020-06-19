@@ -143,8 +143,6 @@ export namespace Arrow {
     end_units: p.Property<SpatialUnits>
     end: p.Property<ArrowHead | null>
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   } & Mixins
 
   export type Mixins = LineVector
@@ -177,8 +175,6 @@ export class Arrow extends Annotation {
       end_units:    [ p.SpatialUnits, 'data'                 ],
       end:          [ p.Instance,     () => new OpenHead({}) ],
       source:       [ p.Instance                             ],
-      x_range_name: [ p.String,       'default'              ],
-      y_range_name: [ p.String,       'default'              ],
     })
   }
 }

@@ -68,8 +68,6 @@ export namespace Span {
 
   export type Props = Annotation.Props & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     location: p.Property<number | null>
     location_units: p.Property<SpatialUnits>
     dimension: p.Property<Dimension>
@@ -98,8 +96,6 @@ export class Span extends Annotation {
 
     this.define<Span.Props>({
       render_mode:    [ p.RenderMode,   'canvas'  ],
-      x_range_name:   [ p.String,       'default' ],
-      y_range_name:   [ p.String,       'default' ],
       location:       [ p.Number,       null      ],
       location_units: [ p.SpatialUnits, 'data'    ],
       dimension:      [ p.Dimension,    'width'   ],

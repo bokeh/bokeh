@@ -28,7 +28,6 @@ from ..core.properties import (
     Int,
     Override,
     Seq,
-    String,
     Tuple,
 )
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
@@ -63,20 +62,6 @@ class Grid(GuideRenderer):
     Bounds for the rendered grid lines. By default, a grid will look for a
     corresponding axis to ask for bounds. If one cannot be found, the grid
     will span the entire visible range.
-    """)
-
-    # Note: we must allow the possibility of setting both
-    # range names be cause if a grid line is "traced" along
-    # a path, ranges in both dimensions will matter.
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering a grid on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering a grid on the plot. If unset, use the default y-range.
     """)
 
     axis = Instance(Axis, help="""

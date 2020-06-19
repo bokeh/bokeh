@@ -84,14 +84,6 @@ class Renderer(Model):
     Is the renderer visible.
     """)
 
-@abstract
-class DataRenderer(Renderer):
-    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
-
-    '''
-
-    level = Override(default="glyph")
-
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default x-range.
@@ -101,6 +93,15 @@ class DataRenderer(Renderer):
     A particular (named) y-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
+
+
+@abstract
+class DataRenderer(Renderer):
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
+
+    '''
+
+    level = Override(default="glyph")
 
 class TileRenderer(DataRenderer):
     '''

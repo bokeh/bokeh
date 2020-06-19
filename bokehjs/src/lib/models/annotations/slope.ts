@@ -60,8 +60,6 @@ export namespace Slope {
   export type Props = Annotation.Props & {
     gradient: p.Property<number | null>
     y_intercept: p.Property<number | null>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
 
     line_color: p.Property<Color>
     line_width: p.Property<number>
@@ -91,8 +89,6 @@ export class Slope extends Annotation {
     this.define<Slope.Props>({
       gradient:       [ p.Number,       null      ],
       y_intercept:    [ p.Number,       null      ],
-      x_range_name:   [ p.String,       'default' ],
-      y_range_name:   [ p.String,       'default' ],
     })
 
     this.override({

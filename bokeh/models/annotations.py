@@ -532,16 +532,6 @@ class Arrow(Annotation):
     Local data source to use when rendering annotations on the plot.
     """)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
-    """)
-
 class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
 
@@ -595,16 +585,6 @@ class BoxAnnotation(Annotation):
     top_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as "data space" units
     by default.
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering box annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
@@ -661,16 +641,6 @@ class Band(Annotation):
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
     """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
@@ -781,16 +751,6 @@ class Label(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen location when
-    rendering an annotation on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen location when
-    rendering an annotation on the plot. If unset, use the default y-range.
-    """)
-
 class LabelSet(TextAnnotation):
     ''' Render multiple text labels as annotations.
 
@@ -882,16 +842,6 @@ class LabelSet(TextAnnotation):
     Local data source to use when rendering annotations on the plot.
     """)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
-    """)
-
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
 
@@ -913,16 +863,6 @@ class PolyAnnotation(Annotation):
     ys_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the ``ys`` attribute. Interpreted as "data space" units
     by default.
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering box annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering box annotations on the plot. If unset, use the default y-range.
     """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
@@ -956,16 +896,6 @@ class Slope(Annotation):
     The y intercept of the line, in data units
     """)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
-    """)
-
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the line.
     """)
@@ -992,16 +922,6 @@ class Span(Annotation):
     dimension = Enum(Dimension, default='width', help="""
     The direction of the span can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
     """)
 
     render_mode = Enum(RenderMode, default="canvas", help="""
@@ -1168,16 +1088,6 @@ class Whisker(Annotation):
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     Local data source to use when rendering annotations on the plot.
-    """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen locations when
-    rendering annotations on the plot. If unset, use the default y-range.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""

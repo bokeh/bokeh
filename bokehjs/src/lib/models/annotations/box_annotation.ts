@@ -111,8 +111,6 @@ export namespace BoxAnnotation {
 
   export type Props = Annotation.Props & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     top: p.Property<number | null>
     top_units: p.Property<SpatialUnits>
     bottom: p.Property<number | null>
@@ -149,8 +147,6 @@ export class BoxAnnotation extends Annotation {
 
     this.define<BoxAnnotation.Props>({
       render_mode:  [ p.RenderMode,   'canvas'  ],
-      x_range_name: [ p.String,       'default' ],
-      y_range_name: [ p.String,       'default' ],
       top:          [ p.Number,       null      ],
       top_units:    [ p.SpatialUnits, 'data'    ],
       bottom:       [ p.Number,       null      ],

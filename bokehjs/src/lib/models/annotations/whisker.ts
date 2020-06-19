@@ -136,8 +136,6 @@ export namespace Whisker {
     base: p.DistanceSpec
     dimension: p.Property<Dimension>
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   } & Mixins
 
   export type Mixins = LineVector
@@ -168,8 +166,6 @@ export class Whisker extends Annotation {
       base:         [ p.DistanceSpec                    ],
       dimension:    [ p.Dimension,    'height'          ],
       source:       [ p.Instance,     () => new ColumnDataSource()                     ],
-      x_range_name: [ p.String,       'default'         ],
-      y_range_name: [ p.String,       'default'         ],
     })
 
     this.override({

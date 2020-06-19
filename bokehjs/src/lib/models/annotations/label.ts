@@ -62,8 +62,6 @@ export namespace Label {
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
     y_offset: p.Property<number>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   } & Mixins
 
   export type Attrs = p.AttrsOf<Props>
@@ -105,8 +103,6 @@ export class Label extends TextAnnotation {
       angle_units:  [ p.AngleUnits,  'rad'           ],
       x_offset:     [ p.Number,      0               ],
       y_offset:     [ p.Number,      0               ],
-      x_range_name: [ p.String,      'default'       ],
-      y_range_name: [ p.String,      'default'       ],
     })
 
     this.override({

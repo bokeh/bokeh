@@ -193,8 +193,6 @@ export namespace LabelSet {
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
 
     // line:border_ v
     border_line_color: p.ColorSpec
@@ -244,8 +242,6 @@ export class LabelSet extends TextAnnotation {
       x_offset:     [ p.NumberSpec,   { value: 0 }      ],
       y_offset:     [ p.NumberSpec,   { value: 0 }      ],
       source:       [ p.Instance,     () => new ColumnDataSource()  ],
-      x_range_name: [ p.String,      'default'          ],
-      y_range_name: [ p.String,      'default'          ],
     })
 
     this.override({

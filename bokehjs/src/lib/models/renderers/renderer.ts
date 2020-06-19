@@ -26,16 +26,14 @@ export abstract class RendererView extends View {
     this._initialize_scope()
   }
 
-  /* TODO
   connect_signals(): void {
     super.connect_signals()
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => this._initialize_scope())
   }
-  */
 
   protected _initialize_scope(): void {
-    const {x_range_name, y_range_name} = this.model as any
+    const {x_range_name, y_range_name} = this.model
     const {frame} = this.plot_view
     const x_range = frame.x_ranges.get(x_range_name)!
     const y_range = frame.y_ranges.get(y_range_name)!
@@ -93,6 +91,8 @@ export namespace Renderer {
   export type Props = Model.Props & {
     level: p.Property<RenderLevel>
     visible: p.Property<boolean>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
   }
 
   export type Visuals = visuals.Visuals
@@ -110,8 +110,10 @@ export abstract class Renderer extends Model {
 
   static init_Renderer(): void {
     this.define<Renderer.Props>({
-      level:   [ p.RenderLevel       ],
-      visible: [ p.Boolean,     true ],
+      level:        [ p.RenderLevel            ],
+      visible:      [ p.Boolean,     true      ],
+      x_range_name: [ p.String,      "default" ],
+      y_range_name: [ p.String,      "default" ],
     })
   }
 }
