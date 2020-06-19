@@ -186,8 +186,8 @@ export class GMapPlotView extends PlotView {
 
   protected _get_projected_bounds(): [number, number, number, number] {
     const [xstart, xend, ystart, yend] = this._get_latlon_bounds()
-    const [proj_xstart, proj_ystart] = wgs84_mercator.forward([xstart, ystart])
-    const [proj_xend, proj_yend] = wgs84_mercator.forward([xend, yend])
+    const [proj_xstart, proj_ystart] = wgs84_mercator.compute(xstart, ystart)
+    const [proj_xend, proj_yend] = wgs84_mercator.compute(xend, yend)
     return [proj_xstart, proj_xend, proj_ystart, proj_yend]
   }
 

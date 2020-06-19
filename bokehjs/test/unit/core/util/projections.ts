@@ -1,10 +1,10 @@
 import {expect} from "assertions"
 
-import {clip_mercator, in_bounds} from "@bokehjs/core/util/projections"
+import {clip_mercator, in_bounds, project_xy, project_xsys} from "@bokehjs/core/util/projections"
 
 describe("core/util/projections module", () => {
 
-  describe("mercator_bounds function", () => {
+  describe("mercator_bounds() function", () => {
 
     it("should not clip valid longitudes", () => {
       expect(clip_mercator(-10018754, 10018754, 'lon')).to.be.equal([-10018754, 10018754])
@@ -39,7 +39,7 @@ describe("core/util/projections module", () => {
     })
   })
 
-  describe("in_bounds function", () => {
+  describe("in_bounds() function", () => {
 
     it("should reject value below lon lower bound", () => {
       expect(in_bounds(-181, 'lon')).to.be.false
@@ -64,5 +64,35 @@ describe("core/util/projections module", () => {
     it("should handle value within lat bound", () => {
       expect(in_bounds(0, 'lat')).to.be.true
     })
+  })
+
+  describe("project_xy() function", () => {
+    it("should handle NaNs and infinities", () => {
+      expect(project_xy([NaN], [1])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([1], [NaN])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([NaN], [NaN])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+
+      expect(project_xy([Infinity], [1])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([1], [Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([Infinity], [Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+
+      expect(project_xy([-Infinity], [1])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([1], [-Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([-Infinity], [-Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+    })
+  })
+
+  describe("project_xsys() function", () => {
+      expect(project_xsys([[NaN]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[1]], [[NaN]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[NaN]], [[NaN]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+
+      expect(project_xsys([[Infinity]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[1]], [[Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[Infinity]], [[Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+
+      expect(project_xsys([[-Infinity]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[1]], [[-Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[-Infinity]], [[-Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
   })
 })

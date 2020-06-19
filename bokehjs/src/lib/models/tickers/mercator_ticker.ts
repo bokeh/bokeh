@@ -33,14 +33,14 @@ export class MercatorTicker extends BasicTicker {
     }
 
     [data_low, data_high] = clip_mercator(data_low, data_high, this.dimension)
-    let proj_low: number, proj_high: number, proj_cross_loc: any
 
+    let proj_low: number, proj_high: number, proj_cross_loc: any
     if (this.dimension === "lon") {
-      [proj_low,  proj_cross_loc] = wgs84_mercator.inverse([data_low,  cross_loc]); // lgtm [js/useless-assignment-to-local]
-      [proj_high, proj_cross_loc] = wgs84_mercator.inverse([data_high, cross_loc])
+      [proj_low,  proj_cross_loc] = wgs84_mercator.invert(data_low,  cross_loc); // lgtm [js/useless-assignment-to-local]
+      [proj_high, proj_cross_loc] = wgs84_mercator.invert(data_high, cross_loc)
     } else {
-      [proj_cross_loc, proj_low ] = wgs84_mercator.inverse([cross_loc, data_low ]); // lgtm [js/useless-assignment-to-local]
-      [proj_cross_loc, proj_high] = wgs84_mercator.inverse([cross_loc, data_high])
+      [proj_cross_loc, proj_low ] = wgs84_mercator.invert(cross_loc, data_low ); // lgtm [js/useless-assignment-to-local]
+      [proj_cross_loc, proj_high] = wgs84_mercator.invert(cross_loc, data_high)
     }
 
     const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks)
@@ -51,26 +51,26 @@ export class MercatorTicker extends BasicTicker {
     if (this.dimension === "lon") {
       for (const tick of proj_ticks.major) {
         if (in_bounds(tick, 'lon')) {
-          const [lon] = wgs84_mercator.forward([tick, proj_cross_loc])
+          const [lon] = wgs84_mercator.compute(tick, proj_cross_loc)
           major.push(lon)
         }
       }
       for (const tick of proj_ticks.minor) {
         if (in_bounds(tick, 'lon')) {
-          const [lon] = wgs84_mercator.forward([tick, proj_cross_loc])
+          const [lon] = wgs84_mercator.compute(tick, proj_cross_loc)
           minor.push(lon)
         }
       }
     } else {
       for (const tick of proj_ticks.major) {
         if (in_bounds(tick, 'lat')) {
-          const [, lat] = wgs84_mercator.forward([proj_cross_loc, tick])
+          const [, lat] = wgs84_mercator.compute(proj_cross_loc, tick)
           major.push(lat)
         }
       }
       for (const tick of proj_ticks.minor) {
         if (in_bounds(tick, 'lat')) {
-          const [, lat] = wgs84_mercator.forward([proj_cross_loc, tick])
+          const [, lat] = wgs84_mercator.compute(proj_cross_loc, tick)
           minor.push(lat)
         }
       }
