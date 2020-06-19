@@ -1,4 +1,4 @@
-import {Program, VertexBuffer, IndexBuffer, Texture2D} from "@bokeh/gloo2"
+import {Program, VertexBuffer, IndexBuffer, Texture2D} from "./gloo"
 import {BaseGLGlyph, Transform} from "./base"
 import {vertex_shader} from "./line.vert"
 import {fragment_shader} from "./line.frag"
@@ -20,7 +20,7 @@ class DashAtlas {
     this.tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     this.tex.set_interpolation(gl.NEAREST, gl.NEAREST)
     this.tex.set_size([this._height, this._width], gl.RGBA)
-    this.tex.set_data([0, 0], [this._height, this._width], new Uint8Array(this._height * this._width * 4))
+    this.tex.set_data([0, 0], [this._width, this._height], new Uint8Array(this._height * this._width * 4))
     // Init with solid line (index 0 is reserved for this)
     this.get_atlas_data([1])
   }
@@ -30,7 +30,7 @@ class DashAtlas {
     const findex_period = this._atlas[key]
     if (findex_period === undefined) {
       const [data, period] = this.make_pattern(pattern)
-      this.tex.set_data([this._index, 0], [1, this._width], new Uint8Array(data.map((x) => x+10)))
+      this.tex.set_data([this._index, 0], [this._width, 1], new Uint8Array(data.map((x) => x+10)))
       this._atlas[key] = [this._index / this._height, period]
       this._index += 1
     }
