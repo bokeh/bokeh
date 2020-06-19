@@ -403,8 +403,8 @@ export class ColorBarView extends AnnotationView {
       * The parallel frame dimension * 0.80
     */
 
-    const frame_height = this.plot_view.frame._height.value
-    const frame_width = this.plot_view.frame._width.value
+    const frame_height = this.plot_view.frame.bbox.height
+    const frame_width = this.plot_view.frame.bbox.width
     const title_extent = this._title_extent()
 
     let height: number, width: number

@@ -818,10 +818,10 @@ export class PlotView extends LayoutDOMView {
     this._needs_layout = false
 
     this.model.setv({
-      inner_width: Math.round(this.frame._width.value),
-      inner_height: Math.round(this.frame._height.value),
-      outer_width: Math.round(this.layout._width.value),
-      outer_height: Math.round(this.layout._height.value),
+      inner_width: Math.round(this.frame.bbox.width),
+      inner_height: Math.round(this.frame.bbox.height),
+      outer_width: Math.round(this.layout.bbox.width),
+      outer_height: Math.round(this.layout.bbox.height),
     }, {no_change: true})
 
     if (this.model.match_aspect !== false) {
@@ -907,10 +907,10 @@ export class PlotView extends LayoutDOMView {
     this._invalidate_all = false
 
     const frame_box: FrameBox = [
-      this.frame._left.value,
-      this.frame._top.value,
-      this.frame._width.value,
-      this.frame._height.value,
+      this.frame.bbox.left,
+      this.frame.bbox.top,
+      this.frame.bbox.width,
+      this.frame.bbox.height,
     ]
 
     const {primary, overlays} = this.canvas_view
@@ -969,7 +969,7 @@ export class PlotView extends LayoutDOMView {
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
+    const [cx, cy, cw, ch] = [0, 0, this.layout.bbox.width, this.layout.bbox.height]
     const [fx, fy, fw, fh] = frame_box
 
     if (this.visuals.border_fill.doit) {
@@ -991,10 +991,10 @@ export class PlotView extends LayoutDOMView {
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this.layout._width.value) {
+      if (x0 + w == this.layout.bbox.width) {
         w -= 1
       }
-      if (y0 + h == this.layout._height.value) {
+      if (y0 + h == this.layout.bbox.height) {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)

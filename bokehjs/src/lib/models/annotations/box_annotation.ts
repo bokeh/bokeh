@@ -50,10 +50,10 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame._left.value)
-    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
-    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
-    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
+    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame.bbox.left)
+    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame.bbox.right)
+    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame.bbox.top)
+    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame.bbox.bottom)
 
     this._paint_box(this.sleft, this.sright, this.sbottom, this.stop)
   }

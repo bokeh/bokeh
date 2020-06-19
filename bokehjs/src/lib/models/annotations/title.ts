@@ -21,47 +21,48 @@ export class TitleView extends TextAnnotationView {
     const vmargin = 5
 
     let sx: number, sy: number
+    const {bbox} = panel
     switch (panel.side) {
       case 'above':
       case 'below': {
         switch (this.model.vertical_align) {
-          case 'top':    sy = panel._top.value     + vmargin; break
-          case 'middle': sy = panel._vcenter.value;           break
-          case 'bottom': sy = panel._bottom.value  - vmargin; break
+          case 'top':    sy = bbox.top     + vmargin; break
+          case 'middle': sy = bbox.vcenter;           break
+          case 'bottom': sy = bbox.bottom  - vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sx = panel._left.value    + hmargin; break
-          case 'center': sx = panel._hcenter.value;           break
-          case 'right':  sx = panel._right.value   - hmargin; break
+          case 'left':   sx = bbox.left    + hmargin; break
+          case 'center': sx = bbox.hcenter;           break
+          case 'right':  sx = bbox.right   - hmargin; break
         }
         break
       }
       case 'left': {
         switch (this.model.vertical_align) {
-          case 'top':    sx = panel._left.value    - vmargin; break
-          case 'middle': sx = panel._hcenter.value;           break
-          case 'bottom': sx = panel._right.value   + vmargin; break
+          case 'top':    sx = bbox.left    - vmargin; break
+          case 'middle': sx = bbox.hcenter;           break
+          case 'bottom': sx = bbox.right   + vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sy = panel._bottom.value  - hmargin; break
-          case 'center': sy = panel._vcenter.value;           break
-          case 'right':  sy = panel._top.value     + hmargin; break
+          case 'left':   sy = bbox.bottom  - hmargin; break
+          case 'center': sy = bbox.vcenter;           break
+          case 'right':  sy = bbox.top     + hmargin; break
         }
         break
       }
       case 'right': {
         switch (this.model.vertical_align) {
-          case 'top':    sx = panel._right.value   - vmargin; break
-          case 'middle': sx = panel._hcenter.value;           break
-          case 'bottom': sx = panel._left.value    + vmargin; break
+          case 'top':    sx = bbox.right   - vmargin; break
+          case 'middle': sx = bbox.hcenter;           break
+          case 'bottom': sx = bbox.left    + vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sy = panel._top.value     + hmargin; break
-          case 'center': sy = panel._vcenter.value;           break
-          case 'right':  sy = panel._bottom.value  - hmargin; break
+          case 'left':   sy = bbox.top     + hmargin; break
+          case 'center': sy = bbox.vcenter;           break
+          case 'right':  sy = bbox.bottom  - hmargin; break
         }
         break
       }

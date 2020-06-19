@@ -75,8 +75,9 @@ export class CartesianFrame extends LayoutItem {
 
   protected _configure_frame_ranges(): void {
     // data to/from screen space transform (left-bottom <-> left-top origin)
-    this._h_target = new Range1d({start: this._left.value, end: this._right.value})
-    this._v_target = new Range1d({start: this._bottom.value, end: this._top.value})
+    const {bbox} = this
+    this._h_target = new Range1d({start: bbox.left, end: bbox.right})
+    this._v_target = new Range1d({start: bbox.bottom, end: bbox.top})
   }
 
   protected _configure_scales(): void {
