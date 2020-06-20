@@ -86,7 +86,7 @@ export class SpinnerView extends NumericInputView {
     this.input_el.addEventListener("keydown", (evt) =>
       this._input_key_down(evt)
     )
-    this.input_el.addEventListener("keyup", () => 
+    this.input_el.addEventListener("keyup", () =>
       this.model.value_throttled = this.model.value
     )
     this.input_el.addEventListener("wheel", (evt) =>
@@ -94,7 +94,7 @@ export class SpinnerView extends NumericInputView {
     )
     this.input_el.addEventListener("wheel", debounce(() => {
       this.model.value_throttled = this.model.value
-    }, 100, false))
+    }, this.model.wheel_wait, false))
   }
 
   get precision(): number {
@@ -108,7 +108,7 @@ export class SpinnerView extends NumericInputView {
   _start_incrementation(sign: 1|-1): void {
     clearInterval(this._interval_handle)
     const {step} = this.model
-    this._interval_handle = setInterval(() => this.increment(sign * step), 100)
+    this._interval_handle = setInterval(() => this.increment(sign * step), this.model.interval)
   }
 
   _stop_incrementation(): void {
@@ -151,10 +151,10 @@ export class SpinnerView extends NumericInputView {
         return this.increment(-this.model.step)
       case Keys.PageUp:
         evt.preventDefault()
-        return this.increment(10 * this.model.step)
+        return this.increment(this.model.page_step_multiplier * this.model.step)
       case Keys.PageDown:
         evt.preventDefault()
-        return this.increment(-10 * this.model.step)
+        return this.increment(-this.model.page_step_multiplier * this.model.step)
     }
   }
 
@@ -185,6 +185,9 @@ export namespace Spinner {
   export type Props = NumericInput.Props & {
     value_throttled: p.Property<number | null>
     step: p.Property<number>
+    page_step_multiplier: p.Property<number>
+    interval: p.Property<number>
+    wheel_wait: p.Property<number>
   }
 }
 
@@ -202,8 +205,11 @@ export class Spinner extends NumericInput {
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>({
-      value_throttled: [ p.Number, null ],
-      step:            [ p.Number,    1 ],
+      value_throttled:      [ p.Number,    null ],
+      step:                 [ p.Number,       1 ],
+      page_step_multiplier: [ p.Number,      10 ],
+      interval:             [ p.Number,      50 ],
+      wheel_wait:           [ p.Number,     100 ],
     })
 
     this.override({

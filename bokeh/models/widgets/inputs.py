@@ -215,6 +215,20 @@ class Spinner(NumericInput):
     The step added or subtracted to the current value
     """)
 
+    page_step_multiplier = Interval(Float, start=0, end=float('inf'), default=10, help="""
+    Defines the multiplication factor applied to step when the page up and page
+    down keys are pressed
+    """)
+
+    interval = Either(Int, Float, default=50, help="""
+    Defines the time in ms between two changes when arrows or keys are pressed
+    """)
+
+    wheel_wait = Either(Int, Float, default=200, help="""
+    Defines the debounce time in ms before updating `value_throttled` when the
+    mouse wheel is used to change the input
+    """)
+
 
 class TextInput(InputWidget):
     ''' Single-line input widget.
