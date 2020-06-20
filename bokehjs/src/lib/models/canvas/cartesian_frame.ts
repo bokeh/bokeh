@@ -10,6 +10,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {LayoutItem} from "core/layout"
 import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
+import {assert} from "core/util/assert"
 
 type Ranges = {[key: string]: Range}
 
@@ -22,6 +23,8 @@ export class CartesianFrame extends LayoutItem {
               private readonly extra_x_ranges: Ranges = {},
               private readonly extra_y_ranges: Ranges = {}) {
     super()
+    assert(in_x_scale.source_range == null && in_x_scale.target_range == null)
+    assert(in_y_scale.source_range == null && in_y_scale.target_range == null)
     this._configure_scales()
   }
 
