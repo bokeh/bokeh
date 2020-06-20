@@ -2,15 +2,23 @@ import {Arrayable, NumberArray} from "core/types"
 import {Scale} from "../scales/scale"
 import {Range} from "../ranges/range"
 
-export class CoordinateSystem {
+export class CoordinateTransform {
+  readonly x_scale: Scale
+  readonly y_scale: Scale
+
+  readonly x_range: Range
+  readonly y_range: Range
+
   readonly ranges: readonly [Range, Range]
   readonly scales: readonly [Scale, Scale]
 
-  constructor(
-      readonly x_range: Range, readonly y_range: Range,
-      readonly x_scale: Scale, readonly y_scale: Scale) {
-    this.ranges = [x_range, y_range]
-    this.scales = [x_scale, y_scale]
+  constructor(x_scale: Scale, y_scale: Scale) {
+    this.x_scale = x_scale
+    this.y_scale = y_scale
+    this.x_range = this.x_scale.source_range
+    this.y_range = this.y_scale.source_range
+    this.ranges = [this.x_range, this.y_range]
+    this.scales = [this.x_scale, this.y_scale]
   }
 
   map_to_screen(xs: Arrayable<number>, ys: Arrayable<number>): [NumberArray, NumberArray] {

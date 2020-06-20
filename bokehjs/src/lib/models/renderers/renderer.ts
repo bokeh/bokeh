@@ -7,7 +7,7 @@ import {BBox} from "core/util/bbox"
 
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasLayer} from "../canvas/canvas"
-import {CoordinateSystem} from "../canvas/coordinate_system"
+import {CoordinateTransform} from "../canvas/coordinates"
 
 export abstract class RendererView extends View {
   model: Renderer
@@ -15,8 +15,8 @@ export abstract class RendererView extends View {
 
   parent: PlotView
 
-  private _scope: CoordinateSystem
-  get scope(): CoordinateSystem {
+  private _scope: CoordinateTransform
+  get scope(): CoordinateTransform {
     return this._scope
   }
 
@@ -35,11 +35,9 @@ export abstract class RendererView extends View {
   protected _initialize_scope(): void {
     const {x_range_name, y_range_name} = this.model
     const {frame} = this.plot_view
-    const x_range = frame.x_ranges.get(x_range_name)!
-    const y_range = frame.y_ranges.get(y_range_name)!
     const x_scale = frame.x_scales.get(x_range_name)!
     const y_scale = frame.y_scales.get(y_range_name)!
-    this._scope = new CoordinateSystem(x_range, y_range, x_scale, y_scale)
+    this._scope = new CoordinateTransform(x_scale, y_scale)
   }
 
   get plot_view(): PlotView {

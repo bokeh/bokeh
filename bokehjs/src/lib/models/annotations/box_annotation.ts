@@ -5,7 +5,7 @@ import * as mixins from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {BBox, CoordinateTransform} from "core/util/bbox"
+import {BBox, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -34,7 +34,7 @@ export class BoxAnnotationView extends AnnotationView {
     const xscale = this.scope.x_scale
     const yscale = this.scope.y_scale
 
-    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateTransform, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
       let sdim
       if (dim != null) {
         if (this.model.screen)

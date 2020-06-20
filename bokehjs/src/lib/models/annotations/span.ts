@@ -4,7 +4,7 @@ import * as mixins from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import * as p from "core/properties"
-import {CoordinateTransform} from "core/util/bbox"
+import {CoordinateMapper} from "core/util/bbox"
 
 export class SpanView extends AnnotationView {
   model: Span
@@ -26,7 +26,7 @@ export class SpanView extends AnnotationView {
     const xscale = this.scope.x_scale
     const yscale = this.scope.y_scale
 
-    const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
+    const _calc_dim = (scale: Scale, view: CoordinateMapper): number => {
       if (this.model.location_units == 'data')
         return scale.compute(location)
       else
