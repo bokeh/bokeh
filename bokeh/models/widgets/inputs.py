@@ -54,7 +54,6 @@ __all__ = (
     'MultiChoice',
     'MultiSelect',
     'NumericInput',
-    'NumericSpinner',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -201,7 +200,7 @@ class NumericInput(InputWidget):
     """)
 
 
-class NumericSpinner(NumericInput):
+class Spinner(NumericInput):
     ''' Numeric Spinner input widget.
 
     '''
@@ -416,27 +415,6 @@ class ColorPicker(InputWidget):
 
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
-    """)
-
-class Spinner(InputWidget):
-    ''' Spinner widget for numerical inputs
-
-    '''
-
-    value = Float(default=0, help="""
-    The initial value of the spinner
-    """)
-
-    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
-    The step added or subtracted to the current value
-    """)
-
-    low = Float(help="""
-    Optional lowest allowable value.
-    """)
-
-    high = Float(help="""
-    Optional highest allowable value.
     """)
 
 #-----------------------------------------------------------------------------
