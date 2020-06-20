@@ -246,7 +246,7 @@ export class Program extends WebGLObject {
     }
   }
 
-  set_attribute(name: string, type_: string, value: VertexBuffer | number[] /*T4?*/, stride: number = 0, offset: number = 0): void {
+  set_attribute(name: string, type_: string, value: VertexBuffer | number[], stride: number = 0, offset: number = 0): void {
     // Set an attribute value.
     //
     // An attribute represents per-vertex data and can only be used

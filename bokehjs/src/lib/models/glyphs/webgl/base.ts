@@ -121,7 +121,7 @@ export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}
     prog.set_attribute(att_name, 'float', [0])
   } else if (visual_prop_is_singular(visual, name)) {
     vbo.used = false
-    prog.set_attribute(att_name, 'float', visual[name].value())
+    prog.set_attribute(att_name, 'float', [visual[name].value()])
   } else {
     vbo.used = true
     const a = new Float32Array(visual.get_array(name))
