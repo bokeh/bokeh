@@ -50,10 +50,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
@@ -69,10 +69,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-1.174041, 1.159292])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-1.166666, 1.166666])
     })
 
@@ -88,10 +88,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
     })
 
@@ -107,10 +107,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
     })
 
@@ -126,10 +126,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-1.0, 1.0])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
@@ -145,10 +145,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-1.0, 1.0])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
@@ -164,10 +164,10 @@ describe("WheelZoomTool", () => {
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.similar([-0.943952, 0.722713])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.720338, 0.946327])
     })
   })

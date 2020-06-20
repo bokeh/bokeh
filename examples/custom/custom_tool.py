@@ -28,8 +28,8 @@ export class DrawToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy))
       return
 
-    const x = frame.xscales.default.invert(sx)
-    const y = frame.yscales.default.invert(sy)
+    const x = frame.x_scale.invert(sx)
+    const y = frame.y_scale.invert(sy)
 
     const {source} = this.model
     source.get_array("x").push(x)

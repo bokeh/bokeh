@@ -2,6 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
+import {Interval} from "core/types"
 import {bk_tool_icon_pan, bk_tool_icon_xpan, bk_tool_icon_ypan} from "styles/icons"
 
 export class PanToolView extends GestureToolView {
@@ -14,8 +15,8 @@ export class PanToolView extends GestureToolView {
   protected h_axis_only: boolean
 
   protected pan_info: {
-    xrs: {[key: string]: {start: number, end: number}}
-    yrs: {[key: string]: {start: number, end: number}}
+    xrs: Map<string, Interval>
+    yrs: Map<string, Interval>
     sdx: number
     sdy: number
   }
@@ -98,20 +99,18 @@ export class PanToolView extends GestureToolView {
     this.last_dx = dx
     this.last_dy = dy
 
-    const {xscales, yscales} = frame
+    const {x_scales, y_scales} = frame
 
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
+    const xrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of x_scales) {
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
+      xrs.set(name, {start, end})
     }
 
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
+    const yrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of y_scales) {
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
+      yrs.set(name, {start, end})
     }
 
     this.pan_info = {xrs, yrs, sdx, sdy}

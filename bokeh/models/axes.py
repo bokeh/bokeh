@@ -86,18 +86,6 @@ class Axis(GuideRenderer):
     entire plot in the given dimension.
     """)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering an axis on the plot. If unset, use the
-    default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering an axis on the plot. If unset, use the
-    default y-range.
-    """)
-
     ticker = Instance(Ticker, help="""
     A Ticker to use for computing locations of axis components.
 

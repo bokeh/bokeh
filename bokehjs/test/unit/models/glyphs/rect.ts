@@ -1,10 +1,10 @@
 import {expect} from "assertions"
 import * as sinon from "sinon"
 
-import {create_glyph_view, set_scales} from "./glyph_utils"
+import {create_glyph_view} from "./glyph_utils"
 import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
-import {LinearScale} from "@bokehjs/models/scales/linear_scale"
-import {Range1d} from "@bokehjs/models/ranges/range1d"
+//import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+//import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Geometry} from "@bokehjs/core/geometry"
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {
@@ -59,14 +59,12 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
         height: {value: 20},
       })
 
-      const glyph_view = await create_glyph_view(glyph, data)
-      set_scales(glyph_view, "linear")
-      glyph_view.map_data()
+      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
       // rect is XYGlyph, will only put centers in index, box glyphs will put entire box
-      const geometry1: Geometry = { type: "rect", sx0: 0,  sy0: 200, sx1: 40,  sy1: 180}
-      const geometry2: Geometry = { type: "rect", sx0: 60, sy0: 210, sx1: 80,  sy1: 150}
-      const geometry3: Geometry = { type: "rect", sx0: 0,  sy0:  50, sx1: 200, sy1:  59}
+      const geometry1: Geometry = {type: "rect", sx0: 0,  sy0: 200, sx1: 40,  sy1: 180}
+      const geometry2: Geometry = {type: "rect", sx0: 60, sy0: 210, sx1: 80,  sy1: 150}
+      const geometry3: Geometry = {type: "rect", sx0: 0,  sy0:  50, sx1: 200, sy1:  59}
 
       const result1 = glyph_view.hit_test(geometry1)!
       const result2 = glyph_view.hit_test(geometry2)!
@@ -98,7 +96,7 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
-      expect(bounds).to.be.equal({ x0: -5, y0: -10, x1: 8, y1: 13 })
+      expect(bounds).to.be.equal({x0: -5, y0: -10, x1: 8, y1: 13})
     })
 
     it("should calculate log bounds based on data including width and height", async () => {
@@ -106,28 +104,26 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.equal({ x0: -4, y0: -9, x1: 8, y1: 13 })
+      expect(log_bounds).to.be.equal({x0: -4, y0: -9, x1: 8, y1: 13})
     })
 
     it("`_map_data` should correctly map data if width and height units are 'data'", async () => {
       const data = {x: [1], y: [2]}
-      const glyph_view = await create_glyph_view(glyph, data)
-
-      set_scales(glyph_view, "linear")
+      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
+
       expect(glyph_view.sw).to.be.equal(Float64Array.of(20))
       expect(glyph_view.sh).to.be.equal(Float64Array.of(40))
     })
 
     it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
+      glyph.properties.width.units = "screen"
+      glyph.properties.height.units = "screen"
+
       const data = {x: [1], y: [2]}
-      const glyph_view = await create_glyph_view(glyph, data)
-
-      glyph_view.model.properties.width.units = "screen"
-      glyph_view.model.properties.height.units = "screen"
-
-      set_scales(glyph_view, "linear")
+      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
+
       expect(glyph_view.sw).to.be.equal(new Float64Array([10]))
       expect(glyph_view.sh).to.be.equal(new Float64Array([20]))
     })
@@ -136,33 +132,23 @@ describe("Rect", () => {
     it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'data'", async () => {
       const data = {x: [1], y: [2]}
       const glyph_view = await create_glyph_view(glyph, data)
-
       glyph_view.map_data()
+
       expect(glyph_view.sx0).to.be.equal(Float64Array.of(0))
       expect(glyph_view.sy1).to.be.equal(Float64Array.of(0))
     })
 
     // XXX: needs update
     it.skip("`_map_data` should map values for x0 and y1 when width/height units are 'screen'", async () => {
+      glyph.properties.width.units = "screen"
+      glyph.properties.height.units = "screen"
+
       const data = {x: [1], y: [2]}
       const glyph_view = await create_glyph_view(glyph, data)
-
-      glyph_view.model.properties.width.units = "screen"
-      glyph_view.model.properties.height.units = "screen"
-
       glyph_view.map_data()
+
       expect(glyph_view.sx0).to.be.equal(Float64Array.of(-5))
       expect(glyph_view.sy1).to.be.equal(Float64Array.of(-10))
-    })
-
-    it("`_map_data` should map values for x0 and y1 with reversed ranges", async () => {
-      const data = {x: [1], y: [2]}
-      const glyph_view = await create_glyph_view(glyph, data)
-
-      set_scales(glyph_view, "linear", true)
-      glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.equal(Float64Array.of(188))
-      // XXX? expect(glyph_view.sy1).to.be.equal({'0': -216})
     })
 
     /* XXX
@@ -176,6 +162,7 @@ describe("Rect", () => {
       const data = {x: ['a'], y: ['b']}
       const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
+
       expect(glyph_view.sx0).to.be.equal({'0': 25})
       expect(glyph_view.sy1).to.be.equal({'0': 25})
     })
@@ -189,10 +176,9 @@ describe("Rect", () => {
         height: {field: "h"},
       })
       const data = {x: [5], y: [5], h: [0]}
-      const glyph_view = await create_glyph_view(glyph, data)
-
-      set_scales(glyph_view, "linear")
+      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
+
       expect(glyph_view.sw).to.be.equal(Float64Array.of(20))
       expect(glyph_view.sh).to.be.equal(Float64Array.of(0))
     })
@@ -200,17 +186,13 @@ describe("Rect", () => {
     describe("hit-testing", () => {
 
       describe("_hit_point", () => {
-
-        const geometry1: Geometry = { type: "point", sx: 190, sy: -20 }
-        const geometry2: Geometry = { type: "point", sx: 195, sy: -10 }
-        const geometry3: Geometry = { type: "point", sx: 186, sy:  14 }
+        const geometry1: Geometry = {type: "point", sx: 190, sy: -20}
+        const geometry2: Geometry = {type: "point", sx: 195, sy: -10}
+        const geometry3: Geometry = {type: "point", sx: 186, sy:  14}
 
         it("should retu indices of the rect that was hit", async () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = await create_glyph_view(glyph, data)
-
-          set_scales(glyph_view, "linear")
-          glyph_view.map_data()
+          const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
           const result1 = glyph_view.hit_test(geometry1)!
           const result2 = glyph_view.hit_test(geometry2)!
@@ -222,14 +204,11 @@ describe("Rect", () => {
         })
 
         it("should work when width and height units are 'screen'", async () => {
+          glyph.properties.width.units = "screen"
+          glyph.properties.height.units = "screen"
+
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = await create_glyph_view(glyph, data)
-
-          glyph_view.model.properties.width.units = "screen"
-          glyph_view.model.properties.height.units = "screen"
-
-          set_scales(glyph_view, "linear")
-          glyph_view.map_data()
+          const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
           const result1 = glyph_view.hit_test(geometry1)!
           const result2 = glyph_view.hit_test(geometry2)!
@@ -250,10 +229,7 @@ describe("Rect", () => {
           })
 
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
-          const glyph_view = await create_glyph_view(glyph, data)
-
-          set_scales(glyph_view, "linear")
-          glyph_view.map_data()
+          const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
           const result1 = glyph_view.hit_test(geometry1)!
           const result2 = glyph_view.hit_test(geometry2)!
@@ -264,6 +240,7 @@ describe("Rect", () => {
           expect(result3.indices).to.be.equal([1])
         })
 
+        /*
         it("should work when rects are rotated and axes ranges are very different", async () => {
           const glyph = new Rect({
             x: {field: "x"},
@@ -290,7 +267,6 @@ describe("Rect", () => {
           glyph_view.renderer.yscale = yscale
           glyph_view.renderer.plot_view.frame.xscales.default = xscale
           glyph_view.renderer.plot_view.frame.yscales.default = yscale
-          glyph_view.map_data()
 
           const result1 = glyph_view.hit_test({type: "point", sx: 105, sy:   0})!
           const result2 = glyph_view.hit_test({type: "point", sx: 105, sy: -20})!
@@ -300,13 +276,11 @@ describe("Rect", () => {
           expect(result2.indices).to.be.equal([])
           expect(result3.indices).to.be.equal([1])
         })
+        */
 
         it("should work when axis is log", async () => {
           const data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
-          const glyph_view = await create_glyph_view(glyph, data)
-
-          set_scales(glyph_view, "log")
-          glyph_view.map_data()
+          const glyph_view = await create_glyph_view(glyph, data, {axis_type: "log"})
 
           const result4 = glyph_view.hit_test({type: "point",  sx: 66.666,  sy: 133.333 })!
           const result5 = glyph_view.hit_test({type: "point",  sx: 133.333, sy:  66.666 })!

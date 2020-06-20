@@ -2,6 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
+import {Interval} from "core/types"
 import {bk_tool_icon_wheel_pan} from "styles/icons"
 
 export class WheelPanToolView extends GestureToolView {
@@ -54,20 +55,18 @@ export class WheelPanToolView extends GestureToolView {
         throw new Error("this shouldn't have happened")
     }
 
-    const {xscales, yscales} = frame
+    const {x_scales, y_scales} = frame
 
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
+    const xrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of x_scales) {
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
+      xrs.set(name, {start, end})
     }
 
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
+    const yrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of y_scales) {
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
+      yrs.set(name, {start, end})
     }
 
     // OK this sucks we can't set factor independently in each direction. It is used

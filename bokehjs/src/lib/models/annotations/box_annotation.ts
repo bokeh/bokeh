@@ -5,7 +5,7 @@ import * as mixins from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {BBox, CoordinateTransform} from "core/util/bbox"
+import {BBox, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -31,10 +31,10 @@ export class BoxAnnotationView extends AnnotationView {
     }
 
     const {frame} = this.plot_view
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const xscale = this.scope.x_scale
+    const yscale = this.scope.y_scale
 
-    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateTransform, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
       let sdim
       if (dim != null) {
         if (this.model.screen)
@@ -111,8 +111,6 @@ export namespace BoxAnnotation {
 
   export type Props = Annotation.Props & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     top: p.Property<number | null>
     top_units: p.Property<SpatialUnits>
     bottom: p.Property<number | null>
@@ -149,8 +147,6 @@ export class BoxAnnotation extends Annotation {
 
     this.define<BoxAnnotation.Props>({
       render_mode:  [ p.RenderMode,   'canvas'  ],
-      x_range_name: [ p.String,       'default' ],
-      y_range_name: [ p.String,       'default' ],
       top:          [ p.Number,       null      ],
       top_units:    [ p.SpatialUnits, 'data'    ],
       bottom:       [ p.Number,       null      ],

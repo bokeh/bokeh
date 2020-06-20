@@ -1,4 +1,4 @@
-import {Arrayable, Rect, Box, Interval} from "../types"
+import {Arrayable, NumberArray, Rect, Box, Interval} from "../types"
 
 const {min, max} = Math
 
@@ -51,9 +51,9 @@ export type VerticalPosition =
 
 export type Position = HorizontalPosition & VerticalPosition
 
-export interface CoordinateTransform {
+export type CoordinateMapper = {
   compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => Arrayable<number>
+  v_compute: (vv: Arrayable<number>) => NumberArray
 }
 
 export class BBox implements Rect {
@@ -194,13 +194,13 @@ export class BBox implements Rect {
     return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 
-  get xview(): CoordinateTransform {
+  get xview(): CoordinateMapper {
     return {
       compute: (x: number): number => {
         return this.left + x
       },
-      v_compute: (xx: Arrayable<number>): Arrayable<number> => {
-        const _xx = new Float64Array(xx.length)
+      v_compute: (xx: Arrayable<number>): NumberArray => {
+        const _xx = new NumberArray(xx.length)
         const left = this.left
         for (let i = 0; i < xx.length; i++) {
           _xx[i] = left + xx[i]
@@ -210,13 +210,13 @@ export class BBox implements Rect {
     }
   }
 
-  get yview(): CoordinateTransform {
+  get yview(): CoordinateMapper {
     return {
       compute: (y: number): number => {
         return this.bottom - y
       },
-      v_compute: (yy: Arrayable<number>): Arrayable<number> => {
-        const _yy = new Float64Array(yy.length)
+      v_compute: (yy: Arrayable<number>): NumberArray => {
+        const _yy = new NumberArray(yy.length)
         const bottom = this.bottom
         for (let i = 0; i < yy.length; i++) {
           _yy[i] = bottom - yy[i]

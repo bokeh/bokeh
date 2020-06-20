@@ -1,12 +1,12 @@
 import {expect} from "assertions"
-import * as sinon from 'sinon'
+//import * as sinon from 'sinon'
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {Legend} from "@bokehjs/models/annotations/legend"
-import {LegendView} from "@bokehjs/models/annotations/legend"
+//import {LegendView} from "@bokehjs/models/annotations/legend"
 import {LegendItem} from "@bokehjs/models/annotations/legend_item"
-import {build_view} from "@bokehjs/core/build_views"
+//import {build_view} from "@bokehjs/core/build_views"
 
 describe("Legend", () => {
 
@@ -31,6 +31,7 @@ describe("Legend", () => {
   })
 })
 
+/* TODO
 describe("LegendView", () => {
 
   const WIDTH = 222
@@ -53,3 +54,4 @@ describe("LegendView", () => {
     expect(legend_view.get_size()).to.be.equal({width: WIDTH+20, height: HEIGHT+20})
   })
 })
+*/

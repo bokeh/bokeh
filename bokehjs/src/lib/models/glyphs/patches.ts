@@ -88,10 +88,10 @@ export class PatchesView extends GlyphView {
   }
 
   protected _mask_data(): number[] {
-    const xr = this.renderer.plot_view.frame.x_ranges.default
+    const xr = this.renderer.plot_view.frame.x_range
     const [x0, x1] = [xr.min, xr.max]
 
-    const yr = this.renderer.plot_view.frame.y_ranges.default
+    const yr = this.renderer.plot_view.frame.y_range
     const [y0, y1] = [yr.min, yr.max]
 
     const indices = this.index.indices({x0, x1, y0, y1})

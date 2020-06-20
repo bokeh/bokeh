@@ -7,6 +7,7 @@ import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
 import {concat} from "core/util/array"
 import {NDArray, is_NDArray} from "core/util/ndarray"
+import {assert} from "core/util/assert"
 
 export interface ImageDataBase extends XYGlyphData {
   image_data: HTMLCanvasElement[]
@@ -69,6 +70,7 @@ export abstract class ImageBaseView extends XYGlyphView {
       const img = this._image[i]
       let flat_img: Arrayable<number>
       if (is_NDArray(img)) {
+        assert(img.dimension == 2, "expected a 2D array")
         flat_img = img
         this._height[i] = img.shape[0]
         this._width[i] = img.shape[1]

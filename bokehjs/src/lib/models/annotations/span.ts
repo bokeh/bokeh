@@ -4,7 +4,7 @@ import * as mixins from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import * as p from "core/properties"
-import {CoordinateTransform} from "core/util/bbox"
+import {CoordinateMapper} from "core/util/bbox"
 
 export class SpanView extends AnnotationView {
   model: Span
@@ -23,10 +23,10 @@ export class SpanView extends AnnotationView {
 
     const {frame} = this.plot_view
 
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const xscale = this.scope.x_scale
+    const yscale = this.scope.y_scale
 
-    const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
+    const _calc_dim = (scale: Scale, view: CoordinateMapper): number => {
       if (this.model.location_units == 'data')
         return scale.compute(location)
       else
@@ -68,8 +68,6 @@ export namespace Span {
 
   export type Props = Annotation.Props & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     location: p.Property<number | null>
     location_units: p.Property<SpatialUnits>
     dimension: p.Property<Dimension>
@@ -98,8 +96,6 @@ export class Span extends Annotation {
 
     this.define<Span.Props>({
       render_mode:    [ p.RenderMode,   'canvas'  ],
-      x_range_name:   [ p.String,       'default' ],
-      y_range_name:   [ p.String,       'default' ],
       location:       [ p.Number,       null      ],
       location_units: [ p.SpatialUnits, 'data'    ],
       dimension:      [ p.Dimension,    'width'   ],

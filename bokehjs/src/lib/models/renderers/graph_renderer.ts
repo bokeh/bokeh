@@ -2,7 +2,6 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
-import {Scale} from "../scales/scale"
 import * as p from "core/properties"
 import {build_views, remove_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
@@ -13,17 +12,10 @@ export class GraphRendererView extends DataRendererView {
   node_view: GlyphRendererView
   edge_view: GlyphRendererView
 
-  xscale: Scale
-  yscale: Scale
-
   protected _renderer_views: Map<GlyphRenderer, GlyphRendererView>
 
   initialize(): void {
     super.initialize()
-
-    this.xscale = this.plot_view.frame.xscales.default
-    this.yscale = this.plot_view.frame.yscales.default
-
     this._renderer_views = new Map()
   }
 
@@ -54,23 +46,16 @@ export class GraphRendererView extends DataRendererView {
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 
-    for (const name in x_ranges) {
-      const rng = x_ranges[name]
-      this.connect(rng.change, () => this.set_data())
+    for (const [, range] of x_ranges) {
+      this.connect(range.change, () => this.set_data())
     }
 
-    for (const name in y_ranges) {
-      const rng = y_ranges[name]
-      this.connect(rng.change, () => this.set_data())
+    for (const [, range] of y_ranges) {
+      this.connect(range.change, () => this.set_data())
     }
   }
 
   set_data(request_render: boolean = true): void {
-    // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
-    // mapping functions on the base Renderer class
-    this.node_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true})
-    this.edge_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true})
-
     // XXX
     const node_glyph: any = this.node_view.glyph
     ;[node_glyph._x, node_glyph._y] =

@@ -46,8 +46,8 @@ export class BandView extends AnnotationView {
     const {frame} = this.plot_view
     const dim = this.model.dimension
 
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const xscale = this.scope.x_scale
+    const yscale = this.scope.y_scale
 
     const limit_scale = dim == "height" ? yscale : xscale
     const base_scale  = dim == "height" ? xscale : yscale
@@ -144,8 +144,6 @@ export namespace Band {
     base: p.DistanceSpec
     dimension: p.Property<Dimension>
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   } & Mixins
 
   export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
@@ -174,8 +172,6 @@ export class Band extends Annotation {
       base:         [ p.DistanceSpec                               ],
       dimension:    [ p.Dimension,    'height'                     ],
       source:       [ p.Instance,     () => new ColumnDataSource() ],
-      x_range_name: [ p.String,       'default'                    ],
-      y_range_name: [ p.String,       'default'                    ],
     })
 
     this.override({

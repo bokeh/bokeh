@@ -1,5 +1,5 @@
 import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy} from "./types"
-import {BBox, CoordinateTransform} from "../util/bbox"
+import {BBox, CoordinateMapper} from "../util/bbox"
 
 const {min, max, round} = Math
 
@@ -169,11 +169,11 @@ export abstract class Layoutable {
     this.set_geometry(outer, inner)
   }
 
-  get xview(): CoordinateTransform {
+  get xview(): CoordinateMapper {
     return this.bbox.xview
   }
 
-  get yview(): CoordinateTransform {
+  get yview(): CoordinateMapper {
     return this.bbox.yview
   }
 

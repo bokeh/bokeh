@@ -28,11 +28,8 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.select(r_views, geometry, final, mode)
 
         if (did_hit && callback != null) {
-          const {frame} = this.plot_view
-          const xscale = frame.xscales[renderers[0].x_range_name]
-          const yscale = frame.yscales[renderers[0].y_range_name]
-          const x = xscale.invert(geometry.sx)
-          const y = yscale.invert(geometry.sy)
+          const x = r_views[0].scope.x_scale.invert(geometry.sx)
+          const y = r_views[0].scope.y_scale.invert(geometry.sy)
           const data = {geometries: {...geometry, x, y}, source: sm.source}
           callback.execute(this.model, data)
         }
@@ -42,15 +39,13 @@ export class TapToolView extends SelectToolView {
       this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
     } else {
       for (const r of this.computed_renderers) {
+        const rv = this.plot_view.renderer_views.get(r)!
         const sm = r.get_selection_manager()
-        const did_hit = sm.inspect(this.plot_view.renderer_views.get(r)!, geometry)
+        const did_hit = sm.inspect(rv, geometry)
 
         if (did_hit && callback != null) {
-          const {frame} = this.plot_view
-          const xscale = frame.xscales[r.x_range_name]
-          const yscale = frame.yscales[r.y_range_name]
-          const x = xscale.invert(geometry.sx)
-          const y = yscale.invert(geometry.sy)
+          const x = rv.scope.x_scale.invert(geometry.sx)
+          const y = rv.scope.y_scale.invert(geometry.sy)
           const data = {geometries: {...geometry, x, y}, source: sm.source}
           callback.execute(this.model, data)
         }
