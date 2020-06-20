@@ -1,4 +1,4 @@
-import {Program, VertexBuffer, IndexBuffer, Texture2D} from "./gloo"
+import {Program, VertexBuffer, IndexBuffer, Texture2d} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
 import {vertex_shader} from "./line.vert"
 import {fragment_shader} from "./line.frag"
@@ -12,11 +12,11 @@ class DashAtlas {
   protected _width = 256
   protected _height = 256
 
-  tex: Texture2D
+  tex: Texture2d
 
   constructor(gl: WebGLRenderingContext) {
     // Init texture
-    this.tex = new Texture2D(gl)
+    this.tex = new Texture2d(gl)
     this.tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     this.tex.set_interpolation(gl.NEAREST, gl.NEAREST)
     this.tex.set_size([this._height, this._width], gl.RGBA)

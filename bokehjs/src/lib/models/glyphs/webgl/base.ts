@@ -1,5 +1,5 @@
 // This module implements the Base GL Glyph and some utilities
-import {Program, VertexBuffer} from "./gloo"
+import {Program, VertexBuffer} from "./utils"
 import {Arrayable} from "core/types"
 import {color2rgba} from "core/util/color"
 import {Context2d} from "core/util/canvas"
