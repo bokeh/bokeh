@@ -1,4 +1,4 @@
-import {Program, VertexBuffer, IndexBuffer} from "@bokeh/gloo2"
+import {Program, VertexBuffer, IndexBuffer} from "./utils"
 import {BaseGLGlyph, Transform, attach_float, attach_color} from "./base"
 import {vertex_shader} from "./markers.vert"
 import {fragment_shader} from "./markers.frag"
