@@ -156,10 +156,10 @@ export type LineVector = {
   line_color: p.VectorSpec<Color | null>
   line_alpha: p.VectorSpec<number>
   line_width: p.VectorSpec<number>
-  line_join: p.ScalarSpec<LineJoin>
-  line_cap: p.ScalarSpec<LineCap>
-  line_dash: p.ScalarSpec<number[]>
-  line_dash_offset: p.ScalarSpec<number>
+  line_join: p.Property<LineJoin>
+  line_cap: p.Property<LineCap>
+  line_dash: p.Property<number[]>
+  line_dash_offset: p.Property<number>
 }
 
 export type FillVector = {
@@ -173,53 +173,53 @@ export type HatchVector = {
   hatch_scale: p.VectorSpec<number>
   hatch_pattern: p.VectorSpec<HatchPattern | null>
   hatch_weight: p.VectorSpec<number>
-  hatch_extra: p.VectorSpec<HatchExtra>
+  hatch_extra: p.Property<HatchExtra>
 }
 
 export type TextVector = {
   text_color: p.VectorSpec<Color | null>
   text_alpha: p.VectorSpec<number>
-  text_font: p.ScalarSpec<string>
+  text_font: p.Property<string>
   text_font_size: p.VectorSpec<string>
-  text_font_style: p.ScalarSpec<FontStyle>
-  text_align: p.ScalarSpec<TextAlign>
-  text_baseline: p.ScalarSpec<TextBaseline>
-  text_line_height: p.ScalarSpec<number>
+  text_font_style: p.Property<FontStyle>
+  text_align: p.Property<TextAlign>
+  text_baseline: p.Property<TextBaseline>
+  text_line_height: p.Property<number>
 }
 
 export const LineVector: p.DefineOf<LineVector> = {
-  line_color:       [ p.ColorSpec,          "black"     ],
-  line_alpha:       [ p.NumberSpec,         1.0         ],
-  line_width:       [ p.NumberSpec,         1           ],
-  line_join:        [ p.LineJoinScalar,     "bevel"     ],
-  line_cap:         [ p.LineCapScalar,      "butt"      ],
-  line_dash:        [ p.ArrayScalar,        []          ],
-  line_dash_offset: [ p.NumberScalar,       0           ],
+  line_color:       [ p.ColorSpec,      "black"     ],
+  line_alpha:       [ p.NumberSpec,     1.0         ],
+  line_width:       [ p.NumberSpec,     1           ],
+  line_join:        [ p.LineJoin,       "bevel"     ],
+  line_cap:         [ p.LineCap,        "butt"      ],
+  line_dash:        [ p.Array,          []          ],
+  line_dash_offset: [ p.Number,         0           ],
 }
 
 export const FillVector: p.DefineOf<FillVector> = {
-  fill_color:       [ p.ColorSpec,         "gray"      ],
-  fill_alpha:       [ p.NumberSpec,        1.0         ],
+  fill_color:       [ p.ColorSpec,      "gray"      ],
+  fill_alpha:       [ p.NumberSpec,     1.0         ],
 }
 
 export const HatchVector: p.DefineOf<HatchVector> = {
-  hatch_color:      [ p.ColorSpec,          "black"     ],
-  hatch_alpha:      [ p.NumberSpec,         1.0         ],
-  hatch_scale:      [ p.NumberSpec,         12.0        ],
-  hatch_pattern:    [ p.NullStringSpec,     null        ],
-  hatch_weight:     [ p.NumberSpec,         1.0         ],
-  hatch_extra:      [ p.AnyScalar,          {}          ],
+  hatch_color:      [ p.ColorSpec,      "black"     ],
+  hatch_alpha:      [ p.NumberSpec,     1.0         ],
+  hatch_scale:      [ p.NumberSpec,     12.0        ],
+  hatch_pattern:    [ p.NullStringSpec, null        ],
+  hatch_weight:     [ p.NumberSpec,     1.0         ],
+  hatch_extra:      [ p.Any,            {}          ],
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
-  text_color:       [ p.ColorSpec,          "#444444"   ],
-  text_alpha:       [ p.NumberSpec,         1.0         ],
-  text_font:        [ p.Font,               "helvetica" ],
-  text_font_size:   [ p.FontSizeSpec,       "16px"      ],
-  text_font_style:  [ p.FontStyleScalar,    "normal"    ],
-  text_align:       [ p.TextAlignScalar,    "left"      ],
-  text_baseline:    [ p.TextBaselineScalar, "bottom"    ],
-  text_line_height: [ p.NumberScalar,       1.2         ],
+  text_color:       [ p.ColorSpec,      "#444444"   ],
+  text_alpha:       [ p.NumberSpec,     1.0         ],
+  text_font:        [ p.Font,           "helvetica" ],
+  text_font_size:   [ p.FontSizeSpec,   "16px"      ],
+  text_font_style:  [ p.FontStyle,      "normal"    ],
+  text_align:       [ p.TextAlign,      "left"      ],
+  text_baseline:    [ p.TextBaseline,   "bottom"    ],
+  text_line_height: [ p.Number,         1.2         ],
 }
 
 // Common property mixins used in models. This duplication is currently unavoidable.
