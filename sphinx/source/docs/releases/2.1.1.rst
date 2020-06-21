@@ -1,0 +1,13 @@
+.. _release-2-1-1:
+
+2.1.1
+=====
+
+Bokeh Version ``2.1.1`` (June 2020) is a patch-release that fixes some bugs:
+
+* Can't resolve styles when importing BokehJS (:bokeh-issue:`10172`)
+* Bokeh server fails to start correctly with random port (:bokeh-issue:`10175`)
+* Some scalar properties seralizing incorrectly (:bokeh-issue:`10181`, :bokeh-issue:`10197`)
+* Typed arrays not returned to Bokeh server as lists (:bokeh-issue:`10204`)
+
+For full details see the :bokeh-tree:`CHANGELOG`.
