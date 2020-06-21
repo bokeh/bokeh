@@ -7,8 +7,7 @@ import {color2rgba} from "core/util/color"
 
 class DashAtlas {
 
-  protected readonly _atlas: {[key: string]: [number, number]} = {}
-  protected _index = 0
+  protected readonly _atlas: Map<string, [number, number]> = new Map()
   protected readonly _width = 256
   protected readonly _height = 256
 
@@ -26,15 +25,16 @@ class DashAtlas {
   }
 
   get_atlas_data(pattern: number[]): [number, number] {
-    const key = pattern.join('-')
-    const findex_period = this._atlas[key]
-    if (findex_period === undefined) {
+    const key = pattern.join("-")
+    let atlas_data = this._atlas.get(key)
+    if (atlas_data == null) {
       const [data, period] = this.make_pattern(pattern)
-      this.tex.set_data([0, this._index], [this._width, 1], new Uint8Array(data.map((x) => x + 10)))
-      this._atlas[key] = [this._index / this._height, period]
-      this._index += 1
+      const index = this._atlas.size
+      this.tex.set_data([0, index], [this._width, 1], new Uint8Array(data.map((x) => x + 10)))
+      atlas_data = [index/this._height, period]
+      this._atlas.set(key, atlas_data)
     }
-    return this._atlas[key]
+    return atlas_data
   }
 
   make_pattern(pattern: number[]): [Float32Array, number] {
