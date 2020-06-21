@@ -7,10 +7,10 @@ import {color2rgba} from "core/util/color"
 
 class DashAtlas {
 
-  protected _atlas: {[key: string]: [number, number]} = {}
+  protected readonly _atlas: {[key: string]: [number, number]} = {}
   protected _index = 0
-  protected _width = 256
-  protected _height = 256
+  protected readonly _width = 256
+  protected readonly _height = 256
 
   tex: Texture2d
 
@@ -19,8 +19,8 @@ class DashAtlas {
     this.tex = new Texture2d(gl)
     this.tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     this.tex.set_interpolation(gl.NEAREST, gl.NEAREST)
-    this.tex.set_size([this._height, this._width], gl.RGBA)
-    this.tex.set_data([0, 0], [this._width, this._height], new Uint8Array(this._height * this._width * 4))
+    this.tex.set_size([this._width, this._height], gl.RGBA)
+    this.tex.set_data([0, 0], [this._width, this._height], new Uint8Array(4*this._width*this._height))
     // Init with solid line (index 0 is reserved for this)
     this.get_atlas_data([1])
   }
@@ -30,7 +30,7 @@ class DashAtlas {
     const findex_period = this._atlas[key]
     if (findex_period === undefined) {
       const [data, period] = this.make_pattern(pattern)
-      this.tex.set_data([this._index, 0], [this._width, 1], new Uint8Array(data.map((x) => x+10)))
+      this.tex.set_data([0, this._index], [this._width, 1], new Uint8Array(data.map((x) => x + 10)))
       this._atlas[key] = [this._index / this._height, period]
       this._index += 1
     }

@@ -90,13 +90,13 @@ export class Texture2d {
     //     The format of the texture data. Can be LUMINANCE, LUMINANCE_ALPHA,
     //     RGB, and RGBA.
     if (width != this._shape_format?.width || height != this._shape_format?.height || format != this._shape_format?.format) {
-      this._shape_format = {height, width, format}
+      this._shape_format = {width, height, format}
       this.activate()
       this.gl.texImage2D(this._target, 0, format, width, height, 0, format, this.gl.UNSIGNED_BYTE, null)
     }
   }
 
-  set_data(offset: [number, number], shape: [number, number], data: TypedArray): void {
+  set_data(offset: [number, number], [width, height]: [number, number], data: TypedArray): void {
     // Set the 2D texture data.
     //
     // Parameters
@@ -109,13 +109,13 @@ export class Texture2d {
     //     The actual pixel data. Can be of any type, but on the GPU the
     //     dat is stored in 8 bit precision.
     this.activate()
-    const {width, height, format} = this._shape_format!
+    const {format} = this._shape_format!
     const [x, y] = offset
     const gtype = this._types[data.constructor.name]
     if (gtype == null) {
-      throw new Error("Type " + data.constructor.name + " not allowed for texture")
+      throw new Error(`Type ${data.constructor.name} not allowed for texture`)
     }
-    const alignment = this._get_alignment(shape[0])
+    const alignment = this._get_alignment(width)
     if (alignment != 4) {
       this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, alignment)
     }
