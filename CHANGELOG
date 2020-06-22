@@ -1,3 +1,15 @@
+2020-06-22    2.1.1:
+--------------------
+  * bugfixes:
+    - #10172 [component: bokehjs] [regression] [bug] can't resolve 'styles/annotations.css' when importing bokehjs
+    - #10175 [component: server] [regression] [bug] serve application at random port failed
+    - #10181 [regression] [bug] unable to set `labelset.text_align` with `bokeh serve`
+    - #10197 [regression] [bug] can't select bar_line_color in colorbar
+    - #10204 [backport] [bug] return typed arrays as list
+
+  * tasks:
+    - #10212 [component: docs] Release notes for 2.1.1
+
 2020-06-14    2.1.0:
 --------------------
   * bugfixes:
@@ -16,7 +28,7 @@
     - #9987 [component: docs] [bug] `factorrange`'s `start` property's help string references `end`
     - #10022 [component: bokehjs] [widgets] [bug] datepicker.disabled doesn't always work
     - #10040 [component: bokehjs] [feature] allow named columns to be used in edittools
-    - #10042 [component: bokehjs] [bug] bad label rendering with hbar / subgroup_label_orientation 
+    - #10042 [component: bokehjs] [bug] bad label rendering with hbar / subgroup_label_orientation
     - #10072 [component: bokehjs] Bokehjs leak a lots style tag in head tag cause a slow performance
     - #10088 [component: build] Only use local bokeh package in tests
     - #10103 [component: docs] [bug] using anchors in the api reference hides the anchored element under the header
@@ -32,10 +44,10 @@
     - #4567 [component: bokehjs] Make tools active state updateable
     - #9863 [component: bokehjs] [feature] add "dot" marker variants
     - #9890 [component: bokehjs] Some new markers
-    - #9922 [component: bokehjs] Autocompleteinput has no case insensitive option  
+    - #9922 [component: bokehjs] Autocompleteinput has no case insensitive option
     - #9963 [feature] add a lineedittool
     - #10021 [component: bokehjs] Add support for document event batching
-    - #10132 [API: models] [feature] edittool.empty_value should support 
+    - #10132 [API: models] [feature] edittool.empty_value should support
   * tasks:
     - #5744 [component: bokehjs] Use only one of global.isnan and isstrictnan
     - #5800 [component: tests] Hard pass/fail test of some kind of basic glyph drawing
@@ -68,7 +80,7 @@
     - #10030 [component: docs] Add google api key requirements into documentation dev guide
     - #10035 Miscellaneous changes
     - #10036 [component: bokehjs] Refactor implementation of image and imagergba glyphs
-    - #10050 [component: build] Install channels from conda forge 
+    - #10050 [component: build] Install channels from conda forge
     - #10053 Revert "spanset"
     - #10054 [component: bokehjs] Use map instead of {} as view storage
     - #10061 [component: bokehjs] Drop usage of our set type in favour of the native set
