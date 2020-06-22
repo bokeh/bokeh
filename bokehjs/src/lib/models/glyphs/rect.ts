@@ -184,9 +184,11 @@ export class RectView extends CenterRotatableView {
     const sside_length = this.sdist(scale, pt0, side_length, 'edge', this.model.dilate)
 
     let spt_corner = spt0
-    for (let i = 0, end = spt0.length; i < end; i++) {
-      if (spt0[i] != spt1[i]) {
-        spt_corner = spt0[i] < spt1[i] ? spt0 : spt1
+    for (let i = 0; i < n; i++) {
+      const spt0i = spt0[i]
+      const spt1i = spt1[i]
+      if (!isNaN(spt0i + spt1i) && spt0i != spt1i) {
+        spt_corner = spt0i < spt1i ? spt0 : spt1
         break
       }
     }
