@@ -31,9 +31,11 @@ export class BandView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
-    this.connect(this.model.source.patching, () => this.set_data(this.model.source))
-    this.connect(this.model.source.change, () => this.set_data(this.model.source))
+    const update = () => this.set_data(this.model.source)
+    this.connect(this.model.change, update)
+    this.connect(this.model.source.streaming, update)
+    this.connect(this.model.source.patching, update)
+    this.connect(this.model.source.change, update)
   }
 
   set_data(source: ColumnarDataSource): void {
