@@ -19,7 +19,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it("should allow Toggle", async () => {
+  it.allowing(6)("should allow Toggle", async () => {
     const obj = new Toggle({label: "Toggle 1", button_type: "primary"})
     await display(obj, [500, 100])
   })
