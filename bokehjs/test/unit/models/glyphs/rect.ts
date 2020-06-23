@@ -282,11 +282,11 @@ describe("Rect", () => {
           const data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "log"})
 
-          const result4 = glyph_view.hit_test({type: "point",  sx: 66.666,  sy: 133.333 })!
-          const result5 = glyph_view.hit_test({type: "point",  sx: 133.333, sy:  66.666 })!
+          const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333 })!
+          const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666 })!
 
-          expect(result4.indices).to.be.equal([])
-          expect(result5.indices).to.be.equal([])
+          expect(result4.indices).to.be.equal([])  // XXX: this seems to be a hit if not for intermediate NaNs
+          expect(result5.indices).to.be.equal([2])
         })
       })
     })
