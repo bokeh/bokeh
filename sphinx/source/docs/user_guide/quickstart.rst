@@ -573,16 +573,16 @@ Be sure to follow us on Twitter `@bokeh <Twitter_>`_!
 .. |glyphs|  replace:: :ref:`glyphs <bokeh.models.glyphs>`
 .. |markers| replace:: :ref:`markers <bokeh.models.markers>`
 
-.. |figure| replace:: :func:`~bokeh.plotting.figure.figure`
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
+.. |figure| replace:: :func:`~bokeh.plotting.figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 
-.. |legend| replace:: :class:`~bokeh.plotting.figure.Figure.legend`
-.. |grid|   replace:: :class:`~bokeh.plotting.figure.Figure.grid`
-.. |xgrid|  replace:: :class:`~bokeh.plotting.figure.Figure.xgrid`
-.. |ygrid|  replace:: :class:`~bokeh.plotting.figure.Figure.ygrid`
-.. |axis|   replace:: :class:`~bokeh.plotting.figure.Figure.axis`
-.. |xaxis|  replace:: :class:`~bokeh.plotting.figure.Figure.xaxis`
-.. |yaxis|  replace:: :class:`~bokeh.plotting.figure.Figure.yaxis`
+.. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
+.. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
+.. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
+.. |ygrid|  replace:: :class:`~bokeh.plotting.Figure.ygrid`
+.. |axis|   replace:: :class:`~bokeh.plotting.Figure.axis`
+.. |xaxis|  replace:: :class:`~bokeh.plotting.Figure.xaxis`
+.. |yaxis|  replace:: :class:`~bokeh.plotting.Figure.yaxis`
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
@@ -593,10 +593,10 @@ Be sure to follow us on Twitter `@bokeh <Twitter_>`_!
 .. |DatetimeAxis|     replace:: :class:`~bokeh.models.axes.DatetimeAxis`
 .. |Line|             replace:: :class:`~bokeh.models.glyphs.Line`
 
-.. |Figure.circle|   replace:: :func:`~bokeh.plotting.figure.Figure.circle`
-.. |Figure.line|     replace:: :func:`~bokeh.plotting.figure.Figure.line`
-.. |Figure.square|   replace:: :func:`~bokeh.plotting.figure.Figure.square`
-.. |Figure.triangle| replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
+.. |Figure.circle|   replace:: :func:`~bokeh.plotting.Figure.circle`
+.. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
+.. |Figure.square|   replace:: :func:`~bokeh.plotting.Figure.square`
+.. |Figure.triangle| replace:: :func:`~bokeh.plotting.Figure.triangle`
 
 .. |gridplot| replace:: :func:`~bokeh.layouts.gridplot`
 

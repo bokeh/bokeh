@@ -195,7 +195,7 @@ Hex Tiles
 ~~~~~~~~~
 
 Bokeh can plot hexagonal tiles, which are often used for showing binned
-aggregations. The :func:`~bokeh.plotting.figure.Figure.hex_tile` method
+aggregations. The :func:`~bokeh.plotting.Figure.hex_tile` method
 takes a `size` parameter to define the size of the hex grid, and
 `axial coordinates`_ to specify which tiles are present.
 
@@ -208,7 +208,7 @@ A more realistic example below computes counts per bin using the
 .. bokeh-plot:: docs/user_guide/examples/plotting_hex_tile_binning.py
     :source-position: above
 
-The above code can be made even simpler by calling the :func:`~bokeh.plotting.figure.Figure.hexbin`
+The above code can be made even simpler by calling the :func:`~bokeh.plotting.Figure.hexbin`
 method of ``Figure``.
 
 .. _userguide_plotting_directed_areas:
@@ -604,64 +604,64 @@ below:
 .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
-.. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.Figure.annular_wedge`
-.. |annulus|           replace:: :func:`~bokeh.plotting.figure.Figure.annulus`
-.. |arc|               replace:: :func:`~bokeh.plotting.figure.Figure.arc`
-.. |asterisk|          replace:: :func:`~bokeh.plotting.figure.Figure.asterisk`
-.. |bezier|            replace:: :func:`~bokeh.plotting.figure.Figure.bezier`
-.. |circle|            replace:: :func:`~bokeh.plotting.figure.Figure.circle`
-.. |circle_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.circle_cross`
-.. |circle_dot|        replace:: :func:`~bokeh.plotting.figure.Figure.circle_dot`
-.. |circle_x|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_x`
-.. |circle_y|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_y`
-.. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
-.. |dash|              replace:: :func:`~bokeh.plotting.figure.Figure.dash`
-.. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
-.. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
-.. |diamond_dot|       replace:: :func:`~bokeh.plotting.figure.Figure.diamond_dot`
-.. |dot|               replace:: :func:`~bokeh.plotting.figure.Figure.dot`
-.. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
-.. |harea|             replace:: :func:`~bokeh.plotting.figure.Figure.harea`
-.. |harea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.harea_stack`
-.. |hbar|              replace:: :func:`~bokeh.plotting.figure.Figure.hbar`
-.. |hbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.hbar_stack`
-.. |hex|               replace:: :func:`~bokeh.plotting.figure.Figure.hex`
-.. |hex_dot|           replace:: :func:`~bokeh.plotting.figure.Figure.hex_dot`
-.. |hline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.hline_stack`
-.. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
-.. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
-.. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`
-.. |image_url|         replace:: :func:`~bokeh.plotting.figure.Figure.image_url`
-.. |line|              replace:: :func:`~bokeh.plotting.figure.Figure.line`
-.. |multi_line|        replace:: :func:`~bokeh.plotting.figure.Figure.multi_line`
-.. |multi_polygons|    replace:: :func:`~bokeh.plotting.figure.Figure.multi_polygons`
-.. |oval|              replace:: :func:`~bokeh.plotting.figure.Figure.oval`
-.. |patch|             replace:: :func:`~bokeh.plotting.figure.Figure.patch`
-.. |patches|           replace:: :func:`~bokeh.plotting.figure.Figure.patches`
-.. |plus|              replace:: :func:`~bokeh.plotting.figure.Figure.plus`
-.. |quad|              replace:: :func:`~bokeh.plotting.figure.Figure.quad`
-.. |quadratic|         replace:: :func:`~bokeh.plotting.figure.Figure.quadratic`
-.. |ray|               replace:: :func:`~bokeh.plotting.figure.Figure.ray`
-.. |rect|              replace:: :func:`~bokeh.plotting.figure.Figure.rect`
-.. |segment|           replace:: :func:`~bokeh.plotting.figure.Figure.segment`
-.. |step|              replace:: :func:`~bokeh.plotting.figure.Figure.step`
-.. |square|            replace:: :func:`~bokeh.plotting.figure.Figure.square`
-.. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
-.. |square_dot|        replace:: :func:`~bokeh.plotting.figure.Figure.square_dot`
-.. |square_pin|        replace:: :func:`~bokeh.plotting.figure.Figure.square_pin`
-.. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
-.. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
-.. |triangle_dot|      replace:: :func:`~bokeh.plotting.figure.Figure.triangle_dot`
-.. |triangle_pin|      replace:: :func:`~bokeh.plotting.figure.Figure.triangle_pin`
-.. |varea|             replace:: :func:`~bokeh.plotting.figure.Figure.varea`
-.. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.varea_stack`
-.. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.vbar`
-.. |vbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.vbar_stack`
-.. |vline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.vline_stack`
-.. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
-.. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`
-.. |y|                 replace:: :func:`~bokeh.plotting.figure.Figure.y`
+.. |annular_wedge|     replace:: :func:`~bokeh.plotting.Figure.annular_wedge`
+.. |annulus|           replace:: :func:`~bokeh.plotting.Figure.annulus`
+.. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`
+.. |asterisk|          replace:: :func:`~bokeh.plotting.Figure.asterisk`
+.. |bezier|            replace:: :func:`~bokeh.plotting.Figure.bezier`
+.. |circle|            replace:: :func:`~bokeh.plotting.Figure.circle`
+.. |circle_cross|      replace:: :func:`~bokeh.plotting.Figure.circle_cross`
+.. |circle_dot|        replace:: :func:`~bokeh.plotting.Figure.circle_dot`
+.. |circle_x|          replace:: :func:`~bokeh.plotting.Figure.circle_x`
+.. |circle_y|          replace:: :func:`~bokeh.plotting.Figure.circle_y`
+.. |cross|             replace:: :func:`~bokeh.plotting.Figure.cross`
+.. |dash|              replace:: :func:`~bokeh.plotting.Figure.dash`
+.. |diamond|           replace:: :func:`~bokeh.plotting.Figure.diamond`
+.. |diamond_cross|     replace:: :func:`~bokeh.plotting.Figure.diamond_cross`
+.. |diamond_dot|       replace:: :func:`~bokeh.plotting.Figure.diamond_dot`
+.. |dot|               replace:: :func:`~bokeh.plotting.Figure.dot`
+.. |ellipse|           replace:: :func:`~bokeh.plotting.Figure.ellipse`
+.. |harea|             replace:: :func:`~bokeh.plotting.Figure.harea`
+.. |harea_stack|       replace:: :func:`~bokeh.plotting.Figure.harea_stack`
+.. |hbar|              replace:: :func:`~bokeh.plotting.Figure.hbar`
+.. |hbar_stack|        replace:: :func:`~bokeh.plotting.Figure.hbar_stack`
+.. |hex|               replace:: :func:`~bokeh.plotting.Figure.hex`
+.. |hex_dot|           replace:: :func:`~bokeh.plotting.Figure.hex_dot`
+.. |hline_stack|       replace:: :func:`~bokeh.plotting.Figure.hline_stack`
+.. |inverted_triangle| replace:: :func:`~bokeh.plotting.Figure.inverted_triangle`
+.. |image|             replace:: :func:`~bokeh.plotting.Figure.image`
+.. |image_rgba|        replace:: :func:`~bokeh.plotting.Figure.image_rgba`
+.. |image_url|         replace:: :func:`~bokeh.plotting.Figure.image_url`
+.. |line|              replace:: :func:`~bokeh.plotting.Figure.line`
+.. |multi_line|        replace:: :func:`~bokeh.plotting.Figure.multi_line`
+.. |multi_polygons|    replace:: :func:`~bokeh.plotting.Figure.multi_polygons`
+.. |oval|              replace:: :func:`~bokeh.plotting.Figure.oval`
+.. |patch|             replace:: :func:`~bokeh.plotting.Figure.patch`
+.. |patches|           replace:: :func:`~bokeh.plotting.Figure.patches`
+.. |plus|              replace:: :func:`~bokeh.plotting.Figure.plus`
+.. |quad|              replace:: :func:`~bokeh.plotting.Figure.quad`
+.. |quadratic|         replace:: :func:`~bokeh.plotting.Figure.quadratic`
+.. |ray|               replace:: :func:`~bokeh.plotting.Figure.ray`
+.. |rect|              replace:: :func:`~bokeh.plotting.Figure.rect`
+.. |segment|           replace:: :func:`~bokeh.plotting.Figure.segment`
+.. |step|              replace:: :func:`~bokeh.plotting.Figure.step`
+.. |square|            replace:: :func:`~bokeh.plotting.Figure.square`
+.. |square_cross|      replace:: :func:`~bokeh.plotting.Figure.square_cross`
+.. |square_dot|        replace:: :func:`~bokeh.plotting.Figure.square_dot`
+.. |square_pin|        replace:: :func:`~bokeh.plotting.Figure.square_pin`
+.. |square_x|          replace:: :func:`~bokeh.plotting.Figure.square_x`
+.. |triangle|          replace:: :func:`~bokeh.plotting.Figure.triangle`
+.. |triangle_dot|      replace:: :func:`~bokeh.plotting.Figure.triangle_dot`
+.. |triangle_pin|      replace:: :func:`~bokeh.plotting.Figure.triangle_pin`
+.. |varea|             replace:: :func:`~bokeh.plotting.Figure.varea`
+.. |varea_stack|       replace:: :func:`~bokeh.plotting.Figure.varea_stack`
+.. |vbar|              replace:: :func:`~bokeh.plotting.Figure.vbar`
+.. |vbar_stack|        replace:: :func:`~bokeh.plotting.Figure.vbar_stack`
+.. |vline_stack|       replace:: :func:`~bokeh.plotting.Figure.vline_stack`
+.. |wedge|             replace:: :func:`~bokeh.plotting.Figure.wedge`
+.. |x|                 replace:: :func:`~bokeh.plotting.Figure.x`
+.. |y|                 replace:: :func:`~bokeh.plotting.Figure.y`

@@ -19,8 +19,8 @@ Basic
 ~~~~~
 
 Bokeh make it simple to create basic bar charts using the
-:func:`~bokeh.plotting.figure.Figure.hbar` and
-:func:`~bokeh.plotting.figure.Figure.vbar` glyphs methods. In the example
+:func:`~bokeh.plotting.Figure.hbar` and
+:func:`~bokeh.plotting.Figure.vbar` glyphs methods. In the example
 below, we have the following sequence of simple 1-level factors:
 
 .. code-block:: python
@@ -28,7 +28,7 @@ below, we have the following sequence of simple 1-level factors:
     fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 
 To inform Bokeh that the x-axis is categorical, we pass this list of factors
-as the ``x_range`` argument to :func:`~bokeh.plotting.figure.figure`:
+as the ``x_range`` argument to :func:`~bokeh.plotting.figure`:
 
 .. code-block:: python
 
@@ -118,8 +118,8 @@ Stacked
 
 Another common operation or bar charts is to stack bars on top of one
 another. Bokeh makes this easy to do with the specialized
-:func:`~bokeh.plotting.figure.Figure.hbar_stack` and
-:func:`~bokeh.plotting.figure.Figure.vbar_stack` functions. The example
+:func:`~bokeh.plotting.Figure.hbar_stack` and
+:func:`~bokeh.plotting.Figure.vbar_stack` functions. The example
 below shows the fruits data from above, but with the bars for each
 fruit type stacked instead of grouped:
 

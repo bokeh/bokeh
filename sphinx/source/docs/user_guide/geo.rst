@@ -30,7 +30,7 @@ Mercator coordinates.
 Google Maps
 -----------
 
-Bokeh can also plot glyphs over a Google Map using the :func:`~bokeh.plotting.gmap.gmap`
+Bokeh can also plot glyphs over a Google Map using the :func:`~bokeh.plotting.gmap`
 function. You must pass this function a `Google API Key`_ in order for it to work, as
 well as any :class:`~bokeh.models.map_plots.GMapOptions` to configure the Google Map
 underlay. The Google API Key will be stored in the Bokeh Document JSON.

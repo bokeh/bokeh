@@ -420,5 +420,5 @@ For more information about how to set up the data for these types of plots, see
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
 .. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
 .. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
