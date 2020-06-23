@@ -291,6 +291,22 @@ class ClientSession(object):
         return self._connection.connected
 
     @property
+    def is_http_error(self):
+        return self._connection.is_http_error
+        
+    @property
+    def error_id(self):
+        return self._connection.error_id
+
+    @property
+    def error_message(self):
+        return self._connection.error_message
+
+    @property
+    def url(self):
+        return self._connection.url
+
+    @property
     def document(self):
         ''' A :class:`~bokeh.document.Document` that will be kept in sync with
         the corresponding Document on the server.
@@ -334,6 +350,28 @@ class ClientSession(object):
         '''
         self._connection.force_roundtrip()
 
+    def check_connection_errors(self):
+        ''' Raises an error, when the connection could not have been 
+        established. 
+        
+        Should be used, after a call to connect.
+
+        Returns:
+            None
+        
+        '''
+        if not self.connected:
+            if self.is_http_error:
+                if self.error_id == 404:
+                    raise IOError("Check your application path! The given Path is not valid: {}".format(self.url))
+                #default http_error:
+                raise IOError("We received an HTTP-Error. Disconnected with error code: {}, given message: {}".format(self.error_id, self.error_message))
+                
+            #elif self.is_network_error:
+            #default:
+            raise IOError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
+
+
     def pull(self):
         ''' Pull the server's state and set it as session.document.
 
@@ -344,8 +382,7 @@ class ClientSession(object):
 
         '''
         self.connect()
-        if not self.connected:
-            raise IOError("Cannot pull session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
+        self.check_connection_errors()
 
         if self.document is None:
             doc = Document()
@@ -382,8 +419,9 @@ class ClientSession(object):
                 raise ValueError("Cannot push() a different document from existing session.document")
 
         self.connect()
-        if not self.connected:
-            raise IOError("Cannot push session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
+        self.check_connection_errors()
+        #if not self.connected:
+         #   raise IOError("Cannot push session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)

@@ -29,6 +29,8 @@ __all__ = (
     'DISCONNECTED',
     'NOT_YET_CONNECTED',
     'WAITING_FOR_REPLY',
+    'DISCONNECTED_NETWORK_ERROR',
+    'DISCONNECTED_HTTP_ERROR'
 )
 
 #-----------------------------------------------------------------------------
@@ -68,11 +70,49 @@ class CONNECTED_AFTER_ACK(object):
 class DISCONNECTED(object):
     ''' The ``ClientConnection`` was connected to a Bokeh server, but is
     now disconnected.
+    The reason, why the connection has been closed is unknown.
 
     '''
+    def __init__(self):
+        self._errid = 0
+        self._message = ""
+
+    @property
+    def error_id(self):
+        ''' Holds the error id.
+        '''
+        return self._errid
+
+    @property
+    def error_message(self):
+        ''' Holds the error message, if any.
+        '''
+        return self._message
 
     async def run(self, connection):
         return None
+
+class DISCONNECTED_NETWORK_ERROR(DISCONNECTED):
+    ''' The ``ClientConnection`` was connected to a Bokeh server, but is
+    now disconnected.
+    An network error was the cause of the disconnection.
+
+    '''
+    def __init__(self, network_errid, error_message ):
+            super().__init__()
+            self._errid = network_errid
+            self._message = error_message
+
+class DISCONNECTED_HTTP_ERROR(DISCONNECTED):
+    ''' The ``ClientConnection`` was connected to a Bokeh server, but is
+    now disconnected.
+    An HTTP error was the cause of the disconnection.
+
+    '''
+    def __init__(self, http_errid, http_message):
+        super().__init__()
+        self._errid    = http_errid
+        self._message  = http_message
 
 class WAITING_FOR_REPLY(object):
     ''' The ``ClientConnection`` has sent a message to the Bokeh Server which

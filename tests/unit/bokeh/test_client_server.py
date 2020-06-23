@@ -288,6 +288,14 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
+    def test__check_error_404(self, ManagedServerLoop) -> None:
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            with pytest.raises(IOError):
+                client_session = pull_session(session_id='test__check_error_404',
+                                              url=url(server) + 'file_not_found',
+                                              io_loop=server.io_loop)
+
     def test_request_server_info(self, ManagedServerLoop) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:
@@ -988,7 +996,6 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch, ManagedServerLoop) -> N
         client_session._loop_until_closed()
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
-
 
 @patch('bokeh.client.session.show_session')
 def test_session_show_adds_obj_to_curdoc_if_necessary(m) -> None:
