@@ -58,7 +58,7 @@ class GMap(GMapPlot):
 
             https://developers.google.com/maps/documentation/javascript/get-api-key
 
-        map_options: (GMapOptions)
+        map_options: (:class:`~bokeh.models.map_plots.GMapOptions`)
             Configuration specific to a Google Map
 
     In addition to all the Bokeh model property attributes documented below,
@@ -66,7 +66,7 @@ class GMap(GMapPlot):
     help simplify configuration:
 
     .. bokeh-options:: GMapFigureOptions
-        :module: bokeh.plotting.figure
+        :module: bokeh.plotting.gmap
 
     '''
 
@@ -218,7 +218,7 @@ def gmap(google_api_key, map_options, **kwargs):
 
             The Google API key will be stored in the Bokeh Document JSON.
 
-        map_options: (GMapOptions)
+        map_options: (:class:`~bokeh.models.map_plots.GMapOptions`)
             Configuration specific to a Google Map
 
     In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword

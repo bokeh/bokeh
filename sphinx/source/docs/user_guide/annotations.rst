@@ -310,7 +310,7 @@ single point would be one common use for the Whisker annotation.
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 

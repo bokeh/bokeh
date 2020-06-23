@@ -16,8 +16,8 @@ important features and fixes several bugs. Some of the highlights include:
 * New module :ref:`bokeh.transform` with helper functions for simplifying
   ``DataSpec`` expressions, including  :func:`~bokeh.transform.jitter`,
   :func:`~bokeh.transform.dodge`, :func:`~bokeh.transform.factor_cmap`, etc.
-* Added :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
-  :func:`~bokeh.plotting.figure.Figure.vbar_stack` to greatly simplify
+* Added :func:`~bokeh.plotting.Figure.hbar_stack` and
+  :func:`~bokeh.plotting.Figure.vbar_stack` to greatly simplify
   creation of stacked bar charts.
 * Improvements for using Bokeh with Categorical data:
 
