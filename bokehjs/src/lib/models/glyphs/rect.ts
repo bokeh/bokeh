@@ -122,14 +122,16 @@ export class RectView extends CenterRotatableView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const scenter_x = []
-    for (let i = 0, end = this.sx0.length; i < end; i++) {
-      scenter_x.push(this.sx0[i] + this.sw[i]/2)
+    const n = this.sx0.length
+
+    const scenter_x = new NumberArray(n)
+    for (let i = 0; i < n; i++) {
+      scenter_x[i] = this.sx0[i] + this.sw[i]/2
     }
 
-    const scenter_y = []
-    for (let i = 0, end = this.sy1.length; i < end; i++) {
-      scenter_y.push(this.sy1[i] + this.sh[i]/2)
+    const scenter_y = new NumberArray(n)
+    for (let i = 0; i < n; i++) {
+      scenter_y[i] = this.sy1[i] + this.sh[i]/2
     }
 
     const max_x2_ddist = max(this._ddist(0, scenter_x, this.ssemi_diag))
@@ -140,10 +142,11 @@ export class RectView extends CenterRotatableView {
     const y0 = y - max_y2_ddist
     const y1 = y + max_y2_ddist
 
-    const indices = []
+    let width_in: boolean
+    let height_in: boolean
 
+    const indices = []
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      let height_in: boolean, width_in: boolean
       if (this._angle[i]) {
         const s = Math.sin(-this._angle[i])
         const c = Math.cos(-this._angle[i])
@@ -154,11 +157,13 @@ export class RectView extends CenterRotatableView {
         width_in = Math.abs(this.sx[i] - sx) <= this.sw[i]/2
         height_in = Math.abs(this.sy[i] - sy) <= this.sh[i]/2
       } else {
-        width_in = (sx - this.sx0[i] <= this.sw[i]) && (sx - this.sx0[i] >= 0)
-        height_in = (sy - this.sy1[i] <= this.sh[i]) && (sy - this.sy1[i] >= 0)
+        const dx = sx - this.sx0[i]
+        const dy = sy - this.sy1[i]
+        width_in = 0 <= dx && dx <= this.sw[i]
+        height_in = 0 <= dy && dy <= this.sh[i]
       }
 
-      if (height_in && width_in) {
+      if (width_in && height_in) {
         indices.push(i)
       }
     }
