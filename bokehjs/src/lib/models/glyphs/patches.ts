@@ -1,7 +1,6 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
-import {find_last_index} from "core/util/array"
 import {minmax, sum} from "core/util/arrayable"
 import {Arrayable, Rect, NumberArray} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
@@ -19,9 +18,6 @@ export interface PatchesData extends GlyphData {
 
   sxs: NumberArray[]
   sys: NumberArray[]
-
-  sxss: Arrayable<number>[][]
-  syss: Arrayable<number>[][]
 }
 
 export interface PatchesView extends PatchesData {}
@@ -29,45 +25,6 @@ export interface PatchesView extends PatchesData {}
 export class PatchesView extends GlyphView {
   model: Patches
   visuals: Patches.Visuals
-
-  private _build_discontinuous_object(nanned_qs: Arrayable<number>[]): Arrayable<number>[][] {
-    // _s is this.xs, this.ys, this.sxs, this.sys
-    // an object of n 1-d arrays in either data or screen units
-    //
-    // Each 1-d array gets broken to an array of arrays split
-    // on any NaNs
-    //
-    // So:
-    // { 0: [x11, x12],
-    //   1: [x21, x22, x23],
-    //   2: [x31, NaN, x32]
-    // }
-    // becomes
-    // { 0: [[x11, x12]],
-    //   1: [[x21, x22, x23]],
-    //   2: [[x31],[x32]]
-    // }
-    const ds: number[][][] = []
-    for (let i = 0, end = nanned_qs.length; i < end; i++) {
-      ds[i] = []
-      let qs = [...nanned_qs[i]]
-      while (qs.length > 0) {
-        const nan_index = find_last_index(qs, (q) => isNaN(q))
-
-        let qs_part
-        if (nan_index >= 0)
-          qs_part = qs.splice(nan_index)
-        else {
-          qs_part = qs
-          qs = []
-        }
-
-        const denanned = qs_part.filter((q) => !isNaN(q))
-        ds[i].push(denanned)
-      }
-    }
-    return ds
-  }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
@@ -119,11 +76,6 @@ export class PatchesView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
-    // this.sxss and this.syss are used by _hit_point and sxc, syc
-    // This is the earliest we can build them, and only build them once
-    this.sxss = this._build_discontinuous_object(sxs)
-    this.syss = this._build_discontinuous_object(sys)
-
     for (const i of indices) {
       const [sx, sy] = [sxs[i], sys[i]]
 
@@ -183,12 +135,23 @@ export class PatchesView extends GlyphView {
     const indices = []
     for (let i = 0, end = candidates.length; i < end; i++) {
       const index = candidates[i]
-      const sxs = this.sxss[index]
-      const sys = this.syss[index]
-      for (let j = 0, endj = sxs.length; j < endj; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j], sys[j])) {
-          indices.push(index)
+
+      const sxsi = this.sxs[index]
+      const sysi = this.sys[index]
+
+      const n = sxsi.length
+      for (let k = 0, j = 0;; j++) {
+        if (isNaN(sxsi[j]) || j == n) {
+          const sxsi_kj = sxsi.subarray(k, j)
+          const sysi_kj = sysi.subarray(k, j)
+          if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
+            indices.push(index)
+            break
+          }
+          k = j + 1
         }
+        if (j == n)
+          break
       }
     }
 
@@ -200,36 +163,58 @@ export class PatchesView extends GlyphView {
   }
 
   scenterx(i: number, sx: number, sy: number): number {
-    if (this.sxss[i].length == 1) {
-      // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sxs[i])
-    } else {
-      // We have discontinuous objects, so we need to find which
-      // one we're in, we can use point_in_poly again
-      const sxs = this.sxss[i]
-      const sys = this.syss[i]
-      for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j], sys[j]))
-          return this._get_snap_coord(sxs[j])
+    const sxsi = this.sxs[i]
+    const sysi = this.sys[i]
+
+    const n = sxsi.length
+    let has_nan = false
+    for (let k = 0, j = 0;; j++) {
+      const this_nan = isNaN(sxsi[j])
+      has_nan = has_nan || this_nan
+
+      if (j == n && !has_nan) {
+        return this._get_snap_coord(sxsi)
       }
+
+      if (this_nan || j == n) {
+        const sxsi_kj = sxsi.subarray(k, j)
+        const sysi_kj = sysi.subarray(k, j)
+        if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
+          return this._get_snap_coord(sxsi_kj)
+        }
+        k = j + 1
+      }
+      if (j == n)
+        break
     }
 
     unreachable()
   }
 
   scentery(i: number, sx: number, sy: number): number {
-    if (this.syss[i].length == 1) {
-      // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sys[i])
-    } else {
-      // We have discontinuous objects, so we need to find which
-      // one we're in, we can use point_in_poly again
-      const sxs = this.sxss[i]
-      const sys = this.syss[i]
-      for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j], sys[j]))
-          return this._get_snap_coord(sys[j])
+    const sxsi = this.sxs[i]
+    const sysi = this.sys[i]
+
+    const n = sxsi.length
+    let has_nan = false
+    for (let k = 0, j = 0;; j++) {
+      const this_nan = isNaN(sxsi[j])
+      has_nan = has_nan || this_nan
+
+      if (j == n && !has_nan) {
+        return this._get_snap_coord(sysi)
       }
+
+      if (this_nan || j == n) {
+        const sxsi_kj = sxsi.subarray(k, j)
+        const sysi_kj = sysi.subarray(k, j)
+        if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
+          return this._get_snap_coord(sysi_kj)
+        }
+        k = j + 1
+      }
+      if (j == n)
+        break
     }
 
     unreachable()
