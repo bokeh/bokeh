@@ -134,18 +134,12 @@ export class AnnularWedgeView extends XYGlyphView {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
-  private _scenterxy(i: number): {x: number, y: number} {
+  scenterxy(i: number): [number, number] {
     const r = (this.sinner_radius[i] + this.souter_radius[i])/2
     const a = (this._start_angle[i]  + this._end_angle[i])   /2
-    return {x: this.sx[i] + (r*Math.cos(a)), y: this.sy[i] + (r*Math.sin(a))}
-  }
-
-  scenterx(i: number): number {
-    return this._scenterxy(i).x
-  }
-
-  scentery(i: number): number {
-    return this._scenterxy(i).y
+    const scx = this.sx[i] + r*Math.cos(a)
+    const scy = this.sy[i] + r*Math.sin(a)
+    return [scx, scy]
   }
 }
 

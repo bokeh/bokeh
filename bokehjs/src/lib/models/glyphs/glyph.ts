@@ -140,16 +140,18 @@ export abstract class GlyphView extends View {
 
   get_anchor_point(anchor: Anchor, i: number, [sx, sy]: [number, number]): {x: number, y: number} | null {
     switch (anchor) {
-      case "center": return {x: this.scenterx(i, sx, sy), y: this.scentery(i, sx, sy)}
-      default:       return null
+      case "center": {
+        const [x, y] = this.scenterxy(i, sx, sy)
+        return {x, y}
+      }
+      default:
+        return null
     }
   }
 
   // glyphs that need more sophisticated "snap to data" behaviour (like
   // snapping to a patch centroid, e.g, should override these
-  abstract scenterx(i: number, _sx: number, _sy: number): number
-
-  abstract scentery(i: number, _sx: number, _sy: number): number
+  abstract scenterxy(i: number, sx: number, sy: number): [number, number]
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
         pts_location: "center" | "edge" = "edge", dilate: boolean = false): NumberArray {

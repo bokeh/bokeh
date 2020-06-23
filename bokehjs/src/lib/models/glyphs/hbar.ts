@@ -24,12 +24,10 @@ export class HBarView extends BoxView {
   model: HBar
   visuals: HBar.Visuals
 
-  scenterx(i: number): number {
-    return (this.sleft[i] + this.sright[i])/2
-  }
-
-  scentery(i: number): number {
-    return this.sy[i]
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sleft[i] + this.sright[i])/2
+    const scy = this.sy[i]
+    return [scx, scy]
   }
 
   protected _lrtb(i: number): [number, number, number, number] {

@@ -84,12 +84,8 @@ export class QuadraticView extends GlyphView {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterx(): number {
-    throw new Error("not implemented")
-  }
-
-  scentery(): number {
-    throw new Error("not implemented")
+  scenterxy(): [number, number] {
+    throw new Error(`${this}.scenterxy() is not implemented`)
   }
 }
 

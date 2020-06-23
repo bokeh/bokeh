@@ -128,7 +128,7 @@ export class TextView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  private _scenterxy(i: number): {x: number, y: number} {
+  scenterxy(i: number): [number, number] {
     const sxs = this._sxs[i]
     const sys = this._sys[i]
     assert(sxs.length != 0 && sys.length != 0)
@@ -137,15 +137,7 @@ export class TextView extends XYGlyphView {
     const sxc = (sxs[0][2] + sx0) / 2
     const syc = (sys[0][2] + sy0) / 2
     const [sxcr, sycr] = this._rotate_point(sxc, syc, sx0, sy0, this._angle[i])
-    return {x: sxcr, y:sycr}
-  }
-
-  scenterx(i: number): number {
-    return this._scenterxy(i).x
-  }
-
-  scentery(i: number): number {
-    return this._scenterxy(i).y
+    return [sxcr, sycr]
   }
 }
 

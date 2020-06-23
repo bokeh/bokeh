@@ -63,12 +63,10 @@ export class VAreaView extends AreaView {
 
   }
 
-  scenterx(i: number): number {
-    return this.sx[i]
-  }
-
-  scentery(i: number): number {
-    return (this.sy1[i] + this.sy2[i])/2
+  scenterxy(i: number): [number, number] {
+    const scx = this.sx[i]
+    const scy = (this.sy1[i] + this.sy2[i])/2
+    return [scx, scy]
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

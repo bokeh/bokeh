@@ -162,7 +162,7 @@ export class PatchesView extends GlyphView {
     return sum(array) / array.length
   }
 
-  scenterx(i: number, sx: number, sy: number): number {
+  scenterxy(i: number, sx: number, sy: number): [number, number] {
     const sxsi = this.sxs[i]
     const sysi = this.sys[i]
 
@@ -173,43 +173,18 @@ export class PatchesView extends GlyphView {
       has_nan = has_nan || this_nan
 
       if (j == n && !has_nan) {
-        return this._get_snap_coord(sxsi)
+        const scx = this._get_snap_coord(sxsi)
+        const scy = this._get_snap_coord(sysi)
+        return [scx, scy]
       }
 
       if (this_nan || j == n) {
         const sxsi_kj = sxsi.subarray(k, j)
         const sysi_kj = sysi.subarray(k, j)
         if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
-          return this._get_snap_coord(sxsi_kj)
-        }
-        k = j + 1
-      }
-      if (j == n)
-        break
-    }
-
-    unreachable()
-  }
-
-  scentery(i: number, sx: number, sy: number): number {
-    const sxsi = this.sxs[i]
-    const sysi = this.sys[i]
-
-    const n = sxsi.length
-    let has_nan = false
-    for (let k = 0, j = 0;; j++) {
-      const this_nan = isNaN(sxsi[j])
-      has_nan = has_nan || this_nan
-
-      if (j == n && !has_nan) {
-        return this._get_snap_coord(sysi)
-      }
-
-      if (this_nan || j == n) {
-        const sxsi_kj = sxsi.subarray(k, j)
-        const sysi_kj = sysi.subarray(k, j)
-        if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
-          return this._get_snap_coord(sysi_kj)
+          const scx = this._get_snap_coord(sxsi_kj)
+          const scy = this._get_snap_coord(sysi_kj)
+          return [scx, scy]
         }
         k = j + 1
       }
