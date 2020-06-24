@@ -105,7 +105,8 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file) ||
             ts.sys.fileExists(module_file + ".ts") ||
-            ts.sys.fileExists(join(module_file, "index.ts"))) {
+            ts.sys.fileExists(join(module_file, "index.ts")) ||
+            options.outDir != null && ts.sys.fileExists(join(options.outDir, module_path + ".js"))) {
           const rel_path = normalize(relative(dirname(file), module_file))
           return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
         }
