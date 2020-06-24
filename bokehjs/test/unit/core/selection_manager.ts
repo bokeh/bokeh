@@ -36,7 +36,7 @@ describe("SelectionManager", () => {
       glyph_stub.returns(new Selection({indices: [0]}))
       const source = renderer_view.model.data_source
       const filter = new IndexFilter({indices: [1]})
-      renderer_view.model.view = new CDSView({filters: [filter]})
+      renderer_view.model.view = new CDSView({source, filters: [filter]})
 
       const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.true
