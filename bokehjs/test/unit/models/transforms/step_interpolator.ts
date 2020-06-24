@@ -1,44 +1,37 @@
 import {expect} from "assertions"
 
-import {StepInterpolator} from '@bokehjs/models/transforms/step_interpolator'
-import {ColumnDataSource} from '@bokehjs/models/sources/column_data_source'
+import {StepInterpolator} from "@bokehjs/models/transforms/step_interpolator"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {StepMode} from "@bokehjs/core/enums"
 
 describe("step_interpolator_transform module", () => {
 
-  function generate_interpolator_ColumnDataSource() {
-    return new StepInterpolator({
-      x: 'var1',
-      y: 'var2',
-      data: new ColumnDataSource({
-        data: {var1: [0, 5, 15], var2: [10, 20, 30]},
-      }),
-    })
-  }
-
-  function generate_interpolator_inline() {
-    return new StepInterpolator({
-      x: [0, 5, 15],
-      y: [10, 20, 30],
-    })
-  }
-
   describe("creation with ColumnDataSource ranges", () => {
-    const transform = generate_interpolator_ColumnDataSource()
+    function step_interpolator(mode: StepMode) {
+      return new StepInterpolator({
+        mode,
+        x: "var1",
+        y: "var2",
+        data: new ColumnDataSource({
+          data: {var1: [0, 5, 15], var2: [10, 20, 30]},
+        }),
+      })
+    }
 
-    it("should return control points", () => {
-      expect(transform.compute(0)).to.be.equal(10)
-      expect(transform.compute(5)).to.be.equal(20)
-    })
+    describe("should step interpolate before", () => {
+      const transform = step_interpolator("before")
 
-    it("should step interpolate before", () => {
-      transform.mode = 'before'
+      it("should return control points", () => {
+        expect(transform.compute(0)).to.be.equal(10)
+        expect(transform.compute(5)).to.be.equal(20)
+      })
 
       it("should linearly interpolate between control points", () => {
         expect(transform.compute(2)).to.be.equal(20)
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([20, 20, 30]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 20, 30]))
       })
 
       it("should map to a Float64Array", () => {
@@ -46,8 +39,13 @@ describe("step_interpolator_transform module", () => {
       })
     })
 
-    it("should step interpolate after", () => {
-      transform.mode = 'after'
+    describe("should step interpolate after", () => {
+      const transform = step_interpolator("after")
+
+      it("should return control points", () => {
+        expect(transform.compute(0)).to.be.equal(10)
+        expect(transform.compute(5)).to.be.equal(20)
+      })
 
       it("should linearly interpolate between control points", () => {
         expect(transform.compute(2)).to.be.equal(10)
@@ -62,8 +60,13 @@ describe("step_interpolator_transform module", () => {
       })
     })
 
-    it("should step interpolate center", () => {
-      transform.mode = 'center'
+    describe("should step interpolate center", () => {
+      const transform = step_interpolator("center")
+
+      it("should return control points", () => {
+        expect(transform.compute(0)).to.be.equal(10)
+        expect(transform.compute(5)).to.be.equal(20)
+      })
 
       it("should linearly interpolate between control points", () => {
         expect(transform.compute(2)).to.be.equal(10)
@@ -80,22 +83,30 @@ describe("step_interpolator_transform module", () => {
   })
 
   describe("creation with inline ranges", () => {
-    const transform = generate_interpolator_inline()
 
-    it("should return control points", () => {
-      expect(transform.compute(0)).to.be.equal(10)
-      expect(transform.compute(5)).to.be.equal(20)
-    })
+    function step_interpolator(mode: StepMode) {
+      return new StepInterpolator({
+        mode,
+        x: [0, 5, 15],
+        y: [10, 20, 30],
+      })
+    }
 
-    it("should step interpolate before", () => {
-      transform.mode = 'before'
+
+    describe("should step interpolate before", () => {
+      const transform = step_interpolator("before")
+
+      it("should return control points", () => {
+        expect(transform.compute(0)).to.be.equal(10)
+        expect(transform.compute(5)).to.be.equal(20)
+      })
 
       it("should linearly interpolate between control points", () => {
         expect(transform.compute(2)).to.be.equal(20)
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([20, 20, 30]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 20, 30]))
       })
 
       it("should map to a Float64Array", () => {
@@ -103,8 +114,13 @@ describe("step_interpolator_transform module", () => {
       })
     })
 
-    it("should step interpolate after", () => {
-      transform.mode = 'after'
+    describe("should step interpolate after", () => {
+      const transform = step_interpolator("after")
+
+      it("should return control points", () => {
+        expect(transform.compute(0)).to.be.equal(10)
+        expect(transform.compute(5)).to.be.equal(20)
+      })
 
       it("should linearly interpolate between control points", () => {
         expect(transform.compute(2)).to.be.equal(10)
@@ -119,8 +135,13 @@ describe("step_interpolator_transform module", () => {
       })
     })
 
-    it("should step interpolate center", () => {
-      transform.mode = 'center'
+    describe("should step interpolate center", () => {
+      const transform = step_interpolator("center")
+
+      it("should return control points", () => {
+        expect(transform.compute(0)).to.be.equal(10)
+        expect(transform.compute(5)).to.be.equal(20)
+      })
 
       it("should linearly interpolate between control points", () => {
         expect(transform.compute(2)).to.be.equal(10)
