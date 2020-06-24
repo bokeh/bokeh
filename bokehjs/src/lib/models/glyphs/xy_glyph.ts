@@ -31,12 +31,8 @@ export abstract class XYGlyphView extends GlyphView {
     }
   }
 
-  scenterx(i: number): number {
-    return this.sx[i]
-  }
-
-  scentery(i: number): number {
-    return this.sy[i]
+  scenterxy(i: number): [number, number] {
+    return [this.sx[i], this.sy[i]]
   }
 }
 

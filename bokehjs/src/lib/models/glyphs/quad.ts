@@ -20,12 +20,10 @@ export class QuadView extends BoxView {
   model: Quad
   visuals: Quad.Visuals
 
-  scenterx(i: number): number {
-    return (this.sleft[i] + this.sright[i])/2
-  }
-
-  scentery(i: number): number {
-    return (this.stop[i] + this.sbottom[i])/2
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sleft[i] + this.sright[i])/2
+    const scy = (this.stop[i] + this.sbottom[i])/2
+    return [scx, scy]
   }
 
   protected _lrtb(i: number): [number, number, number, number] {

@@ -1,0 +1,21 @@
+.. _release-2-2-0:
+
+2.2.0
+=====
+
+Bokeh Version ``2.2.0`` (July 2020) is a minor-release.
+
+* TODO
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-2-2-0-migration:
+
+`Migration Guide <releases.html#release-2-2-0-migration>`__
+-----------------------------------------------------------
+
+``Glyph.scenterx()`` (and ``y``) deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Implement ``Glyph.scenterxy()`` instead.

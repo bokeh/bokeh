@@ -85,12 +85,10 @@ export class HAreaView extends AreaView {
     return result
   }
 
-  scenterx(i: number): number {
-    return (this.sx1[i] + this.sx2[i])/2
-  }
-
-  scentery(i: number): number {
-    return this.sy[i]
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sx1[i] + this.sx2[i])/2
+    const scy = this.sy[i]
+    return [scx, scy]
   }
 
   protected _map_data(): void {

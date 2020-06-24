@@ -129,12 +129,10 @@ export class SegmentView extends GlyphView {
     return new Selection({indices})
   }
 
-  scenterx(i: number): number {
-    return (this.sx0[i] + this.sx1[i])/2
-  }
-
-  scentery(i: number): number {
-    return (this.sy0[i] + this.sy1[i])/2
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sx0[i] + this.sx1[i])/2
+    const scy = (this.sy0[i] + this.sy1[i])/2
+    return [scx, scy]
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

@@ -37,9 +37,12 @@ export class HexTileView extends GlyphView {
   model: HexTile
   visuals: HexTile.Visuals
 
-  scenterx(i: number): number { return this.sx[i] }
+  scenterxy(i: number): [number, number] {
+    const scx = this.sx[i]
+    const scy = this.sy[i]
+    return [scx, scy]
+  }
 
-  scentery(i: number): number { return this.sy[i] }
 
   protected _set_data(): void {
     const n = this._q.length

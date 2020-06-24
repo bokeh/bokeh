@@ -260,36 +260,23 @@ export class MultiPolygonsView extends GlyphView {
     return sum(array) / array.length
   }
 
-  scenterx(i: number, sx: number, sy: number): number {
+  scenterxy(i: number, sx: number, sy: number): [number, number] {
     if (this.sxs[i].length == 1) {
       // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sxs[i][0][0])
+      const scx = this._get_snap_coord(this.sxs[i][0][0])
+      const scy = this._get_snap_coord(this.sys[i][0][0])
+      return [scx, scy]
     } else {
       // We have discontinuous objects, so we need to find which
       // one we're in, we can use point_in_poly again
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0]))
-          return this._get_snap_coord(sxs[j][0])
-      }
-    }
-
-    unreachable()
-  }
-
-  scentery(i: number, sx: number, sy: number): number {
-    if (this.sys[i].length == 1) {
-      // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sys[i][0][0])
-    } else {
-      // We have discontinuous objects, so we need to find which
-      // one we're in, we can use point_in_poly again
-      const sxs = this.sxs[i]
-      const sys = this.sys[i]
-      for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0]))
-          return this._get_snap_coord(sys[j][0])
+        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])) {
+          const scx = this._get_snap_coord(sxs[j][0])
+          const scy = this._get_snap_coord(sys[j][0])
+          return [scx, scy]
+        }
       }
     }
 
