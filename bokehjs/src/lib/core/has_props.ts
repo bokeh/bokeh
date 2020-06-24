@@ -9,7 +9,7 @@ import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {entries, clone, extend, isEmpty} from "./util/object"
+import {entries, clone, extend} from "./util/object"
 import {isPlainObject, isObject, isArray, isTypedArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -333,7 +333,6 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
     // Extract attributes and options.
     const check_eq   = options.check_eq
-    const silent     = options.silent
     const changed    = []
     const changing   = this._changing
     this._changing = true
@@ -346,19 +345,17 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     }
 
     // Trigger all relevant attribute changes.
-    if (!silent) {
-      if (changed.length > 0)
-        this._pending = true
-      for (const prop of changed) {
-        prop.change.emit()
-      }
+    if (changed.length > 0)
+      this._pending = true
+    for (const prop of changed) {
+      prop.change.emit()
     }
 
     // You might be wondering why there's a `while` loop here. Changes can
     // be recursively nested within `"change"` events.
     if (changing)
       return
-    if (!silent && !options.no_change) {
+    if (!options.no_change) {
       while (this._pending) {
         this._pending = false
         this.change.emit()
@@ -369,22 +366,24 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this._changing = false
   }
 
-  setv(changes: Attrs, options: HasProps.SetOptions = {}): void {
-    if (isEmpty(changes))
+  setv(changed_attrs: Attrs, options: HasProps.SetOptions = {}): void {
+    const changes = entries(changed_attrs)
+
+    if (changes.length == 0)
       return
+
+    if (options.silent === true) {
+      for (const [attr, value] of changes) {
+        this.properties[attr].set_value(value)
+      }
+      return
+    }
 
     const changed = new Map<Property, unknown>()
     const previous = new Map<Property, unknown>()
 
-    for (const attr in changes) {
-      if (!changes.hasOwnProperty(attr))
-        continue
-
+    for (const [attr, value] of changes) {
       const prop = this.properties[attr]
-      if (prop == null)
-        throw new Error(`property ${this.type}.${attr} wasn't declared`)
-
-      const value = changes[attr]
       changed.set(prop, value)
       previous.set(prop, prop.get_value())
     }
@@ -405,9 +404,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
         }
       }
 
-      if (options.silent !== true) {
-        this._push_changes(changed, options)
-      }
+      this._push_changes(changed, options)
     }
   }
 
