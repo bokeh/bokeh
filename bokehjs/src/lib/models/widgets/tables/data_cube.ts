@@ -191,7 +191,7 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   refresh(): void {
-    const groups = this.extractGroups(this.view.indices)
+    const groups = this.extractGroups([...this.view.indices])
     const labels = this.source.data[this.columns[0].field!]
 
     if (groups.length) {

@@ -3,7 +3,7 @@ import type {MarkerGLGlyph} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, Indices} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -67,7 +67,7 @@ export class CircleView extends XYGlyphView {
       this.sradius = map(this._size, (s) => s/2)
   }
 
-  protected _mask_data(): number[] {
+  protected _mask_data(): Indices {
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges
 
     let x0: number, y0: number
@@ -202,7 +202,7 @@ export class CircleView extends XYGlyphView {
       }
     }
 
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
@@ -210,7 +210,7 @@ export class CircleView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 

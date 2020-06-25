@@ -23,24 +23,24 @@ describe("CDSView", () => {
 
     it("is called on init and sets the cds view's indices", () => {
       const view = new CDSView({source: cds, filters: [filter1]})
-      expect(view.indices).to.be.equal([0, 1, 2])
+      expect([...view.indices]).to.be.equal([0, 1, 2])
     })
 
     it("updates indices when filters is changed", () => {
       const view = new CDSView({source: cds, filters: [filter1]})
-      expect(view.indices).to.be.equal([0, 1, 2])
+      expect([...view.indices]).to.be.equal([0, 1, 2])
       view.filters = [filter2]
-      expect(view.indices).to.be.equal([1, 2, 3])
+      expect([...view.indices]).to.be.equal([1, 2, 3])
     })
 
     it("computes indices based on the intersection of filters", () => {
       const view = new CDSView({source: cds, filters: [filter1, filter2]})
-      expect(view.indices).to.be.equal([1, 2])
+      expect([...view.indices]).to.be.equal([1, 2])
     })
 
     it("computes indices ignoring null filters", () => {
       const view = new CDSView({source: cds, filters: [filter1, filter2, filter_null]})
-      expect(view.indices).to.be.equal([1, 2])
+      expect([...view.indices]).to.be.equal([1, 2])
     })
   })
 
@@ -77,9 +77,9 @@ describe("CDSView", () => {
     const new_data = {x: [1], y: [1]}
 
     const view = new CDSView({source: cds})
-    expect(view.indices).to.be.equal([])
+    expect([...view.indices]).to.be.equal([])
     cds.stream(new_data)
-    expect(view.indices).to.be.equal([0])
+    expect([...view.indices]).to.be.equal([0])
   })
 
   it("should update its indices when its source patches new data", () => {
@@ -87,9 +87,9 @@ describe("CDSView", () => {
     const group_filter = new GroupFilter({column_name: "x", group: "b"})
 
     const view = new CDSView({source: cds, filters: [group_filter]})
-    expect(view.indices).to.be.equal([])
+    expect([...view.indices]).to.be.equal([])
     cds.patch({x: [[0, "b"]]})
-    expect(view.indices).to.be.equal([0])
+    expect([...view.indices]).to.be.equal([0])
   })
 
   it("should update its indices when its source's data changes", () => {
@@ -99,8 +99,8 @@ describe("CDSView", () => {
     const group_filter = new GroupFilter({column_name: "x", group: "b"})
 
     const view = new CDSView({source: cds, filters: [group_filter]})
-    expect(view.indices).to.be.equal([])
+    expect([...view.indices]).to.be.equal([])
     cds.data = data2
-    expect(view.indices).to.be.equal([0])
+    expect([...view.indices]).to.be.equal([0])
   })
 })

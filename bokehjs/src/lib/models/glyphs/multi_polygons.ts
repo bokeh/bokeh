@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray} from "core/types"
+import {Arrayable, Rect, NumberArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -120,19 +120,14 @@ export class MultiPolygonsView extends GlyphView {
     return index
   }
 
-  protected _mask_data(): number[] {
+  protected _mask_data(): Indices {
     const xr = this.renderer.plot_view.frame.x_range
     const [x0, x1] = [xr.min, xr.max]
 
     const yr = this.renderer.plot_view.frame.y_range
     const [y0, y1] = [yr.min, yr.max]
 
-    const indices = this.index.indices({x0, x1, y0, y1})
-
-    // TODO this is probably needed in patches as well so that we don't draw glyphs multiple times
-    return indices.sort((a, b) => a - b).filter((value, index, array) => {
-      return (index === 0) || (value !== array[index - 1])
-    })
+    return this.index.indices({x0, x1, y0, y1})
   }
 
   protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
@@ -190,8 +185,7 @@ export class MultiPolygonsView extends GlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices = []
 
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
+    for (const index of candidates) {
       const sxss = this.sxs[index]
       const syss = this.sys[index]
       let hit = true
@@ -224,8 +218,7 @@ export class MultiPolygonsView extends GlyphView {
     const hole_candidates = this._hole_index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
+    for (const index of candidates) {
       const sxs = this.sxs[index]
       const sys = this.sys[index]
       for (let j = 0, endj = sxs.length; j < endj; j++) {
@@ -234,7 +227,7 @@ export class MultiPolygonsView extends GlyphView {
         if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])) {
           if (nk == 1) {
             indices.push(index)
-          } else if (hole_candidates.indexOf(index) == -1) {
+          } else if (!hole_candidates.get(index)) {
             indices.push(index)
           } else if (nk > 1) {
             let in_a_hole = false

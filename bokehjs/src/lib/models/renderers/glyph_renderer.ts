@@ -6,11 +6,11 @@ import {VAreaView} from "../glyphs/varea"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {CDSView} from "../sources/cds_view"
-import {Color} from "core/types"
+import {Color, Indices} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {indexOf, filter} from "core/util/arrayable"
-import {difference, includes, range} from "core/util/array"
+import {difference, includes} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -49,8 +49,8 @@ export class GlyphRendererView extends DataRendererView {
   muted_glyph?: GlyphView
   decimated_glyph: GlyphView
 
-  protected all_indices: number[]
-  protected decimated: number[]
+  protected all_indices: Indices
+  protected decimated: Indices
 
   set_data_timestamp: number
   protected last_dtrender: number
@@ -158,25 +158,21 @@ export class GlyphRendererView extends DataRendererView {
 
     this.all_indices = this.model.view.indices
 
-    this.glyph.set_data(source, this.all_indices, indices)
+    const all_indices = [...this.all_indices]
+    this.glyph.set_data(source, all_indices, indices)
 
-    this.glyph.set_visuals(source, this.all_indices)
-    this.decimated_glyph.set_visuals(source, this.all_indices)
-    if (this.have_selection_glyphs()) {
-      this.selection_glyph.set_visuals(source, this.all_indices)
-      this.nonselection_glyph.set_visuals(source, this.all_indices)
-    }
-
-    if (this.hover_glyph != null)
-      this.hover_glyph.set_visuals(source, this.all_indices)
-
-    if (this.muted_glyph != null)
-      this.muted_glyph.set_visuals(source, this.all_indices)
+    this.glyph.set_visuals(source, all_indices)
+    this.decimated_glyph.set_visuals(source, all_indices)
+    this.selection_glyph?.set_visuals(source, all_indices)
+    this.nonselection_glyph?.set_visuals(source, all_indices)
+    this.hover_glyph?.set_visuals(source, all_indices)
+    this.muted_glyph?.set_visuals(source, all_indices)
 
     const {lod_factor} = this.plot_model
-    this.decimated = []
-    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
-      this.decimated.push(i*lod_factor)
+    const n = this.all_indices.size
+    this.decimated = new Indices(n)
+    for (let i = 0; i < n; i += lod_factor) {
+      this.decimated.set(i)
     }
 
     const dt = Date.now() - t0
@@ -184,8 +180,9 @@ export class GlyphRendererView extends DataRendererView {
 
     this.set_data_timestamp = Date.now()
 
-    if (request_render)
+    if (request_render) {
       this.request_render()
+    }
   }
 
   get has_webgl(): boolean {
@@ -203,10 +200,8 @@ export class GlyphRendererView extends DataRendererView {
     const tmask = Date.now()
     // all_indices is in full data space, indices is converted to subset space
     // either by mask_data (that uses the spatial index) or manually
-    let indices = this.glyph.mask_data(this.all_indices)
-    if (indices.length === this.all_indices.length) {
-      indices = range(0, this.all_indices.length)
-    }
+    const all_indices = [...this.all_indices]
+    let indices = [...this.glyph.mask_data(this.all_indices)]
     const dtmask = Date.now() - tmask
 
     const {ctx} = this.layer
@@ -242,16 +237,16 @@ export class GlyphRendererView extends DataRendererView {
     })())
 
     // inspected is transformed to subset space
-    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(this.all_indices[i]))
+    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !glsupport && lod_threshold != null && this.all_indices.length > lod_threshold) {
+        && !glsupport && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
-      indices = this.decimated
+      indices = [...this.decimated]
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph
       selection_glyph = this.selection_glyph
@@ -273,14 +268,14 @@ export class GlyphRendererView extends DataRendererView {
         if (this.hover_glyph && inspected_subset_indices.length)
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
         else
-          glyph.render(ctx, this.all_indices, this.glyph)
+          glyph.render(ctx, all_indices, this.glyph)
       } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.render(ctx, this.all_indices, this.glyph)
+          glyph.render(ctx, all_indices, this.glyph)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model)
-              this.hover_glyph.render(ctx, this.all_indices, this.glyph)
+              this.hover_glyph.render(ctx, all_indices, this.glyph)
           }
         }
       } else {
@@ -303,7 +298,7 @@ export class GlyphRendererView extends DataRendererView {
 
       // now, selected is changed to subset space, except for Line glyph
       if (this.glyph instanceof LineView) {
-        for (const i of this.all_indices) {
+        for (const i of all_indices) {
           if (selected_mask[i] != null)
             selected_subset_indices.push(i)
           else
@@ -311,7 +306,7 @@ export class GlyphRendererView extends DataRendererView {
         }
       } else {
         for (const i of indices) {
-          if (selected_mask[this.all_indices[i]] != null)
+          if (selected_mask[all_indices[i]] != null)
             selected_subset_indices.push(i)
           else
             nonselected_subset_indices.push(i)
