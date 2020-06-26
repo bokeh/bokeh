@@ -31,13 +31,13 @@ export class MultiLineView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const xsi = this._xs[i]
-      if (xsi == null || xsi.length == 0) { // XXX: null?, so include in types
+      if (xsi.length == 0) {
         index.add_empty()
         continue
       }
 
       const ysi = this._ys[i]
-      if (ysi == null || ysi.length == 0) { // XXX: null?, so include in types
+      if (ysi.length == 0) {
         index.add_empty()
         continue
       }
