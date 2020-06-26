@@ -89,6 +89,7 @@ __all__ = (
     'Band',
     'BoxAnnotation',
     'ColorBar',
+    'InfoPane'
     'Label',
     'LabelSet',
     'Legend',
@@ -1095,6 +1096,43 @@ class Whisker(Annotation):
     """)
 
     level = Override(default="underlay")
+
+class InfoPane(Annotation):
+    ''' Renders a info-pane.
+
+    //not sure if this is correct for InfoPane
+    .. note::
+        This model is currently managed by BokehJS and is not useful
+        directly from python.
+
+    '''
+    level = Override(default="overlay")
+
+    anchor = Enum(TooltipAttachment, help="""
+    Whether the pane should be anchored at the left or right of the pane
+    or above or below it, or if it should be automatically placed
+    in the horizontal or vertical dimension.
+    """)
+
+    x_anchor = Float(default=0, help="""
+    Initial anchor value for pane to apply to the x-coordinate.
+    """)
+
+    y_anchor = Float(default=0, help="""
+    Initial anchor value for pane to apply to the y-coordinate.
+    """)
+
+    data = String(default="", help="""
+    The content to be displayed in the pane.
+    """)
+
+    inner_only = Bool(default=True, help="""
+    Whether to display outside a central plot frame area.
+    """)
+
+    show_arrow = Bool(default=True, help="""
+    Whether pane's pointing arrow should be shown.
+    """)
 
 class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
 

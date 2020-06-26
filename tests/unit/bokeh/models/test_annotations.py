@@ -44,6 +44,7 @@ from bokeh.models import (
     ColorBar,
     ColumnDataSource,
     GlyphRenderer,
+    InfoPane,
     Label,
     LabelSet,
     Legend,
