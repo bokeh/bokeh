@@ -2,6 +2,7 @@ import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
+import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
@@ -48,6 +49,11 @@ export interface QuadraticView extends QuadraticData {}
 export class QuadraticView extends GlyphView {
   model: Quadratic
   visuals: Quadratic.Visuals
+
+  protected _project_data(): void {
+    inplace.project_xy(this._x0, this._y0)
+    inplace.project_xy(this._x1, this._y1)
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this

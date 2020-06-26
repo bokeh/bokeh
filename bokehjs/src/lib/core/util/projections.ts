@@ -46,17 +46,35 @@ export function in_bounds(value: number, dimension: LatLon): boolean {
   return min < value && value < max
 }
 
+export namespace inplace {
+  export function project_xy(x: Arrayable<number>, y: Arrayable<number>, merc_x?: Arrayable<number>, merc_y?: Arrayable<number>): void {
+    const n = min(x.length, y.length)
+    merc_x = merc_x ?? x
+    merc_y = merc_y ?? y
+    for (let i = 0; i < n; i++) {
+      const xi = x[i]
+      const yi = y[i]
+      const [merc_xi, merc_yi] = wgs84_mercator.compute(xi, yi)
+      merc_x[i] = merc_xi
+      merc_y[i] = merc_yi
+    }
+  }
+
+  export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[], merc_xs?: Arrayable<number>[], merc_ys?: Arrayable<number>[]): void {
+    const n = min(xs.length, ys.length)
+    merc_xs = merc_xs ?? xs
+    merc_ys = merc_ys ?? ys
+    for (let i = 0; i < n; i++) {
+      project_xy(xs[i], ys[i], merc_xs[i], merc_ys[i])
+    }
+  }
+}
+
 export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
   const n = min(x.length, y.length)
   const merc_x = new NumberArray(n)
   const merc_y = new NumberArray(n)
-  for (let i = 0; i < n; i++) {
-    const xi = x[i]
-    const yi = y[i]
-    const [merc_xi, merc_yi] = wgs84_mercator.compute(xi, yi)
-    merc_x[i] = merc_xi
-    merc_y[i] = merc_yi
-  }
+  inplace.project_xy(x, y, merc_x, merc_y)
   return [merc_x, merc_y]
 }
 

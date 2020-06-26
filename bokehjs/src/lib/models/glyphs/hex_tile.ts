@@ -9,6 +9,7 @@ import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {Line, Fill} from "core/visuals"
 import {HexTileOrientation} from "core/enums"
+import {inplace} from "core/util/projections"
 
 import {generic_area_legend} from "./utils"
 import {Selection} from "../selections/selection"
@@ -45,7 +46,6 @@ export class HexTileView extends GlyphView {
     return [scx, scy]
   }
 
-
   protected _set_data(): void {
     const n = this._q.length
 
@@ -66,6 +66,10 @@ export class HexTileView extends GlyphView {
         this._y[i] = -size * Math.sqrt(3) * (this._r[i] + this._q[i]/2) * aspect_scale
       }
     }
+  }
+
+  protected _project_data(): void {
+    inplace.project_xy(this._x, this._y)
   }
 
   protected _index_data(index: SpatialIndex): void {

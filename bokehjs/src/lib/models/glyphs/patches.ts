@@ -11,6 +11,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
+import {inplace} from "core/util/projections"
 
 export interface PatchesData extends GlyphData {
   _xs: NumberArray[]
@@ -25,6 +26,10 @@ export interface PatchesView extends PatchesData {}
 export class PatchesView extends GlyphView {
   model: Patches
   visuals: Patches.Visuals
+
+  protected _project_data(): void {
+    inplace.project_xsys(this._xs, this._ys)
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this

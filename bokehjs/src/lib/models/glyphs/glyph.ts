@@ -1,7 +1,6 @@
 import {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import * as proj from "core/util/projections"
 import * as visuals from "core/visuals"
 import * as geometry from "core/geometry"
 import {Context2d} from "core/util/canvas"
@@ -238,6 +237,8 @@ export abstract class GlyphView extends View {
     return new Selection({indices})
   }
 
+  protected _project_data(): void {}
+
   set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
     let data = this.model.materialize_dataspecs(source)
 
@@ -269,17 +270,7 @@ export abstract class GlyphView extends View {
     // TODO (bev) Should really probably delegate computing projected
     // coordinates to glyphs, instead of centralizing here in one place.
     if (this.renderer.plot_view.model.use_map) {
-      if (self._x != null)
-        [self._x, self._y] = proj.project_xy(self._x, self._y)
-
-      if (self._xs != null)
-        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
-
-      if (self._x0 != null)
-        [self._x0, self._y0] = proj.project_xy(self._x0, self._y0)
-
-      if (self._x1 != null)
-        [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
+      this._project_data()
     }
 
     function num_array(array: Arrayable<number>): NumberArray {

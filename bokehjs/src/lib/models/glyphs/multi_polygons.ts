@@ -30,6 +30,10 @@ export class MultiPolygonsView extends GlyphView {
 
   protected _hole_index: SpatialIndex
 
+  protected _project_data(): void {
+    // TODO
+  }
+
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
     const {data_size} = this
