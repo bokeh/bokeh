@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Arrayable, Attrs, PlainObject} from "./types"
+import {Arrayable, Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
@@ -100,16 +100,14 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       return undefined
     else if (isFunction(default_value))
       return default_value
+    else if (isArray(default_value))
+      return () => copy(default_value)
+    else if (isPlainObject(default_value))
+      return () => clone(default_value)
     else if (!isObject(default_value))
       return () => default_value
-    else {
-      //logger.warn(`${this.prototype.type}.${attr} uses unwrapped non-primitive default value`)
-
-      if (isArray(default_value))
-        return () => copy(default_value)
-      else
-        return () => clone(default_value as PlainObject)
-    }
+    else
+      throw new Error(`${default_value} must be explicitly wrapped in a function`)
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
