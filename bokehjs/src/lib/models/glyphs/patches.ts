@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray} from "core/types"
+import {Arrayable, Rect, RaggedArray} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -14,11 +14,11 @@ import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
 export interface PatchesData extends GlyphData {
-  _xs: NumberArray[]
-  _ys: NumberArray[]
+  _xs: RaggedArray
+  _ys: RaggedArray
 
-  sxs: NumberArray[]
-  sys: NumberArray[]
+  sxs: RaggedArray
+  sys: RaggedArray
 }
 
 export interface PatchesView extends PatchesData {}
@@ -28,15 +28,15 @@ export class PatchesView extends GlyphView {
   visuals: Patches.Visuals
 
   protected _project_data(): void {
-    inplace.project_xsys(this._xs, this._ys)
+    inplace.project_xy(this._xs.array, this._ys.array)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs[i]
-      const ysi = this._ys[i]
+      const xsi = this._xs.get(i)
+      const ysi = this._ys.get(i)
 
       if (xsi.length == 0)
         index.add_empty()
@@ -82,7 +82,8 @@ export class PatchesView extends GlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
     for (const i of indices) {
-      const [sx, sy] = [sxs[i], sys[i]]
+      const sx = sxs.get(i)
+      const sy = sys.get(i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
@@ -110,8 +111,8 @@ export class PatchesView extends GlyphView {
 
     for (let i = 0, end = candidates.length; i < end; i++) {
       const index = candidates[i]
-      const sxss = this.sxs[index]
-      const syss = this.sys[index]
+      const sxss = this.sxs.get(index)
+      const syss = this.sys.get(index)
       let hit = true
       for (let j = 0, endj = sxss.length; j < endj; j++) {
         const sx = sxss[j]
@@ -141,8 +142,8 @@ export class PatchesView extends GlyphView {
     for (let i = 0, end = candidates.length; i < end; i++) {
       const index = candidates[i]
 
-      const sxsi = this.sxs[index]
-      const sysi = this.sys[index]
+      const sxsi = this.sxs.get(index)
+      const sysi = this.sys.get(index)
 
       const n = sxsi.length
       for (let k = 0, j = 0;; j++) {
@@ -168,8 +169,8 @@ export class PatchesView extends GlyphView {
   }
 
   scenterxy(i: number, sx: number, sy: number): [number, number] {
-    const sxsi = this.sxs[i]
-    const sysi = this.sys[i]
+    const sxsi = this.sxs.get(i)
+    const sysi = this.sys.get(i)
 
     const n = sxsi.length
     let has_nan = false

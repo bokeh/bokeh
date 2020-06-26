@@ -7,6 +7,62 @@ export {TypedArray} from "./util/ndarray"
 export type NumberArray = Float64Array
 export const NumberArray = Float64Array
 
+export type ColorArray = Uint32Array
+export const ColorArray = Uint32Array
+
+import {equals, Equals, Comparator} from "core/util/eq"
+
+export class RaggedArray implements Equals {
+
+  [Symbol.toStringTag] = "RaggedArray"
+
+  constructor(readonly offsets: Uint32Array, readonly array: NumberArray) {}
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.arrays(this.offsets, that.offsets) && cmp.arrays(this.array, that.array)
+  }
+
+  get length(): number {
+    return this.offsets.length
+  }
+
+  clone(): RaggedArray {
+    return new RaggedArray(new Uint32Array(this.offsets), new NumberArray(this.array))
+  }
+
+  static from(items: number[][]): RaggedArray {
+    const n = items.length
+    const offsets = new Uint32Array(n)
+    let offset = 0
+    for (let i = 0; i < n; i++) {
+      const length = items[i].length
+      offsets[i] = offset
+      offset += length
+    }
+    const array = new NumberArray(offset)
+    for (let i = 0; i < n; i++) {
+      array.set(items[i], offsets[i])
+    }
+    return new RaggedArray(offsets, array)
+  }
+
+  *[Symbol.iterator](): IterableIterator<NumberArray> {
+    const {offsets, length} = this
+    for (let i = 0; i < length; i++) {
+      yield this.array.subarray(offsets[i], offsets[i + 1])
+    }
+  }
+
+  get(i: number): NumberArray {
+    const {offsets} = this
+    return this.array.subarray(offsets[i], offsets[i + 1])
+  }
+
+  set(i: number, array: ArrayLike<number>): void {
+    this.array.set(array, this.offsets[i])
+  }
+}
+
 export type Arrayable<T = any> = {
   readonly length: number
   [n: number]: T
