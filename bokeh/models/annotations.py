@@ -1121,8 +1121,8 @@ class InfoPane(Annotation):
     Initial anchor value for pane to apply to the y-coordinate.
     """)
 
-    data = String(default="", help="""
-    The content to be displayed in the pane.
+    data = String(help="""
+    The string or list of strings to be displayed in the pane.
     """)
 
     inner_only = Bool(default=True, help="""

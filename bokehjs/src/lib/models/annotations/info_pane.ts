@@ -59,17 +59,11 @@ export class InfoPaneView extends AnnotationView {
     const x = this.model.x_anchor
     const y = this.model.y_anchor
 
-   //will stack for multiple panes
-   // for (const [x, y, content] of data) {
-   //     if (this.model.inner_only && !frame.bbox.contains(x, y))
-   //       continue
-    //     const tip = div({}, content)
-   //     this.el.appendChild(tip)
-   //   }
-
-    if (this.model.inner_only && !frame.bbox.contains(x, y)){
-      const pane = div({}, data)
-      this.el.appendChild(pane)
+    for (const [content] of data) {
+      if (this.model.inner_only && !frame.bbox.contains(x, y))
+        continue
+      const tip = div({}, content)
+      this.el.appendChild(tip)
     }
 
     const {anchor} = this.model
@@ -135,7 +129,7 @@ export namespace InfoPane {
     x_anchor: p.Property<number>
     y_anchor: p.Property<number>
     //data has to be able to get list of strings
-    data: p.Property<string>
+    data: p.Property<[string][]>
     custom: p.Property<boolean>
   }
 }
@@ -160,25 +154,24 @@ export class InfoPane extends Annotation {
       show_arrow: [ p.Boolean,           true         ],
       x_anchor:   [ p.Number,             0           ],
       y_anchor:   [ p.Number,             0           ],
-      data:       [ p.String,            ""           ],
-   })
+    })
 
     this.override({
       level: 'overlay',
     })
 
     this.internal({
-      data:   [ p.Any, "" ],
+      data:   [ p.Any, [] ],
       custom: [ p.Any     ],
     })
   }
 
   clear(): void {
-    this.data = ""
+    this.data = []
   }
 
   add(x: number, y: number, content: string): void {
-    this.data = this.data.concat(content)
+    this.data = this.data.concat([content])
     this.x_anchor = x
     this.y_anchor = y
   }
