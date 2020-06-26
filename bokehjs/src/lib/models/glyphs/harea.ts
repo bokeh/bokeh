@@ -124,9 +124,9 @@ export class HArea extends Area {
     this.prototype.default_view = HAreaView
 
     this.define<HArea.Props>({
-      x1: [ p.CoordinateSpec, {field: "x1"} ],
-      x2: [ p.CoordinateSpec, {field: "x2"} ],
-      y:  [ p.CoordinateSpec, {field: "y"} ],
+      x1: [ p.XCoordinateSpec, {field: "x1"} ],
+      x2: [ p.XCoordinateSpec, {field: "x2"} ],
+      y:  [ p.YCoordinateSpec, {field: "y"} ],
     })
   }
 }

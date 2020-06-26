@@ -451,9 +451,19 @@ export class NumberSpec extends DataSpec<number> {
   }
 }
 
-export class CoordinateSpec extends DataSpec<number | Factor> {}
+export abstract class CoordinateSpec extends DataSpec<number | Factor> {
+  readonly dimension: "x" | "y"
+}
 
-export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
+export abstract class CoordinateSeqSpec extends DataSpec<number | Factor> {
+  readonly dimension: "x" | "y"
+}
+
+export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
+export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
 
 export class ColorSpec extends DataSpec<types.Color | null> {}
 
