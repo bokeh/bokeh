@@ -89,7 +89,7 @@ __all__ = (
     'Band',
     'BoxAnnotation',
     'ColorBar',
-    'InfoPane'
+    'InfoPane',
     'Label',
     'LabelSet',
     'Legend',
