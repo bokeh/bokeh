@@ -154,7 +154,7 @@ export class InfoPane extends Annotation {
     this.prototype.default_view = InfoPaneView
 
     this.define<InfoPane.Props>({
-      //is kept as is if the horizontal\vertical functionality shall come in use   
+      //is kept as is if the horizontal\vertical functionality shall come in use
       anchor: [ p.TooltipAttachment, 'horizontal' ],
       inner_only: [ p.Boolean,           true         ],
       show_arrow: [ p.Boolean,           true         ],
