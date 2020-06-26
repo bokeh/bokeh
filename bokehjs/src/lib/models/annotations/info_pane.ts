@@ -155,9 +155,12 @@ export class InfoPane extends Annotation {
 
     this.define<InfoPane.Props>({
       //is kept as is if the horizontal\vertical functionality shall come in use
-      anchor: [ p.TooltipAttachment, 'horizontal' ],
+      anchor:     [ p.TooltipAttachment, 'horizontal' ],
       inner_only: [ p.Boolean,           true         ],
       show_arrow: [ p.Boolean,           true         ],
+      x_anchor:   [ p.Number,             0           ],
+      y_anchor:   [ p.Number,             0           ],
+      data:       [ p.String,            ""           ],
    })
 
     this.override({

@@ -1100,7 +1100,6 @@ class Whisker(Annotation):
 class InfoPane(Annotation):
     ''' Renders a info-pane.
 
-    //not sure if this is correct for InfoPane
     .. note::
         This model is currently managed by BokehJS and is not useful
         directly from python.
