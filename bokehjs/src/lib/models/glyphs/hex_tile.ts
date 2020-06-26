@@ -49,21 +49,21 @@ export class HexTileView extends GlyphView {
   protected _set_data(): void {
     const n = this._q.length
 
-    const size = this.model.size
-    const aspect_scale = this.model.aspect_scale
+    const {orientation, size, aspect_scale} = this.model
 
     this._x = new NumberArray(n)
     this._y = new NumberArray(n)
 
-    if (this.model.orientation == "pointytop") {
+    const sqrt3 = Math.sqrt(3)
+    if (orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * Math.sqrt(3) * (this._q[i] + this._r[i]/2) / aspect_scale
+        this._x[i] = size * sqrt3 * (this._q[i] + this._r[i]/2) / aspect_scale
         this._y[i] = -size * 3/2 * this._r[i]
       }
     } else {
       for (let i = 0; i < n; i++) {
         this._x[i] = size * 3/2 * this._q[i]
-        this._y[i] = -size * Math.sqrt(3) * (this._r[i] + this._q[i]/2) * aspect_scale
+        this._y[i] = -size * sqrt3 * (this._r[i] + this._q[i]/2) * aspect_scale
       }
     }
   }
