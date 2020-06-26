@@ -349,8 +349,8 @@ export class MultiPolygons extends Glyph {
     this.prototype.default_view = MultiPolygonsView
 
     this.define<MultiPolygons.Props>({
-      xs: [ p.CoordinateSeqSpec ],
-      ys: [ p.CoordinateSeqSpec ],
+      xs: [ p.CoordinateSeqSpec, {field: "xs"} ],
+      ys: [ p.CoordinateSeqSpec, {field: "ys"} ],
     })
     this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }

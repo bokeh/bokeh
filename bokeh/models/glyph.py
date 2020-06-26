@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import Parameter
+from typing import Any
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -75,7 +76,7 @@ class Glyph(Model):
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
 
                 # for positional arg properties, default=None means no default
-                default=Parameter.empty if default is None else default
+                default=Parameter.empty if default is None or is_field(default) else default
             )
             typ = descriptor.property._sphinx_type()
             arg_params.append((param, typ, descriptor.__doc__))
@@ -147,6 +148,9 @@ class HatchGlyph(Glyph):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def is_field(obj: Any) -> bool:
+    return isinstance(obj, dict) and "field" in obj
 
 #-----------------------------------------------------------------------------
 # Code

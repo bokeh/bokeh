@@ -174,14 +174,14 @@ export class Bezier extends Glyph {
     this.prototype.default_view = BezierView
 
     this.define<Bezier.Props>({
-      x0:  [ p.CoordinateSpec ],
-      y0:  [ p.CoordinateSpec ],
-      x1:  [ p.CoordinateSpec ],
-      y1:  [ p.CoordinateSpec ],
-      cx0: [ p.CoordinateSpec ],
-      cy0: [ p.CoordinateSpec ],
-      cx1: [ p.CoordinateSpec ],
-      cy1: [ p.CoordinateSpec ],
+      x0:  [ p.CoordinateSpec, {field: "x0"}  ],
+      y0:  [ p.CoordinateSpec, {field: "y0"}  ],
+      x1:  [ p.CoordinateSpec, {field: "x1"}  ],
+      y1:  [ p.CoordinateSpec, {field: "y1"}  ],
+      cx0: [ p.CoordinateSpec, {field: "cx0"} ],
+      cy0: [ p.CoordinateSpec, {field: "cy0"} ],
+      cx1: [ p.CoordinateSpec, {field: "cx1"} ],
+      cy1: [ p.CoordinateSpec, {field: "cy1"} ],
     })
     this.mixins<Bezier.Mixins>(LineVector)
   }

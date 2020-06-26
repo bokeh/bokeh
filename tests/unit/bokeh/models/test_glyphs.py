@@ -46,6 +46,7 @@ from bokeh.core.enums import (
 )
 from bokeh.core.enums import NamedColor as Color
 from bokeh.core.enums import TextAlign, TextBaseline
+from bokeh.core.property.dataspec import field
 from bokeh.models.glyphs import (
     Asterisk,
     CircleCross,
@@ -84,7 +85,6 @@ from bokeh.models.glyphs import ( # isort:skip
     VBar,
     Wedge)
 
-
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
@@ -101,8 +101,8 @@ from bokeh.models.glyphs import ( # isort:skip
 
 def test_AnnularWedge() -> None:
     glyph = AnnularWedge()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.inner_radius is None
     assert glyph.outer_radius is None
     assert glyph.start_angle is None
@@ -127,8 +127,8 @@ def test_AnnularWedge() -> None:
 
 def test_Annulus() -> None:
     glyph = Annulus()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.inner_radius is None
     assert glyph.outer_radius is None
     check_fill_properties(glyph)
@@ -145,8 +145,8 @@ def test_Annulus() -> None:
 
 def test_Arc() -> None:
     glyph = Arc()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.radius is None
     assert glyph.start_angle is None
     assert glyph.end_angle is None
@@ -167,14 +167,14 @@ def test_Arc() -> None:
 
 def test_Bezier() -> None:
     glyph = Bezier()
-    assert glyph.x0 is None
-    assert glyph.y0 is None
-    assert glyph.x1 is None
-    assert glyph.y1 is None
-    assert glyph.cx0 is None
-    assert glyph.cy0 is None
-    assert glyph.cx1 is None
-    assert glyph.cy1 is None
+    assert glyph.x0 == field("x0")
+    assert glyph.y0 == field("y0")
+    assert glyph.x1 == field("x1")
+    assert glyph.y1 == field("y1")
+    assert glyph.cx0 == field("cx0")
+    assert glyph.cy0 == field("cy0")
+    assert glyph.cx1 == field("cx1")
+    assert glyph.cy1 == field("cy1")
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x0",
@@ -190,9 +190,9 @@ def test_Bezier() -> None:
 
 def test_HArea() -> None:
     glyph = HArea()
-    assert glyph.y is None
-    assert glyph.x1 is None
-    assert glyph.x2 is None
+    assert glyph.y == field("y")
+    assert glyph.x1 == field("x1")
+    assert glyph.x2 == field("x2")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_properties_existence(glyph, [
@@ -204,7 +204,7 @@ def test_HArea() -> None:
 
 def test_HBar() -> None:
     glyph = HBar()
-    assert glyph.y is None
+    assert glyph.y == field("y")
     assert glyph.height is None
     assert glyph.left == 0
     assert glyph.right is None
@@ -222,8 +222,8 @@ def test_HBar() -> None:
 def test_Image() -> None:
     glyph = Image()
     assert glyph.image is None
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.dw is None
     assert glyph.dh is None
     assert glyph.dilate is False
@@ -244,8 +244,8 @@ def test_Image() -> None:
 def test_ImageRGBA() -> None:
     glyph = ImageRGBA()
     assert glyph.image is None
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.dw is None
     assert glyph.dh is None
     assert glyph.dilate is False
@@ -265,8 +265,8 @@ def test_ImageRGBA() -> None:
 def test_ImageURL() -> None:
     glyph = ImageURL()
     assert glyph.url is None
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.w is None
     assert glyph.h is None
     assert glyph.angle == 0
@@ -295,8 +295,8 @@ def test_ImageURL() -> None:
 
 def test_Line() -> None:
     glyph = Line()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -306,8 +306,8 @@ def test_Line() -> None:
 
 def test_MultiLine() -> None:
     glyph = MultiLine()
-    assert glyph.xs is None
-    assert glyph.ys is None
+    assert glyph.xs == field("xs")
+    assert glyph.ys == field("ys")
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "xs",
@@ -317,8 +317,8 @@ def test_MultiLine() -> None:
 
 def test_MultiPolygons() -> None:
     glyph = MultiPolygons()
-    assert glyph.xs is None
-    assert glyph.ys is None
+    assert glyph.xs == field("xs")
+    assert glyph.ys == field("ys")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
@@ -330,8 +330,8 @@ def test_MultiPolygons() -> None:
 
 def test_Oval() -> None:
     glyph = Oval()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.width is None
     assert glyph.height is None
     assert glyph.angle == 0
@@ -351,8 +351,8 @@ def test_Oval() -> None:
 
 def test_Patch() -> None:
     glyph = Patch()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
@@ -364,8 +364,8 @@ def test_Patch() -> None:
 
 def test_Patches() -> None:
     glyph = Patches()
-    assert glyph.xs is None
-    assert glyph.ys is None
+    assert glyph.xs == field("xs")
+    assert glyph.ys == field("ys")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
@@ -394,12 +394,12 @@ def test_Quad() -> None:
 
 def test_Quadratic() -> None:
     glyph = Quadratic()
-    assert glyph.x0 is None
-    assert glyph.y0 is None
-    assert glyph.x1 is None
-    assert glyph.y1 is None
-    assert glyph.cx is None
-    assert glyph.cy is None
+    assert glyph.x0 == field("x0")
+    assert glyph.y0 == field("y0")
+    assert glyph.x1 == field("x1")
+    assert glyph.y1 == field("y1")
+    assert glyph.cx == field("cx")
+    assert glyph.cy == field("cy")
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x0",
@@ -413,8 +413,8 @@ def test_Quadratic() -> None:
 
 def test_Ray() -> None:
     glyph = Ray()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.angle is None
     assert glyph.length is None
     check_line_properties(glyph)
@@ -430,8 +430,8 @@ def test_Ray() -> None:
 
 def test_Rect() -> None:
     glyph = Rect()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.width is None
     assert glyph.height is None
     assert glyph.angle == 0
@@ -453,10 +453,10 @@ def test_Rect() -> None:
 
 def test_Segment() -> None:
     glyph = Segment()
-    assert glyph.x0 is None
-    assert glyph.y0 is None
-    assert glyph.x1 is None
-    assert glyph.y1 is None
+    assert glyph.x0 == field("x0")
+    assert glyph.y0 == field("y0")
+    assert glyph.x1 == field("x1")
+    assert glyph.y1 == field("y1")
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x0",
@@ -468,8 +468,8 @@ def test_Segment() -> None:
 
 def test_Step() -> None:
     glyph = Step()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.mode == "before"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
@@ -481,8 +481,8 @@ def test_Step() -> None:
 
 def test_Text() -> None:
     glyph = Text()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.text == "text"
     assert glyph.angle == 0
     check_text_properties(glyph)
@@ -499,9 +499,9 @@ def test_Text() -> None:
 
 def test_VArea() -> None:
     glyph = VArea()
-    assert glyph.x is None
-    assert glyph.y1 is None
-    assert glyph.y2 is None
+    assert glyph.x == field("x")
+    assert glyph.y1 == field("y1")
+    assert glyph.y2 == field("y2")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_properties_existence(glyph, [
@@ -513,7 +513,7 @@ def test_VArea() -> None:
 
 def test_VBar() -> None:
     glyph = VBar()
-    assert glyph.x is None
+    assert glyph.x == field("x")
     assert glyph.width is None
     assert glyph.top is None
     assert glyph.bottom == 0
@@ -530,8 +530,8 @@ def test_VBar() -> None:
 
 def test_Wedge() -> None:
     glyph = Wedge()
-    assert glyph.x is None
-    assert glyph.y is None
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
     assert glyph.radius is None
     assert glyph.start_angle is None
     assert glyph.end_angle is None

@@ -83,10 +83,10 @@ export class HBar extends Box {
     this.prototype.default_view = HBarView
 
     this.define<HBar.Props>({
-      left:   [ p.CoordinateSpec ],
-      y:      [ p.CoordinateSpec ],
-      height: [ p.NumberSpec     ],
-      right:  [ p.CoordinateSpec ],
+      left:   [ p.CoordinateSpec, {field: "left"}   ],
+      y:      [ p.CoordinateSpec, {field: "y"}      ],
+      height: [ p.NumberSpec,     {field: "height"} ],
+      right:  [ p.CoordinateSpec, {field: "right"}  ],
     })
     this.override({left: 0})
   }
