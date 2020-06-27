@@ -54,6 +54,8 @@ describe("GraphHitTestPolicy", () => {
       data: {
         start: [10, 10, 30],
         end: [20, 30, 20],
+        xs: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        ys: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
       },
     })
     const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Circle()})
