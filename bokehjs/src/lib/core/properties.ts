@@ -1,11 +1,11 @@
 import {Signal0} from "./signaling"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray} from "./types"
+import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {is_color} from "./util/color"
+import {is_color, color2rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
@@ -422,6 +422,19 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
   }
 }
 
+export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
+  readonly dimension: "x" | "y"
+}
+
+export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<number[] | Factor[]> {}
+
+export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
+export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
+
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
   get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
@@ -451,21 +464,19 @@ export class NumberSpec extends DataSpec<number> {
   }
 }
 
-export abstract class CoordinateSpec extends DataSpec<number | Factor> {
-  readonly dimension: "x" | "y"
+export class ColorSpec extends DataSpec<types.Color | null> {
+  array(source: ColumnarDataSource): ColorArray {
+    const colors = super.array(source)
+    const n = colors.length
+    const array = new ColorArray(n)
+    for (let i = 0; i < n; i++) {
+      const color = colors[i] as types.Color | null
+      const [r, g, b, a] = color2rgba(color)
+      array[i] = (r*255) << 24 | (g*255) << 16 | (b*255) << 8 | a*255
+    }
+    return array
+  }
 }
-
-export abstract class CoordinateSeqSpec extends DataSpec<number | Factor> {
-  readonly dimension: "x" | "y"
-}
-
-export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
-export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
-
-export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
-export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
-
-export class ColorSpec extends DataSpec<types.Color | null> {}
 
 export class FontSizeSpec extends DataSpec<string> {}
 

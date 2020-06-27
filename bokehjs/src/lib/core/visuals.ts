@@ -4,6 +4,7 @@ import {color2css} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
 import {Arrayable} from "./types"
+import {isString} from "./util/types"
 import {map} from "./util/arrayable"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
@@ -313,8 +314,15 @@ export class Fill extends ContextProperties {
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
-    this.cache_select("fill_color", i)
-    ctx.fillStyle = this.cache.fill_color
+    const color = this.cache_select("fill_color", i)
+    function rgba2css(color: number): string {
+      const r = (color >> 24) & 0xff
+      const g = (color >> 16) & 0xff
+      const b = (color >>  8) & 0xff
+      const a = (color >>  0) & 0xff
+      return `rgba(${r}, ${g}, ${b}, ${a/255})`
+    }
+    ctx.fillStyle = isString(color) ? color : rgba2css(color)
 
     this.cache_select("fill_alpha", i)
     ctx.globalAlpha = this.cache.fill_alpha

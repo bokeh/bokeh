@@ -19,9 +19,10 @@ export abstract class BaseGLGlyph {
 
   protected abstract init(): void
 
-  set_data_changed(n: number): void {
-    if (n != this.nvertices) {
-      this.nvertices = n
+  set_data_changed(): void {
+    const {data_size} = this.glyph
+    if (data_size != this.nvertices) {
+      this.nvertices = data_size
       this.size_changed = true
     }
 

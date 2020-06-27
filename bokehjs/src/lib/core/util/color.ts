@@ -35,7 +35,7 @@ export function color2hex(color: string): string {
 
 export type RGBA = [number, number, number, number]
 
-export function color2rgba(color: string, alpha: number = 1.0): RGBA {
+export function color2rgba(color: string | null, alpha: number = 1.0): RGBA {
   if (!color)  // NaN, null, '', etc.
     return [0, 0, 0, 0]  // transparent
   // Convert to hex and then to clean version of 6 or 8 chars
