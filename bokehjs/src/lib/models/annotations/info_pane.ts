@@ -1,5 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {TooltipAttachment} from "core/enums"
+import {SpatialUnits, TooltipAttachment} from "core/enums"
 import {div, display, undisplay, empty, remove, classes} from "core/dom"
 import * as p from "core/properties"
 
@@ -7,15 +7,19 @@ import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
 import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
 
 import tooltips_css from "styles/tooltips.css"
+import { Scale } from "models/scales/scale"
+import { CoordinateMapper } from "core/util/bbox"
+
 
 export class InfoPaneView extends AnnotationView {
   model: InfoPane
 
   protected el: HTMLElement
+  private x: number
+  private y: number
 
   initialize(): void {
     super.initialize()
-    // TODO (bev) really probably need multiple divs
     this.el = div({class: bk_tooltip})
     undisplay(this.el)
     this.plot_view.canvas_view.add_overlay(this.el)
@@ -29,8 +33,8 @@ export class InfoPaneView extends AnnotationView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.data.change, () => this.render())
-    this.connect(this.model.properties.x_anchor.change, () => this.render())
-    this.connect(this.model.properties.y_anchor.change, () => this.render())
+    this.connect(this.model.properties.x.change, () => this.render())
+    this.connect(this.model.properties.y.change, () => this.render())
   }
 
   styles(): string[] {
@@ -44,6 +48,31 @@ export class InfoPaneView extends AnnotationView {
     super.render()
   }
 
+  protected _map_data(): [number, number] {
+
+    const {frame} = this.plot_view
+    const xscale = this.scope.x_scale
+    const yscale = this.scope.y_scale
+
+    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
+      let sdim
+      if (dim != null) {
+          if (dim_units == 'data')
+            sdim = scale.compute(dim)
+          else
+            sdim = view.compute(dim)
+      } else
+        sdim = frame_extrema
+        return sdim
+      }
+
+    this.x = _calc_dim(this.model.x, this.model.anchor_units, xscale, frame.xview, frame.bbox.left)
+    this.y = _calc_dim(this.model.y, this.model.anchor_units, yscale, frame.yview, frame.bbox.top)
+
+    return([this.x, this.y])
+  }
+
+
   protected _render(): void {
     empty(this.el)
     undisplay(this.el)
@@ -55,11 +84,9 @@ export class InfoPaneView extends AnnotationView {
       return
 
     const {frame} = this.plot_view
+    const [x, y] = this._map_data()
 
-    const x = this.model.x_anchor
-    const y = this.model.y_anchor
-
-    for (const [content] of data) {
+    for (const content of data) {
       if (this.model.inner_only && !frame.bbox.contains(x, y))
         continue
       const tip = div({}, content)
@@ -78,6 +105,7 @@ export class InfoPaneView extends AnnotationView {
 
    // slightly confusing: side "left" (for example) is relative to point that
    // is being annotated but CS class ".bk-left" is relative to the tooltip itself
+
     let top: number = 0
     let left = 0
     let right = 0
@@ -108,7 +136,6 @@ export class InfoPaneView extends AnnotationView {
     if (this.model.show_arrow)
       this.el.classList.add(bk_tooltip_arrow)
 
-    //might be not useful in the current context
     if (this.el.childNodes.length > 0) {
       this.el.style.top = `${top}px`
       this.el.style.left = left ? `${left}px` : 'auto'
@@ -126,8 +153,9 @@ export namespace InfoPane {
     //can be ignored if inner_only property isnt useful
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
-    x_anchor: p.Property<number>
-    y_anchor: p.Property<number>
+    x: p.Property<number>
+    y: p.Property<number>
+    anchor_units: p.Property<SpatialUnits>
     //data has to be able to get list of strings
     data: p.Property<[string][]>
     custom: p.Property<boolean>
@@ -149,11 +177,13 @@ export class InfoPane extends Annotation {
 
     this.define<InfoPane.Props>({
       //is kept as is if the horizontal\vertical functionality shall come in use
-      anchor:     [ p.TooltipAttachment, 'horizontal' ],
-      inner_only: [ p.Boolean,           true         ],
-      show_arrow: [ p.Boolean,           true         ],
-      x_anchor:   [ p.Number,             0           ],
-      y_anchor:   [ p.Number,             0           ],
+      anchor:       [ p.TooltipAttachment, 'horizontal' ],
+      inner_only:   [ p.Boolean,           true         ],
+      show_arrow:   [ p.Boolean,           true         ],
+      x:            [ p.Number,             0           ],
+      y:            [ p.Number,             0           ],
+      anchor_units: [ p.SpatialUnits,      'data'       ],
+      data:         [ p.Array,                          ],
     })
 
     this.override({
@@ -161,7 +191,6 @@ export class InfoPane extends Annotation {
     })
 
     this.internal({
-      data:   [ p.Any, [] ],
       custom: [ p.Any     ],
     })
   }
@@ -170,9 +199,9 @@ export class InfoPane extends Annotation {
     this.data = []
   }
 
-  add(x: number, y: number, content: string): void {
+  add(pos_x: number, pos_y: number, content: string): void {
     this.data = this.data.concat([content])
-    this.x_anchor = x
-    this.y_anchor = y
+    this.x = pos_x
+    this.y = pos_y
   }
 }

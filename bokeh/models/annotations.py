@@ -1100,30 +1100,32 @@ class Whisker(Annotation):
 class InfoPane(Annotation):
     ''' Renders a info-pane.
 
-    .. note::
-        This model is currently managed by BokehJS and is not useful
-        directly from python.
-
     '''
     level = Override(default="overlay")
 
+    # TODO: can be modified to be anchored at corners as well
     anchor = Enum(TooltipAttachment, help="""
     Whether the pane should be anchored at the left or right of the pane
     or above or below it, or if it should be automatically placed
     in the horizontal or vertical dimension.
     """)
 
-    x_anchor = Float(default=0, help="""
-    Initial anchor value for pane to apply to the x-coordinate.
+    x = Either(Auto, NumberSpec(), default=0, help="""
+    Initial value of the anchor position for pane to apply to the x-coordinate.
     """)
 
-    y_anchor = Float(default=0, help="""
-    Initial anchor value for pane to apply to the y-coordinate.
+    y = Either(Auto, NumberSpec(), default=0, help="""
+    Initial value of the anchor position for pane to apply to the y-coordinate.
     """)
 
-    data = String(help="""
+    anchor_units = Enum(SpatialUnits, default='data', help="""
+    The unit type for the start_x and start_y attributes. Interpreted as "data
+    space" units by default.
+    """)
+
+    data = List(String(help="""
     The string or list of strings to be displayed in the pane.
-    """)
+    """))
 
     inner_only = Bool(default=True, help="""
     Whether to display outside a central plot frame area.
