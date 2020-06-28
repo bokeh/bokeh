@@ -9,7 +9,7 @@ import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import {Arrayable, Rect, NumberArray, RaggedArray, Indices} from "core/types"
-import {map, max, subselect} from "core/util/arrayable"
+import {map, max} from "core/util/arrayable"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -250,7 +250,9 @@ export abstract class GlyphView extends View {
         continue
 
       const name = prop.attr
-      let array = subselect(prop.array(source), indices)
+
+      const base_array = prop.array(source)
+      let array = indices.select(base_array as Arrayable<unknown>)
 
       if (prop instanceof p.BaseCoordinateSpec) {
         const range = prop.dimension == "x" ? x_range : y_range
