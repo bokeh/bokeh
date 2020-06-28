@@ -8,6 +8,8 @@ import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
 
 import tooltips_css from "styles/tooltips.css"
 
+const arrow_size = 10  // XXX: keep in sync with less
+
 export class TooltipView extends AnnotationView {
   model: Tooltip
 
@@ -15,7 +17,6 @@ export class TooltipView extends AnnotationView {
 
   initialize(): void {
     super.initialize()
-    // TODO (bev) really probably need multiple divs
     this.el = div({class: bk_tooltip})
     undisplay(this.el)
     this.plot_view.canvas_view.add_overlay(this.el)
@@ -28,7 +29,8 @@ export class TooltipView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.data.change, () => this.render())
+    this.connect(this.model.properties.content.change, () => this.render())
+    this.connect(this.model.properties.position.change, () => this._reposition())
   }
 
   styles(): string[] {
@@ -43,34 +45,37 @@ export class TooltipView extends AnnotationView {
   }
 
   protected _render(): void {
-    empty(this.el)
-    undisplay(this.el)
-
-    classes(this.el).toggle(bk_tooltip_custom, this.model.custom)
-
-    const {data} = this.model
-    if (data.length == 0)
+    const {content} = this.model
+    if (content == null) {
+      undisplay(this.el)
       return
-
-    const {frame} = this.plot_view
-
-    for (const [sx, sy, content] of data) {
-      if (this.model.inner_only && !frame.bbox.contains(sx, sy))
-        continue
-
-      const tip = div({}, content)
-      this.el.appendChild(tip)
     }
 
-    const [sx, sy] = data[data.length - 1] // XXX: this previously depended on {sx, sy} leaking from the for-loop
+    empty(this.el)
+    classes(this.el).toggle(bk_tooltip_custom, this.model.custom)
+    this.el.appendChild(content)
+
+    if (this.model.show_arrow)
+      this.el.classList.add(bk_tooltip_arrow)
+  }
+
+  protected _reposition(): void {
+    const {position} = this.model
+    if (position == null) {
+      undisplay(this.el)
+      return
+    }
+
+    const [sx, sy] = position
 
     const side = (() => {
+      const area = this.parent.layout.bbox
       const {attachment} = this.model
       switch (attachment) {
         case "horizontal":
-          return sx < frame.bbox.hcenter ? "right" : "left"
+          return sx < area.hcenter ? "right" : "left"
         case "vertical":
-          return sy < frame.bbox.vcenter ? "below" : "above"
+          return sy < area.vcenter ? "below" : "above"
         default:
           return attachment
       }
@@ -80,8 +85,6 @@ export class TooltipView extends AnnotationView {
     this.el.classList.remove(bk_left)
     this.el.classList.remove(bk_above)
     this.el.classList.remove(bk_below)
-
-    const arrow_size = 10  // XXX: keep in sync with less
 
     display(this.el)  // XXX: {offset,client}Width() gives 0 when display="none"
 
@@ -114,18 +117,9 @@ export class TooltipView extends AnnotationView {
         break
     }
 
-    if (this.model.show_arrow)
-      this.el.classList.add(bk_tooltip_arrow)
-
-    // TODO (bev) this is not currently bulletproof. If there are
-    // two hits, not colocated and one is off the screen, that can
-    // be problematic
-    if (this.el.childNodes.length > 0) {
-      this.el.style.top = `${top}px`
-      this.el.style.left = left ? `${left}px` : 'auto'
-      this.el.style.right = right ? `${right}px` : 'auto'
-    } else
-      undisplay(this.el)
+    this.el.style.top = `${top}px`
+    this.el.style.left = left ? `${left}px` : "auto"
+    this.el.style.right = right ? `${right}px` : "auto"
   }
 }
 
@@ -136,7 +130,8 @@ export namespace Tooltip {
     attachment: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
-    data: p.Property<[number, number, HTMLElement][]>
+    position: p.Property<[number, number] | null>
+    content: p.Property<HTMLElement>
     custom: p.Property<boolean>
   }
 }
@@ -165,16 +160,13 @@ export class Tooltip extends Annotation {
     })
 
     this.internal({
-      data:   [ p.Any, [] ],
-      custom: [ p.Any     ],
+      position: [ p.Any, null        ],
+      content:  [ p.Any, () => div() ],
+      custom:   [ p.Any              ],
     })
   }
 
   clear(): void {
-    this.data = []
-  }
-
-  add(sx: number, sy: number, content: HTMLElement): void {
-    this.data = this.data.concat([[sx, sy, content]])
+    this.position = null
   }
 }

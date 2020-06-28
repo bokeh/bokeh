@@ -1048,6 +1048,10 @@ class Tooltip(Annotation):
 
     inner_only = Bool(default=True, help="""
     Whether to display outside a central plot frame area.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
     show_arrow = Bool(default=True, help="""
