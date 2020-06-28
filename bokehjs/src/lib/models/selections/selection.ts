@@ -5,9 +5,9 @@ import {union, intersection, difference} from "core/util/array"
 import {merge} from "core/util/object"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 
-export type Indices = number[]
+export type OpaqueIndices = number[]
 
-export type MultiIndices = {[key: string]: Indices}
+export type MultiIndices = {[key: string]: OpaqueIndices}
 
 export type ImageIndex = {
   index: number
@@ -20,8 +20,8 @@ export namespace Selection {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    indices: p.Property<Indices>
-    line_indices: p.Property<Indices>
+    indices: p.Property<OpaqueIndices>
+    line_indices: p.Property<OpaqueIndices>
     selected_glyphs: p.Property<Glyph[]>
     get_view: p.Property<() => GlyphView | null>
     multiline_indices: p.Property<MultiIndices>
