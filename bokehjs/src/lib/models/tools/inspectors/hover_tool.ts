@@ -189,7 +189,6 @@ export class HoverToolView extends InspectToolView {
     const tooltip = this.ttmodels.get(renderer)
     if (tooltip == null)
       return
-    tooltip.clear()
 
     const selection_manager = renderer.get_selection_manager()
 
@@ -197,8 +196,10 @@ export class HoverToolView extends InspectToolView {
     if (renderer instanceof GlyphRenderer)
       indices = renderer.view.convert_selection_to_subset(indices)
 
-    if (indices.is_empty())
+    if (indices.is_empty()) {
+      tooltip.clear()
       return
+    }
 
     const ds = selection_manager.source
 
@@ -210,6 +211,7 @@ export class HoverToolView extends InspectToolView {
 
     const glyph = (renderer_view as any).glyph // XXX
 
+    const tooltips: [number, number, HTMLElement][] = []
     for (const i of indices.line_indices) {
       let data_x = glyph._x[i+1]
       let data_y = glyph._y[i+1]
@@ -249,13 +251,13 @@ export class HoverToolView extends InspectToolView {
         indices: indices.line_indices,
         name: renderer_view.model.name,
       }
-      tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
+      tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
     }
 
     for (const struct of indices.image_indices) {
       const vars = {index: struct.index, x, y, sx, sy}
       const rendered = this._render_tooltips(ds, struct, vars)
-      tooltip.add(sx, sy, rendered)
+      tooltips.push([sx, sy, rendered])
     }
 
     for (const i of indices.indices) {
@@ -305,7 +307,7 @@ export class HoverToolView extends InspectToolView {
             indices: indices.multiline_indices,
             name: renderer_view.model.name,
           }
-          tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
+          tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
         }
       } else {
         // handle non-multiglyphs
@@ -337,9 +339,11 @@ export class HoverToolView extends InspectToolView {
           indices: indices.indices,
           name: renderer_view.model.name,
         }
-        tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
+        tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
       }
     }
+
+    tooltip.setv({data: tooltips}, {check_eq: false}) // XXX: can't compare DOM nodes
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
