@@ -3,9 +3,8 @@ import * as p from "./properties"
 import {color2rgba, decode_rgba} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
-import {Arrayable, Color} from "./types"
+import {Arrayable, Color, Indices} from "./types"
 import {isString} from "./util/types"
-import {subselect} from "./util/arrayable"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {HasProps} from "./has_props"
@@ -199,7 +198,7 @@ export abstract class ContextProperties {
 
   abstract get doit(): boolean
 
-  all_indices?: number[]
+  all_indices?: Indices
 
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
     for (const attr of this.attrs)
@@ -211,9 +210,12 @@ export abstract class ContextProperties {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
         this.cache[attr] = prop.spec.value
-      else if (source != null && prop instanceof p.VectorSpec)
-        this.cache[attr + "_array"] = prop.array(source)
-      else
+      else if (source != null && prop instanceof p.VectorSpec) {
+        const {all_indices} = this
+        const array = prop.array(source)
+        const subarray = all_indices != null ? all_indices.select(array) : array
+        this.cache[attr + "_array"] = subarray
+      } else
         throw new Error("source is required with a vectorized visual property")
     }
   }
@@ -229,19 +231,11 @@ export abstract class ContextProperties {
   }
 
   get_array(attr: string): Arrayable {
-    const array = this.cache[attr + "_array"] as Arrayable
-    if (this.all_indices != null) {
-      return subselect(array, this.all_indices)
-    } else {
-      return array
-    }
+    return this.cache[attr + "_array"] as Arrayable
   }
 
   set_vectorize(ctx: Context2d, i: number): void {
-    if (this.all_indices != null) // all_indices is set by a Visuals instance associated with a CDSView
-      this._set_vectorize(ctx, this.all_indices[i])
-    else                          // all_indices is not set for annotations which may have vectorized visual props
-      this._set_vectorize(ctx, i)
+    this._set_vectorize(ctx, i)
   }
 
   protected abstract _set_vectorize(ctx: Context2d, i: number): void
@@ -506,7 +500,7 @@ export class Visuals {
     }
   }
 
-  set_all_indices(all_indices: number[]): void {
+  set_all_indices(all_indices: Indices): void {
     for (const name in this) {
       if (this.hasOwnProperty(name)) {
         const prop: any = this[name]

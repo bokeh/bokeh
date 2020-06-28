@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
+import {Indices} from "@bokehjs/core/types"
 import {Fill, Line, Text, Visuals} from "@bokehjs/core/visuals"
 import {Context2d} from "@bokehjs/core/util/canvas"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -184,7 +185,7 @@ describe("Visuals", () => {
     const visuals = new Visuals(circle) as Visuals & {fill: Fill}
 
     visuals.warm_cache(source)
-    visuals.set_all_indices([1, 2])
+    visuals.set_all_indices(Indices.from_indices(3, [1, 2]))
 
     const ctx = {} as Context2d
     visuals.fill.set_vectorize(ctx, 1)

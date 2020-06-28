@@ -158,7 +158,7 @@ export class GlyphRendererView extends DataRendererView {
 
     this.all_indices = this.model.view.indices
 
-    const all_indices = [...this.all_indices]
+    const all_indices = this.all_indices
     this.glyph.set_data(source, all_indices, indices)
 
     this.glyph.set_visuals(source, all_indices)
