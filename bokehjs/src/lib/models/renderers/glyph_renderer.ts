@@ -198,10 +198,10 @@ export class GlyphRendererView extends DataRendererView {
     const dtmap = Date.now() - t0
 
     const tmask = Date.now()
-    // all_indices is in full data space, indices is converted to subset space
-    // either by mask_data (that uses the spatial index) or manually
+
+    // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]
-    let indices = [...this.glyph.mask_data(this.all_indices)]
+    let indices = [...this.glyph.mask_data()]
     const dtmask = Date.now() - tmask
 
     const {ctx} = this.layer

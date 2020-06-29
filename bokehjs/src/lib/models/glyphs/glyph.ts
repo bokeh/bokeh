@@ -301,10 +301,10 @@ export abstract class GlyphView extends View {
     this._index = index
   }
 
-  mask_data(indices: Indices): Indices {
+  mask_data(): Indices {
     // WebGL can do the clipping much more efficiently
     if (this.glglyph != null || this._mask_data == null)
-      return indices
+      return Indices.all_set(this.data_size)
     else
       return this._mask_data()
   }
