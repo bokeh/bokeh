@@ -169,7 +169,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph?.set_visuals(source, all_indices)
 
     const {lod_factor} = this.plot_model
-    const n = this.all_indices.size
+    const n = this.all_indices.count
     this.decimated = new Indices(n)
     for (let i = 0; i < n; i += lod_factor) {
       this.decimated.set(i)
