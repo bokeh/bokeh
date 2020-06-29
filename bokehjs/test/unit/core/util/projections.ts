@@ -83,6 +83,7 @@ describe("core/util/projections module", () => {
   })
 
   describe("project_xsys() function", () => {
+    it("should handle NaNs and infinities", () => {
       expect(project_xsys([[NaN]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
       expect(project_xsys([[1]], [[NaN]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
       expect(project_xsys([[NaN]], [[NaN]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
@@ -94,5 +95,6 @@ describe("core/util/projections module", () => {
       expect(project_xsys([[-Infinity]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
       expect(project_xsys([[1]], [[-Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
       expect(project_xsys([[-Infinity]], [[-Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+    })
   })
 })

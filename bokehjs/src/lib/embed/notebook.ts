@@ -65,7 +65,7 @@ function _init_comms(target: string, doc: Document): void {
         logger.info(`Registering Google Colab comms for target ${target}`)
         const r = new Receiver()
         for await (const message of comm.messages) {
-          const content = {data: message.data};
+          const content = {data: message.data}
           const buffers = []
           for (const buffer of message.buffers ?? []) {
             buffers.push(new DataView(buffer))
