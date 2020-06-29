@@ -292,7 +292,7 @@ class TestClientServer(object):
         application = Application()
         with ManagedServerLoop(application) as server:
             with pytest.raises(IOError):
-                client_session = pull_session(session_id='test__check_error_404',
+                pull_session(session_id='test__check_error_404',
                                               url=url(server) + 'file_not_found',
                                               io_loop=server.io_loop)
 

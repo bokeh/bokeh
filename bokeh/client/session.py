@@ -293,7 +293,7 @@ class ClientSession(object):
     @property
     def is_http_error(self):
         return self._connection.is_http_error
-        
+
     @property
     def error_id(self):
         return self._connection.error_id
@@ -351,14 +351,14 @@ class ClientSession(object):
         self._connection.force_roundtrip()
 
     def check_connection_errors(self):
-        ''' Raises an error, when the connection could not have been 
-        established. 
-        
+        ''' Raises an error, when the connection could not have been
+        established.
+
         Should be used, after a call to connect.
 
         Returns:
             None
-        
+
         '''
         if not self.connected:
             if self.is_http_error:
@@ -366,7 +366,7 @@ class ClientSession(object):
                     raise IOError("Check your application path! The given Path is not valid: {}".format(self.url))
                 #default http_error:
                 raise IOError("We received an HTTP-Error. Disconnected with error code: {}, given message: {}".format(self.error_id, self.error_message))
-                
+
             #elif self.is_network_error:
             #default:
             raise IOError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")

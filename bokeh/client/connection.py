@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # External imports
-from tornado.httpclient import HTTPRequest, HTTPClientError
+from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
@@ -36,10 +36,10 @@ from .states import (
     CONNECTED_AFTER_ACK,
     CONNECTED_BEFORE_ACK,
     DISCONNECTED,
+    DISCONNECTED_HTTP_ERROR,
+    DISCONNECTED_NETWORK_ERROR,
     NOT_YET_CONNECTED,
     WAITING_FOR_REPLY,
-    DISCONNECTED_NETWORK_ERROR,
-    DISCONNECTED_HTTP_ERROR
 )
 from .websocket import WebSocketClientConnectionWrapper
 
@@ -116,7 +116,7 @@ class ClientConnection(object):
     def error_msg(self):
         ''' If there was an error that caused a disconnect,
         this property holds the error message. Empty string otherwise.
-        
+
         '''
         if not isinstance(self._state, DISCONNECTED):
             return ""
@@ -126,7 +126,7 @@ class ClientConnection(object):
     def is_http_error(self):
         ''' Was the reason for the disconnect an HTTP error? '''
         return isinstance(self._state, DISCONNECTED_HTTP_ERROR)
-    
+
     @property
     def is_network_error(self):
         ''' Was the reason for the disconnect a Networ error? '''
