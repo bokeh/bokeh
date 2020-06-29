@@ -198,20 +198,17 @@ export abstract class ContextProperties {
 
   abstract get doit(): boolean
 
-  all_indices?: Indices
-
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
     for (const attr of this.attrs)
       (this as any)[attr] = obj.properties[prefix + attr]
   }
 
-  warm_cache(source?: ColumnarDataSource): void {
+  warm_cache(source?: ColumnarDataSource, all_indices?: Indices): void {
     for (const attr of this.attrs) {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
         this.cache[attr] = prop.spec.value
       else if (source != null && prop instanceof p.VectorSpec) {
-        const {all_indices} = this
         const array = prop.array(source)
         const subarray = all_indices != null ? all_indices.select(array) : array
         this.cache[attr + "_array"] = subarray
@@ -490,22 +487,12 @@ export class Visuals {
     }
   }
 
-  warm_cache(source?: ColumnarDataSource): void {
+  warm_cache(source?: ColumnarDataSource, all_indices?: Indices): void {
     for (const name in this) {
       if (this.hasOwnProperty(name)) {
         const prop: any = this[name]
         if (prop instanceof ContextProperties)
-          prop.warm_cache(source)
-      }
-    }
-  }
-
-  set_all_indices(all_indices: Indices): void {
-    for (const name in this) {
-      if (this.hasOwnProperty(name)) {
-        const prop: any = this[name]
-        if (prop instanceof ContextProperties)
-          prop.all_indices = all_indices
+          prop.warm_cache(source, all_indices)
       }
     }
   }

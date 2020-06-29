@@ -184,8 +184,8 @@ describe("Visuals", () => {
     const circle = new Circle(attrs)
     const visuals = new Visuals(circle) as Visuals & {fill: Fill}
 
-    visuals.warm_cache(source)
-    visuals.set_all_indices(Indices.from_indices(3, [1, 2]))
+    const subset = Indices.from_indices(3, [1, 2])
+    visuals.warm_cache(source, subset)
 
     const ctx = {} as Context2d
     visuals.fill.set_vectorize(ctx, 1)
@@ -194,7 +194,7 @@ describe("Visuals", () => {
 
   describe("interacting with GlyphViews", () => {
 
-    it("set_all_indices should be called by the glyph view", async () => {
+    it("warm_cache(..., all_indices) should be called by the glyph view", async () => {
       const attrs = {fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}}
 
       const circle = new Circle(attrs)

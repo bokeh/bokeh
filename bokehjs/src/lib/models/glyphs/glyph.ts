@@ -92,8 +92,7 @@ export abstract class GlyphView extends View {
   }
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
-    this.visuals.set_all_indices(indices)
-    this.visuals.warm_cache(source)
+    this.visuals.warm_cache(source, indices)
 
     if (this.glglyph != null)
       this.glglyph.set_visuals_changed()
