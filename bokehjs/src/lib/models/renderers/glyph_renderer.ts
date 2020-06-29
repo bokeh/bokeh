@@ -7,7 +7,6 @@ import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
-import {logger} from "core/logging"
 import * as p from "core/properties"
 import {indexOf, filter} from "core/util/arrayable"
 import {difference, includes} from "core/util/array"
@@ -153,7 +152,6 @@ export class GlyphRendererView extends DataRendererView {
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
-    const t0 = Date.now()
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
@@ -175,9 +173,6 @@ export class GlyphRendererView extends DataRendererView {
       this.decimated.set(i)
     }
 
-    const dt = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} ${this.model}): set_data finished in ${dt}ms`)
-
     this.set_data_timestamp = Date.now()
 
     if (request_render) {
@@ -190,19 +185,13 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   protected _render(): void {
-    const t0 = Date.now()
-
     const glsupport = this.has_webgl
 
     this.glyph.map_data()
-    const dtmap = Date.now() - t0
-
-    const tmask = Date.now()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]
     let indices = [...this.glyph.mask_data()]
-    const dtmask = Date.now() - tmask
 
     const {ctx} = this.layer
     ctx.save()
@@ -260,10 +249,7 @@ export class GlyphRendererView extends DataRendererView {
       indices = difference(indices, inspected_subset_indices)
 
     // Render with no selection
-    let dtselect: number | null = null
-    let trender: number
     if (!(selected_full_indices.length && this.have_selection_glyphs())) {
-      trender = Date.now()
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
@@ -286,7 +272,6 @@ export class GlyphRendererView extends DataRendererView {
     // Render with selection
     } else {
       // reset the selection mask
-      const tselect = Date.now()
       const selected_mask: {[key: number]: boolean} = {}
       for (const i of selected_full_indices) {
         selected_mask[i] = true
@@ -312,9 +297,7 @@ export class GlyphRendererView extends DataRendererView {
             nonselected_subset_indices.push(i)
         }
       }
-      dtselect = Date.now() - tselect
 
-      trender = Date.now()
       nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
       selection_glyph.render(ctx, selected_subset_indices, this.glyph)
       if (this.hover_glyph != null) {
@@ -324,18 +307,6 @@ export class GlyphRendererView extends DataRendererView {
           this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
       }
     }
-    const dtrender = Date.now() - trender
-
-    this.last_dtrender = dtrender
-
-    const dttot = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} ${this.model}: render finished in ${dttot}ms`)
-    logger.trace(` - map_data finished in       : ${dtmap}ms`)
-    logger.trace(` - mask_data finished in      : ${dtmask}ms`)
-    if (dtselect != null) {
-      logger.trace(` - selection mask finished in : ${dtselect}ms`)
-    }
-    logger.trace(` - glyph renders finished in  : ${dtrender}ms`)
 
     ctx.restore()
   }
