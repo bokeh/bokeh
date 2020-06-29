@@ -88,7 +88,7 @@ def check_checkout_on_base_branch(config: Config, system: System) -> ActionRetur
     try:
         branch = system.run("git rev-parse --abbrev-ref HEAD").strip()
         if branch == config.base_branch:
-            return PASSED("Working on base branch {config.base_branch!r} for release {config.version!r}")
+            return PASSED(f"Working on base branch {config.base_branch!r} for release {config.version!r}")
         else:
             return FAILED(f"NOT working on base branch {config.base_branch!r} for release {config.version!r}")
     except RuntimeError as e:
