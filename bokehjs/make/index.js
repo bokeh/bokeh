@@ -51,6 +51,10 @@ if (!is_up_to_date("package.json")) {
   npm_install()
 }
 
+const package_lock = fs.readFileSync("package-lock.json", {encoding: "utf-8"})
+const package_lock_updated = package_lock.replace(/\bhttp:\/\//g, "https://")
+fs.writeFileSync("package-lock.json", package_lock_updated, {encoding: "utf-8"})
+
 const {register} = require("ts-node")
 
 process.on('uncaughtException', function(err) {

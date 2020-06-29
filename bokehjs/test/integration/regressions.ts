@@ -5,7 +5,6 @@ import {
   DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   CategoricalAxis,
-  Plot,
 } from "@bokehjs/models"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -168,21 +167,18 @@ describe("Bug", () => {
     it("makes GlyphRenderer use incorrect subset indices", async () => {
       const p0 = plot("canvas")
       const p1 = plot("webgl")
-      await display(row([p0, p1]), [200, 200])
+      await display(row([p0, p1]), [400, 200])
     })
 
     it("makes GlyphRenderer use incorrect subset indices after selection", async () => {
-      const plots: {[key: number]: Plot[]} = {1: [], 2: []}
+      const items = []
       for (const indices of subsets([1, 2, 3])) {
         const selection = new Selection({indices})
         const p0 = plot("canvas", selection)
         const p1 = plot("webgl", selection)
-        const n = indices.length
-        if (n in plots)
-          plots[n].push(p0, p1)
+        items.push(column([p0, p1]))
       }
-      const rows = [row(plots[1]), row(plots[2])]
-      await display(column(rows), [200*Math.max(plots[1].length, plots[2].length), 200*rows.length])
+      await display(row(items), [200*items.length + 50, 450])
     })
   })
 
