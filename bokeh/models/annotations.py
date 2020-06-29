@@ -1123,7 +1123,7 @@ class InfoPane(Annotation):
     space" units by default.
     """)
 
-    data = List(String(help="""
+    content = List(String(help="""
     The string or list of strings to be displayed in the pane.
     """))
 

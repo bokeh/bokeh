@@ -1,9 +1,9 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {SpatialUnits, TooltipAttachment} from "core/enums"
-import {div, display, undisplay, empty, remove, classes} from "core/dom"
+import {div, display, undisplay, empty, remove} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
+import {bk_tooltip, bk_tooltip_arrow} from "styles/tooltips"
 import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
 
 import tooltips_css from "styles/tooltips.css"
@@ -32,7 +32,7 @@ export class InfoPaneView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.data.change, () => this.render())
+    this.connect(this.model.properties.content.change, () => this.render())
     this.connect(this.model.properties.x.change, () => this.render())
     this.connect(this.model.properties.y.change, () => this.render())
   }
@@ -57,13 +57,13 @@ export class InfoPaneView extends AnnotationView {
     const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
       let sdim
       if (dim != null) {
-          if (dim_units == 'data')
-            sdim = scale.compute(dim)
-          else
-            sdim = view.compute(dim)
+        if (dim_units == 'data')
+          sdim = scale.compute(dim)
+        else
+          sdim = view.compute(dim)
       } else
         sdim = frame_extrema
-        return sdim
+      return sdim
       }
 
     this.x = _calc_dim(this.model.x, this.model.anchor_units, xscale, frame.xview, frame.bbox.left)
@@ -77,20 +77,18 @@ export class InfoPaneView extends AnnotationView {
     empty(this.el)
     undisplay(this.el)
 
-    classes(this.el).toggle(bk_tooltip_custom, this.model.custom)
-
-    const {data} = this.model
-    if (data.length == 0)
+    const {content} = this.model
+    if (content.length == 0)
       return
 
     const {frame} = this.plot_view
     const [x, y] = this._map_data()
 
-    for (const content of data) {
+    for (const part of content) {
       if (this.model.inner_only && !frame.bbox.contains(x, y))
         continue
-      const tip = div({}, content)
-      this.el.appendChild(tip)
+      const pane = div({}, part)
+      this.el.appendChild(pane)
     }
 
     const {anchor} = this.model
@@ -112,23 +110,23 @@ export class InfoPaneView extends AnnotationView {
 
     switch (anchor) {
       case "left":
-        this.el.classList.add(bk_right)
-        left = x + (this.el.offsetWidth - this.el.clientWidth)
+        this.el.classList.add(bk_left)
+        left = x +arrow_size
         top = y - this.el.offsetHeight/2
         break
       case "right":
-        this.el.classList.add(bk_left)
-        right = (this.plot_view.layout.bbox.width - x)
+        this.el.classList.add(bk_right)
+        right = (this.plot_view.layout.bbox.width - x) + arrow_size
         top = y - this.el.offsetHeight/2
         break
       case "above":
-        this.el.classList.add(bk_below)
-        top = y + (this.el.offsetHeight - this.el.clientHeight) - arrow_size
+        this.el.classList.add(bk_above)
+        top = y + arrow_size
         left = Math.round(x - this.el.offsetWidth/2)
         break
       case "below":
-        this.el.classList.add(bk_above)
-        top = y - this.el.offsetHeight + arrow_size
+        this.el.classList.add(bk_below)
+        top = y - this.el.offsetHeight - arrow_size
         left = Math.round(x - this.el.offsetWidth/2)
         break
     }
@@ -156,9 +154,7 @@ export namespace InfoPane {
     x: p.Property<number>
     y: p.Property<number>
     anchor_units: p.Property<SpatialUnits>
-    //data has to be able to get list of strings
-    data: p.Property<[string][]>
-    custom: p.Property<boolean>
+    content: p.Property<[string][]>
   }
 }
 
@@ -183,24 +179,20 @@ export class InfoPane extends Annotation {
       x:            [ p.Number,             0          ],
       y:            [ p.Number,             0          ],
       anchor_units: [ p.SpatialUnits,      'data'      ],
-      data:         [ p.Array,                         ],
+      content:      [ p.Array,              []         ],
     })
 
     this.override({
       level: 'overlay',
     })
-
-    this.internal({
-      custom: [ p.Any     ],
-    })
   }
 
   clear(): void {
-    this.data = []
+    this.content = []
   }
 
   add(pos_x: number, pos_y: number, content: string): void {
-    this.data = this.data.concat([content])
+    this.content = this.content.concat([content])
     this.x = pos_x
     this.y = pos_y
   }
