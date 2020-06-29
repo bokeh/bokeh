@@ -178,7 +178,7 @@ export class InfoPane extends Annotation {
       x:            [ p.Number,             0          ],
       y:            [ p.Number,             0          ],
       anchor_units: [ p.SpatialUnits,      'data'      ],
-      content:      [ p.Array,              []         ],
+      content:      [ p.Array,             []          ],
     })
 
     this.override({
