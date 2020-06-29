@@ -189,10 +189,4 @@ export class InfoPane extends Annotation {
   clear(): void {
     this.content = []
   }
-
-  add(pos_x: number, pos_y: number, content: string): void {
-    this.content = this.content.concat([content])
-    this.x = pos_x
-    this.y = pos_y
-  }
 }
