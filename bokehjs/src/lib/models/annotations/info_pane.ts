@@ -64,7 +64,7 @@ export class InfoPaneView extends AnnotationView {
       } else
         sdim = frame_extrema
       return sdim
-      }
+    }
 
     this.x = _calc_dim(this.model.x, this.model.anchor_units, xscale, frame.xview, frame.bbox.left)
     this.y = _calc_dim(this.model.y, this.model.anchor_units, yscale, frame.yview, frame.bbox.top)
@@ -101,8 +101,8 @@ export class InfoPaneView extends AnnotationView {
 
     display(this.el)
 
-   // slightly confusing: side "left" (for example) is relative to point that
-   // is being annotated but CS class ".bk-left" is relative to the tooltip itself
+    // slightly confusing: side "left" (for example) is relative to point that
+    // is being annotated but CS class ".bk-left" is relative to the tooltip itself
 
     let top: number = 0
     let left = 0
