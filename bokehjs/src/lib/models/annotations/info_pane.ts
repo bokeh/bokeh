@@ -148,7 +148,6 @@ export namespace InfoPane {
 
   export type Props = Annotation.Props & {
     anchor: p.Property<TooltipAttachment>
-    //can be ignored if inner_only property isnt useful
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
     x: p.Property<number>
