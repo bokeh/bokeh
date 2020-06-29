@@ -162,8 +162,8 @@ async function run_tests(): Promise<boolean> {
       await Log.enable()
 
       await Emulation.setDeviceMetricsOverride({
-        width: 1000,
-        height: 1000,
+        width: 2000,
+        height: 4000,
         deviceScaleFactor: 1,
         mobile: false,
       })
