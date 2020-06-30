@@ -66,7 +66,7 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
 
 def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
     try:
-        system.run(f"aws s3 cp deployment-{config.version} s3://bokeh-deployments/")
+        system.run(f"aws s3 cp deployment-{config.version}.tgz s3://bokeh-deployments/")
         return PASSED("Uploaded deployment tarball")
     except RuntimeError as e:
         return FAILED("Could NOT upload deployment tarball", details=e.args)
