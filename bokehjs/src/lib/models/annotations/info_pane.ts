@@ -66,8 +66,8 @@ export class InfoPaneView extends AnnotationView {
       return sdim
     }
 
-    this.x = _calc_dim(this.model.x, this.model.anchor_units, xscale, frame.xview, frame.bbox.left)
-    this.y = _calc_dim(this.model.y, this.model.anchor_units, yscale, frame.yview, frame.bbox.top)
+    this.x = _calc_dim(this.model.x, this.model.position_units, xscale, frame.xview, frame.bbox.left)
+    this.y = _calc_dim(this.model.y, this.model.position_units, yscale, frame.yview, frame.bbox.top)
 
     return([this.x, this.y])
   }
@@ -152,7 +152,7 @@ export namespace InfoPane {
     show_arrow: p.Property<boolean>
     x: p.Property<number>
     y: p.Property<number>
-    anchor_units: p.Property<SpatialUnits>
+    position_units: p.Property<SpatialUnits>
     content: p.Property<[string][]>
   }
 }
@@ -172,13 +172,13 @@ export class InfoPane extends Annotation {
 
     this.define<InfoPane.Props>({
       //is kept as is if the horizontal\vertical functionality shall come in use
-      anchor:       [ p.TooltipAttachment, 'horizontal'],
-      inner_only:   [ p.Boolean,           true        ],
-      show_arrow:   [ p.Boolean,           true        ],
-      x:            [ p.Number,             0          ],
-      y:            [ p.Number,             0          ],
-      anchor_units: [ p.SpatialUnits,      'data'      ],
-      content:      [ p.Array,             []          ],
+      anchor:         [ p.TooltipAttachment, 'horizontal'],
+      inner_only:     [ p.Boolean,           true        ],
+      show_arrow:     [ p.Boolean,           true        ],
+      x:              [ p.Number,             0          ],
+      y:              [ p.Number,             0          ],
+      position_units: [ p.SpatialUnits,      'data'      ],
+      content:        [ p.Array,             []          ],
     })
 
     this.override({

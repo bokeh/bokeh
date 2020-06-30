@@ -1118,7 +1118,7 @@ class InfoPane(Annotation):
     Initial value of the anchor position for pane to apply to the y-coordinate.
     """)
 
-    anchor_units = Enum(SpatialUnits, default='data', help="""
+    position_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the start_x and start_y attributes. Interpreted as "data
     space" units by default.
     """)
