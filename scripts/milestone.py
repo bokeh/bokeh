@@ -277,11 +277,10 @@ def main(milestone, log_level, verbose, check_only):
     for problem in problems:
         print(problem, file=sys.stderr)
 
-    if check_only:
-        if len(problems) > 0:
-            sys.exit(2)
-        else:
-            sys.exit(0)
+    if len(problems) > 0:
+        sys.exit(2)
+    elif check_only:
+        sys.exit(0)
 
     print(f"{datetime.date.today()} {milestone:>8}:")
     print("--------------------")
