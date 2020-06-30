@@ -10,7 +10,7 @@
 
 # Standard library imports
 import re
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 __all__ = ("LOG", "Log", "Scrubber")
 
@@ -26,7 +26,7 @@ class Scrubber:
 
     """
 
-    def __init__(self, text: str, *, name: str, replacement: str = _DEFAULT_REPLACEMENT):
+    def __init__(self, text: str, *, name: str, replacement: str = _DEFAULT_REPLACEMENT) -> None:
         self._text = text
         self._name = name
         self._replacement = replacement
@@ -51,7 +51,7 @@ class Log:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._scrubbers: List[Scrubber] = []
         self._record: List[str] = []
 
@@ -79,7 +79,7 @@ class Log:
     def clear(self) -> None:
         self._record = []
 
-    def dump(self, *, start=0, end=None, filter_ansi: bool = True) -> str:
+    def dump(self, *, start: int =0, end: Optional[int] =None, filter_ansi: bool = True) -> str:
         """
 
         """

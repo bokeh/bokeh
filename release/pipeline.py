@@ -23,7 +23,7 @@ __all__ = ("StepType",)
 StepType = Callable[[Config, System], ActionReturn]
 
 
-def is_check(step: StepType):
+def is_check(step: StepType) -> bool:
     return step.__name__.startswith("check_") or step.__name__.startswith("verify_")
 
 

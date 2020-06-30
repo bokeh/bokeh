@@ -23,7 +23,7 @@ __all__ = (
 ColorFunction = Callable[[str], str]
 
 try:
-    import colorama  # type: ignore # isort:skip
+    import colorama  # isort:skip
 
     def bright(text: str) -> str:
         return f"{colorama.Style.BRIGHT}{text}{colorama.Style.RESET_ALL}"
@@ -81,7 +81,7 @@ def banner(color: ColorFunction, msg: str) -> str:
     return f"\n{section}\n{header}\n{section}\n"
 
 
-def _format_details(details: Optional[Sequence[str]] = None):
+def _format_details(details: Optional[Sequence[str]] = None) -> str:
     if details:
         return "\n" + "\n".join(f"    {line}" for line in details)
     return ""

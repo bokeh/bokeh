@@ -50,7 +50,7 @@ class System:
 
         return cast(str, result.stdout)
 
-    def abort(self):
+    def abort(self) -> None:
         """
 
         """

@@ -11,7 +11,7 @@ from typing import Any
 
 # External imports
 import boto
-from packaging.version import Version as V  # type: ignore
+from packaging.version import Version as V
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn

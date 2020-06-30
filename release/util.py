@@ -8,12 +8,12 @@
 
 """
 
-# Standard library imports
-from typing import Callable
+# Bokeh imports
+from .pipeline import StepType
 
 __all__ = ("skip_for_prerelease",)
 
 
-def skip_for_prerelease(func: Callable) -> Callable:
+def skip_for_prerelease(func: StepType) -> StepType:
     func.skip_for_prerelease = True  # type: ignore
     return func

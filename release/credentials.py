@@ -11,13 +11,12 @@
 # Standard library imports
 import os
 from functools import wraps
-from typing import Any
+from typing import Callable
 
 # External imports
 import boto
 import boto.s3.connection
 import boto.s3.key
-from typing_extensions import Protocol
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
@@ -34,14 +33,10 @@ __all__ = (
 )
 
 
-class VerifyFunctionType(Protocol):
-    __name__: str = "VerifyFunctionType"  # not sure why this is necessary
-
-    def __call__(self, config: Config, system: System, **kw: Any) -> None:
-        ...
+VerifyFunctionType = Callable[..., None]  # Unfortunately best current solution see https://github.com/python/typing/issues/696
 
 
-def collect_credential(**kw: str):
+def collect_credential(**kw: str) -> Callable[[VerifyFunctionType], StepType]:
     def decorator(func: VerifyFunctionType) -> StepType:
         service = func.__name__.split("_")[1].upper()
 

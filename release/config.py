@@ -10,7 +10,7 @@
 
 # Standard library imports
 import re
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 # Bokeh imports
 from .enums import VersionType
@@ -35,13 +35,13 @@ class Config(object):
 
         self.base_version: str = groups[0]
         self.base_version_tuple: Tuple[str, ...] = tuple(groups[1:4])
-        self.ext: str = groups[4]
+        self.ext: Optional[str] = groups[4]
         self.ext_type: str = groups[5]
         self.ext_number: str = groups[6]
 
         self._secrets: Dict[str, str] = {}
 
-    def add_secret(self, name: str, secret: str):
+    def add_secret(self, name: str, secret: str) -> None:
         """
 
         """
@@ -55,7 +55,7 @@ class Config(object):
         return self._secrets
 
     @property
-    def prerelease(self):
+    def prerelease(self) -> bool:
         return self.version_type != VersionType.FULL
 
     @property
