@@ -4,6 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+"""
+
+"""
 
 # Standard library imports
 import sys
@@ -13,6 +16,7 @@ __all__ = (
     "banner",
     "failed",
     "passed",
+    "shell",
     "skipped",
 )
 
@@ -43,6 +47,7 @@ try:
         return f"{colorama.Fore.YELLOW}{text}{colorama.Style.RESET_ALL}"
 
     sys.platform == "win32" and colorama.init()
+
 except ImportError:
 
     def bright(text: str) -> str:
@@ -67,25 +72,48 @@ except ImportError:
         return text
 
 
-def banner(color: ColorFunction, msg: str) -> None:
-    print()
-    print(color("=" * 80))
-    print(color("{:^80}".format(msg)))
-    print(color("=" * 80 + "\n"))
+def banner(color: ColorFunction, msg: str) -> str:
+    """
+
+    """
+    section = "=" * 80
+    header = f"{msg:^80}"
+    return f"\n{section}\n{header}\n{section}\n"
 
 
-def failed(msg: str, details: Optional[Sequence[str]] = None) -> None:
-    print((red("[FAIL] ")) + msg)
+def _format_details(details: Optional[Sequence[str]] = None) -> str:
     if details:
-        print()
-        for line in details:
-            print("     " + line)
-        print()
+        return "\n" + "\n".join(f"    {line}" for line in details)
+    return ""
 
 
-def passed(msg: str) -> None:
-    print(dim(green("[PASS] ")) + msg)
+def failed(msg: str, details: Optional[Sequence[str]] = None) -> str:
+    """
+
+    """
+    return f"{red('[FAIL]')} {msg}" + _format_details(details)
 
 
-def skipped(msg: str) -> None:
-    print(blue("[SKIP] ") + msg)
+def passed(msg: str, details: Optional[Sequence[str]] = None) -> str:
+    """
+
+    """
+    return f"{dim(green('[PASS]'))} {msg}" + _format_details(details)
+
+
+def shell(cmd: str) -> str:
+    return dim(white(f"+{cmd}"))
+
+
+def skipped(msg: str, _details: Optional[Sequence[str]] = None) -> str:
+    """
+
+    """
+    return f"{blue('[SKIP]')} {msg}"
+
+
+def task(msg: str) -> str:
+    """
+
+    """
+    return f"\n------ {msg}"

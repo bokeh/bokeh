@@ -4,6 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+"""
+
+"""
 
 # Standard library imports
 from enum import Enum
@@ -11,7 +14,6 @@ from enum import Enum
 __all__ = (
     "ActionResult",
     "ActionState",
-    "ActionType",
     "StepStatus",
     "VersionType",
 )
@@ -39,8 +41,3 @@ class ActionState(Enum):
     PENDING = "PENDING"
     STARTED = "STARTED"
     COMPLETED = "COMPLETED"
-
-
-class ActionType(Enum):
-    CHECK = "CHECK"
-    TASK = "TASK"
