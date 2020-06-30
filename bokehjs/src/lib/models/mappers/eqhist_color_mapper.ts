@@ -1,6 +1,6 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, interpolate, map, filter} from "core/util/arrayable"
+import {min, max, bin_counts, map} from "core/util/arrayable"
 import {linspace, cumsum, sum} from "core/util/array"
 import * as p from "core/properties"
 
@@ -34,47 +34,26 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
     // Compute bin edges and histogram counts
     const nbins = this.bins
-    const eq_bin_edges = linspace(low, high, nbins+1)
-    const raw_hist = bin_counts(data, eq_bin_edges)
+    const bin_edges = linspace(low, high, nbins+1)
+    const hist = bin_counts(data, bin_edges)
 
-    const bin_edges = new Array(1)
-    bin_edges[0] = eq_bin_edges[0]; 
-    const hist = new Array() // Could also zero-filter hist in a pass 
-    // Dropping edges/bins zero zero count hist to avoid flat sections of CDF
-    for (let i = 0; i < nbins; i++) {
-        if (raw_hist[i] != 0) {
-            bin_edges.push(eq_bin_edges[i+1])
-            hist.push(raw_hist[i])
-        }
-    }   
-
-    // Compute bin centers
-    const bin_centers = new Array(bin_edges.length - 1)
-    for (let i = 0; i < (bin_edges.length - 1); i++) {
-      bin_centers[i] = (bin_edges[i] + bin_edges[i + 1])/2
-    }      
+    const samples = data.length 
+    const weighting = map(hist, (x) => x / samples)
       
-    // CDFs
-    const cdf = cumsum(hist)
-    const cdf_max = cdf[cdf.length - 1]
-    const norm_cdf = map(cdf, (x) => x / cdf_max)
-
-    // Interpolate
-    const palette_edges = linspace(low, high, n + 1)
-
-    // Compute bin centers
-    const palette_centers = new Array(palette_edges.length - 1)
-      for (let i = 0; i < (palette_edges.length - 1); i++) {
-        palette_centers[i] = (palette_edges[i] + palette_edges[i + 1])/2
-      }
-
-    const interpolated = interpolate(palette_centers, bin_centers, norm_cdf)
-    const min_interp = min(interpolated)
-    const interp_span = max(interpolated) - min_interp
-    const rescaled_interpolated = map(interpolated, (x) => (x - min_interp)/interp_span)
-    // This is currently the most suspect step due to the magic 0.999 number
-    // The problem is that edge values greater than 1 are problematic
-    const norm_interpolated = filter(rescaled_interpolated, (x) => x < 0.999)
+    let position = low
+    const new_edges = new Array(1)
+    new_edges[0] = low
+    const eq_diff = (high - low) / n
+     
+    for (let i=0; i < weighting.length; i++) {
+        if (weighting[i] != 0) {
+            position += eq_diff * weighting[i]
+            new_edges.push(position)
+        }
+    }
+      
+    const norm_interpolated = map(new_edges, (x) => (x - min(new_edges))
+                                  / (max(new_edges) - min(new_edges)))
 
     let diff = [];
     for (let i = 1; i < (norm_interpolated.length); i++) {
