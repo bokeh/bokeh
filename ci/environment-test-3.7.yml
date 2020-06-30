@@ -17,6 +17,7 @@ dependencies:
 
   # tests
   - beautifulsoup4
+  - black
   - colorama
   - colorcet
   - channels

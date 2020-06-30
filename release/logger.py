@@ -79,7 +79,7 @@ class Log:
     def clear(self) -> None:
         self._record = []
 
-    def dump(self, *, start: int =0, end: Optional[int] =None, filter_ansi: bool = True) -> str:
+    def dump(self, *, start: int = 0, end: Optional[int] = None, filter_ansi: bool = True) -> str:
         """
 
         """

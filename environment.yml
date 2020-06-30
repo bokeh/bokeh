@@ -26,6 +26,7 @@ dependencies:
 
   # tests
   - beautifulsoup4
+  - black
   - colorama
   - channels
   - coverage
