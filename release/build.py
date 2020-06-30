@@ -29,7 +29,6 @@ __all__ = (
     "update_bokehjs_versions",
     "update_changelog",
     "update_hash_manifest",
-    "upload_deployment_tarball",
 )
 
 
@@ -156,11 +155,3 @@ def update_hash_manifest(config: Config, system: System) -> ActionReturn:
         return PASSED("Updated SRI hash manifest")
     except RuntimeError as e:
         return FAILED("SRI hash manifest update failed", details=e.args)
-
-
-def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
-    try:
-        # TODO
-        return PASSED("Uploaded deployment tarball")
-    except RuntimeError as e:
-        return FAILED("Could NOT upload deployment tarball", details=e.args)

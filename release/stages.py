@@ -21,7 +21,6 @@ from .build import (
     update_bokehjs_versions,
     update_changelog,
     update_hash_manifest,
-    upload_deployment_tarball,
 )
 from .checks import (
     check_anaconda_present,
@@ -58,7 +57,7 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .publish import publish_bokehjs_to_cdn
+from .publish import publish_bokehjs_to_cdn, upload_deployment_tarball
 
 __all__ = (
     "BUILD_CHECKS",

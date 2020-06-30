@@ -19,7 +19,7 @@ from .config import Config
 from .logger import LOG
 from .system import System
 
-__all__ = ("publish_bokehjs_to_cdn",)
+__all__ = ("publish_bokehjs_to_cdn", "upload_deployment_tarball")
 
 
 def _upload_file_to_cdn(local_path: str, cdn_path: str, content_type: str, bucket: Any, binary: bool = False) -> None:
@@ -62,3 +62,11 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
         return PASSED("Uploaded BokehJS to CDN")
     except Exception as e:
         return FAILED("BokehJS CDN upload failed", details=e.args)
+
+
+def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run(f"aws s3 cp deployment-{config.version} s3://bokeh-deployments/")
+        return PASSED("Uploaded deployment tarball")
+    except RuntimeError as e:
+        return FAILED("Could NOT upload deployment tarball", details=e.args)
