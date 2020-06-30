@@ -12,6 +12,7 @@ import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Color} from "@bokehjs/core/types"
 import {Anchor, OutputBackend} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
+import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
 
 describe("Bug", () => {
@@ -218,6 +219,32 @@ describe("Bug", () => {
       p.circle({x: {field: "x"}, y: {field: "y"}, radius: 0.2, color: "red", source})
 
       await display(p, [350, 350])
+    })
+  })
+
+  describe("in issue #10246", () => {
+    function make_layout(output_backend: OutputBackend) {
+      const x = range(0, 11)
+      const y0 = x
+      const y1 = x.map((xi) => 10 - xi)
+      const y2 = x.map((xi) => Math.abs(xi - 5))
+
+      const s0 = fig([200, 200], {output_backend})
+      s0.circle(x, y0, {size: 12, alpha: 0.8, color: "#53777a"})
+
+      const s1 = fig([200, 200], {output_backend})
+      s1.triangle(x, y1, {size: 12, alpha: 0.8, color: "#c02942"})
+
+      const s2 = fig([200, 200], {output_backend, visible: false})
+      s2.square(x, y2, {size: 12, alpha: 0.8, color: "#d95b43"})
+
+      return row([s0, s1, s2])
+    }
+
+    it("makes a plot with visible == false throw an exception", async () => {
+      const l0 = make_layout("canvas")
+      const l1 = make_layout("webgl")
+      await display(column([l0, l1]), [650, 450])
     })
   })
 })
