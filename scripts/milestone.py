@@ -1,33 +1,51 @@
 #!/usr/bin/env python3
 
+# Standard library imports
 import datetime
 import logging
 import os
 import sys
 from itertools import groupby
+from pathlib import Path
 
+# External imports
 import click
 import requests
 
-VALID_TYPES = [
+VALID_TYPES = (
     "type: bug",
     "type: feature",
     "type: task",
-]
+)
+
+SCRIPT_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_ROOT.parent
 
 
 def query_github(query, token):
-    """Hits the GitHub GraphQL API with the given query and returns the response."""
+    """ Hits the GitHub GraphQL API with the given query and returns the data or None.
+
+    """
     API_HEADERS = {"Authorization": f"Bearer {token}"}
     BASE_URL = "https://api.github.com/graphql"
     if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
         query_string = " ".join(line.strip() for line in query.split("\n"))
         logging.debug("POST https://api.github.com/graphql; query:%s", query_string)
-    return requests.post(BASE_URL, json={"query": query}, headers=API_HEADERS)
+    response = requests.post(BASE_URL, json={"query": query}, headers=API_HEADERS)
+    errors = response.json().get("errors", [])
+    for error in errors:
+        path = "/".join(error["path"])
+        msg = error["message"]
+        print(f"error: {path}: {msg}", file=sys.stderr)
+    if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        logging.debug(f"Response {response.status_code}: {response.text}")
+    return response.json()["data"] if not errors else None
 
 
 def get_labels(data):
-    """Returns the list of labels for the given issue or PR data."""
+    """ Returns the list of labels for the given issue or PR data.
+
+    """
     return [edge["node"]["name"] for edge in data["node"]["labels"]["edges"]]
 
 
@@ -40,31 +58,40 @@ def get_label_for(data, kind):
 
 
 def get_label_type(data):
-    """Returns the type label of the given issue or PR data, otherwise None."""
+    """ Returns the type label of the given issue or PR data, otherwise None.
+
+    """
     return get_label_for(data, "type: ")
 
 
 def get_label_component(data):
-    """Returns the component label of the given issue or PR data, otherwise None."""
+    """ Returns the component label of the given issue or PR data, otherwise None.
+
+    """
     return get_label_for(data, "tag: component: ")
 
 
 def description(data):
-    """Returns a humanized description of the given issue or PR data."""
+    """ Returns a humanized description of the given issue or PR data.
+
+    """
     component = get_label_component(data)
     component_str = "" if not component else f"[component: {component}] "
     return f'#{data["node"]["number"]} {component_str}{data["node"]["title"]}'
 
 
-def get_milestone_number(title, token):
-    """Iterates over all open milestones looking for one with the given title."""
+def get_milestone_number(title, token, allow_closed):
+    """ Iterates over all open milestones looking for one with the given title.
+
+    """
+    open_str = "" if allow_closed else "states: OPEN,"
 
     def helper(cursor=None):
         cursor_or_null = f'"{cursor}"' if cursor else "null"
         query = f"""
         {{
-            repository(owner: "bokeh", states: OPEN, name: "bokeh") {{
-                milestones(first: 10, after: {cursor_or_null}) {{
+            repository(owner: "bokeh", name: "bokeh") {{
+                milestones(first: 10, {open_str} after: {cursor_or_null}) {{
                     edges {{
                         node {{
                             number
@@ -78,15 +105,16 @@ def get_milestone_number(title, token):
             }}
         }}
         """
-        request = query_github(query, token)
-        milestones = request.json()["data"]["repository"]["milestones"]
+        data = query_github(query, token)
+        if not data:
+            print("error: graphql query failure", file=sys.stderr)
+            sys.exit(1)
+        milestones = data["repository"]["milestones"]
         end_cursor = milestones["pageInfo"]["endCursor"]
         for edge in milestones["edges"]:
             if edge["node"]["title"] == title:
                 return edge["node"]["number"]
-        if not end_cursor:
-            return None
-        return helper(end_cursor)
+        return helper(end_cursor) if end_cursor else None
 
     return helper()
 
@@ -109,7 +137,7 @@ def check_issue(data, problems):
     if any(label.startswith("status:") for label in labels):
         problems.append(f"issue has a status: {description(data)}")
 
-    # no issues with a type: label
+    # no issues without a type: label
     num_types = sum(1 for label in labels if label.startswith("type:"))
     if num_types == 0:
         problems.append(f"issue does not have a type: {description(data)}")
@@ -117,10 +145,6 @@ def check_issue(data, problems):
     # no issues with multiple type: labels
     if num_types > 1:
         problems.append(f"issue has multiple types: {description(data)}")
-
-    # no issues without a type: label
-    if sum(1 for label in labels if label.startswith("type:")) <= 0:
-        problems.append(f"issue has no type: {description(data)}")
 
     # no issues with invalid type: labels
     if any(label not in VALID_TYPES for label in labels if label.startswith("type:")):
@@ -155,13 +179,9 @@ def check_pr(data, problems):
     if sum(1 for label in labels if label.startswith("status:")) > 1:
         problems.append(f"PR has too many statuses: {description(data)}")
 
-    # no prs with more than one type: label
+    # no prs with multiple type: labels
     if sum(1 for label in labels if label.startswith("type:")) > 1:
         problems.append(f"PR has multiple types: {description(data)}")
-
-    # no prs without a type: label
-    if sum(1 for label in labels if label.startswith("type:")) <= 0:
-        problems.append(f"PR has no type: {description(data)}")
 
     # no prs with invalid type: labels
     if any(label not in VALID_TYPES for label in labels if label.startswith("type:")):
@@ -172,12 +192,11 @@ def check_pr(data, problems):
         problems.append(f"PR is in triage: {description(data)}")
 
 
-def get_milestone_items(title, token):
-    """
-    Returns the issues and PRs in the milestone with the given title,
+def get_milestone_items(title, token, allow_closed):
+    """ Returns the issues and PRs in the milestone with the given title,
     otherwise None if the milestone doesn't exist.
     """
-    milestone_number = get_milestone_number(title, token)
+    milestone_number = get_milestone_number(title, token, allow_closed)
     if not milestone_number:
         return None
 
@@ -212,8 +231,11 @@ def get_milestone_items(title, token):
             }}
         }}
         """
-        request = query_github(query, token)
-        items = request.json()["data"]["repository"]["milestone"][kind]
+        data = query_github(query, token)
+        if not data:
+            print("error: graphql query failure", file=sys.stderr)
+            sys.exit(1)
+        items = data["repository"]["milestone"][kind]
         end_cursor = items["pageInfo"]["endCursor"]
         for edge in items["edges"]:
             edge["kind"] = kind
@@ -250,25 +272,38 @@ def check_milestone_items(items):
     "--check-only",
     default=False,
     is_flag=True,
-    help="Only verify the milestone for compliance, do not write to changelog",
+    help="Only verify the milestone for compliance, do not output changelog section(s)",
 )
-def main(milestone, log_level, verbose, check_only):
-    """
-    Generates a bokeh changelog entry using the GitHub API.
+@click.option(
+    "-s",
+    "--section-only",
+    default=False,
+    is_flag=True,
+    help="Only output the new changelog section, do not output the entire changelog",
+)
+@click.option(
+    "-a",
+    "--allow-closed",
+    default=False,
+    is_flag=True,
+    help="Allow processing of closed milestones",
+)
+def main(milestone, log_level, verbose, check_only, section_only, allow_closed):
+    """ Generates a bokeh changelog which includes the given milestone.
 
-    Requires that you set GITHUB_API_TOKEN to your GitHub API Token. Exit code 2
+    Requires that you set GITHUB_TOKEN to your GitHub API Token. Exit code 2
     indicates there was a verification problem whereas exit code 1 indicates a general
     error in the script. Otherwise you can expect an exit code of 0 for success.
     """
     log_level = "DEBUG" if verbose else log_level
     logging.basicConfig(level=log_level)
 
-    token = os.environ.get("GITHUB_API_TOKEN", None)
+    token = os.environ.get("GITHUB_TOKEN", None)
     if not token:
-        print("error: GITHUB_API_TOKEN is not set", file=sys.stderr)
+        print("error: GITHUB_TOKEN is not set", file=sys.stderr)
         sys.exit(1)
 
-    items = get_milestone_items(milestone, token)
+    items = get_milestone_items(milestone, token, allow_closed)
     if not items:
         print(f"error: no such milestone: {milestone}", file=sys.stderr)
         sys.exit(1)
@@ -284,7 +319,7 @@ def main(milestone, log_level, verbose, check_only):
 
     print(f"{datetime.date.today()} {milestone:>8}:")
     print("--------------------")
-    grouping = lambda item: get_label_type(item)
+    grouping = lambda item: get_label_type(item) or "none"
     items = sorted(items, key=grouping)
     for group_type, group in groupby(items, grouping):
         if group_type == "bug":
@@ -293,8 +328,13 @@ def main(milestone, log_level, verbose, check_only):
             print("  * features:")
         elif group_type == "task":
             print("  * tasks:")
+        elif group_type == "none":
+            continue
         for item in group:
             print(f"    - {description(item)}")
+    if not section_only:
+        print()
+        print(open(REPO_ROOT / "CHANGELOG").read())
 
 
 if __name__ == "__main__":
