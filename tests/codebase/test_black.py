@@ -20,7 +20,7 @@ from os import chdir
 from subprocess import run
 
 # Bokeh imports
-from . import TOP_PATH, ls_files
+from . import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests
