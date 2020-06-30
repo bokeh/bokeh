@@ -794,9 +794,11 @@ export class PlotView extends LayoutDOMView {
     if (!super.has_finished())
       return false
 
-    for (const [, renderer_view] of this.renderer_views) {
-      if (!renderer_view.has_finished())
-        return false
+    if (this.model.visible) {
+      for (const [, renderer_view] of this.renderer_views) {
+        if (!renderer_view.has_finished())
+          return false
+      }
     }
 
     return true
@@ -837,7 +839,6 @@ export class PlotView extends LayoutDOMView {
       // XXX: can't be this.request_paint(), because it would trigger back-and-forth
       // layout recomputing feedback loop between plots. Plots are also much more
       // responsive this way, especially in interactive mode.
-      this._needs_paint = false
       this.paint()
     }
   }
@@ -849,7 +850,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   paint(): void {
-    if (this.is_paused)
+    if (this.is_paused || !this.model.visible)
       return
 
     logger.trace(`PlotView.paint() for ${this.model.id}`)
@@ -930,6 +931,8 @@ export class PlotView extends LayoutDOMView {
 
     if (this._initial_state_info.range == null)
       this.set_initial_range()
+
+    this._needs_paint = false
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {

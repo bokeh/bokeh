@@ -156,7 +156,7 @@ export class CanvasLayer {
 export class CanvasView extends DOMView {
   model: Canvas
 
-  bbox: BBox
+  bbox: BBox = new BBox()
 
   webgl?: WebGLState
 
