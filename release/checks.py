@@ -138,7 +138,7 @@ def check_docs_version_config(config: Config, system: System) -> ActionReturn:
                 return FAILED(f"Version {config.version!r} is missing from 'all' versions")
             if V(config.version) > V(latest_version):
                 return FAILED(f"Version {config.version!r} is not configured as 'latest' version")
-            return PASSED(f"Docs versions config is correct")
+            return PASSED("Docs versions config is correct")
     except RuntimeError as e:
         return FAILED("Could not check docs versions config", details=e.args)
 
@@ -179,6 +179,7 @@ def check_staging_branch_is_available(config: Config, system: System) -> ActionR
         return PASSED(f"Release branch {config.staging_branch!r} does not already exist")
 
 
+@skip_for_prerelease
 def check_milestone_labels(config: Config, system: System) -> ActionReturn:
     try:
         # system.run(f"python scripts/milestone.py {config.version} --check-only")

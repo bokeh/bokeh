@@ -45,7 +45,7 @@ def clean_repo(config: Config, system: System) -> ActionReturn:
         system.run("git clean -fdx")
         return PASSED("Cleaned the repo checkout")
     except RuntimeError as e:
-        return FAILED(f"Could NOT clean the repo checkout", details=e.args)
+        return FAILED("Could NOT clean the repo checkout", details=e.args)
 
 
 def commit_staging_branch(config: Config, system: System) -> ActionReturn:
@@ -58,7 +58,7 @@ def commit_staging_branch(config: Config, system: System) -> ActionReturn:
     try:
         system.run(f"git commit -m'Deployment updates for release {config.version}'")
     except RuntimeError as e:
-        return FAILED(f"Could not git commit deployment updates", details=e.args)
+        return FAILED("Could not git commit deployment updates", details=e.args)
     return PASSED(f"Committed deployment updates for release {config.version!r}")
 
 
