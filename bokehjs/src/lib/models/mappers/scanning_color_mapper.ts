@@ -19,24 +19,24 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
 
   metrics: {min: number, max: number, binning: Arrayable<number>}
 
-    protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, edges: any): T {
-
-    if (d < edges.binning[0]) {
+  protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, edges: any): T {
+    if (d < edges.binning[0])
       return low_color
-    }
-    if (d > edges.binning[edges.binning.length-1]) {
+    if (d > edges.binning[edges.binning.length-1])
       return high_color
-    }
 
     let key = 0
-    for (let i = 0, end = edges.binning.length - 2; i < end; i++) {
+    for (let i = 0, end = edges.binning.length - 1; i < end; i++) {
       const low_edge = edges.binning[i]
       const high_edge = edges.binning[i+1]
       key = i
-      if (low_edge <= d && d < high_edge) {
+      if ((d >= low_edge) && (d < high_edge))
         break
-      }
     }
-    return palette[key]
+
+    // Adjust for zero-valued bins
+    const span = (palette.length-edges.nonzero)
+    const index = Math.floor(((key - edges.nonzero) / span) * palette.length)
+    return palette[Math.max(index, 0)]
   }
 }

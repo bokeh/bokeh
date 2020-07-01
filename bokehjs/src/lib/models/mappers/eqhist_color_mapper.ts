@@ -1,7 +1,7 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, map} from "core/util/arrayable"
-import {linspace, cumsum, sum} from "core/util/array"
+import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
+import {linspace, cumsum} from "core/util/array"
 import * as p from "core/properties"
 
 export namespace EqHistColorMapper {
@@ -27,49 +27,34 @@ export class EqHistColorMapper extends ScanningColorMapper {
     })
   }
 
-  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
+  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, nonzero: number, binning: Arrayable<number>} {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
-    const span = high - low
 
     // Compute bin edges and histogram counts
     const nbins = this.bins
-    const bin_edges = linspace(low, high, nbins+1)
-    const hist = bin_counts(data, bin_edges)
+    const eq_bin_edges = linspace(low, high, nbins+1)
+    const hist = bin_counts(data, eq_bin_edges)
 
-    const samples = data.length 
-    const weighting = map(hist, (x) => x / samples)
-      
-    let position = low
-    const new_edges = new Array(1)
-    new_edges[0] = low
-    const eq_diff = (high - low) / n
-     
-    for (let i=0; i < weighting.length; i++) {
-        if (weighting[i] != 0) {
-            position += eq_diff * weighting[i]
-            new_edges.push(position)
-        }
+    // CDFs
+    const cdf = cumsum(hist)
+    const cdf_max = cdf[cdf.length - 1]
+    const norm_cdf = map(cdf, (x) => x / cdf_max)
+
+    // Interpolate
+    const palette_edges = linspace(0, n, n + 1)
+    const palette_cdf = map(norm_cdf, (x) => x*n)
+    const interpolated = interpolate(palette_edges, palette_cdf, eq_bin_edges)
+    const binning = map(interpolated, (x) => (x || 0))
+    let nonzero = n;
+    for (let i = 0, end = binning.length - 1; i < end; i++) {
+      const low_edge = binning[i]
+      const high_edge = binning[i+1]
+      if ((high_edge-low_edge)>0) {
+        nonzero = i
+        break
+      }
     }
-      
-    const norm_interpolated = map(new_edges, (x) => (x - min(new_edges))
-                                  / (max(new_edges) - min(new_edges)))
-
-    let diff = [];
-    for (let i = 1; i < (norm_interpolated.length); i++) {
-        diff.push(norm_interpolated[i] - norm_interpolated[i - 1])
-    }
-
-    let delta = 1/diff.length
-    let ratio = diff.map( x  =>  x / delta)
-    let inv_ratio = ratio.map( x  =>  1 / x)
-    let ratio_sum = sum(ratio)
-    let inv_ratio_sum = sum(inv_ratio)
-    let adjusted = inv_ratio.map(x => (x / inv_ratio_sum) * ratio_sum)
-    let adjusted_bins = adjusted.map((_, i) => adjusted[i] * delta)
-    let adjusted_edges = [0].concat(cumsum(adjusted_bins))
-      
-    const result = map(adjusted_edges, (x) =>  (x-low)*span)
-    return {min: low, max: high, binning: result}
+    return {min: low, max: high, binning, nonzero}
   }
 }
