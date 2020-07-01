@@ -18,9 +18,10 @@ dependencies:
   # tests
   - beautifulsoup4
   - black
+  - channels
+  - click
   - colorama
   - colorcet
-  - channels
   - coverage
   - firefox
   - flake8
