@@ -149,22 +149,6 @@ export function min(array: Arrayable<number>): number {
   return result
 }
 
-export function argmin(array: Arrayable<number>): number {
-  let value: number
-  let minimum = Infinity
-  let result = Infinity
-
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
-    if (!isNaN(value) && value < minimum) {
-      minimum = value
-      result = i
-    }
-  }
-
-  return result
-}
-
 export function max(array: Arrayable<number>): number {
   let value: number
   let result = -Infinity
@@ -178,23 +162,6 @@ export function max(array: Arrayable<number>): number {
 
   return result
 }
-
-export function argmax(array: Arrayable<number>): number {
-  let value: number
-  let maximum = -Infinity
-  let result = Infinity
-
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
-    if (!isNaN(value) && value > maximum) {
-      maximum = value
-      result = i
-    }
-  }
-
-  return result
-}
-
 
 export function minmax(array: Arrayable<number>): [number, number] {
   let value: number
@@ -357,20 +324,33 @@ export function interpolate(points: Arrayable<number>, x_values: Arrayable<numbe
       index--
     }
 
-    const x0 = x_values[index]
-    const y0 = y_values[index]
-    const x1 = x_values[index + 1]
-    const y1 = y_values[index + 1]
-    results[i] = lerp(point, x0, y0, x1, y1)
+    let res: number
+    if (index == x_values.length)
+      res = y_values[y_values.length-1]
+    else if ((index == x_values.length-1) || (x_values[index] == point))
+      res = y_values[index]
+    else {
+      const x0 = x_values[index]
+      const y0 = y_values[index]
+      const x1 = x_values[index + 1]
+      const y1 = y_values[index + 1]
+      res = lerp(point, x0, y0, x1, y1)
+    }
+    results[i] = res
   }
-
   return results
 }
 
 function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number {
+  // Copies NumPy's np.interp implementation
   const a = (y1 - y0)/(x1 - x0)
-  const b = -a*x0 + y0
-  return a*x + b
+  let res = a*(x-x0) + y0
+  if (!isFinite(res)) {
+    res = a*(x-x1) + y1
+    if (!isFinite(res))
+      res = y0
+  }
+  return res
 }
 
 function left_edge_index(point: number, intervals: Arrayable<number>): number {
