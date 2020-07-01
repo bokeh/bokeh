@@ -96,11 +96,9 @@ export class InfoPaneView extends AnnotationView {
     this.el.classList.remove(bk_above)
     this.el.classList.remove(bk_below)
 
-    if(this.model.show_arrow == false){
-      var arrow_size : number  // XXX: keep in sync with less
+    let arrow_size: number = 10 // XXX: keep in sync with less
+    if(this.model.show_arrow == false)
       arrow_size = 0
-    } else
-      arrow_size = 10
 
     display(this.el)
 

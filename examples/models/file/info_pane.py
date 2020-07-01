@@ -1,5 +1,5 @@
-from bokeh.plotting import figure, show
 from bokeh.models import InfoPane
+from bokeh.plotting import figure, show
 
 plot = figure(width = 400, height = 400, x_range = (0,10), y_range = (0,10), toolbar_location = None)
 plot.circle([1, 8, 3, 4, 5], [2, 4, 8, 2, 7], size = 10)
@@ -22,4 +22,4 @@ plot.add_layout(pane3)
 plot.add_layout(pane4)
 plot.add_layout(pane5)
 
-show(p)
+show(plot)
