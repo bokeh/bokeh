@@ -313,41 +313,43 @@ export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>
 }
 
 export function interpolate(points: Arrayable<number>, x_values: Arrayable<number>, y_values: Arrayable<number>): Arrayable<number> {
+  // Implementation ported from np.interp
+
   const n = points.length
   const results: number[] = new Array(n)
 
   for (let i = 0; i < n; i++) {
     const point = points[i]
 
-    let index = left_edge_index(point, x_values)
-    if (index == x_values.length - 1) {
-      index--
+    if (isNaN(point)) {
+      results[i] = point
+      continue
     }
 
-    let res: number
-    if (index == x_values.length)
-      res = y_values[y_values.length-1]
-    else if ((index == x_values.length-1) || (x_values[index] == point))
-      res = y_values[index]
-    else {
+    let index = left_edge_index(point, x_values)
+    if (index == -1)
+      results[i] = y_values[0]
+    else if (index == x_values.length)
+      results[i] = y_values[y_values.length-1]
+    else if ((index == x_values.length-1) || (x_values[index] == point)) {
+      results[i] = y_values[index]
+    } else {
       const x0 = x_values[index]
       const y0 = y_values[index]
       const x1 = x_values[index + 1]
       const y1 = y_values[index + 1]
-      res = lerp(point, x0, y0, x1, y1)
+      results[i] = lerp(point, x0, y0, x1, y1)
     }
-    results[i] = res
   }
   return results
 }
 
 function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number {
-  // Copies NumPy's np.interp implementation
-  const a = (y1 - y0)/(x1 - x0)
-  let res = a*(x-x0) + y0
+  const slope = (y1 - y0)/(x1 - x0)
+  let res = slope*(x-x0) + y0
   if (!isFinite(res)) {
-    res = a*(x-x1) + y1
-    if (!isFinite(res))
+    res = slope*(x-x1) + y1
+    if (!isFinite(res) && (y0 == y1))
       res = y0
   }
   return res
@@ -355,9 +357,9 @@ function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number
 
 function left_edge_index(point: number, intervals: Arrayable<number>): number {
   if (point < intervals[0])
-    return 0
+    return -1
   if (point > intervals[intervals.length - 1])
-    return intervals.length - 1
+    return intervals.length
   let leftEdgeIndex = 0
   let rightEdgeIndex = intervals.length - 1
   while (rightEdgeIndex - leftEdgeIndex != 1) {
