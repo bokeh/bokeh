@@ -1,7 +1,7 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, map, filter, interpolate} from "core/util/arrayable"
-import {linspace, range, cumsum} from "core/util/array"
+import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
+import {linspace, range, cumsum, uniq} from "core/util/array"
 import * as p from "core/properties"
 
 export namespace EqHistColorMapper {
@@ -27,7 +27,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     })
   }
 
-  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, lower: number, upper: number, binning: Arrayable<number>} {
+  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, lower: number, binning: Arrayable<number>} {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 
@@ -50,11 +50,14 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
     // Interpolate
     const palette_edges = range(0, n)
-    const palette_cdf = map(norm_cdf, (x) => x*n)
+    const palette_cdf = map(norm_cdf, (x) => x*(n-1))
     const binning = interpolate(palette_edges, palette_cdf, eq_bin_centers)
 
-    const left = low == 0 ? min(filter(data, (n) => n != low)) : low
-    const [lower, upper] = interpolate([left, high], binning, palette_edges)
-    return {min: low, max: high, binning, lower, upper}
+    const bins = []
+	for (let bin of binning)
+      bins.push(bin)
+	const low_bin = uniq(bins)[1]
+	const lower = bins.indexOf(low_bin)
+    return {min: low, max: high, binning, lower}
   }
 }
