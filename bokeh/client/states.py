@@ -80,9 +80,9 @@ class DISCONNECTED(object):
 
     '''
 
-    def __init__(self, reason=ErrorReason.NO_ERROR, error_code=0, error_detail=""):
-        ''' Constructs a DISCONNECT-State with given reason (``ErrorReason`` enum),
-        error id and additional infromation provided as string.
+    def __init__(self, reason=ErrorReason.NO_ERROR, error_code=None, error_detail=""):
+        ''' Constructs a DISCONNECT-State with given reason (``ErrorReason``
+        enum), error id and additional information provided as string.
 
         '''
         self._error_code = error_code
@@ -93,18 +93,21 @@ class DISCONNECTED(object):
     @property
     def error_reason(self):
         ''' The reason for the error encoded as an enumeration value.
+
         '''
         return self._error_reason
 
     @property
     def error_code(self):
-        ''' Holds the error code.
+        ''' Holds the error code, if any. None otherwise.
+
         '''
         return self._error_code
 
     @property
     def error_detail(self):
-        ''' Holds the error message, if any.
+        ''' Holds the error message, if any. Empty string otherwise.
+
         '''
         return self._error_detail
 

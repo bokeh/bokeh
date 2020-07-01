@@ -366,8 +366,6 @@ class ClientSession(object):
                 if self.error_code == 404:
                     raise IOError("Check your application path! The given Path is not valid: {}".format(self.url))
                 raise IOError("We received an HTTP-Error. Disconnected with error code: {}, given message: {}".format(self.error_id, self.error_message))
-            #elif self.error_reason is ErrorReason.NETWORK_ERROR:
-            #default:
             raise IOError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
 
 

@@ -112,16 +112,18 @@ class ClientConnection(object):
 
     @property
     def error_code(self):
-        ''' If there was an error that caused a disconnect,
-        this property holds the error id. 0 otherwise. '''
+        ''' If there was an error that caused a disconnect, this property holds
+        the error code. None otherwise.
+
+        '''
         if not isinstance(self._state, DISCONNECTED):
             return 0
         return self._state.error_code
 
     @property
     def error_detail(self):
-        ''' If there was an error that caused a disconnect,
-        this property holds the error detail. Empty string otherwise.
+        ''' If there was an error that caused a disconnect, this property holds
+        the error detail. Empty string otherwise.
 
         '''
         if not isinstance(self._state, DISCONNECTED):
