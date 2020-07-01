@@ -47,7 +47,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const interpolated = interpolate(palette_edges, palette_cdf, eq_bin_edges)
     const lower = argmin(interpolated)
     const upper = argmax(interpolated)
-    const binning = map(interpolated, (x) => (x || 0))
+    const binning = map(interpolated, (x) => isNaN(x) ? 0 : x)
     return {min: low, max: high, binning, lower, upper}
   }
 }
