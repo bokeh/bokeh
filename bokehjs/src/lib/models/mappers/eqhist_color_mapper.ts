@@ -1,6 +1,6 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
+import {argmin, argmax, min, max, bin_counts, map, interpolate} from "core/util/arrayable"
 import {linspace, cumsum} from "core/util/array"
 import * as p from "core/properties"
 
@@ -27,7 +27,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     })
   }
 
-  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, nonzero: number, binning: Arrayable<number>} {
+  protected scan(data: Arrayable<number>, n: number): {min: number, max: number, lower: number, upper: number, binning: Arrayable<number>} {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 
@@ -45,16 +45,9 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const palette_edges = linspace(0, n, n + 1)
     const palette_cdf = map(norm_cdf, (x) => x*n)
     const interpolated = interpolate(palette_edges, palette_cdf, eq_bin_edges)
+    const lower = argmin(interpolated)
+    const upper = argmax(interpolated)
     const binning = map(interpolated, (x) => (x || 0))
-    let nonzero = n;
-    for (let i = 0, end = binning.length - 1; i < end; i++) {
-      const low_edge = binning[i]
-      const high_edge = binning[i+1]
-      if ((high_edge-low_edge)>0) {
-        nonzero = i
-        break
-      }
-    }
-    return {min: low, max: high, binning, nonzero}
+    return {min: low, max: high, binning, lower, upper}
   }
 }
