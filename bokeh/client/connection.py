@@ -36,10 +36,9 @@ from .states import (
     CONNECTED_AFTER_ACK,
     CONNECTED_BEFORE_ACK,
     DISCONNECTED,
-    DISCONNECTED_HTTP_ERROR,
-    DISCONNECTED_NETWORK_ERROR,
     NOT_YET_CONNECTED,
     WAITING_FOR_REPLY,
+    ErrorReason,
 )
 from .websocket import WebSocketClientConnectionWrapper
 
@@ -105,32 +104,29 @@ class ClientConnection(object):
         return self._url
 
     @property
-    def error_id(self):
+    def error_reason(self):
+        ''' The reason of the connection loss encoded as a ``DISCONNECTED.ErrorReason`` enum value '''
+        if not isinstance(self._state, DISCONNECTED):
+            return None
+        return self._state.error_reason
+
+    @property
+    def error_code(self):
         ''' If there was an error that caused a disconnect,
         this property holds the error id. 0 otherwise. '''
         if not isinstance(self._state, DISCONNECTED):
             return 0
-        return self._state.error_id
+        return self._state.error_code
 
     @property
-    def error_msg(self):
+    def error_detail(self):
         ''' If there was an error that caused a disconnect,
-        this property holds the error message. Empty string otherwise.
+        this property holds the error detail. Empty string otherwise.
 
         '''
         if not isinstance(self._state, DISCONNECTED):
             return ""
-        return self._state.error_msg
-
-    @property
-    def is_http_error(self):
-        ''' Was the reason for the disconnect an HTTP error? '''
-        return isinstance(self._state, DISCONNECTED_HTTP_ERROR)
-
-    @property
-    def is_network_error(self):
-        ''' Was the reason for the disconnect a Networ error? '''
-        return isinstance(self._state, DISCONNECTED_NETWORK_ERROR)
+        return self._state.error_detail
 
     # Internal methods --------------------------------------------------------
 
@@ -271,20 +267,20 @@ class ClientConnection(object):
             socket = await websocket_connect(request, subprotocols=["bokeh", self._session.token])
             self._socket = WebSocketClientConnectionWrapper(socket)
         except HTTPClientError as e:
-            await self._transition_to_disconnected(DISCONNECTED_HTTP_ERROR(e.code, e.message))
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, e.code, e.message))
             return
         except Exception as e:
             log.info("Failed to connect to server: %r", e)
 
         if self._socket is None:
-            await self._transition_to_disconnected(DISCONNECTED_NETWORK_ERROR(-1, "Socket invalid."))
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.NETWORK_ERROR, None, "Socket invalid."))
         else:
             await self._transition(CONNECTED_BEFORE_ACK())
 
     async def _handle_messages(self):
         message = await self._pop_message()
         if message is None:
-            await self._transition_to_disconnected(DISCONNECTED_HTTP_ERROR(500, "Internal server error."))
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, 500, "Internal server error."))
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
@@ -400,7 +396,7 @@ class ClientConnection(object):
             log.debug("Received %r", message)
             await self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
-            await self._transition_to_disconnected(DISCONNECTED_HTTP_ERROR(500, "Internal server error."))
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, 500, "Internal server error."))
         else:
             raise ProtocolError("Received %r instead of ACK" % message)
 

@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from enum import Enum, auto
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -27,10 +30,9 @@ __all__ = (
     'CONNECTED_BEFORE_ACK',
     'CONNECTED_AFTER_ACK',
     'DISCONNECTED',
+    'ErrorReason',
     'NOT_YET_CONNECTED',
     'WAITING_FOR_REPLY',
-    'DISCONNECTED_NETWORK_ERROR',
-    'DISCONNECTED_HTTP_ERROR'
 )
 
 #-----------------------------------------------------------------------------
@@ -40,6 +42,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class ErrorReason(Enum):
+    NO_ERROR        = auto()
+    HTTP_ERROR      = auto()
+    NETWORK_ERROR   = auto()
 
 class NOT_YET_CONNECTED(object):
     ''' The ``ClientConnection`` is not yet connected.
@@ -70,49 +77,39 @@ class CONNECTED_AFTER_ACK(object):
 class DISCONNECTED(object):
     ''' The ``ClientConnection`` was connected to a Bokeh server, but is
     now disconnected.
-    The reason, why the connection has been closed is unknown.
 
     '''
-    def __init__(self):
-        self._errid = 0
-        self._message = ""
 
-    @property
-    def error_id(self):
-        ''' Holds the error id.
+    def __init__(self, reason=ErrorReason.NO_ERROR, error_code=0, error_detail=""):
+        ''' Constructs a DISCONNECT-State with given reason (``ErrorReason`` enum),
+        error id and additional infromation provided as string.
+
         '''
-        return self._errid
+        self._error_code = error_code
+        self._error_detail = error_detail
+        self._error_reason = reason
+
 
     @property
-    def error_message(self):
+    def error_reason(self):
+        ''' The reason for the error encoded as an enumeration value.
+        '''
+        return self._error_reason
+
+    @property
+    def error_code(self):
+        ''' Holds the error code.
+        '''
+        return self._error_code
+
+    @property
+    def error_detail(self):
         ''' Holds the error message, if any.
         '''
-        return self._message
+        return self._error_detail
 
     async def run(self, connection):
         return None
-
-class DISCONNECTED_NETWORK_ERROR(DISCONNECTED):
-    ''' The ``ClientConnection`` was connected to a Bokeh server, but is
-    now disconnected.
-    An network error was the cause of the disconnection.
-
-    '''
-    def __init__(self, network_errid, error_message ):
-            super().__init__()
-            self._errid = network_errid
-            self._message = error_message
-
-class DISCONNECTED_HTTP_ERROR(DISCONNECTED):
-    ''' The ``ClientConnection`` was connected to a Bokeh server, but is
-    now disconnected.
-    An HTTP error was the cause of the disconnection.
-
-    '''
-    def __init__(self, http_errid, http_message):
-        super().__init__()
-        self._errid    = http_errid
-        self._message  = http_message
 
 class WAITING_FOR_REPLY(object):
     ''' The ``ClientConnection`` has sent a message to the Bokeh Server which

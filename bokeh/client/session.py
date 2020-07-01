@@ -39,6 +39,7 @@ from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from ..util.browser import NEW_PARAM
 from ..util.token import generate_jwt_token, generate_session_id
+from .states import ErrorReason
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
@@ -291,16 +292,16 @@ class ClientSession(object):
         return self._connection.connected
 
     @property
-    def is_http_error(self):
-        return self._connection.is_http_error
+    def error_reason(self):
+        return self._connection.error_reason
 
     @property
-    def error_id(self):
-        return self._connection.error_id
+    def error_code(self):
+        return self._connection.error_code
 
     @property
-    def error_message(self):
-        return self._connection.error_message
+    def error_detail(self):
+        return self._connection.error_detail
 
     @property
     def url(self):
@@ -361,13 +362,11 @@ class ClientSession(object):
 
         '''
         if not self.connected:
-            if self.is_http_error:
-                if self.error_id == 404:
+            if self.error_reason is ErrorReason.HTTP_ERROR:
+                if self.error_code == 404:
                     raise IOError("Check your application path! The given Path is not valid: {}".format(self.url))
-                #default http_error:
                 raise IOError("We received an HTTP-Error. Disconnected with error code: {}, given message: {}".format(self.error_id, self.error_message))
-
-            #elif self.is_network_error:
+            #elif self.error_reason is ErrorReason.NETWORK_ERROR:
             #default:
             raise IOError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
 
