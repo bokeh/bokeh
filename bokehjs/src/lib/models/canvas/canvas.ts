@@ -271,14 +271,18 @@ export class CanvasView extends DOMView {
     }
   }
 
-  save(name: string): void {
-    const {output_backend} = this.model
+  compose(): CanvasLayer {
+    const {output_backend, hidpi} = this.model
     const {width, height} = this.bbox
-    const composite = new CanvasLayer(output_backend, false)
+    const composite = new CanvasLayer(output_backend, hidpi)
     composite.resize(width, height)
     composite.ctx.drawImage(this.primary.canvas, 0, 0)
     composite.ctx.drawImage(this.overlays.canvas, 0, 0)
-    composite.save(name)
+    return composite
+  }
+
+  save(name: string): void {
+    this.compose().save(name)
   }
 }
 
