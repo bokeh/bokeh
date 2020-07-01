@@ -56,8 +56,10 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const bins = []
 	for (let bin of binning)
       bins.push(bin)
-	const low_bin = uniq(bins)[1]
+	const uniq_bins = uniq(bins)
+	const low_bin = uniq_bins[1]
 	const lower = bins.indexOf(low_bin)
-    return {min: low, max: high, binning, lower}
+	const offset = Math.round(uniq_bins.length*((low_bin-bins[0])/n))
+    return {min: low, max: high, binning, lower: lower-offset}
   }
 }
