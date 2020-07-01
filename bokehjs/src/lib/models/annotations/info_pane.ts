@@ -2,14 +2,13 @@ import {Annotation, AnnotationView} from "./annotation"
 import {SpatialUnits, TooltipAttachment} from "core/enums"
 import {div, display, undisplay, empty, remove} from "core/dom"
 import * as p from "core/properties"
+import {Scale} from "models/scales/scale"
+import {CoordinateMapper} from "core/util/bbox"
 
 import {bk_tooltip, bk_tooltip_arrow} from "styles/tooltips"
 import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
 
 import tooltips_css from "styles/tooltips.css"
-import { Scale } from "models/scales/scale"
-import { CoordinateMapper } from "core/util/bbox"
-
 
 export class InfoPaneView extends AnnotationView {
   model: InfoPane
@@ -72,7 +71,6 @@ export class InfoPaneView extends AnnotationView {
     return([this.x, this.y])
   }
 
-
   protected _render(): void {
     empty(this.el)
     undisplay(this.el)
@@ -84,11 +82,12 @@ export class InfoPaneView extends AnnotationView {
     const {frame} = this.plot_view
     const [x, y] = this._map_data()
 
-    for (const part of content) {
-      if (this.model.inner_only && !frame.bbox.contains(x, y))
-        continue
-      const pane = div({}, part)
-      this.el.appendChild(pane)
+    if (this.model.inner_only && !frame.bbox.contains(x, y)){
+    } else {
+      for (const part of content) {
+        const pane = div({}, part)
+        this.el.appendChild(pane)
+      }
     }
 
     const {anchor} = this.model
@@ -97,7 +96,11 @@ export class InfoPaneView extends AnnotationView {
     this.el.classList.remove(bk_above)
     this.el.classList.remove(bk_below)
 
-    const arrow_size = 10  // XXX: keep in sync with less
+    if(this.model.show_arrow == false){
+      var arrow_size : number  // XXX: keep in sync with less
+      arrow_size = 0
+    } else
+      arrow_size = 10
 
     display(this.el)
 
@@ -111,7 +114,7 @@ export class InfoPaneView extends AnnotationView {
     switch (anchor) {
       case "left":
         this.el.classList.add(bk_left)
-        left = x +arrow_size
+        left = x + arrow_size
         top = y - this.el.offsetHeight/2
         break
       case "right":
@@ -153,7 +156,7 @@ export namespace InfoPane {
     x: p.Property<number>
     y: p.Property<number>
     position_units: p.Property<SpatialUnits>
-    content: p.Property<[string][]>
+    content: p.Property<[HTMLElement][]>
   }
 }
 
