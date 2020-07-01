@@ -53,7 +53,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, threshold?: number}
+type Test = {description: string, skip: boolean, threshold?: number, dpr?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -161,12 +161,16 @@ async function run_tests(): Promise<boolean> {
       await Page.enable()
       await Log.enable()
 
-      await Emulation.setDeviceMetricsOverride({
-        width: 2000,
-        height: 4000,
-        deviceScaleFactor: 1,
-        mobile: false,
-      })
+      async function override_metrics(dpr: number = 1): Promise<void> {
+        await Emulation.setDeviceMetricsOverride({
+          width: 2000,
+          height: 4000,
+          deviceScaleFactor: dpr,
+          mobile: false,
+        })
+      }
+
+      override_metrics()
 
       const {errorText} = await Page.navigate({url})
 
@@ -322,7 +326,16 @@ async function run_tests(): Promise<boolean> {
             async function run_test(i: number | null, status: Status): Promise<boolean> {
               let may_retry = false
               const seq = JSON.stringify(to_seq(suites, test))
-              const output = await evaluate<Result>(`Tests.run(${seq})`)
+              const output = await (async () => {
+                if (test.dpr != null)
+                  override_metrics(test.dpr)
+                try {
+                  return await evaluate<Result>(`Tests.run(${seq})`)
+                } finally {
+                  if (test.dpr != null)
+                    override_metrics()
+                }
+              })()
               try {
                 const errors = entries.filter((entry) => entry.level == "error")
                 if (errors.length != 0) {
