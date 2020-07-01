@@ -1,6 +1,6 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
+import {min, max, bin_counts, map, filter, interpolate} from "core/util/arrayable"
 import {linspace, range, cumsum} from "core/util/array"
 import * as p from "core/properties"
 
@@ -53,23 +53,8 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const palette_cdf = map(norm_cdf, (x) => x*n)
     const binning = interpolate(palette_edges, palette_cdf, eq_bin_centers)
 
-    let minimum = binning[0]
-    let maximum = binning[0];
-    let lower: number = 0
-	let upper: number = binning.length
-    for (let i = 0, length = binning.length; i < length; i++) {
-      const value = binning[i]
-      if (isNaN(value))
-        continue
-	  if (value <= minimum) {
-        minimum = value
-        lower = i
-      }
-	  if (value >= maximum) {
-        maximum = value
-        upper = i
-      }
-    }
-    return {min: low, max: high, binning, lower: lower, upper}
+    const left = low == 0 ? min(filter(data, (n) => n != low)) : low
+    const [lower, upper] = interpolate([left, high], binning, palette_edges)
+    return {min: low, max: high, binning, lower, upper}
   }
 }

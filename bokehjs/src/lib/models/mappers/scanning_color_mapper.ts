@@ -28,14 +28,14 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     let key = 0
     for (let i = 0, end = edges.binning.length-2; i < end; i++) {
       const low_edge = edges.binning[i]
-	  const high_edge = edges.binning[i+1]
+      const high_edge = edges.binning[i+1]
       key = i
       if ((d >= low_edge) && (d < high_edge))
         break
     }
 
     // Adjust for zero-valued bins
-	const lower = Math.max(edges.lower-1, 0)
+    const lower = Math.max(edges.lower-1, 0)
     const span = (edges.upper-lower)
     const index = Math.floor(((key-lower) / span) * palette.length)
     return palette[Math.max(index, 0)]
