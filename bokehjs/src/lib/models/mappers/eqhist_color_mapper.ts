@@ -52,7 +52,6 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const palette_edges = range(0, n)
     const palette_cdf = map(norm_cdf, (x) => x*n)
     const binning = interpolate(palette_edges, palette_cdf, eq_bin_centers)
-    console.log(palette_edges, palette_cdf, eq_bin_centers, binning)
 
     let minimum = binning[0]
     let maximum = binning[0];
@@ -71,6 +70,6 @@ export class EqHistColorMapper extends ScanningColorMapper {
         upper = i
       }
     }
-    return {min: low, max: high, binning, lower: lower-1, upper}
+    return {min: low, max: high, binning, lower: lower, upper}
   }
 }

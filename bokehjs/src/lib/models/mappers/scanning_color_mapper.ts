@@ -35,8 +35,9 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     }
 
     // Adjust for zero-valued bins
-    const span = (edges.upper-edges.lower)
-    const index = Math.floor(((key - edges.lower) / span) * palette.length)
+	const lower = Math.max(edges.lower-1, 0)
+    const span = (edges.upper-lower)
+    const index = Math.floor(((key-lower) / span) * palette.length)
     return palette[Math.max(index, 0)]
   }
 }
