@@ -21,6 +21,7 @@ export type Test = Decl & {
   view?: LayoutDOMView
   el?: HTMLElement
   threshold?: number
+  dpr?: number
 }
 
 export type Suite = {
@@ -50,6 +51,7 @@ type _It = ItFn & {
   skip: Fn
   with_server: Fn
   allowing: (threshold: number) => ItFn
+  dpr: (dpr: number) => ItFn
 }
 
 function _it(description: string, fn: Func | AsyncFunc, skip: boolean): Test {
@@ -66,6 +68,14 @@ export function allowing(threshold: number): ItFn {
   }
 }
 
+export function dpr(dpr: number): ItFn {
+  return (description: string, fn: Func | AsyncFunc): Test => {
+    const test = it(description, fn)
+    test.dpr = dpr
+    return test
+  }
+}
+
 export function skip(description: string, fn: Func | AsyncFunc): Test {
   return _it(description, fn, true)
 }
@@ -76,6 +86,7 @@ export const it: _It = ((description: string, fn: Func | AsyncFunc): Test => {
 it.skip = skip as any
 it.with_server = skip as any
 it.allowing = allowing
+it.dpr = dpr
 
 export function before_each(fn: Func | AsyncFunc): void {
   stack[0].before_each.push({fn})
