@@ -26,11 +26,10 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
       return high_color
 
     let key = 0
-    for (let i = 0, end = edges.binning.length - 1; i < end; i++) {
-      const low_edge = edges.binning[i]
-      const high_edge = edges.binning[i+1]
-      key = i
-      if ((d >= low_edge) && (d < high_edge))
+    for (let i = 1, end = edges.binning.length; i < end; i++) {
+      const high_edge = edges.binning[i]
+      key = i-1
+      if (d < high_edge)
         break
     }
 
