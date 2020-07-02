@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from enum import Enum, auto
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -27,6 +30,7 @@ __all__ = (
     'CONNECTED_BEFORE_ACK',
     'CONNECTED_AFTER_ACK',
     'DISCONNECTED',
+    'ErrorReason',
     'NOT_YET_CONNECTED',
     'WAITING_FOR_REPLY',
 )
@@ -38,6 +42,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class ErrorReason(Enum):
+    NO_ERROR        = auto()
+    HTTP_ERROR      = auto()
+    NETWORK_ERROR   = auto()
 
 class NOT_YET_CONNECTED(object):
     ''' The ``ClientConnection`` is not yet connected.
@@ -70,6 +79,37 @@ class DISCONNECTED(object):
     now disconnected.
 
     '''
+
+    def __init__(self, reason=ErrorReason.NO_ERROR, error_code=None, error_detail=""):
+        ''' Constructs a DISCONNECT-State with given reason (``ErrorReason``
+        enum), error id and additional information provided as string.
+
+        '''
+        self._error_code = error_code
+        self._error_detail = error_detail
+        self._error_reason = reason
+
+
+    @property
+    def error_reason(self):
+        ''' The reason for the error encoded as an enumeration value.
+
+        '''
+        return self._error_reason
+
+    @property
+    def error_code(self):
+        ''' Holds the error code, if any. None otherwise.
+
+        '''
+        return self._error_code
+
+    @property
+    def error_detail(self):
+        ''' Holds the error message, if any. Empty string otherwise.
+
+        '''
+        return self._error_detail
 
     async def run(self, connection):
         return None
