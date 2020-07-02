@@ -417,8 +417,6 @@ class ClientSession(object):
 
         self.connect()
         self.check_connection_errors()
-        #if not self.connected:
-         #   raise IOError("Cannot push session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)
