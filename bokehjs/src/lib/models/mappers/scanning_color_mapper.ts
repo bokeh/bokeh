@@ -34,10 +34,6 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
         break
     }
 
-    // Adjust for non-finite bins
-	const n = palette.length-1
-    const span = (n-edges.lower)
-    const index = Math.floor(((key-edges.lower) / span) * n)
-	return palette[Math.max(index, 0)]
+    return palette[key]
   }
 }
