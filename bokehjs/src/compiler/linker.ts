@@ -613,9 +613,9 @@ export ${export_type} css;
         if (!path.startsWith("..")) {
           if (type == "js") {
             const {dir, pkg} = get_package(base, path)
-            const reso = pkg.module != null ? "ESM" : "CJS"
+            const reso = pkg.type == "module" || pkg.module != null ? "ESM" : "CJS"
             const entry = pkg.module ?? pkg.name
-            const primary = join(dir, entry) == join(base, path)
+            const primary = entry != null && join(dir, entry) == join(base, path)
             const name = canonicalize(primary ? basename(dir) : path)
             const exported = this.exports.has(name)
             return [base, path, exported ? name : undefined, reso]
