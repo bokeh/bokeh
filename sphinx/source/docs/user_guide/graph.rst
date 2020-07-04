@@ -13,7 +13,7 @@ The key feature of the ``GraphRenderer`` is that it maintains separate
 sub-GlyphRenderers for the graph nodes and the graph edges. This allows for
 customizing the nodes by modifying the GraphRenderer's ``node_renderer``
 property. It's possible to replace the default Circle node glyph with any
-XYGlyph instance, for example a Rect or Oval glyph. Similarly, the style
+XYGlyph instance, for example a Rect or Ellipse glyph. Similarly, the style
 properties of the edges can modified through the ``edge_renderer`` property.
 The edge glyph is currently limited to a MultiLine glyph.
 
@@ -32,16 +32,16 @@ tooltips.
 
 Here's a code snippet that:
 
-- replaces the node glyph with an Oval
-- sets the ``height`` and ``width`` attributes of the Oval as scalar values
-- sets the ``fill_color`` attribute of the Oval as a vectorized field and adds
+- replaces the node glyph with an Ellipse
+- sets the ``height`` and ``width`` attributes of the Ellipse as scalar values
+- sets the ``fill_color`` attribute of the Ellipse as a vectorized field and adds
   the values to the node data source.
 
 .. code-block:: python
 
     import math
     from bokeh.plotting import figure
-    from bokeh.models import GraphRenderer, Oval
+    from bokeh.models import GraphRenderer, Ellipse
     from bokeh.palettes import Spectral8
 
     N = 8
@@ -52,7 +52,7 @@ Here's a code snippet that:
 
     graph = GraphRenderer()
 
-    graph.node_renderer.glyph = Oval(height=0.1, width=0.2, fill_color="fill_color")
+    graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2, fill_color="fill_color")
     graph.node_renderer.data_source.data = dict(
         index=node_indices,
         fill_color=Spectral8)

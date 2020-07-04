@@ -19,3 +19,8 @@ And several other bug fixes and docs additions. For full details see the
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Implement ``Glyph.scenterxy()`` instead.
+
+``Oval`` glyph deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``Ellipse`` instead.

@@ -80,6 +80,7 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
+from ..util.deprecation import deprecated
 from .glyph import (
     ConnectedXYGlyph,
     FillGlyph,
@@ -791,6 +792,10 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
     will not render circles. Use the ``Ellipse`` glyph for that.
 
     '''
+
+    def __init__(self, **kwargs):
+        deprecated("'Oval' is deprecated and will be removed in Bokeh 3.0, use the Ellipse glyph instead")
+        super().__init__(**kwargs)
 
     __example__ = "examples/reference/models/Oval.py"
 
