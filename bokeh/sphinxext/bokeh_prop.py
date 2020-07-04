@@ -53,10 +53,14 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib
 import textwrap
+import warnings
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
+
+# Bokeh imports
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
 from .bokeh_directive import BokehDirective
@@ -101,7 +105,12 @@ class BokehPropDirective(BokehDirective):
         if model is None:
             raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (self.arguments[0], model_name, self.options['module']))
 
-        model_obj = model()
+        # We may need to instantiate deprecated objects as part of documenting
+        # them in the reference guide. Suppress any warnings here to keep the
+        # docs build clean just for this case
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+            model_obj = model()
 
         try:
             descriptor = getattr(model_obj.__class__, prop_name)
