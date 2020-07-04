@@ -59,7 +59,7 @@ export class Printer {
   }
 
   string(val: string): string {
-    return `"${val.replace(/'/g, "\\'")}"`
+    return `"${val.replace(/'/g, "\\'")}"`  // lgtm [js/incomplete-sanitization]
   }
 
   array(obj: Iterable<unknown>): string {
