@@ -63,11 +63,6 @@ p.multi_polygons(
     color="#FB9A99")
 children.append(p)
 
-p = figure(title="oval")
-p.oval(x, y, 15, 25, angle=-0.7, color="#1D91C0",
-       width_units="screen", height_units="screen")
-children.append(p)
-
 p = figure(title="patch")
 p.patch(x, y, color="#A6CEE3")
 children.append(p)

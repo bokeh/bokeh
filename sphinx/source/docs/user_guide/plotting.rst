@@ -350,24 +350,17 @@ potentially with a corresponding label or color.
 .. bokeh-plot:: docs/user_guide/examples/plotting_multipolygons.py
     :source-position: above
 
-.. _userguide_plotting_ovals_ellipses:
+.. _userguide_plotting_ellipses:
 
-Ovals and Ellipses
-~~~~~~~~~~~~~~~~~~
+Ellipses
+~~~~~~~~
 
-The |oval| glyph method accepts the same properties as |rect|, but renders
-oval shapes:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_ovals.py
-    :source-position: above
-
-The |ellipse| glyph accepts the same properties as |oval| and |rect| but
-renders ellipse shapes, which are different from oval ones. In particular,
-the same value for width and height will render a circle using the |ellipse|
-glyph but not the |oval| one:
+The |ellipse| glyph method accepts the same properties as |rect|, but renders
+ellipse shapes:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_ellipses.py
     :source-position: above
+
 
 .. _userguide_plotting_images:
 
@@ -639,7 +632,6 @@ below:
 .. |line|              replace:: :func:`~bokeh.plotting.Figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.Figure.multi_line`
 .. |multi_polygons|    replace:: :func:`~bokeh.plotting.Figure.multi_polygons`
-.. |oval|              replace:: :func:`~bokeh.plotting.Figure.oval`
 .. |patch|             replace:: :func:`~bokeh.plotting.Figure.patch`
 .. |patches|           replace:: :func:`~bokeh.plotting.Figure.patches`
 .. |plus|              replace:: :func:`~bokeh.plotting.Figure.plus`
