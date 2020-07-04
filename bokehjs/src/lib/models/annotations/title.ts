@@ -91,7 +91,11 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.layer.ctx)
+      const {ctx} = this.layer
+      this.visuals.text.set_value(ctx)
+      const viewport = this.plot_view.layout.bbox
+      const angle = this.panel!.get_label_angle_heuristic("parallel")
+      this.visuals.text.set_font(ctx, viewport, angle)
       const {width, ascent} = this.layer.ctx.measureText(text)
       return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
     }

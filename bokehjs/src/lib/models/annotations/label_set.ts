@@ -112,7 +112,9 @@ export class LabelSetView extends TextAnnotationView {
 
   protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
     this.visuals.text.set_vectorize(ctx, i)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const viewport = this.plot_view.layout.bbox
+    const font = this.visuals.text.set_v_font(ctx, i, viewport, angle)
+    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text, font)
 
     ctx.save()
 
@@ -145,7 +147,9 @@ export class LabelSetView extends TextAnnotationView {
     el.textContent = text
 
     this.visuals.text.set_vectorize(ctx, i)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const viewport = this.plot_view.layout.bbox
+    const font = this.visuals.text.set_v_font(ctx, i, viewport, angle)
+    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text, font)
 
     // attempt to support vector-style ("8 4 8") line dashing for css mode
     const ld = this.visuals.border_line.line_dash.value()
@@ -159,7 +163,7 @@ export class LabelSetView extends TextAnnotationView {
     el.style.top = `${sy + bbox_dims[1]}px`
     el.style.color = `${this.visuals.text.text_color.value()}`
     el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    el.style.font = `${this.visuals.text.font_value()}`
+    el.style.font = font
     el.style.lineHeight = "normal"  // needed to prevent ipynb css override
 
     if (angle) {

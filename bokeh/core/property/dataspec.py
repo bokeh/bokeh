@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import numbers
+
 # Bokeh imports
 from ... import colors
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
@@ -289,7 +292,11 @@ class FontSizeSpec(DataSpec):
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
         super().validate(value, detail)
-        if isinstance(value, str):
+
+        if isinstance(value, numbers.Real):
+            if not (0 <= value <= 100):
+                raise ValueError(f"{value} is not a valid font size")
+        elif isinstance(value, str):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)

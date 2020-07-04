@@ -41,23 +41,32 @@ export class TextView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[], {sx, sy, _x_offset, _y_offset, _angle, _text}: TextData): void {
     this._sys = []
     this._sxs = []
+
     for (const i of indices) {
+      const angle = _angle[i]
+
       this._sxs[i] = []
       this._sys[i] = []
-      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + _angle[i]) || _text[i] == null)
+
+      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + angle) || _text[i] == null)
         continue
       if (this.visuals.text.doit) {
         const text = `${_text[i]}`
 
         ctx.save()
         ctx.translate(sx[i] + _x_offset[i], sy[i] + _y_offset[i])
-        ctx.rotate(_angle[i])
+        ctx.rotate(angle)
+
         this.visuals.text.set_vectorize(ctx, i)
 
-        const font = this.visuals.text.cache_select("font", i)
+        const viewport = this.renderer.plot_view.layout.bbox
+        const font = this.visuals.text.set_v_font(ctx, i, viewport, angle)
         const {height} = measure_font(font)
+
         const line_height = this.visuals.text.text_line_height.value()*height
         if (text.indexOf("\n") == -1) {
+          const metrics = ctx.measureText(text)
+          console.log(font, height, metrics)
           ctx.fillText(text, 0, 0)
           const x0 = sx[i] + _x_offset[i]
           const y0 = sy[i] + _y_offset[i]

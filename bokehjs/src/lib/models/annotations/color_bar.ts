@@ -307,6 +307,9 @@ export class ColorBarView extends AnnotationView {
     const formatted_labels = tick_info.labels.major
 
     this.visuals.major_label_text.set_value(ctx)
+    const viewport = this.plot_view.layout.bbox
+    const angle = this.model.orientation == "horizontal" ? 0 : Math.PI/2
+    this.visuals.major_label_text.set_font(ctx, viewport, angle)
 
     ctx.save()
     ctx.translate(x_offset + x_standoff, y_offset + y_standoff)
@@ -324,6 +327,8 @@ export class ColorBarView extends AnnotationView {
 
     ctx.save()
     this.visuals.title_text.set_value(ctx)
+    const viewport = this.plot_view.layout.bbox
+    this.visuals.title_text.set_font(ctx, viewport, 0)
     ctx.fillText(this.model.title, 0, -this.model.title_standoff)
     ctx.restore()
   }
@@ -340,9 +345,11 @@ export class ColorBarView extends AnnotationView {
         case "vertical":
           label_extent = max((major_labels.map((label) => ctx.measureText(label.toString()).width)))
           break
-        case "horizontal":
-          label_extent = text_util.measure_font(this.visuals.major_label_text.font_value()).height
+        case "horizontal": {
+          const viewport = this.plot_view.layout.bbox
+          label_extent = text_util.measure_font(this.visuals.major_label_text.font_value(viewport)).height
           break
+        }
       }
 
       label_extent += this.model.label_standoff

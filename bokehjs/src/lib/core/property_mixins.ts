@@ -3,6 +3,8 @@ import {Color} from "./types"
 import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import {Texture} from "models/textures/texture"
 
+export type FontSize = string | number
+
 export type HatchPattern = HatchPatternType | string
 export type HatchExtra = {[key: string]: Texture}
 
@@ -36,7 +38,7 @@ export type Text = {
   text_color: p.Property<Color | null>
   text_alpha: p.Property<number>
   text_font: p.Property<string>
-  text_font_size: p.Property<string>
+  text_font_size: p.Property<FontSize>
   text_font_style: p.Property<FontStyle>
   text_align: p.Property<TextAlign>
   text_baseline: p.Property<TextBaseline>
@@ -108,7 +110,7 @@ export type TextScalar = {
   text_color: p.ScalarSpec<Color | null>
   text_alpha: p.ScalarSpec<number>
   text_font: p.ScalarSpec<string>
-  text_font_size: p.ScalarSpec<string>
+  text_font_size: p.ScalarSpec<FontSize>
   text_font_style: p.ScalarSpec<FontStyle>
   text_align: p.ScalarSpec<TextAlign>
   text_baseline: p.ScalarSpec<TextBaseline>
@@ -180,7 +182,7 @@ export type TextVector = {
   text_color: p.VectorSpec<Color | null>
   text_alpha: p.VectorSpec<number>
   text_font: p.Property<string>
-  text_font_size: p.VectorSpec<string>
+  text_font_size: p.VectorSpec<FontSize>
   text_font_style: p.Property<FontStyle>
   text_align: p.Property<TextAlign>
   text_baseline: p.Property<TextBaseline>

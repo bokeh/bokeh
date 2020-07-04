@@ -218,14 +218,16 @@ export class AxisView extends GuideRendererView {
     const nxd = nx * (xoff + standoff)
     const nyd = ny * (yoff + standoff)
 
-    visuals.set_value(ctx)
-    this.panel.apply_label_text_heuristics(ctx, orient)
-
     let angle: number
     if (isString(orient))
       angle = this.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
+
+    visuals.set_value(ctx)
+    const viewport = this.plot_view.layout.bbox
+    visuals.set_font(ctx, viewport, angle)
+    this.panel.apply_label_text_heuristics(ctx, orient)
 
     for (let i = 0; i < sxs.length; i++) {
       const sx = Math.round(sxs[i] + nxd)

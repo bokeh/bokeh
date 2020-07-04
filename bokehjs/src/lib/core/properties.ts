@@ -218,7 +218,7 @@ export class NullString extends Property<string | null> {
   }
 }
 
-export class FontSize extends String {}
+export class FontSize extends Any {}
 
 export class Font extends String {
   _default_override(): string | undefined {
@@ -457,7 +457,7 @@ export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
 
 export class ColorSpec extends DataSpec<types.Color | null> {}
 
-export class FontSizeSpec extends DataSpec<string> {}
+export class FontSizeSpec extends DataSpec<string | number> {}
 
 export class MarkerSpec extends DataSpec<string> {}
 

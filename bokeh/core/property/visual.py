@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime  # lgtm [py/import-and-import-from]
+import numbers
 import re
 from io import BytesIO
 
@@ -104,14 +105,20 @@ class DashPattern(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
-class FontSize(String):
+class FontSize(Either):
 
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+
+    def __init__(self, default=None, help=None):
+        super().__init__(String, Float, default=default, help=help)
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if isinstance(value, str):
+        if isinstance(value, numbers.Real):
+            if not (0 <= value <= 100):
+                raise ValueError(f"{value} is not a valid font size")
+        elif isinstance(value, str):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)

@@ -43,21 +43,25 @@ export class LegendView extends AnnotationView {
     const {glyph_height, glyph_width} = this.model
     const {label_height, label_width} = this.model
 
-    this.max_label_height = max(
-      [measure_font(this.visuals.label_text.font_value()).height, label_height, glyph_height],
-    )
+    const viewport = this.plot_view.layout.bbox
 
     // this is to measure text properties
     const {ctx} = this.layer
     ctx.save()
     this.visuals.label_text.set_value(ctx)
+    const label_font = this.visuals.label_text.set_font(ctx, viewport, 0)
     this.text_widths = new Map()
     for (const name of legend_names) {
       this.text_widths.set(name, max([ctx.measureText(name).width, label_width]))
     }
 
+    this.max_label_height = max(
+      [measure_font(label_font).height, label_height, glyph_height],
+    )
+
     this.visuals.title_text.set_value(ctx)
-    this.title_height = this.model.title ? measure_font(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
+    const title_font = this.visuals.title_text.set_font(ctx, viewport, 0)
+    this.title_height = this.model.title ? measure_font(title_font).height + this.model.title_standoff : 0
     this.title_width = this.model.title ? ctx.measureText(this.model.title).width : 0
 
     ctx.restore()

@@ -47,14 +47,14 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.render()
   }
 
-  protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
+  protected _calculate_text_dimensions(ctx: Context2d, text: string, font: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = measure_font(this.visuals.text.font_value())
+    const {height} = measure_font(font)
     return [width, height]
   }
 
-  protected _calculate_bounding_box_dimensions(ctx: Context2d, text: string): [number, number, number, number] {
-    const [width, height] = this._calculate_text_dimensions(ctx, text)
+  protected _calculate_bounding_box_dimensions(ctx: Context2d, text: string, font: string): [number, number, number, number] {
+    const [width, height] = this._calculate_text_dimensions(ctx, text, font)
 
     let x_offset: number
     switch (ctx.textAlign) {
@@ -83,7 +83,9 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _canvas_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     this.visuals.text.set_value(ctx)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const viewport = this.plot_view.layout.bbox
+    const font = this.visuals.text.set_font(ctx, viewport, angle)
+    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text, font)
 
     ctx.save()
 
@@ -120,7 +122,9 @@ export abstract class TextAnnotationView extends AnnotationView {
     undisplay(el)
 
     this.visuals.text.set_value(ctx)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const viewport = this.plot_view.layout.bbox
+    const font = this.visuals.text.set_font(ctx, viewport, angle)
+    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text, font)
 
     // attempt to support vector string-style ("8 4 8") line dashing for css mode
     const ld = this.visuals.border_line.line_dash.value()
@@ -134,7 +138,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     el.style.top = `${sy + bbox_dims[1]}px`
     el.style.color = `${this.visuals.text.text_color.value()}`
     el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    el.style.font = `${this.visuals.text.font_value()}`
+    el.style.font = font
     el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {

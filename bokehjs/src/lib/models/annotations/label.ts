@@ -16,6 +16,8 @@ export class LabelView extends TextAnnotationView {
   protected _get_size(): Size {
     const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
+    const viewport = this.plot_view.layout.bbox
+    this.visuals.text.set_font(ctx, viewport, this.model.angle)
 
     const {width, ascent} = ctx.measureText(this.model.text)
     return {width, height: ascent}

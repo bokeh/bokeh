@@ -1,9 +1,10 @@
 import * as mixins from "./property_mixins"
 import * as p from "./properties"
+import {isNumber} from "./util/types"
 import {color2css} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
-import {Arrayable} from "./types"
+import {Arrayable, Color, Size} from "./types"
 import {map} from "./util/arrayable"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
@@ -38,7 +39,6 @@ function _get_canvas(size: number): HTMLCanvasElement {
   return canvas
 }
 
-export type Color = string
 function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight: number): HTMLCanvasElement {
   const h = hatch_scale
   const h2 = h / 2
@@ -407,7 +407,7 @@ Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
 export class Text extends ContextProperties {
 
   readonly text_font:        p.Font
-  readonly text_font_size:   p.StringSpec
+  readonly text_font_size:   p.FontSizeSpec
   readonly text_font_style:  p.Property<FontStyle>
   readonly text_color:       p.ColorSpec
   readonly text_alpha:       p.NumberSpec
@@ -419,49 +419,50 @@ export class Text extends ContextProperties {
     return color2css(this.text_color.value(), this.text_alpha.value())
   }
 
-  font_value(): string {
-    const text_font       = this.text_font.value()
-    const text_font_size  = this.text_font_size.value()
-    const text_font_style = this.text_font_style.value()
-    return `${text_font_style} ${text_font_size} ${text_font}`
+  protected _font_size(size: number | string, viewport: Size, _angle: number): string {
+    if (isNumber(size)) {
+      const {width, height} = viewport
+      const pixels = Math.ceil(size/100*Math.min(width, height))
+      return `${pixels}px`
+    } else {
+      return size
+    }
   }
 
-  v_font_value(i: number): string {
-    super.cache_select("text_font_style", i)
-    super.cache_select("text_font_size",  i)
-    super.cache_select("text_font",       i)
-
-    const {text_font_style, text_font_size, text_font} = this.cache
-    return `${text_font_style} ${text_font_size} ${text_font}`
+  font_value(viewport: Size, angle: number = 0): string {
+    const style = this.text_font_style.value()
+    const size  = this.text_font_size.value()
+    const face  = this.text_font.value()
+    return `${style} ${this._font_size(size, viewport, angle)} ${face}`
   }
 
-  cache_select(name: string, i: number): any {
-    let value: any
-    if (name == "font") {
-      this.cache.font = value = this.v_font_value(i)
-    } else
-      value = super.cache_select(name, i)
+  v_font_value(i: number, viewport: Size, angle: number = 0): string {
+    const style = this.cache_select("text_font_style", i)
+    const size  = this.cache_select("text_font_size", i)
+    const face  = this.cache_select("text_font", i)
+    return `${style} ${this._font_size(size, viewport, angle)} ${face}`
+  }
 
-    return value
+  set_font(ctx: Context2d, viewport: Size, angle: number): string {
+    const font = this.font_value(viewport, angle)
+    ctx.font = font
+    return font
+  }
+
+  set_v_font(ctx: Context2d, i: number, viewport: Size, angle: number): string {
+    const font = this.v_font_value(i, viewport, angle)
+    ctx.font = font
+    return font
   }
 
   set_value(ctx: Context2d): void {
-    ctx.font         = this.font_value()
     ctx.fillStyle    = this.text_color.value()
     ctx.globalAlpha  = this.text_alpha.value()
     ctx.textAlign    = this.text_align.value()
     ctx.textBaseline = this.text_baseline.value()
   }
 
-  get doit(): boolean {
-    return !(this.text_color.spec.value === null ||
-             this.text_alpha.spec.value == 0)
-  }
-
   protected _set_vectorize(ctx: Context2d, i: number): void {
-    this.cache_select("font", i)
-    ctx.font = this.cache.font
-
     this.cache_select("text_color", i)
     ctx.fillStyle = this.cache.text_color
 
@@ -473,6 +474,11 @@ export class Text extends ContextProperties {
 
     this.cache_select("text_baseline", i)
     ctx.textBaseline = this.cache.text_baseline
+  }
+
+  get doit(): boolean {
+    return !(this.text_color.spec.value === null ||
+             this.text_alpha.spec.value == 0)
   }
 }
 
