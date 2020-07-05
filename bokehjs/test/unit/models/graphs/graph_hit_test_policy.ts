@@ -15,15 +15,16 @@ import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
+import {NumberArray, RaggedArray} from "@bokehjs/core/types"
 
 class TrivialLayoutProvider extends LayoutProvider {
 
-  get_node_coordinates(_graph_source: ColumnarDataSource): [number[], number[]] {
-    return [[], []]
+  get_node_coordinates(_graph_source: ColumnarDataSource): [NumberArray, NumberArray] {
+    return [new NumberArray(0), new NumberArray(0)]
   }
 
-  get_edge_coordinates(_graph_source: ColumnarDataSource): [[number, number][], [number, number][]] {
-    return [[], []]
+  get_edge_coordinates(_graph_source: ColumnarDataSource): [RaggedArray, RaggedArray] {
+    return [RaggedArray.from([]), RaggedArray.from([])]
   }
 }
 
