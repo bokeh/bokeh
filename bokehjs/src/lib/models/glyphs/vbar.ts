@@ -84,12 +84,9 @@ export class VBar extends Box {
 
     this.define<VBar.Props>({
       x:      [ p.XCoordinateSpec, {field: "x"}      ],
-      bottom: [ p.YCoordinateSpec, {field: "bottom"} ],
-      width:  [ p.NumberSpec,     {field: "width"}  ],
+      bottom: [ p.YCoordinateSpec, 0                 ],
+      width:  [ p.NumberSpec,      {field: "width"}  ],
       top:    [ p.YCoordinateSpec, {field: "top"}    ],
-    })
-    this.override({
-      bottom: 0,
     })
   }
 }

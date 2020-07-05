@@ -126,7 +126,7 @@ export class HArea extends Area {
     this.define<HArea.Props>({
       x1: [ p.XCoordinateSpec, {field: "x1"} ],
       x2: [ p.XCoordinateSpec, {field: "x2"} ],
-      y:  [ p.YCoordinateSpec, {field: "y"} ],
+      y:  [ p.YCoordinateSpec, {field: "y"}  ],
     })
   }
 }
