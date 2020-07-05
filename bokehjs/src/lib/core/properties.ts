@@ -379,13 +379,20 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = this.normalize(column)
       else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-        array = repeat(NaN, length)
+        const missing = new NumberArray(length)
+        missing.fill(NaN)
+        array = missing
       }
     } else if (this.spec.expr != null) {
       array = this.normalize(this.spec.expr.v_compute(source))
     } else {
       const value = this.value(false) // don't apply any spec transform
-      array = repeat(value, length)
+      if (isNumber(value)) {
+        const values = new NumberArray(length)
+        values.fill(value)
+        array = values
+      } else
+        array = repeat(value, length)
     }
 
     if (this.spec.transform != null)
