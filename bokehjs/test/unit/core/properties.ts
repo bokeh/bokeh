@@ -279,13 +279,11 @@ describe("properties module", () => {
       })
 
       it("should throw an Error otherwise", () => {
-        function fn(): void {
-          const source = new ColumnDataSource({data: {}})
-          const obj = new Some({number_spec: {field: "foo"}})
-          const prop = obj.properties.number_spec
-          prop.array(source)
-        }
-        expect(fn).to.throw(Error, /attempted to retrieve property array for nonexistent field 'foo'/)
+        const source = new ColumnDataSource({data: {bar: [1, 2, 3]}})
+        const obj = new Some({number_spec: {field: "foo"}})
+        const prop = obj.properties.number_spec
+        const arr = prop.array(source)
+        expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {

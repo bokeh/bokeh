@@ -1,4 +1,5 @@
 import {Signal0} from "./signaling"
+import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
 import {Arrayable, NumberArray, ColorArray} from "./types"
@@ -368,25 +369,28 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   }
 
   array(source: ColumnarDataSource): Arrayable<unknown> {
-    let ret: any
+    let array: Arrayable
+
+    const length = source.get_length() ?? 1
 
     if (this.spec.field != null) {
-      ret = this.normalize(source.get_column(this.spec.field))
-      if (ret == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+      const column = source.get_column(this.spec.field)
+      if (column != null)
+        array = this.normalize(column)
+      else {
+        logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+        array = repeat(NaN, length)
+      }
     } else if (this.spec.expr != null) {
-      ret = this.normalize(this.spec.expr.v_compute(source))
+      array = this.normalize(this.spec.expr.v_compute(source))
     } else {
-      let length = source.get_length()
-      if (length == null)
-        length = 1
       const value = this.value(false) // don't apply any spec transform
-      ret = repeat(value, length)
+      array = repeat(value, length)
     }
 
     if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
-    return ret
+      array = this.spec.transform.v_compute(array)
+    return array
   }
 }
 
