@@ -11,7 +11,7 @@ either ``"hide"`` or ``"mute"``.
 
 .. note::
     Interactive legend features currently work on "per-glyph" legends. Legends
-    that are created by specifying a column to automatically group do no yet
+    that are created by specifying a column to automatically group do not yet
     work with the features described below
 
 Hiding Glyphs
