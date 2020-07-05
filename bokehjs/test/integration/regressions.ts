@@ -25,7 +25,7 @@ describe("Bug", () => {
         y_range: new DataRange1d(),
       })
       const source = new ColumnDataSource({data: {x: [["a", "b"], ["b", "c"]], y: [1, 2]}})
-      p.vbar({x: {field: "x"}, top: {field: "y"}, source})
+      p.vbar({x: {field: "x"}, top: {field: "y"}, width: 0.1, source})
       const {view} = await display(p, [250, 250])
 
       source.data = {x: ["a"], y: [1]}
