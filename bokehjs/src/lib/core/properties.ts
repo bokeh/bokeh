@@ -6,7 +6,7 @@ import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {is_color, color2rgba} from "./util/color"
+import {is_color, color2rgba, encode_rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
@@ -482,8 +482,8 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     const array = new ColorArray(n)
     for (let i = 0; i < n; i++) {
       const color = colors[i] as types.Color | null
-      const [r, g, b, a] = color2rgba(color)
-      array[i] = (r*255) << 24 | (g*255) << 16 | (b*255) << 8 | a*255
+      const rgba = color2rgba(color)
+      array[i] = encode_rgba(rgba)
     }
     return array
   }

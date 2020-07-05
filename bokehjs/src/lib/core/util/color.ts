@@ -33,7 +33,20 @@ export function color2hex(color: string): string {
     return color
 }
 
+// each component is in [0, 1] range
 export type RGBA = [number, number, number, number]
+
+export function encode_rgba([r, g, b, a]: RGBA): number {
+  return (r*255) << 24 | (g*255) << 16 | (b*255) << 8 | a*255
+}
+
+export function decode_rgba(rgba: number): RGBA {
+  const r = ((rgba >> 24) & 0xff) / 255
+  const g = ((rgba >> 16) & 0xff) / 255
+  const b = ((rgba >>  8) & 0xff) / 255
+  const a = ((rgba >>  0) & 0xff) / 255
+  return [r, g, b, a]
+}
 
 export function color2rgba(color: string | null, alpha: number = 1.0): RGBA {
   if (!color)  // NaN, null, '', etc.

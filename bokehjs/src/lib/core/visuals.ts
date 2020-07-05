@@ -5,7 +5,7 @@ import {Context2d} from "./util/canvas"
 import {Class} from "./class"
 import {Arrayable} from "./types"
 import {isString} from "./util/types"
-import {map} from "./util/arrayable"
+import {subselect} from "./util/arrayable"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {HasProps} from "./has_props"
@@ -226,7 +226,7 @@ export abstract class ContextProperties {
   get_array(attr: string): Arrayable {
     const array = this.cache[attr + "_array"] as Arrayable
     if (this.all_indices != null) {
-      return map(this.all_indices, (i) => array[i])
+      return subselect(array, this.all_indices)
     } else {
       return array
     }

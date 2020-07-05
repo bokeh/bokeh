@@ -1,7 +1,7 @@
 // This module implements the Base GL Glyph and some utilities
 import {Program, VertexBuffer} from "./utils"
 import {Arrayable} from "core/types"
-import {color2rgba} from "core/util/color"
+import {color2rgba, encode_rgba, decode_rgba, RGBA} from "core/util/color"
 import {Context2d} from "core/util/canvas"
 import {logger} from "core/logging"
 import {GlyphView} from "../glyph"
@@ -90,14 +90,6 @@ export function line_width(width: number): number {
   return width
 }
 
-export function fill_array_with_float(n: number, val: number): Float32Array {
-  const a = new Float32Array(n)
-  for (let i = 0, end = n; i < end; i++) {
-    a[i] = val
-  }
-  return a
-}
-
 export function fill_array_with_vec(n: number, m: number, val: Arrayable<number>): Float32Array {
   const a = new Float32Array(n*m)
   for (let i = 0; i < n; i++) {
@@ -108,7 +100,7 @@ export function fill_array_with_vec(n: number, m: number, val: Arrayable<number>
   return a
 }
 
-export function visual_prop_is_singular(visual: any, propname: string): boolean {
+export function is_singular(visual: any, propname: string): boolean {
   // This touches the internals of the visual, so we limit use in this function
   // See renderer.ts:cache_select() for similar code
   return visual[propname].spec.value !== undefined
@@ -120,7 +112,7 @@ export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}
   if (!visual.doit) {
     vbo.used = false
     prog.set_attribute(att_name, 'float', [0])
-  } else if (visual_prop_is_singular(visual, name)) {
+  } else if (is_singular(visual, name)) {
     vbo.used = false
     prog.set_attribute(att_name, 'float', [visual[name].value()])
   } else {
@@ -136,7 +128,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
   // Attach the color attribute to the program. If there's just one color,
   // then use this single color for all vertices (no VBO). Otherwise we
   // create an array and upload that to the VBO, which we attahce to the prog.
-  let rgba
+  let rgba: RGBA
   const m = 4
   const colorname = prefix + '_color'
   const alphaname = prefix + '_alpha'
@@ -145,40 +137,40 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
     // Don't draw (draw transparent)
     vbo.used = false
     prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
-  } else if (visual_prop_is_singular(visual, colorname) && visual_prop_is_singular(visual, alphaname)) {
+  } else if (is_singular(visual, colorname) && is_singular(visual, alphaname)) {
     // Nice and simple; both color and alpha are singular
     vbo.used = false
     rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
     prog.set_attribute(att_name, 'vec4', rgba)
   } else {
     // Use vbo; we need an array for both the color and the alpha
-    let alphas, colors
     vbo.used = true
-    // Get array of colors
-    if (visual_prop_is_singular(visual, colorname)) {
-      colors = ((() => {
-        const result = []
-        for (let i = 0, end = n; i < end; i++) {
-          result.push(visual[colorname].value())
-        }
-        return result
-      })())
-    } else {
+
+    let colors: Arrayable<number>
+    if (is_singular(visual, colorname)) {
+      const val = encode_rgba(color2rgba(visual[colorname].value()))
+      const array = new Uint32Array(n)
+      array.fill(val)
+      colors = array
+    } else
       colors = visual.get_array(colorname)
-    }
-    // Get array of alphas
-    if (visual_prop_is_singular(visual, alphaname)) {
-      alphas = fill_array_with_float(n, visual[alphaname].value())
-    } else {
+
+    let alphas: Arrayable<number>
+    if (is_singular(visual, alphaname)) {
+      const val = visual[alphaname].value()
+      const array = new Float32Array(n)
+      array.fill(val)
+      alphas = array
+    } else
       alphas = visual.get_array(alphaname)
-    }
+
     // Create array of rgbs
     const a = new Float32Array(n*m)
     for (let i = 0, end = n; i < end; i++) {
-      rgba = color2rgba(colors[i], alphas[i])
-      for (let j = 0, endj = m; j < endj; j++) {
-        a[(i*m)+j] = rgba[j]
-      }
+      const rgba = decode_rgba(colors[i])
+      if (rgba[3] == 1.0)
+        rgba[3] = alphas[i]
+      a.set(rgba, i*m)
     }
     // Attach vbo
     vbo.set_size(n*m*4)
