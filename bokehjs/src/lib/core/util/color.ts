@@ -37,7 +37,7 @@ export function color2hex(color: string): string {
 export type RGBA = [number, number, number, number]
 
 export function encode_rgba([r, g, b, a]: RGBA): number {
-  return (r*255) << 24 | (g*255) << 16 | (b*255) << 8 | a*255
+  return (r*255 | 0) << 24 | (g*255 | 0) << 16 | (b*255 | 0) << 8 | (a*255 | 0)
 }
 
 export function decode_rgba(rgba: number): RGBA {
@@ -65,15 +65,6 @@ export function color2rgba(color: string | null, alpha: number = 1.0): RGBA {
   if (rgba.length < 4)
     rgba.push(alpha)
   return rgba.slice(0, 4) as RGBA
-}
-
-export function color2css(color: string, alpha: number = 1.0): string {
-  if (alpha == 1.0)
-    return color
-  else {
-    const [r, g, b, a] = color2rgba(color, alpha)
-    return `rgba(${r*255},${g*255},${b*255},${a})`
-  }
 }
 
 export function valid_rgb(value: string): boolean {

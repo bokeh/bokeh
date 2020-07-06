@@ -1,33 +1,16 @@
 export type Context2d = {
-  setLineDashOffset(offset: number): void
-  getLineDashOffset(): number
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
   measureText(text: string): TextMetrics & {ascent: number}
+  lineDash: number[]
 } & CanvasRenderingContext2D
 
 function fixup_line_dash(ctx: any): void {
-  if (!ctx.setLineDash) {
-    ctx.setLineDash = (dash: any): void => {
-      ctx.mozDash = dash
-      ctx.webkitLineDash = dash
-    }
-  }
-  if (!ctx.getLineDash) {
-    ctx.getLineDash = (): any => {
-      return ctx.mozDash
-    }
-  }
-}
-
-function fixup_line_dash_offset(ctx: any): void {
-  ctx.setLineDashOffset = (offset: number): void => {
-    ctx.lineDashOffset = offset
-    ctx.mozDashOffset = offset
-    ctx.webkitLineDashOffset = offset
-  }
-  ctx.getLineDashOffset = (): number => {
-    return ctx.mozDashOffset
+  if (typeof ctx.lineDash === "undefined") {
+    Object.defineProperty(ctx, "lineDash", {
+      get: () => ctx.getLineDash(),
+      set: (segments: number[]) => ctx.setLineDash(segments),
+    })
   }
 }
 
@@ -92,7 +75,6 @@ function fixup_ellipse(ctx: any): void {
 
 export function fixup_ctx(ctx: any): void {
   fixup_line_dash(ctx)
-  fixup_line_dash_offset(ctx)
   fixup_image_smoothing(ctx)
   fixup_measure_text(ctx)
   fixup_ellipse(ctx)
