@@ -439,12 +439,16 @@ export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
 export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<number[] | Factor[]> {}
+export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
 
 export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
 export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
 
 export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
 export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }

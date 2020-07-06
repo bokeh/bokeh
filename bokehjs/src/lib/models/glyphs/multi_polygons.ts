@@ -135,7 +135,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: Arrayable<Arrayable<Arrayable<number>>>, sy: Arrayable<Arrayable<Arrayable<number>>>): void {
+  protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
     ctx.beginPath()
     for (let j = 0, endj = sx.length; j < endj; j++) {
       for (let k = 0, endk = sx[j].length; k < endk; k++) {
@@ -316,8 +316,8 @@ export namespace MultiPolygons {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
-    xs: p.CoordinateSeqSpec
-    ys: p.CoordinateSeqSpec
+    xs: p.CoordinateSeqSeqSeqSpec
+    ys: p.CoordinateSeqSeqSeqSpec
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -339,8 +339,8 @@ export class MultiPolygons extends Glyph {
     this.prototype.default_view = MultiPolygonsView
 
     this.define<MultiPolygons.Props>({
-      xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
-      ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
+      xs: [ p.XCoordinateSeqSeqSeqSpec, {field: "xs"} ],
+      ys: [ p.YCoordinateSeqSeqSeqSpec, {field: "ys"} ],
     })
     this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }
