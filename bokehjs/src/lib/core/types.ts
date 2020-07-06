@@ -14,7 +14,7 @@ import {equals, Equals, Comparator} from "core/util/eq"
 
 export class RaggedArray implements Equals {
 
-  [Symbol.toStringTag] = "RaggedArray"
+  static [Symbol.toStringTag] = "RaggedArray"
 
   constructor(readonly offsets: Uint32Array, readonly array: NumberArray) {}
 

@@ -69,8 +69,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     return __module__ != null ? `${__module__}.${__name__}` : __name__
   }
 
-  get [Symbol.toStringTag](): string {
-    return this.constructor.__name__
+  static get [Symbol.toStringTag](): string {
+    return this.__name__
   }
 
   static init_HasProps(): void {
