@@ -104,7 +104,7 @@ Then the target id can be controlled on the JavaScript side:
     item = JSON.parse(item_text);
     Bokeh.embed.embed_item(item, "myplot");
 
-As a more complete example, it a Flask server may be configured to serve Bokeh
+As a more complete example, a Flask server may be configured to serve Bokeh
 JSON items from a */plot* endpoint:
 
 .. code-block:: python
