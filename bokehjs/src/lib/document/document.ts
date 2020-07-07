@@ -1,7 +1,7 @@
 import {Models} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
-import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
+import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
@@ -34,7 +34,7 @@ export class EventManager {
     this.document._trigger_on_change(event)
   }
 
-  trigger(event: BokehEvent): void {
+  trigger(event: ModelEvent): void {
     for (const model of this.subscribed_models) {
       if (event.origin != null && event.origin != model)
         continue
@@ -113,6 +113,7 @@ export class Document {
     this._idle_roots.set(model, true)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
+      this.event_manager.send_event(new DocumentReady())
       this.idle.emit()
     }
   }

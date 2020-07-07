@@ -1,6 +1,6 @@
 import {HasProps} from "./core/has_props"
 import {Class} from "./core/class"
-import {BokehEvent} from "./core/bokeh_events"
+import {ModelEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
 import {isString} from "./core/util/types"
 import {isEmpty, entries} from "./core/util/object"
@@ -14,7 +14,7 @@ export namespace Model {
     tags: p.Property<string[]>
     name: p.Property<string | null>
     js_property_callbacks: p.Property<{[key: string]: CallbackLike0<Model>[]}>
-    js_event_callbacks: p.Property<{[key: string]: CallbackLike0<BokehEvent>[]}>
+    js_event_callbacks: p.Property<{[key: string]: CallbackLike0<ModelEvent>[]}>
     subscribed_events: p.Property<string[]>
   }
 }
@@ -54,7 +54,7 @@ export class Model extends HasProps {
     this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks())
   }
 
-  /*protected*/ _process_event(event: BokehEvent): void {
+  /*protected*/ _process_event(event: ModelEvent): void {
     for (const callback of this.js_event_callbacks[event.event_name] || [])
       callback.execute(event)
 
@@ -62,7 +62,7 @@ export class Model extends HasProps {
       this.document.event_manager.send_event(event)
   }
 
-  trigger_event(event: BokehEvent): void {
+  trigger_event(event: ModelEvent): void {
     if (this.document != null) {
       event.origin = this
       this.document.event_manager.trigger(event)
