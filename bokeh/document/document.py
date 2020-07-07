@@ -48,7 +48,7 @@ from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
-from ..events import DocumentEvent, Event, ModelEvent, _CONCRETE_EVENT_CLASSES
+from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
 from ..themes import Theme, built_in_themes
 from ..themes import default as default_theme
