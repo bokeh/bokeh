@@ -1,5 +1,6 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
+import {left_edge_index} from "core/util/arrayable"
 import * as p from "core/properties"
 
 export namespace ScanningColorMapper {
@@ -25,15 +26,7 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     if (d > edges.binning[edges.binning.length-1])
       return high_color
 
-    let key = 0
-    for (let i = 0, end = edges.binning.length-2; i < end; i++) {
-      const low_edge = edges.binning[i]
-      const high_edge = edges.binning[i+1]
-      key = i
-      if ((d >= low_edge) && (d < high_edge))
-        break
-    }
-
+	const key = left_edge_index(d, edges.binning)
     return palette[key]
   }
 }

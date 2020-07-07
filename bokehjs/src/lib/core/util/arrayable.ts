@@ -355,7 +355,7 @@ function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number
   return res
 }
 
-function left_edge_index(point: number, intervals: Arrayable<number>): number {
+export function left_edge_index(point: number, intervals: Arrayable<number>): number {
   if (point < intervals[0])
     return -1
   if (point > intervals[intervals.length - 1])
