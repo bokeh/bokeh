@@ -12,8 +12,8 @@ updates:
     schedule:
       interval: "weekly"
 
-  # Enable version updates for Docker
-  - package-ecosystem: "python"
+  # Enable version updates for Pip
+  - package-ecosystem: "pip"
     # Look for a `requirements.txt` in the `root` directory
     directory: "/"
     # Check for updates once a week
