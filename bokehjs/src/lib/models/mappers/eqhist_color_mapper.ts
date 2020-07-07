@@ -53,7 +53,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     let binning: number[] = []
     let iterations = 0
     let guess = n*2
-    while (finite_bins != n && iterations<4 && (finite_bins != 0)) {
+    while ((finite_bins != n) && (iterations < 4) && (finite_bins != 0)) {
       guess = Math.round(Math.max(n * guess/finite_bins, n))
 
       // Interpolate
@@ -66,12 +66,15 @@ export class EqHistColorMapper extends ScanningColorMapper {
       finite_bins = uniq_bins.length-1
       iterations++
     }
-    if (finite_bins == 0)
+    if (finite_bins == 0) {
       binning = [low, high]
-    else
-      binning = binning.slice(binning.length-n)
+      for (let j = 0; j < (n-1); j++)
+        binning.push(high)
+    } else {
+      binning = binning.slice(binning.length-n-1)
       if (finite_bins != n)
         logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
-    return {min: low, max: high, binning}
+	}
+	return {min: low, max: high, binning}
   }
 }
