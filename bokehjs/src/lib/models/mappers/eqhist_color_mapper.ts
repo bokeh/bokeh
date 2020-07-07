@@ -54,7 +54,12 @@ export class EqHistColorMapper extends ScanningColorMapper {
     let iterations = 0
     let guess = n*2
     while ((finite_bins != n) && (iterations < 4) && (finite_bins != 0)) {
-      guess = Math.round(Math.max(n * guess/finite_bins, n))
+      let ratio = guess/finite_bins
+      if (ratio > 1000) {
+        // Abort if distribution is extremely skewed
+        break;
+      }
+      guess = Math.round(Math.max(n*ratio, n))
 
       // Interpolate
       const palette_edges = range(0, guess)
