@@ -1,6 +1,6 @@
 import {LayoutProvider} from "./layout_provider"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {NumberArray, RaggedArray} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
@@ -40,7 +40,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     return [xs, ys]
   }
 
-  get_edge_coordinates(edge_source: ColumnarDataSource): [RaggedArray, RaggedArray] {
+  get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
     const starts = edge_source.data.start
     const ends = edge_source.data.end
     const n = starts.length
@@ -65,9 +65,6 @@ export class StaticLayoutProvider extends LayoutProvider {
         ys.push([start[1], end[1]])
       }
     }
-    return [
-      RaggedArray.from(xs),
-      RaggedArray.from(ys),
-    ]
+    return [xs, ys]
   }
 }

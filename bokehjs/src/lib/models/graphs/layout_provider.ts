@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {NumberArray, RaggedArray} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace LayoutProvider {
@@ -20,5 +20,5 @@ export abstract class LayoutProvider extends Model {
 
   abstract get_node_coordinates(graph_source: ColumnarDataSource): [NumberArray, NumberArray]
 
-  abstract get_edge_coordinates(graph_source: ColumnarDataSource): [RaggedArray, RaggedArray]
+  abstract get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]]
 }

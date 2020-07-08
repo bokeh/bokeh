@@ -438,7 +438,7 @@ export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
-export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<number[] | Factor[]> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
 export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
 
 export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
