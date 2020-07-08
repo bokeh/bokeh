@@ -49,7 +49,7 @@ def stable_id():
 @pytest.fixture
 def test_plot() -> None:
     from bokeh.plotting import figure
-    test_plot = figure()
+    test_plot = figure(title="'foo'")
     test_plot.circle([1, 2], [2, 3])
     return test_plot
 
@@ -247,6 +247,12 @@ class Test_components(object):
     def test_script_is_utf8_encoded(self, test_plot) -> None:
         script, div = bes.components(test_plot)
         assert isinstance(script, str)
+
+    def test_quoting(self, test_plot) -> None:
+        script, div = bes.components(test_plot)
+        assert "&quot;" not in script
+        assert "'foo'" not in script
+        assert "&#x27;foo&#x27;" in script
 
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot) -> None:
         script, div = bes.components(test_plot)
