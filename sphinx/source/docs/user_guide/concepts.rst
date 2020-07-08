@@ -9,13 +9,13 @@ Glossary
 --------
 
 In order to make the best use of this User Guide, it is important to have
-context for some high level concepts and terms. Here is a small glossary of
+context for some high-level concepts and terms. Here is a small glossary of
 some of the most important concepts in Bokeh.
 
 ----
 
 Application
-    A Bokeh application is a recipe for generating Bokeh documents. Typically
+    A Bokeh application is a recipe for generating Bokeh documents. Typically,
     this is Python code run by a Bokeh server when new sessions are created.
 
 BokehJS
@@ -207,8 +207,8 @@ assemble the appropriate Bokeh Models to form a scenegraph
 that BokehJS can render is handled automatically.
 
 The main class in the |bokeh.plotting| interface is the |figure| function. This
-creates a |Figure| model, that includes methods for adding different kinds of
-glyphs to a plot. Additionally it composes default axes, grids, and tools in
+creates a |Figure| model that includes methods for adding different kinds of
+glyphs to a plot. Additionally, it composes default axes, grids, and tools in
 the proper way without any extra effort.
 
 A prototypical example of the |bokeh.plotting| usage is show below, along
@@ -221,7 +221,7 @@ The main observation is that the typical usage involves creating plot objects
 with the |figure| function, then using the glyph methods like |Figure.circle|
 to add renderers for our data. We do not have to worry about configuring any
 axes or grids (although we can configure them if we need to), and specifying
-tools is done simply with the names of tools to add. Finally we use some output
+tools is done simply with the names of tools to add. Finally, we use some output
 functions to display our plot.
 
 There are many other possibilities: saving our plot instead of showing it,
