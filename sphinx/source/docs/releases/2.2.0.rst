@@ -24,3 +24,8 @@ Implement ``Glyph.scenterxy()`` instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use ``Ellipse`` instead.
+
+``Tooltip.inner_only`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+No replacement is provided.

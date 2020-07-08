@@ -2,7 +2,7 @@ import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
-export type HTMLItem = string | Element | null | undefined
+export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
@@ -47,11 +47,15 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
     }
 
     function append(child: HTMLItem) {
-      if (child instanceof Element)
-        element.appendChild(child)
-      else if (isString(child))
+      if (isString(child))
         element.appendChild(document.createTextNode(child))
-      else if (child != null && child !== false)
+      else if (child instanceof Node)
+        element.appendChild(child)
+      else if (child instanceof NodeList || child instanceof HTMLCollection) {
+        for (const el of child) {
+          element.appendChild(el)
+        }
+      } else if (child != null && child !== false)
         throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
     }
 

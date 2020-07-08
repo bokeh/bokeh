@@ -113,11 +113,11 @@ export function get_value(raw_name: string, data_source: ColumnarDataSource, i: 
   }
 }
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {
-
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string | Node[]  {
   // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
   str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
 
+  let has_html = false
   //
   // (?:\$\w+) - special vars: $x
   // (?:@\w+) - simple names: @foo
@@ -133,13 +133,21 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
       return `${escape("???")}`
 
     // 'safe' format, return the value as-is
-    if (format == 'safe')
+    if (format == 'safe') {
+      has_html = true
       return `${value}`
+    }
 
     // format and escape everything else
     const formatter = get_formatter(spec, format, formatters)
     return `${escape(formatter(value, format, special_vars))}`
   })
 
-  return str
+  if (!has_html)
+    return str
+  else {
+    const parser = new DOMParser()
+    const document = parser.parseFromString(str, "text/html")
+    return [...document.body.childNodes]
+  }
 }

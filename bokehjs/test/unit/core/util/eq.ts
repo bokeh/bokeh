@@ -156,6 +156,35 @@ describe("core/util/eq module", () => {
     expect(is_equal(x2, x0)).to.be.false
   })
 
+  it("that supports Node instances", () => {
+    const text0 = document.createTextNode("abc def")
+    const text1 = document.createTextNode("abc def")
+    const text2 = document.createTextNode("ABC DEF")
+    const span0 = document.createElement("span")
+    const div0 = document.createElement("div")
+    const div1 = document.createElement("div")
+    div1.textContent = "abc def"
+    const div2 = document.createElement("div")
+    div2.appendChild(div1)
+
+    expect(is_equal(text0, text0)).to.be.true
+    expect(is_equal(text0, text1)).to.be.true
+    expect(is_equal(text0, text2)).to.be.false
+    expect(is_equal(text0, span0)).to.be.false
+    expect(is_equal(text0, div0)).to.be.false
+    expect(is_equal(text0, div1)).to.be.false
+    expect(is_equal(text0, div2)).to.be.false
+
+    expect(is_equal(span0, div0)).to.be.false
+
+    expect(is_equal(div0, div0)).to.be.true
+    expect(is_equal(div0, div1)).to.be.false
+    expect(is_equal(div0, div2)).to.be.false
+    expect(is_equal(div1, div2)).to.be.false
+    expect(is_equal(div1, div1)).to.be.true
+    expect(is_equal(div2, div2)).to.be.true
+  })
+
   it("that throws on unknown types", () => {
     class X {
       constructor(readonly f: number) {}
