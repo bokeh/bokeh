@@ -155,13 +155,11 @@ export function sort_by<T>(array: T[], key: (item: T) => number): T[] {
 }
 
 export function uniq<T>(array: T[]): T[] {
-  const result = []
+  const result = new Set<T>()
   for (const value of array) {
-    if (!includes(result, value)) {
-      result.push(value)
-    }
+    result.add(value)
   }
-  return result
+  return [...result]
 }
 
 export function uniq_by<T, U>(array: T[], key: (item: T) => U): T[] {
@@ -178,7 +176,13 @@ export function uniq_by<T, U>(array: T[], key: (item: T) => U): T[] {
 }
 
 export function union<T>(...arrays: T[][]): T[] {
-  return uniq(concat(arrays))
+  const result = new Set<T>()
+  for (const array of arrays) {
+    for (const value of array) {
+      result.add(value)
+    }
+  }
+  return [...result]
 }
 
 export function intersection<T>(array: T[], ...arrays: T[][]): T[] {
