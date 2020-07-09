@@ -63,7 +63,7 @@ as "special variables", e.g. ``"$x"``.
 Bokeh Sphinx Extension
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The obsolete Sphinx confiuguration parameters ``bokeh_plot_use_relative_paths``
+The obsolete Sphinx configuration parameters ``bokeh_plot_use_relative_paths``
 and ``bokeh_plot_pyfile_include_dirs`` have been removed. The unused
 ``PLOT_PAGE`` template has also been removed.
 
@@ -88,8 +88,8 @@ The ``require()`` function s not available from ``CustomJS`` anymore. It exposed
 the underlying module system, which should not be used by general users. Use
 APIs exposed on ``Bokeh`` object or (as a last resort), use ``Bokeh.require()``.
 
-Bokeh Prototcol Versioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Bokeh Protocol Versioning
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh wire protocol messages no longer express any revision, and URLs for
 server sessions no longer specify ``"bokeh-protocol-version"``. It is assumed
@@ -214,7 +214,7 @@ and no longer needed:
 
 ``bokeh.models.widgets.sliders``
     ``callback``, ``callback_throttle``, and ``callback_policy`` removed from
-    all sliders. Use ``value`` for continous updates and ``value_throttled`` for
+    all sliders. Use ``value`` for continuous updates and ``value_throttled`` for
     updates only on mouseup
 
 ``bokeh.plotting.helpers``

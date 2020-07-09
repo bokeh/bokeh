@@ -40,7 +40,7 @@ Two new hover tooltip fields are now available:
 * ``@$name`` will look up values from a column like a normal ``@`` field,
   but will use ``$name`` as the name of the column.
 
-Both of these are espeically useful in conjunction with stacked bar plots.
+Both of these are especially useful in conjunction with stacked bar plots.
 
 BokehJS Build
 ~~~~~~~~~~~~~
@@ -50,7 +50,7 @@ has been replaced with a smaller and simpler build script. This greatly
 reduced the number of dependencies required to build BokehJS and a completely
 clean NPM package security audit was obtained as a side effect.
 
-To build now, run the commandf ``node make build`` instead of ``gulp build``.
+To build now, run the command ``node make build`` instead of ``gulp build``.
 Task names remained unchanged. If you want preserve the old workflow, e.g. to
 aid ``git bisect``, it is suggested to create an alias for ``node make``,
 e.g. in bash this would be ``alias gulp='node make'``.

@@ -275,7 +275,7 @@ executing the following command at a Bash or Windows prompt:
 
     bokeh sampledata
 
-It's also possible to configue the download location, or to start the download
+It's also possible to configure the download location, or to start the download
 programmatically. For full details see the :ref:`install_sampledata` section of
 the User's Guide.
 
