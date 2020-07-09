@@ -951,7 +951,7 @@ environment variable.
 Alternatively, you may wish to run a Bokeh server behind a proxy, and have the
 proxy terminate SSL. That scenario is described in the next section.
 
-.. _userguide_server_deployment_proxy:
+.. _userguide_server_deplyoment_proxy:
 
 Basic Reverse Proxy Setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~

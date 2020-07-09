@@ -50,7 +50,7 @@ NumPy, you may instead use ``pip`` at the command line:
     The ``pip`` method does not install the examples. Clone the Git repository
     and look in the ``examples/`` directory of the checkout to see examples.
 
-.. _userguide_quickstart_getting_started:
+.. _userguide_quickstart_gettng_started:
 
 Getting Started
 ===============

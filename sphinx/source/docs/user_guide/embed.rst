@@ -104,7 +104,7 @@ Then the target id can be controlled on the JavaScript side:
     item = JSON.parse(item_text);
     Bokeh.embed.embed_item(item, "myplot");
 
-As a more complete example, a Flask server may be configured to serve Bokeh
+As a more complete example, it a Flask server may be configured to serve Bokeh
 JSON items from a */plot* endpoint:
 
 .. code-block:: python
@@ -230,7 +230,7 @@ For example, to use version ``1.4.0``, including widgets and tables support:
     always include the `crossorigin="anonymous"` attribute on the script.
 
 If you would like to include `Subresource Integrity`_ hashes to your explicit
-script tags by setting the `integrity` attribute, the necessary hashes can be
+script tags by setting the `integrity` attribute, the necesary hashes can be
 obtained by calling :func:`~bokeh.resources.get_sri_hashes_for_version` e.g.
 
 .. code-block:: python

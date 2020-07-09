@@ -10,8 +10,9 @@ corresponding glyph in a plot. These modes are activated by setting the
 either ``"hide"`` or ``"mute"``.
 
 .. note::
-    Interactive legends only work on "per-glyph" legends. Grouped legends
-    do not yet support the features described below.
+    Interactive legend features currently work on "per-glyph" legends. Legends
+    that are created by specifying a column to automatically group do no yet
+    work with the features described below
 
 Hiding Glyphs
 ~~~~~~~~~~~~~
