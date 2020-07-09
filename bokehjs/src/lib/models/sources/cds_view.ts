@@ -98,20 +98,24 @@ export class CDSView extends Model {
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    const selection_full = new Selection()
-    selection_full.update_through_union(selection_subset)
-    const indices_1d = selection_subset.indices.map((i) => this.indices[i])
-    selection_full.indices = indices_1d
-    selection_full.image_indices = selection_subset.image_indices
+    const selection_full = new Selection({
+      indices: selection_subset.indices.map((i) => this.indices[i]),
+      line_indices: selection_subset.line_indices,
+      multiline_indices: selection_subset.multiline_indices,
+      selected_glyphs: selection_subset.selected_glyphs,
+      get_view: selection_subset.get_view,
+    })
     return selection_full
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    const selection_subset = new Selection()
-    selection_subset.update_through_union(selection_full)
-    const indices_1d = selection_full.indices.map((i) => this.indices_map[i])
-    selection_subset.indices = indices_1d
-    selection_subset.image_indices = selection_full.image_indices
+    const selection_subset = new Selection({
+      indices: selection_full.indices.map((i) => this.indices_map[i]),
+      line_indices: selection_full.line_indices,
+      multiline_indices: selection_full.multiline_indices,
+      selected_glyphs: selection_full.selected_glyphs,
+      get_view: selection_full.get_view,
+    })
     return selection_subset
   }
 
