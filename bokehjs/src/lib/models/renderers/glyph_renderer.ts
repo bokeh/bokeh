@@ -53,7 +53,6 @@ export class GlyphRendererView extends DataRendererView {
   protected decimated: number[]
 
   set_data_timestamp: number
-  protected last_dtrender: number
 
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -335,8 +334,6 @@ export class GlyphRendererView extends DataRendererView {
       }
     }
     const dtrender = Date.now() - trender
-
-    this.last_dtrender = dtrender
 
     const dttot = Date.now() - t0
     logger.debug(`${this.glyph.model.type} ${this.model}: render finished in ${dttot}ms`)
