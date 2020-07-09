@@ -66,19 +66,21 @@ class Glyph(Model):
 
         '''
         arg_params = []
+        no_more_defaults = False
 
-        for arg in cls._args:
+        for arg in reversed(cls._args):
             descriptor = cls.lookup(arg)
             default = descriptor.class_default(cls)
+            if default is None:
+                no_more_defaults = True
             param = Parameter(
                 name=arg,
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
-
-                # for positional arg properties, default=None means no default
-                default=Parameter.empty if default is None else default
+                # For positional arg properties, default=None means no default.
+                default=Parameter.empty if no_more_defaults else default
             )
             typ = descriptor.property._sphinx_type()
-            arg_params.append((param, typ, descriptor.__doc__))
+            arg_params.insert(0, (param, typ, descriptor.__doc__))
 
         # these are not really useful, and should also really be private, just skip them
         omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}

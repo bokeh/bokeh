@@ -82,13 +82,11 @@ export class VBar extends Box {
   static init_VBar(): void {
     this.prototype.default_view = VBarView
 
-    this.coords([['x', 'bottom']])
     this.define<VBar.Props>({
-      width:  [ p.NumberSpec     ],
-      top:    [ p.CoordinateSpec ],
-    })
-    this.override({
-      bottom: 0,
+      x:      [ p.XCoordinateSpec, {field: "x"}   ],
+      bottom: [ p.YCoordinateSpec, {value: 0}     ],
+      width:  [ p.NumberSpec,      {value: 1}     ],
+      top:    [ p.YCoordinateSpec, {field: "top"} ],
     })
   }
 }

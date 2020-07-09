@@ -42,6 +42,8 @@ describe("ImageURL module", () => {
     it("`_map_data` should correctly map data if w and h units are 'data'", async () => {
       // ImageURLView._map_data is called by ImageURLView.map_data
       const image_url = new ImageURL()
+      image_url.x = 0
+      image_url.y = 0
       image_url.w = 17
       image_url.h = 19
 
@@ -55,6 +57,8 @@ describe("ImageURL module", () => {
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
       // ImageURLView._map_data is called by ImageURLView.map_data
       const image_url = new ImageURL()
+      image_url.x = 0
+      image_url.y = 0
       image_url.w = 1
       image_url.h = 2
       image_url.properties.w.units = "screen"
@@ -70,6 +74,8 @@ describe("ImageURL module", () => {
     it("`_map_data` should map data to NaN if w and h are null, 'data' units", async () => {
       // if sw, sh are NaN, then the image width or height are used during render
       const image_url = new ImageURL()
+      image_url.x = 0
+      image_url.y = 0
       image_url.w = null as any // XXX
       image_url.h = null as any // XXX
 
@@ -82,6 +88,8 @@ describe("ImageURL module", () => {
 
     it("`_map_data` should map data to NaN if w and h are null, 'screen' units", async () => {
       const image_url = new ImageURL()
+      image_url.x = 0
+      image_url.y = 0
       image_url.w = null as any // XXX
       image_url.h = null as any // XXX
       image_url.properties.w.units = "screen"

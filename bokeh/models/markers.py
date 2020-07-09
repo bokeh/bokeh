@@ -70,6 +70,7 @@ from ..core.properties import (
     NumberSpec,
     ScreenDistanceSpec,
 )
+from ..core.property.dataspec import field
 from ..core.property_mixins import FillProps, LineProps
 from .glyph import FillGlyph, LineGlyph, XYGlyph
 
@@ -130,11 +131,11 @@ class Marker(XYGlyph, LineGlyph, FillGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'size', 'angle')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-axis coordinates for the center of the markers.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-axis coordinates for the center of the markers.
     """)
 

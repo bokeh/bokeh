@@ -5,6 +5,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
+import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
@@ -101,6 +102,11 @@ export class BezierView extends GlyphView {
   model: Bezier
   visuals: Bezier.Visuals
 
+  protected _project_data(): void {
+    inplace.project_xy(this._x0, this._y0)
+    inplace.project_xy(this._x1, this._y1)
+  }
+
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
@@ -173,7 +179,16 @@ export class Bezier extends Glyph {
   static init_Bezier(): void {
     this.prototype.default_view = BezierView
 
-    this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']])
+    this.define<Bezier.Props>({
+      x0:  [ p.XCoordinateSpec, {field: "x0"}  ],
+      y0:  [ p.YCoordinateSpec, {field: "y0"}  ],
+      x1:  [ p.XCoordinateSpec, {field: "x1"}  ],
+      y1:  [ p.YCoordinateSpec, {field: "y1"}  ],
+      cx0: [ p.XCoordinateSpec, {field: "cx0"} ],
+      cy0: [ p.YCoordinateSpec, {field: "cy0"} ],
+      cx1: [ p.XCoordinateSpec, {field: "cx1"} ],
+      cy1: [ p.YCoordinateSpec, {field: "cy1"} ],
+    })
     this.mixins<Bezier.Mixins>(LineVector)
   }
 }

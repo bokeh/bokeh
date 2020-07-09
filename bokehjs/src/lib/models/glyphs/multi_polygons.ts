@@ -11,7 +11,6 @@ import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
-import {isArray, isTypedArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 
 export interface MultiPolygonsData extends GlyphData {
@@ -29,6 +28,10 @@ export class MultiPolygonsView extends GlyphView {
   visuals: MultiPolygons.Visuals
 
   protected _hole_index: SpatialIndex
+
+  protected _project_data(): void {
+    // TODO
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -132,7 +135,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: Arrayable<Arrayable<Arrayable<number>>>, sy: Arrayable<Arrayable<Arrayable<number>>>): void {
+  protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
     ctx.beginPath()
     for (let j = 0, endj = sx.length; j < endj; j++) {
       for (let k = 0, endk = sx[j].length; k < endk; k++) {
@@ -284,34 +287,21 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   map_data(): void {
-    const self = this as any
-
-    for (let [xname, yname] of this.model._coords) {
-      const sxname = `s${xname}`
-      const syname = `s${yname}`
-      xname = `_${xname}`
-      yname = `_${yname}`
-
-      if (self[xname] != null && (isArray(self[xname][0]) || isTypedArray(self[xname][0]))) {
-        const ni = self[xname].length
-
-        self[sxname] = new Array(ni)
-        self[syname] = new Array(ni)
-
-        for (let i = 0; i < ni; i++) {
-          const nj = self[xname][i].length
-          self[sxname][i] = new Array(nj)
-          self[syname][i] = new Array(nj)
-          for (let j = 0; j < nj; j++) {
-            const nk = self[xname][i][j].length
-            self[sxname][i][j] = new Array(nk)
-            self[syname][i][j] = new Array(nk)
-            for (let k = 0; k < nk; k++) {
-              const [sx, sy] = this.renderer.scope.map_to_screen(self[xname][i][j][k], self[yname][i][j][k])
-              self[sxname][i][j][k] = sx
-              self[syname][i][j][k] = sy
-            }
-          }
+    const n_i = this._xs.length
+    this.sxs = new Array(n_i)
+    this.sys = new Array(n_i)
+    for (let i = 0; i < n_i; i++) {
+      const n_j = this._xs[i].length
+      this.sxs[i] = new Array(n_j)
+      this.sys[i] = new Array(n_j)
+      for (let j = 0; j < n_j; j++) {
+        const n_k = this._xs[i][j].length
+        this.sxs[i][j] = new Array(n_k)
+        this.sys[i][j] = new Array(n_k)
+        for (let k = 0; k < n_k; k++) {
+          const [sx, sy] = this.renderer.scope.map_to_screen(this._xs[i][j][k], this._ys[i][j][k])
+          this.sxs[i][j][k] = sx
+          this.sys[i][j][k] = sy
         }
       }
     }
@@ -326,8 +316,8 @@ export namespace MultiPolygons {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
-    xs: p.CoordinateSeqSpec
-    ys: p.CoordinateSeqSpec
+    xs: p.CoordinateSeqSeqSeqSpec
+    ys: p.CoordinateSeqSeqSeqSpec
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -348,7 +338,10 @@ export class MultiPolygons extends Glyph {
   static init_MultiPolygons(): void {
     this.prototype.default_view = MultiPolygonsView
 
-    this.coords([['xs', 'ys']])
+    this.define<MultiPolygons.Props>({
+      xs: [ p.XCoordinateSeqSeqSeqSpec, {field: "xs"} ],
+      ys: [ p.YCoordinateSeqSeqSeqSpec, {field: "ys"} ],
+    })
     this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

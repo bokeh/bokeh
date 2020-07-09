@@ -15,15 +15,19 @@ import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
+import {Arrayable, NumberArray} from "@bokehjs/core/types"
+import {repeat} from "@bokehjs/core/util/array"
 
 class TrivialLayoutProvider extends LayoutProvider {
 
-  get_node_coordinates(_graph_source: ColumnarDataSource): [number[], number[]] {
-    return [[], []]
+  get_node_coordinates(graph_source: ColumnarDataSource): [NumberArray, NumberArray] {
+    const n = graph_source.get_length() ?? 1
+    return [new NumberArray(n), new NumberArray(n)]
   }
 
-  get_edge_coordinates(_graph_source: ColumnarDataSource): [[number, number][], [number, number][]] {
-    return [[], []]
+  get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
+    const n = graph_source.get_length() ?? 1
+    return [repeat([], n), repeat([], n)]
   }
 }
 
@@ -54,10 +58,12 @@ describe("GraphHitTestPolicy", () => {
       data: {
         start: [10, 10, 30],
         end: [20, 30, 20],
+        xs: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        ys: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
       },
     })
-    const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Circle()})
-    const edge_renderer = new GlyphRenderer({data_source: edge_source, glyph: new MultiLine()})
+    const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Circle()}) as GlyphRenderer & {glyph: Circle}
+    const edge_renderer = new GlyphRenderer({data_source: edge_source, glyph: new MultiLine()}) as GlyphRenderer & {glyph: MultiLine}
 
     gr = new GraphRenderer({
       node_renderer,

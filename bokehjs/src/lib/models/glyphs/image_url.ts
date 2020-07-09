@@ -76,13 +76,11 @@ export class ImageURLView extends XYGlyphView {
 
     const n = this._x.length
 
-    const xs = new Array<number>(w_data ? 2*n : n)
-    const ys = new Array<number>(h_data ? 2*n : n)
+    const xs = new NumberArray(w_data ? 2*n : n)
+    const ys = new NumberArray(h_data ? 2*n : n)
 
-    for (let i = 0; i < n; i++) {
-      xs[i] = this._x[i]
-      ys[i] = this._y[i]
-    }
+    xs.set(this._x, 0)
+    ys.set(this._y, 0)
 
     // if the width/height are in screen units, don't try to include them in bounds
     if (w_data) {

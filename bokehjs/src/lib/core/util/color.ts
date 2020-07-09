@@ -33,9 +33,22 @@ export function color2hex(color: string): string {
     return color
 }
 
+// each component is in [0, 1] range
 export type RGBA = [number, number, number, number]
 
-export function color2rgba(color: string, alpha: number = 1.0): RGBA {
+export function encode_rgba([r, g, b, a]: RGBA): number {
+  return (r*255 | 0) << 24 | (g*255 | 0) << 16 | (b*255 | 0) << 8 | (a*255 | 0)
+}
+
+export function decode_rgba(rgba: number): RGBA {
+  const r = ((rgba >> 24) & 0xff) / 255
+  const g = ((rgba >> 16) & 0xff) / 255
+  const b = ((rgba >>  8) & 0xff) / 255
+  const a = ((rgba >>  0) & 0xff) / 255
+  return [r, g, b, a]
+}
+
+export function color2rgba(color: string | null, alpha: number = 1.0): RGBA {
   if (!color)  // NaN, null, '', etc.
     return [0, 0, 0, 0]  // transparent
   // Convert to hex and then to clean version of 6 or 8 chars
@@ -52,15 +65,6 @@ export function color2rgba(color: string, alpha: number = 1.0): RGBA {
   if (rgba.length < 4)
     rgba.push(alpha)
   return rgba.slice(0, 4) as RGBA
-}
-
-export function color2css(color: string, alpha: number = 1.0): string {
-  if (alpha == 1.0)
-    return color
-  else {
-    const [r, g, b, a] = color2rgba(color, alpha)
-    return `rgba(${r*255},${g*255},${b*255},${a})`
-  }
 }
 
 export function valid_rgb(value: string): boolean {

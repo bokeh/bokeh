@@ -1,5 +1,6 @@
 import {NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
+import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
@@ -16,6 +17,10 @@ export interface XYGlyphView extends XYGlyphData {}
 export abstract class XYGlyphView extends GlyphView {
   model: XYGlyph
   visuals: XYGlyph.Visuals
+
+  protected _project_data(): void {
+    inplace.project_xy(this._x, this._y)
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
@@ -58,6 +63,9 @@ export abstract class XYGlyph extends Glyph {
   }
 
   static init_XYGlyph(): void {
-    this.coords([['x', 'y']])
+    this.define<XYGlyph.Props>({
+      x: [ p.XCoordinateSpec, {field: "x"} ],
+      y: [ p.YCoordinateSpec, {field: "y"} ],
+    })
   }
 }

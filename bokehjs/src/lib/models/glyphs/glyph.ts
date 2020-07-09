@@ -1,7 +1,6 @@
 import {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import * as proj from "core/util/projections"
 import * as visuals from "core/visuals"
 import * as geometry from "core/geometry"
 import {Context2d} from "core/util/canvas"
@@ -9,12 +8,9 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray} from "core/types"
-import {map, subselect} from "core/util/arrayable"
-import {extend} from "core/util/object"
-import {isArray, isTypedArray} from "core/util/types"
+import {Arrayable, Rect, NumberArray, RaggedArray} from "core/types"
+import {map, max, subselect} from "core/util/arrayable"
 import {SpatialIndex} from "core/util/spatial"
-import {LineView} from "./line"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
@@ -238,97 +234,53 @@ export abstract class GlyphView extends View {
     return new Selection({indices})
   }
 
+  protected _project_data(): void {}
+
   set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
-    let data = this.model.materialize_dataspecs(source)
+    const {x_range, y_range} = this.renderer.scope
 
-    if (indices && !(this instanceof LineView)) {
-      const data_subset: {[key: string]: any} = {}
-      for (const k in data) {
-        const v = data[k]
-        if (k.charAt(0) === '_')
-          data_subset[k] = subselect(v as Arrayable<unknown>, indices)
-        else
-          data_subset[k] = v
-      }
-      data = data_subset
-    }
+    this._data_size = source.get_length() ?? 1
 
-    let data_size = Infinity
-    for (const k in data) {
-      if (k.charAt(0) === '_')
-        data_size = Math.min(data_size, (data[k] as any).length)
-    }
-    if (data_size != Infinity)
-      this._data_size = data_size
-    else
-      this._data_size = 0 // XXX: this only happens in degenerate unit tests
+    for (const prop of this.model) {
+      if (!(prop instanceof p.VectorSpec))
+        continue
 
-    const self = this as any
-    extend(self, data)
+      // this skips optional properties like radius for circles
+      if (prop.optional && prop.spec.value == null && !prop.dirty)
+        continue
 
-    // TODO (bev) Should really probably delegate computing projected
-    // coordinates to glyphs, instead of centralizing here in one place.
-    if (this.renderer.plot_view.model.use_map) {
-      if (self._x != null)
-        [self._x, self._y] = proj.project_xy(self._x, self._y)
+      const name = prop.attr
+      let array = subselect(prop.array(source), indices)
 
-      if (self._xs != null)
-        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
-
-      if (self._x0 != null)
-        [self._x0, self._y0] = proj.project_xy(self._x0, self._y0)
-
-      if (self._x1 != null)
-        [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
-    }
-
-    function num_array(array: Arrayable<number>): NumberArray {
-      if (array instanceof NumberArray)
-        return array
-      else
-        return new NumberArray(array)
-    }
-
-    // if we have any coordinates that are categorical, convert them to
-    // synthetic coords here
-    const xr = this.renderer.scope.x_range
-    const yr = this.renderer.scope.y_range
-
-    // XXX: MultiPolygons is a special case of special cases
-    if (this.model.type != "MultiPolygons") {
-      for (let [xname, yname] of this.model._coords) {
-        xname = `_${xname}`
-        yname = `_${yname}`
-
-        // TODO (bev) more robust detection of multi-glyph case
-        // hand multi glyph case
-        if (self._xs != null) {
-          if (xr instanceof FactorRange)
-            self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
-          else
-            self[xname] = map(self[xname], num_array)
-          if (yr instanceof FactorRange)
-            self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
-          else
-            self[yname] = map(self[yname], num_array)
-        } else {
-          // hand standard glyph case
-          if (xr instanceof FactorRange)
-            self[xname] = xr.v_synthetic(self[xname])
-          else
-            self[xname] = num_array(self[xname])
-          if (yr instanceof FactorRange)
-            self[yname] = yr.v_synthetic(self[yname])
-          else
-            self[yname] = num_array(self[yname])
+      if (prop instanceof p.BaseCoordinateSpec) {
+        const range = prop.dimension == "x" ? x_range : y_range
+        if (range instanceof FactorRange) {
+          if (prop instanceof p.CoordinateSpec) {
+            array = range.v_synthetic(array as any)
+          } else if (prop instanceof p.CoordinateSeqSpec) {
+            for (let i = 0; i < array.length; i++) {
+              array[i] = range.v_synthetic(array[i] as any)
+            }
+          }
         }
+
+        if (prop instanceof p.CoordinateSeqSpec) {
+          array = RaggedArray.from(array as any) as any
+        }
+      } else if (prop instanceof p.DistanceSpec) {
+        (this as any)[`max_${name}`] = max(array as any)
       }
+
+      (this as any)[`_${name}`] = array
     }
 
-    if (this.glglyph != null)
-      this.glglyph.set_data_changed(self._x.length)
+    if (this.renderer.plot_view.model.use_map) {
+      this._project_data()
+    }
 
-    this._set_data(indices_to_update)  //TODO doesn't take subset indices into account
+    this.glglyph?.set_data_changed()
+
+    this._set_data(indices_to_update)  // TODO doesn't take subset indices into account
 
     this.index_data()
   }
@@ -359,29 +311,21 @@ export abstract class GlyphView extends View {
   protected _mask_data?(): number[]
 
   map_data(): void {
-    // TODO: if using gl, skip this (when is this called?)
-    // map all the coordinate fields
     const self = this as any
 
-    for (let [xname, yname] of this.model._coords) {
-      const sxname = `s${xname}`
-      const syname = `s${yname}`
-      xname = `_${xname}`
-      yname = `_${yname}`
-
-      if (self[xname] != null && (isArray(self[xname][0]) || isTypedArray(self[xname][0]))) {
-        const n = self[xname].length
-
-        self[sxname] = new Array(n)
-        self[syname] = new Array(n)
-
-        for (let i = 0; i < n; i++) {
-          const [sx, sy] = this.renderer.scope.map_to_screen(self[xname][i], self[yname][i])
-          self[sxname][i] = sx
-          self[syname][i] = sy
+    const {x_scale, y_scale} = this.renderer.scope
+    for (const prop of this.model) {
+      if (prop instanceof p.BaseCoordinateSpec) {
+        const scale = prop.dimension == "x" ? x_scale : y_scale
+        let array = self[`_${prop.attr}`] as NumberArray | RaggedArray
+        if (array instanceof RaggedArray) {
+          const screen = scale.v_compute(array.array)
+          array = new RaggedArray(array.offsets, screen)
+        } else {
+          array = scale.v_compute(array)
         }
-      } else
-        [self[sxname], self[syname]] = this.renderer.scope.map_to_screen(self[xname], self[yname])
+        (this as any)[`s${prop.attr}`] = array
+      }
     }
 
     this._map_data()
@@ -405,26 +349,9 @@ export abstract class Glyph extends Model {
   properties: Glyph.Props
   __view_type__: GlyphView
 
-  /* prototype */ _coords: [string, string][]
-
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
   }
 
-  static init_Glyph(): void {
-    this.prototype._coords = []
-  }
-
-  static coords(coords: [string, string][]): void {
-    const _coords = this.prototype._coords.concat(coords)
-    this.prototype._coords = _coords
-
-    const result: any = {}
-    for (const [x, y] of coords) {
-      result[x] = [ p.CoordinateSpec ]
-      result[y] = [ p.CoordinateSpec ]
-    }
-
-    this.define<Glyph.Props>(result)
-  }
+  static init_Glyph(): void {}
 }

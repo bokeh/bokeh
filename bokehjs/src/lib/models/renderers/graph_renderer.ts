@@ -3,73 +3,87 @@ import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import * as p from "core/properties"
-import {build_views, remove_views} from "core/build_views"
+import {build_view} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
+import {XYGlyph} from "../glyphs/xy_glyph"
+import {MultiLine} from "../glyphs/multi_line"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Arrayable} from "core/types"
+import {assert} from "core/util/assert"
 
 export class GraphRendererView extends DataRendererView {
   model: GraphRenderer
 
-  node_view: GlyphRendererView
   edge_view: GlyphRendererView
-
-  protected _renderer_views: Map<GlyphRenderer, GlyphRendererView>
-
-  initialize(): void {
-    super.initialize()
-    this._renderer_views = new Map()
-  }
+  node_view: GlyphRendererView
 
   async lazy_initialize(): Promise<void> {
-    [this.node_view, this.edge_view] = await build_views(this._renderer_views, [
-      this.model.node_renderer,
-      this.model.edge_renderer,
-    ], {parent: this.parent})
+    await super.lazy_initialize()
 
-    this.set_data()
-  }
+    const graph = this.model
 
-  remove(): void {
-    remove_views(this._renderer_views)
-    super.remove()
+    // TODO: replace this with bi-variate transforms
+    let xs_ys: [Arrayable<number>[], Arrayable<number>[]] | null = null
+    let x_y: [Arrayable<number>, Arrayable<number>] | null = null
+
+    const xs_expr = {
+      v_compute(source: ColumnarDataSource) {
+        assert(xs_ys == null)
+        const [xs] = xs_ys = graph.layout_provider.get_edge_coordinates(source)
+        return xs
+      },
+    }
+    const ys_expr = {
+      v_compute(_source: ColumnarDataSource) {
+        assert(xs_ys != null)
+        const [, ys] = xs_ys
+        xs_ys = null
+        return ys
+      },
+    }
+
+    const x_expr = {
+      v_compute(source: ColumnarDataSource) {
+        assert(x_y == null)
+        const [x] = x_y = graph.layout_provider.get_node_coordinates(source)
+        return x
+      },
+    }
+    const y_expr = {
+      v_compute(_source: ColumnarDataSource) {
+        assert(x_y != null)
+        const [, y] = x_y
+        x_y = null
+        return y
+      },
+    }
+
+    const {edge_renderer, node_renderer} = this.model
+
+    edge_renderer.glyph.xs = {expr: xs_expr}
+    edge_renderer.glyph.ys = {expr: ys_expr}
+
+    node_renderer.glyph.x = {expr: x_expr}
+    node_renderer.glyph.y = {expr: y_expr}
+
+    const {parent} = this
+    this.edge_view = await build_view(edge_renderer, {parent})
+    this.node_view = await build_view(node_renderer, {parent})
   }
 
   connect_signals(): void {
     super.connect_signals()
-
-    this.connect(this.model.layout_provider.change, () => this.set_data())
-    this.connect(this.model.node_renderer.data_source._select, () => this.set_data())
-    this.connect(this.model.node_renderer.data_source.inspect, () => this.set_data())
-    this.connect(this.model.node_renderer.data_source.change, () => this.set_data())
-    this.connect(this.model.edge_renderer.data_source._select, () => this.set_data())
-    this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data())
-    this.connect(this.model.edge_renderer.data_source.change, () => this.set_data())
-
-    const {x_ranges, y_ranges} = this.plot_view.frame
-
-    for (const [, range] of x_ranges) {
-      this.connect(range.change, () => this.set_data())
-    }
-
-    for (const [, range] of y_ranges) {
-      this.connect(range.change, () => this.set_data())
-    }
+    this.connect(this.model.layout_provider.change, () => {
+      this.edge_view.set_data(false)
+      this.node_view.set_data(false)
+      this.request_render()
+    })
   }
 
-  set_data(request_render: boolean = true): void {
-    // XXX
-    const node_glyph: any = this.node_view.glyph
-    ;[node_glyph._x, node_glyph._y] =
-      this.model.layout_provider.get_node_coordinates(this.model.node_renderer.data_source) as any
-
-    const edge_glyph: any = this.edge_view.glyph
-    ;[edge_glyph._xs, edge_glyph._ys] =
-      this.model.layout_provider.get_edge_coordinates(this.model.edge_renderer.data_source) as any
-
-    node_glyph.index_data()
-    edge_glyph.index_data()
-
-    if (request_render)
-      this.request_render()
+  remove(): void {
+    this.edge_view.remove()
+    this.node_view.remove()
+    super.remove()
   }
 
   protected _render(): void {
@@ -83,8 +97,8 @@ export namespace GraphRenderer {
 
   export type Props = DataRenderer.Props & {
     layout_provider: p.Property<LayoutProvider>
-    node_renderer: p.Property<GlyphRenderer>
-    edge_renderer: p.Property<GlyphRenderer>
+    node_renderer: p.Property<GlyphRenderer & {glyph: XYGlyph}>
+    edge_renderer: p.Property<GlyphRenderer & {glyph: MultiLine}>
     selection_policy: p.Property<GraphHitTestPolicy>
     inspection_policy: p.Property<GraphHitTestPolicy>
   }
@@ -104,11 +118,11 @@ export class GraphRenderer extends DataRenderer {
     this.prototype.default_view = GraphRendererView
 
     this.define<GraphRenderer.Props>({
-      layout_provider:    [ p.Instance                              ],
-      node_renderer:      [ p.Instance                              ],
-      edge_renderer:      [ p.Instance                              ],
-      selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
-      inspection_policy:  [ p.Instance,      () => new NodesOnly()  ],
+      layout_provider:   [ p.Instance                        ],
+      node_renderer:     [ p.Instance                        ],
+      edge_renderer:     [ p.Instance                        ],
+      selection_policy:  [ p.Instance, () => new NodesOnly() ],
+      inspection_policy: [ p.Instance, () => new NodesOnly() ],
     })
   }
 

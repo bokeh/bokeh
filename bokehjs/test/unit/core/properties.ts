@@ -91,8 +91,8 @@ class Some extends HasProps {
       angle_spec: [ p.AngleSpec ],
       boolean_spec: [ p.BooleanSpec ],
       color_spec: [ p.ColorSpec ],
-      coordinate_spec: [ p.CoordinateSpec ],
-      coordinate_seq_spec: [ p.CoordinateSeqSpec ],
+      coordinate_spec: [ p.XCoordinateSpec ],
+      coordinate_seq_spec: [ p.XCoordinateSeqSpec ],
       distance_spec: [ p.DistanceSpec ],
       font_size_spec: [ p.FontSizeSpec ],
       marker_spec: [ p.MarkerSpec ],
@@ -279,13 +279,11 @@ describe("properties module", () => {
       })
 
       it("should throw an Error otherwise", () => {
-        function fn(): void {
-          const source = new ColumnDataSource({data: {}})
-          const obj = new Some({number_spec: {field: "foo"}})
-          const prop = obj.properties.number_spec
-          prop.array(source)
-        }
-        expect(fn).to.throw(Error, /attempted to retrieve property array for nonexistent field 'foo'/)
+        const source = new ColumnDataSource({data: {bar: [1, 2, 3]}})
+        const obj = new Some({number_spec: {field: "foo"}})
+        const prop = obj.properties.number_spec
+        const arr = prop.array(source)
+        expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {

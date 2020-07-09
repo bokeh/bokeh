@@ -1,11 +1,12 @@
 import {Signal0} from "./signaling"
+import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray} from "./types"
+import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {is_color} from "./util/color"
+import {is_color, color2rgba, encode_rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
@@ -368,25 +369,35 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   }
 
   array(source: ColumnarDataSource): Arrayable<unknown> {
-    let ret: any
+    let array: Arrayable
+
+    const length = source.get_length() ?? 1
 
     if (this.spec.field != null) {
-      ret = this.normalize(source.get_column(this.spec.field))
-      if (ret == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+      const column = source.get_column(this.spec.field)
+      if (column != null)
+        array = this.normalize(column)
+      else {
+        logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+        const missing = new NumberArray(length)
+        missing.fill(NaN)
+        array = missing
+      }
     } else if (this.spec.expr != null) {
-      ret = this.normalize(this.spec.expr.v_compute(source))
+      array = this.normalize(this.spec.expr.v_compute(source))
     } else {
-      let length = source.get_length()
-      if (length == null)
-        length = 1
       const value = this.value(false) // don't apply any spec transform
-      ret = repeat(value, length)
+      if (isNumber(value)) {
+        const values = new NumberArray(length)
+        values.fill(value)
+        array = values
+      } else
+        array = repeat(value, length)
     }
 
     if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
-    return ret
+      array = this.spec.transform.v_compute(array)
+    return array
   }
 }
 
@@ -422,6 +433,23 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
   }
 }
 
+export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
+  readonly dimension: "x" | "y"
+}
+
+export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
+export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
+
+export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
+export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
+
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
   get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
@@ -451,11 +479,19 @@ export class NumberSpec extends DataSpec<number> {
   }
 }
 
-export class CoordinateSpec extends DataSpec<number | Factor> {}
-
-export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
-
-export class ColorSpec extends DataSpec<types.Color | null> {}
+export class ColorSpec extends DataSpec<types.Color | null> {
+  array(source: ColumnarDataSource): ColorArray {
+    const colors = super.array(source)
+    const n = colors.length
+    const array = new ColorArray(n)
+    for (let i = 0; i < n; i++) {
+      const color = colors[i] as types.Color | null
+      const rgba = color2rgba(color)
+      array[i] = encode_rgba(rgba)
+    }
+    return array
+  }
+}
 
 export class FontSizeSpec extends DataSpec<string> {}
 
