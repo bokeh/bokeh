@@ -88,7 +88,7 @@ export class CanvasLayer {
       case "svg": {
         const ctx = new SVGRenderingContext2D()
         this._ctx = ctx
-        this._canvas = ctx.getSvg()
+        this._canvas = ctx.get_svg()
         this._el = div({style}, this._canvas)
         break
       }
@@ -139,7 +139,7 @@ export class CanvasLayer {
       }
     } else {
       const ctx = this._ctx as SVGRenderingContext2D
-      const svg = ctx.getSerializedSvg(true)
+      const svg = ctx.get_serialized_svg(true)
       const svgblob = new Blob([svg], {type: "text/plain"})
       const downloadLink = document.createElement("a")
       downloadLink.download = name + ".svg"

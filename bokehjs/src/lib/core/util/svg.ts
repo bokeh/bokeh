@@ -486,7 +486,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     *                           If true, we attempt to find all named entities and encode it as a numeric entity.
     * @return serialized svg
     */
-  getSerializedSvg(fixNamedEntities: boolean = false): string {
+  get_serialized_svg(fixNamedEntities: boolean = false): string {
     let serialized = new XMLSerializer().serializeToString(this.__root)
 
     // IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
@@ -508,7 +508,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     return serialized
   }
 
-  getSvg(): SVGSVGElement {
+  get_svg(): SVGSVGElement {
     return this.__root
   }
 
@@ -1103,7 +1103,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     if (image instanceof SVGRenderingContext2D) {
       // In the future we may want to clone nodes instead.
       // also I'm currently ignoring dw, dh, sw, sh, sx, sy for a mock context.
-      const svg = image.getSvg().cloneNode(true) as SVGElement
+      const svg = image.get_svg().cloneNode(true) as SVGElement
       if (svg.childNodes && svg.childNodes.length > 1) {
         const defs = svg_children(svg)[0]
         while(defs.childNodes.length) {

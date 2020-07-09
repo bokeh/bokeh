@@ -346,13 +346,23 @@ def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int, int]:
     return viewport_size
 
 _SVG_SCRIPT = """
-var serialized_svgs = [];
-var svgs = document.getElementsByClassName('bk-root')[0].getElementsByTagName("svg");
-for (var i = 0; i < svgs.length; i++) {
-    var source = (new XMLSerializer()).serializeToString(svgs[i]);
-    serialized_svgs.push(source);
-};
-return serialized_svgs
+const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")
+const {PlotView} = Bokeh.require("models/plots/plot")
+
+function* collect_svgs(views) {
+  for (const view of views) {
+    if (view instanceof LayoutDOMView) {
+      yield* collect_svgs(view.child_views.values())
+    }
+    if (view instanceof PlotView && view.model.output_backend == "svg") {
+      const {ctx} = view.canvas_view.compose()
+      yield ctx.get_serialized_svg(true)
+    }
+  }
+}
+
+const root_views = Object.values(Bokeh.index)
+return [...collect_svgs(root_views)]
 """
 
 _WAIT_SCRIPT = """
