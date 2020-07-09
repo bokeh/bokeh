@@ -28,7 +28,7 @@ Discourse Site
 
 *The Google Groups mailing list has been retired*. In it's place, there is now
 a `Discourse site for community discussions`_.
-All of the old content from the mailing list has been imported into the Disourse,
+All of the old content from the mailing list has been imported into the Discourse,
 and is searchable.
 
 Callback Policy

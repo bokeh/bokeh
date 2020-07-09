@@ -332,7 +332,7 @@ Some Current Protocol Caveats
    over binary websocket frames.  However, NumPy arrays of
    dtype ``float32``, ``float64`` and integer types smaller than ``int32``
    are base64 encoded in content frame to avoid performance
-   limitations of naiive JSON string serialization.
+   limitations of naive JSON string serialization.
    JavaScript's lack of native 64-bit integer support precludes
    them from inclusion in this optimization.
    The base64 encoding should be entirely transparent to all

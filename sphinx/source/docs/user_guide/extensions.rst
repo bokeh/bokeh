@@ -189,13 +189,13 @@ the special header update as the slider moves:
 .. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
     :source-position: none
 
-.. _userguide_extensions_specifying_implemenation_languages:
+.. _userguide_extensions_specifying_implementation_languages:
 
 Specifying Implementation Languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the value of ``__implementation__`` is a single line that ends in one of
-the know extensions ``.js``, or ``.ts`` then the it is interpretedas a filename.
+the know extensions ``.js``, or ``.ts`` then the it is interpreted as a filename.
 The corresponding file is opened and its contents are compiled appropriately
 according to the file extension.
 
@@ -299,7 +299,7 @@ Pre-built extensions
 --------------------
 
 So far we covered simple, typically inline extensions. Those are great for
-adhoc additions to bokeh, but serious development like this gets pretty
+ad hoc additions to bokeh, but serious development like this gets pretty
 tedious very quickly. For example, writing extension's TypeScript or
 JavaScript files in an IDE doesn't allow to take full advantage of such
 IDE's capabilities, due to implicit nature of certain configuration files

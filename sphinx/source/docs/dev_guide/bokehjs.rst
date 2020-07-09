@@ -209,7 +209,7 @@ module looks like this:
 
       initialize(): void {
         super.initialize()
-        // perform view intialization (remove if not needed)
+        // perform view initialization (remove if not needed)
       }
 
       async lazy_initialize(): Promise<void> {

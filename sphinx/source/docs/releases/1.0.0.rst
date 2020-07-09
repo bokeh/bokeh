@@ -55,7 +55,7 @@ Any code that looks like the first version above should be updated to use the
 second version. This applies to both Python or JavaScript callbacks for
 selections.
 
-While this breaking incompatibility is regretable, there are now much more
+While this breaking incompatibility is regrettable, there are now much more
 extensive integration tests in place to maintain that the second version will
 always function as expected from now on.
 

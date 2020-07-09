@@ -230,7 +230,7 @@ For example, to use version ``1.4.0``, including widgets and tables support:
     always include the `crossorigin="anonymous"` attribute on the script.
 
 If you would like to include `Subresource Integrity`_ hashes to your explicit
-script tags by setting the `integrity` attribute, the necesary hashes can be
+script tags by setting the `integrity` attribute, the necessary hashes can be
 obtained by calling :func:`~bokeh.resources.get_sri_hashes_for_version` e.g.
 
 .. code-block:: python
