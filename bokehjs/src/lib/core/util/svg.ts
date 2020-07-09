@@ -1100,10 +1100,11 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     // parent, svg, defs, group, currentElement, svgImage, canvas, context, id
     const parent = this.__closestGroupOrSvg()
     const translateDirective = "translate(" + dx + ", " + dy + ")"
-    if (image instanceof SVGRenderingContext2D) {
+    if (image instanceof SVGRenderingContext2D || image instanceof SVGSVGElement) {
       // In the future we may want to clone nodes instead.
       // also I'm currently ignoring dw, dh, sw, sh, sx, sy for a mock context.
-      const svg = image.get_svg().cloneNode(true) as SVGElement
+      const svg_node = image instanceof SVGSVGElement ? image : image.get_svg()
+      const svg = svg_node.cloneNode(true) as SVGElement
       if (svg.childNodes && svg.childNodes.length > 1) {
         const defs = svg_children(svg)[0]
         while(defs.childNodes.length) {
