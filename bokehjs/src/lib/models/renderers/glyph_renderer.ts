@@ -192,10 +192,18 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl
   }
 
+  protected should_decimate(): boolean {
+    // Render decimated during interaction if too many elements and not using GL
+    const {lod_threshold} = this.plot_model
+    const {document} = this.model
+    const {has_webgl, all_indices} = this
+    if (document == null)
+      return false
+    return document.interactive_duration() > 0 && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold
+  }
+
   protected _render(): void {
     const t0 = Date.now()
-
-    const glsupport = this.has_webgl
 
     this.glyph.map_data()
     const dtmap = Date.now() - t0
@@ -244,13 +252,10 @@ export class GlyphRendererView extends DataRendererView {
     // inspected is transformed to subset space
     const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(this.all_indices[i]))
 
-    const {lod_threshold} = this.plot_model
     let glyph: GlyphView
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
-    if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !glsupport && lod_threshold != null && this.all_indices.length > lod_threshold) {
-      // Render decimated during interaction if too many elements and not using GL
+    if (this.should_decimate()) {
       indices = this.decimated
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph
