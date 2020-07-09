@@ -153,6 +153,7 @@ export class GlyphRendererView extends DataRendererView {
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
     const t0 = Date.now()
+
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
@@ -178,13 +179,12 @@ export class GlyphRendererView extends DataRendererView {
       this.decimated.push(i*lod_factor)
     }
 
-    const dt = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} ${this.model}): set_data finished in ${dt}ms`)
-
     this.set_data_timestamp = Date.now()
 
     if (request_render)
       this.request_render()
+
+    logger.debug(`${this.glyph.model.type} ${this.model}): set_data finished in ${Date.now() - t0}ms`)
   }
 
   get has_webgl(): boolean {
@@ -202,19 +202,18 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   protected _render(): void {
+    logger.debug(`${this.glyph.model.type} ${this.model}: _render starting`)
+
     const t0 = Date.now()
 
     this.glyph.map_data()
-    const dtmap = Date.now() - t0
 
-    const tmask = Date.now()
     // all_indices is in full data space, indices is converted to subset space
     // either by mask_data (that uses the spatial index) or manually
     let indices = this.glyph.mask_data(this.all_indices)
     if (indices.length === this.all_indices.length) {
       indices = range(0, this.all_indices.length)
     }
-    const dtmask = Date.now() - tmask
 
     const {ctx} = this.layer
     ctx.save()
@@ -269,10 +268,8 @@ export class GlyphRendererView extends DataRendererView {
       indices = difference(indices, inspected_subset_indices)
 
     // Render with no selection
-    let dtselect: number | null = null
-    let trender: number
     if (!(selected_full_indices.length && this.have_selection_glyphs())) {
-      trender = Date.now()
+      const trender = Date.now()
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
@@ -292,10 +289,13 @@ export class GlyphRendererView extends DataRendererView {
         if (this.hover_glyph && inspected_subset_indices.length)
           this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
       }
+      logger.trace(` - glyph renders finished in  : ${Date.now() - trender}ms`)
+
     // Render with selection
     } else {
-      // reset the selection mask
       const tselect = Date.now()
+
+      // reset the selection mask
       const selected_mask: {[key: number]: boolean} = {}
       for (const i of selected_full_indices) {
         selected_mask[i] = true
@@ -321,9 +321,9 @@ export class GlyphRendererView extends DataRendererView {
             nonselected_subset_indices.push(i)
         }
       }
-      dtselect = Date.now() - tselect
+      logger.trace(` - selection mask finished in : ${Date.now() - tselect}ms`)
 
-      trender = Date.now()
+      const trender = Date.now()
       nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
       selection_glyph.render(ctx, selected_subset_indices, this.glyph)
       if (this.hover_glyph != null) {
@@ -332,19 +332,12 @@ export class GlyphRendererView extends DataRendererView {
         else
           this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
       }
+      logger.trace(` - glyph renders finished in  : ${Date.now() - trender}ms`)
     }
-    const dtrender = Date.now() - trender
-
-    const dttot = Date.now() - t0
-    logger.debug(`${this.glyph.model.type} ${this.model}: render finished in ${dttot}ms`)
-    logger.trace(` - map_data finished in       : ${dtmap}ms`)
-    logger.trace(` - mask_data finished in      : ${dtmask}ms`)
-    if (dtselect != null) {
-      logger.trace(` - selection mask finished in : ${dtselect}ms`)
-    }
-    logger.trace(` - glyph renders finished in  : ${dtrender}ms`)
 
     ctx.restore()
+
+    logger.debug(`${this.glyph.model.type} ${this.model}: _render finished in ${Date.now() - t0}ms`)
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {

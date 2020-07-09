@@ -301,16 +301,26 @@ export abstract class GlyphView extends View {
   }
 
   mask_data(indices: number[]): number[] {
+    const t0 = Date.now()
+
+    let result = null
+
     // WebGL can do the clipping much more efficiently
     if (this.glglyph != null || this._mask_data == null)
-      return indices
+      result = indices
     else
-      return this._mask_data()
+      result = this._mask_data()
+
+    logger.trace(` - mask_data finished in      : ${Date.now() - t0}ms`)
+
+    return result
   }
 
   protected _mask_data?(): number[]
 
   map_data(): void {
+    const t0 = Date.now()
+
     const self = this as any
 
     const {x_scale, y_scale} = this.renderer.scope
@@ -329,6 +339,8 @@ export abstract class GlyphView extends View {
     }
 
     this._map_data()
+
+    logger.trace(` - map_data finished in       : ${Date.now() - t0}ms`)
   }
 
   // This is where specs not included in coords are computed, e.g. radius.
