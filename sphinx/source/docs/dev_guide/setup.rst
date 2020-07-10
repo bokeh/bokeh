@@ -44,8 +44,8 @@ greatly. It is *strongly* recommended that anyone developing Bokeh also use
 ``conda``, and the remainder of the instructions will assume that ``conda``
 is available.
 
-To install Conda on any platform, see the `Downloading conda`_ section of the
-`conda documentation`_.
+To install Conda on any platform, see the `Anaconda Installers`_ section at
+the bottom of the `Anaconda Individual Edition`_ page.
 
 .. _devguide_cloning:
 
@@ -345,8 +345,8 @@ If you have any problems with the steps here, please `contact the developers`_.
 .. _bokeh source repository: https://github.com/bokeh/bokeh
 .. _contact the developers: https://discourse.bokeh.org/c/development
 .. _conda package manager: https://docs.conda.io/projects/conda/en/latest/
-.. _conda documentation: https://docs.conda.io/projects/conda/en/latest/
-.. _Downloading conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html
+.. _Anaconda Installers: https://www.anaconda.com/products/individual
+.. _Anaconda Individual Edition: https://www.anaconda.com/products/individual
 .. _Fork a repo: https://help.github.com/en/github/getting-started-with-github/fork-a-repo
 .. _Git: https://git-scm.com
 .. _GitHub: https://github.com
