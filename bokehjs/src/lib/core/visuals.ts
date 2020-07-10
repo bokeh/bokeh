@@ -3,12 +3,11 @@ import * as p from "./properties"
 import {color2rgba, decode_rgba} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
-import {Arrayable, Color, Indices} from "./types"
+import {Arrayable, Color} from "./types"
 import {isString} from "./util/types"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
-import {HasProps} from "./has_props"
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {View} from "./view"
 import {Texture} from "models/textures/texture"
 
 function color2css(color: Color | number, alpha: number): string {
@@ -194,48 +193,28 @@ export abstract class ContextProperties {
   /** @prototype */
   attrs: string[]
 
-  readonly cache: {[key: string]: any} = {}
+  protected readonly cache: {[key: string]: any} = {}
 
   abstract get doit(): boolean
 
-  constructor(readonly obj: HasProps, readonly prefix: string = "") {
+  constructor(readonly obj: View, readonly prefix: string = "") {
     for (const attr of this.attrs)
-      (this as any)[attr] = obj.properties[prefix + attr]
-  }
-
-  warm_cache(source?: ColumnarDataSource, all_indices?: Indices): void {
-    for (const attr of this.attrs) {
-      const prop = this.obj.properties[this.prefix + attr]
-      if (prop.spec.value !== undefined) // TODO (bev) better test?
-        this.cache[attr] = prop.spec.value
-      else if (source != null && prop instanceof p.VectorSpec) {
-        const array = prop.array(source)
-        const subarray = all_indices != null ? all_indices.select(array) : array
-        this.cache[attr + "_array"] = subarray
-      } else
-        throw new Error("source is required with a vectorized visual property")
-    }
+      (this as any)[attr] = obj.model.properties[prefix + attr]
   }
 
   cache_select(attr: string, i: number): any {
-    const prop = this.obj.properties[this.prefix + attr]
-    let value: any
+    const prop = this.obj.model.properties[this.prefix + attr]
     if (prop.spec.value !== undefined) // TODO (bev) better test?
-      this.cache[attr] = value = prop.spec.value
+      return prop.spec.value
     else
-      this.cache[attr] = value = this.cache[attr + "_array"][i]
-    return value
+      return this.obj[`_${attr}`][i]
   }
 
   get_array(attr: string): Arrayable {
-    return this.cache[attr + "_array"] as Arrayable
+    return this.obj[`_${attr}`]
   }
 
-  set_vectorize(ctx: Context2d, i: number): void {
-    this._set_vectorize(ctx, i)
-  }
-
-  protected abstract _set_vectorize(ctx: Context2d, i: number): void
+  abstract set_vectorize(ctx: Context2d, i: number): void
 }
 
 export class Line extends ContextProperties {
@@ -266,7 +245,7 @@ export class Line extends ContextProperties {
              this.line_width.spec.value == 0)
   }
 
-  protected _set_vectorize(ctx: Context2d, i: number): void {
+  set_vectorize(ctx: Context2d, i: number): void {
     const color = this.cache_select("line_color", i)
     const alpha = this.cache_select("line_alpha", i)
     const width = this.cache_select("line_width", i)
@@ -307,7 +286,7 @@ export class Fill extends ContextProperties {
              this.fill_alpha.spec.value == 0)
   }
 
-  protected _set_vectorize(ctx: Context2d, i: number): void {
+  set_vectorize(ctx: Context2d, i: number): void {
     const color = this.cache_select("fill_color", i)
     const alpha = this.cache_select("fill_alpha", i)
 
@@ -385,7 +364,7 @@ export class Hatch extends ContextProperties {
     }
   }
 
-  protected _set_vectorize(ctx: Context2d, i: number): void {
+  set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("pattern", i)
     ctx.fillStyle = this.cache.pattern(ctx)
   }
@@ -413,19 +392,17 @@ export class Text extends ContextProperties {
   }
 
   font_value(): string {
-    const text_font       = this.text_font.value()
-    const text_font_size  = this.text_font_size.value()
-    const text_font_style = this.text_font_style.value()
-    return `${text_font_style} ${text_font_size} ${text_font}`
+    const style = this.text_font_style.value()
+    const size = this.text_font_size.value()
+    const face = this.text_font.value()
+    return `${style} ${size} ${face}`
   }
 
   v_font_value(i: number): string {
-    super.cache_select("text_font_style", i)
-    super.cache_select("text_font_size",  i)
-    super.cache_select("text_font",       i)
-
-    const {text_font_style, text_font_size, text_font} = this.cache
-    return `${text_font_style} ${text_font_size} ${text_font}`
+    const style = super.cache_select("text_font_style", i)
+    const size = super.cache_select("text_font_size", i)
+    const face = super.cache_select("text_font", i)
+    return `${style} ${size} ${face}`
   }
 
   cache_select(name: string, i: number): any {
@@ -453,7 +430,7 @@ export class Text extends ContextProperties {
              this.text_alpha.spec.value == 0)
   }
 
-  protected _set_vectorize(ctx: Context2d, i: number): void {
+  set_vectorize(ctx: Context2d, i: number): void {
     const color = this.cache_select("text_color", i)
     const alpha = this.cache_select("text_alpha", i)
     const font = this.cache_select("font", i)
@@ -471,8 +448,8 @@ Text.prototype.attrs = Object.keys(mixins.TextVector)
 
 export class Visuals {
 
-  constructor(model: HasProps) {
-    for (const mixin of model._mixins) {
+  constructor(view: View) {
+    for (const mixin of view.model._mixins) {
       const [name, prefix=""] = mixin.split(":")
       let cls: Class<ContextProperties>
       switch (name) {
@@ -483,17 +460,7 @@ export class Visuals {
         default:
           throw new Error(`unknown visual: ${name}`)
       }
-      (this as any)[prefix + name] = new cls(model, prefix)
-    }
-  }
-
-  warm_cache(source?: ColumnarDataSource, all_indices?: Indices): void {
-    for (const name in this) {
-      if (this.hasOwnProperty(name)) {
-        const prop: any = this[name]
-        if (prop instanceof ContextProperties)
-          prop.warm_cache(source, all_indices)
-      }
+      (this as any)[prefix + name] = new cls(view, prefix)
     }
   }
 }

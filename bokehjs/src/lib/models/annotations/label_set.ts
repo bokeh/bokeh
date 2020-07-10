@@ -74,11 +74,6 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    this.visuals.warm_cache(source)
-  }
-
   protected _map_data(): [Arrayable<number>, Arrayable<number>] {
     const xscale = this.scope.x_scale
     const yscale = this.scope.y_scale

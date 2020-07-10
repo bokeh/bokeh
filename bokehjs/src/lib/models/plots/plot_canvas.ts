@@ -171,7 +171,7 @@ export class PlotView extends LayoutDOMView {
     this.state_changed = new Signal0(this, "state_changed")
 
     this.lod_started = false
-    this.visuals = new Visuals(this.model) as any // XXX
+    this.visuals = new Visuals(this) as Plot.Visuals
 
     this._initial_state_info = {
       selection: new Map(),               // XXX: initial selection?

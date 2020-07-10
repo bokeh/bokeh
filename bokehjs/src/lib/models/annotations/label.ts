@@ -8,11 +8,6 @@ export class LabelView extends TextAnnotationView {
   model: Label
   visuals: Label.Visuals
 
-  initialize(): void {
-    super.initialize()
-    this.visuals.warm_cache()
-  }
-
   protected _get_size(): Size {
     const {ctx} = this.layer
     this.visuals.text.set_value(ctx)

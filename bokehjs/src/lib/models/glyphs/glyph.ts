@@ -16,6 +16,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {is_equal} from "core/util/eq"
 
 import type {BaseGLGlyph} from "./webgl/base"
 
@@ -64,7 +65,7 @@ export abstract class GlyphView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
   }
 
   async lazy_initialize(): Promise<void> {
@@ -91,14 +92,7 @@ export abstract class GlyphView extends View {
     }
   }
 
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
-    this.visuals.warm_cache(source, indices)
-
-    if (this.glglyph != null)
-      this.glglyph.set_visuals_changed()
-  }
-
-  render(ctx: Context2d, indices: number[], data: any): void {
+  render(ctx: Context2d, indices: number[], data: this = this): void {
     ctx.beginPath()
 
     if (this.glglyph != null) {
@@ -235,7 +229,9 @@ export abstract class GlyphView extends View {
 
   protected _project_data(): void {}
 
-  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
+  private _needs_map_data: boolean
+
+  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null, base?: this): void {
     const {x_range, y_range} = this.renderer.scope
 
     this._data_size = source.get_length() ?? 1
@@ -249,6 +245,29 @@ export abstract class GlyphView extends View {
         continue
 
       const name = prop.attr
+
+      if (base != null) {
+        this._needs_map_data = false
+
+        const this_value = prop.get_value()
+        const base_value = base.model.property(prop.attr).get_value()
+
+        if (is_equal(this_value, base_value)) {
+          (this as any)[`_${name}`] = (base as any)[`_${name}`]
+
+          if (prop instanceof p.DistanceSpec) {
+            (this as any)[`max_${name}`] = (base as any)[`max_${name}`]
+          }
+
+          continue
+        } else {
+          if (prop instanceof p.BaseCoordinateSpec || prop instanceof p.DistanceSpec) {
+            this._needs_map_data = true
+          }
+        }
+      } else {
+        this._needs_map_data = true
+      }
 
       const base_array = prop.array(source)
       let array = indices.select(base_array as Arrayable<unknown>)
@@ -279,6 +298,7 @@ export abstract class GlyphView extends View {
       this._project_data()
     }
 
+    this.glglyph?.set_visuals_changed()
     this.glglyph?.set_data_changed()
 
     this._set_data(indices_to_update)  // TODO doesn't take subset indices into account
@@ -312,6 +332,9 @@ export abstract class GlyphView extends View {
   protected _mask_data?(): Indices
 
   map_data(): void {
+    if (!this._needs_map_data)
+      return
+
     const self = this as any
 
     const {x_scale, y_scale} = this.renderer.scope

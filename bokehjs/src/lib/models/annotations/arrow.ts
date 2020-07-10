@@ -38,7 +38,6 @@ export class ArrowView extends AnnotationView {
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.visuals.warm_cache(source)
     this.plot_view.request_render()
   }
 

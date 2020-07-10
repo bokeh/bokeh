@@ -22,7 +22,7 @@ export abstract class RendererView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
     this._initialize_scope()
   }
 
