@@ -1,7 +1,7 @@
 import {Filter} from "./filter"
 import * as p from "core/properties"
+import {Indices} from "core/types"
 import {logger} from "core/logging"
-import {range} from "core/util/array"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace GroupFilter {
@@ -24,24 +24,23 @@ export class GroupFilter extends Filter {
 
   static init_GroupFilter(): void {
     this.define<GroupFilter.Props>({
-      column_name: [ p.String  ],
-      group:       [ p.String  ],
+      column_name: [ p.String ],
+      group:       [ p.String ],
     })
   }
 
-  indices: number[] | null = null
-
-  compute_indices(source: ColumnarDataSource): number[] | null {
+  compute_indices(source: ColumnarDataSource): Indices {
     const column = source.get_column(this.column_name)
     if (column == null) {
-      logger.warn("group filter: groupby column not found in data source")
-      return null
+      logger.warn(`${this}: groupby column '${this.column_name}' not found in the data source`)
+      return new Indices(source.length, 1)
     } else {
-      this.indices = range(0, source.get_length() || 0).filter((i) => column[i] === this.group)
-      if (this.indices.length === 0) {
-        logger.warn(`group filter: group '${this.group}' did not match any values in column '${this.column_name}'`)
+      const indices = new Indices(source.length)
+      for (let i = 0; i < indices.size; i++) {
+        if (column[i] === this.group)
+          indices.set(i)
       }
-      return this.indices
+      return indices
     }
   }
 }

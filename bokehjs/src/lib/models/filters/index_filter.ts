@@ -1,9 +1,7 @@
 import {Filter} from "./filter"
 import * as p from "core/properties"
-import {logger} from "core/logging"
-import {isInteger} from "core/util/types"
-import {every} from "core/util/array"
-import {DataSource} from "../sources/data_source"
+import {Indices} from "core/types"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace IndexFilter {
   export type Attrs = p.AttrsOf<Props>
@@ -28,17 +26,13 @@ export class IndexFilter extends Filter {
     })
   }
 
-  compute_indices(_source: DataSource): number[] | null {
-    if (this.indices != null) {
-      if (every(this.indices, isInteger))
-        return this.indices
-      else {
-        logger.warn(`${this}: indices should be array of integers, defaulting to no filtering`)
-        return null
-      }
+  compute_indices(source: ColumnarDataSource): Indices {
+    const size = source.length
+    const {indices} = this
+    if (indices == null) {
+      return Indices.all_set(size)
     } else {
-      logger.warn(`${this}: indices was not set, defaulting to no filtering`)
-      return null
+      return Indices.from_indices(size, indices)
     }
   }
 }

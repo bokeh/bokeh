@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect, RaggedArray} from "core/types"
+import {Arrayable, Rect, RaggedArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -49,17 +49,14 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  protected _mask_data(): number[] {
+  protected _mask_data(): Indices {
     const xr = this.renderer.plot_view.frame.x_range
     const [x0, x1] = [xr.min, xr.max]
 
     const yr = this.renderer.plot_view.frame.y_range
     const [y0, y1] = [yr.min, yr.max]
 
-    const indices = this.index.indices({x0, x1, y0, y1})
-
-    // TODO (bev) this should be under test
-    return indices.sort((a, b) => a - b)
+    return this.index.indices({x0, x1, y0, y1})
   }
 
   protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
@@ -109,8 +106,7 @@ export class PatchesView extends GlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices = []
 
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
+    for (const index of candidates) {
       const sxss = this.sxs.get(index)
       const syss = this.sys.get(index)
       let hit = true
@@ -137,11 +133,9 @@ export class PatchesView extends GlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
-
     const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
 
+    for (const index of candidates) {
       const sxsi = this.sxs.get(index)
       const sysi = this.sys.get(index)
 

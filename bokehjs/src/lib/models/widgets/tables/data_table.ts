@@ -42,7 +42,7 @@ export class TableDataProvider implements DataProvider<Item> {
 
     this.source = source
     this.view = view
-    this.index = this.view.indices
+    this.index = [...this.view.indices]
   }
 
   getLength(): number {

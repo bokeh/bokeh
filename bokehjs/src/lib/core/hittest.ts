@@ -32,17 +32,13 @@ export function point_in_ellipse(x: number, y: number, angle: number, b: number,
   return inside
 }
 
-function sqr(x: number): number {
-  return x * x
-}
-
-export interface Point {
+export type Point = {
   x: number
   y: number
 }
 
 export function dist_2_pts(p0: Point, p1: Point): number {
-  return sqr(p0.x - p1.x) + sqr(p0.y - p1.y)
+  return (p0.x - p1.x)**2 + (p0.y - p1.y)**2
 }
 
 export function dist_to_segment_squared(p: Point, v: Point, w: Point): number {

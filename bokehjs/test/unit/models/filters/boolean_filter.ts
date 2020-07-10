@@ -13,24 +13,29 @@ describe("BooleanFilter", () => {
 
   describe("compute_indices", () => {
 
-    it("returns the correct indices when booleans is all boooleans", () => {
+    it("returns the correct indices", () => {
+      const boolean_filter = new BooleanFilter({booleans: [false, true, true, false, false]})
+      expect([...boolean_filter.compute_indices(cds)]).to.be.equal([1, 2])
+    })
+
+    it("returns the correct indices when too many entries were given", () => {
+      const boolean_filter = new BooleanFilter({booleans: [false, true, true, false, false, true]})
+      expect([...boolean_filter.compute_indices(cds)]).to.be.equal([1, 2])
+    })
+
+    it("returns the correct indices when too few entries were given", () => {
       const boolean_filter = new BooleanFilter({booleans: [false, true, true]})
-      expect(boolean_filter.compute_indices(cds)).to.be.equal([1, 2])
+      expect([...boolean_filter.compute_indices(cds)]).to.be.equal([1, 2])
     })
 
-    it("returns null when booleans has non-booleans", () => {
-      const boolean_filter = new BooleanFilter({booleans: [0.2, 1, 3] as any}) // XXX
-      expect(boolean_filter.compute_indices(cds)).to.be.null
-    })
-
-    it("returns null when booleans is an empty array", () => {
+    it("returns the correct indices when an empty array was given", () => {
       const boolean_filter = new BooleanFilter({booleans: []})
-      expect(boolean_filter.compute_indices(cds)).to.be.null
+      expect([...boolean_filter.compute_indices(cds)]).to.be.equal([])
     })
 
-    it("returns null when not initialized with booleans", () => {
+    it("returns full set of indices where booleans were not given", () => {
       const boolean_filter = new BooleanFilter()
-      expect(boolean_filter.compute_indices(cds)).to.be.null
+      expect([...boolean_filter.compute_indices(cds)]).to.be.equal([0, 1, 2, 3, 4])
     })
   })
 })

@@ -8,8 +8,8 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray, RaggedArray} from "core/types"
-import {map, max, subselect} from "core/util/arrayable"
+import {Arrayable, Rect, NumberArray, RaggedArray, Indices} from "core/types"
+import {map, max} from "core/util/arrayable"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -91,9 +91,8 @@ export abstract class GlyphView extends View {
     }
   }
 
-  set_visuals(source: ColumnarDataSource, indices: number[]): void {
-    this.visuals.set_all_indices(indices)
-    this.visuals.warm_cache(source)
+  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+    this.visuals.warm_cache(source, indices)
 
     if (this.glglyph != null)
       this.glglyph.set_visuals_changed()
@@ -230,13 +229,13 @@ export abstract class GlyphView extends View {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
   protected _project_data(): void {}
 
-  set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
+  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
     const {x_range, y_range} = this.renderer.scope
 
     this._data_size = source.get_length() ?? 1
@@ -250,7 +249,9 @@ export abstract class GlyphView extends View {
         continue
 
       const name = prop.attr
-      let array = subselect(prop.array(source), indices)
+
+      const base_array = prop.array(source)
+      let array = indices.select(base_array as Arrayable<unknown>)
 
       if (prop instanceof p.BaseCoordinateSpec) {
         const range = prop.dimension == "x" ? x_range : y_range
@@ -300,15 +301,15 @@ export abstract class GlyphView extends View {
     this._index = index
   }
 
-  mask_data(indices: number[]): number[] {
+  mask_data(): Indices {
     // WebGL can do the clipping much more efficiently
     if (this.glglyph != null || this._mask_data == null)
-      return indices
+      return Indices.all_set(this.data_size)
     else
       return this._mask_data()
   }
 
-  protected _mask_data?(): number[]
+  protected _mask_data?(): Indices
 
   map_data(): void {
     const self = this as any

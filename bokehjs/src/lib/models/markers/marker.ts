@@ -4,7 +4,7 @@ import type {MarkerGLGlyph} from "../glyphs/webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -51,7 +51,7 @@ export abstract class MarkerView extends XYGlyphView {
     }
   }
 
-  protected _mask_data(): number[] {
+  protected _mask_data(): Indices {
     // dilate the inner screen region by max_size and map back to data space for use in
     // spatial query
     const hr = this.renderer.plot_view.frame.bbox.h_range
@@ -111,7 +111,7 @@ export abstract class MarkerView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
@@ -119,7 +119,7 @@ export abstract class MarkerView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
