@@ -192,29 +192,32 @@ export abstract class GlyphView extends View {
 
   draw_legend_for_index(_ctx: Context2d, _bbox: Rect, _index: number): void {}
 
-  protected _hit_point?(geometry: geometry.PointGeometry): Selection
-  protected _hit_span?(geometry: geometry.SpanGeometry): Selection
-  protected _hit_rect?(geometry: geometry.RectGeometry): Selection
-  protected _hit_poly?(geometry: geometry.PolyGeometry): Selection
+  protected _hit_point(_geometry: geometry.PointGeometry): Selection | null {
+    return null
+  }
+
+  protected _hit_span(_geometry: geometry.SpanGeometry): Selection | null {
+    return null
+  }
+
+  protected _hit_rect(_geometry: geometry.RectGeometry): Selection | null {
+    return null
+  }
+
+  protected _hit_poly(_geometry: geometry.PolyGeometry): Selection | null {
+    return null
+  }
 
   hit_test(geometry: geometry.Geometry): HitTestResult {
     switch (geometry.type) {
       case "point":
-        if (this._hit_point != null)
-          return this._hit_point(geometry)
-        break
+        return this._hit_point(geometry)
       case "span":
-        if (this._hit_span != null)
-          return this._hit_span(geometry)
-        break
+        return this._hit_span(geometry)
       case "rect":
-        if (this._hit_rect != null)
-          return this._hit_rect(geometry)
-        break
+        return this._hit_rect(geometry)
       case "poly":
-        if (this._hit_poly != null)
-          return this._hit_poly(geometry)
-        break
+        return this._hit_poly(geometry)
     }
     return null
   }
