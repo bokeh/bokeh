@@ -14,7 +14,7 @@ WebGL is a JavaScript API that allows rendering content in the browser
 via the Graphics Processing Unit (GPU), without the need for plugins.
 WebGL is standardized and available in all modern browsers.
 
-How to enable WebGL
+How to Enable WebGL
 -------------------
 
 To enable WebGL, set the plot's ``output_backend`` property to ``"webgl"``:
@@ -46,7 +46,7 @@ Notes
   in WebGL.
 * When the scale is non-linear (e.g. log), the system falls back to 2D
   rendering.
-* Making a selections of markers on Internet Explorer will reduce the size
+* Making a selection of markers on Internet Explorer will reduce the size
   of the markers to 1 pixel (looks like a bug in IE).
 
 Examples

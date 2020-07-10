@@ -41,7 +41,7 @@ phase.js_on_change('value', callback)
 offset.js_on_change('value', callback)
 
 heading = Div(sizing_mode="stretch_width", height=80, text="In this wave example, the sliders on the left "
- "can be used to change the amplitude, frequency, phase and offset of the wave.")
+ "can be used to change the amplitude, frequency, phase, and offset of the wave.")
 
 layout = column(heading, row(widgets, plot), sizing_mode="stretch_both")
 

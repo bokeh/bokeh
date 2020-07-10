@@ -10,7 +10,7 @@ BokehJS
 -------
 
 Bokeh generates JavaScript, and so Bokeh output can be combined with a
-wide variety of JavaScript libraries, such as `React`_.  Listing
+wide variety of JavaScript libraries, such as `React`_. Listing
 such libraries is beyond the scope of this document; it's best just to
 try and see!
 
@@ -21,16 +21,16 @@ Datashader
 A major strength of Bokeh is that it copies your data from Python
 directly into the browser, which makes it possible for the user to
 interact with the represented data quickly and responsively, even
-without a live Python process running.  However, for plotting millions
+without a live Python process running. However, for plotting millions
 or billions of points, this strength can turn into a liability,
 because current web browsers are very limited in how much data they
-can feasibly work with.  Moreover, the visual representation of such
+can feasibly work with. Moreover, the visual representation of such
 large datasets is often misleading due to `overplotting`_ and related
 issues.
 
 `Datashader`_ is a separately available Python library that
 pre-renders even the largest datasets into a fixed-size raster image
-that faithfully represents the data's distribution.  Datashader
+that faithfully represents the data's distribution. Datashader
 includes tools and examples showing how to build interactive Bokeh
 plots that dynamically re-render these images when zooming and panning
 in Bokeh, making it practical to work with arbitrarily large datasets
@@ -55,7 +55,7 @@ HoloViews
 Bokeh is designed to provide an enormous amount of power and
 flexibility to the Python programmer, making it feasible to develop
 complex visualization-focused applications for deployment on web
-browsers.  However, for day-to-day work exploring and visualizing
+browsers. However, for day-to-day work exploring and visualizing
 data, it can be helpful to have a higher-level API on top of what
 Bokeh provides, to make it simpler to do common visualization tasks
 without specifying each step explicitly.
@@ -63,7 +63,7 @@ without specifying each step explicitly.
 `HoloViews`_ is a separately maintained package that provides a
 concise declarative interface for building Bokeh plots. HoloViews is
 particularly focused on interactive use in a Jupyter notebook,
-allowing quick prototyping of figures for data analysis.  For
+allowing quick prototyping of figures for data analysis. For
 instance, to build an interactive figure with three linked Bokeh plots
 requires only one line of code in HoloViews:
 
@@ -75,9 +75,9 @@ requires only one line of code in HoloViews:
  :align: center
 
 Adding overlaid plots, slider widgets, selector widgets, selection
-tools, and tabs is similarly straightforward.  HoloViews objects can
+tools, and tabs is similarly straightforward. HoloViews objects can
 also be rendered using a Matplotlib-based backend, which allows SVG or
-PDF output not currently available for native Bokeh plots.  See the
+PDF output not currently available for native Bokeh plots. See the
 Holoviews `Bokeh_Backend`_ tutorial for more details.
 
 

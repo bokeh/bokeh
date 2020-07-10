@@ -128,7 +128,7 @@ A multi-select widget to present multiple available options:
 RadioButtonGroup
 ~~~~~~~~~~~~~~~~
 
-A radio button group can have at most one selected button at at time:
+A radio button group can have at most one selected button at a time:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_radio_button_group.py
     :source-position: below
@@ -153,7 +153,7 @@ Slider
 ~~~~~~
 
 The Bokeh slider can be configured with ``start`` and ``end`` values, a ``step`` size,
-an initial ``value`` and a ``title``:
+an initial ``value``, and a ``title``:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_slider.py
     :source-position: below
@@ -162,7 +162,7 @@ RangeSlider
 ~~~~~~~~~~~
 
 The Bokeh range-slider can be configured with ``start`` and ``end`` values, a ``step`` size,
-an initial ``value`` and a ``title``:
+an initial ``value``, and a ``title``:
 
 .. bokeh-plot:: docs/user_guide/source_examples/interaction_range_slider.py
     :source-position: below
@@ -170,7 +170,7 @@ an initial ``value`` and a ``title``:
 Tabs
 ~~~~
 
-Tab panes allow multiple plots or layouts to be show in selectable tabs:
+Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_tab_panes.py
     :source-position: below

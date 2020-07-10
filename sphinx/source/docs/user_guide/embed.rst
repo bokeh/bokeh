@@ -30,7 +30,7 @@ linked to a Bokeh server) may be published or embedded in a variety of ways.
 
 .. _userguide_embed_standalone_html:
 
-HTML files
+HTML Files
 ~~~~~~~~~~
 
 Bokeh can generate complete HTML pages for Bokeh documents using the
@@ -512,7 +512,7 @@ Here is an example of how to use |server_session| and Flask:
     if __name__ == '__main__':
         app.run(port=8080)
 
-Standard template
+Standard Template
 -----------------
 
 Bokeh also provides a standard Jinja template that can be useful for quickly

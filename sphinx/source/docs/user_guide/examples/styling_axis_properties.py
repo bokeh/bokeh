@@ -5,12 +5,12 @@ output_file("axes.html")
 p = figure(plot_width=400, plot_height=400)
 p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
-# change just some things about the x-axes
+# change just some things about the x-axis
 p.xaxis.axis_label = "Temp"
 p.xaxis.axis_line_width = 3
 p.xaxis.axis_line_color = "red"
 
-# change just some things about the y-axes
+# change just some things about the y-axis
 p.yaxis.axis_label = "Pressure"
 p.yaxis.major_label_text_color = "orange"
 p.yaxis.major_label_orientation = "vertical"

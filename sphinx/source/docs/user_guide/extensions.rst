@@ -189,7 +189,7 @@ the special header update as the slider moves:
 .. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
     :source-position: none
 
-.. _userguide_extensions_specifying_implemenation_languages:
+.. _userguide_extensions_specifying_implementation_languages:
 
 Specifying Implementation Languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -295,7 +295,7 @@ of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
 
 .. _userguide_extensions_prebuilt:
 
-Pre-built extensions
+Pre-Built Extensions
 --------------------
 
 So far, we covered simple, typically inline extensions. Those are great for

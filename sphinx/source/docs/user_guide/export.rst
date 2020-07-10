@@ -3,7 +3,7 @@
 Exporting Plots
 ===============
 
-Additional dependencies
+Additional Dependencies
 -----------------------
 
 In order to use the |export| functions, users may have to install additional
@@ -40,7 +40,7 @@ Limitations
 Responsive sizing_modes may generate layouts with unexpected size and aspect
 ratios. It is recommended to use the default ``fixed`` sizing mode.
 
-Example usage
+Example Usage
 ~~~~~~~~~~~~~
 
 Usage is similar to the |save| and |show| functions.
@@ -92,7 +92,7 @@ SVG plot using a SaveTool from the toolbar. However, currently an SVG export
 of a plot with a toolbar will have a blank area where the toolbar was rendered
 in the browser.
 
-Example usage
+Example Usage
 ~~~~~~~~~~~~~
 
 The SVG backend is activated by setting the ``Plot.output_backend`` attribute

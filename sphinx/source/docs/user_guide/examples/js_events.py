@@ -1,5 +1,5 @@
 """ Demonstration of how to register event callbacks using an adaptation
-of the color_scatter example from the bokeh gallery
+of the color_scatter example from the Bokeh gallery
 """
 import numpy as np
 

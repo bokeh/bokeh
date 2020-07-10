@@ -37,7 +37,7 @@ Grids Layout for Plots
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The |gridplot| function can be used to arrange
-Bokeh Plots in grid layout. |gridplot| also collects all
+Bokeh Plots in a grid layout. |gridplot| also collects all
 tools into a single toolbar, and the currently active tool is the same
 for all plots in the grid. It is possible to leave "empty" spaces in
 the grid by passing ``None`` instead of a plot object.
@@ -45,7 +45,7 @@ the grid by passing ``None`` instead of a plot object.
 .. bokeh-plot:: docs/user_guide/examples/layout_grid.py
     :source-position: above
 
-For convenience you can also just pass a list of plots, and specify the
+For convenience, you can also just pass a list of plots and specify the
 number of columns you want in your grid. For example,
 
 .. code-block:: python
@@ -189,11 +189,11 @@ different sizing modes:
 Limitations
 -----------
 
-The Bokeh layout system is not a completely generic, general purpose layout
+The Bokeh layout system is not a completely generic, general-purpose layout
 engine. It intentionally sacrifices some capability in order to make common
 use cases and scenarios simple to express. Extremely nested layouts with
 many different sizing modes may yield undesirable results, either in terms of
-performance, or visual appearance. For such cases it is recommended to use the
+performance, or visual appearance. For such cases, it is recommended to use the
 methods in :ref:`userguide_embed` along with your own custom HTML templates in
 order to take advantage of more sophisticated CSS layout possibilities.
 

@@ -8,7 +8,7 @@ In this section, the various ways of providing data for plots are explained, fro
 passing data values directly to creating a |ColumnDataSource| and filtering using
 a |CDSView|.
 
-Providing data directly
+Providing Data Directly
 -----------------------
 
 In Bokeh, it is possible to pass lists of values directly into plotting functions.
@@ -379,7 +379,7 @@ A full example (shown below) can be seen at
 
 .. _userguide_data_linked_selection:
 
-Linked selection
+Linked Selection
 ----------------
 
 Using the same |ColumnDataSource| in the two plots below allows their selections to be
@@ -390,7 +390,7 @@ shared.
 
 .. _userguide_data_linked_selection_with_filtering:
 
-Linked selection with filtered data
+Linked Selection with Filtered Data
 -----------------------------------
 
 With the ability to specify a subset of data to be used for each glyph renderer, it is

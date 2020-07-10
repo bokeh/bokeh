@@ -374,7 +374,7 @@ Categorical Offsets
 -------------------
 
 We've seen above how categorical locations can be modified by operations like
-*dodge* and *jitter*.  It is also possible to supply an offset to a categorical
+*dodge* and *jitter*. It is also possible to supply an offset to a categorical
 location explicitly. This is done by adding a numeric value to the end of a
 category, e.g. ``["Jan", 0.2]`` is the category "Jan" offset by a value of 0.2.
 For hierarchical categories, the value is added at the end of the existing
