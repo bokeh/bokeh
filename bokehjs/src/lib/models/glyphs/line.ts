@@ -79,7 +79,7 @@ export class LineView extends XYGlyphView {
       if (dist < threshold && dist < shortest) {
         shortest = dist
         result.add_to_selected_glyphs(this.model)
-        result.get_view = () => this
+        result.view = this
         result.line_indices = [i]
       }
     }
@@ -104,7 +104,7 @@ export class LineView extends XYGlyphView {
     for (let i = 0, end = values.length-1; i < end; i++) {
       if ((values[i] <= val && val <= values[i + 1]) || (values[i + 1] <= val && val <= values[i])) {
         result.add_to_selected_glyphs(this.model)
-        result.get_view = () => this
+        result.view = this
         result.line_indices.push(i)
       }
     }

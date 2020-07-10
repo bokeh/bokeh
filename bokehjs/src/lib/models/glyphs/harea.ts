@@ -79,7 +79,7 @@ export class HAreaView extends AreaView {
 
     if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
       result.add_to_selected_glyphs(this.model)
-      result.get_view = () => this
+      result.view = this
     }
 
     return result
