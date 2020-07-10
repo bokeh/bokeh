@@ -9,6 +9,7 @@ import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import {Arrayable, Rect, NumberArray, RaggedArray} from "core/types"
+import {range} from "core/util/array"
 import {map, max, subselect} from "core/util/arrayable"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
@@ -300,20 +301,22 @@ export abstract class GlyphView extends View {
     this._index = index
   }
 
-  mask_data(indices: number[]): number[] {
+  mask_data(all_indices: number[]): number[] {
     const t0 = Date.now()
 
-    let result = null
+    let indices = all_indices
 
     // WebGL can do the clipping much more efficiently
-    if (this.glglyph != null || this._mask_data == null)
-      result = indices
-    else
-      result = this._mask_data()
+    if (this.glglyph == null && this._mask_data != null)
+      indices = this._mask_data()
+
+    if (indices.length === all_indices.length) {
+      indices = range(0, all_indices.length)
+    }
 
     logger.trace(` - mask_data finished in      : ${Date.now() - t0}ms`)
 
-    return result
+    return indices
   }
 
   protected _mask_data?(): number[]

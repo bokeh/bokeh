@@ -10,7 +10,7 @@ import {Color} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {indexOf, filter} from "core/util/arrayable"
-import {difference, includes, range} from "core/util/array"
+import {difference, includes} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -201,6 +201,37 @@ export class GlyphRendererView extends DataRendererView {
     return document.interactive_duration() > 0 && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold
   }
 
+  protected has_inspection(inspected_subset_indices: number[]): boolean {
+    return (this.hover_glyph != null && inspected_subset_indices.length > 0)
+  }
+
+  protected _compute_inspected_full_indices(indices: number[]): Set<number> {
+    const {inspected} = this.model.data_source
+
+    if (!inspected || inspected.is_empty())
+        return new Set()
+
+    if (inspected.selected_glyph)
+      return new Set(this.model.view.convert_indices_from_subset(indices))
+
+    if (inspected.indices.length > 0)
+      return new Set(inspected.indices)
+
+    return new Set(Object.keys(inspected.multiline_indices).map((i) => parseInt(i)))
+  }
+
+  protected _compute_selected_full_indices(indices: number[]): number[] {
+    const {selected} = this.model.data_source
+
+    if (!selected || selected.is_empty())
+      return []
+
+    if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
+      return this.model.view.convert_indices_from_subset(indices)
+
+    return selected.indices
+  }
+
   protected _render(): void {
     logger.debug(`${this.glyph.model.type} ${this.model}: _render starting`)
 
@@ -208,136 +239,112 @@ export class GlyphRendererView extends DataRendererView {
 
     this.glyph.map_data()
 
-    // all_indices is in full data space, indices is converted to subset space
-    // either by mask_data (that uses the spatial index) or manually
-    let indices = this.glyph.mask_data(this.all_indices)
-    if (indices.length === this.all_indices.length) {
-      indices = range(0, this.all_indices.length)
-    }
+    // indices is in subset data space
+    const masked_indices = this.glyph.mask_data(this.all_indices)
 
     const {ctx} = this.layer
+
     ctx.save()
 
     // selected is in full set space
-    const {selected} = this.model.data_source
-    let selected_full_indices: number[]
-    if (!selected || selected.is_empty())
-      selected_full_indices = []
-    else {
-      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
-        selected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      else
-        selected_full_indices = selected.indices
-    }
+    const selected_full_indices = this._compute_selected_full_indices(masked_indices)
 
     // inspected is in full set space
-    const {inspected} = this.model.data_source
-    const inspected_full_indices = new Set((() => {
-      if (!inspected || inspected.is_empty())
-        return []
-      else {
-        if (inspected.selected_glyph)
-          return this.model.view.convert_indices_from_subset(indices)
-        else if (inspected.indices.length > 0)
-          return inspected.indices
-        else {
-          // TODO: return inspected.multiline_indices.keys()
-          return Object.keys(inspected.multiline_indices).map((i) => parseInt(i))
-        }
-      }
-    })())
+    const inspected_full_indices = this._compute_inspected_full_indices(masked_indices)
 
     // inspected is transformed to subset space
-    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(this.all_indices[i]))
+    const inspected_subset_indices = filter(masked_indices, (i) => inspected_full_indices.has(this.all_indices[i]))
 
-    let glyph: GlyphView
-    let nonselection_glyph: GlyphView
-    let selection_glyph: GlyphView
-    if (this.should_decimate()) {
-      indices = this.decimated
-      glyph = this.decimated_glyph
-      nonselection_glyph = this.decimated_glyph
-      selection_glyph = this.selection_glyph
-    } else {
-      glyph = this.model.muted && this.muted_glyph != null ? this.muted_glyph : this.glyph
-      nonselection_glyph = this.nonselection_glyph
-      selection_glyph = this.selection_glyph
-    }
+    const decimated_indices = this.should_decimate() ? this.decimated : masked_indices
 
-    if (this.hover_glyph != null && inspected_subset_indices.length)
-      indices = difference(indices, inspected_subset_indices)
+    const uninspected_indices = this.has_inspection(inspected_subset_indices) ? difference(decimated_indices, inspected_subset_indices) : decimated_indices
 
-    // Render with no selection
-    if (!(selected_full_indices.length && this.have_selection_glyphs())) {
-      const trender = Date.now()
-      if (this.glyph instanceof LineView) {
-        if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
-        else
-          glyph.render(ctx, this.all_indices, this.glyph)
-      } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
-        if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.render(ctx, this.all_indices, this.glyph)
-        } else {
-          for (const sglyph of inspected.selected_glyphs) {
-            if (sglyph == this.glyph.model)
-              this.hover_glyph.render(ctx, this.all_indices, this.glyph)
-          }
-        }
-      } else {
-        glyph.render(ctx, indices, this.glyph)
-        if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
-      }
-      logger.trace(` - glyph renders finished in  : ${Date.now() - trender}ms`)
-
-    // Render with selection
-    } else {
-      const tselect = Date.now()
-
-      // reset the selection mask
-      const selected_mask: {[key: number]: boolean} = {}
-      for (const i of selected_full_indices) {
-        selected_mask[i] = true
-      }
-
-      // intersect/different selection with render mask
-      const selected_subset_indices: number[] = new Array()
-      const nonselected_subset_indices: number[] = new Array()
-
-      // now, selected is changed to subset space, except for Line glyph
-      if (this.glyph instanceof LineView) {
-        for (const i of this.all_indices) {
-          if (selected_mask[i] != null)
-            selected_subset_indices.push(i)
-          else
-            nonselected_subset_indices.push(i)
-        }
-      } else {
-        for (const i of indices) {
-          if (selected_mask[this.all_indices[i]] != null)
-            selected_subset_indices.push(i)
-          else
-            nonselected_subset_indices.push(i)
-        }
-      }
-      logger.trace(` - selection mask finished in : ${Date.now() - tselect}ms`)
-
-      const trender = Date.now()
-      nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
-      selection_glyph.render(ctx, selected_subset_indices, this.glyph)
-      if (this.hover_glyph != null) {
-        if (this.glyph instanceof LineView)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
-        else
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
-      }
-      logger.trace(` - glyph renders finished in  : ${Date.now() - trender}ms`)
-    }
+    if (selected_full_indices.length && this.have_selection_glyphs())
+      this._render_with_selection(uninspected_indices, inspected_subset_indices, selected_full_indices)
+    else
+      this._render_without_selection(uninspected_indices, inspected_subset_indices)
 
     ctx.restore()
 
     logger.debug(`${this.glyph.model.type} ${this.model}: _render finished in ${Date.now() - t0}ms`)
+  }
+
+  protected _render_without_selection(indices: number[], inspected_subset_indices: number[]): void {
+    const trender = Date.now()
+
+    const {ctx} = this.layer
+    const {inspected} = this.model.data_source
+
+    let glyph = this.model.muted && this.muted_glyph != null ? this.muted_glyph : this.glyph
+    if (this.should_decimate())
+      glyph = this.decimated_glyph
+
+    if (this.glyph instanceof LineView) {
+      if (this.hover_glyph && inspected_subset_indices.length)
+        this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+      else
+        glyph.render(ctx, this.all_indices, this.glyph)
+    } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
+      if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
+        glyph.render(ctx, this.all_indices, this.glyph)
+      } else {
+        for (const sglyph of inspected.selected_glyphs) {
+          if (sglyph == this.glyph.model)
+            this.hover_glyph.render(ctx, this.all_indices, this.glyph)
+        }
+      }
+    } else {
+      glyph.render(ctx, indices, this.glyph)
+      if (this.hover_glyph && inspected_subset_indices.length)
+        this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+    }
+    logger.trace(` - glyph renders finished in  : ${Date.now() - trender}ms`)
+  }
+
+  protected _render_with_selection(indices: number[], inspected_subset_indices: number[], selected_full_indices: number[]): void {
+    const tselect = Date.now()
+
+    const {ctx} = this.layer
+
+    // reset the selection mask
+    const selected_mask: {[key: number]: boolean} = {}
+    for (const i of selected_full_indices) {
+      selected_mask[i] = true
+    }
+
+    // intersect/different selection with render mask
+    const selected_subset_indices: number[] = new Array()
+    const nonselected_subset_indices: number[] = new Array()
+
+    // now, selected is changed to subset space, except for Line glyph
+    if (this.glyph instanceof LineView) {
+      for (const i of this.all_indices) {
+        if (selected_mask[i] != null)
+          selected_subset_indices.push(i)
+        else
+          nonselected_subset_indices.push(i)
+      }
+    } else {
+      for (const i of indices) {
+        if (selected_mask[this.all_indices[i]] != null)
+          selected_subset_indices.push(i)
+        else
+          nonselected_subset_indices.push(i)
+      }
+    }
+    logger.trace(` - selection mask finished in : ${Date.now() - tselect}ms`)
+
+    const trender = Date.now()
+    const nonselection_glyph = this.should_decimate() ? this.decimated_glyph : this.nonselection_glyph
+    nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
+    this.selection_glyph.render(ctx, selected_subset_indices, this.glyph)
+    if (this.hover_glyph != null) {
+      if (this.glyph instanceof LineView)
+        this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+      else
+        this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+    }
+    logger.trace(` - glyph renders finished in  : ${Date.now() - trender}ms`)
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
