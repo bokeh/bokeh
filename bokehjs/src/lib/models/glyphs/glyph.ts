@@ -45,8 +45,6 @@ export abstract class GlyphView extends View {
 
   private _data_size: number | null = null
 
-  protected _nohit_warned: Set<geometry.Geometry["type"]> = new Set()
-
   get index(): SpatialIndex {
     const {_index} = this
     if (_index != null)
@@ -218,12 +216,6 @@ export abstract class GlyphView extends View {
           return this._hit_poly(geometry)
         break
     }
-
-    if (!this._nohit_warned.has(geometry.type)) {
-      logger.debug(`'${geometry.type}' selection not available for ${this.model.type}`)
-      this._nohit_warned.add(geometry.type)
-    }
-
     return null
   }
 
