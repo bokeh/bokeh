@@ -207,7 +207,7 @@ export class GlyphRendererView extends DataRendererView {
     const {inspected} = this.model.data_source
 
     if (!inspected || inspected.is_empty())
-        return new Set()
+      return new Set()
 
     if (inspected.selected_glyph)
       return new Set(this.model.view.convert_indices_from_subset(indices))
