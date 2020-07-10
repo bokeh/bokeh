@@ -149,35 +149,33 @@ export class GlyphRendererView extends DataRendererView {
     return this.selection_glyph != null && this.nonselection_glyph != null
   }
 
+  protected set_glyph_view_visuals(glyph_view: GlyphView | null | undefined): void {
+    if (glyph_view == null)
+      return
+    const source = this.model.data_source
+    glyph_view.set_visuals(source, this.all_indices)
+  }
+
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   set_data(request_render: boolean = true, indices: number[] | null = null): void {
     const t0 = Date.now()
 
-    const source = this.model.data_source
-
     this.all_indices = this.model.view.indices
 
+    const source = this.model.data_source
     this.glyph.set_data(source, this.all_indices, indices)
 
-    this.glyph.set_visuals(source, this.all_indices)
-    this.decimated_glyph.set_visuals(source, this.all_indices)
-    if (this.have_selection_glyphs()) {
-      this.selection_glyph.set_visuals(source, this.all_indices)
-      this.nonselection_glyph.set_visuals(source, this.all_indices)
-    }
-
-    if (this.hover_glyph != null)
-      this.hover_glyph.set_visuals(source, this.all_indices)
-
-    if (this.muted_glyph != null)
-      this.muted_glyph.set_visuals(source, this.all_indices)
+    this.set_glyph_view_visuals(this.glyph)
+    this.set_glyph_view_visuals(this.decimated_glyph)
+    this.set_glyph_view_visuals(this.selection_glyph)
+    this.set_glyph_view_visuals(this.nonselection_glyph)
+    this.set_glyph_view_visuals(this.hover_glyph)
+    this.set_glyph_view_visuals(this.muted_glyph)
 
     const {lod_factor} = this.plot_model
-    this.decimated = []
-    for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
-      this.decimated.push(i*lod_factor)
-    }
+    const N = Math.floor(this.all_indices.length/lod_factor)
+    this.decimated = Array(N).fill(0).map((_, i) =>  {return i*lod_factor})
 
     this.set_data_timestamp = Date.now()
 
