@@ -103,7 +103,7 @@ export class CDSView extends Model {
       line_indices: selection_subset.line_indices,
       multiline_indices: selection_subset.multiline_indices,
       selected_glyphs: selection_subset.selected_glyphs,
-      get_view: selection_subset.get_view,
+      view: selection_subset.view,
     })
     return selection_full
   }
@@ -114,7 +114,7 @@ export class CDSView extends Model {
       line_indices: selection_full.line_indices,
       multiline_indices: selection_full.multiline_indices,
       selected_glyphs: selection_full.selected_glyphs,
-      get_view: selection_full.get_view,
+      view: selection_full.view,
     })
     return selection_subset
   }
