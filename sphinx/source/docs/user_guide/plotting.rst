@@ -104,7 +104,7 @@ accomplished with the |multi_line| glyph method:
     :source-position: above
 
 .. note::
-    This glyph is unlike most other glyphs. Instead of accepting a 
+    This glyph is unlike most other glyphs. Instead of accepting a
     one-dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each line, parameters xs and ys. multi_line
     also expects a scalar value or a list of scalers per each line for
@@ -266,10 +266,10 @@ This can be accomplished with the |patches| glyph method:
     :source-position: above
 
 .. note::
-    This glyph is unlike most other glyphs. Instead of accepting a 
+    This glyph is unlike most other glyphs. Instead of accepting a
     one-dimensional list or array of scalar values, it accepts a "list
     of lists" for x and y positions of each patch, parameters xs and ys.
-    patches also expects a scalar value or a list of scalers per each 
+    patches also expects a scalar value or a list of scalers per each
     patch for parameters such as color, alpha, linewidth, etc. Similarly,
     a ColumnDataSource may be used consisting of a "list of lists" and a
     list of scalars where the length of the list of scalars and length of

@@ -1434,7 +1434,7 @@ Django or whatever tool is in use).
 XSRF Cookies
 ''''''''''''
 
-Bokeh can enable the use of Tornado's cross-site request forgery protection. 
+Bokeh can enable the use of Tornado's cross-site request forgery protection.
 To turn this feature on, use the ``--enable-xsrf-cookies`` option,
 or set the environment variable ``BOKEH_XSRF_COOKIES=yes``. If this setting is
 enabled, any PUT, POST, or DELETE operations on custom or login handlers must be
