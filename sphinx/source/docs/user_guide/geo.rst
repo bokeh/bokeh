@@ -68,7 +68,7 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
 
 .. warning::
     Behind the scenes, Bokeh converts the GeoJSON coordinates into columns called
-    `x` and `y` or `xs` and `ys` (depending on whether the features are Points, 
+    `x` and `y` or `xs` and `ys` (depending on whether the features are Points,
     Lines, MultiLines, Polygons, or MultiPolygons). *Properties with clashing names
     will be overridden when the GeoJSON is converted and should be avoided*.
 
