@@ -113,7 +113,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   render(): void {
     super.render()
-    empty(this.el) // XXX: this should be in super
+    empty(this.shadow_el, this.stylesheet_el) // XXX: this should be in super
 
     const {background} = this.model
     this.el.style.backgroundColor = background != null ? background : ""
@@ -121,7 +121,7 @@ export abstract class LayoutDOMView extends DOMView {
     classes(this.el).clear().add(...this.css_classes())
 
     for (const child_view of this.child_views) {
-      this.el.appendChild(child_view.el)
+      this.shadow_el.appendChild(child_view.el)
       child_view.render()
     }
   }

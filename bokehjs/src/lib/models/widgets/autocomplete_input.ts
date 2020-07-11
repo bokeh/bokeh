@@ -33,7 +33,7 @@ export class AutocompleteInputView extends TextInputView {
     this.menu = div({class: [bk_menu, bk_below]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
     this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
-    this.el.appendChild(this.menu)
+    this.shadow_el.appendChild(this.menu)
     undisplay(this.menu)
   }
 

@@ -1,6 +1,5 @@
 @import "./_mixins.less";
 
-.bk-root {
   @tooltipBorder: #e5e5e5;  /* Same border color used everywhere */
   @tooltipColor: white;
   @tooltipText: #2f2f2f;
@@ -11,7 +10,7 @@
   @tooltipArrowHalfWidth: 7px;
   @tooltipArrowHalfHeight: 7px;
 
-  .bk-tooltip {
+  :host {
     font-weight: 300;
     font-size: 12px;
     position: absolute;
@@ -22,12 +21,6 @@
     pointer-events: none;
     opacity: 0.95;
     .bring-to-front();
-  }
-
-  .bk-tooltip > div:not(:first-child) {
-    /* gives space when multiple elements are being hovered over */
-    margin-top: 5px;
-    border-top: @tooltipBorder 1px dashed;
   }
 
   .bk-tooltip-arrow-horizontal() {
@@ -56,44 +49,50 @@
     display: block;
   }
 
-  .bk-tooltip.bk-left.bk-tooltip-arrow::before {
+  :host(.bk-left.bk-tooltip-arrow)::before {
     .bk-tooltip-arrow-horizontal();
     left: -@tooltipArrowWidth;
     border-right-width: @tooltipArrowWidth;
     border-right-color: @tooltipArrowColor;
   }
 
-  .bk-tooltip.bk-left::before {
+  :host(.bk-tooltip.bk-left)::before {
     left: -@tooltipArrowWidth;
     border-right-width: @tooltipArrowWidth;
     border-right-color: @tooltipArrowColor;
   }
 
-  .bk-tooltip.bk-right.bk-tooltip-arrow::after {
+  :host(.bk-tooltip.bk-right.bk-tooltip-arrow)::after {
     .bk-tooltip-arrow-horizontal();
     right: -@tooltipArrowWidth;
     border-left-width: @tooltipArrowWidth;
     border-left-color: @tooltipArrowColor;
   }
 
-  .bk-tooltip.bk-right::after {
+  :host(.bk-tooltip.bk-right)::after {
     right: -@tooltipArrowWidth;
     border-left-width: @tooltipArrowWidth;
     border-left-color: @tooltipArrowColor;
   }
 
-  .bk-tooltip.bk-above::before {
+  :host(.bk-tooltip.bk-above)::before {
     .bk-tooltip-arrow-vertical();
     top: -@tooltipArrowHeight;
     border-bottom-width: @tooltipArrowHeight;
     border-bottom-color: @tooltipArrowColor;
   }
 
-  .bk-tooltip.bk-below::after {
+  :host(.bk-tooltip.bk-below)::after {
     .bk-tooltip-arrow-vertical();
     bottom: -@tooltipArrowHeight;
     border-top-width: @tooltipArrowHeight;
     border-top-color: @tooltipArrowColor;
+  }
+
+  .bk-entry:not(:first-child) {
+    /* gives space when multiple elements are being hovered over */
+    margin-top: 5px;
+    border-top: @tooltipBorder 1px dashed;
   }
 
   .bk-tooltip-row-label {
@@ -113,4 +112,3 @@
     outline: #dddddd solid 1px;
     display: inline-block;
   }
-}

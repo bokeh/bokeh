@@ -14,7 +14,7 @@ export class RadioGroupView extends InputGroupView {
     super.render()
 
     const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
-    this.el.appendChild(group)
+    this.shadow_el.appendChild(group)
 
     const name = uniqueId()
     const {active, labels} = this.model

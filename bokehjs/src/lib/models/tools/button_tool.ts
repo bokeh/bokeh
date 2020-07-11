@@ -13,7 +13,6 @@ import {bk_toolbar_button} from "styles/toolbar"
 
 import toolbar_css from "styles/toolbar.css"
 import icons_css from "styles/icons.css"
-import menus_css from "styles/menus.css"
 
 import {ContextMenu, MenuItem} from "core/util/menus"
 
@@ -64,7 +63,7 @@ export abstract class ButtonToolButtonView extends DOMView {
   }
 
   styles(): string[] {
-    return [...super.styles(), toolbar_css, icons_css, menus_css]
+    return [...super.styles(), toolbar_css, icons_css]
   }
 
   css_classes(): string[] {
@@ -72,7 +71,7 @@ export abstract class ButtonToolButtonView extends DOMView {
   }
 
   render(): void {
-    empty(this.el)
+    empty(this.shadow_el, this.stylesheet_el)
     const icon = this.model.computed_icon
     if (isString(icon)) {
       if (startsWith(icon, "data:image"))
@@ -83,7 +82,7 @@ export abstract class ButtonToolButtonView extends DOMView {
     this.el.title = this.model.tooltip
 
     if (this._menu != null) {
-      this.root.el.appendChild(this._menu.el)
+      this.root.shadow_el.appendChild(this._menu.el)
     }
   }
 

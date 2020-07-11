@@ -2,10 +2,12 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
-import {div, empty, position, display, undisplay, remove} from "core/dom"
+import {div, style, position, display, undisplay, remove} from "core/dom"
 import {Size} from "core/layout"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
+
+import root_css from "styles/root.css"
 
 export class ToolbarPanelView extends AnnotationView {
   model: ToolbarPanel
@@ -13,11 +15,16 @@ export class ToolbarPanelView extends AnnotationView {
   readonly rotate: boolean = true
 
   protected _toolbar_view: ToolbarBaseView
+
   protected el: HTMLElement
+  protected shadow_el: ShadowRoot
 
   initialize(): void {
     super.initialize()
     this.el = div()
+    this.shadow_el = this.el.attachShadow({mode: "open"})
+    const stylesheet = style({}, ...this.styles())
+    this.shadow_el.appendChild(stylesheet)
     this.plot_view.canvas_view.add_event(this.el)
   }
 
@@ -31,6 +38,10 @@ export class ToolbarPanelView extends AnnotationView {
     this._toolbar_view.remove()
     remove(this.el)
     super.remove()
+  }
+
+  styles(): string[] {
+    return [root_css]
   }
 
   render(): void {
@@ -55,8 +66,7 @@ export class ToolbarPanelView extends AnnotationView {
       this.el.style.position = "absolute"
       this.el.style.overflow = "hidden"
       this._toolbar_view.render()
-      empty(this.el)
-      this.el.appendChild(this._toolbar_view.el)
+      this.shadow_el.appendChild(this._toolbar_view.el)
       this._invalidate_toolbar = false
     }
 

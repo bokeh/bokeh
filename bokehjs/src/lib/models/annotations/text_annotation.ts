@@ -1,11 +1,13 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Text, Line, Fill} from "core/visuals"
-import {div, display, undisplay, remove} from "core/dom"
+import {div, style, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
+
+import root_css from "styles/root.css"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
@@ -14,12 +16,16 @@ export abstract class TextAnnotationView extends AnnotationView {
   readonly rotate: boolean = true
 
   protected el?: HTMLElement
+  protected shadow_el?: ShadowRoot
 
   initialize(): void {
     super.initialize()
 
     if (this.model.render_mode == 'css') {
       this.el = div()
+      this.shadow_el = this.el.attachShadow({mode: "open"})
+      const stylesheet = style({}, ...this.styles())
+      this.shadow_el.appendChild(stylesheet)
       this.plot_view.canvas_view.add_overlay(this.el)
     }
   }
@@ -38,6 +44,10 @@ export abstract class TextAnnotationView extends AnnotationView {
     } else {
       this.connect(this.model.change, () => this.plot_view.request_render())
     }
+  }
+
+  styles(): string[] {
+    return [root_css]
   }
 
   render(): void {

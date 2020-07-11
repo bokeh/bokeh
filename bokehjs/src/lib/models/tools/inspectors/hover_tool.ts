@@ -415,7 +415,7 @@ export class HoverToolView extends InspectToolView {
   }
 
   _create_template(tooltips: [string, string][]): HTMLElement {
-    const rows = div({style: {display: "table", borderSpacing: "2px"}})
+    const rows = div({class: "bk-entry", style: {display: "table", borderSpacing: "2px"}})
 
     for (const [label] of tooltips) {
       const row = div({style: {display: "table-row"}})

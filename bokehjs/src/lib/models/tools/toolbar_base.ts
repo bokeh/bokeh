@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {empty, div, a} from "core/dom"
+import {empty, div, a, classes} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {DOMView} from "core/dom_view"
@@ -22,14 +22,15 @@ import {bk_logo, bk_logo_small, bk_grey} from "styles/logo"
 import {bk_side} from "styles/mixins"
 
 import toolbar_css from "styles/toolbar.css"
+import icons_css from "styles/icons.css"
 import logo_css from "styles/logo.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    _visible: p.Property<boolean | null>
     autohide: p.Property<boolean>
+    _visible: p.Property<boolean | null>
   }
 }
 
@@ -43,14 +44,17 @@ export class ToolbarViewModel extends Model {
   }
 
   static init_ToolbarViewModel(): void {
-    this.define<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
-      _visible: [ Nullable(Boolean), null ],
+    this.define<ToolbarViewModel.Props>(({Boolean}) => ({
       autohide: [ Boolean, false ],
+    }))
+
+    this.internal<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
+      _visible: [ Nullable(Boolean), null ],
     }))
   }
 
   get visible(): boolean {
-    return (!this.autohide) ? true : (this._visible == null) ? false : this._visible
+    return !this.autohide || (this._visible ?? false)
   }
 }
 
@@ -85,7 +89,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   styles(): string[] {
-    return [...super.styles(), toolbar_css, logo_css]
+    return [...super.styles(), toolbar_css, icons_css, logo_css]
   }
 
   remove(): void {
@@ -105,17 +109,12 @@ export class ToolbarBaseView extends DOMView {
   }
 
   protected _on_visible_change(): void {
-    const visible = this._toolbar_view_model.visible
-    const hidden_class = bk_toolbar_hidden
-    if (this.el.classList.contains(hidden_class) && visible) {
-      this.el.classList.remove(hidden_class)
-    } else if (!visible) {
-      this.el.classList.add(hidden_class)
-    }
+    const {visible} = this._toolbar_view_model
+    classes(this.el).toggle(bk_toolbar_hidden, !visible)
   }
 
   render(): void {
-    empty(this.el)
+    empty(this.shadow_el, this.stylesheet_el)
     this.el.classList.add(bk_toolbar)
     this.el.classList.add(bk_side(this.model.toolbar_location))
     this._toolbar_view_model.autohide = this.model.autohide
@@ -124,7 +123,7 @@ export class ToolbarBaseView extends DOMView {
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? bk_grey : null
       const logo = a({href: "https://bokeh.org/", target: "_blank", class: [bk_logo, bk_logo_small, gray]})
-      this.el.appendChild(logo)
+      this.shadow_el.appendChild(logo)
     }
 
     for (const [, button_view] of this._tool_button_views) {
@@ -148,7 +147,7 @@ export class ToolbarBaseView extends DOMView {
     for (const bar of bars) {
       if (bar.length !== 0) {
         const el = div({class: bk_button_bar}, bar)
-        this.el.appendChild(el)
+        this.shadow_el.appendChild(el)
       }
     }
   }

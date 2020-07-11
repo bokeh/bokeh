@@ -1,6 +1,5 @@
 @import "./_mixins.less";
 
-.bk-root {
   @toolbarSize: 30px;
 
   @buttonHeight: 30px;
@@ -10,21 +9,21 @@
   .bk-toolbar-hidden {
     visibility: hidden;
     opacity: 0;
-    transition: visibility 0.3s linear,opacity 0.3s linear;
+    transition: visibility 0.3s linear, opacity 0.3s linear;
   }
 
-  .bk-toolbar, .bk-button-bar {
+  :host, .bk-button-bar {
     .flex();
     .flex-wrap(nowrap);
     .align-items(center);
     .no-user-select();
   }
 
-  .bk-toolbar .bk-logo {
+  .bk-logo {
     .flex-shrink(0);
   }
 
-  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
+  :host(.bk-above), :host(.bk-below) {
     .flex-direction(row);
     .justify-content(flex-end);
 
@@ -40,7 +39,7 @@
     }
   }
 
-  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
+  :host(.bk-left), :host(.bk-right) {
     .flex-direction(column);
     .justify-content(flex-start);
 
@@ -91,19 +90,19 @@
     }
   }
 
-  .bk-toolbar.bk-above .bk-toolbar-button {
+  :host(.bk-above) .bk-toolbar-button {
     .toolbar-button-border(bottom);
   }
 
-  .bk-toolbar.bk-below .bk-toolbar-button {
+  :host(.bk-below) .bk-toolbar-button {
     .toolbar-button-border(top);
   }
 
-  .bk-toolbar.bk-right .bk-toolbar-button {
+  :host(.bk-right) .bk-toolbar-button {
     .toolbar-button-border(left);
   }
 
-  .bk-toolbar.bk-left .bk-toolbar-button {
+  :host(.bk-left) .bk-toolbar-button {
     .toolbar-button-border(right);
   }
 
@@ -113,17 +112,16 @@
     background-color: @buttonColor;
   }
 
-  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
+  :host(.bk-above), :host(.bk-below) {
     .bk-button-bar + .bk-button-bar:before {
       height: 10px;
       width: 1px;
     }
   }
 
-  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
+  :host(.bk-left), :host(.bk-right) {
     .bk-button-bar + .bk-button-bar:before {
       height: 1px;
       width: 10px;
     }
   }
-}

@@ -155,7 +155,7 @@ export class PlotView extends LayoutDOMView {
   render(): void {
     super.render()
 
-    this.el.appendChild(this.canvas_view.el)
+    this.shadow_el.appendChild(this.canvas_view.el)
     this.canvas_view.render()
   }
 

@@ -64,7 +64,7 @@ export abstract class AbstractButtonView extends ControlView {
     }
 
     this.group_el = div({class: bk_btn_group}, this.button_el)
-    this.el.appendChild(this.group_el)
+    this.shadow_el.appendChild(this.group_el)
   }
 
   click(): void {}

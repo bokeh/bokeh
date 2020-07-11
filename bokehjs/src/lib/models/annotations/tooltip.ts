@@ -1,11 +1,12 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment} from "core/enums"
-import {div, display, undisplay, empty, remove, classes} from "core/dom"
+import {div, style, display, undisplay, empty, remove, classes} from "core/dom"
 import * as p from "core/properties"
 
 import {bk_tooltip, bk_tooltip_custom, bk_tooltip_arrow} from "styles/tooltips"
 import {bk_left, bk_right, bk_above, bk_below} from "styles/mixins"
 
+import root_css from "styles/root.css"
 import tooltips_css from "styles/tooltips.css"
 
 const arrow_size = 10  // XXX: keep in sync with less
@@ -14,10 +15,15 @@ export class TooltipView extends AnnotationView {
   model: Tooltip
 
   protected el: HTMLElement
+  protected shadow_el: ShadowRoot
+  protected stylesheet_el: HTMLStyleElement
 
   initialize(): void {
     super.initialize()
     this.el = div({class: bk_tooltip})
+    this.shadow_el = this.el.attachShadow({mode: "open"})
+    this.stylesheet_el = style({}, ...this.styles())
+    this.shadow_el.appendChild(this.stylesheet_el)
     undisplay(this.el)
     this.plot_view.canvas_view.add_overlay(this.el)
   }
@@ -34,7 +40,7 @@ export class TooltipView extends AnnotationView {
   }
 
   styles(): string[] {
-    return [...super.styles(), tooltips_css]
+    return [root_css, tooltips_css]
   }
 
   render(): void {
@@ -51,12 +57,11 @@ export class TooltipView extends AnnotationView {
       return
     }
 
-    empty(this.el)
     classes(this.el).toggle(bk_tooltip_custom, this.model.custom)
-    this.el.appendChild(content)
+    classes(this.el).toggle(bk_tooltip_arrow, this.model.show_arrow)
 
-    if (this.model.show_arrow)
-      this.el.classList.add(bk_tooltip_arrow)
+    empty(this.shadow_el, this.stylesheet_el)
+    this.shadow_el.appendChild(content)
   }
 
   protected _reposition(): void {

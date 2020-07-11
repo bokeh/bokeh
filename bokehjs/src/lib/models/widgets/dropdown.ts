@@ -49,7 +49,7 @@ export class DropdownView extends AbstractButtonView {
     })
 
     this.menu = div({class: [bk_menu, bk_below]}, items)
-    this.el.appendChild(this.menu)
+    this.shadow_el.appendChild(this.menu)
     undisplay(this.menu)
   }
 

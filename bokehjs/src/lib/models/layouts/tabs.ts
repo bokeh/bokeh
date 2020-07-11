@@ -202,7 +202,7 @@ export class TabsView extends LayoutDOMView {
     this.scroll_el = div({class: bk_btn_group}, left_el, right_el)
 
     this.header_el = div({class: [bk_tabs_header, bk_side(loc)]}, this.scroll_el, this.wrapper_el)
-    this.el.appendChild(this.header_el)
+    this.shadow_el.appendChild(this.header_el)
   }
 
   change_active(i: number): void {

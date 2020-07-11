@@ -43,7 +43,7 @@ export abstract class ButtonGroupView extends ControlView {
     this._update_active()
 
     const group = div({class: bk_btn_group}, this._buttons)
-    this.el.appendChild(group)
+    this.shadow_el.appendChild(group)
   }
 
   abstract change_active(i: number): void

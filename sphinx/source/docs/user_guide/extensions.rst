@@ -101,7 +101,7 @@ extensions in the next section.
         // the contents of the <div>, based on the current slider value.
         super.render()
 
-        this.el.appendChild(div({
+        this.shadow_el.appendChild(div({
           style: {
             padding: '2px',
             color: '#b88d8e',
