@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-import socket
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import open
@@ -66,7 +65,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(html.read().encode('utf-8'))
             html.close()
-        except IOError:
+        except OSError:
             self.send_error(404, 'File Not Found: %s' % path)
 
     def log_message(self, format, *args):
@@ -85,7 +84,7 @@ class SimpleWebServer:
                 self.host = host
                 self.port = port
                 break
-            except socket.error:
+            except OSError:
                 log.debug("port %d is in use, trying to next one" % port)
                 port += 1
 
@@ -108,7 +107,7 @@ class SimpleWebServer:
         try:
             # This is to force stop the server loop
             URLopener().open("http://%s:%d" % (self.host, self.port))
-        except IOError:
+        except OSError:
             pass
         log.info("Shutting down the webserver")
         self.thread.join()

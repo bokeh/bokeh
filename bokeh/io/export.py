@@ -405,12 +405,12 @@ class _TempFile:
 
         try:
             os.close(self.fd)
-        except (OSError, IOError):
+        except OSError:
             pass
 
         try:
             os.unlink(self.path)
-        except (OSError, IOError):
+        except OSError:
             pass
 
         self._closed = True
