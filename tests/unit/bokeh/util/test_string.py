@@ -28,7 +28,7 @@ import bokeh.util.string as bus # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_format_doctring(object):
+class Test_format_docstring:
     def test_no_argument(self) -> None:
         doc__ = "hello world"
         assert bus.format_docstring(doc__) == doc__
