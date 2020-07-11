@@ -206,7 +206,7 @@ class Test_Seq:
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
 
-        assert not prop.is_valid(set([]))
+        assert not prop.is_valid(set())
         assert not prop.is_valid({})
 
         assert not prop.is_valid({1, 2})

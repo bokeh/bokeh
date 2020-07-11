@@ -89,7 +89,7 @@ def test_PropertyValueContainer() -> None:
     assert pvc._owners == set()
 
     pvc._register_owner("owner", "prop")
-    assert pvc._owners == set((("owner", "prop"), ))
+    assert pvc._owners == {("owner", "prop")}
 
     pvc._unregister_owner("owner", "prop")
     assert pvc._owners == set()

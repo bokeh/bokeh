@@ -80,7 +80,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_data_accepts_dataframe_arg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -94,7 +94,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_init_dataframe_data_kwarg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -106,7 +106,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_init_dataframe_index_named_column(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
@@ -118,7 +118,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['level_0'], np.ndarray)
         assert [0, 1] == list(ds.data['level_0'])
-        assert set(ds.column_names) - set(df.columns) == set(["level_0"])
+        assert set(ds.column_names) - set(df.columns) == {"level_0"}
 
     def test_data_accepts_dataframe_index_named_column(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
@@ -132,7 +132,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['level_0'], np.ndarray)
         assert [0, 1] == list(ds.data['level_0'])
-        assert set(ds.column_names) - set(df.columns) == set(["level_0"])
+        assert set(ds.column_names) - set(df.columns) == {"level_0"}
 
     def test_init_dataframe_column_categoricalindex(self, pd) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
@@ -145,7 +145,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_data_accepts_dataframe_column_categoricalindex(self, pd) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
@@ -160,7 +160,7 @@ class TestColumnDataSource:
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_init_dataframe_nonstring_named_column(self, pd) -> None:
         data = {1: [1, 2], 2: [2, 3]}

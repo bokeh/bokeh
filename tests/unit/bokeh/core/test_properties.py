@@ -129,7 +129,7 @@ class Basictest:
         assert f.s is None
 
 
-        assert set(["x", "y", "z", "zz", "s"]) == f.properties()
+        assert {"x", "y", "z", "zz", "s"} == f.properties()
         with_defaults = f.properties_with_values(include_defaults=True)
         assert dict(x=12, y="hello", z=[1,2,3], zz={}, s=None) == with_defaults
         without_defaults = f.properties_with_values(include_defaults=False)
@@ -230,27 +230,45 @@ class Basictest:
             sub_child = Instance(HasProps)
 
         b = Base()
-        assert set(["child"]) == b.properties_with_refs()
-        assert set(["container"]) == b.properties_containers()
-        assert set(["num", "container", "child"]) == b.properties()
-        assert set(["num", "container", "child"]) == b.properties(with_bases=True)
-        assert set(["num", "container", "child"]) == b.properties(with_bases=False)
+        assert {"child"} == b.properties_with_refs()
+        assert {"container"} == b.properties_containers()
+        assert {"num", "container", "child"} == b.properties()
+        assert {"num", "container", "child"} == b.properties(with_bases=True)
+        assert {"num", "container", "child"} == b.properties(with_bases=False)
 
         m = Mixin()
-        assert set(["mixin_child"]) == m.properties_with_refs()
-        assert set(["mixin_container"]) == m.properties_containers()
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties()
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=True)
-        assert set(["mixin_num", "mixin_container", "mixin_child"]) == m.properties(with_bases=False)
+        assert {"mixin_child"} == m.properties_with_refs()
+        assert {"mixin_container"} == m.properties_containers()
+        assert {"mixin_num", "mixin_container", "mixin_child"} == m.properties()
+        assert {"mixin_num", "mixin_container", "mixin_child"} == m.properties(with_bases=True)
+        assert {"mixin_num", "mixin_container", "mixin_child"} == m.properties(with_bases=False)
 
         s = Sub()
-        assert set(["child", "sub_child", "mixin_child"]) == s.properties_with_refs()
-        assert set(["container", "sub_container", "mixin_container"]) == s.properties_containers()
-        assert set(["num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"]) == s.properties()
-        assert set(
-            ["num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"]
-        ) == s.properties(with_bases=True)
-        assert set(["sub_num", "sub_container", "sub_child"]) == s.properties(with_bases=False)
+        assert {"child", "sub_child", "mixin_child"} == s.properties_with_refs()
+        assert {"container", "sub_container", "mixin_container"} == s.properties_containers()
+        assert {
+            "num",
+            "container",
+            "child",
+            "mixin_num",
+            "mixin_container",
+            "mixin_child",
+            "sub_num",
+            "sub_container",
+            "sub_child",
+        } == s.properties()
+        assert {
+            "num",
+            "container",
+            "child",
+            "mixin_num",
+            "mixin_container",
+            "mixin_child",
+            "sub_num",
+            "sub_container",
+            "sub_child",
+        } == s.properties(with_bases=True)
+        assert {"sub_num", "sub_container", "sub_child"} == s.properties(with_bases=False)
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
@@ -276,9 +294,9 @@ class Basictest:
         mixin = Mixin()
         sub = Sub()
 
-        assert set(["num"]) == base.dataspecs()
-        assert set(["mixin_num"]) == mixin.dataspecs()
-        assert set(["num", "mixin_num", "sub_num"]) == sub.dataspecs()
+        assert {"num"} == base.dataspecs()
+        assert {"mixin_num"} == mixin.dataspecs()
+        assert {"num", "mixin_num", "sub_num"} == sub.dataspecs()
 
         assert dict(num=base.lookup("num")) ==  base.dataspecs_with_props()
         assert dict(mixin_num=mixin.lookup("mixin_num")) == mixin.dataspecs_with_props()

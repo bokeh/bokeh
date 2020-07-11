@@ -314,14 +314,14 @@ class TestDocument:
         d.add_root(root4)
 
         # select()
-        assert set([root1]) == set(d.select(dict(foo=42)))
-        assert set([root1]) == set(d.select(dict(name='a')))
-        assert set([root2, child3])  == set(d.select(dict(name='c')))
-        assert set()  == set(d.select(dict(name='nope')))
+        assert {root1} == set(d.select(dict(foo=42)))
+        assert {root1} == set(d.select(dict(name="a")))
+        assert {root2, child3} == set(d.select(dict(name="c")))
+        assert set() == set(d.select(dict(name="nope")))
 
         # select() on object
-        assert set() == set(root3.select(dict(name='a')))
-        assert set([child3]) == set(root3.select(dict(name='c')))
+        assert set() == set(root3.select(dict(name="a")))
+        assert {child3} == set(root3.select(dict(name="c")))
 
         # select_one()
         assert root3 == d.select_one(dict(name='d'))
@@ -339,22 +339,22 @@ class TestDocument:
         assert child3 == root3.select_one(dict(name='c'))
 
         # set_select()
-        d.set_select(dict(foo=44), dict(name='c'))
-        assert set([root2, child3, root3])  == set(d.select(dict(name='c')))
+        d.set_select(dict(foo=44), dict(name="c"))
+        assert {root2, child3, root3} == set(d.select(dict(name="c")))
 
         # set_select() on object
         root3.set_select(dict(name='c'), dict(foo=57))
-        assert set([child3, root3]) == set(d.select(dict(foo=57)))
-        assert set([child3, root3]) == set(root3.select(dict(foo=57)))
+        assert {child3, root3} == set(d.select(dict(foo=57)))
+        assert {child3, root3} == set(root3.select(dict(foo=57)))
 
         # set_select() on class
         d.set_select(SomeModelInTestDocument, dict(name='new_name'))
         assert len(d.select(dict(name='new_name'))) == 5
 
         # set_select() on different class
-        assert len(d.select(dict(name='A'))) == 1
-        d.set_select(AnotherModelInTestDocument, dict(name='B'))
-        assert set([root4]) == set(d.select(dict(name='B')))
+        assert len(d.select(dict(name="A"))) == 1
+        d.set_select(AnotherModelInTestDocument, dict(name="B"))
+        assert {root4} == set(d.select(dict(name="B")))
 
     def test_is_single_string_selector(self) -> None:
         d = document.Document()

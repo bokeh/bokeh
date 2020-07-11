@@ -126,4 +126,4 @@ def collect_errors():
     return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]
 
 def bad_files():
-    return " ".join(sorted(set([ file for (_, file, _) in collect_errors() ])))
+    return " ".join(sorted({file for (_, file, _) in collect_errors()}))

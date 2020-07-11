@@ -143,7 +143,7 @@ class Application:
         self._handlers.append(handler)
 
         # make sure there is at most one static path
-        static_paths = set(h.static_path() for h in self.handlers)
+        static_paths = {h.static_path() for h in self.handlers}
         static_paths.discard(None)
         if len(static_paths) > 1:
             raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))

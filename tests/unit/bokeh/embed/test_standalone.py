@@ -83,8 +83,8 @@ class Test_autoload_static:
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         attrs = scripts[0].attrs
-        assert set(attrs) == set(['src', 'id'])
-        assert attrs['src'] == 'some/path'
+        assert set(attrs) == {"src", "id"}
+        assert attrs["src"] == "some/path"
 
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
@@ -238,10 +238,10 @@ class Test_components:
         assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
-        assert div.attrs['class'] == ['bk-root']
-        assert div.attrs['id'] == 'ID'
-        assert div.attrs['data-root-id'] == test_plot.id
+        assert set(div.attrs) == {"class", "id", "data-root-id"}
+        assert div.attrs["class"] == ["bk-root"]
+        assert div.attrs["id"] == "ID"
+        assert div.attrs["data-root-id"] == test_plot.id
         assert div.string is None
 
     def test_script_is_utf8_encoded(self, test_plot) -> None:

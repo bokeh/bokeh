@@ -45,7 +45,7 @@ class TestBokehServerContext:
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         ac._sessions = dict(foo=1, bar=2)
         c = bsc.BokehServerContext(ac)
-        assert set(c.sessions) == set([1,2])
+        assert set(c.sessions) == {1, 2}
 
 
 class TestBokehSessionContext:
@@ -95,7 +95,7 @@ class TestApplicationContext:
     def test_sessions(self) -> None:
         c = bsc.ApplicationContext("app", io_loop="ioloop")
         c._sessions = dict(foo=1, bar=2)
-        assert set(c.sessions) == set([1,2])
+        assert set(c.sessions) == {1, 2}
 
     def test_get_session_success(self) -> None:
         c = bsc.ApplicationContext("app", io_loop="ioloop")

@@ -47,7 +47,7 @@ from .string import format_docstring
 
 pd = import_optional('pandas')
 
-BINARY_ARRAY_TYPES = set([
+BINARY_ARRAY_TYPES = {
     np.dtype(np.float32),
     np.dtype(np.float64),
     np.dtype(np.uint8),
@@ -56,13 +56,13 @@ BINARY_ARRAY_TYPES = set([
     np.dtype(np.int16),
     np.dtype(np.uint32),
     np.dtype(np.int32),
-])
+}
 
-DATETIME_TYPES = set([
+DATETIME_TYPES = {
     dt.time,
     dt.datetime,
     np.datetime64,
-])
+}
 
 if pd:
     try:

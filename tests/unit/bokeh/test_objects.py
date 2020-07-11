@@ -38,7 +38,7 @@ def large_plot(n):
     from bokeh.models import Column, Line
 
     col = Column()
-    objects = set([col])
+    objects = {col}
 
     for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -123,7 +123,7 @@ class TestCollectModels:
 
     def test_references_deep(self) -> None:
         root = DeepModel()
-        objects = set([root])
+        objects = {root}
         parent = root
         # in a previous implementation, about 400 would blow max
         # recursion depth, so we double that and a little bit,
@@ -153,9 +153,22 @@ class TestModel:
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks", "some"]) == testObject.properties()
-        assert dict(name=None, tags=[], js_property_callbacks={}, js_event_callbacks={}, subscribed_events=[], some=None) == \
-            testObject.properties_with_values(include_defaults=True)
+        assert {
+            "name",
+            "tags",
+            "js_property_callbacks",
+            "js_event_callbacks",
+            "subscribed_events",
+            "some",
+        } == testObject.properties()
+        assert dict(
+            name=None,
+            tags=[],
+            js_property_callbacks={},
+            js_event_callbacks={},
+            subscribed_events=[],
+            some=None,
+        ) == testObject.properties_with_values(include_defaults=True)
         assert dict() == testObject.properties_with_values(include_defaults=False)
 
     def test_struct(self) -> None:
@@ -217,7 +230,7 @@ class TestModel:
         u1, u2, u3, u4, u5 = U(a=1), U(a=2), U(a=3), U(a=4), U(a=5)
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
-        assert v.references() == set([v, u1, u2, u3, u4, u5])
+        assert v.references() == {v, u1, u2, u3, u4, u5}
 
     def test_to_json(self) -> None:
         child_obj = SomeModelToJson(foo=57, bar="hello")

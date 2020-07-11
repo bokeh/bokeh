@@ -40,7 +40,7 @@ def test_data() -> None:
     assert isinstance(bsl.data, dict)
 
     # check detail for package data
-    assert set(bsl.data.keys()) == set(['links', 'nodes'])
+    assert set(bsl.data.keys()) == {"links", "nodes"}
 
 
 #-----------------------------------------------------------------------------

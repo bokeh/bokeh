@@ -40,7 +40,7 @@ def test_data() -> None:
     assert isinstance(bso.data, dict)
 
     # check detail for package data
-    assert set(bso.data.keys()) == set(['count', 'data', 'object'])
+    assert set(bso.data.keys()) == {"count", "data", "object"}
 
 #-----------------------------------------------------------------------------
 # Dev API

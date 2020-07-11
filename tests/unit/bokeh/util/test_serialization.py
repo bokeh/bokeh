@@ -330,7 +330,7 @@ def test_array_encoding_disabled_by_dtype() -> None:
     assert len(bus.BINARY_ARRAY_TYPES) > 0
 
     dt_ok = bus.BINARY_ARRAY_TYPES
-    dt_bad = set(np.dtype(x) for x in set(np.typeDict.values()) - set([np.void])) - dt_ok
+    dt_bad = {np.dtype(x) for x in set(np.typeDict.values()) - {np.void}} - dt_ok
 
     for dt in dt_ok:
         a = np.empty(shape=10, dtype=dt)

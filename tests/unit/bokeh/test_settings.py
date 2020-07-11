@@ -96,7 +96,7 @@ class TestSettings:
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
-        default_typed = set(_expected_settings) - set([
+        default_typed = set(_expected_settings) - {
             'ignore_filename',
             'legacy',
             'minified',
@@ -106,7 +106,7 @@ class TestSettings:
             'py_log_level',
             'allowed_ws_origin',
             'xsrf_cookies',
-        ])
+        }
         for name in default_typed:
             ps = getattr(bs.settings, name)
             assert ps.convert_type == "String"

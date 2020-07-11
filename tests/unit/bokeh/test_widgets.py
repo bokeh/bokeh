@@ -45,7 +45,7 @@ class TestPanel:
         self.panelCls = Panel
 
     def test_expectedprops(self) -> None:
-        expected_properties = set(['title', 'child'])
+        expected_properties = {"title", "child"}
         actual_properties = get_prop_set(self.panelCls)
         assert expected_properties.issubset(actual_properties)
 
@@ -64,7 +64,7 @@ class TestTabs:
         self.panelCls = Panel
 
     def test_expected_props(self) -> None:
-        expected_properties = set(['tabs', 'active'])
+        expected_properties = {"tabs", "active"}
         actual_properties = get_prop_set(self.tabsCls)
         assert expected_properties.issubset(actual_properties)
 

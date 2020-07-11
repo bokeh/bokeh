@@ -62,7 +62,7 @@ class MultiValuedDict:
         elif isinstance(existing, set):
             existing.add(value)
         else:
-            self._dict[key] = set([existing, value])
+            self._dict[key] = {existing, value}
 
     def get_all(self, k):
         '''

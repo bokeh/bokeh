@@ -558,7 +558,7 @@ def _bundle_models(custom_models):
         return resolved
 
     def resolve_deps(deps, root):
-        custom_modules = set(model.module for model in custom_models.values())
+        custom_modules = {model.module for model in custom_models.values()}
         missing = set(deps) - known_modules - custom_modules
         return resolve_modules(missing, root)
 

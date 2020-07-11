@@ -119,8 +119,8 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     def finish(): pass
 
-    docs = set(x.document for x in objs)
-    if None in docs: docs.remove(None)
+    docs = {x.document for x in objs}
+    docs.discard(None)
 
     if always_new:
         def finish(): # NOQA
