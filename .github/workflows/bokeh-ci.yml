@@ -85,7 +85,7 @@ jobs:
 
       - name: Run codebase checks
         shell: bash -l {0}
-        run: py.test --color=yes tests/codebase
+        run: pytest --color=yes tests/codebase
 
       - name: MyPy
         shell: bash -l {0}
@@ -153,7 +153,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         shell: bash -l {0}
         run: |
-          py.test -s -v --color=yes --tb line tests/test_examples.py
+          pytest -s -v --color=yes --tb line tests/test_examples.py
 
       - name: Collect results
         if: always()
@@ -257,7 +257,7 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        run: py.test -v --tb=short --driver chrome --color=yes tests/integration
+        run: pytest -v --tb=short --driver chrome --color=yes tests/integration
 
   unit-test:
     needs: build
@@ -320,7 +320,7 @@ jobs:
         shell: bash -l {0}
         run: |
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          py.test --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+          pytest --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
   minimal-deps:
     needs: build
@@ -368,7 +368,7 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        run: py.test -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+        run: pytest -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
   documentation:
     needs: build
