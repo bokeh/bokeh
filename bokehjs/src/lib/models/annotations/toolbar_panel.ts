@@ -4,10 +4,13 @@ import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
 import {div, empty, position, display, undisplay, remove} from "core/dom"
 import {Size} from "core/layout"
+import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
+import {SidePanel} from "core/layout/side_panel"
 
 export class ToolbarPanelView extends AnnotationView {
   model: ToolbarPanel
+  panel: SidePanel
 
   readonly rotate: boolean = true
 
@@ -38,14 +41,26 @@ export class ToolbarPanelView extends AnnotationView {
     super.render()
   }
 
-  protected _render(): void {
-    this.el.style.position = "absolute"
-    this.el.style.overflow = "hidden"
+  private _invalidate_toolbar = true
+  private _previous_bbox: BBox = new BBox()
 
-    position(this.el, this.panel!.bbox)
-    this._toolbar_view.render()
-    empty(this.el)
-    this.el.appendChild(this._toolbar_view.el)
+  protected _render(): void {
+    // TODO: this should be handled by the layout
+    const {bbox} = this.panel
+    if (!this._previous_bbox.equals(bbox)) {
+      position(this.el, bbox)
+      this._previous_bbox = bbox
+    }
+
+    if (this._invalidate_toolbar) {
+      this.el.style.position = "absolute"
+      this.el.style.overflow = "hidden"
+      this._toolbar_view.render()
+      empty(this.el)
+      this.el.appendChild(this._toolbar_view.el)
+      this._invalidate_toolbar = false
+    }
+
     display(this.el)
   }
 
